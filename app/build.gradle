@@ -40,4 +40,13 @@ dependencies {
     testImplementation 'junit:junit:4.+'
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
+
+    // 工具类库
+    // if u use AndroidX, use the following
+    implementation 'com.blankj:utilcodex:1.30.5'
+    // 日志工具类
+    implementation 'com.jakewharton.timber:timber:4.7.1'
+    // 权限请求帮助库
+    // For developers using AndroidX in their applications
+    implementation 'pub.devrel:easypermissions:3.0.0'
 }
