@@ -1,12 +1,14 @@
 package com.revolo.lock.base;
 
 import android.app.Activity;
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.blankj.utilcode.util.AdaptScreenUtils;
 import com.blankj.utilcode.util.ClickUtils;
 
 /**
@@ -47,4 +49,8 @@ public abstract class BaseActivity extends AppCompatActivity
         ClickUtils.applyPressedViewScale(views);
     }
 
+    @Override
+    public Resources getResources() {
+        return AdaptScreenUtils.adaptWidth(super.getResources(), 375);
+    }
 }
