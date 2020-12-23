@@ -20,6 +20,7 @@
         </activity>
         <activity android:name=".MainActivity" />
         <activity android:name=".ui.sign.ReceiveInvitationActivity" />
+        <activity android:name=".ui.sign.ReceiveInvitationCreateActivity" />
     </application>
 
 </manifest>
