@@ -21,6 +21,9 @@
         <activity android:name=".MainActivity" />
         <activity android:name=".ui.sign.ReceiveInvitationActivity" />
         <activity android:name=".ui.sign.ReceiveInvitationCreateActivity" />
+        <activity android:name=".ui.sign.InvitationInputNameActivity" />
+        <activity android:name=".ui.sign.InvitationAddAvatarActivity" />
+        <activity android:name=".ui.sign.RegisterActivity" />
     </application>
 
 </manifest>

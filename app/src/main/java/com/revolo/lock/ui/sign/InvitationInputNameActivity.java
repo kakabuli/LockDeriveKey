@@ -14,9 +14,9 @@ import com.revolo.lock.base.BaseActivity;
  * author : Jack
  * time   : 2020/12/23
  * E-mail : wengmaowei@kaadas.com
- * desc   : receive invitation create account
+ * desc   : receive invitation input name
  */
-public class ReceiveInvitationCreateActivity extends BaseActivity {
+public class InvitationInputNameActivity extends BaseActivity {
     @Override
     public void initData(@Nullable Bundle bundle) {
 
@@ -24,13 +24,13 @@ public class ReceiveInvitationCreateActivity extends BaseActivity {
 
     @Override
     public int bindLayout() {
-        return R.layout.activity_receive_invitation_create;
+        return R.layout.activity_invitation_input_name;
     }
 
     @Override
     public void initView(@Nullable Bundle savedInstanceState, @Nullable View contentView) {
         useCommonTitleBar(getString(R.string.title_receive_invitation));
-        applyDebouncingClickListener(findViewById(R.id.btnStartCreating));
+        applyDebouncingClickListener(findViewById(R.id.btnNext));
     }
 
     @Override
@@ -40,8 +40,8 @@ public class ReceiveInvitationCreateActivity extends BaseActivity {
 
     @Override
     public void onDebouncingClick(@NonNull View view) {
-        if(view.getId() == R.id.btnStartCreating) {
-            startActivity(new Intent(this, InvitationInputNameActivity.class));
+        if(view.getId() == R.id.btnNext) {
+            startActivity(new Intent(this, InvitationAddAvatarActivity.class));
         }
     }
 }

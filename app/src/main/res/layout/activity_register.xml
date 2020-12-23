@@ -7,18 +7,19 @@
 
     <include
         android:id="@+id/titleBar"
-        layout="@layout/layout_title_bar" />
+        layout="@layout/layout_title_bar"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
-        android:id="@+id/textView4"
+        android:id="@+id/tvTip"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="45pt"
-        android:text="@string/tip_receive_invitation_create"
+        android:text="Please register your account number first"
         android:textColor="@color/c333333"
         android:textSize="17pt"
-        android:textStyle="bold"
-        android:gravity="center"
+        android:layout_marginTop="45pt"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/titleBar" />
@@ -29,13 +30,12 @@
         android:layout_height="44pt"
         style="@style/InputEditTextStyle"
         android:theme="@style/InputEditTextTheme"
-        android:layout_marginTop="60pt"
+        android:layout_marginTop="45pt"
         android:hint="@string/hint_email_address"
         android:textColorHint="@color/cA5A4DA"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView4"
-        android:inputType="textEmailAddress" />
+        app:layout_constraintTop_toBottomOf="@+id/tvTip" />
 
     <EditText
         android:id="@+id/etPwd"
@@ -47,8 +47,7 @@
         android:hint="@string/hint_create_password"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/etEmail"
-        android:inputType="textPassword" />
+        app:layout_constraintTop_toBottomOf="@+id/etEmail" />
 
     <android.widget.Button
         android:id="@+id/btnStartCreating"

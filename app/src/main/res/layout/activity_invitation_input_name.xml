@@ -6,56 +6,59 @@
     android:layout_height="match_parent">
 
     <include
-        android:id="@+id/titleBar"
-        layout="@layout/layout_title_bar" />
-
-    <TextView
-        android:id="@+id/textView4"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="45pt"
-        android:text="@string/tip_receive_invitation_create"
-        android:textColor="@color/c333333"
-        android:textSize="17pt"
-        android:textStyle="bold"
-        android:gravity="center"
+        android:id="@+id/include"
+        layout="@layout/layout_title_bar"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/titleBar" />
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/tvTip"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="@string/tip_input_name"
+        android:textColor="@color/c333333"
+        android:textSize="17pt"
+        android:layout_marginTop="45pt"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="@+id/include"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/include" />
 
     <EditText
-        android:id="@+id/etEmail"
+        android:id="@+id/etFirstName"
         android:layout_width="300pt"
         android:layout_height="44pt"
         style="@style/InputEditTextStyle"
         android:theme="@style/InputEditTextTheme"
         android:layout_marginTop="60pt"
-        android:hint="@string/hint_email_address"
+        android:hint="@string/hint_first_name"
         android:textColorHint="@color/cA5A4DA"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView4"
-        android:inputType="textEmailAddress" />
+        app:layout_constraintTop_toBottomOf="@+id/tvTip"
+        android:inputType="textPersonName" />
 
     <EditText
-        android:id="@+id/etPwd"
+        android:id="@+id/etLastName"
         android:layout_width="300pt"
         android:layout_height="44pt"
         style="@style/InputEditTextStyle"
         android:theme="@style/InputEditTextTheme"
         android:layout_marginTop="10pt"
-        android:hint="@string/hint_create_password"
+        android:hint="@string/hint_last_name"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/etEmail"
-        android:inputType="textPassword" />
+        app:layout_constraintTop_toBottomOf="@+id/etFirstName"
+        android:inputType="textPersonName"/>
 
     <android.widget.Button
-        android:id="@+id/btnStartCreating"
+        android:id="@+id/btnNext"
         style="@style/ButtonStyle"
         android:layout_width="223pt"
         android:layout_height="36pt"
-        android:text="@string/start_creating"
+        android:text="@string/next"
         android:layout_marginBottom="136pt"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

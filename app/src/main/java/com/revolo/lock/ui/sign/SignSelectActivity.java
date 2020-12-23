@@ -43,6 +43,7 @@ public class SignSelectActivity extends BaseActivity {
                 startActivity(new Intent(this, ReceiveInvitationActivity.class));
                 break;
             case R.id.btnRegister:
+                startActivity(new Intent(this, RegisterActivity.class));
                 break;
             case R.id.btnSignIn:
                 break;

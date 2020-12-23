@@ -30,7 +30,6 @@
     <style name="InputEditTextStyle">
         <item name="android:textColor">@color/c2C68FF</item>
         <item name="android:textColorHint">@color/cA5A4DA</item>
-        <item name="android:gravity">center</item>
     </style>
 
 </resources>

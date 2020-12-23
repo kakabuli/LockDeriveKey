@@ -23,9 +23,21 @@
     <string name="terms_of_use">Terms of Use</string>
 
     <!--  ReceiveInvitationCreateActivity -->
-    <string name="tip_receive_invitation_create">Enter your email or mobile phone\n number to accept the invitation</string>
-    <string name="email_address">Email Address</string>
-    <string name="create_password">Create Password</string>
+    <string name="tip_receive_invitation_create">Please enter your email address for\n accepting the invitation</string>
+    <string name="hint_email_address">Email Address</string>
+    <string name="hint_create_password">Create Password</string>
     <string name="start_creating">Start creating</string>
+
+    <!-- InvitationInputNameActivity -->
+    <string name="next">Next</string>
+    <string name="tip_input_name">Please enter the name of\n the inviting person</string>
+    <string name="hint_first_name">First name</string>
+    <string name="hint_last_name">Last name</string>
+
+    <!-- Invitation Add Avatar -->
+    <string name="tip_invitation_add_avatar">Add a avatar so your family and friends\n can get to know you when you send an\n invitation</string>
+    <string name="album_add">Album Add</string>
+    <string name="photograph">Photograph</string>
+    <string name="skip">Skip</string>
 
 </resources>
