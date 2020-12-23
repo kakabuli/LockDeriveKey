@@ -14,6 +14,7 @@ import androidx.core.content.ContextCompat;
 
 import com.blankj.utilcode.util.AdaptScreenUtils;
 import com.blankj.utilcode.util.ClickUtils;
+import com.revolo.lock.ui.TitleBar;
 
 /**
  * <pre>
@@ -46,6 +47,10 @@ public abstract class BaseActivity extends AppCompatActivity
         if (bindLayout() <= 0) return;
         mContentView = LayoutInflater.from(this).inflate(bindLayout(), null);
         setContentView(mContentView);
+    }
+
+    public TitleBar useCommonTitleBar(String title) {
+        return new TitleBar(mContentView).setTitle(title).useCommonLeft(v -> finish());
     }
 
     public void applyDebouncingClickListener(View... views) {

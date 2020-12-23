@@ -11,4 +11,13 @@
     <string name="or">or</string>
     <string name="sign_in">Sign in</string>
 
+    <string name="iv_tip_back">Back</string>
+    <string name="iv_tip_agree_terms_of_use">I agree to Terms of Use</string>
+
+    <string name="title_receive_invitation">Receive invitation</string>
+    <string name="tip_receive_invitation">You are welcome to accept the\n invitation to use revolo products</string>
+    <string name="content_receive_invitation">Start by creating your account, which\n allows you to use and add all of the\n revolo products</string>
+    <string name="i_agree_to">I agree to</string>
+    <string name="terms_of_use">Terms of Use</string>
+
 </resources>
