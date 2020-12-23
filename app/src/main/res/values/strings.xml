@@ -40,4 +40,7 @@
     <string name="photograph">Photograph</string>
     <string name="skip">Skip</string>
 
+    <!-- RegisterInputNameActivity -->
+    <string name="tip_register_input_name">Please enter the name</string>
+
 </resources>

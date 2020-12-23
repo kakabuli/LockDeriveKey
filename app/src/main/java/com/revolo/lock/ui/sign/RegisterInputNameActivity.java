@@ -1,5 +1,6 @@
 package com.revolo.lock.ui.sign;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 
@@ -13,9 +14,9 @@ import com.revolo.lock.base.BaseActivity;
  * author : Jack
  * time   : 2020/12/23
  * E-mail : wengmaowei@kaadas.com
- * desc   : Add Avatar
+ * desc   :
  */
-public class InvitationAddAvatarActivity extends BaseActivity {
+public class RegisterInputNameActivity extends BaseActivity {
     @Override
     public void initData(@Nullable Bundle bundle) {
 
@@ -23,12 +24,13 @@ public class InvitationAddAvatarActivity extends BaseActivity {
 
     @Override
     public int bindLayout() {
-        return R.layout.activity_invitation_add_avatar;
+        return R.layout.activity_register_input_name;
     }
 
     @Override
     public void initView(@Nullable Bundle savedInstanceState, @Nullable View contentView) {
-        useCommonTitleBar(getString(R.string.title_receive_invitation));
+        useCommonTitleBar(getString(R.string.register));
+        applyDebouncingClickListener(findViewById(R.id.btnNext));
     }
 
     @Override
@@ -38,6 +40,8 @@ public class InvitationAddAvatarActivity extends BaseActivity {
 
     @Override
     public void onDebouncingClick(@NonNull View view) {
-
+        if(view.getId() == R.id.btnNext) {
+            startActivity(new Intent(this, RegisterAddAvatar.class));
+        }
     }
 }

@@ -1,5 +1,6 @@
 package com.revolo.lock.ui.sign;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 
@@ -29,6 +30,7 @@ public class RegisterActivity extends BaseActivity {
     @Override
     public void initView(@Nullable Bundle savedInstanceState, @Nullable View contentView) {
         useCommonTitleBar(getString(R.string.register));
+        applyDebouncingClickListener(findViewById(R.id.btnStartCreating));
     }
 
     @Override
@@ -38,6 +40,8 @@ public class RegisterActivity extends BaseActivity {
 
     @Override
     public void onDebouncingClick(@NonNull View view) {
-
+        if(view.getId() == R.id.btnStartCreating) {
+            startActivity(new Intent(this, RegisterInputNameActivity.class));
+        }
     }
 }

@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <include
+        android:id="@+id/include"
+        layout="@layout/layout_title_bar"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/tvTip"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="@string/tip_register_input_name"
+        android:textColor="@color/c333333"
+        android:textSize="17pt"
+        android:layout_marginTop="45pt"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="@+id/include"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/include" />
+
+    <EditText
+        android:id="@+id/etFirstName"
+        android:layout_width="300pt"
+        android:layout_height="44pt"
+        style="@style/InputEditTextStyle"
+        android:theme="@style/InputEditTextTheme"
+        android:layout_marginTop="60pt"
+        android:hint="@string/hint_first_name"
+        android:textColorHint="@color/cA5A4DA"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tvTip"
+        android:inputType="textPersonName" />
+
+    <EditText
+        android:id="@+id/etLastName"
+        android:layout_width="300pt"
+        android:layout_height="44pt"
+        style="@style/InputEditTextStyle"
+        android:theme="@style/InputEditTextTheme"
+        android:layout_marginTop="10pt"
+        android:hint="@string/hint_last_name"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/etFirstName"
+        android:inputType="textPersonName"/>
+
+    <android.widget.Button
+        android:id="@+id/btnNext"
+        style="@style/ButtonStyle"
+        android:layout_width="223pt"
+        android:layout_height="36pt"
+        android:text="@string/next"
+        android:layout_marginBottom="136pt"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
