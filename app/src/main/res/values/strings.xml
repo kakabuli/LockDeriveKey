@@ -34,7 +34,7 @@
     <string name="hint_first_name">First name</string>
     <string name="hint_last_name">Last name</string>
 
-    <!-- Invitation Add Avatar -->
+    <!-- InvitationAddAvatarActivity -->
     <string name="tip_invitation_add_avatar">Add a avatar so your family and friends\n can get to know you when you send an\n invitation</string>
     <string name="album_add">Album Add</string>
     <string name="photograph">Photograph</string>
@@ -42,5 +42,10 @@
 
     <!-- RegisterInputNameActivity -->
     <string name="tip_register_input_name">Please enter the name</string>
+
+    <!-- RegisterAddAvatarNextActivity -->
+    <string name="tip_register_add_avatar_next">Revolo registration has been completed.\n Would you like to go to add the revolo\n device now</string>
+    <string name="add_device">Add device</string>
+    <string name="add_next_time">Add next time</string>
 
 </resources>

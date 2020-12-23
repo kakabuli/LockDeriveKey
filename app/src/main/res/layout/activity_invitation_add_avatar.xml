@@ -35,18 +35,18 @@
         app:layout_constraintTop_toBottomOf="@+id/ivAvatar" />
 
     <android.widget.Button
-        android:id="@+id/btnAlbumAdd"
+        android:id="@+id/btnAddDevice"
         style="@style/ButtonStyle"
         android:layout_width="223pt"
         android:layout_height="36pt"
         android:text="@string/album_add"
         android:layout_marginBottom="20pt"
-        app:layout_constraintBottom_toTopOf="@+id/btnPhotograph"
+        app:layout_constraintBottom_toTopOf="@+id/btnAddNextTime"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
     <android.widget.Button
-        android:id="@+id/btnPhotograph"
+        android:id="@+id/btnAddNextTime"
         style="@style/ButtonStyle"
         android:layout_width="223pt"
         android:layout_height="36pt"
