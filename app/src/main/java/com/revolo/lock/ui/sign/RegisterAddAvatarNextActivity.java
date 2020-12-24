@@ -28,6 +28,7 @@ public class RegisterAddAvatarNextActivity extends BaseActivity {
 
     @Override
     public void initView(@Nullable Bundle savedInstanceState, @Nullable View contentView) {
+        setStatusBarColor(R.color.white);
         useCommonTitleBar(getString(R.string.register));
     }
 

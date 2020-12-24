@@ -1,6 +1,5 @@
 package com.revolo.lock.ui.sign;
 
-import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -35,21 +34,18 @@ public class SignSelectActivity extends BaseActivity {
 
     }
 
-    @SuppressLint("NonConstantResourceId")
     @Override
     public void onDebouncingClick(@NonNull View view) {
-        switch (view.getId()) {
-            case R.id.btnInvitation:
-                startActivity(new Intent(this, ReceiveInvitationActivity.class));
-                break;
-            case R.id.btnRegister:
-                startActivity(new Intent(this, RegisterActivity.class));
-                break;
-            case R.id.btnSignIn:
-                startActivity(new Intent(this, LoginActivity.class));
-                break;
-            default:
-                break;
+        if(view.getId() == R.id.btnInvitation) {
+            startActivity(new Intent(this, ReceiveInvitationActivity.class));
+            return;
+        }
+        if(view.getId() == R.id.btnRegister) {
+            startActivity(new Intent(this, RegisterActivity.class));
+            return;
+        }
+        if(view.getId() == R.id.btnSignIn) {
+            startActivity(new Intent(this, LoginActivity.class));
         }
     }
 }

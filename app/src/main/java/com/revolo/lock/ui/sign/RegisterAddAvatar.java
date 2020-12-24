@@ -1,5 +1,6 @@
 package com.revolo.lock.ui.sign;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 
@@ -28,7 +29,9 @@ public class RegisterAddAvatar extends BaseActivity {
 
     @Override
     public void initView(@Nullable Bundle savedInstanceState, @Nullable View contentView) {
+        setStatusBarColor(R.color.white);
         useCommonTitleBar(getString(R.string.register));
+        applyDebouncingClickListener(findViewById(R.id.tvSkip));
     }
 
     @Override
@@ -38,6 +41,8 @@ public class RegisterAddAvatar extends BaseActivity {
 
     @Override
     public void onDebouncingClick(@NonNull View view) {
-
+        if(view.getId() == R.id.tvSkip) {
+            startActivity(new Intent(this, RegisterAddAvatarNextActivity.class));
+        }
     }
 }

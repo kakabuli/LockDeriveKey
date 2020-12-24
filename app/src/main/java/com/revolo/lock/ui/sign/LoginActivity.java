@@ -29,6 +29,7 @@ public class LoginActivity extends BaseActivity {
 
     @Override
     public void initView(@Nullable Bundle savedInstanceState, @Nullable View contentView) {
+        setStatusBarColor(R.color.white);
         useCommonTitleBar(getString(R.string.sign_in));
         applyDebouncingClickListener(findViewById(R.id.tvForgotPwd));
     }

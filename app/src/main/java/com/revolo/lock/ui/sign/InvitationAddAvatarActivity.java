@@ -28,6 +28,7 @@ public class InvitationAddAvatarActivity extends BaseActivity {
 
     @Override
     public void initView(@Nullable Bundle savedInstanceState, @Nullable View contentView) {
+        setStatusBarColor(R.color.white);
         useCommonTitleBar(getString(R.string.title_receive_invitation));
     }
 
