@@ -53,4 +53,10 @@
     <string name="password">Password</string>
     <string name="forgot_password">Forgot password?</string>
 
+    <!-- ForgetThePwdActivity -->
+    <string name="title_forget_the_pwd">Forget the password</string>
+    <string name="done">Done</string>
+    <string name="get_code">Get code</string>
+    <string name="verification_code">Verification code</string>
+
 </resources>

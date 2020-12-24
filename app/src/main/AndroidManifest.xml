@@ -28,6 +28,7 @@
         <activity android:name=".ui.sign.RegisterAddAvatar" />
         <activity android:name=".ui.sign.RegisterAddAvatarNextActivity" />
         <activity android:name=".ui.sign.LoginActivity" />
+        <activity android:name=".ui.sign.ForgetThePwdActivity" />
     </application>
 
 </manifest>

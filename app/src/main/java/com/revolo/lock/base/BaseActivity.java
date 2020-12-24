@@ -71,5 +71,6 @@ public abstract class BaseActivity extends AppCompatActivity
         window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
         // finally change the color
         window.setStatusBarColor(ContextCompat.getColor(this, id));
+        window.getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
     }
 }

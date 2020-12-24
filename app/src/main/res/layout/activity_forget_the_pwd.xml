@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <include
+        android:id="@+id/titleBar"
+        layout="@layout/layout_title_bar" />
+
+    <EditText
+        android:id="@+id/etEmail"
+        android:layout_width="300pt"
+        android:layout_height="44pt"
+        style="@style/InputEditTextStyle"
+        android:theme="@style/InputEditTextTheme"
+        android:layout_marginTop="54pt"
+        android:hint="@string/hint_email_address"
+        android:textColorHint="@color/cA5A4DA"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/titleBar"
+        android:inputType="textEmailAddress" />
+
+    <EditText
+        android:id="@+id/etCode"
+        android:layout_width="300pt"
+        android:layout_height="44pt"
+        style="@style/InputEditTextStyle"
+        android:theme="@style/InputEditTextTheme"
+        android:layout_marginTop="10pt"
+        android:hint="@string/verification_code"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/etEmail"
+        android:inputType="textPassword" />
+
+    <TextView
+        android:layout_width="64pt"
+        android:layout_height="25pt"
+        android:background="@drawable/shape_btn_bg"
+        android:gravity="center"
+        android:text="@string/get_code"
+        android:layout_marginBottom="10pt"
+        android:textColor="@color/c2C68FF"
+        android:textSize="12pt"
+        app:layout_constraintBottom_toBottomOf="@+id/etCode"
+        app:layout_constraintEnd_toEndOf="@+id/etCode"
+        app:layout_constraintTop_toTopOf="@+id/etCode" />
+
+
+    <EditText
+        android:id="@+id/etPwd"
+        android:layout_width="300pt"
+        android:layout_height="44pt"
+        style="@style/InputEditTextStyle"
+        android:theme="@style/InputEditTextTheme"
+        android:layout_marginTop="10pt"
+        android:hint="@string/password"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/etCode"
+        android:inputType="textPassword" />
+
+
+    <android.widget.Button
+        android:id="@+id/btnDone"
+        style="@style/ButtonStyle"
+        android:layout_width="223pt"
+        android:layout_height="36pt"
+        android:text="@string/done"
+        android:layout_marginBottom="136pt"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/titleBar"
+        app:layout_constraintStart_toStartOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
