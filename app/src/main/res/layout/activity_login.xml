@@ -1,51 +1,73 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <include
         android:id="@+id/titleBar"
-        layout="@layout/layout_title_bar"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        layout="@layout/layout_title_bar" />
 
     <TextView
-        android:id="@+id/tvWelcomeTip"
+        android:id="@+id/textView4"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:gravity="center"
-        android:text="@string/tip_receive_invitation"
-        android:textColor="@color/c333333"
-        android:textStyle="bold"
         android:layout_marginTop="45pt"
+        android:text="@string/tip_login"
+        android:textColor="@color/c333333"
         android:textSize="17pt"
+        android:textStyle="bold"
+        android:gravity="center"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="@+id/titleBar"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/titleBar" />
 
-    <TextView
-        android:id="@+id/textView3"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="90pt"
-        android:gravity="center"
-        android:text="@string/content_receive_invitation"
-        android:textColor="@color/c2C68FF"
-        android:textSize="15pt"
+    <EditText
+        android:id="@+id/etEmail"
+        android:layout_width="300pt"
+        android:layout_height="44pt"
+        style="@style/InputEditTextStyle"
+        android:theme="@style/InputEditTextTheme"
+        android:layout_marginTop="60pt"
+        android:hint="@string/hint_email_address"
+        android:textColorHint="@color/cA5A4DA"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tvWelcomeTip" />
+        app:layout_constraintTop_toBottomOf="@+id/textView4"
+        android:inputType="textEmailAddress" />
+
+    <EditText
+        android:id="@+id/etPwd"
+        android:layout_width="300pt"
+        android:layout_height="44pt"
+        style="@style/InputEditTextStyle"
+        android:theme="@style/InputEditTextTheme"
+        android:layout_marginTop="10pt"
+        android:hint="@string/password"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/etEmail"
+        android:inputType="textPassword" />
+
+    <TextView
+        android:id="@+id/tvForgotPwd"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/forgot_password"
+        android:textColor="@color/cA5A4DA"
+        android:textSize="14pt"
+        android:layout_marginTop="11pt"
+        app:layout_constraintEnd_toEndOf="@+id/etPwd"
+        app:layout_constraintTop_toBottomOf="@+id/etPwd" />
 
     <android.widget.Button
         style="@style/ButtonStyle"
-        android:id="@+id/btnInvitation"
+        android:id="@+id/btnSignIn"
         android:layout_width="223pt"
         android:layout_height="36pt"
         android:layout_marginBottom="13pt"
-        android:text="@string/i_accepted_an_invitation"
+        android:text="@string/sign_in"
         app:layout_constraintBottom_toTopOf="@+id/ivSelect"
         app:layout_constraintEnd_toEndOf="@+id/titleBar"
         app:layout_constraintStart_toStartOf="parent" />
@@ -83,6 +105,5 @@
         app:layout_constraintBottom_toBottomOf="@+id/ivSelect"
         app:layout_constraintStart_toEndOf="@+id/tvIAgree"
         app:layout_constraintTop_toTopOf="@+id/ivSelect" />
-
 
 </androidx.constraintlayout.widget.ConstraintLayout>

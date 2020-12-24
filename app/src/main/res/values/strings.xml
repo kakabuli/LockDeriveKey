@@ -48,4 +48,9 @@
     <string name="add_device">Add device</string>
     <string name="add_next_time">Add next time</string>
 
+    <!-- LoginActivity -->
+    <string name="tip_login">Please enter your email account！</string>
+    <string name="password">Password</string>
+    <string name="forgot_password">Forgot password?</string>
+
 </resources>

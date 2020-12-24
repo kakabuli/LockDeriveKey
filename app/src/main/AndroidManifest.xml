@@ -27,6 +27,7 @@
         <activity android:name=".ui.sign.RegisterInputNameActivity" />
         <activity android:name=".ui.sign.RegisterAddAvatar" />
         <activity android:name=".ui.sign.RegisterAddAvatarNextActivity" />
+        <activity android:name=".ui.sign.LoginActivity" />
     </application>
 
 </manifest>
