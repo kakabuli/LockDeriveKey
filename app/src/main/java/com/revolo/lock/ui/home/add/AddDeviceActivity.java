@@ -1,4 +1,4 @@
-package com.revolo.lock.ui.sign;
+package com.revolo.lock.ui.home.add;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -7,17 +7,16 @@ import android.view.View;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.revolo.lock.MainActivity;
 import com.revolo.lock.R;
 import com.revolo.lock.base.BaseActivity;
 
 /**
  * author : Jack
- * time   : 2020/12/23
+ * time   : 2020/12/29
  * E-mail : wengmaowei@kaadas.com
- * desc   : login
+ * desc   : 添加设备页面
  */
-public class LoginActivity extends BaseActivity {
+public class AddDeviceActivity extends BaseActivity {
     @Override
     public void initData(@Nullable Bundle bundle) {
 
@@ -25,14 +24,13 @@ public class LoginActivity extends BaseActivity {
 
     @Override
     public int bindLayout() {
-        return R.layout.activity_login;
+        return R.layout.activity_add_device;
     }
 
     @Override
     public void initView(@Nullable Bundle savedInstanceState, @Nullable View contentView) {
-        setStatusBarColor(R.color.white);
-        useCommonTitleBar(getString(R.string.sign_in));
-        applyDebouncingClickListener(findViewById(R.id.tvForgotPwd), findViewById(R.id.btnSignIn));
+        useCommonTitleBar(getString(R.string.add_device));
+        applyDebouncingClickListener(findViewById(R.id.llAddLock));
     }
 
     @Override
@@ -42,12 +40,8 @@ public class LoginActivity extends BaseActivity {
 
     @Override
     public void onDebouncingClick(@NonNull View view) {
-        if(view.getId() == R.id.tvForgotPwd) {
-            startActivity(new Intent(this, ForgetThePwdActivity.class));
-            return;
-        }
-        if(view.getId() == R.id.btnSignIn) {
-            startActivity(new Intent(this, MainActivity.class));
+        if(view.getId()  == R.id.llAddLock) {
+//            startActivity(new Intent(this, ));
         }
     }
 }

@@ -58,5 +58,8 @@
     <string name="done">Done</string>
     <string name="get_code">Get code</string>
     <string name="verification_code">Verification code</string>
+    
+    <!-- HomeFragment -->
+    <string name="tip_home_page">Welcome to the revolo\n smart door lock</string>
 
 </resources>
