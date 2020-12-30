@@ -1,6 +1,6 @@
 package com.revolo.lock.ui.home.add;
 
-import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
 
@@ -14,9 +14,9 @@ import com.revolo.lock.base.BaseActivity;
  * author : Jack
  * time   : 2020/12/29
  * E-mail : wengmaowei@kaadas.com
- * desc   : 添加设备页面
+ * desc   : 扫描二维码
  */
-public class AddDeviceActivity extends BaseActivity {
+public class AddDeviceQRCodeStep2Activity extends BaseActivity {
     @Override
     public void initData(@Nullable Bundle bundle) {
 
@@ -24,13 +24,13 @@ public class AddDeviceActivity extends BaseActivity {
 
     @Override
     public int bindLayout() {
-        return R.layout.activity_add_device;
+        return R.layout.activity_add_device_qr_code_step2;
     }
 
     @Override
     public void initView(@Nullable Bundle savedInstanceState, @Nullable View contentView) {
-        useCommonTitleBar(getString(R.string.add_device));
-        applyDebouncingClickListener(findViewById(R.id.llAddLock));
+        useCommonTitleBar(getString(R.string.add_device)).getTvTitle().setTextColor(Color.WHITE);
+
     }
 
     @Override
@@ -40,8 +40,6 @@ public class AddDeviceActivity extends BaseActivity {
 
     @Override
     public void onDebouncingClick(@NonNull View view) {
-        if(view.getId()  == R.id.llAddLock) {
-            startActivity(new Intent(this, AddDeviceStep1Activity.class));
-        }
+
     }
 }

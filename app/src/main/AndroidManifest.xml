@@ -30,6 +30,16 @@
         <activity android:name=".ui.sign.LoginActivity" />
         <activity android:name=".ui.sign.ForgetThePwdActivity" />
         <activity android:name=".ui.home.add.AddDeviceActivity" />
+        <activity android:name=".ui.home.add.AddDeviceStep1Activity" />
+        <activity android:name=".ui.home.add.AddDeviceQRCodeStep2Activity" />
+        <activity android:name=".ui.home.add.AddDeviceStep2BleConnectActivity" />
+        <activity android:name=".ui.home.add.BleConnectFailActivity" />
+        <activity android:name=".ui.home.add.AddWifiActivity" />
+        <activity android:name=".ui.home.add.BleConnectSucActivity" />
+        <activity android:name=".ui.home.add.WifiConnectActivity" />
+        <activity android:name=".ui.home.add.AddWifiSucActivity" />
+        <activity android:name=".ui.home.add.AddWifiFailActivity" />
+        <activity android:name=".ui.home.add.DoorSensorCheckActivity" />
     </application>
 
 </manifest>

@@ -11,12 +11,12 @@ import com.revolo.lock.R;
 import com.revolo.lock.base.BaseActivity;
 
 /**
- * author : Jack
+ * author :
  * time   : 2020/12/29
  * E-mail : wengmaowei@kaadas.com
- * desc   : 添加设备页面
+ * desc   :
  */
-public class AddDeviceActivity extends BaseActivity {
+public class AddWifiSucActivity extends BaseActivity {
     @Override
     public void initData(@Nullable Bundle bundle) {
 
@@ -24,13 +24,13 @@ public class AddDeviceActivity extends BaseActivity {
 
     @Override
     public int bindLayout() {
-        return R.layout.activity_add_device;
+        return R.layout.activity_add_wifi_suc;
     }
 
     @Override
     public void initView(@Nullable Bundle savedInstanceState, @Nullable View contentView) {
-        useCommonTitleBar(getString(R.string.add_device));
-        applyDebouncingClickListener(findViewById(R.id.llAddLock));
+        useCommonTitleBar("Add WiFi");
+        applyDebouncingClickListener(findViewById(R.id.btnNext));
     }
 
     @Override
@@ -40,8 +40,8 @@ public class AddDeviceActivity extends BaseActivity {
 
     @Override
     public void onDebouncingClick(@NonNull View view) {
-        if(view.getId()  == R.id.llAddLock) {
-            startActivity(new Intent(this, AddDeviceStep1Activity.class));
+        if(view.getId() == R.id.btnNext) {
+            startActivity(new Intent(this, DoorSensorCheckActivity.class));
         }
     }
 }
