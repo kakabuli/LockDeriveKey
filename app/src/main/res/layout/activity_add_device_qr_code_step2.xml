@@ -6,17 +6,37 @@
     android:layout_height="match_parent"
     android:background="@android:color/darker_gray">
 
+    <cn.bingoogolapple.qrcode.zbar.ZBarView
+        android:id="@+id/zBarView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:qrcv_animTime="1000"
+        app:qrcv_borderColor="@android:color/white"
+        app:qrcv_borderSize="1dp"
+        app:qrcv_cornerColor="@color/colorPrimaryDark"
+        app:qrcv_cornerLength="20dp"
+        app:qrcv_cornerSize="3dp"
+        app:qrcv_isShowDefaultScanLineDrawable="true"
+        app:qrcv_maskColor="#33FFFFFF"
+        app:qrcv_rectWidth="200dp"
+        app:qrcv_scanLineColor="@color/colorPrimaryDark"
+        app:qrcv_topOffset="90dp" />
+
     <include
+        android:id="@+id/include12"
         layout="@layout/layout_title_bar"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <LinearLayout
+        android:id="@+id/llLight"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
         android:layout_marginBottom="57pt"
+        android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent">
@@ -30,12 +50,26 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="@color/white"
             android:layout_gravity="center"
-            android:textSize="12pt"
             android:layout_marginTop="3pt"
-            android:text="Touch to light up"/>
+            android:text="Touch to light up"
+            android:textColor="@color/white"
+            android:textSize="12pt" />
 
     </LinearLayout>
+
+    <TextView
+        android:id="@+id/tvManualInput"
+        android:layout_width="121pt"
+        android:layout_height="36pt"
+        android:layout_marginBottom="31pt"
+        android:gravity="center"
+        android:text="Manual input"
+        android:textColor="@color/white"
+        android:textSize="16pt"
+        android:background="@drawable/shape_manual_input_bg"
+        app:layout_constraintBottom_toTopOf="@+id/llLight"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
