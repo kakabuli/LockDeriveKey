@@ -65,4 +65,10 @@
     <!-- AddDeviceActivity -->
     <string name="add_revolo_lock">Add revolo lock</string>
 
+    <!-- InputESNActivity -->
+    <string name="t_please_input_product_esn">Please input product ESN</string>
+    <string name="tip_enter_esn">Enter ESN</string>
+    <string name="hint_please_enter_esn">Please enter ESN</string>
+    <string name="title_manual_input">Manual input</string>
+
 </resources>

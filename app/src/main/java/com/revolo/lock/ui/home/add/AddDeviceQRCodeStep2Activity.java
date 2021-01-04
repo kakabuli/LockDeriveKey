@@ -3,14 +3,13 @@ package com.revolo.lock.ui.home.add;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.os.VibrationEffect;
-import android.os.Vibrator;
 import android.view.View;
 import android.widget.LinearLayout;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.revolo.lock.Constant;
 import com.revolo.lock.R;
 import com.revolo.lock.base.BaseActivity;
 
@@ -49,8 +48,11 @@ public class AddDeviceQRCodeStep2Activity extends BaseActivity {
         mZBarView.setDelegate(new QRCodeView.Delegate() {
             @Override
             public void onScanQRCodeSuccess(String result) {
-                Timber.e("扫描结果：%1s", result);
-                startActivity(new Intent(AddDeviceQRCodeStep2Activity.this, AddDeviceStep2BleConnectActivity.class));
+                Timber.d("onScanQRCodeSuccess 扫描结果：%1s", result);
+                Intent intent = new Intent(AddDeviceQRCodeStep2Activity.this, AddDeviceStep2BleConnectActivity.class);
+                intent.putExtra(Constant.PRE_A, Constant.QR_CODE_A);
+                intent.putExtra(Constant.QR_RESULT, result);
+                startActivity(intent);
                 finish();
             }
 
@@ -61,7 +63,7 @@ public class AddDeviceQRCodeStep2Activity extends BaseActivity {
 
             @Override
             public void onScanQRCodeOpenCameraError() {
-                Timber.e("打开相机出错了");
+                Timber.e("onScanQRCodeOpenCameraError 打开相机出错了");
             }
         });
 
@@ -117,10 +119,4 @@ public class AddDeviceQRCodeStep2Activity extends BaseActivity {
         }
         super.onDestroy();
     }
-
-    private void vibrate() {
-        Vibrator vibrator = (Vibrator) getSystemService(VIBRATOR_SERVICE);
-        vibrator.vibrate(VibrationEffect.createOneShot(200, 10));
-    }
-
 }
