@@ -27,7 +27,8 @@ import timber.log.Timber;
  */
 public class AddDeviceStep1Activity extends BaseActivity implements EasyPermissions.PermissionCallbacks {
 
-    private final int RC_CAMERA_PERMISSIONS = 9999;
+    private final int RC_QR_CODE_PERMISSIONS = 9999;
+    private final int RC_CAMERA_PERMISSIONS = 7777;
     private final int RC_READ_EXTERNAL_STORAGE_PERMISSIONS = 8888;
 
     @Override
@@ -54,7 +55,7 @@ public class AddDeviceStep1Activity extends BaseActivity implements EasyPermissi
     @Override
     public void onDebouncingClick(@NonNull View view) {
         if(view.getId() == R.id.btnNext) {
-            requestCodeReadStorage();
+            rcQRCodePermissions();
         }
     }
 
@@ -65,32 +66,71 @@ public class AddDeviceStep1Activity extends BaseActivity implements EasyPermissi
         EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults, this);
     }
 
-    @AfterPermissionGranted(RC_CAMERA_PERMISSIONS)
-    private void requestCodeCameraPermissions() {
-        if (!EasyPermissions.hasPermissions(this, Manifest.permission.CAMERA)) {
+    @AfterPermissionGranted(RC_QR_CODE_PERMISSIONS)
+    private void rcQRCodePermissions() {
+        String[] perms = new String[] {Manifest.permission.CAMERA, Manifest.permission.READ_EXTERNAL_STORAGE};
+        if (!EasyPermissions.hasPermissions(this, perms)) {
             // TODO: 2021/1/3 use string
             EasyPermissions.requestPermissions(this, "TODO: Camera things",
-                    RC_CAMERA_PERMISSIONS, Manifest.permission.CAMERA);
+                    RC_QR_CODE_PERMISSIONS, perms);
         } else {
             startActivity(new Intent(this, AddDeviceQRCodeStep2Activity.class));
         }
     }
 
-    @AfterPermissionGranted(RC_READ_EXTERNAL_STORAGE_PERMISSIONS)
-    private void requestCodeReadStorage() {
-        if(!EasyPermissions.hasPermissions(this, Manifest.permission.READ_EXTERNAL_STORAGE)) {
+    @AfterPermissionGranted(RC_CAMERA_PERMISSIONS)
+    private void rcCameraPermission() {
+        if(!hasCameraPermission()) {
             // TODO: 2021/1/3 use string
-            EasyPermissions.requestPermissions(this, "扫描二维码需要存储权限",
-                    RC_CAMERA_PERMISSIONS, Manifest.permission.READ_EXTERNAL_STORAGE);
-        }  else {
-            requestCodeCameraPermissions();
+            EasyPermissions.requestPermissions(this, "TODO: Camera things",
+                    RC_CAMERA_PERMISSIONS, Manifest.permission.CAMERA);
         }
+    }
+
+    @AfterPermissionGranted(RC_READ_EXTERNAL_STORAGE_PERMISSIONS)
+    private void rcReadStoragePermission(){
+        if(!hasReadExternalStoragePermission()) {
+            // TODO: 2021/1/3 use string
+            EasyPermissions.requestPermissions(this, "TODO: read things",
+                    RC_READ_EXTERNAL_STORAGE_PERMISSIONS, Manifest.permission.READ_EXTERNAL_STORAGE);
+        }
+    }
+
+    private boolean hasCameraPermission() {
+        return EasyPermissions.hasPermissions(this, Manifest.permission.CAMERA);
+    }
+
+    private boolean hasReadExternalStoragePermission() {
+        return EasyPermissions.hasPermissions(this, Manifest.permission.READ_EXTERNAL_STORAGE);
     }
 
     @Override
     public void onPermissionsGranted(int requestCode, @NonNull List<String> perms) {
-        Timber.d("requestCode: %1d",requestCode);
-        if(perms.get(0).equals(Manifest.permission.CAMERA)) {
+        if(perms.isEmpty()) {
+            Timber.e("onPermissionsGranted 返回的权限不存在数据 perms size: %1d", perms.size());
+            return;
+        }
+        if(requestCode == RC_QR_CODE_PERMISSIONS) {
+            if(perms.size() == 2) {
+                Timber.d("onPermissionsGranted 同时两条权限都请求成功");
+                startActivity(new Intent(this, AddDeviceQRCodeStep2Activity.class));
+            } else if(perms.get(0).equals(Manifest.permission.CAMERA)) {
+                Timber.d("onPermissionsGranted 只有相机权限成功");
+                if(hasReadExternalStoragePermission()) {
+                    startActivity(new Intent(this, AddDeviceQRCodeStep2Activity.class));
+                } else {
+                    rcReadStoragePermission();
+                }
+            } else if(perms.get(0).equals(Manifest.permission.READ_EXTERNAL_STORAGE)) {
+                Timber.d("onPermissionsGranted 只有存储权限成功");
+                if(hasCameraPermission()) {
+                    startActivity(new Intent(this, AddDeviceQRCodeStep2Activity.class));
+                } else {
+                    rcCameraPermission();
+                }
+            }
+        } else if(requestCode == RC_CAMERA_PERMISSIONS || requestCode == RC_READ_EXTERNAL_STORAGE_PERMISSIONS) {
+            Timber.d("onPermissionsGranted 请求剩下的权限成功");
             startActivity(new Intent(this, AddDeviceQRCodeStep2Activity.class));
         }
 
@@ -99,9 +139,9 @@ public class AddDeviceStep1Activity extends BaseActivity implements EasyPermissi
     @Override
     public void onPermissionsDenied(int requestCode, @NonNull List<String> perms) {
         if(perms.get(0).equals(Manifest.permission.READ_EXTERNAL_STORAGE)) {
-            Timber.e("拒绝了扫描二维码需要的储存权限, requestCode: %1d", requestCode);
+            Timber.e("onPermissionsDenied 拒绝了扫描二维码需要的储存权限, requestCode: %1d", requestCode);
         } else if(perms.get(0).equals(Manifest.permission.CAMERA)) {
-            Timber.e("拒绝了扫描二维码需要的相机权限, requestCode: %1d", requestCode);
+            Timber.e("onPermissionsDenied 拒绝了扫描二维码需要的相机权限, requestCode: %1d", requestCode);
         }
 
     }
