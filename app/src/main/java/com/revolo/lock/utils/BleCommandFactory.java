@@ -1,0 +1,727 @@
+package com.revolo.lock.utils;
+
+import com.blankj.utilcode.util.ConvertUtils;
+import com.blankj.utilcode.util.EncryptUtils;
+
+import timber.log.Timber;
+
+/**
+ * author : Jack
+ * time   : 2021/1/5
+ * E-mail : wengmaowei@kaadas.com
+ * desc   : 蓝牙协议生成工具类
+ */
+public class BleCommandFactory {
+
+    // Control(1byte)+TSN(1byte)+Check(1byte)+Cmd(1byte)+payload(16byte)
+
+    // Control bit0：加密标志位
+    //     =0：代表Payload没有进行加密处理。
+    //     =1：代表Payload进行了加密处理。
+    //     bit1-7：保留
+
+    // TSN: 传输序号（不能为0），每次发送时加1，命令和确认的TSN相同。
+
+    // Check: Payload区域累加和的低字节。
+
+    // Cmd：命令
+
+    // Payload：载荷
+    // 不足16个字节补0x00;
+    // 采用AES128-ECB加密(除确认帧和心跳帧外);
+
+    private static final byte CONTROL_ENCRYPTION = 1;
+    private static final byte CONTROL_NORMAL = 0;
+
+    private static byte sCommandTSN = 0x01;
+
+    public static final byte[] sTestPwd1 = new byte[] {0x53,0x48,0x45,
+            (byte) 0xB3, (byte) 0xEB, (byte) 0xF3,
+            0x01, (byte) 0xBC,0x1D,
+            0x0F,0x68, (byte) 0x8F,
+            0x00,0x00,0x00,0x00};
+
+    private static byte commandTSN() {
+        if(sCommandTSN == 0xFF) {
+            sCommandTSN = 0x01;
+        }
+        return sCommandTSN++;
+    }
+
+    /**
+     * 简单的校验和
+     * @param payload 要校验和的数据
+     * @return 校验和
+     */
+    private static byte checksum(byte[] payload) {
+        //加密前把数据的校验和算出来
+        byte  checkSum = 0;
+        for (byte b : payload) {
+            checkSum += b;
+        }
+        return checkSum;
+    }
+
+    /**
+     * 只用pwd1进行加密
+     * @param needEncryptData 需要加密的数据
+     * @param pwd1            加密的key pwd1 不足16位需要补0
+     * @param command         把加密后的数据载入到对应的指令
+     * @return                发送的完整的指令
+     */
+    private static byte[] pwd1Encrypt(byte[] needEncryptData, byte[] pwd1, byte[] command) {
+        if(pwd1.length != 16) {
+            Timber.e("pwd1Encrypt pwd1 key的长度错误，请检查输入的数据 size: %1d", pwd1.length);
+            return null;
+        }
+        byte[] payload = EncryptUtils.encryptAES(needEncryptData, pwd1, "AES/ECB/NoPadding", null);
+        Timber.d("pwd1Encrypt 加密之前的数据：%1s\n pwd1：%2s\n 加密后的数据：%3s",
+                ConvertUtils.bytes2HexString(needEncryptData), ConvertUtils.bytes2HexString(pwd1), ConvertUtils.bytes2HexString(payload));
+        System.arraycopy(payload, 0, command, 4, payload.length);
+        return command;
+    }
+
+    /**
+     * 需要用pwd1和pwd2进行加密
+     * @param needEncryptData  需要加密的数据
+     * @param pwd1             加密的key pwd1 不足16位需要补0
+     * @param pwd2             加密的key pwd2，与pwd1结合生成pwd
+     * @param command          把加密后的数据载入到对应的指令
+     * @return                 发送的完整的指令
+     */
+    private static byte[] pwdEncrypt(byte[] needEncryptData, byte[] pwd1, byte[] pwd2, byte[] command) {
+        if(pwd1.length != 16) {
+            Timber.e("pwdEncrypt pwd1 key的长度错误，请检查输入的数据 size: %1d", pwd1.length);
+            return null;
+        }
+        if(pwd2.length != 4) {
+            Timber.e("pwdEncrypt pwd2 key的长度错误，请检查输入的数据 size: %1d", pwd2.length);
+            return null;
+        }
+        byte[] pwd = new byte[16];
+        for (int i=0; i < pwd.length; i++) {
+            if(i <= 11) {
+                pwd[i]=pwd1[i];
+            } else {
+                pwd[i]=pwd2[i-12];
+            }
+        }
+        command[2] = checksum(needEncryptData);
+        byte[] payload = EncryptUtils.encryptAES(needEncryptData, pwd, "AES/ECB/NoPadding", null);
+        Timber.d("pwdEncrypt 加密之前的数据：%1s\n pwd1：%2s\n pwd2: %3s\n pwd: %4s\n 加密后的数据：%5s",
+                ConvertUtils.bytes2HexString(needEncryptData), ConvertUtils.bytes2HexString(pwd1),
+                ConvertUtils.bytes2HexString(pwd2), ConvertUtils.bytes2HexString(pwd),
+                ConvertUtils.bytes2HexString(payload));
+        System.arraycopy(payload, 0, command, 4, payload.length);
+        return command;
+    }
+
+    /**
+     * 命令封装
+     * @param isEncrypt  是否加密
+     * @param cmd        指令
+     * @param tsn        传输序号（不能为0），每次发送时加1，命令和确认的TSN相同
+     * @param payload       数据
+     * @param pwd1       密码1，isEncrypt==false时，可以输入null
+     * @param pwd2       密码2, 可以输入null
+     * @return  满足20个字节单条指令
+     */
+    private static byte[] commandPackage(boolean isEncrypt, byte cmd, byte tsn, byte[] payload,
+                                         byte[] pwd1, byte[] pwd2) {
+        byte[] command = new byte[20];
+        command[0] = isEncrypt?CONTROL_ENCRYPTION:CONTROL_NORMAL;
+        command[1] = tsn;
+        command[2] = checksum(payload);
+        command[3] = cmd;
+        // 数据必须是16位来用于加密
+        byte[] data = new byte[16];
+        // 如果payload传入的数据为null，代表没有载入数据，只是直接发送指令
+        if(payload != null) {
+            System.arraycopy(payload, 0, data, 0, payload.length);
+        }
+        return isEncrypt?(pwd2==null?pwd1Encrypt(data, pwd1, command):pwdEncrypt(data, pwd1, pwd2, command)):command;
+    }
+
+    /**
+     * 配对
+     * @param pwd1       需要使用pwd1加密
+     * @param systemId   需要加密systemId
+     */
+    public static byte[] pairCommand(byte[] pwd1, byte[] systemId) {
+        return commandPackage(true, (byte) 0x1b, commandTSN(), systemId, pwd1, null);
+    }
+
+    /**
+     *  鉴权
+     * @param pwd1       需要使用pwd1加密
+     * @param pwd2       需要使用pwd2加密，pwd1和pwd2拼接一起来加密
+     * @param systemId   需要加密systemId
+     */
+    public static byte[] authCommand(byte[] pwd1, byte[] pwd2, byte[] systemId) {
+        return commandPackage(true, (byte) 0x01, commandTSN(), systemId, pwd1, pwd2);
+    }
+
+    /**
+     * 锁控制
+     * @param action
+     *            0x00：UnLock
+     *            0x01：Lock
+     *            0x02：Toggle
+     *            0x03:  APP在线解绑门锁
+     *            0x04~0xFF：保留
+     * @param codeType
+     *            0x00：保留
+     *            0x01：PIN密码
+     *            0x02：RFID卡片
+     *            0x04：APP开锁（锁不鉴权）
+     * @param userId
+     *            0x01	BLE自动开锁
+     * @param pwdLength
+     *            6~12  PIN Code
+     *            4~10  RFID Code
+     * @param code
+     *            Code密钥：Set PIN Code时为ASCII码，如123456为0x313233343536
+     */
+    public static byte[] lockControlCommand(byte action, byte codeType, byte userId,
+                                            byte pwdLength, byte[] code, byte[] pwd1, byte[] pwd2) {
+        byte[] data = new byte[16];
+        data[0] = action;
+        data[1] = codeType;
+        data[2] = userId;
+        data[3] = pwdLength;
+        System.arraycopy(code, 0, data, 4, code.length);
+        return commandPackage(true, (byte) 0x02, commandTSN(), data, pwd1, pwd2);
+    }
+
+    /**
+     * 密钥管理
+     * @param action
+     * 0x00：保留
+     * 0x01：Set Code设置密钥
+     * 0x02：Get Code查询密钥
+     * 0x03：Clear Code删除密钥
+     * 0x04：Check Code验证密钥
+     * @param codeType
+     * 0x00：保留
+     * 0x01：PIN密码（Set\Get\Clear）
+     * 0x02：指纹（Set\Get\Clear）
+     * 0x03：RFID卡片（Set\Get\Clear）
+     * 0x04：管理员密码（Set\Check）
+     * @param userId
+     * 0~9/19  Code Type为PIN时
+     * 0~99  Code Type为指纹时
+     * 0~99  Code Type为RFID时
+     * 0xff  Code Type 为管理员密码时
+     * 0xFF  Action为Clear时删除所有
+     * @param keyLength
+     * 6~12/4~10  Set PIN Code
+     * 4~10  Set RFID Code
+     * 0     Get/Clear Code
+     * @param code
+     * Code密钥：Set PIN Code时为ASCII码，如123456为0x313233343536
+     */
+    public static byte[] keyManagementCommand(byte action, byte codeType, byte userId,
+                                              byte keyLength, byte[] code, byte[] pwd1, byte[] pwd2) {
+        byte[] data = new byte[16];
+        data[0] = action;
+        data[1] = codeType;
+        data[2] = userId;
+        data[3] = keyLength;
+        System.arraycopy(code, 0, data, 4, code.length);
+        return commandPackage(true, (byte) 0x03, commandTSN(), data, pwd1, pwd2);
+    }
+
+    /**
+     * 锁开锁记录查询
+     * LogIndex Start的值为查询日志起始序号。
+     * LogIndex End必须大于等于LogIndex Start，当只读取一条记录时LogIndex start等于LogIndex End。
+     * 如果LogIndex Start大于LogTotal则直接返回确认帧。
+     * 注意：锁最多存储最近的20条/组*10组共200条记录，当前BLE锁记录查询只支持单条、单组和所有记录查询。
+     * 单条：LogIndex Start = LogIndex End，取值：0~199；
+     * 单组：LogIndexStart,LogIndex End取值：{[0,20],[20,40],……,[180,200]}；
+     * 全部：LogIndexStart,LogIndex End取值：[1,200]。
+     * @param logIndexStart  日志起始序号
+     * @param logIndexEnd    日志结束序号
+     */
+    public static byte[] openLockRecordCheckCommand(byte logIndexStart, byte logIndexEnd,
+                                                    byte[] pwd1, byte[] pwd2) {
+        byte[] data = new byte[2];
+        data[0] = logIndexStart;
+        data[1] = logIndexEnd;
+        return commandPackage(true, (byte) 0x04, commandTSN(), data, pwd1, pwd2);
+    }
+
+    /**
+     * 锁操作上报确认帧
+     * @param lockReportTSN 和锁记录上报帧TSN一致。
+     * @param cmd 和锁记录上报帧cmd一致。
+     * @param status
+     * 0x00	成功
+     * 0x01	失败
+     * 0x94	超时
+     * 0x9A	命令正在执行（TSN重复）
+     */
+    public static byte[] lockOperationReportConfirmationCommand(byte lockReportTSN, byte status, byte cmd) {
+        byte[] data = new byte[1];
+        data[0] = status;
+        return commandPackage(false, cmd, lockReportTSN, data, null, null);
+    }
+
+    /**
+     * 锁参数修改
+     * @param num
+     * 0x01 语言 Language
+     * 0x02 音量 SoundVolume
+     * 0x03 时间 TimeSeconds
+     * 0x04 自动关门 AutoLock
+     * 0x05 反锁
+     * 0x06 离家模式/布防VacationSwitch
+     * 0x07 蓝牙开关 BluetoothSwitch
+     * 0x08 安全模式SecuritySwitch
+     * 0x09 红外模式（Alfred）Infrared
+     * 0x0A 过道模式
+     * 0x0B 设置门磁开关
+     * 0x0C 设置门磁状态
+     * 0x81 锁事件上报切换 LockEventNotificationSwitch
+     * @param length
+     * 语言                  2
+     * 音量                  1
+     * 时间                  4
+     * 自动关门              1
+     * 反锁                  1
+     * 离家模式/布防         1
+     * 蓝牙开关              1
+     * 安全模式              1
+     * 红外模式              1
+     * 过道模式              1
+     * 设置门磁开关          1
+     * 设置门磁状态          1
+     * 锁事件上报切换        1
+     * @param value
+     * 语言          ISO 639-1标准
+     *               zh：中文
+     *               en：英语
+     * 音量          0x00：Silent Mode静音
+     *               0x01：Low Volume低音量
+     *               0x02：High Volume高音量
+     *               0x03~0xFF：保留
+     * 时间          时间秒计数。以2000-01-01 00:00:00（本地时间）为起点开始计数
+     * 自动关门       0x00：开启
+     *                0x01：关闭
+     * 反锁           0x00：关闭反锁
+     *                0x01：开启反锁
+     * 离家模式/布防   0x00：开启
+     *                 0x01：关闭
+     * 蓝牙开关        0x00：开启
+     *                0x01：关闭
+     * 安全模式       0x00：关闭（正常模式）
+     *                0x01：开启
+     * 红外模式       0x00: 开启
+     *                0x01: 关闭
+     * 过道模式        0x00：关闭
+     *                0x01：开启
+     * 设置门磁开关    0x00：关闭
+     *                 0x01：开启
+     * 设置门磁状态    0x00：关门
+     *                0x01：开门
+     *                0x02：虚掩
+     * 锁事件上报切换  0x00：锁事件上报命令采用0x05，锁报警上报命令采用0x07；
+     *                0x01：锁事件上报命令采用0x1A（Alfred）；
+     */
+    public static byte[] lockParameterModificationCommand(byte num, byte length, byte[] value,
+                                                          byte[] pwd1, byte[] pwd2) {
+        byte[] data = new byte[16];
+        data[0] = num;
+        data[1] = length;
+        System.arraycopy(value, 0, data, 2, value.length);
+        return commandPackage(true, (byte) 0x06, commandTSN(), data, pwd1, pwd2);
+    }
+
+    /**
+     * 用户类型设置
+     * @param codeType 密钥类型
+     * 0x00：保留
+     * 0x01：PIN密码
+     * 0x02：指纹
+     * 0x03：RFID卡片
+     * @param userId 用户编号
+     * 0~9/19   Code Type为PIN时
+     * 0~99  Code Type为指纹时
+     * 0~99  Code Type为RFID时
+     * @param userType 用户类型
+     * 0x00 默认（永久）
+     * 0x01 时间表用户
+     * 0x02 胁迫
+     * 0x03 管理员
+     * 0x04 无权限用户（查询权限）
+     * 0xFD 访客密码
+     * 0xFE 一次性密码
+     */
+    public static byte[] userTypeSettingCommand(byte codeType, byte userId, byte userType,
+                                                byte[] pwd1, byte[] pwd2) {
+        byte[] data = new byte[3];
+        data[0] = codeType;
+        data[1] = userId;
+        data[2] = userType;
+        return commandPackage(true, (byte) 0x09, commandTSN(), data, pwd1, pwd2);
+    }
+
+    /**
+     * 用户类型查询
+     * @param codeType 密钥类型
+     * 0x00：保留
+     * 0x01：PIN密码
+     * 0x02：指纹
+     * 0x03：RFID卡片
+     * @param userId   用户编号
+     * 0~9   Code Type为PIN时
+     * 0~99  Code Type为RFID时
+     */
+    public static byte[] userTypeCheckCommand(byte codeType, byte userId, byte[] pwd1, byte[] pwd2) {
+        byte[] data = new byte[2];
+        data[0] = codeType;
+        data[1] = userId;
+        return commandPackage(true, (byte) 0x0A, commandTSN(), data, pwd1, pwd2);
+    }
+
+    /**
+     * 周计划设置
+     * @param scheduleID 计划编号
+     * @param codeType   密钥类型
+     * 0x00：保留
+     * 0x01：PIN密码
+     * 0x03：RFID卡片
+     * @param userId     用户编号
+     *                   0~9   Code Type为PIN时
+     *                   0~99  Code Type为RFID时
+     * @param daysMask   日掩码
+     *                   BIT：  7      6    5    4    3    2    1    0
+     *                   星期：保留六五四三二一日
+     * @param startHour  起始小时
+     *                   十进制格式，0x00-0x17（00到23时）
+     * @param startMin   起始分钟
+     *                   十进制格式，0x00-0x3B（00到59分）
+     * @param endHour    结束小时
+     *                   十进制格式，0x00-0x17（00到23时）。结束小时必须大于等于起始小时。
+     * @param endMin     结束分钟
+     *                   十进制格式，0x00-0x3B（00到59分）。在结束小时等于起始小时时，结束分钟必须大于起始分钟。
+     */
+    public static byte[] weeklyPlanSettingCommand(byte scheduleID, byte codeType, byte userId,
+                                           byte daysMask, byte startHour, byte startMin,
+                                           byte endHour, byte endMin, byte[] pwd1, byte[] pwd2) {
+        byte[] data = new byte[8];
+        data[0] = scheduleID;
+        data[1] = codeType;
+        data[2] = userId;
+        data[3] = daysMask;
+        data[4] = startHour;
+        data[5] = startMin;
+        data[6] = endHour;
+        data[7] = endMin;
+        return commandPackage(true, (byte) 0x0B, commandTSN(), data, pwd1, pwd2);
+    }
+
+    /**
+     * 周计划查询
+     * @param scheduleID 计划编号
+     */
+    public static byte[] weeklyPlanCheckCommand(byte scheduleID, byte[] pwd1, byte[] pwd2) {
+        byte[] data = new byte[1];
+        data[0] = scheduleID;
+        return commandPackage(true, (byte) 0x0C, commandTSN(), data, pwd1, pwd2);
+    }
+
+    /**
+     * 周计划删除
+     * @param scheduleID 计划编号
+     */
+    public static byte[] weeklyPlanDeleteCommand(byte scheduleID, byte[] pwd1, byte[] pwd2) {
+        byte[] data = new byte[1];
+        data[0] = scheduleID;
+        return commandPackage(true, (byte) 0x0D, commandTSN(), data, pwd1, pwd2);
+    }
+
+    /**
+     * 年月日计划设置
+     * @param scheduleID 计划编号
+     * @param userId     用户编号
+     * @param codeType   密钥类型
+     *                   0x00：保留
+     *                   0x01：PIN密码
+     *                   0x03：RFID卡片
+     * @param startTime  起始时间
+     *                   以2000.1.1 00:00:00为起始时间的秒计数
+     * @param endTime    结束时间
+     *                   结束时间必须大于起始时间
+     */
+    public static byte[] yearMonthDaySettingCommand(byte scheduleID, byte userId, byte codeType, byte[] startTime,
+                                                    byte[] endTime,  byte[] pwd1, byte[] pwd2) {
+        byte[] data = new byte[11];
+        data[0] = scheduleID;
+        data[1] = userId;
+        data[2] = codeType;
+        System.arraycopy(startTime, 0, data, 3, startTime.length);
+        System.arraycopy(endTime, 0, data, 7, endTime.length);
+        return commandPackage(true, (byte) 0x0E, commandTSN(), data, pwd1, pwd2);
+    }
+
+    /**
+     * 年月日计划查询
+     * @param scheduleID 计划编号
+     */
+    public static byte[] yearMonthDayCheckCommand(byte scheduleID, byte[] pwd1, byte[] pwd2) {
+        byte[] data = new byte[1];
+        data[0] = scheduleID;
+        return commandPackage(true, (byte) 0x0F, commandTSN(), data, pwd1, pwd2);
+    }
+
+    /**
+     * 年月日计划删除
+     * @param scheduleID 计划编号
+     */
+    public static byte[] yearMonthDayDeleteCommand(byte scheduleID, byte[] pwd1, byte[] pwd2) {
+        byte[] data = new byte[1];
+        data[0] = scheduleID;
+        return commandPackage(true, (byte) 0x10, commandTSN(), data, pwd1, pwd2);
+    }
+
+    /**
+     * 同步门锁密钥状态
+     * @param codeType 密钥类型
+     *                 0x00：保留
+     *                 0x01：PIN密码
+     *                 0x02：指纹
+     *                 0x03：RFID卡片
+     *                 0x04：保留（管理员密码）
+     */
+    public static byte[] synchronizeLockKeyStatusCommand(byte codeType, byte[] pwd1, byte[] pwd2) {
+        byte[] data = new byte[1];
+        data[0] = codeType;
+        return commandPackage(true, (byte) 0x11, commandTSN(), data, pwd1, pwd2);
+    }
+
+    /**
+     * 查询门锁基本信息
+     * @param mode 0x01：查询
+     */
+    public static byte[] checkLockBaseInfoCommand(byte mode, byte[] pwd1, byte[] pwd2) {
+        byte[] data = new byte[1];
+        data[0] = mode;
+        return commandPackage(true, (byte) 0x12, commandTSN(), data, pwd1, pwd2);
+    }
+
+    /**
+     * App绑定请求帧
+     * @param pwdLen    管理密码长度 1位
+     * @param managePwd 管理密码  4~10位长度
+     * @param random    随机数    11~5位长度
+     */
+    public static byte[] appBindRequestCommand(byte pwdLen, byte[] managePwd, byte[] random,
+                                               byte[] pwd1, byte[] pwd2) {
+        // TODO: 2021/1/6 后续需要补充修改
+        byte[] data = new byte[1];
+        data[0] = pwdLen;
+        return commandPackage(true, (byte) 0x13, commandTSN(), data, pwd1, pwd2);
+    }
+
+    /**
+     * 锁报警记录查询
+     * LogIndex End必须大于等于LogIndex Start，当只读取一条记录时LogIndex start等于LogIndex End。
+     * 如果LogIndex Start大于LogTotal则直接返回确认帧。
+     * 注意：锁最多存储最近的20条/组*10组共200条记录，当前BLE锁记录查询只支持单条、单组和所有记录查询。
+     * 单条：LogIndex Start = LogIndex End，取值：0~199；
+     * 单组：LogIndexStart,LogIndex End取值：{[0,20],[20,40],……,[180,200]}；
+     * 全部：LogIndexStart,LogIndex End取值：[1,200]
+     * @param logIndexStart  查询的报警记录起始序号
+     * @param logIndexEnd    查询的报警记录结束序号
+     */
+    public static byte[] checkLockAlertRecordCommand(byte logIndexStart, byte logIndexEnd,
+                                                     byte[] pwd1, byte[] pwd2) {
+        byte[] data = new byte[2];
+        data[0] = logIndexStart;
+        data[1] = logIndexEnd;
+        return commandPackage(true, (byte) 0x14, commandTSN(), data, pwd1, pwd2);
+    }
+
+    public static byte[] lockSnCheckCommand(byte mode, byte[] pwd1, byte[] pwd2) {
+        // TODO: 2021/1/6 暂时不清楚是否需要使用
+        byte[] data = new byte[1];
+        return commandPackage(true, (byte) 0x15, commandTSN(), data, pwd1, pwd2);
+    }
+
+    public static byte[] lockOpenCountCheckCommand(byte mode, byte[] pwd1, byte[] pwd2) {
+        // TODO: 2021/1/6 暂时不清楚是否需要使用
+        byte[] data = new byte[1];
+        return commandPackage(true, (byte) 0x16, commandTSN(), data, pwd1, pwd2);
+    }
+
+    /**
+     * 锁参数主动查询
+     * @param num 序号
+     *            表2-5454.锁参数
+     */
+    public static byte[] lockParameterCheckCommand(byte num, byte[] pwd1, byte[] pwd2) {
+        byte[] data = new byte[1];
+        data[0] = num;
+        return commandPackage(true, (byte) 0x17, commandTSN(), data, pwd1, pwd2);
+    }
+
+    /**
+     * 锁操作记录
+     * LogIndex End必须大于等于LogIndex Start，当只读取一条记录时LogIndex start等于LogIndex End。
+     * 如果LogIndex Start大于LogTotal则直接返回确认帧。
+     * 注意：该条指令与之前的锁开锁记录查询、锁报警记录查询不同，不支持组读取，所以Log Index Start与Log Index End的定义不同。
+     * 定义[Log Index Start, Log Index End]为全闭区间，如下例子：
+     * [1,1] 读取单条，返回第1条记录；
+     * [1,2] 读取两条，返回第1和第2条记录；
+     * [0,19] 读取20条，返回第0 1 2…..19条；
+     * [20,40] 读取21条，返回第20 21 22…..40条；
+     * @param option         0x1 查询记录
+     * @param logType       记录类型
+     * 0x0 开门记录
+     * 0x01 报警记录
+     * 0x02 秘钥操作记录
+     * 0x03 混合记录
+     * @param logIndexStart 查询的记录起始序号
+     * @param logIndexEnd   查询的记录结束序号
+     */
+    public static byte[] lockOperateRecordCommand(byte option, byte logType,
+                                                       byte[] logIndexStart, byte[] logIndexEnd,
+                                                       byte[] pwd1, byte[] pwd2) {
+        byte[] data = new byte[6];
+        data[0] = option;
+        data[1] = logType;
+        System.arraycopy(logIndexStart, 0, data, 2, logIndexStart.length);
+        System.arraycopy(logIndexEnd, 0, data, 4, logIndexEnd.length);
+        return commandPackage(true, (byte) 0x18, commandTSN(), data, pwd1, pwd2);
+    }
+
+    private static byte sHeartBeatTSN = 0x01;
+
+    private static byte heartBeatTSN()  {
+        if(sHeartBeatTSN == 0xFF) {
+            sHeartBeatTSN = 0x01;
+        }
+        return sHeartBeatTSN++;
+    }
+
+    /**
+     * 心跳包
+     */
+    public static byte[] heartBeatCommand() {
+        byte[] data = new byte[1];
+        data[0] = (byte) 0xFF;
+        return commandPackage(false, (byte) 0xAA, heartBeatTSN(), data, null, null);
+    }
+
+    /*---------------------------------- 配网相关指令 --------------------------------*/
+
+    /**
+     * APP下发ssID
+     * @param ssIDLen ssID总长度
+     * @param ssIDIndex   包序号，第N包（从0开始）
+     * @param ssID    原始码，ssID的数据
+     */
+    public static byte[] sendSSIDCommand(byte ssIDLen, byte ssIDIndex, byte[] ssID) {
+        byte[] data = new byte[16];
+        data[0] = ssIDLen;
+        data[1] = ssIDIndex;
+        System.arraycopy(ssID, 0, data, 2, ssID.length);
+        return commandPackage(false, (byte) 0x90, commandTSN(), data, null, null);
+    }
+
+    /**
+     * APP下发密码
+     * @param pwdLen    wifi密码总长度
+     * @param pwdIndex  包序号，第N包（从0开始）
+     * @param pwd       原始码
+     */
+    public static byte[] sendSSIDPwdCommand(byte pwdLen, byte pwdIndex, byte[] pwd) {
+        byte[] data = new byte[16];
+        data[0] = pwdLen;
+        data[1] = pwdIndex;
+        System.arraycopy(pwd, 0, data, 2, pwd.length);
+        return commandPackage(false, (byte) 0x91, commandTSN(), data, null, null);
+    }
+
+    /**
+     * 配网因子响应
+     * @param status 状态
+     *               0x00 成功
+     *               0x01 失败
+     */
+    public static byte[] pairFactorResponseCommand(byte status) {
+        byte[] data = new byte[1];
+        data[0] = status;
+        return commandPackage(false, (byte) 0x92, commandTSN(), data, null, null);
+    }
+
+    /**
+     * BLE配网状态上报响应
+     * @param status 状态
+     *               0x00 成功
+     *               0x01 失败
+     */
+    public static byte[] blePairStatusResponseCommand(byte status) {
+        byte[] data = new byte[1];
+        data[0] = status;
+        return commandPackage(false, (byte) 0x93, commandTSN(), data, null, null);
+    }
+
+    /**
+     * APP下发秘钥因子校验结果
+     * @param value 结果
+     *               0x00 成功
+     *               0x01 失败
+     */
+    public static byte[] sendKeyFactorVerifyResultCommand(byte value) {
+        byte[] data = new byte[1];
+        data[0] = value;
+        return commandPackage(false, (byte) 0x94, commandTSN(), data, null, null);
+    }
+
+    /**
+     * 上报剩余校验次数响应
+     * @param value 结果
+     *              0x00 成功
+     *              0x01 失败
+     */
+    public static byte[] remainVerifyCountResponseCommand(byte value) {
+        byte[] data = new byte[1];
+        data[0] = value;
+        return commandPackage(false, (byte) 0x95, commandTSN(), data, null, null);
+    }
+
+    /**
+     * APP下发配网状态
+     * @param status 状态
+     *               0x00 开始配网
+     *               0x01 停止配网
+     *               0x02 继续配网
+     */
+    public static byte[] sendPairStatusCommand(byte status) {
+        byte[] data = new byte[1];
+        data[0] = status;
+        return commandPackage(false, (byte) 0x96, commandTSN(), data, null, null);
+    }
+
+    /**
+     * 上报联网状态响应
+     * @param status 状态
+     *               0x00 成功
+     *               0x01 失败
+     */
+    public static byte[] sendConnectStatusResponseCommand(byte status) {
+        byte[] data = new byte[1];
+        data[0] = status;
+        return commandPackage(false, (byte) 0x97, commandTSN(), data, null, null);
+    }
+
+    /**
+     * wifi列表查询
+     */
+    public static byte[] wifiListSearchCommand() {
+        return commandPackage(false, (byte) 0x98, commandTSN(), null, null, null);
+    }
+
+}
