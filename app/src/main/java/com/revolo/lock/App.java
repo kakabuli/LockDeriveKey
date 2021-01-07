@@ -92,7 +92,6 @@ public class App extends Application {
     private final OKBLEOperation.WriteOperationListener mWriteOperationListener = new OKBLEOperation.WriteOperationListener() {
         @Override
         public void onWriteValue(byte[] value) {
-            Timber.d("onWriteValue value: %1s", ConvertUtils.bytes2HexString(value));
         }
 
         @Override

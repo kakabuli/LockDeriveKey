@@ -30,8 +30,8 @@ public class BleCommandFactory {
     // 不足16个字节补0x00;
     // 采用AES128-ECB加密(除确认帧和心跳帧外);
 
-    private static final byte CONTROL_ENCRYPTION = 1;
-    private static final byte CONTROL_NORMAL = 0;
+    private static final byte CONTROL_ENCRYPTION = 0x01;
+    private static final byte CONTROL_NORMAL = 0x00;
 
     private static byte sCommandTSN = 0x01;
 
@@ -42,10 +42,14 @@ public class BleCommandFactory {
             0x00,0x00,0x00,0x00};
 
     private static byte commandTSN() {
-        if(sCommandTSN == 0xFF) {
+        if(sCommandTSN == 0xFE) {
             sCommandTSN = 0x01;
         }
         return sCommandTSN++;
+    }
+
+    public static byte getCommandTSN() {
+        return sCommandTSN;
     }
 
     /**
@@ -85,17 +89,17 @@ public class BleCommandFactory {
      * 需要用pwd1和pwd2进行加密
      * @param needEncryptData  需要加密的数据
      * @param pwd1             加密的key pwd1 不足16位需要补0
-     * @param pwd2             加密的key pwd2，与pwd1结合生成pwd
+     * @param pwd2Or3          加密的key pwd2或者pwd3，与pwd1结合生成pwd
      * @param command          把加密后的数据载入到对应的指令
      * @return                 发送的完整的指令
      */
-    private static byte[] pwdEncrypt(byte[] needEncryptData, byte[] pwd1, byte[] pwd2, byte[] command) {
+    private static byte[] pwdEncrypt(byte[] needEncryptData, byte[] pwd1, byte[] pwd2Or3, byte[] command) {
         if(pwd1.length != 16) {
             Timber.e("pwdEncrypt pwd1 key的长度错误，请检查输入的数据 size: %1d", pwd1.length);
             return null;
         }
-        if(pwd2.length != 4) {
-            Timber.e("pwdEncrypt pwd2 key的长度错误，请检查输入的数据 size: %1d", pwd2.length);
+        if(pwd2Or3.length != 4) {
+            Timber.e("pwdEncrypt pwd2 key的长度错误，请检查输入的数据 size: %1d", pwd2Or3.length);
             return null;
         }
         byte[] pwd = new byte[16];
@@ -103,14 +107,14 @@ public class BleCommandFactory {
             if(i <= 11) {
                 pwd[i]=pwd1[i];
             } else {
-                pwd[i]=pwd2[i-12];
+                pwd[i]=pwd2Or3[i-12];
             }
         }
         command[2] = checksum(needEncryptData);
         byte[] payload = EncryptUtils.encryptAES(needEncryptData, pwd, "AES/ECB/NoPadding", null);
         Timber.d("pwdEncrypt 加密之前的数据：%1s\n pwd1：%2s\n pwd2: %3s\n pwd: %4s\n 加密后的数据：%5s",
                 ConvertUtils.bytes2HexString(needEncryptData), ConvertUtils.bytes2HexString(pwd1),
-                ConvertUtils.bytes2HexString(pwd2), ConvertUtils.bytes2HexString(pwd),
+                ConvertUtils.bytes2HexString(pwd2Or3), ConvertUtils.bytes2HexString(pwd),
                 ConvertUtils.bytes2HexString(payload));
         System.arraycopy(payload, 0, command, 4, payload.length);
         return command;
@@ -121,17 +125,17 @@ public class BleCommandFactory {
      * @param isEncrypt  是否加密
      * @param cmd        指令
      * @param tsn        传输序号（不能为0），每次发送时加1，命令和确认的TSN相同
-     * @param payload       数据
+     * @param payload    数据
      * @param pwd1       密码1，isEncrypt==false时，可以输入null
-     * @param pwd2       密码2, 可以输入null
+     * @param pwd2Or3    密码2或3, 可以输入null
      * @return  满足20个字节单条指令
      */
     private static byte[] commandPackage(boolean isEncrypt, byte cmd, byte tsn, byte[] payload,
-                                         byte[] pwd1, byte[] pwd2) {
+                                         byte[] pwd1, byte[] pwd2Or3) {
         byte[] command = new byte[20];
         command[0] = isEncrypt?CONTROL_ENCRYPTION:CONTROL_NORMAL;
         command[1] = tsn;
-        command[2] = checksum(payload);
+        command[2] = payload==null?0x00:checksum(payload);
         command[3] = cmd;
         // 数据必须是16位来用于加密
         byte[] data = new byte[16];
@@ -139,7 +143,12 @@ public class BleCommandFactory {
         if(payload != null) {
             System.arraycopy(payload, 0, data, 0, payload.length);
         }
-        return isEncrypt?(pwd2==null?pwd1Encrypt(data, pwd1, command):pwdEncrypt(data, pwd1, pwd2, command)):command;
+        if(isEncrypt) {
+            return ((pwd2Or3==null?pwd1Encrypt(data, pwd1, command):pwdEncrypt(data, pwd1, pwd2Or3, command)));
+        } else {
+            System.arraycopy(data, 0, command, 4, data.length);
+            return command;
+        }
     }
 
     /**
@@ -163,24 +172,24 @@ public class BleCommandFactory {
 
     /**
      * 锁控制
-     * @param action
-     *            0x00：UnLock
-     *            0x01：Lock
-     *            0x02：Toggle
-     *            0x03:  APP在线解绑门锁
-     *            0x04~0xFF：保留
-     * @param codeType
-     *            0x00：保留
-     *            0x01：PIN密码
-     *            0x02：RFID卡片
-     *            0x04：APP开锁（锁不鉴权）
-     * @param userId
-     *            0x01	BLE自动开锁
-     * @param pwdLength
-     *            6~12  PIN Code
-     *            4~10  RFID Code
-     * @param code
-     *            Code密钥：Set PIN Code时为ASCII码，如123456为0x313233343536
+     * @param action     动作
+     *                   0x00：UnLock
+     *                   0x01：Lock
+     *                   0x02：Toggle
+     *                   0x03: APP在线解绑门锁
+     *                   0x04~0xFF：保留
+     * @param codeType   密钥类型
+     *                   0x00：保留
+     *                   0x01：PIN密码
+     *                   0x02：RFID卡片
+     *                   0x04：APP开锁（锁不鉴权）
+     * @param userId     用户编号
+     *                   0x01	BLE自动开锁
+     * @param pwdLength  密码长度
+     *                   6~12  PIN Code
+     *                   4~10  RFID Code
+     * @param code      密钥
+     *                  Set PIN Code时为ASCII码，如123456为0x313233343536
      */
     public static byte[] lockControlCommand(byte action, byte codeType, byte userId,
                                             byte pwdLength, byte[] code, byte[] pwd1, byte[] pwd2) {
@@ -195,30 +204,30 @@ public class BleCommandFactory {
 
     /**
      * 密钥管理
-     * @param action
-     * 0x00：保留
-     * 0x01：Set Code设置密钥
-     * 0x02：Get Code查询密钥
-     * 0x03：Clear Code删除密钥
-     * 0x04：Check Code验证密钥
-     * @param codeType
-     * 0x00：保留
-     * 0x01：PIN密码（Set\Get\Clear）
-     * 0x02：指纹（Set\Get\Clear）
-     * 0x03：RFID卡片（Set\Get\Clear）
-     * 0x04：管理员密码（Set\Check）
-     * @param userId
-     * 0~9/19  Code Type为PIN时
-     * 0~99  Code Type为指纹时
-     * 0~99  Code Type为RFID时
-     * 0xff  Code Type 为管理员密码时
-     * 0xFF  Action为Clear时删除所有
-     * @param keyLength
-     * 6~12/4~10  Set PIN Code
-     * 4~10  Set RFID Code
-     * 0     Get/Clear Code
-     * @param code
-     * Code密钥：Set PIN Code时为ASCII码，如123456为0x313233343536
+     * @param action       动作
+     *                     0x00：保留
+     *                     0x01：Set Code设置密钥
+     *                     0x02：Get Code查询密钥
+     *                     0x03：Clear Code删除密钥
+     *                     0x04：Check Code验证密钥
+     * @param codeType     密钥类型
+     *                     0x00：保留
+     *                     0x01：PIN密码（Set\Get\Clear）
+     *                     0x02：指纹（Set\Get\Clear）
+     *                     0x03：RFID卡片（Set\Get\Clear）
+     *                     0x04：管理员密码（Set\Check）
+     * @param userId       用户编号
+     *                     0~9/19  Code Type为PIN时
+     *                     0~99  Code Type为指纹时
+     *                     0~99  Code Type为RFID时
+     *                     0xff  Code Type 为管理员密码时
+     *                     0xFF  Action为Clear时删除所有
+     * @param keyLength    密钥长度
+     *                     6~12/4~10  Set PIN Code
+     *                     4~10  Set RFID Code
+     *                     0     Get/Clear Code
+     * @param code         密钥
+     *                     Set PIN Code时为ASCII码，如123456为0x313233343536
      */
     public static byte[] keyManagementCommand(byte action, byte codeType, byte userId,
                                               byte keyLength, byte[] code, byte[] pwd1, byte[] pwd2) {
@@ -254,12 +263,12 @@ public class BleCommandFactory {
     /**
      * 锁操作上报确认帧
      * @param lockReportTSN 和锁记录上报帧TSN一致。
-     * @param cmd 和锁记录上报帧cmd一致。
-     * @param status
-     * 0x00	成功
-     * 0x01	失败
-     * 0x94	超时
-     * 0x9A	命令正在执行（TSN重复）
+     * @param cmd           和锁记录上报帧cmd一致。
+     * @param status        状态
+     *                      0x00	成功
+     *                      0x01	失败
+     *                      0x94	超时
+     *                      0x9A	命令正在执行（TSN重复）
      */
     public static byte[] lockOperationReportConfirmationCommand(byte lockReportTSN, byte status, byte cmd) {
         byte[] data = new byte[1];
@@ -269,64 +278,76 @@ public class BleCommandFactory {
 
     /**
      * 锁参数修改
-     * @param num
-     * 0x01 语言 Language
-     * 0x02 音量 SoundVolume
-     * 0x03 时间 TimeSeconds
-     * 0x04 自动关门 AutoLock
-     * 0x05 反锁
-     * 0x06 离家模式/布防VacationSwitch
-     * 0x07 蓝牙开关 BluetoothSwitch
-     * 0x08 安全模式SecuritySwitch
-     * 0x09 红外模式（Alfred）Infrared
-     * 0x0A 过道模式
-     * 0x0B 设置门磁开关
-     * 0x0C 设置门磁状态
-     * 0x81 锁事件上报切换 LockEventNotificationSwitch
-     * @param length
-     * 语言                  2
-     * 音量                  1
-     * 时间                  4
-     * 自动关门              1
-     * 反锁                  1
-     * 离家模式/布防         1
-     * 蓝牙开关              1
-     * 安全模式              1
-     * 红外模式              1
-     * 过道模式              1
-     * 设置门磁开关          1
-     * 设置门磁状态          1
-     * 锁事件上报切换        1
-     * @param value
-     * 语言          ISO 639-1标准
-     *               zh：中文
-     *               en：英语
-     * 音量          0x00：Silent Mode静音
-     *               0x01：Low Volume低音量
-     *               0x02：High Volume高音量
-     *               0x03~0xFF：保留
-     * 时间          时间秒计数。以2000-01-01 00:00:00（本地时间）为起点开始计数
-     * 自动关门       0x00：开启
-     *                0x01：关闭
-     * 反锁           0x00：关闭反锁
-     *                0x01：开启反锁
-     * 离家模式/布防   0x00：开启
-     *                 0x01：关闭
-     * 蓝牙开关        0x00：开启
-     *                0x01：关闭
-     * 安全模式       0x00：关闭（正常模式）
-     *                0x01：开启
-     * 红外模式       0x00: 开启
-     *                0x01: 关闭
-     * 过道模式        0x00：关闭
-     *                0x01：开启
-     * 设置门磁开关    0x00：关闭
-     *                 0x01：开启
-     * 设置门磁状态    0x00：关门
-     *                0x01：开门
-     *                0x02：虚掩
-     * 锁事件上报切换  0x00：锁事件上报命令采用0x05，锁报警上报命令采用0x07；
-     *                0x01：锁事件上报命令采用0x1A（Alfred）；
+     * @param num        参数
+     *                   0x01 语言 Language
+     *                   0x02 音量 SoundVolume
+     *                   0x03 时间 TimeSeconds
+     *                   0x04 自动关门 AutoLock
+     *                   0x05 反锁
+     *                   0x06 离家模式/布防VacationSwitch
+     *                   0x07 蓝牙开关 BluetoothSwitch
+     *                   0x08 安全模式SecuritySwitch
+     *                   0x09 红外模式（Alfred）Infrared
+     *                   0x0A 过道模式
+     *                   0x0B 设置门磁开关
+     *                   0x0C 设置门磁状态
+     *                   0x81 锁事件上报切换 LockEventNotificationSwitch
+     * @param length     参数长度
+     *                   语言                  2
+     *                   音量                  1
+     *                   时间                  4
+     *                   自动关门              1
+     *                   反锁                  1
+     *                   离家模式/布防         1
+     *                   蓝牙开关              1
+     *                   安全模式              1
+     *                   红外模式              1
+     *                   过道模式              1
+     *                   设置门磁开关          1
+     *                   设置门磁状态          1
+     *                   锁事件上报切换        1
+     * @param value      参数值
+     *                   语言
+     *                      ISO 639-1标准
+     *                      zh：中文
+     *                      en：英语
+     *                   音量
+     *                      0x00：Silent Mode静音
+     *                      0x01：Low Volume低音量
+     *                      0x02：High Volume高音量
+     *                      0x03~0xFF：保留
+     *                   时间          时间秒计数。以2000-01-01 00:00:00（本地时间）为起点开始计数
+     *                   自动关门
+     *                      0x00：开启
+     *                      0x01：关闭
+     *                   反锁
+     *                      0x00：关闭反锁
+     *                      0x01：开启反锁
+     *                   离家模式/布防
+     *                      0x00：开启
+     *                      0x01：关闭
+     *                   蓝牙开关
+     *                       0x00：开启
+     *                       0x01：关闭
+     *                   安全模式
+     *                       0x00：关闭（正常模式）
+     *                       0x01：开启
+     *                   红外模式
+     *                       0x00: 开启
+     *                       0x01: 关闭
+     *                   过道模式
+     *                       0x00：关闭
+     *                       0x01：开启
+     *                   设置门磁开关
+     *                        0x00：关闭
+     *                        0x01：开启
+     *                   设置门磁状态
+     *                       0x00：关门
+     *                       0x01：开门
+     *                       0x02：虚掩
+     *                   锁事件上报切换
+     *                       0x00：锁事件上报命令采用0x05，锁报警上报命令采用0x07
+     *                       0x01：锁事件上报命令采用0x1A（Alfred）
      */
     public static byte[] lockParameterModificationCommand(byte num, byte length, byte[] value,
                                                           byte[] pwd1, byte[] pwd2) {
@@ -340,22 +361,22 @@ public class BleCommandFactory {
     /**
      * 用户类型设置
      * @param codeType 密钥类型
-     * 0x00：保留
-     * 0x01：PIN密码
-     * 0x02：指纹
-     * 0x03：RFID卡片
-     * @param userId 用户编号
-     * 0~9/19   Code Type为PIN时
-     * 0~99  Code Type为指纹时
-     * 0~99  Code Type为RFID时
+     *                 0x00：保留
+     *                 0x01：PIN密码
+     *                 0x02：指纹
+     *                 0x03：RFID卡片
+     * @param userId   用户编号
+     *                 0~9/19   Code Type为PIN时
+     *                 0~99  Code Type为指纹时
+     *                 0~99  Code Type为RFID时
      * @param userType 用户类型
-     * 0x00 默认（永久）
-     * 0x01 时间表用户
-     * 0x02 胁迫
-     * 0x03 管理员
-     * 0x04 无权限用户（查询权限）
-     * 0xFD 访客密码
-     * 0xFE 一次性密码
+     *                 0x00 默认（永久）
+     *                 0x01 时间表用户
+     *                 0x02 胁迫
+     *                 0x03 管理员
+     *                 0x04 无权限用户（查询权限）
+     *                 0xFD 访客密码
+     *                 0xFE 一次性密码
      */
     public static byte[] userTypeSettingCommand(byte codeType, byte userId, byte userType,
                                                 byte[] pwd1, byte[] pwd2) {
@@ -369,13 +390,13 @@ public class BleCommandFactory {
     /**
      * 用户类型查询
      * @param codeType 密钥类型
-     * 0x00：保留
-     * 0x01：PIN密码
-     * 0x02：指纹
-     * 0x03：RFID卡片
+     *                 0x00：保留
+     *                 0x01：PIN密码
+     *                 0x02：指纹
+     *                 0x03：RFID卡片
      * @param userId   用户编号
-     * 0~9   Code Type为PIN时
-     * 0~99  Code Type为RFID时
+     *                 0~9   Code Type为PIN时
+     *                 0~99  Code Type为RFID时
      */
     public static byte[] userTypeCheckCommand(byte codeType, byte userId, byte[] pwd1, byte[] pwd2) {
         byte[] data = new byte[2];
@@ -388,9 +409,9 @@ public class BleCommandFactory {
      * 周计划设置
      * @param scheduleID 计划编号
      * @param codeType   密钥类型
-     * 0x00：保留
-     * 0x01：PIN密码
-     * 0x03：RFID卡片
+     *                   0x00：保留
+     *                   0x01：PIN密码
+     *                   0x03：RFID卡片
      * @param userId     用户编号
      *                   0~9   Code Type为PIN时
      *                   0~99  Code Type为RFID时
@@ -543,16 +564,18 @@ public class BleCommandFactory {
         return commandPackage(true, (byte) 0x14, commandTSN(), data, pwd1, pwd2);
     }
 
-    public static byte[] lockSnCheckCommand(byte mode, byte[] pwd1, byte[] pwd2) {
-        // TODO: 2021/1/6 暂时不清楚是否需要使用
-        byte[] data = new byte[1];
-        return commandPackage(true, (byte) 0x15, commandTSN(), data, pwd1, pwd2);
+    /**
+     * 锁序列号查询
+     */
+    public static byte[] lockSnCheckCommand() {
+        return commandPackage(true, (byte) 0x15, commandTSN(), null, null, null);
     }
 
-    public static byte[] lockOpenCountCheckCommand(byte mode, byte[] pwd1, byte[] pwd2) {
-        // TODO: 2021/1/6 暂时不清楚是否需要使用
-        byte[] data = new byte[1];
-        return commandPackage(true, (byte) 0x16, commandTSN(), data, pwd1, pwd2);
+    /**
+     * 锁开锁次数查询
+     */
+    public static byte[] lockOpenCountCheckCommand() {
+        return commandPackage(true, (byte) 0x16, commandTSN(), null, null, null);
     }
 
     /**
@@ -576,12 +599,13 @@ public class BleCommandFactory {
      * [1,2] 读取两条，返回第1和第2条记录；
      * [0,19] 读取20条，返回第0 1 2…..19条；
      * [20,40] 读取21条，返回第20 21 22…..40条；
-     * @param option         0x1 查询记录
+     * @param option         选项
+     *                       0x1 查询记录
      * @param logType       记录类型
-     * 0x0 开门记录
-     * 0x01 报警记录
-     * 0x02 秘钥操作记录
-     * 0x03 混合记录
+     *                      0x0 开门记录
+     *                      0x01 报警记录
+     *                      0x02 秘钥操作记录
+     *                      0x03 混合记录
      * @param logIndexStart 查询的记录起始序号
      * @param logIndexEnd   查询的记录结束序号
      */
@@ -618,9 +642,9 @@ public class BleCommandFactory {
 
     /**
      * APP下发ssID
-     * @param ssIDLen ssID总长度
+     * @param ssIDLen     ssID总长度
      * @param ssIDIndex   包序号，第N包（从0开始）
-     * @param ssID    原始码，ssID的数据
+     * @param ssID        原始码，ssID的数据
      */
     public static byte[] sendSSIDCommand(byte ssIDLen, byte ssIDIndex, byte[] ssID) {
         byte[] data = new byte[16];

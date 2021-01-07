@@ -75,6 +75,7 @@
             android:screenOrientation="portrait"/>
         <activity android:name=".ui.home.add.InputESNActivity"
             android:screenOrientation="portrait"/>
+        <activity android:name=".ui.TestWifiActivity" />
     </application>
 
 </manifest>
