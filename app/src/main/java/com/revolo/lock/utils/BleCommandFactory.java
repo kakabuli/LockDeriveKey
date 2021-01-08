@@ -42,7 +42,8 @@ public class BleCommandFactory {
             0x00,0x00,0x00,0x00};
 
     private static byte commandTSN() {
-        if(sCommandTSN == 0xFE) {
+        // -1是byte的最大值
+        if(sCommandTSN == -1) {
             sCommandTSN = 0x01;
         }
         return sCommandTSN++;
@@ -50,6 +51,13 @@ public class BleCommandFactory {
 
     public static byte getCommandTSN() {
         return sCommandTSN;
+    }
+
+    public static void test() {
+        // 测试TSN数据的递增是否存在问题
+        for (int i=0; i < 1000; i++) {
+            Timber.d("sCommandTSN : %1s", String.valueOf(commandTSN()));
+        }
     }
 
     /**
@@ -261,16 +269,55 @@ public class BleCommandFactory {
     }
 
     /**
-     * 锁操作上报确认帧
+     * ack确认回复帧
      * @param lockReportTSN 和锁记录上报帧TSN一致。
      * @param cmd           和锁记录上报帧cmd一致。
      * @param status        状态
      *                      0x00	成功
      *                      0x01	失败
-     *                      0x94	超时
-     *                      0x9A	命令正在执行（TSN重复）
+     *                      0x7E    无授权
+     *                      0x7F    保留区域没有置零
+     *                      0x80    异常命令
+     *                      0x81    不支持该命令，不支持的命令必须返回该值
+     *                      0x82    不使用
+     *                      0x83    不使用
+     *                      0x84    不使用
+     *                      0x85    某个字段错误
+     *                      0x86    不支持的属性
+     *                      0x87    超出范围或者设置为保留值，或者序号已存在
+     *                      0x88    属性为只读
+     *                      0x89    操作空间不够
+     *                      0x8A    重复存在
+     *                      0x8B    被请求的数据没有找到，不支持的设置项必须返回该值
+     *                      0x8C    不使用
+     *                      0x8D    数据类型错误
+     *                      0x8E    不使用
+     *                      0x8F    只写
+     *                      0x90    不使用
+     *                      0x91    不使用
+     *                      0x92    不使用
+     *                      0x93    权限不够
+     *                      0x94    超时，模块发送命令给锁，锁没有接收
+     *                      0x95    客户端或服务端退出升级程序
+     *                      0x96    错误的Image文件
+     *                      0x97    Server does not have data block available yet.
+     *                      0x98    没有可用的OTA Image文件
+     *                      0x99    客户端需要更多的OTA文件
+     *                      0x9A    命令已经接收正在处理
+     *                      0xC0    硬件原因造成错误
+     *                      0xC1    软件原因造成错误
+     *                      0xC2    校验过程出现错误
+     *                      0xC3    不使用
+     *                      0xC4    反锁
+     *                      0xC5    安全模式
+     *                      0xD1    子模块版本相同
+     *                      0xD2    获取版本超时
+     *                      0xD3    升级方式错误
+     *                      0xD4    升级方式错误
+     *                      0xD5    配置WIFI失败
+     *                      0xFF    锁已经接收到命令，但超时时间内没有处理结果返回
      */
-    public static byte[] lockOperationReportConfirmationCommand(byte lockReportTSN, byte status, byte cmd) {
+    public static byte[] ackCommand(byte lockReportTSN, byte status, byte cmd) {
         byte[] data = new byte[1];
         data[0] = status;
         return commandPackage(false, cmd, lockReportTSN, data, null, null);
@@ -474,6 +521,7 @@ public class BleCommandFactory {
      *                   以2000.1.1 00:00:00为起始时间的秒计数
      * @param endTime    结束时间
      *                   结束时间必须大于起始时间
+     * @return 值可能是null
      */
     public static byte[] yearMonthDaySettingCommand(byte scheduleID, byte userId, byte codeType, byte[] startTime,
                                                     byte[] endTime,  byte[] pwd1, byte[] pwd2) {
@@ -481,6 +529,11 @@ public class BleCommandFactory {
         data[0] = scheduleID;
         data[1] = userId;
         data[2] = codeType;
+        if(startTime.length != 4 || endTime.length != 4) {
+            Timber.e("yearMonthDaySettingCommand 传入的时间字节流长度不对 startTime.length %1d,endTime.length %2d",
+                    startTime.length, endTime.length);
+            return null;
+        }
         System.arraycopy(startTime, 0, data, 3, startTime.length);
         System.arraycopy(endTime, 0, data, 7, endTime.length);
         return commandPackage(true, (byte) 0x0E, commandTSN(), data, pwd1, pwd2);
@@ -536,12 +589,26 @@ public class BleCommandFactory {
      * @param pwdLen    管理密码长度 1位
      * @param managePwd 管理密码  4~10位长度
      * @param random    随机数    11~5位长度
+     * @return 值可能为null
      */
     public static byte[] appBindRequestCommand(byte pwdLen, byte[] managePwd, byte[] random,
                                                byte[] pwd1, byte[] pwd2) {
-        // TODO: 2021/1/6 后续需要补充修改
-        byte[] data = new byte[1];
+        byte[] data = new byte[16];
         data[0] = pwdLen;
+        if(managePwd.length < 4 || managePwd.length > 10) {
+            Timber.e("appBindRequestCommand managePwd 长度不对 length: %1d", managePwd.length);
+            return null;
+        }
+        if(random.length > 11 || random.length < 5) {
+            Timber.e("appBindRequestCommand random 长度不对 length: %1d", random.length);
+            return null;
+        }
+        if(random.length+managePwd.length != 15) {
+            Timber.e("appBindRequestCommand random.length+managePwd.length=%1d", random.length+managePwd.length);
+            return null;
+        }
+        System.arraycopy(managePwd, 0, data, 1, managePwd.length);
+        System.arraycopy(random, 0, data, managePwd.length+1, random.length);
         return commandPackage(true, (byte) 0x13, commandTSN(), data, pwd1, pwd2);
     }
 
@@ -623,7 +690,8 @@ public class BleCommandFactory {
     private static byte sHeartBeatTSN = 0x01;
 
     private static byte heartBeatTSN()  {
-        if(sHeartBeatTSN == 0xFF) {
+        // -1是byte的最大值
+        if(sHeartBeatTSN == -1) {
             sHeartBeatTSN = 0x01;
         }
         return sHeartBeatTSN++;
