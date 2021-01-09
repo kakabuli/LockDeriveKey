@@ -1,9 +1,10 @@
-package com.revolo.lock;
+package com.revolo.lock.ui;
 
 import android.os.Bundle;
 import android.view.View;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.revolo.lock.R;
 import com.revolo.lock.base.BaseActivity;
 
 import androidx.annotation.NonNull;

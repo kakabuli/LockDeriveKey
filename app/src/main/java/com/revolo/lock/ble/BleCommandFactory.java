@@ -1,4 +1,4 @@
-package com.revolo.lock.utils;
+package com.revolo.lock.ble;
 
 import com.blankj.utilcode.util.ConvertUtils;
 import com.blankj.utilcode.util.EncryptUtils;

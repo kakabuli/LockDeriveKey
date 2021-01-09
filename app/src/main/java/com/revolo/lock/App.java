@@ -8,7 +8,7 @@ import com.a1anwang.okble.client.core.OKBLEDeviceListener;
 import com.a1anwang.okble.client.core.OKBLEOperation;
 import com.a1anwang.okble.client.scan.BLEScanResult;
 import com.blankj.utilcode.util.ConvertUtils;
-import com.revolo.lock.utils.BleCommandFactory;
+import com.revolo.lock.ble.BleCommandFactory;
 
 import timber.log.Timber;
 

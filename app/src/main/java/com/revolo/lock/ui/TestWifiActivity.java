@@ -29,7 +29,7 @@ import com.revolo.lock.App;
 import com.revolo.lock.Constant;
 import com.revolo.lock.R;
 import com.revolo.lock.base.BaseActivity;
-import com.revolo.lock.utils.BleCommandFactory;
+import com.revolo.lock.ble.BleCommandFactory;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
