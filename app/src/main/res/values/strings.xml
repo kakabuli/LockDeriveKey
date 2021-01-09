@@ -7,40 +7,28 @@
     <!--   SignSelectActivity  -->
     <string name="revolo">Revolo</string>
     <string name="tip_sign_select">Welcome to use revolo products to\n give you a safe and comfortable\n home</string>
-    <string name="i_accepted_an_invitation">I accepted an invitation</string>
     <string name="register">Register</string>
-    <string name="or">or</string>
     <string name="sign_in">Sign in</string>
 
     <string name="iv_tip_back">Back</string>
 
-    <!--  ReceiveInvitationActivity  -->
-    <string name="iv_tip_agree_terms_of_use">I agree to Terms of Use</string>
-    <string name="title_receive_invitation">Receive invitation</string>
-    <string name="tip_receive_invitation">You are welcome to accept the\n invitation to use revolo products</string>
-    <string name="content_receive_invitation">Start by creating your account, which\n allows you to use and add all of the\n revolo products</string>
-    <string name="i_agree_to">I agree to</string>
-    <string name="terms_of_use">Terms of Use</string>
-
-    <!--  ReceiveInvitationCreateActivity -->
-    <string name="tip_receive_invitation_create">Please enter your email address for\n accepting the invitation</string>
+    <!--  RegisterActivity -->
     <string name="hint_email_address">Email Address</string>
-    <string name="hint_create_password">Create Password</string>
-    <string name="start_creating">Start creating</string>
+    <string name="hint_password">Password</string>
+    <string name="create">Create</string>
+    <string name="tip_please_register_your_account_number">Please register your account number</string>
+    <string name="hint_verification_code">Verification code</string>
 
-    <!-- InvitationInputNameActivity -->
-    <string name="next">Next</string>
-    <string name="tip_input_name">Please enter the name of\n the inviting person</string>
-    <string name="hint_first_name">First name</string>
-    <string name="hint_last_name">Last name</string>
-
-    <!-- InvitationAddAvatarActivity -->
-    <string name="tip_invitation_add_avatar">Add a avatar so your family and friends\n can get to know you when you send an\n invitation</string>
+    <!-- RegisterAddAvatarActivity -->
+    <string name="tip_register_add_avatar">Add a avatar so your family and friends\n can get to know you when you send an\n invitation</string>
     <string name="album_add">Album Add</string>
     <string name="photograph">Photograph</string>
     <string name="skip">Skip</string>
 
     <!-- RegisterInputNameActivity -->
+    <string name="next">Next</string>
+    <string name="hint_first_name">First name</string>
+    <string name="hint_last_name">Last name</string>
     <string name="tip_register_input_name">Please enter the name</string>
 
     <!-- RegisterAddAvatarNextActivity -->
@@ -49,6 +37,8 @@
     <string name="add_next_time">Add next time</string>
 
     <!-- LoginActivity -->
+    <string name="i_agree_to">I agree to</string>
+    <string name="terms_of_use">Terms of Use</string>
     <string name="tip_login">Please enter your email account！</string>
     <string name="password">Password</string>
     <string name="forgot_password">Forgot password?</string>

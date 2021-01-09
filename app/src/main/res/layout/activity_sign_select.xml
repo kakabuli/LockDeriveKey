@@ -34,47 +34,24 @@
         app:layout_constraintTop_toBottomOf="@+id/textView" />
 
     <android.widget.Button
-        android:id="@+id/btnInvitation"
-        android:layout_width="223pt"
-        android:layout_height="36pt"
-        style="@style/ButtonStyle"
-        android:text="@string/i_accepted_an_invitation"
-        android:layout_marginBottom="20pt"
-        app:layout_constraintBottom_toTopOf="@+id/btnRegister"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
-
-    <android.widget.Button
         android:id="@+id/btnRegister"
         android:layout_width="223pt"
         android:layout_height="36pt"
         style="@style/ButtonStyle"
         android:text="@string/register"
-        android:layout_marginBottom="13pt"
-        app:layout_constraintBottom_toTopOf="@+id/tvOr"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
-
-    <TextView
-        android:id="@+id/tvOr"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/or"
-        android:textColor="@color/c666666"
-        android:textSize="14pt"
-        android:layout_marginBottom="12pt"
-        app:layout_constraintBottom_toTopOf="@+id/btnSignIn"
+        android:layout_marginBottom="70pt"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
     <android.widget.Button
         android:id="@+id/btnSignIn"
+        style="@style/ButtonStyle"
         android:layout_width="223pt"
         android:layout_height="36pt"
-        style="@style/ButtonStyle"
-        android:layout_marginBottom="73pt"
+        android:layout_marginBottom="14pt"
         android:text="@string/sign_in"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/btnRegister"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 

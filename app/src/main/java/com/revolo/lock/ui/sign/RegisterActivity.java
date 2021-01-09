@@ -10,6 +10,8 @@ import androidx.annotation.Nullable;
 import com.revolo.lock.R;
 import com.revolo.lock.base.BaseActivity;
 
+import timber.log.Timber;
+
 /**
  * author : Jack
  * time   : 2020/12/23
@@ -31,7 +33,7 @@ public class RegisterActivity extends BaseActivity {
     public void initView(@Nullable Bundle savedInstanceState, @Nullable View contentView) {
         setStatusBarColor(R.color.white);
         useCommonTitleBar(getString(R.string.register));
-        applyDebouncingClickListener(findViewById(R.id.btnStartCreating));
+        applyDebouncingClickListener(findViewById(R.id.btnStartCreating), findViewById(R.id.ivEye));
     }
 
     @Override
@@ -43,6 +45,10 @@ public class RegisterActivity extends BaseActivity {
     public void onDebouncingClick(@NonNull View view) {
         if(view.getId() == R.id.btnStartCreating) {
             startActivity(new Intent(this, RegisterInputNameActivity.class));
+            return;
+        }
+        if(view.getId() == R.id.ivEye) {
+            Timber.d("onDebouncingClick touch eye");
         }
     }
 }

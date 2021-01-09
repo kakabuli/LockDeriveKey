@@ -24,9 +24,7 @@ public class SignSelectActivity extends BaseActivity {
     @Override
     public void initView(@Nullable Bundle savedInstanceState, @Nullable View contentView) {
         setStatusBarColor(R.color.white);
-        applyDebouncingClickListener(findViewById(R.id.btnInvitation));
-        applyDebouncingClickListener(findViewById(R.id.btnRegister));
-        applyDebouncingClickListener(findViewById(R.id.btnSignIn));
+        applyDebouncingClickListener(findViewById(R.id.btnRegister), findViewById(R.id.btnSignIn));
     }
 
     @Override
@@ -36,10 +34,6 @@ public class SignSelectActivity extends BaseActivity {
 
     @Override
     public void onDebouncingClick(@NonNull View view) {
-        if(view.getId() == R.id.btnInvitation) {
-            startActivity(new Intent(this, ReceiveInvitationActivity.class));
-            return;
-        }
         if(view.getId() == R.id.btnRegister) {
             startActivity(new Intent(this, RegisterActivity.class));
             return;
