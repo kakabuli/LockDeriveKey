@@ -48,13 +48,13 @@ public class RegisterActivity extends BaseActivity {
                 findViewById(R.id.ivSelect));
 
         TextView tvAgreement = findViewById(R.id.tvAgreement);
-        String agreementStr = getString(R.string.tip_terms_of_use);
+        String agreementStr = getString(R.string.terms_of_use);
         SpannableString spannableString = new SpannableString(agreementStr);
         LinkClickableSpan span = new LinkClickableSpan() {
             // TODO: 2021/1/11 跳转到协议界面
         };
         spannableString.setSpan(span, 0, agreementStr.length(), Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
-        tvAgreement.append(getString(R.string.tip_i_agree_to));
+        tvAgreement.append(getString(R.string.i_agree_to));
         tvAgreement.append(spannableString);
 
     }

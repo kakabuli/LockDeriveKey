@@ -12,6 +12,9 @@
         android:id="@+id/etEmail"
         android:layout_width="300pt"
         android:layout_height="44pt"
+        android:drawableStart="@drawable/register_icon_email"
+        android:drawablePadding="41pt"
+        android:paddingStart="15pt"
         style="@style/InputEditTextStyle"
         android:theme="@style/InputEditTextTheme"
         android:layout_marginTop="54pt"
@@ -27,6 +30,9 @@
         android:layout_width="300pt"
         android:layout_height="44pt"
         style="@style/InputEditTextStyle"
+        android:drawableStart="@drawable/register_icon_verification"
+        android:drawablePadding="41pt"
+        android:paddingStart="15pt"
         android:theme="@style/InputEditTextTheme"
         android:layout_marginTop="10pt"
         android:hint="@string/verification_code"
@@ -54,6 +60,9 @@
         android:layout_width="300pt"
         android:layout_height="44pt"
         style="@style/InputEditTextStyle"
+        android:drawableStart="@drawable/register_icon_password"
+        android:drawablePadding="41pt"
+        android:paddingStart="15pt"
         android:theme="@style/InputEditTextTheme"
         android:layout_marginTop="10pt"
         android:hint="@string/password"
@@ -62,13 +71,24 @@
         app:layout_constraintTop_toBottomOf="@+id/etCode"
         android:inputType="textPassword" />
 
+    <ImageView
+        android:id="@+id/ivEye"
+        android:layout_width="36pt"
+        android:layout_height="36pt"
+        android:layout_marginEnd="20pt"
+        android:padding="10pt"
+        app:layout_constraintBottom_toBottomOf="@+id/etPwd"
+        app:layout_constraintEnd_toEndOf="@+id/etPwd"
+        app:layout_constraintTop_toTopOf="@+id/etPwd"
+        app:srcCompat="@drawable/login_icon_hide" />
+
 
     <android.widget.Button
         android:id="@+id/btnDone"
         style="@style/ButtonStyle"
         android:layout_width="223pt"
         android:layout_height="36pt"
-        android:text="@string/done"
+        android:text="@string/complete"
         android:layout_marginBottom="136pt"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="@+id/titleBar"
