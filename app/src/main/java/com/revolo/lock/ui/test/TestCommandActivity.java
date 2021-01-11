@@ -108,8 +108,7 @@ public class TestCommandActivity extends BaseActivity {
                 byte[] send = ConvertUtils.hexString2Bytes(command);
                 byte[] payload = new byte[16];
                 System.arraycopy(send, 4, payload, 0, payload.length);
-                writeMsg(BleCommandFactory.commandPackage(true, BleCommandFactory.commandTSN(),
-                        send[3], payload, BleCommandFactory.sTestPwd1,mPwd2Or3));
+                writeMsg(BleCommandFactory.commandPackage(true, send[3], BleCommandFactory.commandTSN(), payload, BleCommandFactory.sTestPwd1,mPwd2Or3));
             }
         } else {
             addLog("鉴权没有成功，无法使用此功能\n");
@@ -218,13 +217,13 @@ public class TestCommandActivity extends BaseActivity {
                 isHavePwd2Or3 = true;
                 writeMsg(BleCommandFactory.ackCommand(bleResultBean.getTSN(), (byte)0x00, bleResultBean.getCMD()));
                 new Handler(Looper.getMainLooper()).postDelayed(() -> {
-                    addLog("auth 延时发送鉴权指令\n");
+                    addLog(StringUtils.format("auth 延时发送鉴权指令, pwd2: %1s\n", ConvertUtils.bytes2HexString(mPwd2Or3)));
                     writeMsg(BleCommandFactory.authCommand(BleCommandFactory.sTestPwd1, mPwd2Or3, ConvertUtils.hexString2Bytes(mSystemId)));
                 }, 50);
             } else if(data[0] == 0x02) {
-                addLog("鉴权成功\n");
                 // 获取pwd3
                 System.arraycopy(data, 1, mPwd2Or3, 0, mPwd2Or3.length);
+                addLog(StringUtils.format("鉴权成功, pwd3: %1s\n", ConvertUtils.bytes2HexString(mPwd2Or3)));
                 writeMsg(BleCommandFactory.ackCommand(bleResultBean.getTSN(), (byte)0x00, bleResultBean.getCMD()));
             }
         }
