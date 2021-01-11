@@ -30,9 +30,6 @@ public class BleResultProcess {
             0x0F,0x68, (byte) 0x8F,
             0x00,0x00,0x00,0x00};
 
-    private static byte[] mPwd2Or3 = new byte[4];
-    private static byte[] mPwd = new byte[16];
-
     public static void processReceivedData(byte[] receivedData,
                                            byte[] pwd1,
                                            byte[] pwd2Or3,
@@ -74,10 +71,6 @@ public class BleResultProcess {
      *  鉴权成功，密钥：Password1+Password2 明文：PWD_Type(0x02)+Password3
      *  退网时，密钥：Password1+0x00000000 明文：PWD_Type(0x03)+0x00000000
      */
-
-    public static byte[] getPwd2Or3() {
-        return mPwd2Or3;
-    }
 
     /**
      * 简单的校验和
@@ -154,7 +147,7 @@ public class BleResultProcess {
      * @return                 解密后的数据
      */
     private static byte[] pwd1Decrypt(@NotNull byte[] needDecryptData, @NotNull byte[] pwd1) {
-        byte[] payload = EncryptUtils.encryptAES(needDecryptData, pwd1, "AES/ECB/NoPadding", null);
+        byte[] payload = EncryptUtils.decryptAES(needDecryptData, pwd1, "AES/ECB/NoPadding", null);
         Timber.d("pwd1Decrypt 解密之前的数据：%1s\n pwd1：%2s\n 解密后的数据：%3s",
                 ConvertUtils.bytes2HexString(needDecryptData),
                 ConvertUtils.bytes2HexString(pwd1),
@@ -169,6 +162,7 @@ public class BleResultProcess {
      * @param pwd2Or3      解密需要的pwd2或pwd3
      */
     private static void process(byte[] receivedData, byte[] pwd1, byte[] pwd2Or3, BLEScanResult bleScanResult) {
+
         if(receivedData.length != 20) {
             Timber.e("getCmd 接收的数据长度不对，不进行解析 length : %1d", receivedData.length);
             return;
@@ -179,7 +173,7 @@ public class BleResultProcess {
         byte[] decryptPayload = isEncrypt?pwdDecrypt(payload, pwd1, pwd2Or3):payload;
         byte sum = checksum(decryptPayload);
         if(receivedData[2] != sum) {
-            Timber.e("getCmd 校验和失败，接收数据中的校验和：%1s，接收数据后计算的校验和：%2s",
+            Timber.d("getCmd 校验和失败，接收数据中的校验和：%1s，\n接收数据后计算的校验和：%2s",
                     ConvertUtils.int2HexString(receivedData[2]), ConvertUtils.int2HexString(sum));
             return;
         }

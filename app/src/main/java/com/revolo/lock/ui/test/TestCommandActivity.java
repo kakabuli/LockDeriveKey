@@ -213,15 +213,18 @@ public class TestCommandActivity extends BaseActivity {
             byte[] data = bleResultBean.getPayload();
             if(data[0] == 0x01) {
                 // 入网时
+                // 获取pwd2
                 System.arraycopy(data, 1, mPwd2Or3, 0, mPwd2Or3.length);
                 isHavePwd2Or3 = true;
                 writeMsg(BleCommandFactory.ackCommand(bleResultBean.getTSN(), (byte)0x00, bleResultBean.getCMD()));
                 new Handler(Looper.getMainLooper()).postDelayed(() -> {
-                    Timber.d("auth 延时发送鉴权指令");
+                    addLog("auth 延时发送鉴权指令\n");
                     writeMsg(BleCommandFactory.authCommand(BleCommandFactory.sTestPwd1, mPwd2Or3, ConvertUtils.hexString2Bytes(mSystemId)));
                 }, 50);
             } else if(data[0] == 0x02) {
                 addLog("鉴权成功\n");
+                // 获取pwd3
+                System.arraycopy(data, 1, mPwd2Or3, 0, mPwd2Or3.length);
                 writeMsg(BleCommandFactory.ackCommand(bleResultBean.getTSN(), (byte)0x00, bleResultBean.getCMD()));
             }
         }
@@ -238,6 +241,7 @@ public class TestCommandActivity extends BaseActivity {
             public void onConnected(String deviceTAG) {
                 addLog(StringUtils.format("%1s 蓝牙连接成功\n", mDevice.getBluetoothDevice().getAddress()));
                 openControlNotify();
+                writeMsg(BleCommandFactory.pairCommand(BleCommandFactory.sTestPwd1, ConvertUtils.hexString2Bytes(mSystemId)));
             }
 
             @Override
