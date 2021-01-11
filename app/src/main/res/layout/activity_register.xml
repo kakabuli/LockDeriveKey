@@ -35,6 +35,7 @@
         style="@style/InputEditTextStyle"
         android:theme="@style/InputEditTextTheme"
         android:layout_marginTop="45pt"
+        android:inputType="textEmailAddress"
         android:hint="@string/hint_email_address"
         android:textColorHint="@color/cA5A4DA"
         app:layout_constraintEnd_toEndOf="parent"
@@ -49,6 +50,7 @@
         android:drawablePadding="41pt"
         android:paddingStart="15pt"
         style="@style/InputEditTextStyle"
+        android:inputType="number"
         android:theme="@style/InputEditTextTheme"
         android:layout_marginTop="10pt"
         android:hint="@string/hint_verification_code"
@@ -66,6 +68,7 @@
         style="@style/InputEditTextStyle"
         android:theme="@style/InputEditTextTheme"
         android:layout_marginTop="10pt"
+        android:inputType="textPassword"
         android:hint="@string/hint_password"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -76,8 +79,8 @@
         style="@style/ButtonStyle"
         android:layout_width="223pt"
         android:layout_height="36pt"
-        android:text="@string/create"
         android:layout_marginBottom="136pt"
+        android:text="@string/create"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
@@ -91,7 +94,7 @@
         app:layout_constraintBottom_toBottomOf="@+id/etPwd"
         app:layout_constraintEnd_toEndOf="@+id/etPwd"
         app:layout_constraintTop_toTopOf="@+id/etPwd"
-        app:srcCompat="@drawable/login_icon_display" />
+        app:srcCompat="@drawable/login_icon_hide" />
 
     <TextView
         android:layout_width="64pt"
@@ -105,5 +108,26 @@
         app:layout_constraintBottom_toBottomOf="@+id/etVerification"
         app:layout_constraintEnd_toEndOf="@+id/etVerification"
         app:layout_constraintTop_toTopOf="@+id/etVerification" />
+
+    <ImageView
+        android:id="@+id/ivSelect"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="33pt"
+        android:layout_marginTop="11pt"
+        app:layout_constraintStart_toStartOf="@+id/btnStartCreating"
+        app:layout_constraintTop_toBottomOf="@+id/btnStartCreating"
+        app:srcCompat="@drawable/sign_in_icon_default" />
+
+    <TextView
+        android:id="@+id/tvAgreement"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="7pt"
+        android:textColor="@color/c333333"
+        android:textSize="12pt"
+        app:layout_constraintBottom_toBottomOf="@+id/ivSelect"
+        app:layout_constraintStart_toEndOf="@+id/ivSelect"
+        app:layout_constraintTop_toTopOf="@+id/ivSelect" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
