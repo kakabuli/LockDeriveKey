@@ -67,7 +67,9 @@
             android:screenOrientation="portrait"/>
         <activity android:name=".ui.home.add.InputESNActivity"
             android:screenOrientation="portrait"/>
-        <activity android:name=".ui.TestWifiActivity" />
+        <activity android:name=".ui.test.TestWifiActivity" />
+        <activity android:name=".ui.test.TestSelectActivity" />
+        <activity android:name=".ui.test.TestCommandActivity" />
     </application>
 
 </manifest>

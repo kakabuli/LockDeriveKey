@@ -41,7 +41,7 @@ public class BleCommandFactory {
             0x0F,0x68, (byte) 0x8F,
             0x00,0x00,0x00,0x00};
 
-    private static byte commandTSN() {
+    public static byte commandTSN() {
         // -1是byte的最大值
         if(sCommandTSN == -1) {
             sCommandTSN = 0x01;
@@ -138,7 +138,7 @@ public class BleCommandFactory {
      * @param pwd2Or3    密码2或3, 可以输入null
      * @return  满足20个字节单条指令
      */
-    private static byte[] commandPackage(boolean isEncrypt, byte cmd, byte tsn, byte[] payload,
+    public static byte[] commandPackage(boolean isEncrypt, byte cmd, byte tsn, byte[] payload,
                                          byte[] pwd1, byte[] pwd2Or3) {
         byte[] command = new byte[20];
         command[0] = isEncrypt?CONTROL_ENCRYPTION:CONTROL_NORMAL;
@@ -321,6 +321,12 @@ public class BleCommandFactory {
         byte[] data = new byte[1];
         data[0] = status;
         return commandPackage(false, cmd, lockReportTSN, data, null, null);
+    }
+
+    public static byte[] ackCommand(int lockReportTSN, byte status, int cmd) {
+        byte[] data = new byte[1];
+        data[0] = status;
+        return commandPackage(false, (byte) cmd, (byte) lockReportTSN, data, null, null);
     }
 
     /**

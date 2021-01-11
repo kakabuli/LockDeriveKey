@@ -1,4 +1,4 @@
-package com.revolo.lock.ui;
+package com.revolo.lock.ui.test;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -6,9 +6,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.text.TextUtils;
 import android.text.method.ScrollingMovementMethod;
-import android.util.SparseArray;
 import android.view.View;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
@@ -24,34 +22,27 @@ import com.a1anwang.okble.client.scan.DeviceScanCallBack;
 import com.a1anwang.okble.client.scan.OKBLEScanManager;
 import com.blankj.utilcode.util.ConvertUtils;
 import com.blankj.utilcode.util.StringUtils;
-import com.blankj.utilcode.util.ToastUtils;
-import com.revolo.lock.App;
 import com.revolo.lock.Constant;
 import com.revolo.lock.R;
 import com.revolo.lock.base.BaseActivity;
 import com.revolo.lock.ble.BleCommandFactory;
-
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.List;
+import com.revolo.lock.ble.BleResultProcess;
+import com.revolo.lock.ble.bean.BleResultBean;
 
 import timber.log.Timber;
 
 /**
  * author : Jack
- * time   : 2021/1/7
+ * time   : 2021/1/11
  * E-mail : wengmaowei@kaadas.com
- * desc   : 测试wifi配网
+ * desc   : 测试下发指令页面
  */
-public class TestWifiActivity extends BaseActivity {
+public class TestCommandActivity extends BaseActivity {
 
     private TextView mTvLog;
-    private EditText mEtWifiSn;
-    private EditText mEtWifiPwd;
 
     private final int mQRPre = 1;
     private final int mDefault = 0;
-    private final int mESNPre = 2;
     private int mPreA = mDefault;
     private String mEsn;
     private String mMac;
@@ -64,9 +55,7 @@ public class TestWifiActivity extends BaseActivity {
         Intent intent = getIntent();
         if(!intent.hasExtra(Constant.PRE_A)) return;
         String preA = intent.getStringExtra(Constant.PRE_A);
-        if(preA.equals(Constant.INPUT_ESN_A)) {
-            initDataFromEsnPre(intent);
-        } else if(preA.equals(Constant.QR_CODE_A)) {
+        if(preA.equals(Constant.QR_CODE_A)) {
             initDataFromQRPre(intent);
         }
     }
@@ -88,40 +77,42 @@ public class TestWifiActivity extends BaseActivity {
         }
     }
 
-    private void initDataFromEsnPre(Intent intent) {
-        mPreA = mESNPre;
-        if(!intent.hasExtra(Constant.ESN)) return;
-        mEsn = intent.getStringExtra(Constant.ESN);
-    }
-
     @Override
     public int bindLayout() {
-        return R.layout.activity_test_wifi;
+        return R.layout.activity_test_command;
     }
 
     @Override
     public void initView(@Nullable Bundle savedInstanceState, @Nullable View contentView) {
         mTvLog = findViewById(R.id.tvLog);
         mTvLog.setMovementMethod(ScrollingMovementMethod.getInstance());
-        mEtWifiSn = findViewById(R.id.etWifiSn);
-        mEtWifiPwd = findViewById(R.id.etWifiPwd);
-        Button btnSend = findViewById(R.id.btnSend);
-        applyDebouncingClickListener(btnSend);
+        applyDebouncingClickListener(findViewById(R.id.btnSend));
     }
 
     @Override
     public void doBusiness() {
-        if(mPreA == mQRPre || mPreA == mESNPre) {
+        if(mPreA == mQRPre) {
             initScanManager();
         }
     }
 
     @Override
     public void onDebouncingClick(@NonNull View view) {
-        if(view.getId() == R.id.btnSend) {
-            if(!isStartSend) {
-                startSendWifiInfo();
+        if(isHavePwd2Or3) {
+            if(view.getId() == R.id.btnSend) {
+                String command = ((EditText) findViewById(R.id.etCommand)).getText().toString().trim();
+                if(command.length()%2 != 0) {
+                    addLog("输入command数据位数不对\n");
+                    return;
+                }
+                byte[] send = ConvertUtils.hexString2Bytes(command);
+                byte[] payload = new byte[16];
+                System.arraycopy(send, 4, payload, 0, payload.length);
+                writeMsg(BleCommandFactory.commandPackage(true, BleCommandFactory.commandTSN(),
+                        send[3], payload, BleCommandFactory.sTestPwd1,mPwd2Or3));
             }
+        } else {
+            addLog("鉴权没有成功，无法使用此功能\n");
         }
     }
 
@@ -175,8 +166,6 @@ public class TestWifiActivity extends BaseActivity {
         if(!TextUtils.isEmpty(device.getCompleteLocalName())&&device.getCompleteLocalName().contains("KDS")) {
             if(mPreA == mQRPre) {
                 connectBleFromQRCode(device);
-            } else if(mPreA == mESNPre) {
-                connectBleFromInputEsn(device);
             }
         }
     }
@@ -198,14 +187,6 @@ public class TestWifiActivity extends BaseActivity {
         }
     }
 
-    private void connectBleFromInputEsn(BLEScanResult device) {
-        if(TextUtils.isEmpty(mEsn)) return;
-        if(isDeviceEsnEqualsInputEsn(device, mEsn)) {
-            mScanManager.stopScan();
-            App.getInstance().connectDevice(device, ConvertUtils.hexString2Bytes(mSystemId));
-        }
-    }
-
     private void connectBleFromQRCode(BLEScanResult device) {
         if(TextUtils.isEmpty(mMac)) return;
         if(device.getMacAddress().equalsIgnoreCase(mMac)) {
@@ -215,116 +196,38 @@ public class TestWifiActivity extends BaseActivity {
         }
     }
 
-    private boolean isDeviceEsnEqualsInputEsn(BLEScanResult device, String esn) {
-        //返回Manufacture ID之后的data
-        SparseArray<byte[]> hex16 = device.getManufacturerSpecificData();
-        if(hex16 != null && hex16.size() > 0) {
-            StringBuilder sb = new StringBuilder();
-            byte[] value = hex16.valueAt(0);
-            //过滤无用蓝牙广播数据
-            if (value.length < 16) return false;
-            //截取出SN
-            for (int j = 3; j < 16; j++) {
-                sb.append((char) value[j]);
-            }
-            String sn = sb.toString().trim();
-            addLog(StringUtils.format("device esn: %1s, input esn: %2s\n", sn, esn));
-            return sn.equalsIgnoreCase(esn);
-        }
-        return false;
-    }
-
-    private final Handler mHandler = new Handler(Looper.getMainLooper());
-    private final List<byte[]> mWifiSnDataList = new ArrayList<>();
-    private int mWifiSnCount = 0;
-    private int mWifiPwdCount = 0;
-    private final List<byte[]> mWifiPwdDataList = new ArrayList<>();
-    private int mWifiSnLen = 0;
-    private int mWifiPwdLen = 0;
-    private boolean isStartSend = false;
-
-    private void startSendWifiInfo() {
-        mWifiSnDataList.clear();
-        mWifiPwdDataList.clear();
-        mWifiSnCount = 0;
-        mWifiPwdCount = 0;
-        mWifiSnLen = 0;
-        mWifiPwdLen = 0;
-        isStartSend = true;
-        String wifiSn = mEtWifiSn.getText().toString().trim();
-        String wifiPwd = mEtWifiPwd.getText().toString().trim();
-        if(TextUtils.isEmpty(wifiSn)) {
-            ToastUtils.showShort("请输入WifiSn");
-            return;
-        }
-        if(TextUtils.isEmpty(wifiPwd)) {
-            ToastUtils.showShort("请输入wifi密码");
-            return;
-        }
-
-        byte[] wifiSnBytes = wifiSn.getBytes(StandardCharsets.UTF_8);
-        addLog(StringUtils.format("WifiSn: %1s\n", ConvertUtils.bytes2HexString(wifiSnBytes)));
-        mWifiSnLen = wifiSnBytes.length;
-        for (int i=0; i<mWifiSnLen; i=i+14) {
-            int maxIndex = Math.min((mWifiSnLen - i), 14);
-            byte[] data = new byte[maxIndex];
-            System.arraycopy(wifiSnBytes, i, data, 0, data.length);
-            Timber.d("mWifiSnLen data %1s, i: %2d", ConvertUtils.bytes2HexString(data), i);
-            mWifiSnDataList.add(data);
-        }
-
-        byte[] wifiPwdBytes = wifiPwd.getBytes(StandardCharsets.UTF_8);
-        addLog(StringUtils.format("WifiPwd: %1s\n", ConvertUtils.bytes2HexString(wifiPwdBytes)));
-        mWifiPwdLen = wifiPwdBytes.length;
-        for (int i=0; i<mWifiPwdLen; i=i+14) {
-            int maxIndex = Math.min((mWifiPwdLen - i), 14);
-            byte[] data = new byte[maxIndex];
-            System.arraycopy(wifiPwdBytes, i, data, 0, data.length);
-            Timber.d("mWifiPwdLen data %1s, i: %2d", ConvertUtils.bytes2HexString(data), i);
-            mWifiPwdDataList.add(data);
-        }
-
-        writeWifiSn();
-
-    }
-
-    private final Runnable mWriteWifiSnRunnable = () -> {
-        byte[] data = mWifiSnDataList.get(0);
-        Timber.d("mWriteWifiSnRunnable data %1s", ConvertUtils.bytes2HexString(data));
-        writeMsg(BleCommandFactory.sendSSIDCommand((byte) mWifiSnLen, (byte) mWifiSnCount, data));
-        mWifiSnCount++;
-        mWifiSnDataList.remove(0);
-    };
-
-    private final Runnable mWriteWifiPwdRunnable = () -> {
-        byte[] data = mWifiPwdDataList.get(0);
-        Timber.d("mWriteWifiPwdRunnable data %1s", ConvertUtils.bytes2HexString(data));
-        writeMsg(BleCommandFactory.sendSSIDPwdCommand((byte) mWifiPwdLen, (byte) mWifiPwdCount, data));
-        mWifiPwdCount++;
-        mWifiPwdDataList.remove(0);
-    };
-
-    private void writeWifiSn() {
-        if(mWifiSnDataList.isEmpty()) {
-            if(isStartSend) {
-                writeWifiPwd();
-            }
-            return;
-        }
-        mHandler.postDelayed(mWriteWifiSnRunnable, 50);
-    }
-
-    private void writeWifiPwd() {
-        if(mWifiPwdDataList.isEmpty()) {
-            isStartSend = false;
-            return;
-        }
-        mHandler.postDelayed(mWriteWifiPwdRunnable, 50);
-    }
-
     private OKBLEDevice mDevice;
+    private boolean isHavePwd2Or3 = false;
+    private final byte[] mPwd2Or3 = new byte[4];
+    
+    private final BleResultProcess.OnReceivedProcess mOnReceivedProcess = bleResultBean -> {
+        if(bleResultBean == null) {
+            Timber.e("mOnReceivedProcess bleResultBean == null");
+            return;
+        }
+        auth(bleResultBean);
+    };
 
-    public void connectDevice(BLEScanResult bleScanResult) {
+    private void auth(BleResultBean bleResultBean) {
+        if(bleResultBean.getCMD() == 0x08) {
+            byte[] data = bleResultBean.getPayload();
+            if(data[0] == 0x01) {
+                // 入网时
+                System.arraycopy(data, 1, mPwd2Or3, 0, mPwd2Or3.length);
+                isHavePwd2Or3 = true;
+                writeMsg(BleCommandFactory.ackCommand(bleResultBean.getTSN(), (byte)0x00, bleResultBean.getCMD()));
+                new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                    Timber.d("auth 延时发送鉴权指令");
+                    writeMsg(BleCommandFactory.authCommand(BleCommandFactory.sTestPwd1, mPwd2Or3, ConvertUtils.hexString2Bytes(mSystemId)));
+                }, 50);
+            } else if(data[0] == 0x02) {
+                addLog("鉴权成功\n");
+                writeMsg(BleCommandFactory.ackCommand(bleResultBean.getTSN(), (byte)0x00, bleResultBean.getCMD()));
+            }
+        }
+    }
+
+    private void connectDevice(final BLEScanResult bleScanResult) {
         if(mDevice != null) {
             // 如果之前存在设备，需要先断开之前的连接
             mDevice.disConnect(false);
@@ -334,7 +237,7 @@ public class TestWifiActivity extends BaseActivity {
             @Override
             public void onConnected(String deviceTAG) {
                 addLog(StringUtils.format("%1s 蓝牙连接成功\n", mDevice.getBluetoothDevice().getAddress()));
-                openPairNotify();
+                openControlNotify();
             }
 
             @Override
@@ -352,11 +255,9 @@ public class TestWifiActivity extends BaseActivity {
                 if(value == null) {
                     return;
                 }
-                if(value[3] == (byte)0x90) {
-                    writeWifiSn();
-                } else if(value[3] == (byte)0x91) {
-                    writeWifiPwd();
-                }
+                BleResultProcess.setOnReceivedProcess(mOnReceivedProcess);
+                BleResultProcess.processReceivedData(value, BleCommandFactory.sTestPwd1, isHavePwd2Or3?mPwd2Or3:null, bleScanResult);
+                
             }
 
             @Override
@@ -377,12 +278,12 @@ public class TestWifiActivity extends BaseActivity {
 
     }
 
-    private static final String sPairWriteCharacteristicUUID = "FFC1";
-    private static final String sPairNotifyCharacteristicUUID = "FFC6";
+    private static final String sControlWriteCharacteristicUUID = "FFE9";
+    private static final String sControlNotifyCharacteristicUUID = "FFE4";
 
-    private void openPairNotify() {
+    private void openControlNotify() {
         if(mDevice != null) {
-            mDevice.addNotifyOrIndicateOperation(sPairNotifyCharacteristicUUID,
+            mDevice.addNotifyOrIndicateOperation(sControlNotifyCharacteristicUUID,
                     true, new OKBLEOperation.NotifyOrIndicateOperationListener() {
                         @Override
                         public void onNotifyOrIndicateComplete() {
@@ -404,7 +305,7 @@ public class TestWifiActivity extends BaseActivity {
 
     private void writeMsg(byte[] bytes) {
         if(mDevice != null) {
-            mDevice.addWriteOperation(sPairWriteCharacteristicUUID, bytes, mWriteOperationListener);
+            mDevice.addWriteOperation(sControlWriteCharacteristicUUID, bytes, mWriteOperationListener);
         }
     }
 
@@ -430,5 +331,4 @@ public class TestWifiActivity extends BaseActivity {
             mTvLog.append(msg);
         }
     }
-
 }

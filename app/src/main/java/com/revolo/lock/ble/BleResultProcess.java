@@ -29,10 +29,9 @@ public class BleResultProcess {
             0x01, (byte) 0xBC,0x1D,
             0x0F,0x68, (byte) 0x8F,
             0x00,0x00,0x00,0x00};
-    
+
     private static byte[] mPwd2Or3 = new byte[4];
     private static byte[] mPwd = new byte[16];
-    private static boolean isUsePwd2 = false;
 
     public static void processReceivedData(byte[] receivedData,
                                            byte[] pwd1,
