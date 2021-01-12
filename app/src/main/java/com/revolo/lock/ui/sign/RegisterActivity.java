@@ -72,7 +72,7 @@ public class RegisterActivity extends BaseActivity {
         }
         if(view.getId() == R.id.ivEye) {
             ImageView ivEye = findViewById(R.id.ivEye);
-            ivEye.setImageResource(isShowPwd?R.drawable.login_icon_display:R.drawable.login_icon_hide);
+            ivEye.setImageResource(isShowPwd?R.drawable.ic_login_icon_display:R.drawable.ic_login_icon_hide);
             EditText etPwd = findViewById(R.id.etPwd);
             etPwd.setInputType(isShowPwd?
                     InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
@@ -82,7 +82,7 @@ public class RegisterActivity extends BaseActivity {
         }
         if(view.getId() == R.id.ivSelect) {
             ImageView ivSelect = findViewById(R.id.ivSelect);
-            ivSelect.setImageResource(isSelected?R.drawable.sign_in_icon_selected:R.drawable.sign_in_icon_default);
+            ivSelect.setImageResource(isSelected?R.drawable.ic_sign_in_icon_selected:R.drawable.ic_sign_in_icon_default);
             isSelected = !isSelected;
         }
     }

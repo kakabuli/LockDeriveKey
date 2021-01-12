@@ -12,7 +12,7 @@
         android:id="@+id/etEmail"
         android:layout_width="300pt"
         android:layout_height="44pt"
-        android:drawableStart="@drawable/register_icon_email"
+        android:drawableStart="@drawable/ic_register_icon_email"
         android:drawablePadding="41pt"
         android:paddingStart="15pt"
         style="@style/InputEditTextStyle"
@@ -30,7 +30,7 @@
         android:layout_width="300pt"
         android:layout_height="44pt"
         style="@style/InputEditTextStyle"
-        android:drawableStart="@drawable/register_icon_verification"
+        android:drawableStart="@drawable/ic_register_icon_verification"
         android:drawablePadding="41pt"
         android:paddingStart="15pt"
         android:theme="@style/InputEditTextTheme"
@@ -60,7 +60,7 @@
         android:layout_width="300pt"
         android:layout_height="44pt"
         style="@style/InputEditTextStyle"
-        android:drawableStart="@drawable/register_icon_password"
+        android:drawableStart="@drawable/ic_register_icon_password"
         android:drawablePadding="41pt"
         android:paddingStart="15pt"
         android:theme="@style/InputEditTextTheme"
@@ -80,7 +80,7 @@
         app:layout_constraintBottom_toBottomOf="@+id/etPwd"
         app:layout_constraintEnd_toEndOf="@+id/etPwd"
         app:layout_constraintTop_toTopOf="@+id/etPwd"
-        app:srcCompat="@drawable/login_icon_hide" />
+        app:srcCompat="@drawable/ic_login_icon_hide" />
 
 
     <android.widget.Button

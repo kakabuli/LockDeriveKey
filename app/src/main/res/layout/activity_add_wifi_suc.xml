@@ -21,7 +21,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/include8"
-        app:srcCompat="@drawable/connect_wifi_suc" />
+        app:srcCompat="@drawable/ic_connect_wifi_suc" />
 
     <TextView
         android:id="@+id/textView14"

@@ -31,7 +31,7 @@
     <string name="next">Next</string>
     <string name="hint_first_name">First name</string>
     <string name="hint_last_name">Last name</string>
-    <string name="tip_register_input_name">Please enter the name</string>
+    <string name="tip_register_input_name">Please enter your name</string>
 
     <!-- RegisterAddAvatarNextActivity -->
     <string name="tip_register_add_avatar_next">Revolo registration has been completed.</string>

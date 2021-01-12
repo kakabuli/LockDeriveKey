@@ -45,7 +45,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:src="@drawable/icon_scan_flashlight" />
+            android:src="@drawable/ic_icon_scan_flashlight" />
 
         <TextView
             android:layout_width="wrap_content"

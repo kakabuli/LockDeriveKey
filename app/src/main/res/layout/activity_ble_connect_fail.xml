@@ -21,7 +21,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/include5"
-        app:srcCompat="@drawable/connect_ble_fail" />
+        app:srcCompat="@drawable/ic_connect_ble_fail" />
 
     <TextView
         android:id="@+id/textView9"

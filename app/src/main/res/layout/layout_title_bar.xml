@@ -11,7 +11,7 @@
         android:layout_height="15pt"
         android:layout_marginStart="15pt"
         android:contentDescription="@string/iv_tip_back"
-        android:src="@drawable/ic_baseline_arrow_back_ios_24"
+        android:src="@drawable/ic_icon_back"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
