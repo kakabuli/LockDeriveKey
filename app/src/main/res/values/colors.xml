@@ -15,4 +15,6 @@
     <color name="cA5A4DA">#A5A4DA</color>
     <color name="cCCCCCC">#CCCCCC</color>
     <color name="cF7F7F7">#F7F7F7</color>
+
+    <color name="transparent">#00FFFFFF</color>
 </resources>

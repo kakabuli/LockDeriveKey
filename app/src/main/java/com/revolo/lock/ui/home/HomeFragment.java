@@ -6,40 +6,58 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.revolo.lock.R;
+import com.revolo.lock.adapter.HomeLockListAdapter;
+import com.revolo.lock.ui.MainActivity;
+import com.revolo.lock.ui.TitleBar;
 import com.revolo.lock.ui.home.add.AddDeviceActivity;
 
 public class HomeFragment extends Fragment {
 
     private HomeViewModel homeViewModel;
+    private HomeLockListAdapter mHomeLockListAdapter;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
         homeViewModel =
                 new ViewModelProvider(this).get(HomeViewModel.class);
         View root = inflater.inflate(R.layout.fragment_home, container, false);
-//        final TextView textView = root.findViewById(R.id.text_home);
-//        homeViewModel.getText().observe(getViewLifecycleOwner(), new Observer<String>() {
-//            @Override
-//            public void onChanged(@Nullable String s) {
-//                textView.setText(s);
-//            }
-//        });
-        ImageView ivAdd = root.findViewById(R.id.ivAdd);
-        ivAdd.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(new Intent(getContext(), AddDeviceActivity.class));
+        ConstraintLayout clNoDevice = root.findViewById(R.id.clNoDevice);
+        ConstraintLayout clHadDevice = root.findViewById(R.id.clHadDevice);
+        homeViewModel.getTestLockBeans().observe(getViewLifecycleOwner(), testLockBeans -> {
+            if(testLockBeans != null) {
+                clNoDevice.setVisibility(View.GONE);
+                clHadDevice.setVisibility(View.VISIBLE);
+                mHomeLockListAdapter.setList(testLockBeans);
             }
         });
+        // 无设备的时候控件UI
+        ImageView ivAdd = root.findViewById(R.id.ivAdd);
+        ivAdd.setOnClickListener(v -> startActivity(new Intent(getContext(), AddDeviceActivity.class)));
+
+        // 有设备的时候控件UI
+        if(getContext() != null) {
+            new TitleBar(root).setTitle(getString(R.string.title_my_devices))
+                    .setRight(ContextCompat.getDrawable(getContext(), R.drawable.ic_home_icon_add),
+                            v -> startActivity(new Intent(getContext(), AddDeviceActivity.class)));
+            RecyclerView rvLockList = root.findViewById(R.id.rvLockList);
+            rvLockList.setLayoutManager(new LinearLayoutManager(getContext()));
+            mHomeLockListAdapter = new HomeLockListAdapter(R.layout.item_home_lock_list_rv);
+            rvLockList.setAdapter(mHomeLockListAdapter);
+            if(getActivity() instanceof MainActivity) {
+                ((MainActivity)getActivity()).setStatusBarColor(R.color.white);
+            }
+        }
         return root;
     }
+
 }

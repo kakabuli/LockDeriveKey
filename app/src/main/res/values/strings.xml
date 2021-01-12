@@ -51,7 +51,8 @@
     <string name="complete">Complete</string>
     
     <!-- HomeFragment -->
-    <string name="tip_home_page">Welcome to the revolo\n smart door lock</string>
+    <string name="tip_home_page">Welcome to use the\n Revolo smart door lock</string>
+    <string name="title_my_devices">My devices</string>
 
     <!-- AddDeviceActivity -->
     <string name="add_revolo_lock">Add revolo lock</string>

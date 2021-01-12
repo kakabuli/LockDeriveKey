@@ -1,9 +1,13 @@
 package com.revolo.lock.ui;
 
 import android.content.Context;
+import android.graphics.drawable.Drawable;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import androidx.annotation.DrawableRes;
+import androidx.core.content.ContextCompat;
 
 import com.revolo.lock.R;
 
@@ -49,6 +53,15 @@ public class TitleBar {
         if(mIvLeft != null) {
             mIvLeft.setVisibility(View.VISIBLE);
             mIvLeft.setOnClickListener(onClickListener);
+        }
+        return this;
+    }
+
+    public TitleBar setRight(Drawable drawable, View.OnClickListener onClickListener) {
+        if(mIvRight!= null) {
+            mIvRight.setVisibility(View.VISIBLE);
+            mIvRight.setImageDrawable(drawable);
+            mIvRight.setOnClickListener(onClickListener);
         }
         return this;
     }
