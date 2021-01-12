@@ -70,6 +70,7 @@
         <activity android:name=".ui.test.TestWifiActivity" />
         <activity android:name=".ui.test.TestSelectActivity" />
         <activity android:name=".ui.test.TestCommandActivity" />
+        <activity android:name=".ui.home.device.DeviceDetailActivity" />
     </application>
 
 </manifest>

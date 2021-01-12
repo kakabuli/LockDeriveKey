@@ -15,11 +15,14 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.revolo.lock.Constant;
 import com.revolo.lock.R;
 import com.revolo.lock.adapter.HomeLockListAdapter;
+import com.revolo.lock.bean.TestLockBean;
 import com.revolo.lock.ui.MainActivity;
 import com.revolo.lock.ui.TitleBar;
 import com.revolo.lock.ui.home.add.AddDeviceActivity;
+import com.revolo.lock.ui.home.device.DeviceDetailActivity;
 
 public class HomeFragment extends Fragment {
 
@@ -52,6 +55,15 @@ public class HomeFragment extends Fragment {
             RecyclerView rvLockList = root.findViewById(R.id.rvLockList);
             rvLockList.setLayoutManager(new LinearLayoutManager(getContext()));
             mHomeLockListAdapter = new HomeLockListAdapter(R.layout.item_home_lock_list_rv);
+            mHomeLockListAdapter.setOnItemClickListener((adapter, view, position) -> {
+                if(adapter.getItem(position) instanceof TestLockBean) {
+                    if(position < 0 || position >= adapter.getData().size()) return;
+                    TestLockBean testLockBean = (TestLockBean) adapter.getItem(position);
+                    Intent intent = new Intent(getContext(), DeviceDetailActivity.class);
+                    intent.putExtra(Constant.LOCK_DETAIL, testLockBean);
+                    startActivity(intent);
+                }
+            });
             rvLockList.setAdapter(mHomeLockListAdapter);
             if(getActivity() instanceof MainActivity) {
                 ((MainActivity)getActivity()).setStatusBarColor(R.color.white);

@@ -31,18 +31,18 @@ public class HomeLockListAdapter extends BaseQuickAdapter<TestLockBean, BaseView
     protected void convert(@NotNull BaseViewHolder baseViewHolder, TestLockBean testLockBean) {
         if(testLockBean.getModeState() == 2) {
             baseViewHolder.setImageResource(R.id.ivLockState, R.drawable.ic_home_img_lock_privacymodel);
-            baseViewHolder.setText(R.id.tvDoorState, "Private mode");
+            baseViewHolder.setText(R.id.tvDoorState, getContext().getString(R.string.tip_private_mode));
             baseViewHolder.setGone(R.id.ivDoorState, true);
         } else {
             baseViewHolder.setGone(R.id.ivDoorState, false);
             if(testLockBean.getDoorState() == 1) {
                 baseViewHolder.setImageResource(R.id.ivLockState, R.drawable.ic_home_img_lock_open);
                 baseViewHolder.setImageResource(R.id.ivDoorState, R.drawable.ic_home_icon_door_open);
-                baseViewHolder.setText(R.id.tvDoorState, "Door opened");
+                baseViewHolder.setText(R.id.tvDoorState, getContext().getString(R.string.tip_door_opened));
             } else {
                 baseViewHolder.setImageResource(R.id.ivLockState, R.drawable.ic_home_img_lock_close);
                 baseViewHolder.setImageResource(R.id.ivDoorState, R.drawable.ic_home_icon_door_closed);
-                baseViewHolder.setText(R.id.tvDoorState, "Door closed");
+                baseViewHolder.setText(R.id.tvDoorState, getContext().getString(R.string.tip_door_closed));
             }
         }
         if(testLockBean.getInternetState() == 1) {

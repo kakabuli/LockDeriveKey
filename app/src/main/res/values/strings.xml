@@ -63,4 +63,17 @@
     <string name="hint_please_enter_esn">Please enter ESN</string>
     <string name="title_manual_input">Manual input</string>
 
+    <!-- DeviceDetailActivity -->
+    <string name="tip_notification">Notification</string>
+    <string name="tip_user">User</string>
+    <string name="tip_setting">Setting</string>
+    <string name="tip_low_battery">Low battery</string>
+    <string name="tip_closed">Closed</string>
+    <string name="tip_online">Online</string>
+    <string name="tip_private_mode">Private mode</string>
+    <string name="tip_door_opened">Door opened</string>
+    <string name="tip_door_closed">Door closed</string>
+    <string name="tip_opened">Opened</string>
+    <string name="tip_closed">Closed</string>
+
 </resources>
