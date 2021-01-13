@@ -28,7 +28,7 @@ public class AddInputNewPwdActivity extends BaseActivity {
 
     @Override
     public void initView(@Nullable Bundle savedInstanceState, @Nullable View contentView) {
-        useCommonTitleBar("Add password");
+        useCommonTitleBar(getString(R.string.title_add_password));
     }
 
     @Override

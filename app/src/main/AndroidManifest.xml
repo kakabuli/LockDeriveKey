@@ -74,6 +74,7 @@
         <activity android:name=".ui.home.device.OperationRecordsActivity" />
         <activity android:name=".ui.home.device.PasswordListActivity" />
         <activity android:name=".ui.home.device.AddInputNewPwdActivity" />
+        <activity android:name=".ui.home.device.AddNewPwdSelectActivity" />
     </application>
 
 </manifest>
