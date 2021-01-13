@@ -86,4 +86,7 @@
     <string name="select_schedule">Schedule</string>
     <string name="select_temporary">Temporary</string>
 
+    <!-- AddNewPwdNameActivity -->
+    <string name="password_name">Password name</string>
+
 </resources>

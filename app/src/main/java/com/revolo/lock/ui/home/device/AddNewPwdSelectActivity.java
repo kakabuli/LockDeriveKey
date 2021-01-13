@@ -65,7 +65,7 @@ public class AddNewPwdSelectActivity extends BaseActivity {
             return;
         }
         if(view.getId() == R.id.btnNext) {
-//            startActivity(new Intent());
+            startActivity(new Intent(this, AddNewPwdNameActivity.class));
         }
     }
 

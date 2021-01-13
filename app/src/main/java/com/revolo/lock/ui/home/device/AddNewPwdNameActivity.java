@@ -1,6 +1,5 @@
 package com.revolo.lock.ui.home.device;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 
@@ -14,9 +13,9 @@ import com.revolo.lock.base.BaseActivity;
  * author : Jack
  * time   : 2021/1/13
  * E-mail : wengmaowei@kaadas.com
- * desc   : 添加新的密码
+ * desc   : 添加新密码名称
  */
-public class AddInputNewPwdActivity extends BaseActivity {
+public class AddNewPwdNameActivity extends BaseActivity {
     @Override
     public void initData(@Nullable Bundle bundle) {
 
@@ -24,13 +23,12 @@ public class AddInputNewPwdActivity extends BaseActivity {
 
     @Override
     public int bindLayout() {
-        return R.layout.activity_add_input_new_pwd;
+        return R.layout.activity_add_new_pwd_name;
     }
 
     @Override
     public void initView(@Nullable Bundle savedInstanceState, @Nullable View contentView) {
         useCommonTitleBar(getString(R.string.title_add_password));
-        applyDebouncingClickListener(findViewById(R.id.btnNext));
     }
 
     @Override
@@ -40,8 +38,6 @@ public class AddInputNewPwdActivity extends BaseActivity {
 
     @Override
     public void onDebouncingClick(@NonNull View view) {
-        if(view.getId() == R.id.btnNext) {
-            startActivity(new Intent(this, AddNewPwdSelectActivity.class));
-        }
+
     }
 }
