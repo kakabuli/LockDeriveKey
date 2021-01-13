@@ -17,5 +17,6 @@ public class Constant {
     public static final String QR_RESULT = "QRResult";
 
     public static final String LOCK_DETAIL = "LockDetail";
+    public static final String PWD_DETAIL =  "PwdDetail";
 
 }

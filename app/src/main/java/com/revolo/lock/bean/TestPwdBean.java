@@ -14,11 +14,17 @@ public class TestPwdBean implements Parcelable {
     private String pwdName;
     private String pwdDetail;
     private int pwdState;       // 1: 可用  2: 不可用
+    private String pwd;
+    private String pwdCharacteristic;
+    private String createDate;
 
-    public TestPwdBean(String pwdName, String pwdDetail, int pwdState) {
+    public TestPwdBean(String pwdName, String pwdDetail, int pwdState, String pwd, String pwdCharacteristic, String createDate) {
         this.pwdName = pwdName;
         this.pwdDetail = pwdDetail;
         this.pwdState = pwdState;
+        this.pwd = pwd;
+        this.pwdCharacteristic = pwdCharacteristic;
+        this.createDate = createDate;
     }
 
     public String getPwdName() {
@@ -45,6 +51,30 @@ public class TestPwdBean implements Parcelable {
         this.pwdState = pwdState;
     }
 
+    public String getPwd() {
+        return pwd;
+    }
+
+    public void setPwd(String pwd) {
+        this.pwd = pwd;
+    }
+
+    public String getPwdCharacteristic() {
+        return pwdCharacteristic;
+    }
+
+    public void setPwdCharacteristic(String pwdCharacteristic) {
+        this.pwdCharacteristic = pwdCharacteristic;
+    }
+
+    public String getCreateDate() {
+        return createDate;
+    }
+
+    public void setCreateDate(String createDate) {
+        this.createDate = createDate;
+    }
+
 
     @Override
     public int describeContents() {
@@ -56,15 +86,21 @@ public class TestPwdBean implements Parcelable {
         dest.writeString(this.pwdName);
         dest.writeString(this.pwdDetail);
         dest.writeInt(this.pwdState);
+        dest.writeString(this.pwd);
+        dest.writeString(this.pwdCharacteristic);
+        dest.writeString(this.createDate);
     }
 
     protected TestPwdBean(Parcel in) {
         this.pwdName = in.readString();
         this.pwdDetail = in.readString();
         this.pwdState = in.readInt();
+        this.pwd = in.readString();
+        this.pwdCharacteristic = in.readString();
+        this.createDate = in.readString();
     }
 
-    public static final Parcelable.Creator<TestPwdBean> CREATOR = new Parcelable.Creator<TestPwdBean>() {
+    public static final Creator<TestPwdBean> CREATOR = new Creator<TestPwdBean>() {
         @Override
         public TestPwdBean createFromParcel(Parcel source) {
             return new TestPwdBean(source);

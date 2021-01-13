@@ -76,6 +76,7 @@
         <activity android:name=".ui.home.device.AddInputNewPwdActivity" />
         <activity android:name=".ui.home.device.AddNewPwdSelectActivity" />
         <activity android:name=".ui.home.device.AddNewPwdNameActivity" />
+        <activity android:name=".ui.home.device.PasswordDetailActivity" />
     </application>
 
 </manifest>

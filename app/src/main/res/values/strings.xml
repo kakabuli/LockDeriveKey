@@ -89,4 +89,11 @@
     <!-- AddNewPwdNameActivity -->
     <string name="password_name">Password name</string>
 
+    <!-- PasswordDetailActivity -->
+    <string name="delete_password">Delete password</string>
+    <string name="password_characteristic">Password characteristic</string>
+    <string name="creation_date">Creation date</string>
+    <string name="title_pwd_details">Password details</string>
+
+
 </resources>
