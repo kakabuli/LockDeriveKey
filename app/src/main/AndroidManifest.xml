@@ -71,6 +71,7 @@
         <activity android:name=".ui.test.TestSelectActivity" />
         <activity android:name=".ui.test.TestCommandActivity" />
         <activity android:name=".ui.home.device.DeviceDetailActivity" />
+        <activity android:name=".ui.home.device.OperationRecordsActivity" />
     </application>
 
 </manifest>

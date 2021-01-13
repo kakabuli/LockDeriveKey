@@ -2,7 +2,6 @@ package com.revolo.lock.ui.home.device;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.text.TextUtils;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -44,6 +43,7 @@ public class DeviceDetailActivity extends BaseActivity {
     public void initView(@Nullable Bundle savedInstanceState, @Nullable View contentView) {
         useCommonTitleBar("Homepage");
         setStatusBarColor(R.color.white);
+        initDevice();
     }
 
     @Override
@@ -53,7 +53,21 @@ public class DeviceDetailActivity extends BaseActivity {
 
     @Override
     public void onDebouncingClick(@NonNull View view) {
-
+        if(view.getId() == R.id.llNotification) {
+            startActivity(new Intent(this, OperationRecordsActivity.class));
+            return;
+        }
+        if(view.getId() == R.id.llPwd) {
+            // TODO: 2021/1/13
+            return;
+        }
+        if(view.getId() == R.id.llUser) {
+            // TODO: 2021/1/13
+            return;
+        }
+        if(view.getId() == R.id.llSetting) {
+            // TODO: 2021/1/13
+        }
     }
 
     private void initDevice() {
@@ -72,6 +86,8 @@ public class DeviceDetailActivity extends BaseActivity {
         LinearLayout llSetting = findViewById(R.id.llSetting);
         LinearLayout llDoorState = findViewById(R.id.llDoorState);
         TextView tvPrivateMode = findViewById(R.id.tvPrivateMode);
+
+        applyDebouncingClickListener(llNotification, llPwd, llUser, llSetting);
 
         if(mTestLockBean.getModeState() == 2) {
             ivLockState.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_home_img_lock_privacymodel));
@@ -95,6 +111,7 @@ public class DeviceDetailActivity extends BaseActivity {
         } else {
             ivNetState.setImageResource(R.drawable.ic_home_icon_bluetooth);
         }
+        tvNetState.setText(getString(R.string.tip_online));
 
     }
 

@@ -58,4 +58,6 @@ dependencies {
     implementation 'pub.devrel:easypermissions:3.0.0'
     // base recyclerView辅助工具类
     implementation 'com.github.CymChad:BaseRecyclerViewAdapterHelper:3.0.4'
+    // base listView辅助工具类
+    implementation 'com.zhy:base-adapter:3.0.3'
 }
