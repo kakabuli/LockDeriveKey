@@ -58,7 +58,7 @@ public class DeviceDetailActivity extends BaseActivity {
             return;
         }
         if(view.getId() == R.id.llPwd) {
-            // TODO: 2021/1/13
+            startActivity(new Intent(this, PasswordListActivity.class));
             return;
         }
         if(view.getId() == R.id.llUser) {
