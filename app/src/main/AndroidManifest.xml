@@ -73,6 +73,7 @@
         <activity android:name=".ui.home.device.DeviceDetailActivity" />
         <activity android:name=".ui.home.device.OperationRecordsActivity" />
         <activity android:name=".ui.home.device.PasswordListActivity" />
+        <activity android:name=".ui.home.device.AddInputNewPwdActivity" />
     </application>
 
 </manifest>

@@ -1,5 +1,6 @@
 package com.revolo.lock.ui.home.device;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 
@@ -40,9 +41,8 @@ public class PasswordListActivity extends BaseActivity {
     @Override
     public void initView(@Nullable Bundle savedInstanceState, @Nullable View contentView) {
         useCommonTitleBar(getString(R.string.password))
-                .setRight(ContextCompat.getDrawable(this, R.drawable.ic_home_icon_add), v -> {
-                    // TODO: 2021/1/13 add pwd
-                });
+                .setRight(ContextCompat.getDrawable(this, R.drawable.ic_home_icon_add),
+                        v -> startActivity(new Intent(this, AddInputNewPwdActivity.class)));
         RecyclerView rvPwdList = findViewById(R.id.rvPwdList);
         rvPwdList.setLayoutManager(new LinearLayoutManager(this));
         mPasswordListAdapter = new PasswordListAdapter(R.layout.item_pwd_list_rv);
