@@ -55,7 +55,7 @@ public class PasswordDetailActivity extends BaseActivity {
     @Override
     public void onDebouncingClick(@NonNull View view) {
         if(view.getId() == R.id.ivEditPwdName) {
-            // TODO: 2021/1/13  
+            startActivity(new Intent(this, ChangePwdNameActivity.class));
         }
     }
 
