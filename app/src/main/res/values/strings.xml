@@ -114,5 +114,12 @@
     <string name="tip_add_user">Add user</string>
     <string name="tip_add_new_user">Add new user</string>
 
+    <!-- AuthorizationManagementActivity -->
+    <string name="title_authorization_management">Authorization management</string>
+    <string name="tip_invite_user">You are going to invite %1s\n Users to use this door lock</string>
+    <string name="share">Share</string>
+    <string name="family">Family</string>
+    <string name="guest">Guest</string>
+
 
 </resources>

@@ -1,11 +1,15 @@
 package com.revolo.lock.ui.home.device;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.View;
+import android.widget.EditText;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.revolo.lock.Constant;
 import com.revolo.lock.R;
 import com.revolo.lock.base.BaseActivity;
 
@@ -16,6 +20,9 @@ import com.revolo.lock.base.BaseActivity;
  * desc   : 添加新分享用户输入名字
  */
 public class AddNewShareUserInputNameActivity extends BaseActivity {
+
+    private EditText mEtUserName;
+
     @Override
     public void initData(@Nullable Bundle bundle) {
 
@@ -29,6 +36,9 @@ public class AddNewShareUserInputNameActivity extends BaseActivity {
     @Override
     public void initView(@Nullable Bundle savedInstanceState, @Nullable View contentView) {
         useCommonTitleBar(getString(R.string.title_add_user));
+        applyDebouncingClickListener(findViewById(R.id.btnAddUser));
+        mEtUserName = findViewById(R.id.etUserName);
+
     }
 
     @Override
@@ -38,6 +48,14 @@ public class AddNewShareUserInputNameActivity extends BaseActivity {
 
     @Override
     public void onDebouncingClick(@NonNull View view) {
-
+        if(view.getId() == R.id.btnAddUser) {
+            String userName = mEtUserName.getText().toString().trim();
+            if(TextUtils.isEmpty(userName)) {
+                return;
+            }
+            Intent intent = new Intent(this, AuthorizationManagementActivity.class);
+            intent.putExtra(Constant.USER_NAME, userName);
+            startActivity(intent);
+        }
     }
 }

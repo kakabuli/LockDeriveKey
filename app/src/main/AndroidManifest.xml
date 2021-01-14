@@ -80,6 +80,7 @@
         <activity android:name=".ui.home.device.ChangePwdNameActivity" />
         <activity android:name=".ui.home.device.UserManagementActivity" />
         <activity android:name=".ui.home.device.AddNewShareUserInputNameActivity" />
+        <activity android:name=".ui.home.device.AuthorizationManagementActivity" />
     </application>
 
 </manifest>
