@@ -11,6 +11,8 @@ import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.chad.library.adapter.base.BaseQuickAdapter;
+import com.chad.library.adapter.base.listener.OnItemClickListener;
 import com.revolo.lock.R;
 import com.revolo.lock.adapter.SharedUserListAdapter;
 import com.revolo.lock.base.BaseActivity;
@@ -48,6 +50,12 @@ public class UserManagementActivity extends BaseActivity {
                         });
         RecyclerView rvSharedUser = findViewById(R.id.rvSharedUser);
         mSharedUserListAdapter = new SharedUserListAdapter(R.layout.item_shared_user_rv);
+        mSharedUserListAdapter.setOnItemClickListener(new OnItemClickListener() {
+            @Override
+            public void onItemClick(@NonNull BaseQuickAdapter<?, ?> adapter, @NonNull View view, int position) {
+                startActivity(new Intent(UserManagementActivity.this, SharedUserDetailActivity.class));
+            }
+        });
         rvSharedUser.setLayoutManager(new LinearLayoutManager(this));
         rvSharedUser.setAdapter(mSharedUserListAdapter);
 

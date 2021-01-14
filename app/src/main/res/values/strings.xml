@@ -121,5 +121,8 @@
     <string name="family">Family</string>
     <string name="guest">Guest</string>
 
+    <!-- SharedUserDetailActivity -->
+    <string name="delete">Delete</string>
+    <string name="enable_user_authorization">Enable user authorization</string>
 
 </resources>
