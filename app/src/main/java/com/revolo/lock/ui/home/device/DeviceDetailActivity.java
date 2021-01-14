@@ -62,7 +62,7 @@ public class DeviceDetailActivity extends BaseActivity {
             return;
         }
         if(view.getId() == R.id.llUser) {
-            // TODO: 2021/1/13
+            startActivity(new Intent(this, UserManagementActivity.class));
             return;
         }
         if(view.getId() == R.id.llSetting) {

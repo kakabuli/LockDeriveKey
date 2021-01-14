@@ -100,5 +100,13 @@
     <string name="please_enter_the_password_name">Please enter the password name</string>
     <string name="title_change_the_name">Change the name</string>
 
+    <!-- UserManagementActivity -->
+    <string name="title_user_management">User management</string>
+    <string name="per_unable_to_add_user">Unable to add user</string>
+    <string name="per_unable_to_add_password">Unable to add password</string>
+    <string name="per_app_unlock_only">APP unlock only</string>
+    <string name="permission_family">(Family)</string>
+    <string name="permission_guest">(Guest)</string>
+
 
 </resources>

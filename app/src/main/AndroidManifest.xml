@@ -78,6 +78,7 @@
         <activity android:name=".ui.home.device.AddNewPwdNameActivity" />
         <activity android:name=".ui.home.device.PasswordDetailActivity" />
         <activity android:name=".ui.home.device.ChangePwdNameActivity" />
+        <activity android:name=".ui.home.device.UserManagementActivity" />
     </application>
 
 </manifest>
