@@ -13,7 +13,7 @@
     <string name="iv_tip_back">Back</string>
 
     <!--  RegisterActivity -->
-    <string name="hint_email_address">Email Address</string>
+    <string name="hint_email_address">Email address</string>
     <string name="hint_password">Password</string>
     <string name="create">Create</string>
     <string name="tip_please_register_your_account_number">Please register your account number</string>
@@ -159,5 +159,11 @@
     <string name="title_private_mode">Private Mode</string>
     <string name="private_mode_description">Private mode description:</string>
     <string name="tip_private_mode_description">1、Press and hold the multifunction button\n &#160;&#160;&#160;&#160;&#160;for 3S to set the private mode. \n2、The unlocking of app, password and Geo-\n &#160;&#160;&#160;&#160;&#160;fence will be invalid. \n3、inside door knob unlock, key unlock, multi\n &#160;&#160;&#160;&#160;&#160;function button unlock can disable private\n &#160;&#160;&#160;&#160;&#160;mode.</string>
+
+    <!-- DuressCodeActivity -->
+    <string name="save">Save</string>
+    <string name="title_duress_code">Duress code</string>
+    <string name="it_is_not_allowed_to_enter_two_911_and_above">It is not allowed to enter two 911 and above.</string>
+    <string name="it_is_not_allowed_to_enter_911_before_correct_n_password">It is not allowed to enter 911 before correct\n password.</string>
 
 </resources>

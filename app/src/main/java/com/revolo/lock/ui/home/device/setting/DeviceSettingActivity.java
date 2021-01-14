@@ -39,7 +39,8 @@ public class DeviceSettingActivity extends BaseActivity {
         mTvName = findViewById(R.id.tvName);
         mTvWifiName = findViewById(R.id.tvWifiName);
         applyDebouncingClickListener(mTvName, mTvWifiName,
-                findViewById(R.id.clAutoLock), findViewById(R.id.clPrivateMode));
+                findViewById(R.id.clAutoLock), findViewById(R.id.clPrivateMode),
+                findViewById(R.id.clDuressCode));
     }
 
     @Override
@@ -63,6 +64,10 @@ public class DeviceSettingActivity extends BaseActivity {
         }
         if(view.getId() == R.id.clPrivateMode) {
             startActivity(new Intent(this, PrivateModeActivity.class));
+            return;
+        }
+        if(view.getId() == R.id.clDuressCode) {
+            startActivity(new Intent(this, DuressCodeActivity.class));
         }
     }
 
