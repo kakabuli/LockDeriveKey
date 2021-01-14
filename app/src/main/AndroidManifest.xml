@@ -86,6 +86,7 @@
         <activity android:name=".ui.home.device.setting.ChangeLockNameActivity" />
         <activity android:name=".ui.home.device.setting.WifiSettingActivity" />
         <activity android:name=".ui.home.device.setting.AutoLockActivity" />
+        <activity android:name=".ui.home.device.setting.PrivateModeActivity" />
     </application>
 
 </manifest>

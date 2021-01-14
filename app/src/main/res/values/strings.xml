@@ -116,7 +116,7 @@
 
     <!-- AuthorizationManagementActivity -->
     <string name="title_authorization_management">Authorization management</string>
-    <string name="tip_invite_user">You are going to invite %1s\n Users to use this door lock</string>
+    <string name="tip_invite_user">You are going to invite %1$s\n Users to use this door lock</string>
     <string name="share">Share</string>
     <string name="family">Family</string>
     <string name="guest">Guest</string>
@@ -152,7 +152,12 @@
     <string name="set_lock_time">Set lock time</string>
     <string name="tip_the_timer_will_start_when_your_door_is_closed">The timer will start when your door is closed.</string>
     <string name="tip_door_will_be_locked_when_time_is_up">Door will be locked when time is up.</string>
-    <string name="second">%1ds</string>
-    <string name="min">%1dmin</string>
+    <string name="second">%1$ds</string>
+    <string name="min">%1$dmin</string>
+
+    <!-- PrivateModeActivity -->
+    <string name="title_private_mode">Private Mode</string>
+    <string name="private_mode_description">Private mode description:</string>
+    <string name="tip_private_mode_description">1、Press and hold the multifunction button\n &#160;&#160;&#160;&#160;&#160;for 3S to set the private mode. \n2、The unlocking of app, password and Geo-\n &#160;&#160;&#160;&#160;&#160;fence will be invalid. \n3、inside door knob unlock, key unlock, multi\n &#160;&#160;&#160;&#160;&#160;function button unlock can disable private\n &#160;&#160;&#160;&#160;&#160;mode.</string>
 
 </resources>
