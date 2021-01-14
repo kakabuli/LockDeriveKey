@@ -84,6 +84,7 @@
         <activity android:name=".ui.home.device.SharedUserDetailActivity" />
         <activity android:name=".ui.home.device.setting.DeviceSettingActivity" />
         <activity android:name=".ui.home.device.setting.ChangeLockNameActivity" />
+        <activity android:name=".ui.home.device.setting.WifiSettingActivity" />
     </application>
 
 </manifest>

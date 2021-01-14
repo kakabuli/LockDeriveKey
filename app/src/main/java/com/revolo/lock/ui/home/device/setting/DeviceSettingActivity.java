@@ -21,7 +21,7 @@ import com.revolo.lock.base.BaseActivity;
  */
 public class DeviceSettingActivity extends BaseActivity {
 
-    private TextView mTvName;
+    private TextView mTvName, mTvWifiName;
 
     @Override
     public void initData(@Nullable Bundle bundle) {
@@ -37,7 +37,8 @@ public class DeviceSettingActivity extends BaseActivity {
     public void initView(@Nullable Bundle savedInstanceState, @Nullable View contentView) {
         useCommonTitleBar(getString(R.string.title_setting));
         mTvName = findViewById(R.id.tvName);
-        applyDebouncingClickListener(mTvName);
+        mTvWifiName = findViewById(R.id.tvWifiName);
+        applyDebouncingClickListener(mTvName, mTvWifiName);
     }
 
     @Override
@@ -49,6 +50,10 @@ public class DeviceSettingActivity extends BaseActivity {
     public void onDebouncingClick(@NonNull View view) {
         if(view.getId() == R.id.tvName) {
             startActivity(new Intent(this, ChangeLockNameActivity.class));
+            return;
+        }
+        if(view.getId() == R.id.tvWifiName) {
+            startActivity(new Intent(this, WifiSettingActivity.class));
         }
     }
 
@@ -60,6 +65,7 @@ public class DeviceSettingActivity extends BaseActivity {
 
     private void initTestData() {
         mTvName.setText("Tester");
+        mTvWifiName.setText("Kaadas123");
     }
 
 }

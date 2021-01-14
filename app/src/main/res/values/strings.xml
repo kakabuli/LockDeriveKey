@@ -140,5 +140,10 @@
 
     <!-- ChangeLockNameActivity -->
     <string name="hint_please_enter_the_lock_name">Please enter the lock name</string>
+    <string name="title_wifi_setting">WiFi setting</string>
+
+    <!-- WifiSettingActivity -->
+    <string name="please_approach_the_door_lock">Please approach the door lock</string>
+    <string name="to_connect_wifi_again">To connect WiFi again</string>
 
 </resources>

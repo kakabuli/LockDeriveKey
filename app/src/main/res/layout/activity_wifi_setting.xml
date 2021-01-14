@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <include
+        android:id="@+id/titleBar"
+        layout="@layout/layout_title_bar"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/textView33"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16pt"
+        android:layout_marginTop="15pt"
+        android:text="@string/wifi"
+        android:textColor="@color/c333333"
+        android:textSize="15pt"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/titleBar" />
+
+    <ImageView
+        android:id="@+id/ivWifiEnable"
+        android:layout_width="46pt"
+        android:layout_height="26pt"
+        android:layout_marginTop="13pt"
+        android:layout_marginEnd="15pt"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/titleBar"
+        app:srcCompat="@drawable/ic_icon_switch_close" />
+
+    <View
+        android:id="@+id/vNum1"
+        android:layout_width="5dp"
+        android:layout_height="5dp"
+        android:layout_marginStart="15pt"
+        android:layout_marginTop="11pt"
+        android:background="@drawable/shape_serial_number"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView33" />
+
+    <View
+        android:id="@+id/vNum2"
+        android:layout_width="5dp"
+        android:layout_height="5dp"
+        android:layout_marginStart="15pt"
+        android:layout_marginTop="17pt"
+        android:background="@drawable/shape_serial_number"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/vNum1" />
+
+    <TextView
+        android:id="@+id/tvTip1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="6pt"
+        android:layout_marginTop="5pt"
+        android:textColor="@color/c666666"
+        android:textSize="12pt"
+        android:text="@string/please_approach_the_door_lock"
+        app:layout_constraintStart_toEndOf="@+id/vNum1"
+        app:layout_constraintTop_toBottomOf="@+id/textView33" />
+
+    <TextView
+        android:id="@+id/tvTip2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="6pt"
+        android:layout_marginTop="5pt"
+        android:textColor="@color/c666666"
+        android:textSize="12pt"
+        android:text="@string/to_connect_wifi_again"
+        app:layout_constraintStart_toEndOf="@+id/vNum1"
+        app:layout_constraintTop_toBottomOf="@+id/tvTip1" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
