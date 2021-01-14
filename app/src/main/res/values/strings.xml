@@ -125,4 +125,20 @@
     <string name="delete">Delete</string>
     <string name="enable_user_authorization">Enable user authorization</string>
 
+    <!-- DeviceSettingActivity -->
+    <string name="title_setting">Setting</string>
+    <string name="wifi">WiFi</string>
+    <string name="auto_lock">Auto lock</string>
+    <string name="geo_fence_lock">Geo-fence Lock</string>
+    <string name="door_magnetic_switch">Door magnetic switch</string>
+    <string name="duress_code">Duress code</string>
+    <string name="mute">Mute</string>
+    <string name="private_mode">Private mode</string>
+    <string name="join_alexa">Join Alexa</string>
+    <string name="door_lock_information">Door lock information</string>
+    <string name="unbind">Unbind</string>
+
+    <!-- DeviceSettingActivity -->
+
+
 </resources>

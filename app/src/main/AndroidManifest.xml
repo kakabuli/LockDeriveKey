@@ -82,6 +82,7 @@
         <activity android:name=".ui.home.device.AddNewShareUserInputNameActivity" />
         <activity android:name=".ui.home.device.AuthorizationManagementActivity" />
         <activity android:name=".ui.home.device.SharedUserDetailActivity" />
+        <activity android:name=".ui.home.device.setting.DeviceSettingActivity" />
     </application>
 
 </manifest>

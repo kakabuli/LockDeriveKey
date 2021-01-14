@@ -15,6 +15,7 @@ import com.revolo.lock.Constant;
 import com.revolo.lock.R;
 import com.revolo.lock.base.BaseActivity;
 import com.revolo.lock.bean.TestLockBean;
+import com.revolo.lock.ui.home.device.setting.DeviceSettingActivity;
 
 /**
  * author : Jack
@@ -66,7 +67,7 @@ public class DeviceDetailActivity extends BaseActivity {
             return;
         }
         if(view.getId() == R.id.llSetting) {
-            // TODO: 2021/1/13
+            startActivity(new Intent(this, DeviceSettingActivity.class));
         }
     }
 
