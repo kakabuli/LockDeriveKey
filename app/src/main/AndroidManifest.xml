@@ -83,6 +83,7 @@
         <activity android:name=".ui.home.device.AuthorizationManagementActivity" />
         <activity android:name=".ui.home.device.SharedUserDetailActivity" />
         <activity android:name=".ui.home.device.setting.DeviceSettingActivity" />
+        <activity android:name=".ui.home.device.setting.ChangeLockNameActivity" />
     </application>
 
 </manifest>
