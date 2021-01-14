@@ -1,5 +1,6 @@
 package com.revolo.lock.ui.home.device;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
@@ -43,7 +44,7 @@ public class UserManagementActivity extends BaseActivity {
         useCommonTitleBar(getString(R.string.title_user_management))
                 .setRight(ContextCompat.getDrawable(this, R.drawable.ic_home_icon_add),
                         v -> {
-                            // TODO: 2021/1/14 add user
+                            startActivity(new Intent(this, AddNewShareUserInputNameActivity.class));
                         });
         RecyclerView rvSharedUser = findViewById(R.id.rvSharedUser);
         mSharedUserListAdapter = new SharedUserListAdapter(R.layout.item_shared_user_rv);

@@ -79,6 +79,7 @@
         <activity android:name=".ui.home.device.PasswordDetailActivity" />
         <activity android:name=".ui.home.device.ChangePwdNameActivity" />
         <activity android:name=".ui.home.device.UserManagementActivity" />
+        <activity android:name=".ui.home.device.AddNewShareUserInputNameActivity" />
     </application>
 
 </manifest>

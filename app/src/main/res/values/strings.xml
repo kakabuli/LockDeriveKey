@@ -108,5 +108,11 @@
     <string name="permission_family">(Family)</string>
     <string name="permission_guest">(Guest)</string>
 
+    <!-- AddNewShareUserInputNameActivity -->
+    <string name="title_add_user">Add user</string>
+    <string name="hint_please_enter_the_user_name">Please enter the user name</string>
+    <string name="tip_add_user">Add user</string>
+    <string name="tip_add_new_user">Add new user</string>
+
 
 </resources>
