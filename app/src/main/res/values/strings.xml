@@ -146,4 +146,13 @@
     <string name="please_approach_the_door_lock">Please approach the door lock</string>
     <string name="to_connect_wifi_again">To connect WiFi again</string>
 
+    <!-- AutoLockActivity -->
+    <string name="title_auto_lock">Auto lock</string>
+    <string name="tip_auto_lock">Auto lock</string>
+    <string name="set_lock_time">Set lock time</string>
+    <string name="tip_the_timer_will_start_when_your_door_is_closed">The timer will start when your door is closed.</string>
+    <string name="tip_door_will_be_locked_when_time_is_up">Door will be locked when time is up.</string>
+    <string name="second">%1ds</string>
+    <string name="min">%1dmin</string>
+
 </resources>
