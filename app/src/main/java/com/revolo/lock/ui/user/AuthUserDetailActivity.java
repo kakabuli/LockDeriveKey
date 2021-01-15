@@ -1,5 +1,6 @@
 package com.revolo.lock.ui.user;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
@@ -52,6 +53,7 @@ public class AuthUserDetailActivity extends BaseActivity {
         mDevicesAdapter = new AuthUserDetailDevicesAdapter(R.layout.item_user_devices_rv);
         rvLockList.setLayoutManager(new LinearLayoutManager(this));
         rvLockList.setAdapter(mDevicesAdapter);
+        applyDebouncingClickListener(findViewById(R.id.clUserName));
 
     }
 
@@ -62,7 +64,9 @@ public class AuthUserDetailActivity extends BaseActivity {
 
     @Override
     public void onDebouncingClick(@NonNull View view) {
-
+        if(view.getId() == R.id.clUserName) {
+            startActivity(new Intent(this, ChangeSharedUserNameActivity.class));
+        }
     }
 
     private void initTestData() {

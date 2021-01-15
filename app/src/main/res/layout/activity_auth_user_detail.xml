@@ -53,7 +53,7 @@
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/clLock"
+        android:id="@+id/clUserName"
         android:layout_width="match_parent"
         android:layout_height="51pt"
         android:background="@color/white"
@@ -92,7 +92,7 @@
         android:background="@color/white"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/clLock">
+        app:layout_constraintTop_toBottomOf="@+id/clUserName">
 
         <TextView
             android:id="@+id/textView45"
