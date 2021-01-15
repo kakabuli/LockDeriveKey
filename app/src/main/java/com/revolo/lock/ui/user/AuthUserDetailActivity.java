@@ -12,10 +12,14 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.blankj.utilcode.util.StringUtils;
+import com.chad.library.adapter.base.BaseQuickAdapter;
+import com.chad.library.adapter.base.listener.OnItemClickListener;
+import com.revolo.lock.Constant;
 import com.revolo.lock.R;
 import com.revolo.lock.adapter.AuthUserDetailDevicesAdapter;
 import com.revolo.lock.base.BaseActivity;
 import com.revolo.lock.bean.TestAuthUserBean;
+import com.revolo.lock.ui.device.lock.SharedUserDetailActivity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -51,6 +55,22 @@ public class AuthUserDetailActivity extends BaseActivity {
         });
         RecyclerView rvLockList = findViewById(R.id.rvLockList);
         mDevicesAdapter = new AuthUserDetailDevicesAdapter(R.layout.item_user_devices_rv);
+        mDevicesAdapter.setOnItemClickListener(new OnItemClickListener() {
+            @Override
+            public void onItemClick(@NonNull BaseQuickAdapter<?, ?> adapter, @NonNull View view, int position) {
+                if(position >= 0 && adapter.getItem(position) != null) {
+                    TestAuthUserBean.TestDeviceBean bean = (TestAuthUserBean.TestDeviceBean) adapter.getItem(position);
+                    if(bean.getState() == 1 || bean.getState() == 2) {
+                        // TODO: 2021/1/15 弹出分享链接重新邀请
+                    } else {
+                        Intent intent = new Intent(AuthUserDetailActivity.this, SharedUserDetailActivity.class);
+                        intent.putExtra(Constant.PRE_A, Constant.AUTH_USER_DETAIL_A);
+                        startActivity(intent);
+                    }
+                }
+                
+            }
+        });
         rvLockList.setLayoutManager(new LinearLayoutManager(this));
         rvLockList.setAdapter(mDevicesAdapter);
         applyDebouncingClickListener(findViewById(R.id.clUserName));

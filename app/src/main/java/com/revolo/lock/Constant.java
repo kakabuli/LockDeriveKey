@@ -12,6 +12,7 @@ public class Constant {
 
     public static final String INPUT_ESN_A = "inputESNA";
     public static final String QR_CODE_A = "QRCodeA";
+    public static final String AUTH_USER_DETAIL_A = "AuthUserDetailA";
 
     public static final String ESN = "ESN";
     public static final String QR_RESULT = "QRResult";
