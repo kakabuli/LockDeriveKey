@@ -105,8 +105,8 @@
     <string name="per_unable_to_add_user">Unable to add user</string>
     <string name="per_unable_to_add_password">Unable to add password</string>
     <string name="per_app_unlock_only">APP unlock only</string>
-    <string name="permission_family">(Family)</string>
-    <string name="permission_guest">(Guest)</string>
+    <string name="permission_family">（Family）</string>
+    <string name="permission_guest">（Guest）</string>
 
     <!-- AddNewShareUserInputNameActivity -->
     <string name="title_add_user">Add user</string>
@@ -171,5 +171,13 @@
     <string name="wifi_version">WiFi version</string>
     <string name="firmware_version">Firmware version</string>
     <string name="title_door_lock_information">Door lock information</string>
+
+    <!-- AuthUserDetailActivity -->
+    <string name="number_of_devices">Number of devices</string>
+    <string name="device_name">Device name</string>
+    <string name="device_permissions">Device permissions</string>
+    <string name="permission_closed_permission">（Closed permission）</string>
+    <string name="unable_to_add_user_and_password">Unable to add user and password</string>
+    <string name="accepting">accepting</string>
 
 </resources>

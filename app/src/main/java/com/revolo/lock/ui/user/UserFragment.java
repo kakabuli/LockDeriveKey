@@ -1,5 +1,6 @@
 package com.revolo.lock.ui.user;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,6 +16,8 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.chad.library.adapter.base.BaseQuickAdapter;
+import com.chad.library.adapter.base.listener.OnItemClickListener;
 import com.revolo.lock.R;
 import com.revolo.lock.adapter.UserListAdapter;
 import com.revolo.lock.bean.TestUserManagementBean;
@@ -39,6 +42,12 @@ public class UserFragment extends Fragment {
             RecyclerView rvLockList = root.findViewById(R.id.rvLockList);
             rvLockList.setLayoutManager(new LinearLayoutManager(getContext()));
             final UserListAdapter userListAdapter = new UserListAdapter(R.layout.item_user_list_rv);
+            userListAdapter.setOnItemClickListener(new OnItemClickListener() {
+                @Override
+                public void onItemClick(@NonNull BaseQuickAdapter<?, ?> adapter, @NonNull View view, int position) {
+                    startActivity(new Intent(getActivity(), AuthUserDetailActivity.class));
+                }
+            });
             rvLockList.setAdapter(userListAdapter);
             mUserViewModel.getUsers().observe(getViewLifecycleOwner(), new Observer<List<TestUserManagementBean>>() {
                 @Override

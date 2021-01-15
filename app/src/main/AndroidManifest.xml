@@ -89,6 +89,7 @@
         <activity android:name=".ui.device.lock.setting.PrivateModeActivity" />
         <activity android:name=".ui.device.lock.setting.DuressCodeActivity" />
         <activity android:name=".ui.device.lock.setting.DoorLockInformationActivity" />
+        <activity android:name=".ui.user.AuthUserDetailActivity" />
     </application>
 
 </manifest>
