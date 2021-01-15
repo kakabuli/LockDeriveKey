@@ -1,5 +1,6 @@
 package com.revolo.lock.ui.mine;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -8,6 +9,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
@@ -30,6 +32,13 @@ public class MineFragment extends Fragment {
 //                textView.setText(s);
 //            }
 //        });
+        ConstraintLayout clMessage = root.findViewById(R.id.clMessage);
+        clMessage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(getContext(), UserPageActivity.class));
+            }
+        });
         return root;
     }
 }

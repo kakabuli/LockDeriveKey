@@ -93,6 +93,7 @@
         <activity android:name=".ui.user.ChangeSharedUserNameActivity" />
         <activity android:name=".ui.user.AddDeviceForSharedUserActivity" />
         <activity android:name=".ui.user.SelectAuthorizedDeviceActivity" />
+        <activity android:name=".ui.mine.UserPageActivity" />
     </application>
 
 </manifest>
