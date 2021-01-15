@@ -1,8 +1,8 @@
 <resources>
     <string name="app_name">Revolo Lock</string>
-    <string name="title_home">Home</string>
-    <string name="title_dashboard">Dashboard</string>
-    <string name="title_notifications">Notifications</string>
+    <string name="title_device">Device</string>
+    <string name="title_user">User</string>
+    <string name="title_mine">Mine</string>
 
     <!--   SignSelectActivity  -->
     <string name="revolo">Revolo</string>
