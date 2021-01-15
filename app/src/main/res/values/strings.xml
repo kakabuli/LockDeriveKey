@@ -201,4 +201,12 @@
     <string name="email">Email</string>
     <string name="change_password">Change password</string>
 
+    <!-- ModifyUserNameActivity -->
+    <string name="title_modify_user_name">Modify user name</string>
+
+    <!-- ModifyEmailActivity -->
+    <string name="please_enter_email_address">Please enter email address</string>
+    <string name="title_modify_email">Modify Email</string>
+    <string name="title_modify_pwd">Modify password</string>
+
 </resources>

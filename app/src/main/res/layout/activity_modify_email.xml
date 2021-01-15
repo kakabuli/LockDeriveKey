@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    android:layout_height="match_parent">
 
     <include
         android:id="@+id/include14"
@@ -11,18 +11,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
-
-
-    <android.widget.Button
-        android:id="@+id/btnComplete"
-        style="@style/ButtonStyle"
-        android:layout_width="223pt"
-        android:layout_height="44pt"
-        android:text="@string/complete"
-        android:layout_marginBottom="98pt"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
 
     <TextView
         android:id="@+id/tvTipName"
@@ -37,17 +25,30 @@
         app:layout_constraintTop_toBottomOf="@+id/include14" />
 
     <EditText
-        android:id="@+id/etPwdName"
+        android:id="@+id/etEmail"
         style="@style/InputEditTextStyle"
         android:layout_width="300pt"
         android:layout_height="44pt"
         android:layout_marginTop="6pt"
-        android:hint="@string/please_enter_the_password_name"
+        android:hint="@string/please_enter_email_address"
         android:inputType="textEmailAddress"
         android:textColorHint="@color/cA5A4DA"
         android:theme="@style/InputEditTextTheme"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tvTipName" />
+
+
+    <android.widget.Button
+        android:id="@+id/btnComplete"
+        style="@style/ButtonStyle"
+        android:layout_width="223pt"
+        android:layout_height="44pt"
+        android:text="@string/complete"
+        android:layout_marginBottom="128pt"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

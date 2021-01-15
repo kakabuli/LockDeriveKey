@@ -1,5 +1,6 @@
 package com.revolo.lock.ui.mine;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 
@@ -29,6 +30,8 @@ public class UserPageActivity extends BaseActivity {
     @Override
     public void initView(@Nullable Bundle savedInstanceState, @Nullable View contentView) {
         useCommonTitleBar(getString(R.string.title_user_page));
+        applyDebouncingClickListener(findViewById(R.id.clUserName),
+                findViewById(R.id.clEmail), findViewById(R.id.clChangePwd));
     }
 
     @Override
@@ -38,6 +41,16 @@ public class UserPageActivity extends BaseActivity {
 
     @Override
     public void onDebouncingClick(@NonNull View view) {
-
+        if(view.getId() == R.id.clUserName) {
+            startActivity(new Intent(this, ModifyUserNameActivity.class));
+            return;
+        }
+        if(view.getId() == R.id.clEmail) {
+            startActivity(new Intent(this, ModifyEmailActivity.class));
+            return;
+        }
+        if(view.getId() == R.id.clChangePwd) {
+            startActivity(new Intent(this, ModifyPasswordActivity.class));
+        }
     }
 }

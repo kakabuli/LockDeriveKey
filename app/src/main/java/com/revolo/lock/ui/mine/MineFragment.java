@@ -32,8 +32,8 @@ public class MineFragment extends Fragment {
 //                textView.setText(s);
 //            }
 //        });
-        ConstraintLayout clMessage = root.findViewById(R.id.clMessage);
-        clMessage.setOnClickListener(new View.OnClickListener() {
+        ConstraintLayout clUserDetail = root.findViewById(R.id.clUserDetail);
+        clUserDetail.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 startActivity(new Intent(getContext(), UserPageActivity.class));

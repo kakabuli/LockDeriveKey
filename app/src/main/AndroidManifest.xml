@@ -94,6 +94,9 @@
         <activity android:name=".ui.user.AddDeviceForSharedUserActivity" />
         <activity android:name=".ui.user.SelectAuthorizedDeviceActivity" />
         <activity android:name=".ui.mine.UserPageActivity" />
+        <activity android:name=".ui.mine.ModifyUserNameActivity" />
+        <activity android:name=".ui.mine.ModifyEmailActivity" />
+        <activity android:name=".ui.mine.ModifyPasswordActivity" />
     </application>
 
 </manifest>

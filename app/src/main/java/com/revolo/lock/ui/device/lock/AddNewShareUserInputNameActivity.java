@@ -37,7 +37,7 @@ public class AddNewShareUserInputNameActivity extends BaseActivity {
     public void initView(@Nullable Bundle savedInstanceState, @Nullable View contentView) {
         useCommonTitleBar(getString(R.string.title_add_user));
         applyDebouncingClickListener(findViewById(R.id.btnAddUser));
-        mEtUserName = findViewById(R.id.etUserName);
+        mEtUserName = findViewById(R.id.etEmail);
 
     }
 
