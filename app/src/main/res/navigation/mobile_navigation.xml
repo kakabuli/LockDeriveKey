@@ -3,16 +3,16 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/mobile_navigation"
-    app:startDestination="@+id/navigation_home">
+    app:startDestination="@+id/navigation_device">
 
     <fragment
-        android:id="@+id/navigation_home"
+        android:id="@+id/navigation_device"
         android:name="com.revolo.lock.ui.device.DeviceFragment"
         android:label="@string/title_device"
         tools:layout="@layout/fragment_device" />
 
     <fragment
-        android:id="@+id/navigation_dashboard"
+        android:id="@+id/navigation_user"
         android:name="com.revolo.lock.ui.user.UserFragment"
         android:label="@string/title_user"
         tools:layout="@layout/fragment_user" />
