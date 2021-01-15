@@ -91,6 +91,7 @@
         <activity android:name=".ui.device.lock.setting.DoorLockInformationActivity" />
         <activity android:name=".ui.user.AuthUserDetailActivity" />
         <activity android:name=".ui.user.ChangeSharedUserNameActivity" />
+        <activity android:name=".ui.user.AddDeviceForSharedUserActivity" />
     </application>
 
 </manifest>

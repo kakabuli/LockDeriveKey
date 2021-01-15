@@ -180,4 +180,8 @@
     <string name="unable_to_add_user_and_password">Unable to add user and password</string>
     <string name="accepting">accepting</string>
 
+    <!-- AddDeviceForSharedUserActivity -->
+    <string name="title_select_authorized_device">Select authorized device</string>
+    <string name="select_authorized_user_device">Select authorized user device</string>
+
 </resources>

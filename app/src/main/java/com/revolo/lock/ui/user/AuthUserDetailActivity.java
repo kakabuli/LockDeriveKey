@@ -50,7 +50,7 @@ public class AuthUserDetailActivity extends BaseActivity {
                 .setRight(ContextCompat.getDrawable(this, R.drawable.ic_home_icon_add), new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // TODO: 2021/1/15 添加设备
+                startActivity(new Intent(AuthUserDetailActivity.this, AddDeviceForSharedUserActivity.class));
             }
         });
         RecyclerView rvLockList = findViewById(R.id.rvLockList);
