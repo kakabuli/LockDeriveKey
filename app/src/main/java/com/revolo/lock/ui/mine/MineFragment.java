@@ -23,13 +23,13 @@ public class MineFragment extends Fragment {
         mMineViewModel =
                 new ViewModelProvider(this).get(MineViewModel.class);
         View root = inflater.inflate(R.layout.fragment_mine, container, false);
-        final TextView textView = root.findViewById(R.id.text_notifications);
-        mMineViewModel.getText().observe(getViewLifecycleOwner(), new Observer<String>() {
-            @Override
-            public void onChanged(@Nullable String s) {
-                textView.setText(s);
-            }
-        });
+//        final TextView textView = root.findViewById(R.id.text_notifications);
+//        mMineViewModel.getText().observe(getViewLifecycleOwner(), new Observer<String>() {
+//            @Override
+//            public void onChanged(@Nullable String s) {
+//                textView.setText(s);
+//            }
+//        });
         return root;
     }
 }

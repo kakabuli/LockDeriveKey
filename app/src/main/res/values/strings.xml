@@ -186,5 +186,10 @@
 
     <!-- SelectAuthorizedDeviceActivity -->
     <string name="you_will_invite_mary_users_to_use_the_lock">You will invite Mary users to use the lock</string>
+    <string name="message">Message</string>
+    <string name="setting">Setting</string>
+    <string name="about">About</string>
+    <string name="feedback">Feedback</string>
+    <string name="help">Help</string>
 
 </resources>
