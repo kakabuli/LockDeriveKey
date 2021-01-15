@@ -1,5 +1,6 @@
 package com.revolo.lock.ui.user;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 
@@ -47,7 +48,7 @@ public class AddDeviceForSharedUserActivity extends BaseActivity {
         mAuthUserDeviceAdapter.setOnItemClickListener(new OnItemClickListener() {
             @Override
             public void onItemClick(@NonNull BaseQuickAdapter<?, ?> adapter, @NonNull View view, int position) {
-                // TODO: 2021/1/15 点击
+                startActivity(new Intent(AddDeviceForSharedUserActivity.this, SelectAuthorizedDeviceActivity.class));
             }
         });
         rvDevice.setAdapter(mAuthUserDeviceAdapter);
