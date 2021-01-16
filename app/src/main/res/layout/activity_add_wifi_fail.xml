@@ -31,7 +31,7 @@
         android:textSize="14pt"
         android:textColor="@color/c333333"
         android:textStyle="bold"
-        android:text="Distribution network failure"
+        android:text="@string/wifi_connecting_failed"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/imageView6" />
@@ -44,7 +44,7 @@
         android:gravity="start"
         android:textColor="@color/c666666"
         android:textSize="14pt"
-        android:text="1. Please make sure the WiFi network of home\n     router is normal\n 2. Please make sure the WiFi account and\n      password are entered correctly\n 3. Please keep the Bluetooth and door lock\n      connected normally"
+        android:text="@string/tip_add_wifi_fail_tip"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView15" />
@@ -54,7 +54,7 @@
         android:layout_width="223pt"
         android:layout_height="36pt"
         style="@style/ButtonStyle"
-        android:text="Re distribution network"
+        android:text="@string/reconnect"
         android:layout_marginBottom="13pt"
         app:layout_constraintBottom_toTopOf="@+id/btnCancel"
         app:layout_constraintEnd_toEndOf="parent"
@@ -66,7 +66,7 @@
         android:layout_height="36pt"
         style="@style/ButtonStyle"
         android:layout_marginBottom="70pt"
-        android:text="Cancel distribution network"
+        android:text="@string/cancel_connecting"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />

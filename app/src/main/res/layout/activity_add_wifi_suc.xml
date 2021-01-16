@@ -31,7 +31,7 @@
         android:gravity="center"
         android:textColor="@color/c333333"
         android:textSize="14pt"
-        android:text="If the distribution network is successful, you\n can learn the status of the door lock remotely\n Please continue to verify the door magnet"
+        android:text="@string/tip_add_wifi_suc"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/imageView5" />

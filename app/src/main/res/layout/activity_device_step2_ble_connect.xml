@@ -30,7 +30,7 @@
         android:layout_marginTop="17pt"
         android:textSize="14pt"
         android:textColor="@color/c666666"
-        android:text="Bluetooth connection, please wait"
+        android:text="@string/bluetooth_connecting_please_wait"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/imageView2" />

@@ -239,5 +239,16 @@
     <!-- BleConnectFailActivity -->
     <string name="reconnect">Reconnect</string>
     <string name="please_confirm_if_bluetooth_is_on">Please confirm if Bluetooth is on</string>
+    <string name="cancel">Cancel</string>
+
+    <!-- AddDeviceStep2BleConnectActivity -->
+    <string name="bluetooth_connecting_please_wait">Bluetooth connecting, please wait.</string>
+
+    <!-- AddWifiActivity -->
+    <string name="please_choose_your_wifi_account_nand_enter_password">Please choose your WiFi account\nand enter password.</string>
+    <string name="tip_add_wifi_suc">Door magnet alignment is completed, and\n you can acquire door status\nat any time.</string>
+    <string name="wifi_connecting_failed">WiFi Connecting failed</string>
+    <string name="cancel_connecting">Cancel Connecting</string>
+    <string name="tip_add_wifi_fail_tip">1. Please make sure the router is normal.\n2. Please make sure the WiFi account and\n &#160;&#160;&#160;&#160;password are entered correctly.\n3. Please ensure the Phone Bluetooth\n &#160;&#160;&#160;&#160;connected to door lock successfully.\n</string>
 
 </resources>

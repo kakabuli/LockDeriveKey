@@ -51,7 +51,7 @@
         android:layout_width="223pt"
         android:layout_height="wrap_content"
         android:gravity="center"
-        android:text="cancel"
+        android:text="@string/cancel"
         android:textSize="15pt"
         android:textColor="@color/c666666"
         android:layout_marginBottom="97pt"
