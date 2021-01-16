@@ -97,6 +97,8 @@
         <activity android:name=".ui.mine.ModifyUserNameActivity" />
         <activity android:name=".ui.mine.ModifyEmailActivity" />
         <activity android:name=".ui.mine.ModifyPasswordActivity" />
+        <activity android:name=".ui.mine.MessageListActivity" />
+        <activity android:name=".ui.mine.MessageDetailActivity" />
     </application>
 
 </manifest>

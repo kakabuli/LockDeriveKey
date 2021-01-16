@@ -209,4 +209,9 @@
     <string name="title_modify_email">Modify Email</string>
     <string name="title_modify_pwd">Modify password</string>
 
+    <!-- MessageListActivity -->
+    <string name="title_message">Message</string>
+    <string name="title_message_detail">Message details</string>
+
+
 </resources>
