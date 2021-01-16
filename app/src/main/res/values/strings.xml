@@ -213,5 +213,11 @@
     <string name="title_message">Message</string>
     <string name="title_message_detail">Message details</string>
 
+    <!-- SettingActivity -->
+    <string name="gesture_code">Gesture code</string>
+    <string name="change_gesture_password">Change gesture password</string>
+    <string name="enable_touch_id">Enable touch ID</string>
+    <string name="enable_face_id">Enable face ID</string>
+
 
 </resources>

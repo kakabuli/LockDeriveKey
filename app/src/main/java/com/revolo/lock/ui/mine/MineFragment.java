@@ -44,6 +44,12 @@ public class MineFragment extends Fragment {
                 startActivity(new Intent(getContext(), MessageListActivity.class));
             }
         });
+        root.findViewById(R.id.clSetting).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(getContext(), SettingActivity.class));
+            }
+        });
         return root;
     }
 }

@@ -99,6 +99,7 @@
         <activity android:name=".ui.mine.ModifyPasswordActivity" />
         <activity android:name=".ui.mine.MessageListActivity" />
         <activity android:name=".ui.mine.MessageDetailActivity" />
+        <activity android:name=".ui.mine.SettingActivity" />
     </application>
 
 </manifest>
