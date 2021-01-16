@@ -101,6 +101,7 @@
         <activity android:name=".ui.mine.MessageDetailActivity" />
         <activity android:name=".ui.mine.SettingActivity" />
         <activity android:name=".ui.mine.AboutActivity" />
+        <activity android:name=".ui.mine.FeedbackActivity" />
     </application>
 
 </manifest>

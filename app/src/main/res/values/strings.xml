@@ -226,5 +226,9 @@
     <string name="privacy_agreement">Privacy agreement</string>
     <string name="user_agreement">User agreement</string>
 
+    <!-- FeedbackActivity -->
+    <string name="title_feedback">Feedback</string>
+    <string name="submit">Submit</string>
+
 
 </resources>
