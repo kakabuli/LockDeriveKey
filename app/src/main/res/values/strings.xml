@@ -219,5 +219,12 @@
     <string name="enable_touch_id">Enable touch ID</string>
     <string name="enable_face_id">Enable face ID</string>
 
+    <!-- AboutActivity -->
+    <string name="copyright_2020">Copyright@2020</string>
+    <string name="title_about">About</string>
+    <string name="contact">Contact</string>
+    <string name="privacy_agreement">Privacy agreement</string>
+    <string name="user_agreement">User agreement</string>
+
 
 </resources>
