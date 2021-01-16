@@ -18,7 +18,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:gravity="center"
-        android:text="The door lock you purchased has been installed\n Please keep WiFi and Bluetooth on\n ignore"
+        android:text="@string/tip_add_device_tip"
         android:textColor="@color/c333333"
         android:textSize="14pt"
         app:layout_constraintEnd_toEndOf="parent"
@@ -27,13 +27,13 @@
 
     <ImageView
         android:id="@+id/imageView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="78pt"
+        android:layout_width="147pt"
+        android:layout_height="147pt"
+        android:layout_marginTop="98pt"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView7"
-        tools:srcCompat="@tools:sample/avatars" />
+        app:srcCompat="@drawable/equipment_add_img_lock" />
 
     <android.widget.Button
         android:id="@+id/btnNext"

@@ -58,7 +58,11 @@ public class AddDeviceQRCodeStep2Activity extends BaseActivity {
 
             @Override
             public void onCameraAmbientBrightnessChanged(boolean isDark) {
-                mLlLight.setVisibility(isDark?View.VISIBLE:View.INVISIBLE);
+                if(isOpenFlashLight) {
+                    mLlLight.setVisibility(View.VISIBLE);
+                } else {
+                    mLlLight.setVisibility(isDark?View.VISIBLE:View.INVISIBLE);
+                }
             }
 
             @Override

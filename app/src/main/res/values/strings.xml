@@ -55,7 +55,8 @@
     <string name="title_my_devices">My devices</string>
 
     <!-- AddDeviceActivity -->
-    <string name="add_revolo_lock">Add revolo lock</string>
+    <string name="wfp01">WFP01</string>
+    <string name="tip_add_device_tip">The door lock has been installed\nPlease ensure WiFi and Bluetooth are on.</string>
 
     <!-- InputESNActivity -->
     <string name="t_please_input_product_esn">Please input product ESN</string>
@@ -230,5 +231,13 @@
     <string name="title_feedback">Feedback</string>
     <string name="submit">Submit</string>
 
+    <!-- BleConnectSucActivity -->
+    <string name="bluetooth_connected_you_can_manage_the_door_lock_now">Bluetooth connected, you can manage the\n door lock now.</string>
+    <string name="for_more_functions_please_connect_to_wifi">For more functions, please connect to WiFi.</string>
+    <string name="door_magnet_alignment">Door Magnet Alignment</string>
+
+    <!-- BleConnectFailActivity -->
+    <string name="reconnect">Reconnect</string>
+    <string name="please_confirm_if_bluetooth_is_on">Please confirm if Bluetooth is on</string>
 
 </resources>

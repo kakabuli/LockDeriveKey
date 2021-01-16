@@ -31,7 +31,7 @@
         android:textColor="@color/c333333"
         android:textSize="14pt"
         android:gravity="center"
-        android:text="App has been bound with Bluetooth, you can\n manage the door lock through Bluetooth"
+        android:text="@string/bluetooth_connected_you_can_manage_the_door_lock_now"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/imageView4" />
@@ -44,7 +44,7 @@
         android:textSize="14pt"
         android:textColor="@color/c333333"
         android:gravity="center"
-        android:text="Please continue to add WiFi experience\n products"
+        android:text="@string/for_more_functions_please_connect_to_wifi"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView10" />
@@ -53,22 +53,9 @@
         android:id="@+id/btnAddWifi"
         style="@style/ButtonStyle"
         android:layout_width="223pt"
-        android:layout_height="36pt"
-        android:text="Add WiFi"
-        android:layout_marginBottom="10pt"
-        app:layout_constraintBottom_toTopOf="@+id/tvSkip"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
-
-    <TextView
-        android:id="@+id/tvSkip"
-        android:layout_width="223pt"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:text="Skip"
-        android:textSize="15pt"
-        android:textColor="@color/c666666"
-        android:layout_marginBottom="97pt"
+        android:layout_height="44pt"
+        android:layout_marginBottom="128pt"
+        android:text="@string/door_magnet_alignment"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
