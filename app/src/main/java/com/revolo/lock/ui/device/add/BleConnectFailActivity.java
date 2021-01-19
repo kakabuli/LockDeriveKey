@@ -29,6 +29,7 @@ public class BleConnectFailActivity extends BaseActivity {
     @Override
     public void initView(@Nullable Bundle savedInstanceState, @Nullable View contentView) {
         useCommonTitleBar(getString(R.string.add_device));
+        applyDebouncingClickListener(findViewById(R.id.tvCancel), findViewById(R.id.btnReconnect));
     }
 
     @Override
@@ -38,6 +39,12 @@ public class BleConnectFailActivity extends BaseActivity {
 
     @Override
     public void onDebouncingClick(@NonNull View view) {
+        if(view.getId() == R.id.tvCancel) {
+            finish();
+            return;
+        }
+        if(view.getId() == R.id.btnReconnect) {
 
+        }
     }
 }

@@ -2,36 +2,33 @@
 <androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/white">
 
-    <TextView
-        android:id="@+id/textView"
+    <ImageView
+        android:id="@+id/imageView30"
         android:layout_width="88pt"
         android:layout_height="88pt"
         android:layout_marginTop="98pt"
-        android:background="@drawable/shape_sign_select_circle"
-        android:gravity="center"
-        android:text="@string/revolo"
-        android:textColor="@color/white"
-        android:textSize="20pt"
+        app:srcCompat="@drawable/ic_signin_logo"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"/>
 
     <TextView
         android:id="@+id/textView2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="12pt"
         android:gravity="center"
+        android:layout_marginTop="12pt"
         android:text="@string/tip_sign_select"
         android:textColor="@color/c333333"
         android:textSize="15pt"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView" />
+        app:layout_constraintTop_toBottomOf="@+id/imageView30" />
 
     <android.widget.Button
         android:id="@+id/btnRegister"

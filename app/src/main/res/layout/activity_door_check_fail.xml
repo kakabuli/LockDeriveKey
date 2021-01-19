@@ -7,54 +7,56 @@
     android:layout_height="match_parent">
 
     <include
-        android:id="@+id/include5"
+        android:id="@+id/include10"
         layout="@layout/layout_title_bar"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <ImageView
-        android:id="@+id/imageView3"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="27pt"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/include5"
-        app:srcCompat="@drawable/ic_connect_ble_fail" />
-
     <TextView
-        android:id="@+id/textView9"
+        android:id="@+id/tvTip"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="26pt"
+        android:layout_marginTop="53pt"
+        android:gravity="center"
+        android:paddingStart="33pt"
+        android:paddingEnd="33pt"
+        android:text="@string/door_magnet_cant_be_detected"
         android:textColor="@color/c333333"
-        android:textSize="14pt"
-        android:text="@string/please_confirm_if_bluetooth_is_on"
+        android:textSize="15pt"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/imageView3" />
+        app:layout_constraintTop_toBottomOf="@+id/include10" />
+
+    <ImageView
+        android:id="@+id/ivDoorState"
+        android:layout_width="113pt"
+        android:layout_height="224pt"
+        android:layout_marginTop="73pt"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tvTip"
+        app:srcCompat="@drawable/ic_equipment_img_magnetic_door_fail" />
+
 
     <android.widget.Button
-        android:id="@+id/btnReconnect"
+        android:id="@+id/btnTryAgain"
         style="@style/ButtonStyle"
         android:layout_width="223pt"
         android:layout_height="44pt"
-        android:text="@string/reconnect"
-        android:layout_marginBottom="10pt"
-        app:layout_constraintBottom_toTopOf="@+id/tvCancel"
+        android:layout_marginBottom="14pt"
+        android:text="@string/try_again"
+        app:layout_constraintBottom_toTopOf="@+id/btnCancel"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
-    <TextView
-        android:id="@+id/tvCancel"
+    <android.widget.Button
+        android:id="@+id/btnCancel"
+        style="@style/ButtonStyle"
         android:layout_width="223pt"
-        android:layout_height="wrap_content"
-        android:gravity="center"
+        android:layout_height="44pt"
+        android:layout_marginBottom="40pt"
         android:text="@string/cancel"
-        android:textSize="15pt"
-        android:textColor="@color/c666666"
-        android:layout_marginBottom="97pt"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />

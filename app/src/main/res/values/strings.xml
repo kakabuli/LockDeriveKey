@@ -252,4 +252,17 @@
     <string name="tip_add_wifi_fail_tip">1. Please make sure the router is normal.\n2. Please make sure the WiFi account and\n &#160;&#160;&#160;&#160;password are entered correctly.\n3. Please ensure the Phone Bluetooth\n &#160;&#160;&#160;&#160;connected to door lock successfully.\n</string>
     <string name="title_add_wifi">Add WiFi</string>
 
+    <!-- DoorSensorCheckActivity -->
+    <string name="title_door_magnet_alignment">Door magnet alignment</string>
+    <string name="close_the_door">Close the door</string>
+    <string name="open_the_door">Open the door</string>
+    <string name="half_close_the_door">half close the door</string>
+    <string name="door_check_suc_tip">WiFi connected,then you can acquire status of\nthe door lock remotely.\nPlease continue to connect WiFi.</string>
+    <string name="connect_wifi">Connect WiFi</string>
+
+
+    <!-- DoorCheckFailActivity -->
+    <string name="door_magnet_cant_be_detected">Door magnet can\'t be detected.</string>
+    <string name="try_again">Try again</string>
+
 </resources>

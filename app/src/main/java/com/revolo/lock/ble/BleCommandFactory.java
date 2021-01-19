@@ -162,20 +162,20 @@ public class BleCommandFactory {
     /**
      * 配对
      * @param pwd1       需要使用pwd1加密
-     * @param systemId   需要加密systemId
+     * @param esn        需要加密esn
      */
-    public static byte[] pairCommand(byte[] pwd1, byte[] systemId) {
-        return commandPackage(true, (byte) 0x1b, commandTSN(), systemId, pwd1, null);
+    public static byte[] pairCommand(byte[] pwd1, byte[] esn) {
+        return commandPackage(true, (byte) 0x1b, commandTSN(), esn, pwd1, null);
     }
 
     /**
      *  鉴权
      * @param pwd1       需要使用pwd1加密
      * @param pwd2       需要使用pwd2加密，pwd1和pwd2拼接一起来加密
-     * @param systemId   需要加密systemId
+     * @param esn        需要加密esn
      */
-    public static byte[] authCommand(byte[] pwd1, byte[] pwd2, byte[] systemId) {
-        return commandPackage(true, (byte) 0x01, commandTSN(), systemId, pwd1, pwd2);
+    public static byte[] authCommand(byte[] pwd1, byte[] pwd2, byte[] esn) {
+        return commandPackage(true, (byte) 0x01, commandTSN(), esn, pwd1, pwd2);
     }
 
     /**

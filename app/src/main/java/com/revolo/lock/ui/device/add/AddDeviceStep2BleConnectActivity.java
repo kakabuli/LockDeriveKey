@@ -2,6 +2,8 @@ package com.revolo.lock.ui.device.add;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.text.TextUtils;
 import android.util.SparseArray;
 import android.view.View;
@@ -17,6 +19,13 @@ import com.revolo.lock.App;
 import com.revolo.lock.Constant;
 import com.revolo.lock.R;
 import com.revolo.lock.base.BaseActivity;
+import com.revolo.lock.ble.BleCommandFactory;
+import com.revolo.lock.ble.BleProtocolState;
+import com.revolo.lock.ble.BleResultProcess;
+import com.revolo.lock.ble.OnBleDeviceListener;
+import com.revolo.lock.ble.bean.BleResultBean;
+
+import java.nio.charset.StandardCharsets;
 
 import timber.log.Timber;
 
@@ -29,6 +38,7 @@ import timber.log.Timber;
 public class AddDeviceStep2BleConnectActivity extends BaseActivity {
 
     private OKBLEScanManager mScanManager;
+    private BLEScanResult mScanResult;
 
     private final int mQRPre = 1;
     private final int mDefault = 0;
@@ -36,7 +46,6 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
     private int mPreA = mDefault;
     private String mEsn;
     private String mMac;
-    private String mSystemId;
 
     @Override
     public void initData(@Nullable Bundle bundle) {
@@ -57,12 +66,11 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
         if(TextUtils.isEmpty(qrResult)) return;
         String[] list = qrResult.split("&");
         Timber.d("initData QR Code: %1s", qrResult);
-        if(list.length == 3) {
-            // 分成三份是正确的
-            // ESN=S420210110001&MAC=10:98:C3:72:C6:23&SystemID=edbf0f0d029615ed
+        if(list.length == 2) {
+            // 分成两份是正确的
+            // ESN=S420210110001&MAC=10:98:C3:72:C6:23
             mEsn = list[0].substring(4).trim();
             mMac = list[1].substring(4).trim();
-            mSystemId = list[2].substring(9).trim();
             Timber.d("initData Mac: %1s", mMac);
         }
     }
@@ -89,9 +97,9 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
     public void doBusiness() {
         if(mPreA == mQRPre || mPreA == mESNPre) {
             initScanManager();
+            initBleListener();
         } else {
-            startActivity(new Intent(this, BleConnectFailActivity.class));
-            finish();
+            gotoBleConnectFail();
         }
     }
 
@@ -124,6 +132,79 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
         super.onDestroy();
     }
 
+    private boolean isHavePwd2Or3 = false;
+    private final byte[] mPwd2Or3 = new byte[4];
+    private final BleResultProcess.OnReceivedProcess mOnReceivedProcess = bleResultBean -> {
+        if(bleResultBean == null) {
+            Timber.e("mOnReceivedProcess bleResultBean == null");
+            return;
+        }
+        auth(bleResultBean);
+    };
+
+    private void auth(BleResultBean bleResultBean) {
+        if(bleResultBean.getCMD() == BleProtocolState.CMD_PAIR_ACK) {
+            if(bleResultBean.getPayload()[0] != 0x00) {
+                // 校验失败
+                Timber.e("校验失败 CMD: %1s, 回复的数据：%2s",
+                        ConvertUtils.int2HexString(bleResultBean.getCMD()), ConvertUtils.bytes2HexString(bleResultBean.getPayload()));
+                gotoBleConnectFail();
+            }
+            return;
+        }
+        if(bleResultBean.getCMD() == BleProtocolState.CMD_ENCRYPT_KEY_UPLOAD) {
+            byte[] data = bleResultBean.getPayload();
+            if(data[0] == 0x01) {
+                // 入网时
+                // 获取pwd2
+                System.arraycopy(data, 1, mPwd2Or3, 0, mPwd2Or3.length);
+                isHavePwd2Or3 = true;
+                App.getInstance().writeControlMsg(BleCommandFactory.ackCommand(bleResultBean.getTSN(), (byte)0x00, bleResultBean.getCMD()));
+                new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                    Timber.d("auth 延时发送鉴权指令, pwd2: %1s\n", ConvertUtils.bytes2HexString(mPwd2Or3));
+                    App.getInstance().writeControlMsg(BleCommandFactory
+                            .authCommand(BleCommandFactory.sTestPwd1, mPwd2Or3, mEsn.getBytes(StandardCharsets.UTF_8)));
+                }, 50);
+            } else if(data[0] == 0x02) {
+                // 获取pwd3
+                System.arraycopy(data, 1, mPwd2Or3, 0, mPwd2Or3.length);
+                Timber.d("鉴权成功, pwd3: %1s\n", ConvertUtils.bytes2HexString(mPwd2Or3));
+                App.getInstance().writeControlMsg(BleCommandFactory.ackCommand(bleResultBean.getTSN(), (byte)0x00, bleResultBean.getCMD()));
+                startActivity(new Intent(this, BleConnectSucActivity.class));
+                finish();
+            }
+        }
+    }
+
+    private void initBleListener() {
+        App.getInstance().setOnBleDeviceListener(new OnBleDeviceListener() {
+            @Override
+            public void onConnected() {
+                App.getInstance().writeControlMsg(BleCommandFactory
+                        .pairCommand(BleCommandFactory.sTestPwd1, mEsn.getBytes(StandardCharsets.UTF_8)));
+            }
+
+            @Override
+            public void onDisconnected() {
+
+            }
+
+            @Override
+            public void onReceivedValue(String uuid, byte[] value) {
+                if(value == null) {
+                    return;
+                }
+                BleResultProcess.setOnReceivedProcess(mOnReceivedProcess);
+                BleResultProcess.processReceivedData(value, BleCommandFactory.sTestPwd1, isHavePwd2Or3?mPwd2Or3:null, mScanResult);
+            }
+
+            @Override
+            public void onWriteValue(String uuid, byte[] value, boolean success) {
+
+            }
+        });
+    }
+
     private void initScanManager() {
         mScanManager = new OKBLEScanManager(this);
         DeviceScanCallBack scanCallBack = new DeviceScanCallBack() {
@@ -154,8 +235,15 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
                 connectBleFromQRCode(device);
             } else if(mPreA == mESNPre) {
                 connectBleFromInputEsn(device);
+            } else {
+                gotoBleConnectFail();
             }
         }
+    }
+
+    private void gotoBleConnectFail() {
+        startActivity(new Intent(this, BleConnectFailActivity.class));
+        finish();
     }
 
     private void bleScanFailed(int code) {
@@ -179,7 +267,8 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
         if(TextUtils.isEmpty(mEsn)) return;
         if(isDeviceEsnEqualsInputEsn(device, mEsn)) {
             mScanManager.stopScan();
-            App.getInstance().connectDevice(device, ConvertUtils.hexString2Bytes(mSystemId));
+            mScanResult = device;
+            App.getInstance().connectDevice(device);
         }
     }
 
@@ -188,7 +277,8 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
         if(device.getMacAddress().equalsIgnoreCase(mMac)) {
             mScanManager.stopScan();
             Timber.d("connectBleFromQRCode 扫描到设备");
-            App.getInstance().connectDevice(device, ConvertUtils.hexString2Bytes(mSystemId));
+            mScanResult = device;
+            App.getInstance().connectDevice(device);
         }
     }
 

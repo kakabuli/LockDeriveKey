@@ -202,7 +202,7 @@ public class TestWifiActivity extends BaseActivity {
         if(TextUtils.isEmpty(mEsn)) return;
         if(isDeviceEsnEqualsInputEsn(device, mEsn)) {
             mScanManager.stopScan();
-            App.getInstance().connectDevice(device, ConvertUtils.hexString2Bytes(mSystemId));
+            App.getInstance().connectDevice(device);
         }
     }
 

@@ -1,8 +1,13 @@
 package com.revolo.lock.ui.device.add;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.TextView;
 
+import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
@@ -16,6 +21,22 @@ import com.revolo.lock.base.BaseActivity;
  * desc   :
  */
 public class DoorSensorCheckActivity extends BaseActivity {
+
+    private ImageView ivDoorState;
+    private TextView tvTip;
+    private Button btnNext;
+
+    @IntDef(value = {DOOR_OPEN, DOOR_CLOSE, DOOR_HALF, DOOR_SUC, DOOR_FAIL})
+    private @interface DoorState{}
+    private static final int DOOR_OPEN = 1;
+    private static final int DOOR_CLOSE = 2;
+    private static final int DOOR_HALF = 3;
+    private static final int DOOR_SUC = 4;
+    private static final int DOOR_FAIL = 5;
+
+    @DoorState
+    private int mDoorState = DOOR_CLOSE;
+
     @Override
     public void initData(@Nullable Bundle bundle) {
 
@@ -28,7 +49,11 @@ public class DoorSensorCheckActivity extends BaseActivity {
 
     @Override
     public void initView(@Nullable Bundle savedInstanceState, @Nullable View contentView) {
-        useCommonTitleBar("Gate magnetic calibration");
+        useCommonTitleBar(getString(R.string.title_door_magnet_alignment));
+        btnNext = findViewById(R.id.btnNext);
+        ivDoorState = findViewById(R.id.ivDoorState);
+        tvTip = findViewById(R.id.tvTip);
+        applyDebouncingClickListener(btnNext);
     }
 
     @Override
@@ -38,6 +63,55 @@ public class DoorSensorCheckActivity extends BaseActivity {
 
     @Override
     public void onDebouncingClick(@NonNull View view) {
+        if(view.getId() == R.id.btnNext) {
+            switch (mDoorState) {
+                case DOOR_CLOSE:
+                    openTheDoor();
+                    break;
+                case DOOR_HALF:
+                    isDoorSuc = false;
+                    checkDoorSuc();
+                    break;
+                case DOOR_OPEN:
+                    halfTheDoor();
+                    break;
+                case DOOR_SUC:
+                    startActivity(new Intent(this, AddWifiActivity.class));
+                    finish();
+                    break;
+                case DOOR_FAIL:
+                    break;
+            }
+        }
+    }
+
+    private void openTheDoor() {
+        ivDoorState.setImageResource(R.drawable.ic_equipment_img_magnetic_door_open);
+        tvTip.setText(getString(R.string.open_the_door));
+        btnNext.setText(getString(R.string.next));
+        mDoorState = DOOR_OPEN;
+    }
+
+    private void halfTheDoor() {
+        ivDoorState.setImageResource(R.drawable.ic_equipment_img_magnetic_door_cover_up);
+        tvTip.setText(getString(R.string.half_close_the_door));
+        btnNext.setText(getString(R.string.next));
+        mDoorState = DOOR_HALF;
+    }
+
+    private boolean isDoorSuc = true;
+    private void checkDoorSuc() {
+        if(isDoorSuc) {
+            ivDoorState.setImageResource(R.drawable.ic_equipment_img_magnetic_door_success);
+            tvTip.setText(getString(R.string.door_check_suc_tip));
+            btnNext.setText(getString(R.string.connect_wifi));
+            mDoorState = DOOR_SUC;
+        } else {
+            mDoorState = DOOR_FAIL;
+            startActivity(new Intent(this, DoorCheckFailActivity.class));
+            finish();
+        }
 
     }
+
 }

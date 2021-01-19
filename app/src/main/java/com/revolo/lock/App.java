@@ -1,8 +1,6 @@
 package com.revolo.lock;
 
 import android.app.Application;
-import android.os.Handler;
-import android.os.Looper;
 
 import com.a1anwang.okble.client.core.OKBLEDevice;
 import com.a1anwang.okble.client.core.OKBLEDeviceImp;
@@ -10,10 +8,7 @@ import com.a1anwang.okble.client.core.OKBLEDeviceListener;
 import com.a1anwang.okble.client.core.OKBLEOperation;
 import com.a1anwang.okble.client.scan.BLEScanResult;
 import com.blankj.utilcode.util.ConvertUtils;
-import com.revolo.lock.ble.BleCommandFactory;
-import com.revolo.lock.ble.BleProtocolState;
-import com.revolo.lock.ble.BleResultProcess;
-import com.revolo.lock.ble.bean.BleResultBean;
+import com.revolo.lock.ble.OnBleDeviceListener;
 
 import timber.log.Timber;
 
@@ -27,9 +22,6 @@ public class App extends Application {
 
     private static App instance;
     private OKBLEDevice mDevice;
-    private boolean isHavePwd2Or3 = false;
-    private final byte[] mPwd2Or3 = new byte[4];
-    private byte[] mSystemId;
 
     public static App getInstance() {
         return instance;
@@ -44,54 +36,33 @@ public class App extends Application {
         }
     }
 
-    private final BleResultProcess.OnReceivedProcess mOnReceivedProcess = bleResultBean -> {
-        if(bleResultBean == null) {
-            Timber.e("mOnReceivedProcess bleResultBean == null");
-            return;
-        }
-        auth(bleResultBean);
-    };
-
-    private void auth(BleResultBean bleResultBean) {
-        if(bleResultBean.getCMD() == 0x08) {
-            byte[] data = bleResultBean.getPayload();
-            if(data[0] == 0x01) {
-                // 入网时
-                // 获取pwd2
-                System.arraycopy(data, 1, mPwd2Or3, 0, mPwd2Or3.length);
-                isHavePwd2Or3 = true;
-                writeMsg(BleCommandFactory.ackCommand(bleResultBean.getTSN(), (byte)0x00, bleResultBean.getCMD()));
-                new Handler(Looper.getMainLooper()).postDelayed(() -> {
-                    Timber.d("auth 延时发送鉴权指令, pwd2: %1s\n", ConvertUtils.bytes2HexString(mPwd2Or3));
-                    writeMsg(BleCommandFactory.authCommand(BleCommandFactory.sTestPwd1, mPwd2Or3, mSystemId));
-                }, 50);
-            } else if(data[0] == 0x02) {
-                // 获取pwd3
-                System.arraycopy(data, 1, mPwd2Or3, 0, mPwd2Or3.length);
-                Timber.d("鉴权成功, pwd3: %1s\n", ConvertUtils.bytes2HexString(mPwd2Or3));
-                writeMsg(BleCommandFactory.ackCommand(bleResultBean.getTSN(), (byte)0x00, bleResultBean.getCMD()));
-            }
-        }
+    private OnBleDeviceListener mOnBleDeviceListener;
+    public void setOnBleDeviceListener(OnBleDeviceListener onBleDeviceListener) {
+        mOnBleDeviceListener = onBleDeviceListener;
     }
 
-    public void connectDevice(BLEScanResult bleScanResult, byte[] systemId) {
+    public void connectDevice(BLEScanResult bleScanResult) {
         if(mDevice != null) {
             // 如果之前存在设备，需要先断开之前的连接
             mDevice.disConnect(false);
         }
-        mSystemId = systemId;
         mDevice = new OKBLEDeviceImp(getApplicationContext(), bleScanResult);
         OKBLEDeviceListener okbleDeviceListener = new OKBLEDeviceListener() {
             @Override
             public void onConnected(String deviceTAG) {
                 Timber.d("onConnected deviceTAG: %1s", deviceTAG);
                 openControlNotify();
-                writeMsg(BleCommandFactory.pairCommand(BleCommandFactory.sTestPwd1, systemId));
+                if(mOnBleDeviceListener != null) {
+                    mOnBleDeviceListener.onConnected();
+                }
             }
 
             @Override
             public void onDisconnected(String deviceTAG) {
                 Timber.d("onDisconnected deviceTAG: %1s", deviceTAG);
+                if(mOnBleDeviceListener != null) {
+                    mOnBleDeviceListener.onDisconnected();
+                }
             }
 
             @Override
@@ -100,16 +71,17 @@ public class App extends Application {
 
             @Override
             public void onReceivedValue(String deviceTAG, String uuid, byte[] value) {
-                Timber.d("onReceivedValue value: %1s", ConvertUtils.bytes2HexString(value));
-                if(value == null) {
-                    return;
+                if(mOnBleDeviceListener != null) {
+                    mOnBleDeviceListener.onReceivedValue(uuid, value);
                 }
-                BleResultProcess.setOnReceivedProcess(mOnReceivedProcess);
-                BleResultProcess.processReceivedData(value, BleCommandFactory.sTestPwd1, isHavePwd2Or3?mPwd2Or3:null, bleScanResult);
+                Timber.d("onReceivedValue value: %1s", ConvertUtils.bytes2HexString(value));
             }
 
             @Override
             public void onWriteValue(String deviceTAG, String uuid, byte[] value, boolean success) {
+                if(mOnBleDeviceListener != null) {
+                    mOnBleDeviceListener.onWriteValue(uuid, value, success);
+                }
                 Timber.d("onWriteValue uuid: %1s, value: %2s, success: %3b",
                         uuid, ConvertUtils.bytes2HexString(value), success);
             }
@@ -133,7 +105,8 @@ public class App extends Application {
 
     private static final String sPairWriteCharacteristicUUID = "FFC1";
     private static final String sPairNotifyCharacteristicUUID = "FFC6";
-    private final OKBLEOperation.WriteOperationListener mWriteOperationListener = new OKBLEOperation.WriteOperationListener() {
+    private final OKBLEOperation.WriteOperationListener mWriteOperationListener = new OKBLEOperation
+            .WriteOperationListener() {
         @Override
         public void onWriteValue(byte[] value) {
         }
@@ -149,9 +122,15 @@ public class App extends Application {
         }
     };
 
-    private void writeMsg(byte[] bytes) {
+    public void writeControlMsg(byte[] bytes) {
         if(mDevice != null) {
             mDevice.addWriteOperation(sControlWriteCharacteristicUUID, bytes, mWriteOperationListener);
+        }
+    }
+
+    public void writePairMsg(byte[] bytes) {
+        if(mDevice != null) {
+            mDevice.addWriteOperation(sPairWriteCharacteristicUUID, bytes, mWriteOperationListener);
         }
     }
 

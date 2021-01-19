@@ -13,16 +13,13 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <TextView
-        android:id="@+id/textView"
+    <ImageView
+        android:id="@+id/ivLogo"
         android:layout_width="88pt"
         android:layout_height="88pt"
-        android:background="@drawable/shape_sign_select_circle"
         android:gravity="center"
         android:layout_marginTop="54pt"
-        android:text="@string/revolo"
-        android:textColor="@color/white"
-        android:textSize="20pt"
+        app:srcCompat="@drawable/ic_signin_logo"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/titleBar" />
@@ -37,7 +34,7 @@
         android:layout_marginTop="10pt"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView" />
+        app:layout_constraintTop_toBottomOf="@+id/ivLogo" />
 
     <TextView
         android:id="@+id/textView52"
