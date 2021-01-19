@@ -40,7 +40,8 @@ public class DeviceSettingActivity extends BaseActivity {
         mTvWifiName = findViewById(R.id.tvWifiName);
         applyDebouncingClickListener(mTvName, mTvWifiName,
                 findViewById(R.id.clAutoLock), findViewById(R.id.clPrivateMode),
-                findViewById(R.id.clDuressCode), findViewById(R.id.clDoorLockInformation));
+                findViewById(R.id.clDuressCode), findViewById(R.id.clDoorLockInformation),
+                findViewById(R.id.clGeoFenceLock));
     }
 
     @Override
@@ -72,6 +73,10 @@ public class DeviceSettingActivity extends BaseActivity {
         }
         if(view.getId() == R.id.clDoorLockInformation) {
             startActivity(new Intent(this, DoorLockInformationActivity.class));
+            return;
+        }
+        if(view.getId() == R.id.clGeoFenceLock) {
+            startActivity(new Intent(this, GeoFenceUnlockActivity.class));
         }
     }
 

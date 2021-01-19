@@ -103,6 +103,7 @@
         <activity android:name=".ui.mine.AboutActivity" />
         <activity android:name=".ui.mine.FeedbackActivity" />
         <activity android:name=".ui.device.add.DoorCheckFailActivity" />
+        <activity android:name=".ui.device.lock.setting.GeoFenceUnlockActivity" />
     </application>
 
 </manifest>

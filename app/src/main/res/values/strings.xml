@@ -138,6 +138,7 @@
     <string name="join_alexa">Join Alexa</string>
     <string name="door_lock_information">Door lock information</string>
     <string name="unbind">Unbind</string>
+    <string name="do_not_disturb_mode">Do not disturb mode</string>
 
     <!-- ChangeLockNameActivity -->
     <string name="hint_please_enter_the_lock_name">Please enter the lock name</string>
@@ -260,9 +261,16 @@
     <string name="door_check_suc_tip">WiFi connected,then you can acquire status of\nthe door lock remotely.\nPlease continue to connect WiFi.</string>
     <string name="connect_wifi">Connect WiFi</string>
 
-
     <!-- DoorCheckFailActivity -->
     <string name="door_magnet_cant_be_detected">Door magnet can\'t be detected.</string>
     <string name="try_again">Try again</string>
+
+    <!-- GeoFenceUnlockActivity -->
+    <string name="title_geo_fence_unlock">Geo-fence Unlock</string>
+    <string name="geo_fence_unlock_instruction">Geo-fence unlock instruction</string>
+    <string name="geo_fence_unlock">Geo-fence Unlock</string>
+    <string name="distance_range_setting">Distance range setting</string>
+    <string name="sensitivity">Sensitivity</string>
+    <string name="set_time">Set time</string>
 
 </resources>
