@@ -62,18 +62,31 @@ public class DoorSensorCheckActivity extends BaseActivity {
     }
 
     @Override
+    public void onBackPressed() {
+        if(mDoorState == DOOR_CLOSE) {
+            super.onBackPressed();
+        } else {
+            if(mDoorState == DOOR_HALF) {
+                refreshOpenTheDoor();
+            } else if(mDoorState == DOOR_OPEN) {
+                refreshCloseTheDoor();
+            }
+        }
+    }
+
+    @Override
     public void onDebouncingClick(@NonNull View view) {
         if(view.getId() == R.id.btnNext) {
             switch (mDoorState) {
                 case DOOR_CLOSE:
-                    openTheDoor();
+                    refreshOpenTheDoor();
                     break;
                 case DOOR_HALF:
                     isDoorSuc = false;
                     checkDoorSuc();
                     break;
                 case DOOR_OPEN:
-                    halfTheDoor();
+                    refreshHalfTheDoor();
                     break;
                 case DOOR_SUC:
                     startActivity(new Intent(this, AddWifiActivity.class));
@@ -85,14 +98,21 @@ public class DoorSensorCheckActivity extends BaseActivity {
         }
     }
 
-    private void openTheDoor() {
+    private void refreshCloseTheDoor() {
+        ivDoorState.setImageResource(R.drawable.ic_equipment_img_magnetic_door_close);
+        tvTip.setText(getString(R.string.close_the_door));
+        btnNext.setText(getString(R.string.next));
+        mDoorState = DOOR_CLOSE;
+    }
+
+    private void refreshOpenTheDoor() {
         ivDoorState.setImageResource(R.drawable.ic_equipment_img_magnetic_door_open);
         tvTip.setText(getString(R.string.open_the_door));
         btnNext.setText(getString(R.string.next));
         mDoorState = DOOR_OPEN;
     }
 
-    private void halfTheDoor() {
+    private void refreshHalfTheDoor() {
         ivDoorState.setImageResource(R.drawable.ic_equipment_img_magnetic_door_cover_up);
         tvTip.setText(getString(R.string.half_close_the_door));
         btnNext.setText(getString(R.string.next));

@@ -242,7 +242,17 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
     }
 
     private void gotoBleConnectFail() {
-        startActivity(new Intent(this, BleConnectFailActivity.class));
+        Intent intent = new Intent(this, BleConnectFailActivity.class);
+        Intent preIntent = getIntent();
+        if(!preIntent.hasExtra(Constant.PRE_A)) return;
+        String preA = preIntent.getStringExtra(Constant.PRE_A);
+        intent.putExtra(Constant.PRE_A, preA);
+        if(preA.equals(Constant.INPUT_ESN_A)) {
+            preIntent.putExtra(Constant.ESN, intent.getStringExtra(Constant.ESN));
+        } else if(preA.equals(Constant.QR_CODE_A)) {
+            preIntent.putExtra(Constant.QR_RESULT, intent.getStringExtra(Constant.QR_RESULT));
+        }
+        startActivity(intent);
         finish();
     }
 
