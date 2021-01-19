@@ -16,12 +16,12 @@ public class DeviceViewModel extends ViewModel {
     public DeviceViewModel() {
 
         List<TestLockBean> testLockBeans = new ArrayList<>();
-//        TestLockBean testLockBean1 = new TestLockBean("10V0204110001", 1, 1, 1);
-//        testLockBeans.add(testLockBean1);
-//        TestLockBean testLockBean2 = new TestLockBean("10V0204110002", 2, 1, 1);
-//        testLockBeans.add(testLockBean2);
-//        TestLockBean testLockBean3 = new TestLockBean("10V0204110003", 1, 2, 2);
-//        testLockBeans.add(testLockBean3);
+        TestLockBean testLockBean1 = new TestLockBean("10V0204110001", 1, 1, 1);
+        testLockBeans.add(testLockBean1);
+        TestLockBean testLockBean2 = new TestLockBean("10V0204110002", 2, 1, 1);
+        testLockBeans.add(testLockBean2);
+        TestLockBean testLockBean3 = new TestLockBean("10V0204110003", 1, 2, 2);
+        testLockBeans.add(testLockBean3);
 
         mTestLockBean = new MutableLiveData<>();
         mTestLockBean.setValue(testLockBeans);

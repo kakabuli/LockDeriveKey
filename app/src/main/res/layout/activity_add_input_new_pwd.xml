@@ -54,7 +54,7 @@
         android:id="@+id/btnNext"
         style="@style/ButtonStyle"
         android:layout_width="223pt"
-        android:layout_height="36pt"
+        android:layout_height="44pt"
         android:text="@string/next"
         android:layout_marginBottom="128pt"
         app:layout_constraintBottom_toBottomOf="parent"

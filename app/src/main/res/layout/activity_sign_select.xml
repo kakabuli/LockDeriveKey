@@ -33,7 +33,7 @@
     <android.widget.Button
         android:id="@+id/btnRegister"
         android:layout_width="223pt"
-        android:layout_height="36pt"
+        android:layout_height="44pt"
         style="@style/ButtonStyle"
         android:text="@string/register"
         android:layout_marginBottom="70pt"
@@ -45,7 +45,7 @@
         android:id="@+id/btnSignIn"
         style="@style/ButtonStyle"
         android:layout_width="223pt"
-        android:layout_height="36pt"
+        android:layout_height="44pt"
         android:layout_marginBottom="14pt"
         android:text="@string/sign_in"
         app:layout_constraintBottom_toTopOf="@+id/btnRegister"

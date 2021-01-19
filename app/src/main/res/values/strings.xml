@@ -57,6 +57,8 @@
     <!-- AddDeviceActivity -->
     <string name="wfp01">WFP01</string>
     <string name="tip_add_device_tip">The door lock has been installed\nPlease ensure WiFi and Bluetooth are on.</string>
+    <string name="manual_input">Manual input</string>
+    <string name="touch_to_light_up">Touch to light up</string>
 
     <!-- InputESNActivity -->
     <string name="t_please_input_product_esn">Please input product ESN</string>

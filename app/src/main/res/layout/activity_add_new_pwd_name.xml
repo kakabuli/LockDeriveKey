@@ -62,9 +62,10 @@
         android:id="@+id/btnComplete"
         style="@style/ButtonStyle"
         android:layout_width="223pt"
-        android:layout_height="36pt"
+        android:layout_height="44pt"
         android:layout_marginBottom="10pt"
         android:text="@string/complete"
+        android:textSize="15pt"
         app:layout_constraintBottom_toTopOf="@+id/tvAddNextTime"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
@@ -75,6 +76,8 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="97pt"
         android:text="@string/add_next_time"
+        android:textSize="15pt"
+        android:textColor="@color/c666666"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />

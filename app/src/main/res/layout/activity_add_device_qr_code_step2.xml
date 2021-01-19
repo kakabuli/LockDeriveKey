@@ -52,7 +52,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_marginTop="3pt"
-            android:text="Touch to light up"
+            android:text="@string/touch_to_light_up"
             android:textColor="@color/white"
             android:textSize="12pt" />
 
@@ -64,7 +64,7 @@
         android:layout_height="36pt"
         android:layout_marginBottom="31pt"
         android:gravity="center"
-        android:text="Manual input"
+        android:text="@string/manual_input"
         android:textColor="@color/white"
         android:textSize="16pt"
         android:background="@drawable/shape_manual_input_bg"
