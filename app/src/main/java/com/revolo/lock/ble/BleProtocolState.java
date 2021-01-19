@@ -21,7 +21,7 @@ public class BleProtocolState {
             CMD_UPLOAD_PAIR_NETWORK, CMD_UPLOAD_PAIR_NETWORK_STATE, CMD_KEY_VERIFY_RESULT_ACK,
             CMD_UPLOAD_REMAIN_COUNT, CMD_PAIR_NETWORK_ACK, CMD_BLE_UPLOAD_PAIR_NETWORK_STATE,
             CMD_WIFI_LIST_CHECK, CMD_NOTHING})
-    public @interface Cmd{ }
+    public @interface CMD{ }
 
     public static final int CMD_LOCK_OPEN_RECORD = 0x04;                // 锁开锁记录查询响应
     public static final int CMD_LOCK_UPLOAD = 0x05;                     // 锁操作上报
@@ -61,5 +61,134 @@ public class BleProtocolState {
     public static final int CMD_WIFI_LIST_CHECK = 0x98;                 // WIFI热点列表查询响应
 
     public static final int CMD_NOTHING = 0xFF;                         // 无用
+
+    @IntDef(value = {ACK_SUCCESS, ACK_FAILURE, ACK_NOT_AUTHORIZED, ACK_RESERVED_FIELD_NOT_ZERO,
+            ACK_MALFORMED_COMMAND, ACK_UN_SUPPORT_COMMAND, ACK_UN_SUP_GENERAL_COMMAND,
+            ACK_UN_SUP_MANUF_COMMAND, ACK_UN_SUP_MANUF_GENERAL_COMMAND, ACK_INVALID_FIELD,
+            ACK_UNSUPPORTED_ATTRIBUTE, ACK_INVALID_VALUE, ACK_READ_ONLY, ACK_INSUFFICIENT_SPACE,
+            ACK_DUPLICATE_EXISTS, ACK_NOT_FOUND, ACK_UN_REPORTABLE_ATTRIBUTE, ACK_INVALID_DATA_TYPE,
+            ACK_INVALID_SELECTOR, ACK_WRITE_ONLY, ACK_INCONSISTENT_STARTUP_STATE, ACK_DEFINED_OUT_OF_BAND,
+            ACK_INCONSISTENT, ACK_ACTION_DENIED, ACK_TIMEOUT, ACK_ABORT, ACK_INVALID_IMAGE, ACK_WAIT_FOR_DATA,
+            ACK_NO_IMAGE_AVAILABLE, ACK_REQUIRE_MORE_IMAGE, ACK_NOTIFICATION_PENDING, ACK_HARDWARE_FAILURE,
+            ACK_SOFTWARE_FAILURE, ACK_CALIBRATION_ERROR, ACK_UNSUPPORTED_CLUSTER, ACK_BACK_LOCK, ACK_SAFE_MODE,
+            ACK_SUBMODULE_VERSION_SAME, ACK_GET_VERSION_TIMEOUT, ACK_OTA_TYPE_INVALID, ACK_OPEN_WIFI_TIMEOUT,
+            ACK_SET_WIFI_FAILURE, ACK_NO_THING})
+    public @interface ACK{}
+
+    public static final int ACK_SUCCESS = 0x00;                            // 操作成功
+    public static final int ACK_FAILURE = 0x01;                            // 操作失败
+    public static final int ACK_NOT_AUTHORIZED = 0x7E;                     // 无授权
+    public static final int ACK_RESERVED_FIELD_NOT_ZERO = 0x7F;            // 保留区域没有置零
+    public static final int ACK_MALFORMED_COMMAND = 0x80;                  // 异常命令
+    public static final int ACK_UN_SUPPORT_COMMAND = 0x81;                 // 不支持该命令，不支持的命令必须返回该值
+    public static final int ACK_UN_SUP_GENERAL_COMMAND = 0x82;             // 不使用
+    public static final int ACK_UN_SUP_MANUF_COMMAND = 0x83;               // 不使用
+    public static final int ACK_UN_SUP_MANUF_GENERAL_COMMAND = 0x84;       // 不使用
+    public static final int ACK_INVALID_FIELD = 0x85;                      // 某个字段错误
+    public static final int ACK_UNSUPPORTED_ATTRIBUTE = 0x86;              // 不支持的属性
+    public static final int ACK_INVALID_VALUE = 0x87;                      // 超出范围或者设置为保留值，或者序号已存在
+    public static final int ACK_READ_ONLY = 0x88;                          // 属性为只读
+    public static final int ACK_INSUFFICIENT_SPACE = 0x89;                 // 操作空间不够
+    public static final int ACK_DUPLICATE_EXISTS = 0x8A;                   // 重复存在
+    public static final int ACK_NOT_FOUND = 0x8B;                          // 被请求的数据没有找到，不支持的设置项必须返回该值
+    public static final int ACK_UN_REPORTABLE_ATTRIBUTE = 0x8C;            // 不使用
+    public static final int ACK_INVALID_DATA_TYPE = 0x8D;                  // 数据类型错误
+    public static final int ACK_INVALID_SELECTOR = 0x8E;                   // 不使用
+    public static final int ACK_WRITE_ONLY = 0x8F;                         // 只写
+    public static final int ACK_INCONSISTENT_STARTUP_STATE = 0x90;         // 不使用
+    public static final int ACK_DEFINED_OUT_OF_BAND = 0x91;                // 不使用
+    public static final int ACK_INCONSISTENT = 0x92;                       // 不使用
+    public static final int ACK_ACTION_DENIED = 0x93;                      // 权限不够
+    public static final int ACK_TIMEOUT = 0x94;                            // 超时，模块发送命令给锁，锁没有接收
+    public static final int ACK_ABORT = 0x95;                              // 客户端或服务端退出升级程序
+    public static final int ACK_INVALID_IMAGE = 0x96;                      // 错误的Image文件
+    public static final int ACK_WAIT_FOR_DATA = 0x97;                      // Server does not have data block available yet.
+    public static final int ACK_NO_IMAGE_AVAILABLE = 0x98;                 // 没有可用的OTA Image文件
+    public static final int ACK_REQUIRE_MORE_IMAGE = 0x99;                 // 客户端需要更多的OTA文件
+    public static final int ACK_NOTIFICATION_PENDING = 0x9A;               // 命令已经接收正在处理
+    public static final int ACK_HARDWARE_FAILURE = 0xC0;                   // 硬件原因造成错误
+    public static final int ACK_SOFTWARE_FAILURE = 0xC1;                   // 软件原因造成错误
+    public static final int ACK_CALIBRATION_ERROR = 0xC2;                  // 校验过程出现错误
+    public static final int ACK_UNSUPPORTED_CLUSTER = 0xC3;                // 不使用
+    public static final int ACK_BACK_LOCK = 0xC4;                          // 反锁
+    public static final int ACK_SAFE_MODE = 0xC5;                          // 安全模式
+    public static final int ACK_SUBMODULE_VERSION_SAME = 0xD1;             // 子模块版本相同
+    public static final int ACK_GET_VERSION_TIMEOUT = 0xD2;                // 获取版本超时
+    public static final int ACK_OTA_TYPE_INVALID = 0xD3;                   // 升级方式错误
+    public static final int ACK_OPEN_WIFI_TIMEOUT = 0xD4;                  // 升级方式错误
+    public static final int ACK_SET_WIFI_FAILURE = 0xD5;                   // 配置WIFI失败
+    public static final int ACK_NO_THING = 0xFF;                           // 锁已经接收到命令，但超时时间内没有处理结果返回
+
+    @IntDef(value = {LOCK_OPEN_RECORD_EVENT_TYPE_OP, LOCK_OPEN_RECORD_EVENT_TYPE_PROGRAM})
+    public @interface LockOpenRecordEventType{}
+    public static final int LOCK_OPEN_RECORD_EVENT_TYPE_OP = 0x01;
+    public static final int LOCK_OPEN_RECORD_EVENT_TYPE_PROGRAM = 0x02;
+
+    @IntDef(value = {LOCK_OPEN_RECORD_EVENT_SOURCE_KEYPAD, LOCK_OPEN_RECORD_EVENT_SOURCE_RF,
+            LOCK_OPEN_RECORD_EVENT_SOURCE_MANUAL, LOCK_OPEN_RECORD_EVENT_SOURCE_RFID,
+            LOCK_OPEN_RECORD_EVENT_SOURCE_FINGERPRINT, LOCK_OPEN_RECORD_EVENT_SOURCE_VOICE,
+            LOCK_OPEN_RECORD_EVENT_SOURCE_FINGER_VEIN, LOCK_OPEN_RECORD_EVENT_SOURCE_FACE_RECOGNITION,
+            LOCK_OPEN_RECORD_EVENT_SOURCE_UNSURE})
+    public @interface LockOpenRecordEventSource{}
+    public static final int LOCK_OPEN_RECORD_EVENT_SOURCE_KEYPAD = 0x00;
+    public static final int LOCK_OPEN_RECORD_EVENT_SOURCE_RF = 0x01;
+    public static final int LOCK_OPEN_RECORD_EVENT_SOURCE_MANUAL = 0x02;
+    public static final int LOCK_OPEN_RECORD_EVENT_SOURCE_RFID = 0x03;
+    public static final int LOCK_OPEN_RECORD_EVENT_SOURCE_FINGERPRINT = 0x04;
+    public static final int LOCK_OPEN_RECORD_EVENT_SOURCE_VOICE = 0x05;
+    public static final int LOCK_OPEN_RECORD_EVENT_SOURCE_FINGER_VEIN = 0x06;
+    public static final int LOCK_OPEN_RECORD_EVENT_SOURCE_FACE_RECOGNITION = 0x07;
+    public static final int LOCK_OPEN_RECORD_EVENT_SOURCE_UNSURE = 0xFF;
+
+    @IntDef(value = {LOCK_OPEN_RECORD_EVENT_CODE_OP_LOCK, LOCK_OPEN_RECORD_EVENT_CODE_OP_UNLOCK,
+            LOCK_OPEN_RECORD_EVENT_CODE_OP_LOCK_FAILURE_INVALID_PIN_OR_ID, LOCK_OPEN_RECORD_EVENT_CODE_OP_LOCK_FAILURE_INVALID_SCHEDULE,
+            LOCK_OPEN_RECORD_EVENT_CODE_OP_UNLOCK_FAILURE_INVALID_PIN_OR_ID,  LOCK_OPEN_RECORD_EVENT_CODE_OP_UNLOCK_FAILURE_INVALID_SCHEDULE,
+            LOCK_OPEN_RECORD_EVENT_CODE_OP_ONE_TOUCH_LOCK, LOCK_OPEN_RECORD_EVENT_CODE_OP_KEY_LOCK,
+            LOCK_OPEN_RECORD_EVENT_CODE_OP_KEY_UNLOCK, LOCK_OPEN_RECORD_EVENT_CODE_OP_AUTO_LOCK,
+            LOCK_OPEN_RECORD_EVENT_CODE_OP_MANUAL_LOCK, LOCK_OPEN_RECORD_EVENT_CODE_OP_MANUAL_UNLOCK,
+            LOCK_OPEN_RECORD_EVENT_CODE_OP_NON_ACCESS_USER_OP})
+    public @interface LockOpenRecordEventCodeOp{}
+    public static final int LOCK_OPEN_RECORD_EVENT_CODE_OP_LOCK = 0x01;
+    public static final int LOCK_OPEN_RECORD_EVENT_CODE_OP_UNLOCK = 0x02;
+    public static final int LOCK_OPEN_RECORD_EVENT_CODE_OP_LOCK_FAILURE_INVALID_PIN_OR_ID = 0x03;
+    public static final int LOCK_OPEN_RECORD_EVENT_CODE_OP_LOCK_FAILURE_INVALID_SCHEDULE = 0x04;
+    public static final int LOCK_OPEN_RECORD_EVENT_CODE_OP_UNLOCK_FAILURE_INVALID_PIN_OR_ID = 0x05;
+    public static final int LOCK_OPEN_RECORD_EVENT_CODE_OP_UNLOCK_FAILURE_INVALID_SCHEDULE = 0x06;
+    public static final int LOCK_OPEN_RECORD_EVENT_CODE_OP_ONE_TOUCH_LOCK = 0x07;
+    public static final int LOCK_OPEN_RECORD_EVENT_CODE_OP_KEY_LOCK = 0x08;
+    public static final int LOCK_OPEN_RECORD_EVENT_CODE_OP_KEY_UNLOCK = 0x09;
+    public static final int LOCK_OPEN_RECORD_EVENT_CODE_OP_AUTO_LOCK = 0x0A;
+    public static final int LOCK_OPEN_RECORD_EVENT_CODE_OP_MANUAL_LOCK = 0x0D;
+    public static final int LOCK_OPEN_RECORD_EVENT_CODE_OP_MANUAL_UNLOCK = 0x0E;
+    public static final int LOCK_OPEN_RECORD_EVENT_CODE_OP_NON_ACCESS_USER_OP = 0x0F;
+
+    @IntDef(value = {
+            LOCK_OPEN_RECORD_EVENT_CODE_PROGRAM_MASTER_CODE_CHANGED, LOCK_OPEN_RECORD_EVENT_CODE_PROGRAM_PIN_CODE_ADDED,
+            LOCK_OPEN_RECORD_EVENT_CODE_PROGRAM_PIN_CODE_DELETED, LOCK_OPEN_RECORD_EVENT_CODE_PROGRAM_PIN_CODE_CHANGED,
+            LOCK_OPEN_RECORD_EVENT_CODE_PROGRAM_RFID_CODE_ADDED, LOCK_OPEN_RECORD_EVENT_CODE_PROGRAM_RFID_CODE_DELETED,
+            LOCK_OPEN_RECORD_EVENT_CODE_PROGRAM_FINGERPRINT_ADDED, LOCK_OPEN_RECORD_EVENT_CODE_PROGRAM_FINGERPRINT_DELETED
+    })
+    public @interface LockOpenRecordEventCodeProgram{}
+    public static final int LOCK_OPEN_RECORD_EVENT_CODE_PROGRAM_MASTER_CODE_CHANGED = 0x01;
+    public static final int LOCK_OPEN_RECORD_EVENT_CODE_PROGRAM_PIN_CODE_ADDED = 0x02;
+    public static final int LOCK_OPEN_RECORD_EVENT_CODE_PROGRAM_PIN_CODE_DELETED = 0x03;
+    public static final int LOCK_OPEN_RECORD_EVENT_CODE_PROGRAM_PIN_CODE_CHANGED = 0x04;
+    public static final int LOCK_OPEN_RECORD_EVENT_CODE_PROGRAM_RFID_CODE_ADDED = 0x05;
+    public static final int LOCK_OPEN_RECORD_EVENT_CODE_PROGRAM_RFID_CODE_DELETED = 0x06;
+    public static final int LOCK_OPEN_RECORD_EVENT_CODE_PROGRAM_FINGERPRINT_ADDED = 0x07;
+    public static final int LOCK_OPEN_RECORD_EVENT_CODE_PROGRAM_FINGERPRINT_DELETED = 0x08;
+
+    @IntDef(value = {
+            LOCK_OPEN_RECORD_USER_ID_MACHINE_KEY,  LOCK_OPEN_RECORD_USER_ID_REMOTE_CONTROL,
+            LOCK_OPEN_RECORD_USER_ID_ONE_TOUCH_OPEN, LOCK_OPEN_RECORD_USER_ID_APP_COMMAND,
+            LOCK_OPEN_RECORD_USER_ID_BLE_AUTO, LOCK_OPEN_RECORD_USER_ID_NOTHING
+    })
+    public @interface LockOpenRecordUserId{}
+    public static final int LOCK_OPEN_RECORD_USER_ID_MACHINE_KEY = 100;
+    public static final int LOCK_OPEN_RECORD_USER_ID_REMOTE_CONTROL = 101;
+    public static final int LOCK_OPEN_RECORD_USER_ID_ONE_TOUCH_OPEN = 102;
+    public static final int LOCK_OPEN_RECORD_USER_ID_APP_COMMAND = 103;
+    public static final int LOCK_OPEN_RECORD_USER_ID_BLE_AUTO = 104;
+    public static final int LOCK_OPEN_RECORD_USER_ID_NOTHING = 0xFF;
 
 }

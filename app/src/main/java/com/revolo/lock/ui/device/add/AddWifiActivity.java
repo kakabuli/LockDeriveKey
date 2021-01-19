@@ -11,10 +11,10 @@ import com.revolo.lock.R;
 import com.revolo.lock.base.BaseActivity;
 
 /**
- * author :
+ * author : Jack
  * time   : 2020/12/29
  * E-mail : wengmaowei@kaadas.com
- * desc   :
+ * desc   : 添加Wifi
  */
 public class AddWifiActivity extends BaseActivity {
     @Override
@@ -29,7 +29,7 @@ public class AddWifiActivity extends BaseActivity {
 
     @Override
     public void initView(@Nullable Bundle savedInstanceState, @Nullable View contentView) {
-        useCommonTitleBar("Add WiFi");
+        useCommonTitleBar(getString(R.string.title_add_wifi));
         applyDebouncingClickListener(findViewById(R.id.btnNext));
     }
 

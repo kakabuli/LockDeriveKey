@@ -250,5 +250,6 @@
     <string name="wifi_connecting_failed">WiFi Connecting failed</string>
     <string name="cancel_connecting">Cancel Connecting</string>
     <string name="tip_add_wifi_fail_tip">1. Please make sure the router is normal.\n2. Please make sure the WiFi account and\n &#160;&#160;&#160;&#160;password are entered correctly.\n3. Please ensure the Phone Bluetooth\n &#160;&#160;&#160;&#160;connected to door lock successfully.\n</string>
+    <string name="title_add_wifi">Add WiFi</string>
 
 </resources>
