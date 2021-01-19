@@ -6,24 +6,15 @@
     android:layout_width="match_parent"
     android:layout_height="67pt">
 
-    <View
-        android:id="@+id/view"
-        android:layout_width="2pt"
-        android:layout_height="10pt"
-        android:layout_marginStart="15pt"
-        android:layout_marginTop="6pt"
-        android:background="@drawable/shape_operation_record_list"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
     <TextView
         android:id="@+id/tvMessage"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8pt"
+        android:layout_marginStart="16pt"
         android:textColor="@color/c333333"
         android:textSize="16pt"
-        app:layout_constraintStart_toEndOf="@+id/view"
+        android:layout_marginTop="10pt"
+        app:layout_constraintStart_toEndOf="@+id/ivLogState"
         app:layout_constraintTop_toTopOf="parent"
         tools:text="Geo-fence unlock" />
 
@@ -31,12 +22,22 @@
         android:id="@+id/tvTime"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="25pt"
         android:layout_marginTop="5pt"
-        tools:text="11:00"
         android:textColor="@color/c999999"
         android:textSize="14pt"
+        android:layout_marginStart="16pt"
+        app:layout_constraintStart_toEndOf="@+id/ivLogState"
+        app:layout_constraintTop_toBottomOf="@+id/tvMessage"
+        tools:text="11:00" />
+
+    <ImageView
+        android:id="@+id/ivLogState"
+        android:layout_width="34pt"
+        android:layout_height="34pt"
+        android:layout_marginStart="15pt"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tvMessage" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/ic_home_log_icon__alert" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

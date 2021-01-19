@@ -11,6 +11,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         tools:text="Today"
+        android:textStyle="bold"
         android:textColor="@color/c333333"
         android:textSize="17pt"
         android:layout_marginTop="10pt"

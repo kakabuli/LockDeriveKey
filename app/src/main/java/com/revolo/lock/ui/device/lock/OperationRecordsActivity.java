@@ -62,50 +62,84 @@ public class OperationRecordsActivity extends BaseActivity {
 
     private void initData() {
         List<TestOperationRecords> testOperationRecordsList = new ArrayList<>();
+        List<TestOperationRecords.TestOperationRecord> records = new ArrayList<>();
+        TestOperationRecords.TestOperationRecord record13 =
+                new TestOperationRecords.TestOperationRecord(1611062222000L, "password unlock", 13);
+        records.add(record13);
+        TestOperationRecords.TestOperationRecord record14 =
+                new TestOperationRecords.TestOperationRecord(1611062222000L, "Geo-fence unlock",14);
+        records.add(record14);
+        TestOperationRecords.TestOperationRecord record15 =
+                new TestOperationRecords.TestOperationRecord(1611062222000L, "APP unlock",15);
+        records.add(record15);
+        TestOperationRecords.TestOperationRecord record16 =
+                new TestOperationRecords.TestOperationRecord(1611062222000L, "Manual unlock",16);
+        records.add(record16);
+        TestOperationRecords.TestOperationRecord record17 =
+                new TestOperationRecords.TestOperationRecord(1611062222000L, "Manual unlock",17);
+        records.add(record17);
+        TestOperationRecords.TestOperationRecord record18 =
+                new TestOperationRecords.TestOperationRecord(1611062222000L, "Manual unlock",18);
+        records.add(record18);
+        TestOperationRecords.TestOperationRecord record19 =
+                new TestOperationRecords.TestOperationRecord(1611062222000L, "Manual unlock",19);
+        records.add(record19);
+        TestOperationRecords.TestOperationRecord record20 =
+                new TestOperationRecords.TestOperationRecord(1611062222000L, "Manual unlock",20);
+        records.add(record20);
+        TestOperationRecords.TestOperationRecord record21 =
+                new TestOperationRecords.TestOperationRecord(1611062222000L, "Manual unlock",21);
+        records.add(record21);
+        TestOperationRecords.TestOperationRecord record22 =
+                new TestOperationRecords.TestOperationRecord(1611062222000L, "Manual unlock",22);
+        records.add(record22);
+        TestOperationRecords testOperationRecords = new TestOperationRecords(1611062222000L, records);
+        testOperationRecordsList.add(testOperationRecords);
+
         List<TestOperationRecords.TestOperationRecord> records1 = new ArrayList<>();
         TestOperationRecords.TestOperationRecord record1 =
-                new TestOperationRecords.TestOperationRecord(1610506800000L, "password unlock");
+                new TestOperationRecords.TestOperationRecord(1610506800000L, "password unlock", 1);
         records1.add(record1);
         TestOperationRecords.TestOperationRecord record2 =
-                new TestOperationRecords.TestOperationRecord(1610505000000L, "Geo-fence unlock");
+                new TestOperationRecords.TestOperationRecord(1610505000000L, "Geo-fence unlock",2);
         records1.add(record2);
         TestOperationRecords.TestOperationRecord record3 =
-                new TestOperationRecords.TestOperationRecord(1610504880000L, "APP unlock");
+                new TestOperationRecords.TestOperationRecord(1610504880000L, "APP unlock",3);
         records1.add(record3);
         TestOperationRecords.TestOperationRecord record4 =
-                new TestOperationRecords.TestOperationRecord(1610504880000L, "Manual unlock");
+                new TestOperationRecords.TestOperationRecord(1610504880000L, "Manual unlock",4);
         records1.add(record4);
         TestOperationRecords testOperationRecords1 = new TestOperationRecords(1610504880000L, records1);
         testOperationRecordsList.add(testOperationRecords1);
 
         List<TestOperationRecords.TestOperationRecord> records2 = new ArrayList<>();
         TestOperationRecords.TestOperationRecord record5 =
-                new TestOperationRecords.TestOperationRecord(1610418480000L, "Locking inside the door");
+                new TestOperationRecords.TestOperationRecord(1610418480000L, "Locking inside the door",5);
         records2.add(record5);
         TestOperationRecords.TestOperationRecord record6 =
-                new TestOperationRecords.TestOperationRecord(1610418480000L, "Double lock inside the door");
+                new TestOperationRecords.TestOperationRecord(1610418480000L, "Double lock inside the door",6);
         records2.add(record6);
         TestOperationRecords.TestOperationRecord record7 =
-                new TestOperationRecords.TestOperationRecord(1610418480000L, "Multi-functional button locking");
+                new TestOperationRecords.TestOperationRecord(1610418480000L, "Multi-functional button locking",7);
         records2.add(record7);
         TestOperationRecords.TestOperationRecord record8 =
-                new TestOperationRecords.TestOperationRecord(1610418480000L, "One-touch lock outside the door ");
+                new TestOperationRecords.TestOperationRecord(1610418480000L, "One-touch lock outside the door ",8);
         records2.add(record8);
         TestOperationRecords testOperationRecords2 = new TestOperationRecords(1610418480000L, records2);
         testOperationRecordsList.add(testOperationRecords2);
 
         List<TestOperationRecords.TestOperationRecord> records3 = new ArrayList<>();
         TestOperationRecords.TestOperationRecord record9 =
-                new TestOperationRecords.TestOperationRecord(1608863280000L, "Duress password unlock");
+                new TestOperationRecords.TestOperationRecord(1608863280000L, "Duress password unlock",9);
         records3.add(record9);
         TestOperationRecords.TestOperationRecord record10 =
-                new TestOperationRecords.TestOperationRecord(1608863280000L, "lock down alarm");
+                new TestOperationRecords.TestOperationRecord(1608863280000L, "lock down alarm",10);
         records3.add(record10);
         TestOperationRecords.TestOperationRecord record11 =
-                new TestOperationRecords.TestOperationRecord(1608863280000L, "Low battery alarm");
+                new TestOperationRecords.TestOperationRecord(1608863280000L, "Low battery alarm",11);
         records3.add(record11);
         TestOperationRecords.TestOperationRecord record12 =
-                new TestOperationRecords.TestOperationRecord(1608863280000L, "Jam alarm");
+                new TestOperationRecords.TestOperationRecord(1608863280000L, "Jam alarm",12);
         records3.add(record12);
         TestOperationRecords testOperationRecords3 = new TestOperationRecords(1608863280000L, records3);
         testOperationRecordsList.add(testOperationRecords3);

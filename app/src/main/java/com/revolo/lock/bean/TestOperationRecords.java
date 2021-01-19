@@ -19,10 +19,12 @@ public class TestOperationRecords implements Parcelable {
     public static class TestOperationRecord implements Parcelable {
         private long operationTime;
         private String message;
+        private int state;
 
-        public TestOperationRecord(long operationTime, String message) {
+        public TestOperationRecord(long operationTime, String message, int state) {
             this.operationTime = operationTime;
             this.message = message;
+            this.state = state;
         }
 
         public long getOperationTime() {
@@ -41,6 +43,13 @@ public class TestOperationRecords implements Parcelable {
             this.message = message;
         }
 
+        public int getState() {
+            return state;
+        }
+
+        public void setState(int state) {
+            this.state = state;
+        }
 
         @Override
         public int describeContents() {
@@ -51,11 +60,13 @@ public class TestOperationRecords implements Parcelable {
         public void writeToParcel(Parcel dest, int flags) {
             dest.writeLong(this.operationTime);
             dest.writeString(this.message);
+            dest.writeInt(this.state);
         }
 
         protected TestOperationRecord(Parcel in) {
             this.operationTime = in.readLong();
             this.message = in.readString();
+            this.state = in.readInt();
         }
 
         public static final Parcelable.Creator<TestOperationRecord> CREATOR = new Parcelable.Creator<TestOperationRecord>() {

@@ -280,4 +280,28 @@
     <!-- DoorMagnetAlignmentActivity -->
     <string name="start_door_magnetic_alignment_n_please_follow_the_instructions_to_n_operate_the_door_lock">Start door magnetic alignment,\n Please follow the instructions to\n operate the door lock .</string>
 
+    <!-- Record -->
+    <string name="log_uses_a_password_to_unlock">%1$s uses a password to unlock</string>
+    <string name="log_uses_geo_fence_to_unlock">%1$s uses Geo-fence to unlock</string>
+    <string name="log_uses_the_app_to_unlock">%1$s uses the APP to unlock</string>
+    <string name="log_uses_mechanical_key_to_unlock">%1$s uses mechanical key to unlock</string>
+    <string name="log_locking_inside_the_door">Locking inside the door</string>
+    <string name="log_double_lock_inside_the_door">Double lock inside the door</string>
+    <string name="log_multi_functional_button_locking">Multi-functional button locking</string>
+    <string name="log_one_touch_lock_outside_the_door">One-touch lock outside the door</string>
+    <string name="log_locked_the_door_by_app">%1$s locked the door by APP</string>
+    <string name="log_locked_the_door_by_mechanical_key">%1$s locked the door by mechanical key</string>
+    <string name="log_duress_password_unlock">Duress password unlock</string>
+    <string name="log_lock_down_alarm">lock down alarm</string>
+    <string name="log_low_battery_alarm">Low battery alarm</string>
+    <string name="log_jam_alarm">Jam alarm</string>
+    <string name="log_door_opened_detected">Door opened detected</string>
+    <string name="log_door_closed_detected">Door closed detected</string>
+    <string name="log_the_user_added_a_password">The user added a password</string>
+    <string name="log_the_user_deleted_a_password">The user deleted a password</string>
+    <string name="log_the_user_added_someone_in_family_group">The user added %1$s in family group</string>
+    <string name="log_the_user_removed_someone_from_family_group">The user removed %1$s from family group</string>
+    <string name="log_user_added_aa_as_guest_user">User added %1$s as guest user</string>
+    <string name="log_user_removed_aa_from_guest_user">User removed %1$s from guest user</string>
+    
 </resources>
