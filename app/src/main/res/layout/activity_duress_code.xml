@@ -15,13 +15,13 @@
 
     <TextView
         android:id="@+id/textView39"
-        android:layout_width="wrap_content"
+        android:layout_width="294pt"
         android:layout_height="wrap_content"
         android:layout_marginStart="41pt"
         android:layout_marginTop="31pt"
         android:textSize="15pt"
         android:textColor="@color/c333333"
-        android:text="Please enter your email address"
+        android:text="@string/please_enter_the_email_address_to_receive_the_duress_password"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/titleBar" />
 

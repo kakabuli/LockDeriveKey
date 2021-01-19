@@ -21,5 +21,6 @@ public class Constant {
     public static final String PWD_DETAIL =  "PwdDetail";
     public static final String USER_NAME = "UserName";
     public static final String MESSAGE_DETAIL = "MessageDetail";
+    public static final String USER_INFO = "UserInfo";
 
 }

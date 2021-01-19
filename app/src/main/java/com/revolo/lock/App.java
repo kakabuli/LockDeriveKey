@@ -40,6 +40,9 @@ public class App extends Application {
     public void setOnBleDeviceListener(OnBleDeviceListener onBleDeviceListener) {
         mOnBleDeviceListener = onBleDeviceListener;
     }
+    public void clearBleDeviceListener() {
+        mOnBleDeviceListener = null;
+    }
 
     public void connectDevice(BLEScanResult bleScanResult) {
         if(mDevice != null) {

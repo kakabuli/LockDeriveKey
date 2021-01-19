@@ -14,7 +14,9 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.revolo.lock.Constant;
 import com.revolo.lock.R;
+import com.revolo.lock.bean.TestUserBean;
 
 public class MineFragment extends Fragment {
 
@@ -25,17 +27,19 @@ public class MineFragment extends Fragment {
         mMineViewModel =
                 new ViewModelProvider(this).get(MineViewModel.class);
         View root = inflater.inflate(R.layout.fragment_mine, container, false);
-//        final TextView textView = root.findViewById(R.id.text_notifications);
-//        mMineViewModel.getText().observe(getViewLifecycleOwner(), new Observer<String>() {
-//            @Override
-//            public void onChanged(@Nullable String s) {
-//                textView.setText(s);
-//            }
-//        });
+        final TextView tvHiName = root.findViewById(R.id.tvHiName);
+        mMineViewModel.getUser().observe(getViewLifecycleOwner(), new Observer<TestUserBean>() {
+            @Override
+            public void onChanged(TestUserBean testUserBean) {
+                tvHiName.setText(getString(R.string.hi_name, testUserBean.getUserName()));
+            }
+        });
         root.findViewById(R.id.clUserDetail).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(getContext(), UserPageActivity.class));
+                Intent intent = new Intent(getContext(), UserPageActivity.class);
+                intent.putExtra(Constant.USER_INFO, mMineViewModel.getUser().getValue());
+                startActivity(intent);
             }
         });
         root.findViewById(R.id.clMessage).setOnClickListener(new View.OnClickListener() {

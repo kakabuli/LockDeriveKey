@@ -126,6 +126,7 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
 
     @Override
     protected void onDestroy() {
+        App.getInstance().clearBleDeviceListener();
         if(mScanManager != null && mScanManager.isScanning()) {
             mScanManager.stopScan();
         }

@@ -38,8 +38,13 @@ public class DeviceFragment extends Fragment {
         ConstraintLayout clHadDevice = root.findViewById(R.id.clHadDevice);
         mDeviceViewModel.getTestLockBeans().observe(getViewLifecycleOwner(), testLockBeans -> {
             if(testLockBeans != null) {
-                clNoDevice.setVisibility(View.GONE);
-                clHadDevice.setVisibility(View.VISIBLE);
+                if(testLockBeans.isEmpty()) {
+                    clNoDevice.setVisibility(View.VISIBLE);
+                    clHadDevice.setVisibility(View.GONE);
+                } else {
+                    clNoDevice.setVisibility(View.GONE);
+                    clHadDevice.setVisibility(View.VISIBLE);
+                }
                 mHomeLockListAdapter.setList(testLockBeans);
             }
         });

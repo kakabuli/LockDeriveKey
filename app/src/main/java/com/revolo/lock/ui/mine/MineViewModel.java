@@ -4,16 +4,18 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
+import com.revolo.lock.bean.TestUserBean;
+
 public class MineViewModel extends ViewModel {
 
-    private MutableLiveData<String> mText;
+    private MutableLiveData<TestUserBean> mUser;
 
     public MineViewModel() {
-        mText = new MutableLiveData<>();
-        mText.setValue("This is notifications fragment");
+        mUser = new MutableLiveData<>();
+        TestUserBean userBean = new TestUserBean("John", "JohnXXX@gmail.com");
+        mUser.setValue(userBean);
     }
 
-    public LiveData<String> getText() {
-        return mText;
-    }
+    public LiveData<TestUserBean> getUser() { return mUser; }
+
 }
