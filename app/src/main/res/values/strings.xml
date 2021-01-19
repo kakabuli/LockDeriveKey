@@ -273,4 +273,7 @@
     <string name="sensitivity">Sensitivity</string>
     <string name="set_time">Set time</string>
 
+    <!-- DoorMagnetAlignmentActivity -->
+    <string name="start_door_magnetic_alignment_n_please_follow_the_instructions_to_n_operate_the_door_lock">Start door magnetic alignment,\n Please follow the instructions to\n operate the door lock .</string>
+
 </resources>

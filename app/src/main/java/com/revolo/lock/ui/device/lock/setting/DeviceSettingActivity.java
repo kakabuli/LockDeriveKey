@@ -41,7 +41,7 @@ public class DeviceSettingActivity extends BaseActivity {
         applyDebouncingClickListener(mTvName, mTvWifiName,
                 findViewById(R.id.clAutoLock), findViewById(R.id.clPrivateMode),
                 findViewById(R.id.clDuressCode), findViewById(R.id.clDoorLockInformation),
-                findViewById(R.id.clGeoFenceLock));
+                findViewById(R.id.clGeoFenceLock), findViewById(R.id.clDoorMagneticSwitch));
     }
 
     @Override
@@ -77,6 +77,10 @@ public class DeviceSettingActivity extends BaseActivity {
         }
         if(view.getId() == R.id.clGeoFenceLock) {
             startActivity(new Intent(this, GeoFenceUnlockActivity.class));
+            return;
+        }
+        if(view.getId() == R.id.clDoorMagneticSwitch) {
+            startActivity(new Intent(this, DoorMagnetAlignmentActivity.class));
         }
     }
 

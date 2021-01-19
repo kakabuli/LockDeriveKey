@@ -15,10 +15,10 @@ import com.revolo.lock.R;
 import com.revolo.lock.base.BaseActivity;
 
 /**
- * author :
+ * author : Jack
  * time   : 2020/12/29
  * E-mail : wengmaowei@kaadas.com
- * desc   :
+ * desc   : 门磁校验
  */
 public class DoorSensorCheckActivity extends BaseActivity {
 
