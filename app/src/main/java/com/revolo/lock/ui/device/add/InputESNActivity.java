@@ -13,6 +13,7 @@ import com.blankj.utilcode.util.ToastUtils;
 import com.revolo.lock.Constant;
 import com.revolo.lock.R;
 import com.revolo.lock.base.BaseActivity;
+import com.revolo.lock.dialog.MessageDialog;
 
 /**
  * author : Jack
@@ -50,6 +51,14 @@ public class InputESNActivity extends BaseActivity {
             String esn = ((EditText) findViewById(R.id.etESN)).getText().toString().trim();
             if(TextUtils.isEmpty(esn)) {
                 ToastUtils.showShort(R.string.t_please_input_product_esn);
+                return;
+            }
+            // TODO: 2021/1/20 需要增加校验规则
+            if(esn.length() != 13) {
+                MessageDialog dialog = new MessageDialog(this);
+                dialog.setMessage(getString(R.string.dialog_tip_incorrect_input_please_try_again));
+                dialog.setOnListener(v -> dialog.cancel());
+                dialog.show();
                 return;
             }
             Intent intent = new Intent(this, AddDeviceStep2BleConnectActivity.class);

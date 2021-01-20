@@ -303,5 +303,39 @@
     <string name="log_the_user_removed_someone_from_family_group">The user removed %1$s from family group</string>
     <string name="log_user_added_aa_as_guest_user">User added %1$s as guest user</string>
     <string name="log_user_removed_aa_from_guest_user">User removed %1$s from guest user</string>
-    
+
+    <!-- Dialog -->
+    <string name="dialog_tip_incorrect_input_please_try_again">Incorrect input，\nplease try again.</string>
+    <string name="dialog_btn_confirm">Confirm</string>
+    <string name="dialog_title_low_battery">Low battery</string>
+    <string name="dialog_tip_wifi_is_disabled_please_replace_the_battery">WiFi is disabled,\n please replace the battery.</string>
+    <string name="dialog_tip_password_added">Password added.</string>
+    <string name="dialog_title_add_failure">Add failure</string>
+    <string name="dialog_tip_please_make_sure_wifi_is_online">Please make sure WiFi is online</string>
+    <string name="dialog_tip_please_make_sure_the_bluetooth_is_connected">Please make sure the Bluetooth \nis connected</string>
+    <string name="dialog_tip_please_make_sure_the_network_is_normal">Please make sure the network is \nnormal</string>
+    <string name="dialog_tip_unlock_failed_please_try_it_again">Unlock failed.\nPlease try it again.</string>
+    <string name="dialog_tip_the_door_lock_is_in_private_mode_cant_click_at_present">The door lock is in private mode,\nCan't click at present</string>
+    <string name="dialog_tip_please_approach_the_door_lock_to_delete_password">Please approach the door lock to\ndelete Password.</string>
+    <string name="dialog_tip_password_deleted">Password deleted.</string>
+    <string name="dialog_tip_deletion_failed_door_lock_bluetooth_is_not_found">Deletion failed\nDoor lock Bluetooth is not found.</string>
+    <string name="dialog_btn_determine">Determine</string>
+    <string name="dialog_tip_are_you_sure_to_remove_this_user">Are you sure to remove\nthis user.</string>
+    <string name="dialog_tip_operation_authorization_of_revolo_device_is_disabled"> Operation authorization of Revolo\ndevice is disabled.</string>
+    <string name="dialog_tip_you_are_authorized_to_be_the_family_user_of_the_revolo_device">You are authorized to be the family\nuser of the Revolo device.</string>
+    <string name="dialog_tip_wifi_disconnected_reboot_the_wifi_will_reallocate_the_network">WiFi disconnected. Reboot the\n WiFi will reallocate the network.  </string>
+    <string name="dialog_tip_whether_to_turn_on_mobile_location">Whether to turn on mobile\n location ?</string>
+    <string name="dialog_tip_device_offline_and_cannot_set_geo_fence_unlock">Device offline,\nand cannot set Geo-fence unlock</string>
+    <string name="dialog_tip_wifi_is_offline_please_approach_the_lock_and_turn_on_phone_bluetooth_then_enter_setting">WiFi is offline.\nPlease approach the lock and turn on\nPhone Bluetooth ,then enter setting.</string>
+    <string name="dialog_tip_device_is_not_connected_to_wifi_the_feature_cannot_be_enabled">Device is not connected to WiFi.\nThe feature cannot be enabled.</string>
+    <string name="dialog_tip_the_lock_has_been_opened_geo_fence_has_expired">The lock has been opened.\nGeo-fence has expired.</string>
+    <string name="dialog_btn_ok">OK</string>
+    <string name="dialog_tip_there_is_a_new_version_available_do_you_want_to_update">There is a new version available,\nDo you want to update?</string>
+    <string name="dialog_tip_wifi_is_offline_version_update_is_not_supported">WiFi is offline,\nversion update is not supported.</string>
+    <string name="dialog_tip_after_unbinding_your_door_lock_can_be_binded_by_others">After unbinding,\nyour door lock can be binded by others</string>
+    <string name="dialog_title_are_you_sure_to_unbind">Are you sure to unbind ?</string>
+    <string name="dialog_tip_your_device_wifi_is_offline_please_close_to_the_door_lock_open_bluetooth_and_set_it">Your device WiFi is offline,\nPlease close to the door lock,\nopen Bluetooth and set it.</string>
+    <string name="dialog_tip_are_you_sure_you_want_to_remove_this_user_right">Are you sure you want to remove\nthis user right.</string>
+    <string name="dialog_tip_log_out">Log out</string>
+
 </resources>

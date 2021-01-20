@@ -1,0 +1,61 @@
+package com.revolo.lock.dialog;
+
+import android.app.Dialog;
+import android.content.Context;
+import android.os.Bundle;
+import android.view.View;
+import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+
+import com.revolo.lock.R;
+
+/**
+ * author : Jack
+ * time   : 2021/1/20
+ * E-mail : wengmaowei@kaadas.com
+ * desc   : 锁解除绑定
+ */
+public class UnbindLockDialog extends Dialog {
+
+    private TextView mTvConfirm, mTvCancel;
+    private View.OnClickListener mOnConfirmClickListener, mOnCancelClickListener;
+
+    public UnbindLockDialog(@NonNull Context context) {
+        super(context);
+    }
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.dialog_unbind_lock);
+        setCanceledOnTouchOutside(false);
+        mTvConfirm = findViewById(R.id.tvConfirm);
+        mTvCancel = findViewById(R.id.tvCancel);
+        refreshView();
+    }
+
+    public void setOnConfirmListener(View.OnClickListener listener) {
+        mOnConfirmClickListener = listener;
+    }
+
+    public void setOnCancelClickListener(View.OnClickListener listener) {
+        mOnCancelClickListener = listener;
+    }
+
+    private void refreshView() {
+        if(mOnConfirmClickListener != null && mTvConfirm != null) {
+            mTvConfirm.setOnClickListener(mOnConfirmClickListener);
+        }
+        if(mOnCancelClickListener != null && mTvCancel != null) {
+            mTvCancel.setOnClickListener(mOnCancelClickListener);
+        }
+    }
+
+    @Override
+    public void show() {
+        super.show();
+        refreshView();
+    }
+
+}

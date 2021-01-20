@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="289pt"
+    android:layout_height="246pt"
+    android:background="@drawable/shape_dialog_bg">
+
+    <TextView
+        android:id="@+id/textView57"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/dialog_title_add_failure"
+        android:textSize="16pt"
+        android:textColor="@color/c333333"
+        android:textStyle="bold"
+        android:layout_marginTop="20pt"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <View
+        android:id="@+id/vNum1"
+        android:layout_width="5pt"
+        android:layout_height="5pt"
+        android:layout_marginStart="30pt"
+        android:layout_marginTop="31pt"
+        android:background="@drawable/shape_serial_number"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView57" />
+
+    <View
+        android:id="@+id/vNum2"
+        android:layout_width="5pt"
+        android:layout_height="5pt"
+        android:layout_marginStart="30pt"
+        android:layout_marginTop="19pt"
+        android:background="@drawable/shape_serial_number"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/vNum1" />
+
+    <View
+        android:id="@+id/vNum3"
+        android:layout_width="5pt"
+        android:layout_height="5pt"
+        android:layout_marginStart="30pt"
+        android:layout_marginTop="40pt"
+        android:background="@drawable/shape_serial_number"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/vNum2" />
+
+    <View
+        android:id="@+id/view"
+        android:layout_width="match_parent"
+        android:layout_height="1pt"
+        android:background="@color/cF2F2F2"
+        app:layout_constraintBottom_toTopOf="@+id/tvConfirm"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <TextView
+        android:id="@+id/tvConfirm"
+        android:layout_width="match_parent"
+        android:layout_height="50pt"
+        android:gravity="center"
+        android:text="@string/dialog_btn_confirm"
+        android:textColor="@color/c2C68FF"
+        android:textSize="15pt"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <TextView
+        android:id="@+id/textView56"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="7pt"
+        android:textSize="14pt"
+        android:textColor="@color/c333333"
+        android:text="@string/dialog_tip_please_make_sure_wifi_is_online"
+        app:layout_constraintBottom_toBottomOf="@+id/vNum1"
+        app:layout_constraintStart_toEndOf="@+id/vNum1"
+        app:layout_constraintTop_toTopOf="@+id/vNum1" />
+
+    <TextView
+        android:id="@+id/textView59"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="7pt"
+        android:layout_marginTop="5pt"
+        android:text="@string/dialog_tip_please_make_sure_the_bluetooth_is_connected"
+        android:textColor="@color/c333333"
+        android:textSize="14pt"
+        app:layout_constraintStart_toEndOf="@+id/vNum2"
+        app:layout_constraintTop_toBottomOf="@+id/textView56" />
+
+    <TextView
+        android:id="@+id/textView58"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="7pt"
+        android:layout_marginTop="10pt"
+        android:textSize="14pt"
+        android:textColor="@color/c333333"
+        android:text="@string/dialog_tip_please_make_sure_the_network_is_normal"
+        app:layout_constraintStart_toEndOf="@+id/vNum3"
+        app:layout_constraintTop_toBottomOf="@+id/textView59" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
