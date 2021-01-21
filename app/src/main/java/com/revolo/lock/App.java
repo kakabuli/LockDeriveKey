@@ -2,7 +2,6 @@ package com.revolo.lock;
 
 import android.app.Application;
 
-import com.a1anwang.okble.client.core.OKBLEDevice;
 import com.a1anwang.okble.client.core.OKBLEDeviceImp;
 import com.a1anwang.okble.client.core.OKBLEDeviceListener;
 import com.a1anwang.okble.client.core.OKBLEOperation;
@@ -21,7 +20,7 @@ import timber.log.Timber;
 public class App extends Application {
 
     private static App instance;
-    private OKBLEDevice mDevice;
+    private OKBLEDeviceImp mDevice;
 
     public static App getInstance() {
         return instance;
@@ -159,7 +158,7 @@ public class App extends Application {
         }
     }
 
-    private void openPairNotify() {
+    public void openPairNotify() {
         if(mDevice != null) {
             mDevice.addNotifyOrIndicateOperation(sPairNotifyCharacteristicUUID,
                     true, new OKBLEOperation.NotifyOrIndicateOperationListener() {
@@ -181,4 +180,7 @@ public class App extends Application {
         }
     }
 
+    public OKBLEDeviceImp getDevice() {
+        return mDevice;
+    }
 }

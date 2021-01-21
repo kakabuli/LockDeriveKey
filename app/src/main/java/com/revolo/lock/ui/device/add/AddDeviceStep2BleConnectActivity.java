@@ -159,6 +159,7 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
                 // 入网时
                 // 获取pwd2
                 System.arraycopy(data, 1, mPwd2Or3, 0, mPwd2Or3.length);
+                // TODO: 2021/1/21 打包数据上传到服务器后再发送确认指令
                 isHavePwd2Or3 = true;
                 App.getInstance().writeControlMsg(BleCommandFactory.ackCommand(bleResultBean.getTSN(), (byte)0x00, bleResultBean.getCMD()));
                 new Handler(Looper.getMainLooper()).postDelayed(() -> {

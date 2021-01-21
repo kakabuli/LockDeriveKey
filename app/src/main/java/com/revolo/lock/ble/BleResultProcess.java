@@ -178,8 +178,8 @@ public class BleResultProcess {
             return;
         }
         if(sOnReceivedProcess != null) {
-            BleResultBean bleResultBean = new BleResultBean(receivedData[0], receivedData[1],
-                    receivedData[3], payload, decryptPayload, bleScanResult);
+            BleResultBean bleResultBean = new BleResultBean(receivedData[0], BleByteUtil.byteToInt(receivedData[1]),
+                    BleByteUtil.byteToInt(receivedData[3]), payload, decryptPayload, bleScanResult);
             sOnReceivedProcess.processResult(bleResultBean);
         }
     }

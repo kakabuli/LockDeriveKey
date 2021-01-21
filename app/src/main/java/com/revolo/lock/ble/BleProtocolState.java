@@ -13,7 +13,8 @@ public class BleProtocolState {
     @IntDef(value = {CMD_LOCK_OPEN_RECORD, CMD_LOCK_UPLOAD, CMD_LOCK_ALARM_UPLOAD,
             CMD_ENCRYPT_KEY_UPLOAD, CMD_USER_TYPE, CMD_WEEKLY_PLAN_CHECK, CMD_YEAR_MON_DAY_PLAN_CHECK,
             CMD_LOCK_ALARM_RECORD_CHECK, CMD_LOCK_NUM_CHECK, CMD_LOCK_OPEN_COUNT_CHECK,
-            CMD_LOCK_PARAMETER_CHECK, CMD_LOCK_OP_RECORD, CMD_PAIR_ACK, CMD_HEART_ACK,
+            CMD_LOCK_PARAMETER_CHECK, CMD_LOCK_OP_RECORD, CMD_PAIR_ACK, CMD_KEY_ATTRIBUTES_SET,
+            CMD_KEY_ATTRIBUTES_READ, CMD_HEART_ACK,
             CMD_AUTHENTICATION_ACK, CMD_LOCK_CONTROL_ACK, CMD_LOCK_KEY_MANAGER_ACK,
             CMD_LOCK_PARAMETER_CHANGED_ACK, CMD_USER_TYPE_SETTING_ACK, CMD_WEEKLY_PLAN_SETTING_ACK,
             CMD_WEEKLY_PLAN_DELETE_ACK, CMD_YEAR_MON_DAY_PLAN_SETTING_ACK,  CMD_YEAR_MON_DAY_PLAN_DELETE_ACK,
@@ -36,6 +37,8 @@ public class BleProtocolState {
     public static final int CMD_LOCK_PARAMETER_CHECK = 0x17;            // 锁参数主动查询
     public static final int CMD_LOCK_OP_RECORD = 0x18;                  // 锁操作记录查询
     public static final int CMD_PAIR_ACK = 0x1b;                        // 配对确认帧
+    public static final int CMD_KEY_ATTRIBUTES_SET = 0x1C;              // 密钥属性设置
+    public static final int CMD_KEY_ATTRIBUTES_READ = 0x1D;             // 密钥属性读
     public static final int CMD_HEART_ACK = 0x00;                       // 心跳包确认帧
     public static final int CMD_AUTHENTICATION_ACK = 0x01;              // 鉴权确认帧
     public static final int CMD_LOCK_CONTROL_ACK =  0x02;               // 锁控制确认帧

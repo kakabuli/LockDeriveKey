@@ -22,13 +22,12 @@ import com.revolo.lock.base.BaseActivity;
  */
 public class DoorSensorCheckActivity extends BaseActivity {
 
-    private ImageView ivDoorState;
-    private TextView tvTip;
-    private Button btnNext;
+    private ImageView mIvDoorState;
+    private TextView mTvTip, mTvSkip;
+    private Button mBtnNext;
 
-    @IntDef(value = {DOOR_OPEN, DOOR_CLOSE, DOOR_HALF, DOOR_SUC, DOOR_FAIL})
+    @IntDef(value = {DOOR_CLOSE, DOOR_HALF, DOOR_SUC, DOOR_FAIL})
     private @interface DoorState{}
-    private static final int DOOR_OPEN = 1;
     private static final int DOOR_CLOSE = 2;
     private static final int DOOR_HALF = 3;
     private static final int DOOR_SUC = 4;
@@ -50,10 +49,11 @@ public class DoorSensorCheckActivity extends BaseActivity {
     @Override
     public void initView(@Nullable Bundle savedInstanceState, @Nullable View contentView) {
         useCommonTitleBar(getString(R.string.title_door_magnet_alignment));
-        btnNext = findViewById(R.id.btnNext);
-        ivDoorState = findViewById(R.id.ivDoorState);
-        tvTip = findViewById(R.id.tvTip);
-        applyDebouncingClickListener(btnNext);
+        mBtnNext = findViewById(R.id.btnNext);
+        mIvDoorState = findViewById(R.id.ivDoorState);
+        mTvTip = findViewById(R.id.tvTip);
+        mTvSkip = findViewById(R.id.tvSkip);
+        applyDebouncingClickListener(mBtnNext, mTvSkip);
     }
 
     @Override
@@ -67,8 +67,6 @@ public class DoorSensorCheckActivity extends BaseActivity {
             super.onBackPressed();
         } else {
             if(mDoorState == DOOR_HALF) {
-                refreshOpenTheDoor();
-            } else if(mDoorState == DOOR_OPEN) {
                 refreshCloseTheDoor();
             }
         }
@@ -79,52 +77,52 @@ public class DoorSensorCheckActivity extends BaseActivity {
         if(view.getId() == R.id.btnNext) {
             switch (mDoorState) {
                 case DOOR_CLOSE:
-                    refreshOpenTheDoor();
+                    refreshHalfTheDoor();
                     break;
                 case DOOR_HALF:
                     isDoorSuc = false;
                     checkDoorSuc();
                     break;
-                case DOOR_OPEN:
-                    refreshHalfTheDoor();
-                    break;
                 case DOOR_SUC:
-                    startActivity(new Intent(this, AddWifiActivity.class));
-                    finish();
+                    gotoAddWifi();
                     break;
                 case DOOR_FAIL:
                     break;
             }
+            return;
+        }
+        if(view.getId() == R.id.tvSkip) {
+            gotoAddWifi();
         }
     }
 
+    private void gotoAddWifi() {
+        startActivity(new Intent(this, AddWifiActivity.class));
+        finish();
+    }
+
     private void refreshCloseTheDoor() {
-        ivDoorState.setImageResource(R.drawable.ic_equipment_img_magnetic_door_close);
-        tvTip.setText(getString(R.string.close_the_door));
-        btnNext.setText(getString(R.string.next));
+        mIvDoorState.setImageResource(R.drawable.ic_equipment_img_magnetic_door_close);
+        mTvTip.setText(getString(R.string.close_the_door));
+        mBtnNext.setText(getString(R.string.next));
+        mTvSkip.setVisibility(View.VISIBLE);
         mDoorState = DOOR_CLOSE;
     }
 
-    private void refreshOpenTheDoor() {
-        ivDoorState.setImageResource(R.drawable.ic_equipment_img_magnetic_door_open);
-        tvTip.setText(getString(R.string.open_the_door));
-        btnNext.setText(getString(R.string.next));
-        mDoorState = DOOR_OPEN;
-    }
-
     private void refreshHalfTheDoor() {
-        ivDoorState.setImageResource(R.drawable.ic_equipment_img_magnetic_door_cover_up);
-        tvTip.setText(getString(R.string.half_close_the_door));
-        btnNext.setText(getString(R.string.next));
+        mIvDoorState.setImageResource(R.drawable.ic_equipment_img_magnetic_door_cover_up);
+        mTvTip.setText(getString(R.string.half_close_the_door));
+        mBtnNext.setText(getString(R.string.next));
+        mTvSkip.setVisibility(View.GONE);
         mDoorState = DOOR_HALF;
     }
 
     private boolean isDoorSuc = true;
     private void checkDoorSuc() {
         if(isDoorSuc) {
-            ivDoorState.setImageResource(R.drawable.ic_equipment_img_magnetic_door_success);
-            tvTip.setText(getString(R.string.door_check_suc_tip));
-            btnNext.setText(getString(R.string.connect_wifi));
+            mIvDoorState.setImageResource(R.drawable.ic_equipment_img_magnetic_door_success);
+            mTvTip.setText(getString(R.string.door_check_suc_tip));
+            mBtnNext.setText(getString(R.string.connect_wifi));
             mDoorState = DOOR_SUC;
         } else {
             mDoorState = DOOR_FAIL;
