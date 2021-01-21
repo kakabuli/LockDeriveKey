@@ -3,7 +3,7 @@ package com.revolo.lock.adapter;
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.chad.library.adapter.base.viewholder.BaseViewHolder;
 import com.revolo.lock.R;
-import com.revolo.lock.bean.TestAuthUserBean;
+import com.revolo.lock.bean.test.TestAuthUserBean;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;

@@ -18,7 +18,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.revolo.lock.Constant;
 import com.revolo.lock.R;
 import com.revolo.lock.adapter.HomeLockListAdapter;
-import com.revolo.lock.bean.TestLockBean;
+import com.revolo.lock.bean.test.TestLockBean;
 import com.revolo.lock.ui.MainActivity;
 import com.revolo.lock.ui.TitleBar;
 import com.revolo.lock.ui.device.add.AddDeviceActivity;

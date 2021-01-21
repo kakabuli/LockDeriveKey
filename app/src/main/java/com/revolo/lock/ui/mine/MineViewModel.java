@@ -4,7 +4,7 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
-import com.revolo.lock.bean.TestUserBean;
+import com.revolo.lock.bean.test.TestUserBean;
 
 public class MineViewModel extends ViewModel {
 

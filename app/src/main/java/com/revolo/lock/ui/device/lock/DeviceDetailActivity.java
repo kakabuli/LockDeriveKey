@@ -14,7 +14,7 @@ import androidx.core.content.ContextCompat;
 import com.revolo.lock.Constant;
 import com.revolo.lock.R;
 import com.revolo.lock.base.BaseActivity;
-import com.revolo.lock.bean.TestLockBean;
+import com.revolo.lock.bean.test.TestLockBean;
 import com.revolo.lock.ui.device.lock.setting.DeviceSettingActivity;
 
 /**

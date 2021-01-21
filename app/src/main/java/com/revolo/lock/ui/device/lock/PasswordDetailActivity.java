@@ -11,7 +11,7 @@ import androidx.annotation.Nullable;
 import com.revolo.lock.Constant;
 import com.revolo.lock.R;
 import com.revolo.lock.base.BaseActivity;
-import com.revolo.lock.bean.TestPwdBean;
+import com.revolo.lock.bean.test.TestPwdBean;
 
 /**
  * author : Jack

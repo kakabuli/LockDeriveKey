@@ -18,7 +18,7 @@ import com.revolo.lock.Constant;
 import com.revolo.lock.R;
 import com.revolo.lock.adapter.AuthUserDetailDevicesAdapter;
 import com.revolo.lock.base.BaseActivity;
-import com.revolo.lock.bean.TestAuthUserBean;
+import com.revolo.lock.bean.test.TestAuthUserBean;
 import com.revolo.lock.ui.device.lock.SharedUserDetailActivity;
 
 import java.util.ArrayList;

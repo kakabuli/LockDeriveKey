@@ -12,7 +12,7 @@ import androidx.annotation.Nullable;
 import com.revolo.lock.Constant;
 import com.revolo.lock.R;
 import com.revolo.lock.base.BaseActivity;
-import com.revolo.lock.bean.TestUserBean;
+import com.revolo.lock.bean.test.TestUserBean;
 
 /**
  * author : Jack

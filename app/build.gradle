@@ -61,4 +61,17 @@ dependencies {
     implementation 'com.github.CymChad:BaseRecyclerViewAdapterHelper:3.0.4'
     // base listView辅助工具类
     implementation 'com.zhy:base-adapter:3.0.3'
+    // mqtt
+    implementation 'org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.1.1'
+    implementation 'org.eclipse.paho:org.eclipse.paho.android.service:1.1.1'
+    // add retrofit2
+    implementation 'com.squareup.retrofit2:retrofit:2.9.0'
+    implementation 'com.squareup.retrofit2:converter-gson:2.9.0'
+    implementation 'com.squareup.retrofit2:adapter-rxjava2:2.9.0'
+    // add okhttp
+    implementation 'com.squareup.okhttp3:okhttp:4.8.0'
+    implementation 'com.github.franmontiel:PersistentCookieJar:v1.0.1'
+    // add rxjava
+    implementation 'io.reactivex.rxjava2:rxjava:2.2.19'
+    implementation 'io.reactivex.rxjava2:rxandroid:2.1.0'
 }

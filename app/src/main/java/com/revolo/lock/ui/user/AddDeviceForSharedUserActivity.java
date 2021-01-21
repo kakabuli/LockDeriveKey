@@ -14,7 +14,7 @@ import com.chad.library.adapter.base.listener.OnItemClickListener;
 import com.revolo.lock.R;
 import com.revolo.lock.adapter.AuthUserDeviceAdapter;
 import com.revolo.lock.base.BaseActivity;
-import com.revolo.lock.bean.TestAuthDeviceBean;
+import com.revolo.lock.bean.test.TestAuthDeviceBean;
 
 import java.util.ArrayList;
 import java.util.List;

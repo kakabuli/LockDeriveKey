@@ -16,7 +16,7 @@ import com.chad.library.adapter.base.listener.OnItemClickListener;
 import com.revolo.lock.R;
 import com.revolo.lock.adapter.SharedUserListAdapter;
 import com.revolo.lock.base.BaseActivity;
-import com.revolo.lock.bean.TestUserManagementBean;
+import com.revolo.lock.bean.test.TestUserManagementBean;
 
 import java.util.ArrayList;
 import java.util.List;

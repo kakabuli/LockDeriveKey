@@ -12,7 +12,7 @@ import com.revolo.lock.R;
 import com.revolo.lock.adapter.AutoMeasureLinearLayoutManager;
 import com.revolo.lock.adapter.OperationRecordsAdapter;
 import com.revolo.lock.base.BaseActivity;
-import com.revolo.lock.bean.TestOperationRecords;
+import com.revolo.lock.bean.test.TestOperationRecords;
 
 import java.util.ArrayList;
 import java.util.List;

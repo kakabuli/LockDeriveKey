@@ -4,7 +4,7 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
-import com.revolo.lock.bean.TestUserManagementBean;
+import com.revolo.lock.bean.test.TestUserManagementBean;
 
 import java.util.ArrayList;
 import java.util.List;
