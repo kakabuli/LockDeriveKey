@@ -84,4 +84,29 @@ public class BleCommandState {
     public static final int LOCK_OP_RECORD_LOG_TYPE_KEY_OP = 0x02;
     public static final int LOCK_OP_RECORD_LOG_TYPE_ALL = 0x03;
 
+    @IntDef(value = {KEY_SET_KEY_OPTION_ADD_OR_CHANGE, KEY_SET_KEY_OPTION_DEL})
+    public @interface KeySetKeyOption{}
+    public static final int KEY_SET_KEY_OPTION_ADD_OR_CHANGE = 0x01;
+    public static final int KEY_SET_KEY_OPTION_DEL = 0x02;
+
+    @IntDef(value = {KEY_SET_KEY_TYPE_PWD, KEY_SET_KEY_TYPE_FINGERPRINT,
+            KEY_SET_KEY_TYPE_CARD, KEY_SET_KEY_TYPE_FACE})
+    public @interface KeySetKeyType{}
+    public static final int KEY_SET_KEY_TYPE_PWD = 0x00;
+    public static final int KEY_SET_KEY_TYPE_FINGERPRINT = 0x04;
+    public static final int KEY_SET_KEY_TYPE_CARD = 0x03;
+    public static final int KEY_SET_KEY_TYPE_FACE = 0x07;
+
+    @IntDef(value = {KEY_SET_ATTRIBUTE_ALWAYS, KEY_SET_ATTRIBUTE_TIME_KEY,
+            KEY_SET_ATTRIBUTE_DURESS_PWD_KEY, KEY_SET_ATTRIBUTE_ADMIN_PWD_KEY,
+            KEY_SET_ATTRIBUTE_NO_AUTHORITY_KEY, KEY_SET_ATTRIBUTE_WEEK_KEY, KEY_SET_ATTRIBUTE_ONCE_PWD_KEY})
+    public @interface KeySetAttribute{}
+    public static final int KEY_SET_ATTRIBUTE_ALWAYS = 0x00;
+    public static final int KEY_SET_ATTRIBUTE_TIME_KEY = 0x01;
+    public static final int KEY_SET_ATTRIBUTE_DURESS_PWD_KEY = 0x02;
+    public static final int KEY_SET_ATTRIBUTE_ADMIN_PWD_KEY = 0x03;
+    public static final int KEY_SET_ATTRIBUTE_NO_AUTHORITY_KEY = 0x04;
+    public static final int KEY_SET_ATTRIBUTE_WEEK_KEY = 0x05;
+    public static final int KEY_SET_ATTRIBUTE_ONCE_PWD_KEY = 0xFE;
+
 }

@@ -145,6 +145,7 @@ public class BleCommandFactory {
         command[1] = tsn;
         command[2] = payload==null?0x00:checksum(payload);
         command[3] = cmd;
+        Timber.d("是否加密: %1b, TSN: %2d, CMD: %3s", isEncrypt, tsn, ConvertUtils.int2HexString(cmd));
         // 数据必须是16位来用于加密
         byte[] data = new byte[16];
         // 如果payload传入的数据为null，代表没有载入数据，只是直接发送指令
@@ -684,13 +685,13 @@ public class BleCommandFactory {
      */
     public static byte[] lockOperateRecordCommand(byte option, byte logType,
                                                        byte[] logIndexStart, byte[] logIndexEnd,
-                                                       byte[] pwd1, byte[] pwd2) {
+                                                       byte[] pwd1, byte[] pwd3) {
         byte[] data = new byte[6];
         data[0] = option;
         data[1] = logType;
         System.arraycopy(logIndexStart, 0, data, 2, logIndexStart.length);
         System.arraycopy(logIndexEnd, 0, data, 4, logIndexEnd.length);
-        return commandPackage(true, (byte) 0x18, commandTSN(), data, pwd1, pwd2);
+        return commandPackage(true, (byte) 0x18, commandTSN(), data, pwd1, pwd3);
     }
 
     private static byte sHeartBeatTSN = 0x01;
@@ -701,6 +702,59 @@ public class BleCommandFactory {
             sHeartBeatTSN = 0x01;
         }
         return sHeartBeatTSN++;
+    }
+
+    /**
+     * 密钥属性设置
+     * @param option         1：添加/修改  2：删除
+     * @param keyType        0：密码  4：指纹  3：卡片  7：人脸
+     * @param keyNum         密钥编号
+     * @param attribute      永久密钥：00
+     *                       时间策略密钥：01
+     *                       胁迫密钥：02
+     *                       管理员密钥：03
+     *                       无权限密钥：04
+     *                       周策略密钥：05
+     *                       一次性密钥：FE
+     *                       Option=2 (删除时这个字段无用)
+     * @param week           周策略 BIT:    7   6   5   4   3   2   1   0
+     *                       星期：保留    六  五  四  三  二  一  日
+     *                       如果为时间计划策略，置0
+     *                       Option=2 (删除时这个字段无用)
+     * @param startTime      起始时间（UTC）
+     *                       Option=2 (删除这个字段无用)
+     * @param endTime        结束时间（UTC）
+     *                       Option=2 (删除时这个字段无用)
+     */
+    public static byte[] keyAttributesSet(@BleCommandState.KeySetKeyOption int option,
+                                          @BleCommandState.KeySetKeyType int keyType,
+                                          byte keyNum,
+                                          @BleCommandState.KeySetAttribute int attribute,
+                                          byte week, long startTime, long endTime,
+                                          byte[] pwd1, byte[] pwd3) {
+        byte[] data = new byte[13];
+        data[0] = (byte) option;
+        data[1] = (byte) keyType;
+        data[2] = keyNum;
+        data[3] = (byte) attribute;
+        data[4] = week;
+        System.arraycopy(BleByteUtil.longToUnsigned32Bytes(startTime), 0, data, 5, 4);
+        System.arraycopy(BleByteUtil.longToUnsigned32Bytes(endTime), 0, data, 9, 4);
+        return commandPackage(true, (byte) 0x1C, commandTSN(), data, pwd1, pwd3);
+    }
+
+
+    /**
+     * 密钥属性读
+     * @param keyType   0：密码  4：指纹  3：卡片  7：人脸
+     * @param num       密钥编号
+     */
+    public static byte[] keyAttributesRead(@BleCommandState.KeySetKeyType int keyType,
+                                           byte num, byte[] pwd1, byte[] pwd3) {
+        byte[] data = new byte[2];
+        data[0] = (byte) keyType;
+        data[1] = num;
+        return commandPackage(true, (byte) 0x1D, commandTSN(), data, pwd1, pwd3);
     }
 
     /**

@@ -315,7 +315,7 @@
     <string name="dialog_tip_please_make_sure_the_bluetooth_is_connected">Please make sure the Bluetooth \nis connected</string>
     <string name="dialog_tip_please_make_sure_the_network_is_normal">Please make sure the network is \nnormal</string>
     <string name="dialog_tip_unlock_failed_please_try_it_again">Unlock failed.\nPlease try it again.</string>
-    <string name="dialog_tip_the_door_lock_is_in_private_mode_cant_click_at_present">The door lock is in private mode,\nCan't click at present</string>
+    <string name="dialog_tip_the_door_lock_is_in_private_mode_cant_click_at_present">The door lock is in private mode,\nCan\'t click at present</string>
     <string name="dialog_tip_please_approach_the_door_lock_to_delete_password">Please approach the door lock to\ndelete Password.</string>
     <string name="dialog_tip_password_deleted">Password deleted.</string>
     <string name="dialog_tip_deletion_failed_door_lock_bluetooth_is_not_found">Deletion failed\nDoor lock Bluetooth is not found.</string>

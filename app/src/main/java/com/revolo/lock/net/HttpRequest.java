@@ -1,6 +1,5 @@
 package com.revolo.lock.net;
 
-import com.blankj.utilcode.util.EncryptUtils;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.revolo.lock.bean.request.AdminAddDeviceBeanReq;
@@ -48,12 +47,6 @@ import com.revolo.lock.bean.respone.UpdateDoorSensorStateBeanRsp;
 import com.revolo.lock.bean.respone.UploadAlarmRecordBeanRsp;
 import com.revolo.lock.bean.respone.UploadOpenDoorRecordBeanRsp;
 
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import io.reactivex.Observable;
@@ -61,11 +54,6 @@ import okhttp3.OkHttpClient;
 import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
-import retrofit2.http.Body;
-import retrofit2.http.Header;
-import retrofit2.http.Headers;
-import retrofit2.http.POST;
-import timber.log.Timber;
 
 public class HttpRequest {
 
