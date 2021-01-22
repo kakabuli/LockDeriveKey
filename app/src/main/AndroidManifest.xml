@@ -115,6 +115,7 @@
         <activity android:name=".ui.device.add.DoorCheckFailActivity" />
         <activity android:name=".ui.device.lock.setting.GeoFenceUnlockActivity" />
         <activity android:name=".ui.device.lock.setting.DoorMagnetAlignmentActivity" />
+        <activity android:name=".ui.test.TestAddWifiActivity" />
     </application>
 
 </manifest>

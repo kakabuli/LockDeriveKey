@@ -1,14 +1,17 @@
-package com.revolo.lock.ui.device.add;
+package com.revolo.lock.ui.test;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.method.ScrollingMovementMethod;
 import android.view.View;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.a1anwang.okble.client.core.OKBLEDeviceImp;
 import com.blankj.utilcode.util.ConvertUtils;
+import com.blankj.utilcode.util.StringUtils;
 import com.revolo.lock.App;
 import com.revolo.lock.R;
 import com.revolo.lock.base.BaseActivity;
@@ -16,8 +19,9 @@ import com.revolo.lock.ble.BleCommandFactory;
 import com.revolo.lock.ble.BleProtocolState;
 import com.revolo.lock.ble.BleResultProcess;
 import com.revolo.lock.ble.OnBleDeviceListener;
-import com.revolo.lock.ble.bean.WifiSnBean;
 import com.revolo.lock.ble.bean.BleResultBean;
+import com.revolo.lock.ble.bean.WifiSnBean;
+import com.revolo.lock.ui.device.add.WifiConnectActivity;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -31,9 +35,10 @@ import timber.log.Timber;
  * E-mail : wengmaowei@kaadas.com
  * desc   : 添加Wifi
  */
-public class AddWifiActivity extends BaseActivity {
+public class TestAddWifiActivity extends BaseActivity {
 
     private OKBLEDeviceImp mOKBLEDevice;
+    private TextView mTvLog;
 
     @Override
     public void initData(@Nullable Bundle bundle) {
@@ -42,13 +47,14 @@ public class AddWifiActivity extends BaseActivity {
 
     @Override
     public int bindLayout() {
-        return R.layout.activity_add_wifi;
+        return R.layout.activity_test_add_wifi;
     }
 
     @Override
     public void initView(@Nullable Bundle savedInstanceState, @Nullable View contentView) {
         useCommonTitleBar(getString(R.string.title_add_wifi));
-        applyDebouncingClickListener(findViewById(R.id.btnNext));
+        mTvLog = findViewById(R.id.tvLog);
+        mTvLog.setMovementMethod(ScrollingMovementMethod.getInstance());
     }
 
     @Override
@@ -58,9 +64,7 @@ public class AddWifiActivity extends BaseActivity {
 
     @Override
     public void onDebouncingClick(@NonNull View view) {
-        if(view.getId() == R.id.btnNext) {
-            startActivity(new Intent(this, WifiConnectActivity.class));
-        }
+
     }
 
     @Override
@@ -145,7 +149,8 @@ public class AddWifiActivity extends BaseActivity {
                 bytesBeans.add(bytesBean);
                 wifiSnBean.setWifiSnBytesBeans(bytesBeans);
             }
-            Timber.d("receiveWifiList total: %1d, no: %2d", mWifiTotalNum, no);
+            addLog(StringUtils.format("total: %1d, no: %2d, value: %3s\n", mWifiTotalNum, no, ConvertUtils.bytes2HexString(payload)));
+
             // TODO: 2021/1/21 有可能缺失的就是最后一包 后期做个超时
             if(no == (mWifiTotalNum-1)) {
                 // 最后一个wifi
@@ -182,11 +187,21 @@ public class AddWifiActivity extends BaseActivity {
             Timber.d("缺少的序列号为：%1s", sb.toString());
         }
         if(!mWifiSnList.isEmpty()) {
+            StringBuilder stringBuilder = new StringBuilder();
             for (String name : mWifiSnList) {
-                Timber.d("WifiSn: %1s", name);
+                stringBuilder.append(StringUtils.format("WifiSn: %1s\n", name));
             }
+            addLog(stringBuilder.toString());
         }
         // TODO: 2021/1/21 记得清空
+    }
+
+    private void addLog(String msg) {
+        runOnUiThread(() -> {
+            if(mTvLog != null) {
+                mTvLog.append(msg);
+            }
+        });
     }
 
 }
