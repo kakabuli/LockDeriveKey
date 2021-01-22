@@ -265,12 +265,15 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
                 break;
             case DeviceScanCallBack.SCAN_FAILED_BLUETOOTH_DISABLE:
                 Timber.e("请打开手机蓝牙");
+                // TODO: 2021/1/22 打开手机蓝牙
                 break;
             case DeviceScanCallBack.SCAN_FAILED_LOCATION_PERMISSION_DISABLE:
                 Timber.e("请授予位置权限以扫描周围的蓝牙设备");
+                // TODO: 2021/1/22 请求位置权限
                 break;
             case DeviceScanCallBack.SCAN_FAILED_LOCATION_PERMISSION_DISABLE_FOREVER:
                 Timber.e("位置权限被您永久拒绝,请在设置里授予位置权限以扫描周围的蓝牙设备");
+                // TODO: 2021/1/22 跳转到授予位置权限的页面
                 break;
         }
     }
