@@ -13,15 +13,38 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <com.revolo.lock.widget.WifiCircleProgress
+        android:id="@+id/wifiCircleProgress"
+        android:layout_width="206pt"
+        android:layout_height="206pt"
+        android:layout_marginTop="28pt"
+        android:layout_gravity="center_horizontal"
+        app:arcWidth="10pt"
+        app:bgArcColor="#F2F2F2"
+        app:bgArcWidth="10pt"
+        app:hintSize="15pt"
+        app:maxValue="100"
+        app:startAngle="148"
+        app:sweepAngle="240"
+        app:unitColor="#666666"
+        app:unit="Loading"
+        app:unitSize="16pt"
+        app:value="100"
+        app:valueColor="#2C68FF"
+        app:valueSize="26sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/include2" />
+
     <TextView
         android:id="@+id/textView13"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="14pt"
+        android:text="@string/wifi_connection_please_wait"
         android:textColor="@color/c666666"
-        android:text="WiFi connection, please wait"
+        android:textSize="14pt"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/include2" />
+        app:layout_constraintTop_toBottomOf="@+id/wifiCircleProgress" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

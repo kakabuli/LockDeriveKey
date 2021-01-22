@@ -109,4 +109,10 @@ public class BleCommandState {
     public static final int KEY_SET_ATTRIBUTE_WEEK_KEY = 0x05;
     public static final int KEY_SET_ATTRIBUTE_ONCE_PWD_KEY = 0xFE;
 
+    @IntDef(value = {PAIR_NETWORK_STATUS_START, PAIR_NETWORK_STATUS_STOP, PAIR_NETWORK_STATUS_CONTINUE})
+    public @interface PairNetworkStatus{}
+    public static final int PAIR_NETWORK_STATUS_START = 0x00;
+    public static final int PAIR_NETWORK_STATUS_STOP = 0x01;
+    public static final int PAIR_NETWORK_STATUS_CONTINUE = 0x02;
+
 }

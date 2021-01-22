@@ -1,26 +1,21 @@
 package com.revolo.lock.ui.device.add;
 
-import android.Manifest;
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
-import android.content.pm.PackageManager;
-import android.location.LocationManager;
-import android.net.wifi.ScanResult;
 import android.os.Bundle;
+import android.text.InputType;
+import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.app.ActivityCompat;
 
 import com.a1anwang.okble.client.core.OKBLEDeviceImp;
-import com.blankj.utilcode.util.NetworkUtils;
 import com.blankj.utilcode.util.ToastUtils;
 import com.revolo.lock.App;
+import com.revolo.lock.Constant;
 import com.revolo.lock.R;
 import com.revolo.lock.base.BaseActivity;
 import com.revolo.lock.ble.BleCommandFactory;
@@ -30,16 +25,11 @@ import com.revolo.lock.ble.OnBleDeviceListener;
 import com.revolo.lock.ble.bean.WifiSnBean;
 import com.revolo.lock.ble.bean.BleResultBean;
 import com.revolo.lock.popup.WifiListPopup;
-import com.revolo.lock.util.LocationUtils;
-
-import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import pub.devrel.easypermissions.AfterPermissionGranted;
-import pub.devrel.easypermissions.EasyPermissions;
 import timber.log.Timber;
 
 /**
@@ -48,11 +38,12 @@ import timber.log.Timber;
  * E-mail : wengmaowei@kaadas.com
  * desc   : 添加Wifi
  */
-public class AddWifiActivity extends BaseActivity implements EasyPermissions.PermissionCallbacks {
+public class AddWifiActivity extends BaseActivity {
 
     private OKBLEDeviceImp mOKBLEDevice;
-    private final int RC_ACCESS_COARSE_LOCATION_PERMISSIONS = 1111;
     private WifiListPopup mWifiListPopup;
+    private EditText mEtWifiName, mEtPwd;
+    private boolean isShowPwd = false;
 
     @Override
     public void initData(@Nullable Bundle bundle) {
@@ -67,29 +58,43 @@ public class AddWifiActivity extends BaseActivity implements EasyPermissions.Per
     @Override
     public void initView(@Nullable Bundle savedInstanceState, @Nullable View contentView) {
         useCommonTitleBar(getString(R.string.title_add_wifi));
-        EditText etWifiName = findViewById(R.id.etWifiName);
+        mEtWifiName = findViewById(R.id.etWifiName);
+        mEtPwd = findViewById(R.id.etPwd);
         mWifiListPopup = new WifiListPopup(this);
         mWifiListPopup.setOnItemClickListener((adapter, view, position) -> {
             if(position < 0) {
                 return;
             }
-            etWifiName.setText((String) adapter.getItem(position));
+            mEtWifiName.setText((String) adapter.getItem(position));
             mWifiListPopup.dismiss();
         });
-        applyDebouncingClickListener(findViewById(R.id.btnNext), findViewById(R.id.ivDropdown));
+        applyDebouncingClickListener(findViewById(R.id.btnNext), findViewById(R.id.ivDropdown),findViewById(R.id.ivEye));
     }
 
     @Override
     public void doBusiness() {
         initDevice();
-        initWifiList();
-        registerReceiver(mGpsSwitchStateReceiver, new IntentFilter(LocationManager.PROVIDERS_CHANGED_ACTION));
     }
 
     @Override
     public void onDebouncingClick(@NonNull View view) {
         if (view.getId() == R.id.btnNext) {
-            startActivity(new Intent(this, WifiConnectActivity.class));
+            String wifiSn = mEtWifiName.getText().toString().trim();
+            if(TextUtils.isEmpty(wifiSn)) {
+                // TODO: 2021/1/22 调整提示语
+                ToastUtils.showShort("Please input wifi name!");
+                return;
+            }
+            String wifiPwd = mEtPwd.getText().toString();
+            if(TextUtils.isEmpty(wifiPwd)) {
+                // TODO: 2021/1/22 调整提示语
+                ToastUtils.showShort("Please input wifi password!");
+                return;
+            }
+            Intent intent = new Intent(this, WifiConnectActivity.class);
+            intent.putExtra(Constant.WIFI_NAME, wifiSn);
+            intent.putExtra(Constant.WIFI_PWD, wifiPwd);
+            startActivity(intent);
             return;
         }
         if(view.getId() == R.id.ivDropdown) {
@@ -102,104 +107,31 @@ public class AddWifiActivity extends BaseActivity implements EasyPermissions.Per
                 mWifiListPopup.setPopupGravity(Gravity.BOTTOM);
                 mWifiListPopup.showPopupWindow(findViewById(R.id.ivDropdown));
             }
+            return;
+        }
+        if(view.getId() == R.id.ivEye) {
+            ImageView ivEye = findViewById(R.id.ivEye);
+            ivEye.setImageResource(isShowPwd?R.drawable.ic_login_icon_display:R.drawable.ic_login_icon_hide);
+            mEtPwd.setInputType(isShowPwd?
+                    InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
+                    :(InputType.TYPE_CLASS_TEXT|InputType.TYPE_TEXT_VARIATION_PASSWORD));
+            isShowPwd = !isShowPwd;
         }
     }
 
     @Override
     protected void onDestroy() {
         App.getInstance().clearBleDeviceListener();
-        unregisterReceiver(mGpsSwitchStateReceiver);
         super.onDestroy();
     }
 
-    @Override
-    public void onRequestPermissionsResult(int requestCode,
-                                           String @NotNull [] permissions,
-                                           int @NotNull [] grantResults) {
-        EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults, this);
-    }
-
-    @Override
-    public void onPermissionsGranted(int requestCode, @NonNull List<String> perms) {
-        if(perms.isEmpty()) {
-            Timber.e("onPermissionsGranted 返回的权限不存在数据 perms size: %1d", perms.size());
-            return;
-        }
-        if(requestCode != RC_ACCESS_COARSE_LOCATION_PERMISSIONS) {
-            return;
-        }
-        if(!perms.get(0).equals(Manifest.permission.ACCESS_COARSE_LOCATION)) {
-            return;
-        }
-        initWifiList();
-    }
-
-    @Override
-    public void onPermissionsDenied(int requestCode, @NonNull List<String> perms) {
-        if(perms.get(0).equals(Manifest.permission.ACCESS_COARSE_LOCATION)) {
-            Timber.e("onPermissionsDenied 拒绝了搜索WiFi列表需要的位置权限, requestCode: %1d", requestCode);
-        }
-    }
-
-    private final BroadcastReceiver mGpsSwitchStateReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-
-            if(LocationManager.PROVIDERS_CHANGED_ACTION.equals(intent.getAction())) {
-                // 监听如果打开了GPS，就更新wifi
-                if(LocationUtils.isGpsEnabled()) {
-                    initWifiList();
-                }
-            }
-
-        }
-    };
 
     private void initDevice() {
         mOKBLEDevice = App.getInstance().getDevice();
         if (mOKBLEDevice != null) {
             App.getInstance().openPairNotify();
             App.getInstance().setOnBleDeviceListener(mOnBleDeviceListener);
-//            App.getInstance().writePairMsg(BleCommandFactory.wifiListSearchCommand());
-        }
-    }
-
-    @AfterPermissionGranted(RC_ACCESS_COARSE_LOCATION_PERMISSIONS)
-    private void rcAccessCoarseLocationPermission() {
-        if(!hasAccessCoarseLocation()) {
-            // TODO: 2021/1/3 use string
-            EasyPermissions.requestPermissions(this, "TODO: location things",
-                    RC_ACCESS_COARSE_LOCATION_PERMISSIONS, Manifest.permission.ACCESS_COARSE_LOCATION);
-        }
-    }
-
-    private boolean hasAccessCoarseLocation() {
-        return EasyPermissions.hasPermissions(this, Manifest.permission.ACCESS_COARSE_LOCATION);
-    }
-
-    private void initWifiList() {
-        if (ActivityCompat.checkSelfPermission(this,
-                Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            rcAccessCoarseLocationPermission();
-            return;
-        }
-        if(!LocationUtils.isGpsEnabled()) {
-            // TODO: 2021/1/22 优化提示语
-            ToastUtils.showShort("please open your GPS!");
-            return;
-        }
-        NetworkUtils.WifiScanResults wifiScanResults = NetworkUtils.getWifiScanResult();
-        if(wifiScanResults.getFilterResults().isEmpty()) {
-            Timber.e("initWifiList wifiScanResults.getFilterResults().isEmpty()");
-            return;
-        }
-        mWifiSnList.clear();
-        for (ScanResult scanResult : wifiScanResults.getFilterResults()) {
-            Timber.d("wifi sn: %1s", scanResult.SSID);
-            mWifiSnList.add(scanResult.SSID);
-        }
-        if(mWifiListPopup != null) {
-            mWifiListPopup.updateWifiList(mWifiSnList);
+            App.getInstance().writePairMsg(BleCommandFactory.wifiListSearchCommand());
         }
     }
 
@@ -310,6 +242,9 @@ public class AddWifiActivity extends BaseActivity implements EasyPermissions.Per
             for (String name : mWifiSnList) {
                 Timber.d("WifiSn: %1s", name);
             }
+        }
+        if(mWifiListPopup != null) {
+            mWifiListPopup.updateWifiList(mWifiSnList);
         }
         // TODO: 2021/1/21 记得清空
     }

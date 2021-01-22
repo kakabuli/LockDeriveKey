@@ -851,10 +851,11 @@ public class BleCommandFactory {
      *               0x01 停止配网
      *               0x02 继续配网
      */
-    public static byte[] sendPairStatusCommand(byte status) {
+    public static byte[] sendPairStatusCommand(@BleCommandState.PairNetworkStatus int status) {
         byte[] data = new byte[1];
-        data[0] = status;
-        return commandPackage(false, (byte) 0x96, commandTSN(), data, null, null);
+        data[0] = (byte) status;
+        return commandPackage(false, (byte) BleProtocolState.CMD_PAIR_NETWORK_ACK, commandTSN(),
+                data, null, null);
     }
 
     /**
@@ -866,7 +867,8 @@ public class BleCommandFactory {
     public static byte[] sendConnectStatusResponseCommand(byte status) {
         byte[] data = new byte[1];
         data[0] = status;
-        return commandPackage(false, (byte) 0x97, commandTSN(), data, null, null);
+        return commandPackage(false, (byte) BleProtocolState.CMD_BLE_UPLOAD_PAIR_NETWORK_STATE,
+                commandTSN(), data, null, null);
     }
 
     /**

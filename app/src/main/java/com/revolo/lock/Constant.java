@@ -22,5 +22,7 @@ public class Constant {
     public static final String USER_NAME = "UserName";
     public static final String MESSAGE_DETAIL = "MessageDetail";
     public static final String USER_INFO = "UserInfo";
+    public static final String WIFI_NAME = "WifiName";
+    public static final String WIFI_PWD = "WifiPwd";
 
 }

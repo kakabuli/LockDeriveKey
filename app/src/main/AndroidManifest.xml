@@ -31,7 +31,7 @@
         <service android:name="org.eclipse.paho.android.service.MqttService"/>
 
         <activity
-            android:name=".ui.device.add.AddWifiActivity"
+            android:name=".ui.sign.SignSelectActivity"
             android:label="@string/app_name"
             android:screenOrientation="portrait">
             <intent-filter>
@@ -40,7 +40,10 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".ui.sign.SignSelectActivity"
+        <activity android:name=".ui.device.add.WifiConnectActivity"
+            android:hardwareAccelerated="false"
+            android:screenOrientation="portrait"/>
+        <activity android:name=".ui.device.add.AddWifiActivity"
             android:screenOrientation="portrait"/>
         <activity android:name=".ui.MainActivity"
             android:screenOrientation="portrait"/>
@@ -67,8 +70,6 @@
         <activity android:name=".ui.device.add.BleConnectFailActivity"
             android:screenOrientation="portrait"/>
         <activity android:name=".ui.device.add.BleConnectSucActivity"
-            android:screenOrientation="portrait"/>
-        <activity android:name=".ui.device.add.WifiConnectActivity"
             android:screenOrientation="portrait"/>
         <activity android:name=".ui.device.add.AddWifiSucActivity"
             android:screenOrientation="portrait"/>
