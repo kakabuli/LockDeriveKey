@@ -1,6 +1,5 @@
 package com.revolo.lock.ui.test;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.text.method.ScrollingMovementMethod;
 import android.view.View;
@@ -9,19 +8,18 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.a1anwang.okble.client.core.OKBLEDeviceImp;
 import com.blankj.utilcode.util.ConvertUtils;
 import com.blankj.utilcode.util.StringUtils;
 import com.revolo.lock.App;
 import com.revolo.lock.R;
 import com.revolo.lock.base.BaseActivity;
+import com.revolo.lock.bean.BleBean;
 import com.revolo.lock.ble.BleCommandFactory;
 import com.revolo.lock.ble.BleProtocolState;
 import com.revolo.lock.ble.BleResultProcess;
 import com.revolo.lock.ble.OnBleDeviceListener;
 import com.revolo.lock.ble.bean.BleResultBean;
 import com.revolo.lock.ble.bean.WifiSnBean;
-import com.revolo.lock.ui.device.add.WifiConnectActivity;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -37,7 +35,7 @@ import timber.log.Timber;
  */
 public class TestAddWifiActivity extends BaseActivity {
 
-    private OKBLEDeviceImp mOKBLEDevice;
+    private BleBean mBleBean;
     private TextView mTvLog;
 
     @Override
@@ -74,8 +72,8 @@ public class TestAddWifiActivity extends BaseActivity {
     }
 
     private void initDevice() {
-        mOKBLEDevice = App.getInstance().getDevice();
-        if(mOKBLEDevice != null) {
+        mBleBean = App.getInstance().getBleBean();
+        if(mBleBean.getOKBLEDeviceImp() != null) {
             App.getInstance().openPairNotify();
             App.getInstance().setOnBleDeviceListener(mOnBleDeviceListener);
             App.getInstance().writePairMsg(BleCommandFactory.wifiListSearchCommand());
@@ -99,7 +97,8 @@ public class TestAddWifiActivity extends BaseActivity {
                 return;
             }
             BleResultProcess.setOnReceivedProcess(mOnReceivedProcess);
-            BleResultProcess.processReceivedData(value, BleCommandFactory.sTestPwd1, null, mOKBLEDevice.getBleScanResult());
+            BleResultProcess.processReceivedData(value, BleCommandFactory.sTestPwd1, null,
+                    mBleBean.getOKBLEDeviceImp().getBleScanResult());
         }
 
         @Override

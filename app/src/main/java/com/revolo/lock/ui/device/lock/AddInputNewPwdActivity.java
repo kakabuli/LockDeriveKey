@@ -3,10 +3,13 @@ package com.revolo.lock.ui.device.lock;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.EditText;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.blankj.utilcode.util.ToastUtils;
+import com.revolo.lock.Constant;
 import com.revolo.lock.R;
 import com.revolo.lock.base.BaseActivity;
 
@@ -17,6 +20,9 @@ import com.revolo.lock.base.BaseActivity;
  * desc   : 添加新的密码
  */
 public class AddInputNewPwdActivity extends BaseActivity {
+
+    private EditText mEtPwd;
+
     @Override
     public void initData(@Nullable Bundle bundle) {
 
@@ -30,6 +36,7 @@ public class AddInputNewPwdActivity extends BaseActivity {
     @Override
     public void initView(@Nullable Bundle savedInstanceState, @Nullable View contentView) {
         useCommonTitleBar(getString(R.string.title_add_password));
+        mEtPwd = findViewById(R.id.etPwd);
         applyDebouncingClickListener(findViewById(R.id.btnNext));
     }
 
@@ -41,7 +48,16 @@ public class AddInputNewPwdActivity extends BaseActivity {
     @Override
     public void onDebouncingClick(@NonNull View view) {
         if(view.getId() == R.id.btnNext) {
-            startActivity(new Intent(this, AddNewPwdSelectActivity.class));
+            String pwd = mEtPwd.getText().toString().trim();
+            if(pwd.length() >= 4 && pwd.length() <= 12) {
+                Intent intent = new Intent(this, AddNewPwdSelectActivity.class);
+                intent.putExtra(Constant.USER_PWD, pwd);
+                startActivity(intent);
+            } else {
+                // TODO: 2021/1/25 抽离文字
+                ToastUtils.showShort("Please input right password!");
+            }
+
         }
     }
 }

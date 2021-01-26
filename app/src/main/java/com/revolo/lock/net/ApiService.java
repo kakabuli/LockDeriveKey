@@ -16,6 +16,7 @@ import com.revolo.lock.bean.request.GetLockKeyNickBeanReq;
 import com.revolo.lock.bean.request.GetPwd1BeanReq;
 import com.revolo.lock.bean.request.LockIsBindBeanReq;
 import com.revolo.lock.bean.request.LockKeyAddBeanReq;
+import com.revolo.lock.bean.request.MailLoginBeanReq;
 import com.revolo.lock.bean.request.OpenDoorRecordSearchBeanReq;
 import com.revolo.lock.bean.request.SearchAlarmRecordBeanReq;
 import com.revolo.lock.bean.request.SearchKeyListBeanReq;
@@ -38,6 +39,7 @@ import com.revolo.lock.bean.respone.GetLockKeyNickBeanRsp;
 import com.revolo.lock.bean.respone.GetPwd1BeanRsp;
 import com.revolo.lock.bean.respone.LockIsBindBeanRsp;
 import com.revolo.lock.bean.respone.LockKeyAddBeanRsp;
+import com.revolo.lock.bean.respone.MailLoginBeanRsp;
 import com.revolo.lock.bean.respone.OpenDoorRecordSearchBeanRsp;
 import com.revolo.lock.bean.respone.SearchAlarmRecordBeanRsp;
 import com.revolo.lock.bean.respone.SearchKeyListBeanRsp;
@@ -53,6 +55,10 @@ import retrofit2.http.Headers;
 import retrofit2.http.POST;
 
 public interface ApiService {
+
+    @Headers({"Content-Type: application/json"})
+    @POST("/user/login/getuserbymail")
+    Observable<MailLoginBeanRsp> login(@Body MailLoginBeanReq req);
 
     @Headers({"Content-Type: application/json", "token: {token}"})
     @POST("/wpflock/device/checkadmindev")

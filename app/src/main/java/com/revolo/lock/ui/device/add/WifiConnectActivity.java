@@ -9,12 +9,12 @@ import android.view.View;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.a1anwang.okble.client.core.OKBLEDeviceImp;
 import com.blankj.utilcode.util.ConvertUtils;
 import com.revolo.lock.App;
 import com.revolo.lock.Constant;
 import com.revolo.lock.R;
 import com.revolo.lock.base.BaseActivity;
+import com.revolo.lock.bean.BleBean;
 import com.revolo.lock.ble.BleCommandFactory;
 import com.revolo.lock.ble.BleProtocolState;
 import com.revolo.lock.ble.BleResultProcess;
@@ -38,7 +38,7 @@ public class WifiConnectActivity extends BaseActivity {
 
     private String mWifiName;
     private String mWifiPwd;
-    private OKBLEDeviceImp mOKBLEDevice;
+    private BleBean mBleBean;
     private WifiCircleProgress mWifiCircleProgress;
 
     @Override
@@ -67,7 +67,6 @@ public class WifiConnectActivity extends BaseActivity {
     public void initView(@Nullable Bundle savedInstanceState, @Nullable View contentView) {
         useCommonTitleBar(getString(R.string.title_add_wifi));
         mWifiCircleProgress = findViewById(R.id.wifiCircleProgress);
-        setStatusBarColor(R.color.white);
     }
 
     @Override
@@ -82,8 +81,8 @@ public class WifiConnectActivity extends BaseActivity {
     }
 
     private void initDevice() {
-        mOKBLEDevice = App.getInstance().getDevice();
-        if (mOKBLEDevice != null) {
+        mBleBean = App.getInstance().getBleBean();
+        if (mBleBean.getOKBLEDeviceImp() != null) {
             App.getInstance().openPairNotify();
             App.getInstance().setOnBleDeviceListener(mOnBleDeviceListener);
             startSendWifiInfo();
@@ -107,7 +106,8 @@ public class WifiConnectActivity extends BaseActivity {
                 return;
             }
             BleResultProcess.setOnReceivedProcess(mOnReceivedProcess);
-            BleResultProcess.processReceivedData(value, BleCommandFactory.sTestPwd1, null, mOKBLEDevice.getBleScanResult());
+            BleResultProcess.processReceivedData(value, BleCommandFactory.sTestPwd1, null,
+                    mBleBean.getOKBLEDeviceImp().getBleScanResult());
         }
 
         @Override

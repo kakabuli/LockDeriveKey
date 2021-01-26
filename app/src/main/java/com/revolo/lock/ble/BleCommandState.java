@@ -115,4 +115,16 @@ public class BleCommandState {
     public static final int PAIR_NETWORK_STATUS_STOP = 0x01;
     public static final int PAIR_NETWORK_STATUS_CONTINUE = 0x02;
 
+    @IntDef(value = {LOCK_RECORD_OP_OP_CHECK})
+    public @interface LockRecordOpOp{}
+    public static final int LOCK_RECORD_OP_OP_CHECK = 0x01;
+
+    @IntDef(value = {LOCK_RECORD_OP_LOG_TYPE_OPEN, LOCK_RECORD_OP_LOG_TYPE_ALARM,
+            LOCK_RECORD_OP_LOG_TYPE_KEY, LOCK_RECORD_OP_LOG_TYPE_ALL})
+    public @interface LockRecordOpLogType{}
+    public static final int LOCK_RECORD_OP_LOG_TYPE_OPEN = 0x00;
+    public static final int LOCK_RECORD_OP_LOG_TYPE_ALARM = 0x01;
+    public static final int LOCK_RECORD_OP_LOG_TYPE_KEY = 0x02;
+    public static final int LOCK_RECORD_OP_LOG_TYPE_ALL = 0x03;
+
 }

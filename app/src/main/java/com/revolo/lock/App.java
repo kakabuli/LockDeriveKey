@@ -6,8 +6,12 @@ import com.a1anwang.okble.client.core.OKBLEDeviceImp;
 import com.a1anwang.okble.client.core.OKBLEDeviceListener;
 import com.a1anwang.okble.client.core.OKBLEOperation;
 import com.a1anwang.okble.client.scan.BLEScanResult;
+import com.blankj.utilcode.util.CacheDiskUtils;
 import com.blankj.utilcode.util.ConvertUtils;
+import com.revolo.lock.bean.BleBean;
 import com.revolo.lock.ble.OnBleDeviceListener;
+
+import java.io.File;
 
 import timber.log.Timber;
 
@@ -19,8 +23,12 @@ import timber.log.Timber;
  */
 public class App extends Application {
 
+    private String mToken;
     private static App instance;
     private OKBLEDeviceImp mDevice;
+    private BleBean mBleBean;
+    private final String mFilePath = File.pathSeparator + "Ble" + File.pathSeparator;
+    private CacheDiskUtils mCacheDiskUtils;
 
     public static App getInstance() {
         return instance;
@@ -33,6 +41,12 @@ public class App extends Application {
         if (BuildConfig.DEBUG) {
             Timber.plant(new Timber.DebugTree());
         }
+        initCacheDisk();
+    }
+
+    private void initCacheDisk() {
+        File file = new File(getDir("Ble", MODE_PRIVATE) + mFilePath);
+        mCacheDiskUtils = CacheDiskUtils.getInstance(file);
     }
 
     private OnBleDeviceListener mOnBleDeviceListener;
@@ -49,6 +63,7 @@ public class App extends Application {
             mDevice.disConnect(false);
         }
         mDevice = new OKBLEDeviceImp(getApplicationContext(), bleScanResult);
+        mBleBean = new BleBean(mDevice);
         OKBLEDeviceListener okbleDeviceListener = new OKBLEDeviceListener() {
             @Override
             public void onConnected(String deviceTAG) {
@@ -180,7 +195,19 @@ public class App extends Application {
         }
     }
 
-    public OKBLEDeviceImp getDevice() {
-        return mDevice;
+    public BleBean getBleBean() {
+        return mBleBean;
+    }
+
+    public CacheDiskUtils getCacheDiskUtils() {
+        return mCacheDiskUtils;
+    }
+
+    public String getToken() {
+        return mToken;
+    }
+
+    public void setToken(String token) {
+        mToken = token;
     }
 }

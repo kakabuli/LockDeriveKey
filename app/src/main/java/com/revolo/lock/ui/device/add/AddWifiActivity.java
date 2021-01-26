@@ -12,12 +12,12 @@ import android.widget.ImageView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.a1anwang.okble.client.core.OKBLEDeviceImp;
 import com.blankj.utilcode.util.ToastUtils;
 import com.revolo.lock.App;
 import com.revolo.lock.Constant;
 import com.revolo.lock.R;
 import com.revolo.lock.base.BaseActivity;
+import com.revolo.lock.bean.BleBean;
 import com.revolo.lock.ble.BleCommandFactory;
 import com.revolo.lock.ble.BleProtocolState;
 import com.revolo.lock.ble.BleResultProcess;
@@ -40,7 +40,7 @@ import timber.log.Timber;
  */
 public class AddWifiActivity extends BaseActivity {
 
-    private OKBLEDeviceImp mOKBLEDevice;
+    private BleBean mBleBean;
     private WifiListPopup mWifiListPopup;
     private EditText mEtWifiName, mEtPwd;
     private boolean isShowPwd = false;
@@ -127,8 +127,8 @@ public class AddWifiActivity extends BaseActivity {
 
 
     private void initDevice() {
-        mOKBLEDevice = App.getInstance().getDevice();
-        if (mOKBLEDevice != null) {
+        mBleBean = App.getInstance().getBleBean();
+        if (mBleBean.getOKBLEDeviceImp() != null) {
             App.getInstance().openPairNotify();
             App.getInstance().setOnBleDeviceListener(mOnBleDeviceListener);
             App.getInstance().writePairMsg(BleCommandFactory.wifiListSearchCommand());
@@ -152,7 +152,8 @@ public class AddWifiActivity extends BaseActivity {
                 return;
             }
             BleResultProcess.setOnReceivedProcess(mOnReceivedProcess);
-            BleResultProcess.processReceivedData(value, BleCommandFactory.sTestPwd1, null, mOKBLEDevice.getBleScanResult());
+            BleResultProcess.processReceivedData(value, BleCommandFactory.sTestPwd1, null,
+                    mBleBean.getOKBLEDeviceImp().getBleScanResult());
         }
 
         @Override

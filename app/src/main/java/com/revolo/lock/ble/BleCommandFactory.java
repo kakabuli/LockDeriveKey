@@ -683,15 +683,22 @@ public class BleCommandFactory {
      * @param logIndexStart 查询的记录起始序号
      * @param logIndexEnd   查询的记录结束序号
      */
-    public static byte[] lockOperateRecordCommand(byte option, byte logType,
-                                                       byte[] logIndexStart, byte[] logIndexEnd,
-                                                       byte[] pwd1, byte[] pwd3) {
+    public static byte[] lockOperateRecordCommand(@BleCommandState.LockRecordOpOp int option,
+                                                  @BleCommandState.LockRecordOpLogType int logType,
+                                                  byte[] logIndexStart, byte[] logIndexEnd,
+                                                  byte[] pwd1, byte[] pwd3) {
         byte[] data = new byte[6];
-        data[0] = option;
-        data[1] = logType;
+        data[0] = (byte) option;
+        data[1] = (byte) logType;
         System.arraycopy(logIndexStart, 0, data, 2, logIndexStart.length);
         System.arraycopy(logIndexEnd, 0, data, 4, logIndexEnd.length);
         return commandPackage(true, (byte) 0x18, commandTSN(), data, pwd1, pwd3);
+    }
+
+    public static byte[] lockOperateRecordCommand(byte[] logIndexStart, byte[] logIndexEnd,
+                                                  byte[] pwd1, byte[] pwd3) {
+        return lockOperateRecordCommand(BleCommandState.LOCK_RECORD_OP_OP_CHECK,
+                BleCommandState.LOCK_RECORD_OP_LOG_TYPE_ALL, logIndexStart, logIndexEnd, pwd1, pwd3);
     }
 
     private static byte sHeartBeatTSN = 0x01;

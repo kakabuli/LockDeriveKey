@@ -56,12 +56,18 @@ public class AddNewPwdSelectActivity extends BaseActivity {
     @Override
     public void onDebouncingClick(@NonNull View view) {
         if(view.getId() == R.id.rlPermanent) {
+            permanentSwitch();
+            showPermanentState();
             return;
         }
         if(view.getId() == R.id.rlSchedule) {
+            scheduleSwitch();
+            showSchedule();
             return;
         }
         if(view.getId() == R.id.rlTemporary) {
+            temporarySwitch();
+            showTemporary();
             return;
         }
         if(view.getId() == R.id.btnNext) {
@@ -79,6 +85,24 @@ public class AddNewPwdSelectActivity extends BaseActivity {
 
     private void showTemporary() {
 
+    }
+
+    private void permanentSwitch() {
+        mIvPermanent.setImageResource(R.drawable.ic_home_password_icon_selected);
+        mIvSchedule.setImageResource(R.drawable.ic_home_password_icon_default);
+        mIvTemporary.setImageResource(R.drawable.ic_home_password_icon_default);
+    }
+
+    private void scheduleSwitch() {
+        mIvPermanent.setImageResource(R.drawable.ic_home_password_icon_default);
+        mIvSchedule.setImageResource(R.drawable.ic_home_password_icon_selected);
+        mIvTemporary.setImageResource(R.drawable.ic_home_password_icon_default);
+    }
+
+    private void temporarySwitch() {
+        mIvPermanent.setImageResource(R.drawable.ic_home_password_icon_default);
+        mIvSchedule.setImageResource(R.drawable.ic_home_password_icon_default);
+        mIvTemporary.setImageResource(R.drawable.ic_home_password_icon_selected);
     }
 
 }

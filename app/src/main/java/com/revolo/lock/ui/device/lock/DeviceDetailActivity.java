@@ -43,7 +43,6 @@ public class DeviceDetailActivity extends BaseActivity {
     @Override
     public void initView(@Nullable Bundle savedInstanceState, @Nullable View contentView) {
         useCommonTitleBar("Homepage");
-        setStatusBarColor(R.color.white);
         initDevice();
     }
 

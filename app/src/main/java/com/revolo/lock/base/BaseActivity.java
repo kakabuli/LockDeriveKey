@@ -14,6 +14,7 @@ import androidx.core.content.ContextCompat;
 
 import com.blankj.utilcode.util.AdaptScreenUtils;
 import com.blankj.utilcode.util.ClickUtils;
+import com.revolo.lock.R;
 import com.revolo.lock.ui.TitleBar;
 
 /**
@@ -50,6 +51,7 @@ public abstract class BaseActivity extends AppCompatActivity
     }
 
     public TitleBar useCommonTitleBar(String title) {
+        setStatusBarColor(R.color.white);
         return new TitleBar(mContentView).setTitle(title).useCommonLeft(v -> finish());
     }
 

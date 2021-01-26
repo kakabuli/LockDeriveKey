@@ -41,7 +41,6 @@ public class RegisterActivity extends BaseActivity {
 
     @Override
     public void initView(@Nullable Bundle savedInstanceState, @Nullable View contentView) {
-        setStatusBarColor(R.color.white);
         useCommonTitleBar(getString(R.string.register));
         applyDebouncingClickListener(findViewById(R.id.btnStartCreating),
                 findViewById(R.id.ivEye),

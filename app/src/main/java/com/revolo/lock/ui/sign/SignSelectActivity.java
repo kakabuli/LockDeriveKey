@@ -23,7 +23,6 @@ public class SignSelectActivity extends BaseActivity {
 
     @Override
     public void initView(@Nullable Bundle savedInstanceState, @Nullable View contentView) {
-        setStatusBarColor(R.color.white);
         applyDebouncingClickListener(findViewById(R.id.btnRegister), findViewById(R.id.btnSignIn));
     }
 

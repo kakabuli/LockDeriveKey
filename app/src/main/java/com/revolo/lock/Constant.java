@@ -24,5 +24,12 @@ public class Constant {
     public static final String USER_INFO = "UserInfo";
     public static final String WIFI_NAME = "WifiName";
     public static final String WIFI_PWD = "WifiPwd";
+    public static final String USER_PWD = "UserPwd";
+
+
+    public static final String KEY_PWD1 = "KeyPwd1";
+    public static final String BLE_MAC = "BleMac";
+    public static final String LOCK_ESN = "LockEsn";
+    public static final String BLE_DEVICE = "BleDevice";
 
 }

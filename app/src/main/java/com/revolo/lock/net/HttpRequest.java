@@ -17,6 +17,7 @@ import com.revolo.lock.bean.request.GetLockKeyNickBeanReq;
 import com.revolo.lock.bean.request.GetPwd1BeanReq;
 import com.revolo.lock.bean.request.LockIsBindBeanReq;
 import com.revolo.lock.bean.request.LockKeyAddBeanReq;
+import com.revolo.lock.bean.request.MailLoginBeanReq;
 import com.revolo.lock.bean.request.OpenDoorRecordSearchBeanReq;
 import com.revolo.lock.bean.request.SearchAlarmRecordBeanReq;
 import com.revolo.lock.bean.request.SearchKeyListBeanReq;
@@ -39,6 +40,7 @@ import com.revolo.lock.bean.respone.GetLockKeyNickBeanRsp;
 import com.revolo.lock.bean.respone.GetPwd1BeanRsp;
 import com.revolo.lock.bean.respone.LockIsBindBeanRsp;
 import com.revolo.lock.bean.respone.LockKeyAddBeanRsp;
+import com.revolo.lock.bean.respone.MailLoginBeanRsp;
 import com.revolo.lock.bean.respone.OpenDoorRecordSearchBeanRsp;
 import com.revolo.lock.bean.respone.SearchAlarmRecordBeanRsp;
 import com.revolo.lock.bean.respone.SearchKeyListBeanRsp;
@@ -47,7 +49,11 @@ import com.revolo.lock.bean.respone.UpdateDoorSensorStateBeanRsp;
 import com.revolo.lock.bean.respone.UploadAlarmRecordBeanRsp;
 import com.revolo.lock.bean.respone.UploadOpenDoorRecordBeanRsp;
 
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 import java.util.concurrent.TimeUnit;
+
+import javax.net.ssl.X509TrustManager;
 
 import io.reactivex.Observable;
 import okhttp3.OkHttpClient;
@@ -78,9 +84,27 @@ public class HttpRequest {
 
     private HttpRequest() {
 
+        // TODO: 2021/1/26 现在是忽略证书，后期需要修正
         OkHttpClient client = new OkHttpClient.Builder()
                 .addInterceptor(new LoggingInterceptor())
                 .connectTimeout(60, TimeUnit.SECONDS)
+                .sslSocketFactory(SSLSocketClient.getSSLSocketFactory(), new X509TrustManager() {
+                    @Override
+                    public void checkClientTrusted(X509Certificate[] chain, String authType) throws CertificateException {
+
+                    }
+
+                    @Override
+                    public void checkServerTrusted(X509Certificate[] chain, String authType) throws CertificateException {
+
+                    }
+
+                    @Override
+                    public X509Certificate[] getAcceptedIssuers() {
+                        return new X509Certificate[0];
+                    }
+                })//配置
+                .hostnameVerifier(SSLSocketClient.getHostnameVerifier())//配置
                 .build();
 
         Gson gson = new GsonBuilder()
@@ -98,91 +122,95 @@ public class HttpRequest {
 
     }
 
-    Observable<LockIsBindBeanRsp> lockIsBind(String token, LockIsBindBeanReq req) {
+    public Observable<MailLoginBeanRsp> login(MailLoginBeanReq req) {
+        return service.login(req);
+    }
+
+    public Observable<LockIsBindBeanRsp> lockIsBind(String token, LockIsBindBeanReq req) {
         return service.lockIsBind(token, req);
     };
 
-    Observable<GetPwd1BeanRsp> getPwd1(String token, GetPwd1BeanReq req){
+    public Observable<GetPwd1BeanRsp> getPwd1(String token, GetPwd1BeanReq req){
         return service.getPwd1(token, req);
     };
 
-    Observable<AdminAddDeviceBeanRsp> adminAddDevice(String token, AdminAddDeviceBeanReq req){
+    public Observable<AdminAddDeviceBeanRsp> adminAddDevice(String token, AdminAddDeviceBeanReq req){
         return service.adminAddDevice(token, req);
     };
 
-    Observable<DeviceUnbindBeanRsp> unbindDevice(String token, DeviceUnbindBeanReq req){
+    public Observable<DeviceUnbindBeanRsp> unbindDevice(String token, DeviceUnbindBeanReq req){
         return service.unbindDevice(token, req);
     };
 
-    Observable<ChangeBleVerBeanRsp> changeBleVer(String token, ChangeBleVerBeanReq req){
+    public Observable<ChangeBleVerBeanRsp> changeBleVer(String token, ChangeBleVerBeanReq req){
         return service.changeBleVer(token, req);
     };
 
-    Observable<ChangeDeviceHardVerBeanRsp> changeDeviceHardVer(String token, ChangeDeviceHardVerBeanReq req){
+    public Observable<ChangeDeviceHardVerBeanRsp> changeDeviceHardVer(String token, ChangeDeviceHardVerBeanReq req){
         return service.changeDeviceHardVer(token, req);
     };
 
-    Observable<ChangeFeaturesBeanRsp> updateFunctionSet(String token, ChangeFeaturesBeanReq req){
+    public Observable<ChangeFeaturesBeanRsp> updateFunctionSet(String token, ChangeFeaturesBeanReq req){
         return service.updateFunctionSet(token, req);
     };
 
-    Observable<DelDeviceBeanRsp> delDevice(String token, DelDeviceBeanReq req){
+    public Observable<DelDeviceBeanRsp> delDevice(String token, DelDeviceBeanReq req){
         return service.delDevice(token, req);
     };
 
-    Observable<ChangeDeviceNameBeanRsp> changeDeviceNickName(String token, ChangeDeviceNameBeanReq req){
+    public Observable<ChangeDeviceNameBeanRsp> changeDeviceNickName(String token, ChangeDeviceNameBeanReq req){
         return service.changeDeviceNickName(token, req);
     };
 
-    Observable<SearchProductNoBeanRsp> searchDevice(String token, SearchProductNoBeanReq req){
+    public Observable<SearchProductNoBeanRsp> searchDevice(String token, SearchProductNoBeanReq req){
         return service.searchDevice(token, req);
     };
 
-    Observable<UploadOpenDoorRecordBeanRsp> uploadOpenDoorRecord(String token, UploadOpenDoorRecordBeanReq req){
+    public Observable<UploadOpenDoorRecordBeanRsp> uploadOpenDoorRecord(String token, UploadOpenDoorRecordBeanReq req){
         return service.uploadOpenDoorRecord(token, req);
     };
 
-    Observable<OpenDoorRecordSearchBeanRsp> searchOpenLockRecord(String token, OpenDoorRecordSearchBeanReq req){
+    public Observable<OpenDoorRecordSearchBeanRsp> searchOpenLockRecord(String token, OpenDoorRecordSearchBeanReq req){
         return service.searchOpenLockRecord(token, req);
     };
 
-    Observable<UploadAlarmRecordBeanRsp> uploadAlarmRecord(String token, UploadAlarmRecordBeanReq req){
+    public Observable<UploadAlarmRecordBeanRsp> uploadAlarmRecord(String token, UploadAlarmRecordBeanReq req){
         return service.uploadAlarmRecord(token, req);
     };
 
-    Observable<SearchAlarmRecordBeanRsp> searchAlarmRecord(String token, SearchAlarmRecordBeanReq req){
+    public Observable<SearchAlarmRecordBeanRsp> searchAlarmRecord(String token, SearchAlarmRecordBeanReq req){
         return service.searchAlarmRecord(token, req);
     };
 
-    Observable<LockKeyAddBeanRsp> addLockKey(String token, LockKeyAddBeanReq req){
+    public Observable<LockKeyAddBeanRsp> addLockKey(String token, LockKeyAddBeanReq req){
         return service.addLockKey(token, req);
     };
 
-    Observable<SearchKeyListBeanRsp> searchLockKey(String token, SearchKeyListBeanReq req){
+    public Observable<SearchKeyListBeanRsp> searchLockKey(String token, SearchKeyListBeanReq req){
         return service.searchLockKey(token, req);
     };
 
-    Observable<DelKeyBeanRsp> delKey(String token, DelKeyBeanReq req){
+    public Observable<DelKeyBeanRsp> delKey(String token, DelKeyBeanReq req){
         return service.delKey(token, req);
     };
 
-    Observable<ChangeKeyNickBeanRsp> changeKeyNickName(String token, ChangeKeyNickBeanReq req){
+    public Observable<ChangeKeyNickBeanRsp> changeKeyNickName(String token, ChangeKeyNickBeanReq req){
         return service.changeKeyNickName(token, req);
     };
 
-    Observable<GetLockKeyNickBeanRsp> getKeyNickName(String token, GetLockKeyNickBeanReq req){
+    public Observable<GetLockKeyNickBeanRsp> getKeyNickName(String token, GetLockKeyNickBeanReq req){
         return service.getKeyNickName(token, req);
     };
 
-    Observable<UpdateDoorSensorStateBeanRsp> updateDoorSensorState(String token, UpdateDoorSensorStateBeanReq req){
+    public Observable<UpdateDoorSensorStateBeanRsp> updateDoorSensorState(String token, UpdateDoorSensorStateBeanReq req){
         return service.updateDoorSensorState(token, req);
     };
 
-    Observable<CheckDoorSensorStateBeanRsp> checkDoorSensorState(String token, CheckDoorSensorStateBeanReq req){
+    public Observable<CheckDoorSensorStateBeanRsp> checkDoorSensorState(String token, CheckDoorSensorStateBeanReq req){
         return service.checkDoorSensorState(token, req);
     };
 
-    Observable<ChangeOpenLockParameterBeanRsp> changeOpenLockParameter(String token, ChangeOpenLockParameterBeanReq req){
+    public Observable<ChangeOpenLockParameterBeanRsp> changeOpenLockParameter(String token, ChangeOpenLockParameterBeanReq req){
         return service.changeOpenLockParameter(token, req);
     };
 

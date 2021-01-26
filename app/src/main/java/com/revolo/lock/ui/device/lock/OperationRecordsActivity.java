@@ -8,14 +8,21 @@ import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.revolo.lock.App;
 import com.revolo.lock.R;
 import com.revolo.lock.adapter.AutoMeasureLinearLayoutManager;
 import com.revolo.lock.adapter.OperationRecordsAdapter;
 import com.revolo.lock.base.BaseActivity;
+import com.revolo.lock.bean.BleBean;
 import com.revolo.lock.bean.test.TestOperationRecords;
+import com.revolo.lock.ble.BleCommandFactory;
+import com.revolo.lock.ble.BleResultProcess;
+import com.revolo.lock.ble.OnBleDeviceListener;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import timber.log.Timber;
 
 /**
  * author : Jack
@@ -26,10 +33,11 @@ import java.util.List;
 public class OperationRecordsActivity extends BaseActivity {
 
     private OperationRecordsAdapter mRecordsAdapter;
+    private BleBean mBleBean;
 
     @Override
     public void initData(@Nullable Bundle bundle) {
-
+        mBleBean = App.getInstance().getBleBean();
     }
 
     @Override
@@ -52,13 +60,73 @@ public class OperationRecordsActivity extends BaseActivity {
 
     @Override
     public void doBusiness() {
-        initData();
+        initDevice();
+        initDataFromLock();
     }
 
     @Override
     public void onDebouncingClick(@NonNull View view) {
 
     }
+
+    private final OnBleDeviceListener mOnBleDeviceListener = new OnBleDeviceListener() {
+        @Override
+        public void onConnected() {
+
+        }
+
+        @Override
+        public void onDisconnected() {
+
+        }
+
+        @Override
+        public void onReceivedValue(String uuid, byte[] value) {
+            if(value == null) {
+                return;
+            }
+            BleResultProcess.setOnReceivedProcess(mOnReceivedProcess);
+            BleResultProcess.processReceivedData(value, BleCommandFactory.sTestPwd1, null,
+                    mBleBean.getOKBLEDeviceImp().getBleScanResult());
+        }
+
+        @Override
+        public void onWriteValue(String uuid, byte[] value, boolean success) {
+
+        }
+    };
+
+    private final BleResultProcess.OnReceivedProcess mOnReceivedProcess = bleResultBean -> {
+        if(bleResultBean == null) {
+            Timber.e("mOnReceivedProcess bleResultBean == null");
+            return;
+        }
+        // TODO: 2021/1/26 处理对应的数据
+    };
+
+    private void initDevice() {
+        mBleBean = App.getInstance().getBleBean();
+        if (mBleBean.getOKBLEDeviceImp() != null) {
+            App.getInstance().openPairNotify();
+            App.getInstance().setOnBleDeviceListener(mOnBleDeviceListener);
+        }
+    }
+
+    private void initDataFromLock() {
+        if(mBleBean.getOKBLEDeviceImp() != null) {
+            if (mBleBean.getOKBLEDeviceImp().isConnected()) {
+                // 查询20条记录
+                byte[] start = new byte[2];
+                byte[] end = new byte[2];
+                end[0] = 0x14;
+                App.getInstance().writeControlMsg(BleCommandFactory
+                        .lockOperateRecordCommand(start, end, mBleBean.getPwd1(), mBleBean.getPwd2or3()));
+            } else {
+                // TODO: 2021/1/26 没有连接上，需要连接上才能发送指令
+            }
+        }
+    }
+    
 
     private void initData() {
         List<TestOperationRecords> testOperationRecordsList = new ArrayList<>();

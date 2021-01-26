@@ -19,14 +19,21 @@ import com.revolo.lock.App;
 import com.revolo.lock.Constant;
 import com.revolo.lock.R;
 import com.revolo.lock.base.BaseActivity;
+import com.revolo.lock.bean.request.GetPwd1BeanReq;
+import com.revolo.lock.bean.respone.GetPwd1BeanRsp;
 import com.revolo.lock.ble.BleCommandFactory;
 import com.revolo.lock.ble.BleProtocolState;
 import com.revolo.lock.ble.BleResultProcess;
 import com.revolo.lock.ble.OnBleDeviceListener;
 import com.revolo.lock.ble.bean.BleResultBean;
+import com.revolo.lock.net.HttpRequest;
+import com.revolo.lock.net.ObservableDecorator;
 
 import java.nio.charset.StandardCharsets;
 
+import io.reactivex.Observable;
+import io.reactivex.Observer;
+import io.reactivex.disposables.Disposable;
 import timber.log.Timber;
 
 /**
@@ -89,15 +96,13 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
     @Override
     public void initView(@Nullable Bundle savedInstanceState, @Nullable View contentView) {
         useCommonTitleBar(getString(R.string.add_device));
-        setStatusBarColor(R.color.white);
 
     }
 
     @Override
     public void doBusiness() {
         if(mPreA == mQRPre || mPreA == mESNPre) {
-            initScanManager();
-            initBleListener();
+            getPwd1FromNet();
         } else {
             gotoBleConnectFail();
         }
@@ -133,6 +138,56 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
         super.onDestroy();
     }
 
+    private byte[] mPwd1;
+
+    private void getPwd1FromNet() {
+        GetPwd1BeanReq req = new GetPwd1BeanReq();
+        req.setSN(mEsn);
+        Observable<GetPwd1BeanRsp> getPwd1BeanRspObservable = HttpRequest
+                .getInstance().getPwd1(App.getInstance().getToken(), req);
+        ObservableDecorator.decorate(getPwd1BeanRspObservable).safeSubscribe(new Observer<GetPwd1BeanRsp>() {
+            @Override
+            public void onSubscribe(@NonNull Disposable d) {
+
+            }
+
+            @Override
+            public void onNext(@NonNull GetPwd1BeanRsp getPwd1BeanRsp) {
+                // TODO: 2021/1/26 添加错误操作
+                if(getPwd1BeanRsp.getData() == null) {
+                    Timber.e("getPwd1FromNet getPwd1BeanRsp.getData() == null");
+                    return;
+                }
+                if(TextUtils.isEmpty(getPwd1BeanRsp.getData().getPassword1())) {
+                    Timber.e("getPwd1FromNet getPwd1BeanRsp.getData().getPassword1() is empty");
+                    return;
+                }
+                byte[] bytes = ConvertUtils.hexString2Bytes(getPwd1BeanRsp.getData().getPassword1());
+                if(bytes.length != 12) {
+                    Timber.e("getPwd1FromNet bytes.length != 12");
+                    return;
+                }
+                mPwd1 = new byte[16];
+                System.arraycopy(bytes, 0, mPwd1, 0, bytes.length);
+                initScanManager();
+                initBleListener();
+            }
+
+            @Override
+            public void onError(@NonNull Throwable e) {
+                Timber.e(e);
+                gotoBleConnectFail();
+            }
+
+            @Override
+            public void onComplete() {
+
+            }
+        });
+    }
+
+    /**               蓝牙               **/
+
     private boolean isHavePwd2Or3 = false;
     private final byte[] mPwd2Or3 = new byte[4];
     private final BleResultProcess.OnReceivedProcess mOnReceivedProcess = bleResultBean -> {
@@ -165,12 +220,20 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
                 new Handler(Looper.getMainLooper()).postDelayed(() -> {
                     Timber.d("auth 延时发送鉴权指令, pwd2: %1s\n", ConvertUtils.bytes2HexString(mPwd2Or3));
                     App.getInstance().writeControlMsg(BleCommandFactory
-                            .authCommand(BleCommandFactory.sTestPwd1, mPwd2Or3, mEsn.getBytes(StandardCharsets.UTF_8)));
+                            .authCommand(mPwd1, mPwd2Or3, mEsn.getBytes(StandardCharsets.UTF_8)));
                 }, 50);
             } else if(data[0] == 0x02) {
                 // 获取pwd3
                 System.arraycopy(data, 1, mPwd2Or3, 0, mPwd2Or3.length);
                 Timber.d("鉴权成功, pwd3: %1s\n", ConvertUtils.bytes2HexString(mPwd2Or3));
+                // 本地存储
+                App.getInstance().getCacheDiskUtils().put(Constant.KEY_PWD1, mPwd1);
+                App.getInstance().getCacheDiskUtils().put(Constant.BLE_MAC, mMac);
+                App.getInstance().getCacheDiskUtils().put(Constant.LOCK_ESN, mEsn);
+                App.getInstance().getCacheDiskUtils().put(Constant.BLE_DEVICE, mScanResult);
+                // 内存存储
+                App.getInstance().getBleBean().setPwd1(mPwd1);
+                App.getInstance().getBleBean().setPwd2or3(mPwd2Or3);
                 App.getInstance().writeControlMsg(BleCommandFactory.ackCommand(bleResultBean.getTSN(), (byte)0x00, bleResultBean.getCMD()));
                 startActivity(new Intent(this, BleConnectSucActivity.class));
                 finish();
@@ -183,7 +246,7 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
             @Override
             public void onConnected() {
                 App.getInstance().writeControlMsg(BleCommandFactory
-                        .pairCommand(BleCommandFactory.sTestPwd1, mEsn.getBytes(StandardCharsets.UTF_8)));
+                        .pairCommand(mPwd1, mEsn.getBytes(StandardCharsets.UTF_8)));
             }
 
             @Override
@@ -197,7 +260,7 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
                     return;
                 }
                 BleResultProcess.setOnReceivedProcess(mOnReceivedProcess);
-                BleResultProcess.processReceivedData(value, BleCommandFactory.sTestPwd1, isHavePwd2Or3?mPwd2Or3:null, mScanResult);
+                BleResultProcess.processReceivedData(value, mPwd1, isHavePwd2Or3?mPwd2Or3:null, mScanResult);
             }
 
             @Override
