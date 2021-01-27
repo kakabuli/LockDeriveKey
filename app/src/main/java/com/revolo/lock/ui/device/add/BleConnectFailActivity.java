@@ -7,9 +7,11 @@ import android.view.View;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.revolo.lock.App;
 import com.revolo.lock.Constant;
 import com.revolo.lock.R;
 import com.revolo.lock.base.BaseActivity;
+import com.revolo.lock.bean.BleBean;
 
 /**
  * author : Jack
@@ -18,6 +20,8 @@ import com.revolo.lock.base.BaseActivity;
  * desc   :
  */
 public class BleConnectFailActivity extends BaseActivity {
+
+
     @Override
     public void initData(@Nullable Bundle bundle) {
 
@@ -36,7 +40,10 @@ public class BleConnectFailActivity extends BaseActivity {
 
     @Override
     public void doBusiness() {
-
+        if(App.getInstance().getBleBean() != null
+                && App.getInstance().getBleBean().getOKBLEDeviceImp() != null) {
+            App.getInstance().getBleBean().getOKBLEDeviceImp().disConnect(false);
+        }
     }
 
     @Override

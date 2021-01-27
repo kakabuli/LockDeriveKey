@@ -156,10 +156,12 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
                 // TODO: 2021/1/26 添加错误操作
                 if(getPwd1BeanRsp.getData() == null) {
                     Timber.e("getPwd1FromNet getPwd1BeanRsp.getData() == null");
+                    gotoBleConnectFail();
                     return;
                 }
                 if(TextUtils.isEmpty(getPwd1BeanRsp.getData().getPassword1())) {
                     Timber.e("getPwd1FromNet getPwd1BeanRsp.getData().getPassword1() is empty");
+                    gotoBleConnectFail();
                     return;
                 }
                 byte[] bytes = ConvertUtils.hexString2Bytes(getPwd1BeanRsp.getData().getPassword1());
@@ -293,7 +295,7 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
     }
 
     private void filterAndConnectBle(BLEScanResult device) {
-        if(!TextUtils.isEmpty(device.getCompleteLocalName())&&device.getCompleteLocalName().contains("KDS")) {
+        if(!TextUtils.isEmpty(device.getCompleteLocalName())&&device.getCompleteLocalName().contains("Rev")) {
             Timber.d(" scan: name:%1s  mac: %2s",
                     device.getCompleteLocalName(),  device.getMacAddress());
             if(mPreA == mQRPre) {

@@ -51,18 +51,18 @@ public class DeviceFragment extends Fragment {
         View root = inflater.inflate(R.layout.fragment_device, container, false);
         ConstraintLayout clNoDevice = root.findViewById(R.id.clNoDevice);
         ConstraintLayout clHadDevice = root.findViewById(R.id.clHadDevice);
-//        mDeviceViewModel.getTestLockBeans().observe(getViewLifecycleOwner(), testLockBeans -> {
-//            if(testLockBeans != null) {
-//                if(testLockBeans.isEmpty()) {
-//                    clNoDevice.setVisibility(View.VISIBLE);
-//                    clHadDevice.setVisibility(View.GONE);
-//                } else {
-//                    clNoDevice.setVisibility(View.GONE);
-//                    clHadDevice.setVisibility(View.VISIBLE);
-//                }
-//                mHomeLockListAdapter.setList(testLockBeans);
-//            }
-//        });
+        mDeviceViewModel.getTestLockBeans().observe(getViewLifecycleOwner(), testLockBeans -> {
+            if(testLockBeans != null) {
+                if(testLockBeans.isEmpty()) {
+                    clNoDevice.setVisibility(View.VISIBLE);
+                    clHadDevice.setVisibility(View.GONE);
+                } else {
+                    clNoDevice.setVisibility(View.GONE);
+                    clHadDevice.setVisibility(View.VISIBLE);
+                }
+                mHomeLockListAdapter.setList(testLockBeans);
+            }
+        });
         // 无设备的时候控件UI
         ImageView ivAdd = root.findViewById(R.id.ivAdd);
         ivAdd.setOnClickListener(v -> startActivity(new Intent(getContext(), AddDeviceActivity.class)));

@@ -1,6 +1,6 @@
 package com.revolo.lock.ui.test;
 
-import android.content.Intent;
+import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -8,6 +8,7 @@ import android.text.TextUtils;
 import android.text.method.ScrollingMovementMethod;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.Switch;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -22,12 +23,13 @@ import com.a1anwang.okble.client.scan.DeviceScanCallBack;
 import com.a1anwang.okble.client.scan.OKBLEScanManager;
 import com.blankj.utilcode.util.ConvertUtils;
 import com.blankj.utilcode.util.StringUtils;
-import com.revolo.lock.Constant;
 import com.revolo.lock.R;
 import com.revolo.lock.base.BaseActivity;
 import com.revolo.lock.ble.BleCommandFactory;
 import com.revolo.lock.ble.BleResultProcess;
 import com.revolo.lock.ble.bean.BleResultBean;
+
+import java.nio.charset.StandardCharsets;
 
 import timber.log.Timber;
 
@@ -41,41 +43,17 @@ public class TestCommandActivity extends BaseActivity {
 
     private TextView mTvLog;
 
-    private final int mQRPre = 1;
-    private final int mDefault = 0;
-    private int mPreA = mDefault;
-    private String mEsn;
-    private String mMac;
-    private String mSystemId;
+    private String mEsn = "W010210110001";
+    private String mMac = "4C:AA:16:C2:19:4E";
 
     private OKBLEScanManager mScanManager;
+    private String mPwd1 = "534845B3EBF301BC1D0F688F00000000";
 
     @Override
     public void initData(@Nullable Bundle bundle) {
-        Intent intent = getIntent();
-        if(!intent.hasExtra(Constant.PRE_A)) return;
-        String preA = intent.getStringExtra(Constant.PRE_A);
-        if(preA.equals(Constant.QR_CODE_A)) {
-            initDataFromQRPre(intent);
-        }
+        addLog(StringUtils.format("initData Mac: %1s\n", mMac));
     }
 
-    private void initDataFromQRPre(Intent intent) {
-        mPreA = mQRPre;
-        if(!intent.hasExtra(Constant.QR_RESULT)) return;
-        String qrResult = intent.getStringExtra(Constant.QR_RESULT);
-        if(TextUtils.isEmpty(qrResult)) return;
-        String[] list = qrResult.split("&");
-        addLog(StringUtils.format("initData QR Code: %1s\n", qrResult));
-        if(list.length == 3) {
-            // 分成三份是正确的
-            // ESN=S420210110001&MAC=10:98:C3:72:C6:23&SystemID=edbf0f0d029615ed
-            mEsn = list[0].substring(4).trim();
-            mMac = list[1].substring(4).trim();
-            mSystemId = list[2].substring(9).trim();
-            addLog(StringUtils.format("initData Mac: %1s\n", mMac));
-        }
-    }
 
     @Override
     public int bindLayout() {
@@ -91,9 +69,7 @@ public class TestCommandActivity extends BaseActivity {
 
     @Override
     public void doBusiness() {
-        if(mPreA == mQRPre) {
-            initScanManager();
-        }
+        initScanManager();
     }
 
     @Override
@@ -101,14 +77,23 @@ public class TestCommandActivity extends BaseActivity {
         if(isHavePwd2Or3) {
             if(view.getId() == R.id.btnSend) {
                 String command = ((EditText) findViewById(R.id.etCommand)).getText().toString().trim();
-                if(command.length()%2 != 0) {
-                    addLog("输入command数据位数不对\n");
+                String cmd = ((EditText) findViewById(R.id.etCMD)).getText().toString().trim();
+                if(command.length()%2 != 0 || command.length() != 32) {
+                    addLog("输入payload数据位数不对\n");
                     return;
                 }
+                if(cmd.length() != 2) {
+                    addLog("输入的CMD数据位数不对\n");
+                    return;
+                }
+                @SuppressLint("UseSwitchCompatOrMaterialCode")
+                Switch swEncrypt = findViewById(R.id.swEncrypt);
+                boolean isEncrypt = swEncrypt.isChecked();
                 byte[] send = ConvertUtils.hexString2Bytes(command);
-                byte[] payload = new byte[16];
-                System.arraycopy(send, 4, payload, 0, payload.length);
-                writeMsg(BleCommandFactory.commandPackage(true, send[3], BleCommandFactory.commandTSN(), payload, BleCommandFactory.sTestPwd1,mPwd2Or3));
+                byte sendCmd = (byte) ConvertUtils.hexString2Int(cmd);
+                writeMsg(BleCommandFactory
+                        .commandPackage(isEncrypt, sendCmd, BleCommandFactory.commandTSN(),
+                                send, ConvertUtils.hexString2Bytes(mPwd1),mPwd2Or3));
             }
         } else {
             addLog("鉴权没有成功，无法使用此功能\n");
@@ -162,10 +147,8 @@ public class TestCommandActivity extends BaseActivity {
     }
 
     private void filterAndConnectBle(BLEScanResult device) {
-        if(!TextUtils.isEmpty(device.getCompleteLocalName())&&device.getCompleteLocalName().contains("KDS")) {
-            if(mPreA == mQRPre) {
-                connectBleFromQRCode(device);
-            }
+        if(!TextUtils.isEmpty(device.getCompleteLocalName())&&device.getCompleteLocalName().contains("Rev")) {
+            connectBleFromQRCode(device);
         }
     }
 
@@ -218,7 +201,7 @@ public class TestCommandActivity extends BaseActivity {
                 writeMsg(BleCommandFactory.ackCommand(bleResultBean.getTSN(), (byte)0x00, bleResultBean.getCMD()));
                 new Handler(Looper.getMainLooper()).postDelayed(() -> {
                     addLog(StringUtils.format("auth 延时发送鉴权指令, pwd2: %1s\n", ConvertUtils.bytes2HexString(mPwd2Or3)));
-                    writeMsg(BleCommandFactory.authCommand(BleCommandFactory.sTestPwd1, mPwd2Or3, ConvertUtils.hexString2Bytes(mSystemId)));
+                    writeMsg(BleCommandFactory.authCommand(ConvertUtils.hexString2Bytes(mPwd1), mPwd2Or3, mEsn.getBytes(StandardCharsets.UTF_8)));
                 }, 50);
             } else if(data[0] == 0x02) {
                 // 获取pwd3
@@ -240,7 +223,7 @@ public class TestCommandActivity extends BaseActivity {
             public void onConnected(String deviceTAG) {
                 addLog(StringUtils.format("%1s 蓝牙连接成功\n", mDevice.getBluetoothDevice().getAddress()));
                 openControlNotify();
-                writeMsg(BleCommandFactory.pairCommand(BleCommandFactory.sTestPwd1, ConvertUtils.hexString2Bytes(mSystemId)));
+                writeMsg(BleCommandFactory.pairCommand(ConvertUtils.hexString2Bytes(mPwd1), mEsn.getBytes(StandardCharsets.UTF_8)));
             }
 
             @Override
@@ -259,7 +242,7 @@ public class TestCommandActivity extends BaseActivity {
                     return;
                 }
                 BleResultProcess.setOnReceivedProcess(mOnReceivedProcess);
-                BleResultProcess.processReceivedData(value, BleCommandFactory.sTestPwd1, isHavePwd2Or3?mPwd2Or3:null, bleScanResult);
+                BleResultProcess.processReceivedData(value, ConvertUtils.hexString2Bytes(mPwd1), isHavePwd2Or3?mPwd2Or3:null, bleScanResult);
                 
             }
 

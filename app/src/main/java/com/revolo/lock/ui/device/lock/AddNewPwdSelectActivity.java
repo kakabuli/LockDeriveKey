@@ -9,7 +9,9 @@ import android.widget.RelativeLayout;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.constraintlayout.widget.ConstraintLayout;
 
+import com.blankj.utilcode.util.AdaptScreenUtils;
 import com.revolo.lock.R;
 import com.revolo.lock.base.BaseActivity;
 
@@ -23,6 +25,7 @@ public class AddNewPwdSelectActivity extends BaseActivity {
 
     private ImageView mIvPermanent, mIvSchedule, mIvTemporary;
     private RelativeLayout mRlPermanent, mRlSchedule, mRlTemporary;
+    private ConstraintLayout mClSchedule, mClTemporary;
     private Button mBtnNext;
 
     @Override
@@ -45,6 +48,8 @@ public class AddNewPwdSelectActivity extends BaseActivity {
         mRlSchedule = findViewById(R.id.rlSchedule);
         mRlTemporary = findViewById(R.id.rlTemporary);
         mBtnNext = findViewById(R.id.btnNext);
+        mClSchedule = findViewById(R.id.clSchedule);
+        mClTemporary = findViewById(R.id.clTemporary);
         applyDebouncingClickListener(mRlPermanent, mRlSchedule, mRlTemporary, mBtnNext);
     }
 
@@ -76,16 +81,29 @@ public class AddNewPwdSelectActivity extends BaseActivity {
     }
 
     private void showPermanentState() {
-
+        mClSchedule.setVisibility(View.GONE);
+        mClTemporary.setVisibility(View.GONE);
+        changeBtnNext(128);
     }
 
     private void showSchedule() {
-
+        mClSchedule.setVisibility(View.VISIBLE);
+        mClTemporary.setVisibility(View.GONE);
+        changeBtnNext(34);
     }
 
     private void showTemporary() {
-
+        mClSchedule.setVisibility(View.GONE);
+        mClTemporary.setVisibility(View.VISIBLE);
+        changeBtnNext(128);
     }
+
+    private void changeBtnNext(int bottomMargin) {
+        ConstraintLayout.LayoutParams params = (ConstraintLayout.LayoutParams) mBtnNext.getLayoutParams();
+        params.bottomMargin = AdaptScreenUtils.pt2Px(bottomMargin);
+        mBtnNext.setLayoutParams(params);
+    }
+
 
     private void permanentSwitch() {
         mIvPermanent.setImageResource(R.drawable.ic_home_password_icon_selected);

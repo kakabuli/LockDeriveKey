@@ -47,9 +47,9 @@ public class TestSelectActivity extends BaseActivity {
 
     @Override
     public void onDebouncingClick(@NonNull View view) {
-        if(TextUtils.isEmpty(mQRResult)) {
-            return;
-        }
+//        if(TextUtils.isEmpty(mQRResult)) {
+//            return;
+//        }
         if(view.getId() == R.id.btnTestWifi) {
             Intent intent = new Intent(this, TestWifiActivity.class);
             intent.putExtra(Constant.PRE_A, Constant.QR_CODE_A);
@@ -59,8 +59,8 @@ public class TestSelectActivity extends BaseActivity {
         }
         if(view.getId() == R.id.btnCommand) {
             Intent intent = new Intent(this, TestCommandActivity.class);
-            intent.putExtra(Constant.PRE_A, Constant.QR_CODE_A);
-            intent.putExtra(Constant.QR_RESULT, mQRResult);
+//            intent.putExtra(Constant.PRE_A, Constant.QR_CODE_A);
+//            intent.putExtra(Constant.QR_RESULT, mQRResult);
             startActivity(intent);
         }
     }

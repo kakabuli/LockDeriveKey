@@ -16,8 +16,10 @@ import com.revolo.lock.base.BaseActivity;
 import com.revolo.lock.bean.BleBean;
 import com.revolo.lock.bean.test.TestOperationRecords;
 import com.revolo.lock.ble.BleCommandFactory;
+import com.revolo.lock.ble.BleProtocolState;
 import com.revolo.lock.ble.BleResultProcess;
 import com.revolo.lock.ble.OnBleDeviceListener;
+import com.revolo.lock.ble.bean.BleResultBean;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -101,8 +103,36 @@ public class OperationRecordsActivity extends BaseActivity {
             Timber.e("mOnReceivedProcess bleResultBean == null");
             return;
         }
-        // TODO: 2021/1/26 处理对应的数据
+        if(bleResultBean.getCMD() == BleProtocolState.CMD_LOCK_OP_RECORD) {
+            @BleProtocolState.LockRecordOpEventType int event = bleResultBean.getPayload()[5];
+            switch (event) {
+                case BleProtocolState.LOCK_RECORD_OP_EVENT_TYPE_ALARM:
+                    processAlarmRecord(bleResultBean);
+                    break;
+                case BleProtocolState.LOCK_RECORD_OP_EVENT_TYPE_OP:
+                    processOpRecord(bleResultBean);
+                    break;
+                case BleProtocolState.LOCK_RECORD_OP_EVENT_TYPE_PROGRAM:
+                    processProgramRecord(bleResultBean);
+                    break;
+                default:
+                    // TODO: 2021/1/27 类型错误，其实可以什么都不处理
+                    break;
+            }
+        }
     };
+
+    private void processAlarmRecord(BleResultBean bean) {
+
+    }
+
+    private void processProgramRecord(BleResultBean bean) {
+
+    }
+
+    private void processOpRecord(BleResultBean bean) {
+
+    }
 
     private void initDevice() {
         mBleBean = App.getInstance().getBleBean();
