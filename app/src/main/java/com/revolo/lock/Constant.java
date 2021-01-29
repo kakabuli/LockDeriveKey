@@ -28,6 +28,7 @@ public class Constant {
 
 
     public static final String KEY_PWD1 = "KeyPwd1";
+    public static final String KEY_PWD2 = "KeyPwd2";
     public static final String BLE_MAC = "BleMac";
     public static final String LOCK_ESN = "LockEsn";
     public static final String BLE_DEVICE = "BleDevice";

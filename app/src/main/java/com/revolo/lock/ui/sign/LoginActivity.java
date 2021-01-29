@@ -114,13 +114,16 @@ public class LoginActivity extends BaseActivity {
             public void onNext(@NonNull MailLoginBeanRsp mailLoginBeanRsp) {
                 if(!mailLoginBeanRsp.getCode().equals("200")) {
                     // TODO: 2021/1/26 获取弹出错误的信息
-                    Timber.e("登录请求错误了！ code : %1s, msg: %2s", mailLoginBeanRsp.getCode(), mailLoginBeanRsp.getMsg());
+                    Timber.e("登录请求错误了！ code : %1s, msg: %2s",
+                            mailLoginBeanRsp.getCode(), mailLoginBeanRsp.getMsg());
                     return;
                 }
                 if(mailLoginBeanRsp.getData() == null) {
                     return;
                 }
-                App.getInstance().setToken(mailLoginBeanRsp.getData().getToken());
+                Timber.d("登录成功，token: %1s\n userId: %2s",
+                        mailLoginBeanRsp.getData().getToken(), mailLoginBeanRsp.getData().getUid());
+                App.getInstance().setUserBean(mailLoginBeanRsp.getData());
                 startActivity(new Intent(LoginActivity.this, MainActivity.class));
                 finish();
             }

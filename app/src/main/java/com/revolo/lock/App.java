@@ -8,7 +8,8 @@ import com.a1anwang.okble.client.core.OKBLEOperation;
 import com.a1anwang.okble.client.scan.BLEScanResult;
 import com.blankj.utilcode.util.CacheDiskUtils;
 import com.blankj.utilcode.util.ConvertUtils;
-import com.revolo.lock.bean.BleBean;
+import com.revolo.lock.bean.respone.MailLoginBeanRsp;
+import com.revolo.lock.ble.bean.BleBean;
 import com.revolo.lock.ble.OnBleDeviceListener;
 
 import java.io.File;
@@ -23,7 +24,7 @@ import timber.log.Timber;
  */
 public class App extends Application {
 
-    private String mToken;
+    private MailLoginBeanRsp.DataBean mUserBean;
     private static App instance;
     private OKBLEDeviceImp mDevice;
     private BleBean mBleBean;
@@ -204,11 +205,11 @@ public class App extends Application {
         return mCacheDiskUtils;
     }
 
-    public String getToken() {
-        return mToken;
+    public MailLoginBeanRsp.DataBean getUserBean() {
+        return mUserBean;
     }
 
-    public void setToken(String token) {
-        mToken = token;
+    public void setUserBean(MailLoginBeanRsp.DataBean userBean) {
+        mUserBean = userBean;
     }
 }

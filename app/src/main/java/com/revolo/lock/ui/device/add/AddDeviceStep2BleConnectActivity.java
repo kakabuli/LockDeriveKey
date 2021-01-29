@@ -19,7 +19,9 @@ import com.revolo.lock.App;
 import com.revolo.lock.Constant;
 import com.revolo.lock.R;
 import com.revolo.lock.base.BaseActivity;
+import com.revolo.lock.bean.request.AdminAddDeviceBeanReq;
 import com.revolo.lock.bean.request.GetPwd1BeanReq;
+import com.revolo.lock.bean.respone.AdminAddDeviceBeanRsp;
 import com.revolo.lock.bean.respone.GetPwd1BeanRsp;
 import com.revolo.lock.ble.BleCommandFactory;
 import com.revolo.lock.ble.BleProtocolState;
@@ -144,7 +146,7 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
         GetPwd1BeanReq req = new GetPwd1BeanReq();
         req.setSN(mEsn);
         Observable<GetPwd1BeanRsp> getPwd1BeanRspObservable = HttpRequest
-                .getInstance().getPwd1(App.getInstance().getToken(), req);
+                .getInstance().getPwd1(App.getInstance().getUserBean().getToken(), req);
         ObservableDecorator.decorate(getPwd1BeanRspObservable).safeSubscribe(new Observer<GetPwd1BeanRsp>() {
             @Override
             public void onSubscribe(@NonNull Disposable d) {
@@ -191,7 +193,8 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
     /**               蓝牙               **/
 
     private boolean isHavePwd2Or3 = false;
-    private final byte[] mPwd2Or3 = new byte[4];
+    private byte[] mPwd2;
+    private byte[] mPwd3;
     private final BleResultProcess.OnReceivedProcess mOnReceivedProcess = bleResultBean -> {
         if(bleResultBean == null) {
             Timber.e("mOnReceivedProcess bleResultBean == null");
@@ -210,37 +213,96 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
             }
             return;
         }
+        processKey(bleResultBean);
+    }
+
+    private void processKey(BleResultBean bleResultBean) {
         if(bleResultBean.getCMD() == BleProtocolState.CMD_ENCRYPT_KEY_UPLOAD) {
             byte[] data = bleResultBean.getPayload();
             if(data[0] == 0x01) {
                 // 入网时
                 // 获取pwd2
-                System.arraycopy(data, 1, mPwd2Or3, 0, mPwd2Or3.length);
-                // TODO: 2021/1/21 打包数据上传到服务器后再发送确认指令
-                isHavePwd2Or3 = true;
-                App.getInstance().writeControlMsg(BleCommandFactory.ackCommand(bleResultBean.getTSN(), (byte)0x00, bleResultBean.getCMD()));
-                new Handler(Looper.getMainLooper()).postDelayed(() -> {
-                    Timber.d("auth 延时发送鉴权指令, pwd2: %1s\n", ConvertUtils.bytes2HexString(mPwd2Or3));
-                    App.getInstance().writeControlMsg(BleCommandFactory
-                            .authCommand(mPwd1, mPwd2Or3, mEsn.getBytes(StandardCharsets.UTF_8)));
-                }, 50);
+                getPwd2AndSendAuthCommand(bleResultBean, data);
             } else if(data[0] == 0x02) {
                 // 获取pwd3
-                System.arraycopy(data, 1, mPwd2Or3, 0, mPwd2Or3.length);
-                Timber.d("鉴权成功, pwd3: %1s\n", ConvertUtils.bytes2HexString(mPwd2Or3));
-                // 本地存储
-                App.getInstance().getCacheDiskUtils().put(Constant.KEY_PWD1, mPwd1);
-                App.getInstance().getCacheDiskUtils().put(Constant.BLE_MAC, mMac);
-                App.getInstance().getCacheDiskUtils().put(Constant.LOCK_ESN, mEsn);
-                App.getInstance().getCacheDiskUtils().put(Constant.BLE_DEVICE, mScanResult);
-                // 内存存储
-                App.getInstance().getBleBean().setPwd1(mPwd1);
-                App.getInstance().getBleBean().setPwd2or3(mPwd2Or3);
-                App.getInstance().writeControlMsg(BleCommandFactory.ackCommand(bleResultBean.getTSN(), (byte)0x00, bleResultBean.getCMD()));
-                startActivity(new Intent(this, BleConnectSucActivity.class));
-                finish();
+                getPwd3(bleResultBean, data);
+                addDeviceToService();
             }
         }
+    }
+
+    private void getPwd3(BleResultBean bleResultBean, byte[] data) {
+        mPwd3 = new byte[4];
+        System.arraycopy(data, 1, mPwd3, 0, mPwd3.length);
+        Timber.d("getPwd3 鉴权成功, pwd3: %1s\n", ConvertUtils.bytes2HexString(mPwd3));
+        // 本地存储
+        App.getInstance().getCacheDiskUtils().put(Constant.KEY_PWD1, mPwd1);
+        App.getInstance().getCacheDiskUtils().put(Constant.BLE_MAC, mMac);
+        App.getInstance().getCacheDiskUtils().put(Constant.LOCK_ESN, mEsn);
+        App.getInstance().getCacheDiskUtils().put(Constant.KEY_PWD2, mPwd2);
+        App.getInstance().getCacheDiskUtils().put(Constant.BLE_DEVICE, mScanResult);
+        // 内存存储
+        App.getInstance().getBleBean().setPwd1(mPwd1);
+        App.getInstance().getBleBean().setPwd3(mPwd3);
+        App.getInstance().writeControlMsg(BleCommandFactory.ackCommand(bleResultBean.getTSN(), (byte)0x00, bleResultBean.getCMD()));
+    }
+
+    private void getPwd2AndSendAuthCommand(BleResultBean bleResultBean, byte[] data) {
+        mPwd2 = new byte[4];
+        System.arraycopy(data, 1, mPwd2, 0, mPwd2.length);
+        // TODO: 2021/1/21 打包数据上传到服务器后再发送确认指令
+        isHavePwd2Or3 = true;
+        App.getInstance().getBleBean().setPwd2(mPwd2);
+        App.getInstance().writeControlMsg(BleCommandFactory.ackCommand(bleResultBean.getTSN(), (byte)0x00, bleResultBean.getCMD()));
+        new Handler(Looper.getMainLooper()).postDelayed(() -> {
+            Timber.d("getPwd2AndSendAuthCommand 延时发送鉴权指令, pwd2: %1s\n", ConvertUtils.bytes2HexString(mPwd2));
+            App.getInstance().writeControlMsg(BleCommandFactory
+                    .authCommand(mPwd1, mPwd2, mEsn.getBytes(StandardCharsets.UTF_8)));
+        }, 50);
+    }
+
+    private void addDeviceToService()  {
+        AdminAddDeviceBeanReq req = new AdminAddDeviceBeanReq();
+        req.setDevmac(mMac);
+        req.setDeviceSN(mEsn);
+        req.setUser_id(App.getInstance().getUserBean().getUid());
+        req.setPassword1(ConvertUtils.bytes2HexString(mPwd1));
+        req.setPassword2(ConvertUtils.bytes2HexString(mPwd2));
+        Timber.d("addDeviceToService req: %1s", req.toString());
+        Observable<AdminAddDeviceBeanRsp> observable = HttpRequest
+                .getInstance().adminAddDevice(App.getInstance().getUserBean().getToken(), req);
+        ObservableDecorator.decorate(observable).safeSubscribe(new Observer<AdminAddDeviceBeanRsp>() {
+            @Override
+            public void onSubscribe(@NonNull Disposable d) {
+
+            }
+
+            @Override
+            public void onNext(@NonNull AdminAddDeviceBeanRsp adminAddDeviceBeanRsp) {
+                if(adminAddDeviceBeanRsp.getCode() == null) {
+                    gotoBleConnectFail();
+                    return;
+                }
+                if(!adminAddDeviceBeanRsp.getCode().equals("200")) {
+                    Timber.e("code: %1s, msg: %2s", adminAddDeviceBeanRsp.getCode(), adminAddDeviceBeanRsp.getMsg());
+                    return;
+                }
+                Timber.d("addDeviceToService 添加设备成功");
+                startActivity(new Intent(AddDeviceStep2BleConnectActivity.this, BleConnectSucActivity.class));
+                finish();
+            }
+
+            @Override
+            public void onError(@NonNull Throwable e) {
+                Timber.e(e);
+            }
+
+            @Override
+            public void onComplete() {
+
+            }
+        });
+
     }
 
     private void initBleListener() {
@@ -262,7 +324,17 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
                     return;
                 }
                 BleResultProcess.setOnReceivedProcess(mOnReceivedProcess);
-                BleResultProcess.processReceivedData(value, mPwd1, isHavePwd2Or3?mPwd2Or3:null, mScanResult);
+                byte[] pwd2Or3 = null;
+                if(isHavePwd2Or3) {
+                    if(mPwd3 == null) {
+                        if(mPwd2 != null) {
+                            pwd2Or3 = mPwd2;
+                        }
+                    } else {
+                        pwd2Or3 = mPwd3;
+                    }
+                }
+                BleResultProcess.processReceivedData(value, mPwd1, isHavePwd2Or3?pwd2Or3:null, mScanResult);
             }
 
             @Override

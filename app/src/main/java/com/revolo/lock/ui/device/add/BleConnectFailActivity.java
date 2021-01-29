@@ -11,7 +11,6 @@ import com.revolo.lock.App;
 import com.revolo.lock.Constant;
 import com.revolo.lock.R;
 import com.revolo.lock.base.BaseActivity;
-import com.revolo.lock.bean.BleBean;
 
 /**
  * author : Jack

@@ -2,8 +2,6 @@ package com.revolo.lock.ui.device;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,7 +21,7 @@ import com.revolo.lock.App;
 import com.revolo.lock.Constant;
 import com.revolo.lock.R;
 import com.revolo.lock.adapter.HomeLockListAdapter;
-import com.revolo.lock.bean.BleBean;
+import com.revolo.lock.ble.bean.BleBean;
 import com.revolo.lock.bean.test.TestLockBean;
 import com.revolo.lock.ble.BleCommandFactory;
 import com.revolo.lock.ble.BleProtocolState;
@@ -96,11 +94,10 @@ public class DeviceFragment extends Fragment {
     }
 
     private BleBean mBleBean;
-    private byte[]  mPwd1;
+    private byte[] mPwd1;
+    private byte[] mPwd2;
 
-    private boolean isHavePwd2Or3 = false;
-    private final byte[] mPwd2Or3 = new byte[4];
-    private String mMac;
+    private byte[] mPwd3;
     private String mEsn;
     private final BleResultProcess.OnReceivedProcess mOnReceivedProcess = bleResultBean -> {
         if(bleResultBean == null) {
@@ -111,42 +108,17 @@ public class DeviceFragment extends Fragment {
     };
 
     private void auth(BleResultBean bleResultBean) {
-        if(bleResultBean.getCMD() == BleProtocolState.CMD_PAIR_ACK) {
-            if(bleResultBean.getPayload()[0] != 0x00) {
-                // 校验失败
-                Timber.e("校验失败 CMD: %1s, 回复的数据：%2s",
-                        ConvertUtils.int2HexString(bleResultBean.getCMD()), ConvertUtils.bytes2HexString(bleResultBean.getPayload()));
-                // TODO: 2021/1/26 校验失败
-            }
-            return;
-        }
         if(bleResultBean.getCMD() == BleProtocolState.CMD_ENCRYPT_KEY_UPLOAD) {
             byte[] data = bleResultBean.getPayload();
-            if(data[0] == 0x01) {
-                // 入网时
-                // 获取pwd2
-                System.arraycopy(data, 1, mPwd2Or3, 0, mPwd2Or3.length);
-                // TODO: 2021/1/21 打包数据上传到服务器后再发送确认指令
-                isHavePwd2Or3 = true;
-                App.getInstance().writeControlMsg(BleCommandFactory.ackCommand(bleResultBean.getTSN(), (byte)0x00, bleResultBean.getCMD()));
-                new Handler(Looper.getMainLooper()).postDelayed(() -> {
-                    Timber.d("auth 延时发送鉴权指令, pwd2: %1s\n", ConvertUtils.bytes2HexString(mPwd2Or3));
-                    App.getInstance().writeControlMsg(BleCommandFactory
-                            .authCommand(mPwd1, mPwd2Or3, mEsn.getBytes(StandardCharsets.UTF_8)));
-                }, 50);
-            } else if(data[0] == 0x02) {
+            if(data[0] == 0x02) {
                 // 获取pwd3
-                System.arraycopy(data, 1, mPwd2Or3, 0, mPwd2Or3.length);
-                Timber.d("鉴权成功, pwd3: %1s\n", ConvertUtils.bytes2HexString(mPwd2Or3));
-                // 本地存储
-                App.getInstance().getCacheDiskUtils().put(Constant.KEY_PWD1, mPwd1);
-                App.getInstance().getCacheDiskUtils().put(Constant.BLE_MAC, mMac);
-                App.getInstance().getCacheDiskUtils().put(Constant.LOCK_ESN, mEsn);
+                mPwd3 = new byte[4];
+                System.arraycopy(data, 1, mPwd3, 0, mPwd3.length);
+                Timber.d("鉴权成功, pwd3: %1s\n", ConvertUtils.bytes2HexString(mPwd3));
                 // 内存存储
-                App.getInstance().getBleBean().setPwd1(mPwd1);
-                App.getInstance().getBleBean().setPwd2or3(mPwd2Or3);
+                App.getInstance().getBleBean().setPwd3(mPwd3);
                 App.getInstance().writeControlMsg(BleCommandFactory.ackCommand(bleResultBean.getTSN(), (byte)0x00, bleResultBean.getCMD()));
-                // TODO: 2021/1/26 校验成功
+                // TODO: 2021/1/26 鉴权成功
             }
         }
     }
@@ -155,8 +127,9 @@ public class DeviceFragment extends Fragment {
         App.getInstance().setOnBleDeviceListener(new OnBleDeviceListener() {
             @Override
             public void onConnected() {
+                Timber.d("initBleListener 连接成功 发送鉴权指令, pwd2: %1s\n", ConvertUtils.bytes2HexString(mPwd3));
                 App.getInstance().writeControlMsg(BleCommandFactory
-                        .pairCommand(mPwd1, mEsn.getBytes(StandardCharsets.UTF_8)));
+                        .authCommand(mPwd1, mPwd3, mEsn.getBytes(StandardCharsets.UTF_8)));
             }
 
             @Override
@@ -170,7 +143,7 @@ public class DeviceFragment extends Fragment {
                     return;
                 }
                 BleResultProcess.setOnReceivedProcess(mOnReceivedProcess);
-                BleResultProcess.processReceivedData(value, mPwd1, isHavePwd2Or3?mPwd2Or3:null,
+                BleResultProcess.processReceivedData(value, mPwd1, (mPwd3 == null)?mPwd2:mPwd3,
                         mBleBean.getOKBLEDeviceImp().getBleScanResult());
             }
 
@@ -184,9 +157,10 @@ public class DeviceFragment extends Fragment {
     private void initData() {
         if(App.getInstance().getBleBean() == null) {
             mEsn = App.getInstance().getCacheDiskUtils().getString(Constant.LOCK_ESN);
-            mMac = App.getInstance().getCacheDiskUtils().getString(Constant.BLE_MAC);
             mPwd1 = App.getInstance().getCacheDiskUtils().getBytes(Constant.KEY_PWD1);
-            BLEScanResult bleScanResult = App.getInstance().getCacheDiskUtils().getParcelable(Constant.BLE_DEVICE, BLEScanResult.CREATOR, null);
+            mPwd2 = App.getInstance().getCacheDiskUtils().getBytes(Constant.KEY_PWD2);
+            BLEScanResult bleScanResult = App.getInstance().getCacheDiskUtils()
+                    .getParcelable(Constant.BLE_DEVICE, BLEScanResult.CREATOR, null);
             if(bleScanResult != null) {
                 App.getInstance().connectDevice(bleScanResult);
                 mBleBean = App.getInstance().getBleBean();

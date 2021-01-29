@@ -5,6 +5,7 @@ import com.blankj.utilcode.util.EncryptUtils;
 
 import timber.log.Timber;
 
+import static com.revolo.lock.ble.BleProtocolState.CMD_KEY_ADD;
 import static com.revolo.lock.ble.BleProtocolState.CMD_KEY_ATTRIBUTES_READ;
 import static com.revolo.lock.ble.BleProtocolState.CMD_KEY_ATTRIBUTES_SET;
 import static com.revolo.lock.ble.BleProtocolState.CMD_LOCK_ALARM_RECORD_CHECK;
@@ -763,6 +764,21 @@ public class BleCommandFactory {
         data[0] = (byte) keyType;
         data[1] = num;
         return commandPackage(true, (byte) CMD_KEY_ATTRIBUTES_READ, commandTSN(), data, pwd1, pwd3);
+    }
+
+    /**
+     * 添加密钥并返回密钥编号
+     * @param keyType 0：密码  4：指纹  3：卡片  7：人脸
+     * @param key     密钥内容
+     */
+    public static byte[] addKey(@BleCommandState.KeySetKeyType int keyType, byte[] key,
+                                byte[] pwd1, byte[] pwd3) {
+
+        byte[] data =  new byte[key.length+2];
+        data[0] = (byte) keyType;
+        data[1] = (byte) key.length;
+        System.arraycopy(key, 0, data,  2, key.length);
+        return commandPackage(true, (byte) CMD_KEY_ADD, commandTSN(), data, pwd1, pwd3);
     }
 
     /**

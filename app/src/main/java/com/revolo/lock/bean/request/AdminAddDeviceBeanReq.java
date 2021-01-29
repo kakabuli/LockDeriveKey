@@ -175,4 +175,21 @@ public class AdminAddDeviceBeanReq implements Parcelable {
             return new AdminAddDeviceBeanReq[size];
         }
     };
+
+    @Override
+    public String toString() {
+        return "AdminAddDeviceBeanReq{" +
+                "devmac='" + devmac + '\'' +
+                ", user_id='" + user_id + '\'' +
+                ", password1='" + password1 + '\'' +
+                ", password2='" + password2 + '\'' +
+                ", model='" + model + '\'' +
+                ", deviceSN='" + deviceSN + '\'' +
+                ", peripheralId='" + peripheralId + '\'' +
+                ", bleVersionType='" + bleVersionType + '\'' +
+                ", bleVersion='" + bleVersion + '\'' +
+                ", functionSet='" + functionSet + '\'' +
+                ", systemID='" + systemID + '\'' +
+                '}';
+    }
 }

@@ -13,7 +13,7 @@ import com.revolo.lock.R;
 import com.revolo.lock.adapter.AutoMeasureLinearLayoutManager;
 import com.revolo.lock.adapter.OperationRecordsAdapter;
 import com.revolo.lock.base.BaseActivity;
-import com.revolo.lock.bean.BleBean;
+import com.revolo.lock.ble.bean.BleBean;
 import com.revolo.lock.bean.test.TestOperationRecords;
 import com.revolo.lock.ble.BleCommandFactory;
 import com.revolo.lock.ble.BleProtocolState;
@@ -141,7 +141,6 @@ public class OperationRecordsActivity extends BaseActivity {
     }
 
     private void initDevice() {
-        mBleBean = App.getInstance().getBleBean();
         if (mBleBean.getOKBLEDeviceImp() != null) {
             App.getInstance().openPairNotify();
             App.getInstance().setOnBleDeviceListener(mOnBleDeviceListener);
@@ -156,7 +155,7 @@ public class OperationRecordsActivity extends BaseActivity {
                 byte[] end = new byte[2];
                 end[0] = 0x14;
                 App.getInstance().writeControlMsg(BleCommandFactory
-                        .lockOperateRecordCommand(start, end, mBleBean.getPwd1(), mBleBean.getPwd2or3()));
+                        .lockOperateRecordCommand(start, end, mBleBean.getPwd1(), mBleBean.getPwd3()));
             } else {
                 // TODO: 2021/1/26 没有连接上，需要连接上才能发送指令
             }

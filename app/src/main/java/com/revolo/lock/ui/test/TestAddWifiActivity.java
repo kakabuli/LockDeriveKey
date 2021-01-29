@@ -13,7 +13,7 @@ import com.blankj.utilcode.util.StringUtils;
 import com.revolo.lock.App;
 import com.revolo.lock.R;
 import com.revolo.lock.base.BaseActivity;
-import com.revolo.lock.bean.BleBean;
+import com.revolo.lock.ble.bean.BleBean;
 import com.revolo.lock.ble.BleCommandFactory;
 import com.revolo.lock.ble.BleProtocolState;
 import com.revolo.lock.ble.BleResultProcess;

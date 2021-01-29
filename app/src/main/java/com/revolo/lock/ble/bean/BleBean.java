@@ -1,4 +1,4 @@
-package com.revolo.lock.bean;
+package com.revolo.lock.ble.bean;
 
 import com.a1anwang.okble.client.core.OKBLEDeviceImp;
 
@@ -13,7 +13,8 @@ import java.io.Serializable;
 public class BleBean implements Serializable {
 
     private byte[] pwd1;
-    private byte[] pwd2or3;
+    private byte[] pwd2;
+    private byte[] pwd3;
     private OKBLEDeviceImp mOKBLEDeviceImp;
 
     public byte[] getPwd1() {
@@ -24,12 +25,20 @@ public class BleBean implements Serializable {
         this.pwd1 = pwd1;
     }
 
-    public byte[] getPwd2or3() {
-        return pwd2or3;
+    public byte[] getPwd2() {
+        return pwd2;
     }
 
-    public void setPwd2or3(byte[] pwd2or3) {
-        this.pwd2or3 = pwd2or3;
+    public void setPwd2(byte[] pwd2) {
+        this.pwd2 = pwd2;
+    }
+
+    public byte[] getPwd3() {
+        return pwd3;
+    }
+
+    public void setPwd3(byte[] pwd3) {
+        this.pwd3 = pwd3;
     }
 
     public OKBLEDeviceImp getOKBLEDeviceImp() {
