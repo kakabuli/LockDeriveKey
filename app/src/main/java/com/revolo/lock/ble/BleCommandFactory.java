@@ -5,6 +5,13 @@ import com.blankj.utilcode.util.EncryptUtils;
 
 import timber.log.Timber;
 
+import static com.revolo.lock.ble.BleProtocolState.CMD_KEY_ATTRIBUTES_READ;
+import static com.revolo.lock.ble.BleProtocolState.CMD_KEY_ATTRIBUTES_SET;
+import static com.revolo.lock.ble.BleProtocolState.CMD_LOCK_ALARM_RECORD_CHECK;
+import static com.revolo.lock.ble.BleProtocolState.CMD_LOCK_NUM_CHECK;
+import static com.revolo.lock.ble.BleProtocolState.CMD_LOCK_OPEN_COUNT_CHECK;
+import static com.revolo.lock.ble.BleProtocolState.CMD_LOCK_PARAMETER_CHECK;
+
 /**
  * author : Jack
  * time   : 2021/1/5
@@ -34,12 +41,6 @@ public class BleCommandFactory {
     private static final byte CONTROL_NORMAL = 0x00;
 
     private static byte sCommandTSN = 0x01;
-
-    public static final byte[] sTestPwd1 = new byte[] {0x53,0x48,0x45,
-            (byte) 0xB3, (byte) 0xEB, (byte) 0xF3,
-            0x01, (byte) 0xBC,0x1D,
-            0x0F,0x68, (byte) 0x8F,
-            0x00,0x00,0x00,0x00};
 
     public static byte commandTSN() {
         // -1是byte的最大值
@@ -635,21 +636,21 @@ public class BleCommandFactory {
         byte[] data = new byte[2];
         data[0] = logIndexStart;
         data[1] = logIndexEnd;
-        return commandPackage(true, (byte) 0x14, commandTSN(), data, pwd1, pwd2);
+        return commandPackage(true, (byte) CMD_LOCK_ALARM_RECORD_CHECK, commandTSN(), data, pwd1, pwd2);
     }
 
     /**
      * 锁序列号查询
      */
     public static byte[] lockSnCheckCommand() {
-        return commandPackage(true, (byte) 0x15, commandTSN(), null, null, null);
+        return commandPackage(true, (byte) CMD_LOCK_NUM_CHECK, commandTSN(), null, null, null);
     }
 
     /**
      * 锁开锁次数查询
      */
     public static byte[] lockOpenCountCheckCommand() {
-        return commandPackage(true, (byte) 0x16, commandTSN(), null, null, null);
+        return commandPackage(true, (byte) CMD_LOCK_OPEN_COUNT_CHECK, commandTSN(), null, null, null);
     }
 
     /**
@@ -660,7 +661,7 @@ public class BleCommandFactory {
     public static byte[] lockParameterCheckCommand(byte num, byte[] pwd1, byte[] pwd2) {
         byte[] data = new byte[1];
         data[0] = num;
-        return commandPackage(true, (byte) 0x17, commandTSN(), data, pwd1, pwd2);
+        return commandPackage(true, (byte) CMD_LOCK_PARAMETER_CHECK, commandTSN(), data, pwd1, pwd2);
     }
 
     /**
@@ -747,7 +748,7 @@ public class BleCommandFactory {
         data[4] = week;
         System.arraycopy(BleByteUtil.longToUnsigned32Bytes(startTime), 0, data, 5, 4);
         System.arraycopy(BleByteUtil.longToUnsigned32Bytes(endTime), 0, data, 9, 4);
-        return commandPackage(true, (byte) 0x1C, commandTSN(), data, pwd1, pwd3);
+        return commandPackage(true, (byte) CMD_KEY_ATTRIBUTES_SET, commandTSN(), data, pwd1, pwd3);
     }
 
 
@@ -761,7 +762,7 @@ public class BleCommandFactory {
         byte[] data = new byte[2];
         data[0] = (byte) keyType;
         data[1] = num;
-        return commandPackage(true, (byte) 0x1D, commandTSN(), data, pwd1, pwd3);
+        return commandPackage(true, (byte) CMD_KEY_ATTRIBUTES_READ, commandTSN(), data, pwd1, pwd3);
     }
 
     /**

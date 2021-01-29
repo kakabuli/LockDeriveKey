@@ -24,11 +24,6 @@ public class BleResultProcess {
 
     private static final byte CONTROL_ENCRYPTION = 0x01;
     private static final byte CONTROL_NORMAL = 0x00;
-    private static final byte[] sTestPwd1 = new byte[] {0x53,0x48,0x45,
-            (byte) 0xB3, (byte) 0xEB, (byte) 0xF3,
-            0x01, (byte) 0xBC,0x1D,
-            0x0F,0x68, (byte) 0x8F,
-            0x00,0x00,0x00,0x00};
 
     public static void processReceivedData(byte[] receivedData,
                                            byte[] pwd1,

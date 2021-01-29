@@ -80,6 +80,12 @@ public class WifiConnectActivity extends BaseActivity {
 
     }
 
+    @Override
+    protected void onDestroy() {
+        App.getInstance().clearBleDeviceListener();
+        super.onDestroy();
+    }
+
     private void initDevice() {
         mBleBean = App.getInstance().getBleBean();
         if (mBleBean.getOKBLEDeviceImp() != null) {
@@ -106,7 +112,7 @@ public class WifiConnectActivity extends BaseActivity {
                 return;
             }
             BleResultProcess.setOnReceivedProcess(mOnReceivedProcess);
-            BleResultProcess.processReceivedData(value, BleCommandFactory.sTestPwd1, null,
+            BleResultProcess.processReceivedData(value, mBleBean.getPwd1(), null,
                     mBleBean.getOKBLEDeviceImp().getBleScanResult());
         }
 

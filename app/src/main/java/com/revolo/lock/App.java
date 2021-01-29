@@ -49,6 +49,7 @@ public class App extends Application {
         mCacheDiskUtils = CacheDiskUtils.getInstance(file);
     }
 
+    // TODO: 2021/1/28 后面监听需要修改 适应多设备
     private OnBleDeviceListener mOnBleDeviceListener;
     public void setOnBleDeviceListener(OnBleDeviceListener onBleDeviceListener) {
         mOnBleDeviceListener = onBleDeviceListener;

@@ -68,7 +68,8 @@ public class AddWifiActivity extends BaseActivity {
             mEtWifiName.setText((String) adapter.getItem(position));
             mWifiListPopup.dismiss();
         });
-        applyDebouncingClickListener(findViewById(R.id.btnNext), findViewById(R.id.ivDropdown),findViewById(R.id.ivEye));
+        applyDebouncingClickListener(findViewById(R.id.btnNext), findViewById(R.id.ivDropdown),
+                findViewById(R.id.ivEye), findViewById(R.id.tvSkip));
     }
 
     @Override
@@ -79,44 +80,60 @@ public class AddWifiActivity extends BaseActivity {
     @Override
     public void onDebouncingClick(@NonNull View view) {
         if (view.getId() == R.id.btnNext) {
-            String wifiSn = mEtWifiName.getText().toString().trim();
-            if(TextUtils.isEmpty(wifiSn)) {
-                // TODO: 2021/1/22 调整提示语
-                ToastUtils.showShort("Please input wifi name!");
-                return;
-            }
-            String wifiPwd = mEtPwd.getText().toString();
-            if(TextUtils.isEmpty(wifiPwd)) {
-                // TODO: 2021/1/22 调整提示语
-                ToastUtils.showShort("Please input wifi password!");
-                return;
-            }
-            Intent intent = new Intent(this, WifiConnectActivity.class);
-            intent.putExtra(Constant.WIFI_NAME, wifiSn);
-            intent.putExtra(Constant.WIFI_PWD, wifiPwd);
-            startActivity(intent);
+            gotoWifiConnectAct();
             return;
         }
         if(view.getId() == R.id.ivDropdown) {
-            if(mWifiListPopup == null) {
-                return;
-            }
-            if(mWifiListPopup.isShowing()) {
-                mWifiListPopup.dismiss();
-            } else {
-                mWifiListPopup.setPopupGravity(Gravity.BOTTOM);
-                mWifiListPopup.showPopupWindow(findViewById(R.id.ivDropdown));
-            }
+            showOrDismissWifiList();
             return;
         }
         if(view.getId() == R.id.ivEye) {
-            ImageView ivEye = findViewById(R.id.ivEye);
-            ivEye.setImageResource(isShowPwd?R.drawable.ic_login_icon_display:R.drawable.ic_login_icon_hide);
-            mEtPwd.setInputType(isShowPwd?
-                    InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
-                    :(InputType.TYPE_CLASS_TEXT|InputType.TYPE_TEXT_VARIATION_PASSWORD));
-            isShowPwd = !isShowPwd;
+            openOrClosePwdEye();
+            return;
         }
+        if(view.getId() == R.id.tvSkip) {
+            finish();
+        }
+    }
+
+    private void gotoWifiConnectAct() {
+        String wifiSn = mEtWifiName.getText().toString().trim();
+        if(TextUtils.isEmpty(wifiSn)) {
+            // TODO: 2021/1/22 调整提示语
+            ToastUtils.showShort("Please input wifi name!");
+            return;
+        }
+        String wifiPwd = mEtPwd.getText().toString();
+        if(TextUtils.isEmpty(wifiPwd)) {
+            // TODO: 2021/1/22 调整提示语
+            ToastUtils.showShort("Please input wifi password!");
+            return;
+        }
+        Intent intent = new Intent(this, WifiConnectActivity.class);
+        intent.putExtra(Constant.WIFI_NAME, wifiSn);
+        intent.putExtra(Constant.WIFI_PWD, wifiPwd);
+        startActivity(intent);
+    }
+
+    private void showOrDismissWifiList() {
+        if(mWifiListPopup == null) {
+            return;
+        }
+        if(mWifiListPopup.isShowing()) {
+            mWifiListPopup.dismiss();
+        } else {
+            mWifiListPopup.setPopupGravity(Gravity.BOTTOM);
+            mWifiListPopup.showPopupWindow(findViewById(R.id.ivDropdown));
+        }
+    }
+
+    private void openOrClosePwdEye() {
+        ImageView ivEye = findViewById(R.id.ivEye);
+        ivEye.setImageResource(isShowPwd?R.drawable.ic_login_icon_display:R.drawable.ic_login_icon_hide);
+        mEtPwd.setInputType(isShowPwd?
+                InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
+                :(InputType.TYPE_CLASS_TEXT|InputType.TYPE_TEXT_VARIATION_PASSWORD));
+        isShowPwd = !isShowPwd;
     }
 
     @Override
@@ -152,7 +169,7 @@ public class AddWifiActivity extends BaseActivity {
                 return;
             }
             BleResultProcess.setOnReceivedProcess(mOnReceivedProcess);
-            BleResultProcess.processReceivedData(value, BleCommandFactory.sTestPwd1, null,
+            BleResultProcess.processReceivedData(value, mBleBean.getPwd1(), null,
                     mBleBean.getOKBLEDeviceImp().getBleScanResult());
         }
 

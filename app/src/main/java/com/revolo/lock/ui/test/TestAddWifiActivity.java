@@ -97,7 +97,7 @@ public class TestAddWifiActivity extends BaseActivity {
                 return;
             }
             BleResultProcess.setOnReceivedProcess(mOnReceivedProcess);
-            BleResultProcess.processReceivedData(value, BleCommandFactory.sTestPwd1, null,
+            BleResultProcess.processReceivedData(value, mBleBean.getPwd1(), null,
                     mBleBean.getOKBLEDeviceImp().getBleScanResult());
         }
 

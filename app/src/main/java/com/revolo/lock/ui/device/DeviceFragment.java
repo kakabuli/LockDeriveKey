@@ -132,18 +132,18 @@ public class DeviceFragment extends Fragment {
                 new Handler(Looper.getMainLooper()).postDelayed(() -> {
                     Timber.d("auth 延时发送鉴权指令, pwd2: %1s\n", ConvertUtils.bytes2HexString(mPwd2Or3));
                     App.getInstance().writeControlMsg(BleCommandFactory
-                            .authCommand(BleCommandFactory.sTestPwd1, mPwd2Or3, mEsn.getBytes(StandardCharsets.UTF_8)));
+                            .authCommand(mPwd1, mPwd2Or3, mEsn.getBytes(StandardCharsets.UTF_8)));
                 }, 50);
             } else if(data[0] == 0x02) {
                 // 获取pwd3
                 System.arraycopy(data, 1, mPwd2Or3, 0, mPwd2Or3.length);
                 Timber.d("鉴权成功, pwd3: %1s\n", ConvertUtils.bytes2HexString(mPwd2Or3));
                 // 本地存储
-                App.getInstance().getCacheDiskUtils().put(Constant.KEY_PWD1, BleCommandFactory.sTestPwd1);
+                App.getInstance().getCacheDiskUtils().put(Constant.KEY_PWD1, mPwd1);
                 App.getInstance().getCacheDiskUtils().put(Constant.BLE_MAC, mMac);
                 App.getInstance().getCacheDiskUtils().put(Constant.LOCK_ESN, mEsn);
                 // 内存存储
-                App.getInstance().getBleBean().setPwd1(BleCommandFactory.sTestPwd1);
+                App.getInstance().getBleBean().setPwd1(mPwd1);
                 App.getInstance().getBleBean().setPwd2or3(mPwd2Or3);
                 App.getInstance().writeControlMsg(BleCommandFactory.ackCommand(bleResultBean.getTSN(), (byte)0x00, bleResultBean.getCMD()));
                 // TODO: 2021/1/26 校验成功
