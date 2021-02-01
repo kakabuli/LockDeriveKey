@@ -350,5 +350,6 @@
     <string name="thur">Thur</string>
     <string name="fri">Fri</string>
     <string name="sat">Sat</string>
+    <string name="start_date">Start date</string>
 
 </resources>

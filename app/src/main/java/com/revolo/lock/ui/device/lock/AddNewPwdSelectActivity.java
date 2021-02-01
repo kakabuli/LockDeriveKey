@@ -6,6 +6,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -22,6 +23,7 @@ import com.revolo.lock.ble.BleProtocolState;
 import com.revolo.lock.ble.BleResultProcess;
 import com.revolo.lock.ble.OnBleDeviceListener;
 import com.revolo.lock.ble.bean.BleBean;
+import com.revolo.lock.dialog.MessageDialog;
 import com.revolo.lock.widget.iosloading.CustomerLoadingDialog;
 
 import java.nio.charset.StandardCharsets;
@@ -39,12 +41,13 @@ import static com.revolo.lock.ble.BleCommandState.KEY_SET_KEY_TYPE_PWD;
 public class AddNewPwdSelectActivity extends BaseActivity {
 
     private ImageView mIvPermanent, mIvSchedule, mIvTemporary;
-    private RelativeLayout mRlPermanent, mRlSchedule, mRlTemporary;
     private ConstraintLayout mClSchedule, mClTemporary;
     private Button mBtnNext;
     private BleBean mBleBean;
     private CustomerLoadingDialog mLoadingDialog;
     private String mKey;
+    private TextView tvStartTime, tvEndTime;
+    private View vSun, vMon, vTues, vWed, vThur, vFri, vSat;
 
     @Override
     public void initData(@Nullable Bundle bundle) {
@@ -66,13 +69,13 @@ public class AddNewPwdSelectActivity extends BaseActivity {
         mIvPermanent = findViewById(R.id.ivPermanent);
         mIvSchedule = findViewById(R.id.ivSchedule);
         mIvTemporary = findViewById(R.id.ivTemporary);
-        mRlPermanent = findViewById(R.id.rlPermanent);
-        mRlSchedule = findViewById(R.id.rlSchedule);
-        mRlTemporary = findViewById(R.id.rlTemporary);
+        RelativeLayout rlPermanent = findViewById(R.id.rlPermanent);
+        RelativeLayout rlSchedule = findViewById(R.id.rlSchedule);
+        RelativeLayout rlTemporary = findViewById(R.id.rlTemporary);
         mBtnNext = findViewById(R.id.btnNext);
         mClSchedule = findViewById(R.id.clSchedule);
         mClTemporary = findViewById(R.id.clTemporary);
-        applyDebouncingClickListener(mRlPermanent, mRlSchedule, mRlTemporary, mBtnNext);
+        applyDebouncingClickListener(rlPermanent, rlSchedule, rlTemporary, mBtnNext);
 
         // TODO: 2021/1/29 抽离英文
         mLoadingDialog = new CustomerLoadingDialog.Builder(this)
@@ -105,17 +108,32 @@ public class AddNewPwdSelectActivity extends BaseActivity {
             return;
         }
         if(view.getId() == R.id.btnNext) {
-            if(mLoadingDialog != null) {
-                mLoadingDialog.show();
-                if(mKey == null) {
-                    // TODO: 2021/1/29 处理密码为空的情况
-                    return;
-                }
-                App.getInstance().writeControlMsg(BleCommandFactory.addKey(KEY_SET_KEY_TYPE_PWD,
-                        mKey.getBytes(StandardCharsets.UTF_8), mBleBean.getPwd1(), mBleBean.getPwd3()));
-                // TODO: 2021/1/29 需要做超时操作
+            nextStep();
+        }
+    }
+
+    private void nextStep() {
+        if(mLoadingDialog != null) {
+            if(mKey == null) {
+                // TODO: 2021/1/29 处理密码为空的情况
+                return;
             }
-            startActivity(new Intent(this, AddNewPwdNameActivity.class));
+            if(mBleBean == null) {
+                Timber.e("mBleBean == null");
+                return;
+            }
+            if(mBleBean.getPwd1() == null) {
+                Timber.e("mBleBean.getPwd1() == null");
+                return;
+            }
+            if(mBleBean.getPwd3() == null) {
+                Timber.e("mBleBean.getPwd3() == null");
+                return;
+            }
+            mLoadingDialog.show();
+            App.getInstance().writeControlMsg(BleCommandFactory.addKey(KEY_SET_KEY_TYPE_PWD,
+                    mKey.getBytes(StandardCharsets.UTF_8), mBleBean.getPwd1(), mBleBean.getPwd3()));
+            // TODO: 2021/1/29 需要做超时操作
         }
     }
 
@@ -196,8 +214,12 @@ public class AddNewPwdSelectActivity extends BaseActivity {
     };
 
     private final BleResultProcess.OnReceivedProcess mOnReceivedProcess = bleResultBean -> {
+        if(mLoadingDialog != null) {
+            mLoadingDialog.dismiss();
+        }
         if(bleResultBean == null) {
             Timber.e("mOnReceivedProcess bleResultBean == null");
+            // TODO: 2021/1/30 提示失败
             return;
         }
         if(bleResultBean.getCMD() == BleProtocolState.CMD_KEY_ADD) {
@@ -205,22 +227,35 @@ public class AddNewPwdSelectActivity extends BaseActivity {
             byte state = bleResultBean.getPayload()[0];
             if(state == 0x00) {
                 byte num = bleResultBean.getPayload()[1];
-                // TODO: 2021/1/29 拿到编号并做对应的处理
+                runOnUiThread(() -> {
+                    MessageDialog dialog = new MessageDialog(AddNewPwdSelectActivity.this);
+                    dialog.setMessage(getString(R.string.dialog_tip_password_added));
+                    dialog.setOnListener(v -> {
+                        // 不销毁会导致内存泄漏
+                        dialog.dismiss();
+                        App.getInstance().addWillFinishAct(this);
+                        Intent intent = new Intent(AddNewPwdSelectActivity.this, AddNewPwdNameActivity.class);
+                        intent.putExtra(Constant.KEY_PWD_NUM, num);
+                        startActivity(intent);
+                    });
+                    dialog.show();
+                });
+
             } else {
                 // TODO: 2021/1/29 添加失败后的UI操作
                 Timber.e("添加密钥失败，state: %1s", BleByteUtil.byteToInt(state));
-            }
-            if(mLoadingDialog != null) {
-                mLoadingDialog.dismiss();
             }
         }
     };
 
     private void initDevice() {
-        if (mBleBean.getOKBLEDeviceImp() != null) {
-            App.getInstance().openPairNotify();
-            App.getInstance().setOnBleDeviceListener(mOnBleDeviceListener);
+        if(mBleBean == null || mBleBean.getOKBLEDeviceImp() == null) {
+            // TODO: 2021/1/30 做对应的处理
+            Timber.e("initDevice mBleBean == null || mBleBean.getOKBLEDeviceImp() == null");
+            return;
         }
+        App.getInstance().openPairNotify();
+        App.getInstance().setOnBleDeviceListener(mOnBleDeviceListener);
     }
 
 }

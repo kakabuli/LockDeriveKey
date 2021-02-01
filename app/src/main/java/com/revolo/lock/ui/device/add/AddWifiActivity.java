@@ -1,5 +1,6 @@
 package com.revolo.lock.ui.device.add;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.InputType;
@@ -12,6 +13,7 @@ import android.widget.ImageView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.blankj.utilcode.util.ActivityUtils;
 import com.blankj.utilcode.util.ToastUtils;
 import com.revolo.lock.App;
 import com.revolo.lock.Constant;
@@ -25,6 +27,8 @@ import com.revolo.lock.ble.OnBleDeviceListener;
 import com.revolo.lock.ble.bean.WifiSnBean;
 import com.revolo.lock.ble.bean.BleResultBean;
 import com.revolo.lock.popup.WifiListPopup;
+import com.revolo.lock.ui.device.lock.AddInputNewPwdActivity;
+import com.revolo.lock.ui.device.lock.AddNewPwdSelectActivity;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -75,6 +79,7 @@ public class AddWifiActivity extends BaseActivity {
     @Override
     public void doBusiness() {
         initDevice();
+        finishPreActivities();
     }
 
     @Override
@@ -265,6 +270,21 @@ public class AddWifiActivity extends BaseActivity {
             mWifiListPopup.updateWifiList(mWifiSnList);
         }
         // TODO: 2021/1/21 记得清空
+    }
+
+    private void finishPreActivities() {
+        List<Activity> activities = ActivityUtils.getActivityList();
+        if(activities.isEmpty()) {
+            return;
+        }
+        for (Activity activity : activities) {
+            if(activity instanceof AddDeviceActivity) {
+                activity.finish();
+            }
+            if(activity instanceof AddDeviceStep1Activity) {
+                activity.finish();
+            }
+        }
     }
 
 }

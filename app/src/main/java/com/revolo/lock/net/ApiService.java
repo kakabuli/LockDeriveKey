@@ -148,5 +148,4 @@ public interface ApiService {
     @POST("/wpflock/device/updateApproachParameters")
     Observable<ChangeOpenLockParameterBeanRsp> changeOpenLockParameter(@Header("token") String token, @Body ChangeOpenLockParameterBeanReq req);
 
-
 }

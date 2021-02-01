@@ -127,9 +127,11 @@ public class DeviceFragment extends Fragment {
         App.getInstance().setOnBleDeviceListener(new OnBleDeviceListener() {
             @Override
             public void onConnected() {
-                Timber.d("initBleListener 连接成功 发送鉴权指令, pwd2: %1s\n", ConvertUtils.bytes2HexString(mPwd3));
+                Timber.d("initBleListener 连接成功 发送鉴权指令, pwd2: %1s\n", ConvertUtils.bytes2HexString(mPwd2));
+                mBleBean.setPwd1(mPwd1);
+                mBleBean.setPwd2(mPwd2);
                 App.getInstance().writeControlMsg(BleCommandFactory
-                        .authCommand(mPwd1, mPwd3, mEsn.getBytes(StandardCharsets.UTF_8)));
+                        .authCommand(mPwd1, mPwd2, mEsn.getBytes(StandardCharsets.UTF_8)));
             }
 
             @Override

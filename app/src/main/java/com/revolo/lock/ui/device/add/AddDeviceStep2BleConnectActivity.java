@@ -288,6 +288,7 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
                     return;
                 }
                 Timber.d("addDeviceToService 添加设备成功");
+                Timber.d("rsp: %1s", adminAddDeviceBeanRsp.toString());
                 startActivity(new Intent(AddDeviceStep2BleConnectActivity.this, BleConnectSucActivity.class));
                 finish();
             }

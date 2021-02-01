@@ -57,6 +57,7 @@ import javax.net.ssl.X509TrustManager;
 
 import io.reactivex.Observable;
 import okhttp3.OkHttpClient;
+import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
@@ -85,8 +86,11 @@ public class HttpRequest {
     private HttpRequest() {
 
         // TODO: 2021/1/26 现在是忽略证书，后期需要修正
+        HttpLoggingInterceptor logInterceptor = new HttpLoggingInterceptor(new HttpLogger());//创建拦截对象
+        logInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);//这一句一定要记得写，否则没有数据输出
         OkHttpClient client = new OkHttpClient.Builder()
-                .addInterceptor(new LoggingInterceptor())
+                .addNetworkInterceptor(logInterceptor)
+//                .addInterceptor(new LoggingInterceptor())
                 .connectTimeout(60, TimeUnit.SECONDS)
                 .sslSocketFactory(SSLSocketClient.getSSLSocketFactory(), new X509TrustManager() {
                     @Override
@@ -213,6 +217,5 @@ public class HttpRequest {
     public Observable<ChangeOpenLockParameterBeanRsp> changeOpenLockParameter(String token, ChangeOpenLockParameterBeanReq req){
         return service.changeOpenLockParameter(token, req);
     };
-
 
 }

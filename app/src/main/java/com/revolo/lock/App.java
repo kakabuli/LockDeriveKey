@@ -1,5 +1,6 @@
 package com.revolo.lock;
 
+import android.app.Activity;
 import android.app.Application;
 
 import com.a1anwang.okble.client.core.OKBLEDeviceImp;
@@ -13,6 +14,8 @@ import com.revolo.lock.ble.bean.BleBean;
 import com.revolo.lock.ble.OnBleDeviceListener;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 import timber.log.Timber;
 
@@ -30,6 +33,7 @@ public class App extends Application {
     private BleBean mBleBean;
     private final String mFilePath = File.pathSeparator + "Ble" + File.pathSeparator;
     private CacheDiskUtils mCacheDiskUtils;
+    private final List<Activity> mWillFinishActivities = new ArrayList<>();
 
     public static App getInstance() {
         return instance;
@@ -212,4 +216,17 @@ public class App extends Application {
     public void setUserBean(MailLoginBeanRsp.DataBean userBean) {
         mUserBean = userBean;
     }
+
+    public void addWillFinishAct(Activity activity) {
+        mWillFinishActivities.add(activity);
+    }
+
+    public List<Activity> getWillFinishActivities() {
+        return mWillFinishActivities;
+    }
+
+    public void clearWillFinishActivities() {
+        mWillFinishActivities.clear();
+    }
+
 }

@@ -9,6 +9,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.blankj.utilcode.util.ToastUtils;
+import com.revolo.lock.App;
 import com.revolo.lock.Constant;
 import com.revolo.lock.R;
 import com.revolo.lock.base.BaseActivity;
@@ -50,6 +51,7 @@ public class AddInputNewPwdActivity extends BaseActivity {
         if(view.getId() == R.id.btnNext) {
             String pwd = mEtPwd.getText().toString().trim();
             if(pwd.length() >= 4 && pwd.length() <= 12) {
+                App.getInstance().addWillFinishAct(this);
                 Intent intent = new Intent(this, AddNewPwdSelectActivity.class);
                 intent.putExtra(Constant.USER_PWD, pwd);
                 startActivity(intent);

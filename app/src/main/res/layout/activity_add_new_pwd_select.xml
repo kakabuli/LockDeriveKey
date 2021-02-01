@@ -375,7 +375,7 @@
                 android:id="@+id/textView6"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Start date"
+                android:text="@string/start_date"
                 android:textSize="14pt"
                 android:layout_marginTop="2pt"
                 android:layout_marginStart="11pt"
