@@ -8,6 +8,7 @@ import android.view.View;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.revolo.lock.App;
 import com.revolo.lock.R;
 import com.revolo.lock.base.BaseActivity;
 
@@ -49,7 +50,7 @@ public class AddDeviceStep1Activity extends BaseActivity implements EasyPermissi
 
     @Override
     public void doBusiness() {
-
+        App.getInstance().addWillFinishAct(this);
     }
 
     @Override

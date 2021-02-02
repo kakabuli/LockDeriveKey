@@ -13,11 +13,13 @@ import com.revolo.lock.bean.request.CheckDoorSensorStateBeanReq;
 import com.revolo.lock.bean.request.DelDeviceBeanReq;
 import com.revolo.lock.bean.request.DelKeyBeanReq;
 import com.revolo.lock.bean.request.DeviceUnbindBeanReq;
+import com.revolo.lock.bean.request.GetCodeBeanReq;
 import com.revolo.lock.bean.request.GetLockKeyNickBeanReq;
 import com.revolo.lock.bean.request.GetPwd1BeanReq;
 import com.revolo.lock.bean.request.LockIsBindBeanReq;
 import com.revolo.lock.bean.request.LockKeyAddBeanReq;
 import com.revolo.lock.bean.request.MailLoginBeanReq;
+import com.revolo.lock.bean.request.MailRegisterBeanReq;
 import com.revolo.lock.bean.request.OpenDoorRecordSearchBeanReq;
 import com.revolo.lock.bean.request.SearchAlarmRecordBeanReq;
 import com.revolo.lock.bean.request.SearchKeyListBeanReq;
@@ -36,11 +38,13 @@ import com.revolo.lock.bean.respone.CheckDoorSensorStateBeanRsp;
 import com.revolo.lock.bean.respone.DelDeviceBeanRsp;
 import com.revolo.lock.bean.respone.DelKeyBeanRsp;
 import com.revolo.lock.bean.respone.DeviceUnbindBeanRsp;
+import com.revolo.lock.bean.respone.GetCodeBeanRsp;
 import com.revolo.lock.bean.respone.GetLockKeyNickBeanRsp;
 import com.revolo.lock.bean.respone.GetPwd1BeanRsp;
 import com.revolo.lock.bean.respone.LockIsBindBeanRsp;
 import com.revolo.lock.bean.respone.LockKeyAddBeanRsp;
 import com.revolo.lock.bean.respone.MailLoginBeanRsp;
+import com.revolo.lock.bean.respone.MailRegisterBeanRsp;
 import com.revolo.lock.bean.respone.OpenDoorRecordSearchBeanRsp;
 import com.revolo.lock.bean.respone.SearchAlarmRecordBeanRsp;
 import com.revolo.lock.bean.respone.SearchKeyListBeanRsp;
@@ -217,5 +221,13 @@ public class HttpRequest {
     public Observable<ChangeOpenLockParameterBeanRsp> changeOpenLockParameter(String token, ChangeOpenLockParameterBeanReq req){
         return service.changeOpenLockParameter(token, req);
     };
+
+    public Observable<GetCodeBeanRsp> getCode(GetCodeBeanReq req) {
+        return service.getCode(req);
+    }
+
+    public Observable<MailRegisterBeanRsp> register(MailRegisterBeanReq req) {
+        return service.register(req);
+    }
 
 }

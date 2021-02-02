@@ -33,7 +33,7 @@
         android:layout_marginTop="30pt"
         android:drawableStart="@drawable/ic_home_input_wifi"
         android:drawablePadding="41pt"
-        android:inputType="number"
+        android:inputType="text"
         android:paddingStart="15pt"
         android:paddingEnd="15pt"
         android:theme="@style/InputEditTextTheme"

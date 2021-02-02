@@ -16,7 +16,7 @@ import com.revolo.lock.base.BaseActivity;
  * E-mail : wengmaowei@kaadas.com
  * desc   :
  */
-public class RegisterAddAvatar extends BaseActivity {
+public class RegisterAddAvatarActivity extends BaseActivity {
     @Override
     public void initData(@Nullable Bundle bundle) {
 

@@ -52,7 +52,7 @@ public class AddNewPwdNameActivity extends BaseActivity {
 
     @Override
     public void doBusiness() {
-        finishPreActivities();
+        App.getInstance().finishPreActivities();
     }
 
     @Override
@@ -64,22 +64,6 @@ public class AddNewPwdNameActivity extends BaseActivity {
         if(view.getId() == R.id.tvAddNextTime) {
             sendPwdDataToService();
         }
-    }
-
-    private void finishPreActivities() {
-        List<Activity> activities = App.getInstance().getWillFinishActivities();
-        if(activities.isEmpty()) {
-            return;
-        }
-        for (Activity activity : activities) {
-            if(activity instanceof AddNewPwdSelectActivity) {
-                activity.finish();
-            }
-            if(activity instanceof AddInputNewPwdActivity) {
-                activity.finish();
-            }
-        }
-        App.getInstance().clearWillFinishActivities();
     }
 
     private void sendPwdDataToService() {

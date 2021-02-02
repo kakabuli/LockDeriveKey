@@ -87,8 +87,8 @@ public class DeviceFragment extends Fragment {
                 ((MainActivity)getActivity()).setStatusBarColor(R.color.white);
             }
         }
-        initBleListener();
-        initData();
+//        initBleListener();
+//        initData();
 
         return root;
     }

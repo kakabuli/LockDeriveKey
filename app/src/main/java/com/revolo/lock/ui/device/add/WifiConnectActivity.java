@@ -73,6 +73,7 @@ public class WifiConnectActivity extends BaseActivity {
     public void doBusiness() {
         changeValue(0);
         initDevice();
+        App.getInstance().addWillFinishAct(this);
     }
 
     @Override
@@ -111,6 +112,7 @@ public class WifiConnectActivity extends BaseActivity {
             if(value == null) {
                 return;
             }
+            Timber.d("数据来了 %1s", ConvertUtils.bytes2HexString(value));
             BleResultProcess.setOnReceivedProcess(mOnReceivedProcess);
             BleResultProcess.processReceivedData(value, mBleBean.getPwd1(), null,
                     mBleBean.getOKBLEDeviceImp().getBleScanResult());
@@ -127,6 +129,8 @@ public class WifiConnectActivity extends BaseActivity {
             Timber.e("mOnReceivedProcess bleResultBean == null");
             return;
         }
+        Timber.d("cmd: %1s, payload: %2s",
+                ConvertUtils.int2HexString(bleResultBean.getCMD()), ConvertUtils.bytes2HexString(bleResultBean.getPayload()));
         if(bleResultBean.getCMD() == BleProtocolState.CMD_SS_ID_ACK) {
             writeWifiSn();
         } else if(bleResultBean.getCMD() == BleProtocolState.CMD_PWD_ACK) {
@@ -136,6 +140,7 @@ public class WifiConnectActivity extends BaseActivity {
                 // 配网成功
                 changeValue(100);
                 startActivity(new Intent(this, AddWifiSucActivity.class));
+                finish();
             } else if(bleResultBean.getPayload()[0] == 0x01) {
                 // 配网失败
                 Intent intent = new Intent(this, AddWifiFailActivity.class);

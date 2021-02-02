@@ -51,7 +51,7 @@
             android:screenOrientation="portrait"/>
         <activity android:name=".ui.sign.RegisterInputNameActivity"
             android:screenOrientation="portrait"/>
-        <activity android:name=".ui.sign.RegisterAddAvatar"
+        <activity android:name=".ui.sign.RegisterAddAvatarActivity"
             android:screenOrientation="portrait"/>
         <activity android:name=".ui.sign.RegisterAddAvatarNextActivity"
             android:screenOrientation="portrait"/>

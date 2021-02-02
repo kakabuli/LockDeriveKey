@@ -11,6 +11,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.blankj.utilcode.util.ActivityUtils;
+import com.revolo.lock.App;
 import com.revolo.lock.R;
 import com.revolo.lock.base.BaseActivity;
 
@@ -40,7 +41,7 @@ public class AddWifiSucActivity extends BaseActivity {
 
     @Override
     public void doBusiness() {
-        finishPreActivities();
+        App.getInstance().finishPreActivities();
         threeSecFinish();
     }
 
@@ -49,7 +50,7 @@ public class AddWifiSucActivity extends BaseActivity {
     }
 
     private void finishPreActivities() {
-        List<Activity> activities = ActivityUtils.getActivityList();
+        List<Activity> activities = App.getInstance().getWillFinishActivities();
         if(activities.isEmpty()) {
             return;
         }

@@ -41,7 +41,7 @@ public class RegisterInputNameActivity extends BaseActivity {
     @Override
     public void onDebouncingClick(@NonNull View view) {
         if(view.getId() == R.id.btnNext) {
-            startActivity(new Intent(this, RegisterAddAvatar.class));
+            startActivity(new Intent(this, RegisterAddAvatarActivity.class));
         }
     }
 }

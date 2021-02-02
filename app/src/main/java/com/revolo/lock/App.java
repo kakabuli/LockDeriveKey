@@ -60,6 +60,7 @@ public class App extends Application {
         mOnBleDeviceListener = onBleDeviceListener;
     }
     public void clearBleDeviceListener() {
+        Timber.d("clearBleDeviceListener");
         mOnBleDeviceListener = null;
     }
 
@@ -75,17 +76,21 @@ public class App extends Application {
             public void onConnected(String deviceTAG) {
                 Timber.d("onConnected deviceTAG: %1s", deviceTAG);
                 openControlNotify();
-                if(mOnBleDeviceListener != null) {
-                    mOnBleDeviceListener.onConnected();
+                if(mOnBleDeviceListener == null) {
+                    Timber.e("mOnBleDeviceListener == null");
+                    return;
                 }
+                mOnBleDeviceListener.onConnected();
             }
 
             @Override
             public void onDisconnected(String deviceTAG) {
                 Timber.d("onDisconnected deviceTAG: %1s", deviceTAG);
-                if(mOnBleDeviceListener != null) {
-                    mOnBleDeviceListener.onDisconnected();
+                if(mOnBleDeviceListener == null) {
+                    Timber.e("mOnBleDeviceListener == null");
+                    return;
                 }
+                mOnBleDeviceListener.onDisconnected();
             }
 
             @Override
@@ -94,19 +99,24 @@ public class App extends Application {
 
             @Override
             public void onReceivedValue(String deviceTAG, String uuid, byte[] value) {
-                if(mOnBleDeviceListener != null) {
-                    mOnBleDeviceListener.onReceivedValue(uuid, value);
-                }
                 Timber.d("onReceivedValue value: %1s", ConvertUtils.bytes2HexString(value));
+                if(mOnBleDeviceListener == null) {
+                    Timber.e("mOnBleDeviceListener == null");
+                    return;
+                }
+                mOnBleDeviceListener.onReceivedValue(uuid, value);
             }
 
             @Override
             public void onWriteValue(String deviceTAG, String uuid, byte[] value, boolean success) {
-                if(mOnBleDeviceListener != null) {
-                    mOnBleDeviceListener.onWriteValue(uuid, value, success);
-                }
                 Timber.d("onWriteValue uuid: %1s, value: %2s, success: %3b",
                         uuid, ConvertUtils.bytes2HexString(value), success);
+                if(mOnBleDeviceListener == null) {
+                    Timber.e("mOnBleDeviceListener == null");
+                    return;
+                }
+                mOnBleDeviceListener.onWriteValue(uuid, value, success);
+
             }
 
             @Override
@@ -218,14 +228,25 @@ public class App extends Application {
     }
 
     public void addWillFinishAct(Activity activity) {
-        mWillFinishActivities.add(activity);
+        if(!mWillFinishActivities.contains(activity)) {
+            mWillFinishActivities.add(activity);
+        }
+
     }
 
     public List<Activity> getWillFinishActivities() {
         return mWillFinishActivities;
     }
 
-    public void clearWillFinishActivities() {
+    public void finishPreActivities() {
+        if(mWillFinishActivities.isEmpty()) {
+            return;
+        }
+        for (Activity activity : mWillFinishActivities) {
+            if(activity != null) {
+                activity.finish();
+            }
+        }
         mWillFinishActivities.clear();
     }
 
