@@ -83,7 +83,9 @@ dependencies {
     // basePopup
     implementation 'com.github.razerdp:BasePopup:2.2.18'
     // 日志
-    implementation 'com.squareup.okhttp3:logging-interceptor:3.5.0'
+    implementation 'com.squareup.okhttp3:logging-interceptor:3.9.0'
+    // 联动控件
+    implementation 'com.contrarywind:Android-PickerView:4.1.9'
 
 
     // room数据库支持

@@ -64,6 +64,7 @@ public class OperationRecordsActivity extends BaseActivity {
     public void doBusiness() {
         initDevice();
         initDataFromLock();
+        initData();
     }
 
     @Override
@@ -94,7 +95,7 @@ public class OperationRecordsActivity extends BaseActivity {
                 return;
             }
             BleResultProcess.setOnReceivedProcess(mOnReceivedProcess);
-            BleResultProcess.processReceivedData(value, mBleBean.getPwd1(), null,
+            BleResultProcess.processReceivedData(value, mBleBean.getPwd1(), mBleBean.getPwd3(),
                     mBleBean.getOKBLEDeviceImp().getBleScanResult());
         }
 

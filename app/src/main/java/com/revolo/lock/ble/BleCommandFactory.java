@@ -789,9 +789,17 @@ public class BleCommandFactory {
     }
 
     /**
+     *  设置关门自动上锁时间
+     * @param time 自动上锁时间
+     */
+    public static byte[] setAutoLockTime(int time, byte[] pwd1, byte[] pwd3) {
+        return commandPackage(true, (byte) 0x21, commandTSN(), BleByteUtil.int2BytesArray(time), pwd1, pwd3);
+    }
+
+    /**
      * 心跳包
      */
-    public static byte[] heartBeatCommand() {
+    public static byte[] heartBeat() {
         byte[] data = new byte[1];
         data[0] = (byte) 0xFF;
         return commandPackage(false, (byte) 0xAA, heartBeatTSN(), data, null, null);

@@ -351,5 +351,7 @@
     <string name="fri">Fri</string>
     <string name="sat">Sat</string>
     <string name="start_date">Start date</string>
+    <string name="time">time</string>
+    <string name="end_date">End date</string>
 
 </resources>

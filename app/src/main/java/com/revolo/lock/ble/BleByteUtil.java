@@ -11,6 +11,36 @@ import java.util.Arrays;
  */
 public class BleByteUtil {
 
+    /**
+     * 把int转换成byte数组
+     *
+     * @param n 要转换的int值
+     * @return 返回的byte数组
+     */
+    public static byte[] int2BytesArray(int n) {
+        byte[] b = new byte[4];
+        for (int i = 0; i < 4; i++) {
+            b[i] = (byte) (n >> (24 - i * 8));
+        }
+        return b;
+    }
+
+
+    /**
+     * 把byte数组转换成int类型
+     *
+     * @param b 源byte数组
+     * @return 返回的int值
+     */
+    public static int byteArray2Int(byte[] b) {
+        int a = (((int) b[0]) << 24) + (((int) b[1]) << 16) + (((int) b[2]) << 8) + b[3];
+        if (a < 0) {
+            a = a + 256;
+        }
+        return a;
+    }
+
+
     //byte 与 int 的相互转换
     public static byte intToByte(int x) {
         return (byte) x;

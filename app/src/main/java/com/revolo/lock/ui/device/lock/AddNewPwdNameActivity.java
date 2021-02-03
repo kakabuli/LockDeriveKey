@@ -1,6 +1,5 @@
 package com.revolo.lock.ui.device.lock;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -10,14 +9,12 @@ import android.widget.EditText;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.blankj.utilcode.util.ActivityUtils;
 import com.blankj.utilcode.util.ToastUtils;
 import com.revolo.lock.App;
 import com.revolo.lock.Constant;
 import com.revolo.lock.R;
 import com.revolo.lock.base.BaseActivity;
 
-import java.util.List;
 
 /**
  * author : Jack
@@ -62,7 +59,7 @@ public class AddNewPwdNameActivity extends BaseActivity {
             return;
         }
         if(view.getId() == R.id.tvAddNextTime) {
-            sendPwdDataToService();
+            finish();
         }
     }
 

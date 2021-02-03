@@ -47,7 +47,16 @@ public class AddNewPwdSelectActivity extends BaseActivity {
     private CustomerLoadingDialog mLoadingDialog;
     private String mKey;
     private TextView tvStartTime, tvEndTime;
+    private TextView tvSun, tvMon, tvTues, tvWed, tvThur, tvFri, tvSat;
     private View vSun, vMon, vTues, vWed, vThur, vFri, vSat;
+
+    private boolean isSelectedSun = false;
+    private boolean isSelectedMon = false;
+    private boolean isSelectedTues = false;
+    private boolean isSelectedWed = false;
+    private boolean isSelectedThur = false;
+    private boolean isSelectedFri = false;
+    private boolean isSelectedSat = false;
 
     @Override
     public void initData(@Nullable Bundle bundle) {
@@ -75,7 +84,24 @@ public class AddNewPwdSelectActivity extends BaseActivity {
         mBtnNext = findViewById(R.id.btnNext);
         mClSchedule = findViewById(R.id.clSchedule);
         mClTemporary = findViewById(R.id.clTemporary);
-        applyDebouncingClickListener(rlPermanent, rlSchedule, rlTemporary, mBtnNext);
+        tvStartTime = findViewById(R.id.tvStartTime);
+        tvEndTime = findViewById(R.id.tvEndTime);
+        tvSun = findViewById(R.id.tvSun);
+        tvMon = findViewById(R.id.tvMon);
+        tvTues = findViewById(R.id.tvTues);
+        tvWed = findViewById(R.id.tvWed);
+        tvThur = findViewById(R.id.tvThur);
+        tvFri = findViewById(R.id.tvFri);
+        tvSat = findViewById(R.id.tvSat);
+        vSun = findViewById(R.id.vSun);
+        vMon = findViewById(R.id.vMon);
+        vTues = findViewById(R.id.vTues);
+        vWed = findViewById(R.id.vWed);
+        vThur = findViewById(R.id.vThur);
+        vFri = findViewById(R.id.vFri);
+        vSat = findViewById(R.id.vSat);
+        applyDebouncingClickListener(rlPermanent, rlSchedule, rlTemporary, mBtnNext,
+                tvSun, tvMon, tvTues, tvWed, tvThur, tvFri, tvSat);
 
         // TODO: 2021/1/29 抽离英文
         mLoadingDialog = new CustomerLoadingDialog.Builder(this)
@@ -109,8 +135,49 @@ public class AddNewPwdSelectActivity extends BaseActivity {
         }
         if(view.getId() == R.id.btnNext) {
             nextStep();
+            return;
+        }
+        if(view.getId() == R.id.tvSun) {
+            isSelectedSun = !isSelectedSun;
+            vSun.setVisibility(isSelectedSun?View.VISIBLE:View.GONE);
+            return;
+        }
+        if(view.getId() == R.id.tvMon) {
+            isSelectedMon = !isSelectedMon;
+            vMon.setVisibility(isSelectedMon?View.VISIBLE:View.GONE);
+            return;
+        }
+        if(view.getId() == R.id.tvTues) {
+            isSelectedTues = !isSelectedTues;
+            vTues.setVisibility(isSelectedTues?View.VISIBLE:View.GONE);
+            return;
+        }
+        if(view.getId() == R.id.tvWed) {
+            isSelectedWed = !isSelectedWed;
+            vWed.setVisibility(isSelectedWed?View.VISIBLE:View.GONE);
+            return;
+        }
+        if(view.getId() == R.id.tvThur) {
+            isSelectedThur = !isSelectedThur;
+            vThur.setVisibility(isSelectedThur?View.VISIBLE:View.GONE);
+            return;
+        }
+        if(view.getId() == R.id.tvFri) {
+            isSelectedFri = !isSelectedFri;
+            vFri.setVisibility(isSelectedFri?View.VISIBLE:View.GONE);
+            return;
+        }
+        if(view.getId() == R.id.tvSat) {
+            isSelectedSat = !isSelectedSat;
+            vSat.setVisibility(isSelectedSat?View.VISIBLE:View.GONE);
         }
     }
+
+//    @Override
+//    protected void onDestroy() {
+//        App.getInstance().clearBleDeviceListener();
+//        super.onDestroy();
+//    }
 
     private void nextStep() {
         if(mLoadingDialog != null) {
@@ -135,12 +202,6 @@ public class AddNewPwdSelectActivity extends BaseActivity {
                     mKey.getBytes(StandardCharsets.UTF_8), mBleBean.getPwd1(), mBleBean.getPwd3()));
             // TODO: 2021/1/29 需要做超时操作
         }
-    }
-
-    @Override
-    protected void onDestroy() {
-        App.getInstance().clearBleDeviceListener();
-        super.onDestroy();
     }
 
     private void showPermanentState() {

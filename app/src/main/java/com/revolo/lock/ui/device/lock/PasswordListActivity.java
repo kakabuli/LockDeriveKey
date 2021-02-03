@@ -2,6 +2,8 @@ package com.revolo.lock.ui.device.lock;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.View;
 
 import androidx.annotation.NonNull;
@@ -12,14 +14,21 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.chad.library.adapter.base.listener.OnItemClickListener;
+import com.revolo.lock.App;
 import com.revolo.lock.Constant;
 import com.revolo.lock.R;
 import com.revolo.lock.adapter.PasswordListAdapter;
 import com.revolo.lock.base.BaseActivity;
 import com.revolo.lock.bean.test.TestPwdBean;
+import com.revolo.lock.ble.BleCommandFactory;
+import com.revolo.lock.ble.BleResultProcess;
+import com.revolo.lock.ble.OnBleDeviceListener;
+import com.revolo.lock.ble.bean.BleResultBean;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import timber.log.Timber;
 
 /**
  * author : Jack
@@ -52,7 +61,7 @@ public class PasswordListActivity extends BaseActivity {
         mPasswordListAdapter.setOnItemClickListener(new OnItemClickListener() {
             @Override
             public void onItemClick(@NonNull BaseQuickAdapter<?, ?> adapter, @NonNull View view, int position) {
-                if(adapter != null && position >= 0 && adapter.getItem(position) instanceof TestPwdBean) {
+                if(position >= 0 && adapter.getItem(position) instanceof TestPwdBean) {
                     Intent intent = new Intent(PasswordListActivity.this, PasswordDetailActivity.class);
                     TestPwdBean testPwdBean  = (TestPwdBean) adapter.getItem(position);
                     intent.putExtra(Constant.PWD_DETAIL, testPwdBean);
@@ -66,6 +75,7 @@ public class PasswordListActivity extends BaseActivity {
     @Override
     public void doBusiness() {
         testInitPwd();
+        initBleListener();
     }
 
     @Override
@@ -95,5 +105,89 @@ public class PasswordListActivity extends BaseActivity {
         mPasswordListAdapter.setList(list);
 
     }
+
+    private final BleResultProcess.OnReceivedProcess mOnReceivedProcess = bleResultBean -> {
+        if(bleResultBean == null) {
+            Timber.e("mOnReceivedProcess bleResultBean == null");
+            return;
+        }
+        getPwdListFormBle(bleResultBean);
+    };
+
+    private void initBleListener() {
+        App.getInstance().setOnBleDeviceListener(new OnBleDeviceListener() {
+            @Override
+            public void onConnected() {
+
+            }
+
+            @Override
+            public void onDisconnected() {
+
+            }
+
+            @Override
+            public void onReceivedValue(String uuid, byte[] value) {
+                if(value == null) {
+                    return;
+                }
+                BleResultProcess.setOnReceivedProcess(mOnReceivedProcess);
+                BleResultProcess.processReceivedData(value,
+                        App.getInstance().getBleBean().getPwd1(),
+                        App.getInstance().getBleBean().getPwd3(),
+                        App.getInstance().getBleBean().getOKBLEDeviceImp().getBleScanResult());
+            }
+
+            @Override
+            public void onWriteValue(String uuid, byte[] value, boolean success) {
+
+            }
+        });
+        new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                App.getInstance().writeControlMsg(BleCommandFactory
+                        .synchronizeLockKeyStatusCommand((byte) 0x01,
+                                App.getInstance().getBleBean().getPwd1(),
+                                App.getInstance().getBleBean().getPwd3()));
+                Timber.d("发送了请求密钥列表指令");
+            }
+        }, 100);
+
+    }
+
+    private void getPwdListFormBle(BleResultBean bean) {
+        // TODO: 2021/2/3 可能存在100条数据以上，后续需要做100条数据以上的测试
+        if(bean.getCMD() == 0x11) {
+            byte[] value = bean.getPayload();
+            int index = value[0] & 0xff;
+            int codeType = value[1] & 0xff;
+            int codeNumber = value[2] & 0xff;
+            Timber.d("秘钥的帧数是  %1d, 秘钥类型是  %2d  秘钥总数是   %3d", index, codeType, codeNumber);
+            // TODO: 2021/2/3 密钥列表的解析，有疑问，后续需要增加解析并显示
+        }
+    }
+
+//    private int[] temp = new int[]{0b10000000, 0b01000000, 0b00100000, 0b00010000, 0b00001000, 0b00000100, 0b00000010, 0b00000001};
+//
+//    private void getAllPasswordNumber(int codeNumber, byte[] deValue) {
+//        int passwordNumber = 10;
+//        if (BleLockUtils.isSupport20Passwords(bleLockInfo.getServerLockInfo().getFunctionSet())) {  //支持20个密码的锁
+//            passwordNumber = 20;  //永久密码的最大编号   小凯锁都是5个  0-5
+//        }
+//        for (int index = 0; index * 8 < passwordNumber; index++) {
+//            if (index > 13) {
+//                return;
+//            }
+//            for (int j = 0; j < 8 && index * 8 + j < passwordNumber; j++) {
+//                if (((deValue[3 + index] & temp[j])) == temp[j] && index * 8 + j < passwordNumber) {
+//                    bleNumber.add(index * 8 + j);
+//                }
+//                if (index * 8 + j >= passwordNumber) {
+//                    return;
+//                }
+//            }
+//        }
+//    }
 
 }
