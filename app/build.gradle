@@ -84,4 +84,16 @@ dependencies {
     implementation 'com.github.razerdp:BasePopup:2.2.18'
     // 日志
     implementation 'com.squareup.okhttp3:logging-interceptor:3.5.0'
+
+
+    // room数据库支持
+    def room_version = "2.2.6"
+    implementation "androidx.room:room-runtime:$room_version"
+    annotationProcessor "androidx.room:room-compiler:$room_version"
+    // optional - RxJava support for Room
+    implementation "androidx.room:room-rxjava2:$room_version"
+    // optional - Guava support for Room, including Optional and ListenableFuture
+    implementation "androidx.room:room-guava:$room_version"
+    // optional - Test helpers
+    testImplementation "androidx.room:room-testing:$room_version"
 }

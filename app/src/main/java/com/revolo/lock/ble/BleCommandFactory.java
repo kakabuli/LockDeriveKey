@@ -781,6 +781,13 @@ public class BleCommandFactory {
         return commandPackage(true, (byte) CMD_KEY_ADD, commandTSN(), data, pwd1, pwd3);
     }
 
+    public static byte[] doorCalibration(@BleCommandState.DoorCalibrationState int doorState,
+                                         byte[] pwd1, byte[] pwd3) {
+        byte[] data = new byte[1];
+        data[0] = (byte) doorState;
+        return commandPackage(true, (byte) 0x1F, commandTSN(), data, pwd1, pwd3);
+    }
+
     /**
      * 心跳包
      */

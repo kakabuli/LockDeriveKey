@@ -31,6 +31,7 @@ import com.revolo.lock.ble.bean.BleResultBean;
 import com.revolo.lock.net.HttpRequest;
 import com.revolo.lock.net.ObservableDecorator;
 
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
 import io.reactivex.Observable;
@@ -226,7 +227,10 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
             } else if(data[0] == 0x02) {
                 // 获取pwd3
                 getPwd3(bleResultBean, data);
-                addDeviceToService();
+                startActivity(new Intent(AddDeviceStep2BleConnectActivity.this, BleConnectSucActivity.class));
+                finish();
+                // TODO: 2021/2/3 临时屏蔽服务器
+//                addDeviceToService();
             }
         }
     }
@@ -444,10 +448,11 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
             //过滤无用蓝牙广播数据
             if (value.length < 16) return false;
             //截取出SN
-            for (int j = 3; j < 16; j++) {
+            for (int j = 5; j < 18; j++) {
                 sb.append((char) value[j]);
             }
             String sn = sb.toString().trim();
+            Timber.d("%1s, %2s", ConvertUtils.bytes2HexString(value), new String(value, Charset.forName("UTF-8")));
             Timber.d("getAndCheckESN device esn: %1s, input esn: %2s", sn, esn);
             return sn.equalsIgnoreCase(esn);
         }

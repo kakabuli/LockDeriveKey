@@ -127,4 +127,14 @@ public class BleCommandState {
     public static final int LOCK_RECORD_OP_LOG_TYPE_KEY = 0x02;
     public static final int LOCK_RECORD_OP_LOG_TYPE_ALL = 0x03;
 
+    @IntDef(value = {DOOR_CALIBRATION_STATE_OPEN, DOOR_CALIBRATION_STATE_CLOSE,
+            DOOR_CALIBRATION_STATE_HALF, DOOR_CALIBRATION_STATE_START_SE,
+            DOOR_CALIBRATION_STATE_CLOSE_SE})
+    public @interface DoorCalibrationState{}
+    public static final int DOOR_CALIBRATION_STATE_OPEN = 0x01;
+    public static final int DOOR_CALIBRATION_STATE_CLOSE = 0x02;
+    public static final int DOOR_CALIBRATION_STATE_HALF = 0x03;
+    public static final int DOOR_CALIBRATION_STATE_START_SE = 0x04;
+    public static final int DOOR_CALIBRATION_STATE_CLOSE_SE = 0x05;
+
 }
