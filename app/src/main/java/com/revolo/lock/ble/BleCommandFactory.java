@@ -84,9 +84,12 @@ public class BleCommandFactory {
      * @return                发送的完整的指令
      */
     private static byte[] pwd1Encrypt(byte[] needEncryptData, byte[] pwd1, byte[] command) {
+        if(pwd1 == null) {
+            return new byte[20];
+        }
         if(pwd1.length != 16) {
             Timber.e("pwd1Encrypt pwd1 key的长度错误，请检查输入的数据 size: %1d", pwd1.length);
-            return null;
+            return new byte[20];
         }
         byte[] payload = EncryptUtils.encryptAES(needEncryptData, pwd1, "AES/ECB/NoPadding", null);
         Timber.d("pwd1Encrypt 加密之前的数据：%1s\n pwd1：%2s\n 加密后的数据：%3s",
@@ -101,16 +104,16 @@ public class BleCommandFactory {
      * @param pwd1             加密的key pwd1 不足16位需要补0
      * @param pwd2Or3          加密的key pwd2或者pwd3，与pwd1结合生成pwd
      * @param command          把加密后的数据载入到对应的指令
-     * @return                 发送的完整的指令
+     * @return                 发送的完整的指令,出错返回全是00的数据
      */
     private static byte[] pwdEncrypt(byte[] needEncryptData, byte[] pwd1, byte[] pwd2Or3, byte[] command) {
         if(pwd1.length != 16) {
             Timber.e("pwdEncrypt pwd1 key的长度错误，请检查输入的数据 size: %1d", pwd1.length);
-            return null;
+            return new byte[20];
         }
         if(pwd2Or3.length != 4) {
             Timber.e("pwdEncrypt pwd2 key的长度错误，请检查输入的数据 size: %1d", pwd2Or3.length);
-            return null;
+            return new byte[20];
         }
         byte[] pwd = new byte[16];
         for (int i=0; i < pwd.length; i++) {

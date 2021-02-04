@@ -88,4 +88,9 @@
         <item name="android:backgroundDimEnabled">true</item>
     </style>
 
+    <style name="MyTimePickerDialogTheme" parent="@style/Theme.AppCompat.Light.Dialog">
+        <item name="android:textColor">@color/c2C68FF</item>
+        <item name="colorAccent">@color/c2C68FF</item>
+    </style>
+
 </resources>

@@ -193,22 +193,25 @@ public class DoorSensorCheckActivity extends BaseActivity {
     private void changedDoor(BleResultBean bleResultBean) {
         if(bleResultBean.getCMD() == 0x1F) {
             if(bleResultBean.getPayload()[0] == 0x00) {
-                switch (mDoorState) {
-                    case DOOR_CLOSE:
-                        refreshHalfTheDoor();
-                        break;
-                    case DOOR_HALF:
-                        refreshOpenTheDoor();
-                        break;
-                    case DOOR_OPEN:
-                        refreshDoorSuc();
-                        break;
-                    case DOOR_SUC:
-                        gotoAddWifi();
-                        break;
-                    case DOOR_FAIL:
-                        break;
-                }
+                runOnUiThread(() -> {
+                    switch (mDoorState) {
+                        case DOOR_CLOSE:
+                            refreshOpenTheDoor();
+                            break;
+                        case DOOR_HALF:
+                            refreshDoorSuc();
+                            break;
+                        case DOOR_OPEN:
+                            refreshHalfTheDoor();
+                            break;
+                        case DOOR_SUC:
+                            gotoAddWifi();
+                            break;
+                        case DOOR_FAIL:
+                            break;
+                    }
+                });
+
             } else {
                 mDoorState = DOOR_FAIL;
                 startActivity(new Intent(this, DoorCheckFailActivity.class));

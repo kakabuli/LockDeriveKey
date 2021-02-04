@@ -165,29 +165,9 @@ public class PasswordListActivity extends BaseActivity {
             int codeNumber = value[2] & 0xff;
             Timber.d("秘钥的帧数是  %1d, 秘钥类型是  %2d  秘钥总数是   %3d", index, codeType, codeNumber);
             // TODO: 2021/2/3 密钥列表的解析，有疑问，后续需要增加解析并显示
+            // 暂时项目只有20条密码极限
+            
         }
     }
-
-//    private int[] temp = new int[]{0b10000000, 0b01000000, 0b00100000, 0b00010000, 0b00001000, 0b00000100, 0b00000010, 0b00000001};
-//
-//    private void getAllPasswordNumber(int codeNumber, byte[] deValue) {
-//        int passwordNumber = 10;
-//        if (BleLockUtils.isSupport20Passwords(bleLockInfo.getServerLockInfo().getFunctionSet())) {  //支持20个密码的锁
-//            passwordNumber = 20;  //永久密码的最大编号   小凯锁都是5个  0-5
-//        }
-//        for (int index = 0; index * 8 < passwordNumber; index++) {
-//            if (index > 13) {
-//                return;
-//            }
-//            for (int j = 0; j < 8 && index * 8 + j < passwordNumber; j++) {
-//                if (((deValue[3 + index] & temp[j])) == temp[j] && index * 8 + j < passwordNumber) {
-//                    bleNumber.add(index * 8 + j);
-//                }
-//                if (index * 8 + j >= passwordNumber) {
-//                    return;
-//                }
-//            }
-//        }
-//    }
 
 }
