@@ -199,7 +199,10 @@ public class DoorSensorCheckActivity extends BaseActivity {
     private void changedDoor(BleResultBean bleResultBean) {
         if(bleResultBean.getCMD() == 0x1F) {
             if(bleResultBean.getPayload()[0] == 0x00) {
-                // TODO: 2021/2/5 发送禁用也会返回状态
+                // 排除掉第一次发送禁用门磁指令的状态反馈
+                if(mCalibrationState == BleCommandState.DOOR_CALIBRATION_STATE_CLOSE_SE) {
+                    return;
+                }
                 runOnUiThread(() -> {
                     switch (mDoorState) {
                         case DOOR_CLOSE:
