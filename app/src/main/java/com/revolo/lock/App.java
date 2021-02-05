@@ -2,6 +2,12 @@ package com.revolo.lock;
 
 import android.app.Activity;
 import android.app.Application;
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.Intent;
+import android.content.ServiceConnection;
+import android.os.IBinder;
+import android.text.TextUtils;
 
 import com.a1anwang.okble.client.core.OKBLEDeviceImp;
 import com.a1anwang.okble.client.core.OKBLEDeviceListener;
@@ -12,6 +18,8 @@ import com.blankj.utilcode.util.ConvertUtils;
 import com.revolo.lock.bean.respone.MailLoginBeanRsp;
 import com.revolo.lock.ble.bean.BleBean;
 import com.revolo.lock.ble.OnBleDeviceListener;
+import com.revolo.lock.mqtt.MqttService;
+import com.revolo.lock.ui.sign.LoginActivity;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -39,6 +47,8 @@ public class App extends Application {
         return instance;
     }
 
+    protected MqttService mqttService;
+
     @Override
     public void onCreate() {
         super.onCreate();
@@ -47,6 +57,7 @@ public class App extends Application {
             Timber.plant(new Timber.DebugTree());
         }
         initCacheDisk();
+        initMqttService();
     }
 
     private void initCacheDisk() {
@@ -226,6 +237,77 @@ public class App extends Application {
     public void setUserBean(MailLoginBeanRsp.DataBean userBean) {
         mUserBean = userBean;
     }
+
+    /**
+     * 启动MQTT服务
+     */
+    private void initMqttService() {
+        Intent intent = new Intent(this, MqttService.class);
+        bindService(intent, new ServiceConnection() {
+            @Override
+            public void onServiceConnected(ComponentName name, IBinder service) {
+                if (service instanceof MqttService.MyBinder) {
+                    MqttService.MyBinder binder = (MqttService.MyBinder) service;
+                    mqttService = binder.getService();
+                    Timber.d("attachView service启动" + (mqttService == null));
+                }
+            }
+
+            @Override
+            public void onServiceDisconnected(ComponentName name) {
+
+            }
+        }, Context.BIND_AUTO_CREATE);
+    }
+
+
+    public MqttService getMqttService() {
+        return mqttService;
+    }
+
+    /**
+     * @param isShowDialog 是否弹出对话框，提示用户token失效，需要重新登陆。如果是主动退出登录的那么不需要提示 是false
+     *                     <p>
+     *                     <p>
+     *                     Token过期  需要处理的事情
+     *                     清除token和UID
+     *                     bleService  断开蓝牙连接  清除蓝牙数据
+     *                     清除缓存到的本地数据
+     *                     关闭所有界面，退出到登陆界面
+     *                     ....
+     */
+    public void tokenInvalid(boolean isShowDialog) {
+        clearData();  //清除数据库数据
+        finishPreActivities();
+        Timber.d("token过期   ");
+
+        //清除内存中缓存的数据
+        if(mDevice != null) {
+            // 如果之前存在设备，需要先断开之前的连接
+            mDevice.disConnect(false);
+        }
+
+        //清除数据库数据
+        for (Activity activity : mWillFinishActivities) {
+            if (activity != null) {
+                Intent intent = new Intent(activity, LoginActivity.class);
+                intent.putExtra(Constant.IS_SHOW_DIALOG, isShowDialog);
+                activity.startActivity(intent);
+                activity.finish();
+            }
+        }
+    }
+
+    /**
+     * 删除持久化数据
+     */
+    private void clearData() {
+        //TODO:未实现Room 清除ORM数据库
+        File file = new File(getDir("Ble", MODE_PRIVATE) + mFilePath);
+        file.delete();
+
+    }
+
 
     public void addWillFinishAct(Activity activity) {
         if(!mWillFinishActivities.contains(activity)) {

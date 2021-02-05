@@ -34,4 +34,9 @@ public class Constant {
     public static final String BLE_DEVICE = "BleDevice";
     public static final String KEY_PWD_NUM = "keyPwdNum";
 
+    /**
+     * 在login界面，是否显示提示对话框key
+     */
+    public static final String IS_SHOW_DIALOG = "isShowDialog";
+
 }

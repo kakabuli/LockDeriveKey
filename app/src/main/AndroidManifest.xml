@@ -118,6 +118,8 @@
         <activity android:name=".ui.device.lock.setting.GeoFenceUnlockActivity" />
         <activity android:name=".ui.device.lock.setting.DoorMagnetAlignmentActivity" />
         <activity android:name=".ui.test.TestAddWifiActivity" />
+
+        <service android:name=".mqtt.MqttService" />
     </application>
 
 </manifest>

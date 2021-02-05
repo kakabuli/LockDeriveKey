@@ -14,6 +14,7 @@ import androidx.annotation.Nullable;
 import com.blankj.utilcode.util.RegexUtils;
 import com.blankj.utilcode.util.ToastUtils;
 import com.revolo.lock.App;
+import com.revolo.lock.Constant;
 import com.revolo.lock.bean.request.MailLoginBeanReq;
 import com.revolo.lock.bean.respone.MailLoginBeanRsp;
 import com.revolo.lock.net.HttpRequest;
@@ -55,6 +56,18 @@ public class LoginActivity extends BaseActivity {
         mEtPwd = findViewById(R.id.etPwd);
         applyDebouncingClickListener(findViewById(R.id.tvForgotPwd),
                 findViewById(R.id.ivEye), findViewById(R.id.btnSignIn));
+
+        if(getIntent().getBooleanExtra(Constant.IS_SHOW_DIALOG,false)){
+            //TODO:是否弹出token失效弹窗
+            tokenDialog();
+        }
+    }
+
+    /**
+     *  弹出token失效弹窗
+     */
+    private void tokenDialog() {
+
     }
 
     @Override

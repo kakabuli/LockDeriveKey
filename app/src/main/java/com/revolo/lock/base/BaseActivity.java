@@ -14,6 +14,7 @@ import androidx.core.content.ContextCompat;
 
 import com.blankj.utilcode.util.AdaptScreenUtils;
 import com.blankj.utilcode.util.ClickUtils;
+import com.revolo.lock.App;
 import com.revolo.lock.R;
 import com.revolo.lock.ui.TitleBar;
 
@@ -39,6 +40,7 @@ public abstract class BaseActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         initData(getIntent().getExtras());
         setContentView();
+        App.getInstance().getMqttService().mqttConnection();
         initView(savedInstanceState, mContentView);
         doBusiness();
     }
