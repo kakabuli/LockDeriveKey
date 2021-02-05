@@ -419,6 +419,7 @@ public class AddNewPwdSelectActivity extends BaseActivity {
             byte state = bleResultBean.getPayload()[0];
             if(state == 0x00) {
                 mNum = bleResultBean.getPayload()[1];
+                App.getInstance().getCacheDiskUtils().put("createTime"+mNum, TimeUtils.getNowMills());
                 if(mSelectedPwdState == PERMANENT_STATE) {
                     showSucAndGotoAnotherPage();
                 } else if(mSelectedPwdState == SCHEDULE_STATE) {
@@ -436,7 +437,8 @@ public class AddNewPwdSelectActivity extends BaseActivity {
                     Timber.d("sun: %1b, mon: %2b, tues: %3b, wed: %4b, thur: %5b, fri: %6b, sat: %7b",
                             isSelectedSun, isSelectedMon, isSelectedTues, isSelectedWed,
                             isSelectedThur, isSelectedFri, isSelectedSat);
-                    Timber.d("week: %1s, weekBytes: %2s", ConvertUtils.int2HexString(week), ConvertUtils.bytes2HexString(weekBit));
+                    Timber.d("num: %1s, week: %2s, weekBytes: %3s",
+                            mNum, ConvertUtils.int2HexString(week), ConvertUtils.bytes2HexString(weekBit));
                     App.getInstance()
                             .writeControlMsg(BleCommandFactory
                                     .keyAttributesSet(KEY_SET_KEY_OPTION_ADD_OR_CHANGE,

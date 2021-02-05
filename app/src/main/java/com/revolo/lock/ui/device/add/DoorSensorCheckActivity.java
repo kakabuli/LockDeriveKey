@@ -42,6 +42,9 @@ public class DoorSensorCheckActivity extends BaseActivity {
     private static final int DOOR_SUC = 4;
     private static final int DOOR_FAIL = 5;
 
+    @BleCommandState.DoorCalibrationState
+    private int mCalibrationState = BleCommandState.DOOR_CALIBRATION_STATE_CLOSE_SE;
+
     @DoorState
     private int mDoorState = DOOR_CLOSE;
 
@@ -77,6 +80,8 @@ public class DoorSensorCheckActivity extends BaseActivity {
             super.onBackPressed();
         } else {
             if(mDoorState == DOOR_HALF) {
+                refreshOpenTheDoor();
+            } else if(mDoorState == DOOR_OPEN) {
                 refreshCloseTheDoor();
             }
         }
@@ -109,6 +114,7 @@ public class DoorSensorCheckActivity extends BaseActivity {
     }
 
     private void sendCommand(@BleCommandState.DoorCalibrationState int doorState) {
+        mCalibrationState = doorState;
         App.getInstance()
                 .writeControlMsg(BleCommandFactory
                         .doorCalibration(doorState,
@@ -193,6 +199,7 @@ public class DoorSensorCheckActivity extends BaseActivity {
     private void changedDoor(BleResultBean bleResultBean) {
         if(bleResultBean.getCMD() == 0x1F) {
             if(bleResultBean.getPayload()[0] == 0x00) {
+                // TODO: 2021/2/5 发送禁用也会返回状态
                 runOnUiThread(() -> {
                     switch (mDoorState) {
                         case DOOR_CLOSE:
