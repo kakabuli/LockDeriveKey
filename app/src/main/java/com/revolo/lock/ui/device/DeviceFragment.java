@@ -86,6 +86,13 @@ public class DeviceFragment extends Fragment {
                     startActivity(intent);
                 }
             });
+            mHomeLockListAdapter.setOnLockClickListener(new HomeLockListAdapter.OnLockClickListener() {
+                @Override
+                public void onClick() {
+                    App.getInstance().writeControlMsg(BleCommandFactory
+                            .lockControlCommand((byte) 0x00, (byte) 0x04, (byte) 0x01, mPwd1, mPwd3));
+                }
+            });
             rvLockList.setAdapter(mHomeLockListAdapter);
             if(getActivity() instanceof MainActivity) {
                 ((MainActivity)getActivity()).setStatusBarColor(R.color.white);
@@ -133,7 +140,7 @@ public class DeviceFragment extends Fragment {
         new Handler(Looper.getMainLooper()).postDelayed(() -> {
             long nowTime = TimeUtils.getNowMills()/1000;
             App.getInstance().writeControlMsg(BleCommandFactory
-                    .syLockTime(BleByteUtil.longToUnsigned32Bytes(nowTime), mPwd1, mPwd3));
+                    .syLockTime(nowTime, mPwd1, mPwd3));
         }, 20);
     }
 

@@ -243,7 +243,7 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
         new Handler(Looper.getMainLooper()).postDelayed(() -> {
             long nowTime = TimeUtils.getNowMills()/1000;
             App.getInstance().writeControlMsg(BleCommandFactory
-                    .syLockTime(BleByteUtil.longToUnsigned32Bytes(nowTime), mPwd1, mPwd3));
+                    .syLockTime(nowTime, mPwd1, mPwd3));
         }, 20);
     }
 

@@ -19,6 +19,7 @@ import static com.revolo.lock.ble.BleProtocolState.CMD_LOCK_PARAMETER_CHECK;
  * E-mail : wengmaowei@kaadas.com
  * desc   : 蓝牙协议生成工具类
  */
+// TODO: 2021/2/5 记得超过2个字节的都改成小端模式， 除了esn是字符串
 public class BleCommandFactory {
 
     // Control(1byte)+TSN(1byte)+Check(1byte)+Cmd(1byte)+payload(16byte)
@@ -60,6 +61,15 @@ public class BleCommandFactory {
         for (int i=0; i < 1000; i++) {
             Timber.d("sCommandTSN : %1s", String.valueOf(commandTSN()));
         }
+    }
+
+    private static byte[] littleMode(byte[] bytes) {
+        for (int i=0; i<bytes.length/2; i++) {
+            byte tmp = bytes[i];
+            bytes[i] = bytes[bytes.length-1-i];
+            bytes[bytes.length-1-i] = tmp;
+        }
+        return bytes;
     }
 
     /**
@@ -213,6 +223,15 @@ public class BleCommandFactory {
         data[2] = userId;
         data[3] = pwdLength;
         System.arraycopy(code, 0, data, 4, code.length);
+        return commandPackage(true, (byte) 0x02, commandTSN(), data, pwd1, pwd2);
+    }
+
+    public static byte[] lockControlCommand(byte action, byte codeType, byte userId, byte[] pwd1, byte[] pwd2) {
+        byte[] data = new byte[4];
+        data[0] = action;
+        data[1] = codeType;
+        data[2] = userId;
+        data[3] = 0x00;
         return commandPackage(true, (byte) 0x02, commandTSN(), data, pwd1, pwd2);
     }
 
@@ -695,8 +714,10 @@ public class BleCommandFactory {
         byte[] data = new byte[6];
         data[0] = (byte) option;
         data[1] = (byte) logType;
-        System.arraycopy(logIndexStart, 0, data, 2, logIndexStart.length);
-        System.arraycopy(logIndexEnd, 0, data, 4, logIndexEnd.length);
+        byte[] realLogIndexStart = littleMode(logIndexStart);
+        byte[] realLogIndexEnd = littleMode(logIndexEnd);
+        System.arraycopy(realLogIndexStart, 0, data, 2, realLogIndexStart.length);
+        System.arraycopy(realLogIndexEnd, 0, data, 4, realLogIndexEnd.length);
         return commandPackage(true, (byte) 0x18, commandTSN(), data, pwd1, pwd3);
     }
 
@@ -750,8 +771,10 @@ public class BleCommandFactory {
         data[2] = keyNum;
         data[3] = (byte) attribute;
         data[4] = week;
-        System.arraycopy(BleByteUtil.longToUnsigned32Bytes(startTime), 0, data, 5, 4);
-        System.arraycopy(BleByteUtil.longToUnsigned32Bytes(endTime), 0, data, 9, 4);
+        byte[] realStartTime = littleMode(BleByteUtil.longToUnsigned32Bytes(startTime));
+        byte[] realEndTime = littleMode(BleByteUtil.longToUnsigned32Bytes(endTime));
+        System.arraycopy(realStartTime, 0, data, 5, 4);
+        System.arraycopy(realEndTime, 0, data, 9, 4);
         return commandPackage(true, (byte) CMD_KEY_ATTRIBUTES_SET, commandTSN(), data, pwd1, pwd3);
     }
 
@@ -831,8 +854,9 @@ public class BleCommandFactory {
      * 与锁同步时间
      * @param time 手机当前的时间
      */
-    public static byte[] syLockTime(byte[] time, byte[] pwd1, byte[] pwd3) {
-        return commandPackage(true, (byte) 0x23, commandTSN(), time, pwd1, pwd3);
+    public static byte[] syLockTime(long time, byte[] pwd1, byte[] pwd3) {
+        byte[] realTime = littleMode(BleByteUtil.longToUnsigned32Bytes(time));
+        return commandPackage(true, (byte) 0x23, commandTSN(), realTime, pwd1, pwd3);
     }
 
     /**

@@ -91,9 +91,13 @@ public class BleResultProcess {
     private static byte[] pwdDecrypt(@NotNull byte[] needDecryptData,
                                      @NotNull byte[] pwd1,
                                      @Nullable byte[] pwd2Or3) {
+        if(pwd1 == null) {
+            Timber.e("pwdDecrypt pwd1 == null");
+            return new byte[16];
+        }
         if(pwd1.length != 16) {
             Timber.e("pwdDecrypt pwd1 key的长度错误，请检查输入的数据 size: %1d", pwd1.length);
-            return null;
+            return new byte[16];
         }
         // 只使用pwd1来解密
         if(pwd2Or3 == null) {
@@ -102,7 +106,7 @@ public class BleResultProcess {
         // pwd1+pwd2或者pwd1+pwd3解密
         if(pwd2Or3.length != 4) {
             Timber.e("pwdDecrypt pwd2 key的长度错误，请检查输入的数据 size: %1d", pwd2Or3.length);
-            return null;
+            return new byte[16];
         }
         return pwd1n2Or3Decrypt(needDecryptData, pwd1, pwd2Or3);
     }

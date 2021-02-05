@@ -1,6 +1,7 @@
 package com.revolo.lock.adapter;
 
 import android.text.TextUtils;
+import android.view.View;
 
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.chad.library.adapter.base.viewholder.BaseViewHolder;
@@ -29,6 +30,14 @@ public class HomeLockListAdapter extends BaseQuickAdapter<TestLockBean, BaseView
 
     @Override
     protected void convert(@NotNull BaseViewHolder baseViewHolder, TestLockBean testLockBean) {
+        if(testLockBean == null) {
+            return;
+        }
+        baseViewHolder.getView(R.id.ivLockState).setOnClickListener(v -> {
+            if(mOnLockClickListener != null) {
+                mOnLockClickListener.onClick();
+            }
+        });
         if(testLockBean.getModeState() == 2) {
             baseViewHolder.setImageResource(R.id.ivLockState, R.drawable.ic_home_img_lock_privacymodel);
             baseViewHolder.setText(R.id.tvDoorState, getContext().getString(R.string.tip_private_mode));
@@ -51,5 +60,15 @@ public class HomeLockListAdapter extends BaseQuickAdapter<TestLockBean, BaseView
             baseViewHolder.setImageResource(R.id.ivNetState, R.drawable.ic_home_icon_bluetooth);
         }
         baseViewHolder.setText(R.id.tvLockName, TextUtils.isEmpty(testLockBean.getName())?"":testLockBean.getName());
+    }
+
+    private OnLockClickListener mOnLockClickListener;
+
+    public void setOnLockClickListener(OnLockClickListener onLockClickListener) {
+        mOnLockClickListener = onLockClickListener;
+    }
+
+    public interface OnLockClickListener{
+        void onClick();
     }
 }
