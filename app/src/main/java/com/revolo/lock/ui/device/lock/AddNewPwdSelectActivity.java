@@ -437,8 +437,9 @@ public class AddNewPwdSelectActivity extends BaseActivity {
                     Timber.d("sun: %1b, mon: %2b, tues: %3b, wed: %4b, thur: %5b, fri: %6b, sat: %7b",
                             isSelectedSun, isSelectedMon, isSelectedTues, isSelectedWed,
                             isSelectedThur, isSelectedFri, isSelectedSat);
-                    Timber.d("num: %1s, week: %2s, weekBytes: %3s",
-                            mNum, ConvertUtils.int2HexString(week), ConvertUtils.bytes2HexString(weekBit));
+                    Timber.d("num: %1s, week: %2s, weekBytes: %3s, startTime: %4d, endTime: %5d",
+                            mNum, ConvertUtils.int2HexString(week), ConvertUtils.bytes2HexString(weekBit),
+                            mScheduleStartTimeMill/1000, mScheduleEndTimeMill/1000);
                     App.getInstance()
                             .writeControlMsg(BleCommandFactory
                                     .keyAttributesSet(KEY_SET_KEY_OPTION_ADD_OR_CHANGE,
@@ -446,11 +447,13 @@ public class AddNewPwdSelectActivity extends BaseActivity {
                                             mNum,
                                             KEY_SET_ATTRIBUTE_WEEK_KEY,
                                             week,
-                                            mScheduleStartTimeMill,
-                                            mScheduleEndTimeMill,
+                                            mScheduleStartTimeMill/1000,
+                                            mScheduleEndTimeMill/1000,
                                             mBleBean.getPwd1(),
                                             mBleBean.getPwd3()));
                 } else if(mSelectedPwdState == TEMPORARY_STATE) {
+                    Timber.d("num: %1s, startTime: %2d, endTime: %3d",
+                            mNum, mTemStartDateTimeMill/1000, mTemEndDateTimeMill/1000);
                     App.getInstance()
                             .writeControlMsg(BleCommandFactory
                                     .keyAttributesSet(KEY_SET_KEY_OPTION_ADD_OR_CHANGE,
@@ -458,8 +461,8 @@ public class AddNewPwdSelectActivity extends BaseActivity {
                                             mNum,
                                             KEY_SET_ATTRIBUTE_TIME_KEY,
                                             (byte) 0x00,
-                                            mTemStartDateTimeMill,
-                                            mTemEndDateTimeMill,
+                                            mTemStartDateTimeMill/1000,
+                                            mTemEndDateTimeMill/1000,
                                             mBleBean.getPwd1(),
                                             mBleBean.getPwd3()));
                 }

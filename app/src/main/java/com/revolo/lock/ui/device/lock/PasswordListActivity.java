@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
+import android.text.TextUtils;
 import android.view.View;
 
 import androidx.annotation.NonNull;
@@ -14,6 +15,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.blankj.utilcode.util.ConvertUtils;
+import com.blankj.utilcode.util.TimeUtils;
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.chad.library.adapter.base.listener.OnItemClickListener;
 import com.revolo.lock.App;
@@ -93,29 +95,6 @@ public class PasswordListActivity extends BaseActivity {
 
     }
 
-    private void testInitPwd() {
-        List<TestPwdBean> list = new ArrayList<>();
-        TestPwdBean testPwdBean1 = new TestPwdBean("Password name",
-                "Permanent password", 1, "***********",
-                "Permanence", "12,28,2020 12:00");
-        list.add(testPwdBean1);
-        TestPwdBean testPwdBean2 = new TestPwdBean("Password name", "Sun、Mon、Tues、Wed、Thure、Tir\n" +
-                "15:00-17:00", 1, "***********",
-                "Sun、Mon、Tues、Wed、Thur、Fir \n" +
-                        "14:00-17:00 ", "12,28,2020 12:00");
-        list.add(testPwdBean2);
-        TestPwdBean testPwdBean3 = new TestPwdBean("Password name", "start: 12,28,2020   12:00 \n" +
-                "end:  12,28,2020   16:00", 1, "***********",
-                "12,28,2020 12:00 - 12,29,2020  10:30", "12,28,2020 12:00");
-        list.add(testPwdBean3);
-        TestPwdBean testPwdBean4 = new TestPwdBean("Password name", "start: 12,28,2020   12:00 \n" +
-                "end:  12,28,2020   16:00", 2, "***********",
-                "Permanence", "12,28,2020 12:00");
-        list.add(testPwdBean4);
-        mPasswordListAdapter.setList(list);
-
-    }
-
     private final BleResultProcess.OnReceivedProcess mOnReceivedProcess = bleResultBean -> {
         if(bleResultBean == null) {
             Timber.e("mOnReceivedProcess bleResultBean == null");
@@ -169,7 +148,7 @@ public class PasswordListActivity extends BaseActivity {
     }
 
     private final ArrayList<Byte> mWillSearchList = new ArrayList<>();
-    private ArrayList<TestPwdBean> mTestPwdBeans = new ArrayList<>();
+    private final ArrayList<TestPwdBean> mTestPwdBeans = new ArrayList<>();
 
     private void getPwdListFormBle(BleResultBean bean) {
         // TODO: 2021/2/3 可能存在100条数据以上，后续需要做100条数据以上的测试
@@ -187,27 +166,74 @@ public class PasswordListActivity extends BaseActivity {
                         1, "***********", "Permanence", "02,04,2020 12:00");
                 mTestPwdBeans.add(testPwdBean);
             } else if(attribute == KEY_SET_ATTRIBUTE_TIME_KEY) {
-                // TODO: 2021/2/5 时间策略密码
-                byte[] weekBytes = BleByteUtil.byteToBit(bean.getPayload()[1]);
-                Timber.d("getPwdListFormBle num: %1s week: %1s", mCurrentSearchNum, ConvertUtils.bytes2HexString(weekBytes));
-//                String weekly = "";
-//                TestPwdBean testPwdBean = new TestPwdBean(name, "Sun、Mon、Tues、Wed、Thur、Tir\n" +
-//                        "15:00-17:00", 1, "***********",
-//                        "Sun、Mon、Tues、Wed、Thur、Fir \n" +
-//                                "14:00-17:00 ", "12,28,2020 12:00");
-//                mTestPwdBeans.add(testPwdBean);
+                addTimePwd(bean, name);
             } else if(attribute == KEY_SET_ATTRIBUTE_WEEK_KEY) {
-                // TODO: 2021/2/5 周策略密码
+                addWeeklyPwd(bean, name);
             }
-
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    mPasswordListAdapter.setList(mTestPwdBeans);
-                }
-            });
+            runOnUiThread(() -> mPasswordListAdapter.setList(mTestPwdBeans));
             mHandler.postDelayed(mSearchPwdListRunnable, 20);
         }
+    }
+
+    private void addTimePwd(BleResultBean bean, String name) {
+        byte[] startTimeBytes = new byte[4];
+        byte[] endTimeBytes = new byte[4];
+        System.arraycopy(bean.getPayload(), 2, startTimeBytes, 0, startTimeBytes.length);
+        System.arraycopy(bean.getPayload(), 6, endTimeBytes, 0, endTimeBytes.length);
+        long startTimeMill = BleByteUtil.bytesToLong(startTimeBytes)*1000;
+        long endTimeMill = BleByteUtil.bytesToLong(endTimeBytes)*1000;
+        String detail = "start: "
+                + TimeUtils.millis2String(startTimeMill, "MM,dd,yyyy   HH:mm")
+                + "\n" + "end: "
+                + TimeUtils.millis2String(endTimeMill, "MM,dd,yyyy   HH:mm");
+        String characteristic = TimeUtils.millis2String(startTimeMill, "MM,dd,yyyy   HH:mm")
+                + "-" + TimeUtils.millis2String(endTimeMill, "MM,dd,yyyy   HH:mm");
+        TestPwdBean testPwdBean = new TestPwdBean(name, detail, 1, "***********",
+                characteristic, "02,05,2020 12:00");
+        mTestPwdBeans.add(testPwdBean);
+    }
+
+    private void addWeeklyPwd(BleResultBean bean, String name) {
+        byte[] weekBytes = BleByteUtil.byteToBit(bean.getPayload()[1]);
+        Timber.d("getPwdListFormBle num: %1s week: %1s", mCurrentSearchNum, ConvertUtils.bytes2HexString(weekBytes));
+        String weekly = "";
+        if(weekBytes[0] == 0x01) {
+            weekly += "Sun";
+        }
+        if(weekBytes[1] == 0x01) {
+            weekly += TextUtils.isEmpty(weekly)?"Mon":"、Mon";
+        }
+        if(weekBytes[2] == 0x01) {
+            weekly += TextUtils.isEmpty(weekly)?"Tues":"、Tues";
+        }
+        if(weekBytes[3] == 0x01) {
+            weekly += TextUtils.isEmpty(weekly)?"Wed":"、Wed";
+        }
+        if(weekBytes[4] == 0x01) {
+            weekly += TextUtils.isEmpty(weekly)?"Thur":"、Thur";
+        }
+        if(weekBytes[5] == 0x01) {
+            weekly += TextUtils.isEmpty(weekly)?"Fri":"、Fri";
+        }
+        if(weekBytes[6] == 0x01) {
+            weekly += TextUtils.isEmpty(weekly)?"Sat":"、Sat";
+        }
+        weekly += "\n";
+        byte[] startTimeBytes = new byte[4];
+        byte[] endTimeBytes = new byte[4];
+        System.arraycopy(bean.getPayload(), 2, startTimeBytes, 0, startTimeBytes.length);
+        System.arraycopy(bean.getPayload(), 6, endTimeBytes, 0, endTimeBytes.length);
+        long startTimeMill = BleByteUtil.bytesToLong(startTimeBytes)*1000;
+        long endTimeMill = BleByteUtil.bytesToLong(endTimeBytes)*1000;
+        String detail = weekly
+                + TimeUtils.millis2String(startTimeMill, "HH:mm")
+                + " - "
+                + TimeUtils.millis2String(endTimeMill, "HH:mm");
+        TestPwdBean testPwdBean = new TestPwdBean(name,
+                detail, 1, "***********",
+                detail,
+                "02,05,2020 12:00");
+        mTestPwdBeans.add(testPwdBean);
     }
 
     private void checkPwdIsExist(BleResultBean bean) {

@@ -68,9 +68,10 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class HttpRequest {
 
-    private ApiService service;
+    private final ApiService service;
 
     private static final String HOST_TEST = "https://test1.juziwulian.com:8090";      // 服务器测试接口
+    private static final String HOST = HOST_TEST;
     
 
   private static HttpRequest ourInstance;
@@ -120,7 +121,7 @@ public class HttpRequest {
                 .create();
 
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(HOST_TEST)
+                .baseUrl(HOST)
                 .addConverterFactory(GsonConverterFactory.create(gson))    // Gson
                 .addCallAdapterFactory(RxJava2CallAdapterFactory.create())    // RxJava
                 .client(client)

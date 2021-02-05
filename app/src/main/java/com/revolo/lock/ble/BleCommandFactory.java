@@ -409,12 +409,12 @@ public class BleCommandFactory {
      *                       0x01：锁事件上报命令采用0x1A（Alfred）
      */
     public static byte[] lockParameterModificationCommand(byte num, byte length, byte[] value,
-                                                          byte[] pwd1, byte[] pwd2) {
+                                                          byte[] pwd1, byte[] pwd3) {
         byte[] data = new byte[16];
         data[0] = num;
         data[1] = length;
         System.arraycopy(value, 0, data, 2, value.length);
-        return commandPackage(true, (byte) 0x06, commandTSN(), data, pwd1, pwd2);
+        return commandPackage(true, (byte) 0x06, commandTSN(), data, pwd1, pwd3);
     }
 
     /**

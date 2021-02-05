@@ -15,6 +15,7 @@ import com.a1anwang.okble.client.scan.BLEScanResult;
 import com.a1anwang.okble.client.scan.DeviceScanCallBack;
 import com.a1anwang.okble.client.scan.OKBLEScanManager;
 import com.blankj.utilcode.util.ConvertUtils;
+import com.blankj.utilcode.util.TimeUtils;
 import com.revolo.lock.App;
 import com.revolo.lock.Constant;
 import com.revolo.lock.R;
@@ -23,6 +24,7 @@ import com.revolo.lock.bean.request.AdminAddDeviceBeanReq;
 import com.revolo.lock.bean.request.GetPwd1BeanReq;
 import com.revolo.lock.bean.respone.AdminAddDeviceBeanRsp;
 import com.revolo.lock.bean.respone.GetPwd1BeanRsp;
+import com.revolo.lock.ble.BleByteUtil;
 import com.revolo.lock.ble.BleCommandFactory;
 import com.revolo.lock.ble.BleProtocolState;
 import com.revolo.lock.ble.BleResultProcess;
@@ -227,12 +229,23 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
             } else if(data[0] == 0x02) {
                 // 获取pwd3
                 getPwd3(bleResultBean, data);
+                // 鉴权成功后，同步当前时间
+                syNowTime();
                 startActivity(new Intent(AddDeviceStep2BleConnectActivity.this, BleConnectSucActivity.class));
                 finish();
                 // TODO: 2021/2/3 临时屏蔽服务器
 //                addDeviceToService();
             }
         }
+    }
+
+    private void syNowTime() {
+        new Handler(Looper.getMainLooper()).postDelayed(() -> {
+            long nowTime = TimeUtils.getNowMills()/1000;
+            App.getInstance().writeControlMsg(BleCommandFactory
+                    .lockParameterModificationCommand((byte) 0x03, (byte) 0x04,
+                            BleByteUtil.longToUnsigned32Bytes(nowTime), mPwd1, mPwd3));
+        }, 20);
     }
 
     private void getPwd3(BleResultBean bleResultBean, byte[] data) {
@@ -270,7 +283,10 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
         req.setDevmac(mMac);
         req.setDeviceSN(mEsn);
         req.setUser_id(App.getInstance().getUserBean().getUid());
-        req.setPassword1(ConvertUtils.bytes2HexString(mPwd1));
+        // 正确的是12位pwd1,因为在内存里的pwd1是补0了，所以是16位，但是传输到服务器的需要移除0
+        byte[] realPwd1 = new byte[12];
+        System.arraycopy(mPwd1, 0, realPwd1, 0, realPwd1.length);
+        req.setPassword1(ConvertUtils.bytes2HexString(realPwd1));
         req.setPassword2(ConvertUtils.bytes2HexString(mPwd2));
         Timber.d("addDeviceToService req: %1s", req.toString());
         Observable<AdminAddDeviceBeanRsp> observable = HttpRequest

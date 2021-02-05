@@ -2,6 +2,8 @@ package com.revolo.lock.ui.device;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,10 +19,12 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.a1anwang.okble.client.scan.BLEScanResult;
 import com.blankj.utilcode.util.ConvertUtils;
+import com.blankj.utilcode.util.TimeUtils;
 import com.revolo.lock.App;
 import com.revolo.lock.Constant;
 import com.revolo.lock.R;
 import com.revolo.lock.adapter.HomeLockListAdapter;
+import com.revolo.lock.ble.BleByteUtil;
 import com.revolo.lock.ble.bean.BleBean;
 import com.revolo.lock.bean.test.TestLockBean;
 import com.revolo.lock.ble.BleCommandFactory;
@@ -118,9 +122,20 @@ public class DeviceFragment extends Fragment {
                 // 内存存储
                 App.getInstance().getBleBean().setPwd3(mPwd3);
                 App.getInstance().writeControlMsg(BleCommandFactory.ackCommand(bleResultBean.getTSN(), (byte)0x00, bleResultBean.getCMD()));
+                // 鉴权成功后，同步当前时间
+                syNowTime();
                 // TODO: 2021/1/26 鉴权成功
             }
         }
+    }
+
+    private void syNowTime() {
+        new Handler(Looper.getMainLooper()).postDelayed(() -> {
+            long nowTime = TimeUtils.getNowMills()/1000;
+            App.getInstance().writeControlMsg(BleCommandFactory
+                    .lockParameterModificationCommand((byte) 0x03, (byte) 0x04,
+                            BleByteUtil.longToUnsigned32Bytes(nowTime), mPwd1, mPwd3));
+        }, 20);
     }
 
     private void initBleListener() {
