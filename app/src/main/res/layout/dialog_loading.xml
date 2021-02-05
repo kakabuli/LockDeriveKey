@@ -8,15 +8,15 @@
     android:orientation="vertical">
 
     <LinearLayout
-        android:layout_width="150dp"
-        android:layout_height="110dp"
+        android:layout_width="200pt"
+        android:layout_height="110pt"
         android:background="@drawable/loading_bg"
         android:gravity="center"
         android:orientation="vertical"
-        android:paddingBottom="10dp"
-        android:paddingLeft="21dp"
-        android:paddingRight="21dp"
-        android:paddingTop="10dp">
+        android:paddingBottom="10pt"
+        android:paddingLeft="21pt"
+        android:paddingRight="21pt"
+        android:paddingTop="10pt">
 
         <ProgressBar
             android:id="@+id/progressBar1"

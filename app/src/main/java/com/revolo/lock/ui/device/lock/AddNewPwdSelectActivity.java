@@ -423,48 +423,9 @@ public class AddNewPwdSelectActivity extends BaseActivity {
                 if(mSelectedPwdState == PERMANENT_STATE) {
                     showSucAndGotoAnotherPage();
                 } else if(mSelectedPwdState == SCHEDULE_STATE) {
-                    // 周策略 BIT:   7   6   5   4   3   2   1   0
-                    // 星期：      保留  六  五  四  三  二  一  日
-                    byte[] weekBit = new byte[8];
-                    weekBit[0] = (byte) (isSelectedSun?0x01:0x00);
-                    weekBit[1] = (byte) (isSelectedMon?0x01:0x00);
-                    weekBit[2] = (byte) (isSelectedTues?0x01:0x00);
-                    weekBit[3] = (byte) (isSelectedWed?0x01:0x00);
-                    weekBit[4] = (byte) (isSelectedThur?0x01:0x00);
-                    weekBit[5] = (byte) (isSelectedFri?0x01:0x00);
-                    weekBit[6] = (byte) (isSelectedSat?0x01:0x00);
-                    byte week = BleByteUtil.bitToByte(weekBit);
-                    Timber.d("sun: %1b, mon: %2b, tues: %3b, wed: %4b, thur: %5b, fri: %6b, sat: %7b",
-                            isSelectedSun, isSelectedMon, isSelectedTues, isSelectedWed,
-                            isSelectedThur, isSelectedFri, isSelectedSat);
-                    Timber.d("num: %1s, week: %2s, weekBytes: %3s, startTime: %4d, endTime: %5d",
-                            mNum, ConvertUtils.int2HexString(week), ConvertUtils.bytes2HexString(weekBit),
-                            mScheduleStartTimeMill/1000, mScheduleEndTimeMill/1000);
-                    App.getInstance()
-                            .writeControlMsg(BleCommandFactory
-                                    .keyAttributesSet(KEY_SET_KEY_OPTION_ADD_OR_CHANGE,
-                                            KEY_SET_KEY_TYPE_PWD,
-                                            mNum,
-                                            KEY_SET_ATTRIBUTE_WEEK_KEY,
-                                            week,
-                                            mScheduleStartTimeMill/1000,
-                                            mScheduleEndTimeMill/1000,
-                                            mBleBean.getPwd1(),
-                                            mBleBean.getPwd3()));
+                    setSchedulePwd();
                 } else if(mSelectedPwdState == TEMPORARY_STATE) {
-                    Timber.d("num: %1s, startTime: %2d, endTime: %3d",
-                            mNum, mTemStartDateTimeMill/1000, mTemEndDateTimeMill/1000);
-                    App.getInstance()
-                            .writeControlMsg(BleCommandFactory
-                                    .keyAttributesSet(KEY_SET_KEY_OPTION_ADD_OR_CHANGE,
-                                            KEY_SET_KEY_TYPE_PWD, 
-                                            mNum,
-                                            KEY_SET_ATTRIBUTE_TIME_KEY,
-                                            (byte) 0x00,
-                                            mTemStartDateTimeMill/1000,
-                                            mTemEndDateTimeMill/1000,
-                                            mBleBean.getPwd1(),
-                                            mBleBean.getPwd3()));
+                    setTimePwd();
                 }
 
             } else {
@@ -481,6 +442,53 @@ public class AddNewPwdSelectActivity extends BaseActivity {
             }
         }
     };
+
+    private void setTimePwd() {
+        Timber.d("num: %1s, startTime: %2d, endTime: %3d",
+                mNum, mTemStartDateTimeMill/1000, mTemEndDateTimeMill/1000);
+        App.getInstance()
+                .writeControlMsg(BleCommandFactory
+                        .keyAttributesSet(KEY_SET_KEY_OPTION_ADD_OR_CHANGE,
+                                KEY_SET_KEY_TYPE_PWD,
+                                mNum,
+                                KEY_SET_ATTRIBUTE_TIME_KEY,
+                                (byte) 0x00,
+                                mTemStartDateTimeMill/1000,
+                                mTemEndDateTimeMill/1000,
+                                mBleBean.getPwd1(),
+                                mBleBean.getPwd3()));
+    }
+
+    private void setSchedulePwd() {
+        // 周策略 BIT:   7   6   5   4   3   2   1   0
+        // 星期：      保留  六  五  四  三  二  一  日
+        byte[] weekBit = new byte[8];
+        weekBit[0] = (byte) (isSelectedSun?0x01:0x00);
+        weekBit[1] = (byte) (isSelectedMon?0x01:0x00);
+        weekBit[2] = (byte) (isSelectedTues?0x01:0x00);
+        weekBit[3] = (byte) (isSelectedWed?0x01:0x00);
+        weekBit[4] = (byte) (isSelectedThur?0x01:0x00);
+        weekBit[5] = (byte) (isSelectedFri?0x01:0x00);
+        weekBit[6] = (byte) (isSelectedSat?0x01:0x00);
+        byte week = BleByteUtil.bitToByte(weekBit);
+        Timber.d("sun: %1b, mon: %2b, tues: %3b, wed: %4b, thur: %5b, fri: %6b, sat: %7b",
+                isSelectedSun, isSelectedMon, isSelectedTues, isSelectedWed,
+                isSelectedThur, isSelectedFri, isSelectedSat);
+        Timber.d("num: %1s, week: %2s, weekBytes: %3s, startTime: %4d, endTime: %5d",
+                mNum, ConvertUtils.int2HexString(week), ConvertUtils.bytes2HexString(weekBit),
+                mScheduleStartTimeMill/1000, mScheduleEndTimeMill/1000);
+        App.getInstance()
+                .writeControlMsg(BleCommandFactory
+                        .keyAttributesSet(KEY_SET_KEY_OPTION_ADD_OR_CHANGE,
+                                KEY_SET_KEY_TYPE_PWD,
+                                mNum,
+                                KEY_SET_ATTRIBUTE_WEEK_KEY,
+                                week,
+                                mScheduleStartTimeMill/1000,
+                                mScheduleEndTimeMill/1000,
+                                mBleBean.getPwd1(),
+                                mBleBean.getPwd3()));
+    }
 
     private void showSucAndGotoAnotherPage() {
         runOnUiThread(() -> {

@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.os.Message;
 import android.text.TextUtils;
 import android.view.View;
 
@@ -16,8 +15,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.blankj.utilcode.util.ConvertUtils;
 import com.blankj.utilcode.util.TimeUtils;
-import com.chad.library.adapter.base.BaseQuickAdapter;
-import com.chad.library.adapter.base.listener.OnItemClickListener;
 import com.revolo.lock.App;
 import com.revolo.lock.Constant;
 import com.revolo.lock.R;
@@ -70,15 +67,12 @@ public class PasswordListActivity extends BaseActivity {
         RecyclerView rvPwdList = findViewById(R.id.rvPwdList);
         rvPwdList.setLayoutManager(new LinearLayoutManager(this));
         mPasswordListAdapter = new PasswordListAdapter(R.layout.item_pwd_list_rv);
-        mPasswordListAdapter.setOnItemClickListener(new OnItemClickListener() {
-            @Override
-            public void onItemClick(@NonNull BaseQuickAdapter<?, ?> adapter, @NonNull View view, int position) {
-                if(position >= 0 && adapter.getItem(position) instanceof TestPwdBean) {
-                    Intent intent = new Intent(PasswordListActivity.this, PasswordDetailActivity.class);
-                    TestPwdBean testPwdBean  = (TestPwdBean) adapter.getItem(position);
-                    intent.putExtra(Constant.PWD_DETAIL, testPwdBean);
-                    startActivity(intent);
-                }
+        mPasswordListAdapter.setOnItemClickListener((adapter, view, position) -> {
+            if(position >= 0 && adapter.getItem(position) instanceof TestPwdBean) {
+                Intent intent = new Intent(PasswordListActivity.this, PasswordDetailActivity.class);
+                TestPwdBean testPwdBean  = (TestPwdBean) adapter.getItem(position);
+                intent.putExtra(Constant.PWD_DETAIL, testPwdBean);
+                startActivity(intent);
             }
         });
         rvPwdList.setAdapter(mPasswordListAdapter);
@@ -163,7 +157,7 @@ public class PasswordListActivity extends BaseActivity {
             if(attribute == KEY_SET_ATTRIBUTE_ALWAYS) {
                 Timber.d("getPwdListFormBle num: %1s", mCurrentSearchNum);
                 TestPwdBean testPwdBean = new TestPwdBean(name, "Permanent password",
-                        1, "***********", "Permanence", "02,04,2020 12:00");
+                        1, "***********", "Permanence", "02,04,2020 12:00", mCurrentSearchNum);
                 mTestPwdBeans.add(testPwdBean);
             } else if(attribute == KEY_SET_ATTRIBUTE_TIME_KEY) {
                 addTimePwd(bean, name);
@@ -189,7 +183,7 @@ public class PasswordListActivity extends BaseActivity {
         String characteristic = TimeUtils.millis2String(startTimeMill, "MM,dd,yyyy   HH:mm")
                 + "-" + TimeUtils.millis2String(endTimeMill, "MM,dd,yyyy   HH:mm");
         TestPwdBean testPwdBean = new TestPwdBean(name, detail, 1, "***********",
-                characteristic, "02,05,2020 12:00");
+                characteristic, "02,05,2020 12:00",  mCurrentSearchNum);
         mTestPwdBeans.add(testPwdBean);
     }
 
@@ -232,7 +226,7 @@ public class PasswordListActivity extends BaseActivity {
         TestPwdBean testPwdBean = new TestPwdBean(name,
                 detail, 1, "***********",
                 detail,
-                "02,05,2020 12:00");
+                "02,05,2020 12:00", mCurrentSearchNum);
         mTestPwdBeans.add(testPwdBean);
     }
 

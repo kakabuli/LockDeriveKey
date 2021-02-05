@@ -17,14 +17,16 @@ public class TestPwdBean implements Parcelable {
     private String pwd;
     private String pwdCharacteristic;
     private String createDate;
+    private int num;
 
-    public TestPwdBean(String pwdName, String pwdDetail, int pwdState, String pwd, String pwdCharacteristic, String createDate) {
+    public TestPwdBean(String pwdName, String pwdDetail, int pwdState, String pwd, String pwdCharacteristic, String createDate, int num) {
         this.pwdName = pwdName;
         this.pwdDetail = pwdDetail;
         this.pwdState = pwdState;
         this.pwd = pwd;
         this.pwdCharacteristic = pwdCharacteristic;
         this.createDate = createDate;
+        this.num = num;
     }
 
     public String getPwdName() {
@@ -75,6 +77,13 @@ public class TestPwdBean implements Parcelable {
         this.createDate = createDate;
     }
 
+    public int getNum() {
+        return num;
+    }
+
+    public void setNum(int num) {
+        this.num = num;
+    }
 
     @Override
     public int describeContents() {
@@ -89,6 +98,7 @@ public class TestPwdBean implements Parcelable {
         dest.writeString(this.pwd);
         dest.writeString(this.pwdCharacteristic);
         dest.writeString(this.createDate);
+        dest.writeInt(this.num);
     }
 
     protected TestPwdBean(Parcel in) {
@@ -98,6 +108,7 @@ public class TestPwdBean implements Parcelable {
         this.pwd = in.readString();
         this.pwdCharacteristic = in.readString();
         this.createDate = in.readString();
+        this.num = in.readInt();
     }
 
     public static final Creator<TestPwdBean> CREATOR = new Creator<TestPwdBean>() {
