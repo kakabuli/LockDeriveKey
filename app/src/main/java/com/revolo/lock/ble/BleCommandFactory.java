@@ -784,6 +784,10 @@ public class BleCommandFactory {
         return commandPackage(true, (byte) CMD_KEY_ADD, commandTSN(), data, pwd1, pwd3);
     }
 
+    /**
+     * 门磁校准
+     * @param doorState 1:门状态开 2：们状态关 3：们状态虚掩 4：启动门磁 5：禁用门磁
+     */
     public static byte[] doorCalibration(@BleCommandState.DoorCalibrationState int doorState,
                                          byte[] pwd1, byte[] pwd3) {
         byte[] data = new byte[1];
@@ -792,11 +796,43 @@ public class BleCommandFactory {
     }
 
     /**
+     * 敲门开锁灵敏度
+     * @param sensitivity 1:灵敏度低  2：灵敏度中  3：灵敏度高
+     */
+    public static byte[] setSensitivity(int sensitivity, byte[] pwd1, byte[] pwd3) {
+        byte[] data = new byte[1];
+        data[0] = (byte) sensitivity;
+        return commandPackage(true, (byte) 0x20, commandTSN(), data, pwd1, pwd3);
+    }
+
+
+    /**
      *  设置关门自动上锁时间
      * @param time 自动上锁时间
      */
     public static byte[] setAutoLockTime(int time, byte[] pwd1, byte[] pwd3) {
         return commandPackage(true, (byte) 0x21, commandTSN(), BleByteUtil.int2BytesArray(time), pwd1, pwd3);
+    }
+
+    /**
+     *   敲门开锁指令
+     * @param option   1：敲门开锁
+     * @param time    格林威治时间 秒，不要毫秒
+     */
+    public static byte[] setKnockDoorAndUnlockTime(int option, long time, byte[] pwd1, byte[] pwd3) {
+        byte[] data = new byte[5];
+        data[0] = (byte) option;
+        byte[] timeBytes = BleByteUtil.longToUnsigned32Bytes(time);
+        System.arraycopy(timeBytes, 0, data, 1, 4);
+        return commandPackage(true, (byte) 0x22, commandTSN(), data, pwd1, pwd3);
+    }
+
+    /**
+     * 与锁同步时间
+     * @param time 手机当前的时间
+     */
+    public static byte[] syLockTime(byte[] time, byte[] pwd1, byte[] pwd3) {
+        return commandPackage(true, (byte) 0x23, commandTSN(), time, pwd1, pwd3);
     }
 
     /**

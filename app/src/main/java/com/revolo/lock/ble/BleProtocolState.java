@@ -15,7 +15,8 @@ public class BleProtocolState {
             CMD_LOCK_ALARM_RECORD_CHECK, CMD_LOCK_NUM_CHECK, CMD_LOCK_OPEN_COUNT_CHECK,
             CMD_LOCK_PARAMETER_CHECK, CMD_LOCK_OP_RECORD, CMD_PAIR_ACK, CMD_KEY_ATTRIBUTES_SET,
             CMD_KEY_ATTRIBUTES_READ, CMD_HEART_ACK, CMD_KEY_ADD, CMD_DOOR_SENSOR_CALIBRATION,
-            CMD_AUTHENTICATION_ACK, CMD_LOCK_CONTROL_ACK, CMD_LOCK_KEY_MANAGER_ACK,
+            CMD_SET_SENSITIVITY, CMD_SET_AUTO_LOCK_TIME, CMD_KNOCK_DOOR_AND_UNLOCK_TIME,
+            CMD_AUTHENTICATION_ACK, CMD_LOCK_CONTROL_ACK, CMD_LOCK_KEY_MANAGER_ACK, CMD_SY_LOCK_TIME,
             CMD_LOCK_PARAMETER_CHANGED_ACK, CMD_USER_TYPE_SETTING_ACK, CMD_WEEKLY_PLAN_SETTING_ACK,
             CMD_WEEKLY_PLAN_DELETE_ACK, CMD_YEAR_MON_DAY_PLAN_SETTING_ACK,  CMD_YEAR_MON_DAY_PLAN_DELETE_ACK,
             CMD_SY_KEY_STATE, CMD_LOCK_INFO, CMD_REQUEST_BIND_ACK, CMD_SS_ID_ACK, CMD_PWD_ACK,
@@ -41,6 +42,10 @@ public class BleProtocolState {
     public static final int CMD_KEY_ATTRIBUTES_READ = 0x1D;             // 密钥属性读
     public static final int CMD_KEY_ADD = 0x1E;                         // 密钥添加
     public static final int CMD_DOOR_SENSOR_CALIBRATION = 0x1F;         // 门磁校准
+    public static final int CMD_SET_SENSITIVITY = 0x20;                 // 敲门开锁灵敏度
+    public static final int CMD_SET_AUTO_LOCK_TIME = 0x21;              // 设置关门自动上锁时间
+    public static final int CMD_KNOCK_DOOR_AND_UNLOCK_TIME = 0x22;      // 敲门开锁指令
+    public static final int CMD_SY_LOCK_TIME = 0x23;                    // 与锁同步时间
     public static final int CMD_HEART_ACK = 0x00;                       // 心跳包确认帧
     public static final int CMD_AUTHENTICATION_ACK = 0x01;              // 鉴权确认帧
     public static final int CMD_LOCK_CONTROL_ACK =  0x02;               // 锁控制确认帧

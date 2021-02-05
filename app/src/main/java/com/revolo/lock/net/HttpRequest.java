@@ -70,7 +70,8 @@ public class HttpRequest {
 
     private final ApiService service;
 
-    private static final String HOST_TEST = "https://test1.juziwulian.com:8090";      // 服务器测试接口
+    private static final String HOST_TEST = "https://test1.juziwulian.com:8090";      // 国内服务器测试接口
+    private static final String ABROAD_HOST = "https://test.irevolo.com:8090";        // 海外服务器测试接口
     private static final String HOST = HOST_TEST;
     
 

@@ -133,8 +133,7 @@ public class DeviceFragment extends Fragment {
         new Handler(Looper.getMainLooper()).postDelayed(() -> {
             long nowTime = TimeUtils.getNowMills()/1000;
             App.getInstance().writeControlMsg(BleCommandFactory
-                    .lockParameterModificationCommand((byte) 0x03, (byte) 0x04,
-                            BleByteUtil.longToUnsigned32Bytes(nowTime), mPwd1, mPwd3));
+                    .syLockTime(BleByteUtil.longToUnsigned32Bytes(nowTime), mPwd1, mPwd3));
         }, 20);
     }
 
