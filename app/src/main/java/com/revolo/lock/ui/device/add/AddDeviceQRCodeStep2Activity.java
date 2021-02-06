@@ -9,6 +9,7 @@ import android.widget.LinearLayout;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.revolo.lock.App;
 import com.revolo.lock.Constant;
 import com.revolo.lock.R;
 import com.revolo.lock.base.BaseActivity;
@@ -75,7 +76,7 @@ public class AddDeviceQRCodeStep2Activity extends BaseActivity {
 
     @Override
     public void doBusiness() {
-
+        App.getInstance().addWillFinishAct(this);
     }
 
     @Override

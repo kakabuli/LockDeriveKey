@@ -40,7 +40,9 @@ public abstract class BaseActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         initData(getIntent().getExtras());
         setContentView();
-        App.getInstance().getMqttService().mqttConnection();
+        if(App.getInstance().getMqttService() != null) {
+            App.getInstance().getMqttService().mqttConnection();
+        }
         initView(savedInstanceState, mContentView);
         doBusiness();
     }

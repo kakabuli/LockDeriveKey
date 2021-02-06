@@ -16,15 +16,17 @@ import com.a1anwang.okble.client.scan.DeviceScanCallBack;
 import com.a1anwang.okble.client.scan.OKBLEScanManager;
 import com.blankj.utilcode.util.ConvertUtils;
 import com.blankj.utilcode.util.TimeUtils;
+import com.blankj.utilcode.util.ToastUtils;
 import com.revolo.lock.App;
 import com.revolo.lock.Constant;
 import com.revolo.lock.R;
 import com.revolo.lock.base.BaseActivity;
 import com.revolo.lock.bean.request.AdminAddDeviceBeanReq;
 import com.revolo.lock.bean.request.GetPwd1BeanReq;
+import com.revolo.lock.bean.request.LockIsBindBeanReq;
 import com.revolo.lock.bean.respone.AdminAddDeviceBeanRsp;
 import com.revolo.lock.bean.respone.GetPwd1BeanRsp;
-import com.revolo.lock.ble.BleByteUtil;
+import com.revolo.lock.bean.respone.LockIsBindBeanRsp;
 import com.revolo.lock.ble.BleCommandFactory;
 import com.revolo.lock.ble.BleProtocolState;
 import com.revolo.lock.ble.BleResultProcess;
@@ -33,7 +35,6 @@ import com.revolo.lock.ble.bean.BleResultBean;
 import com.revolo.lock.net.HttpRequest;
 import com.revolo.lock.net.ObservableDecorator;
 
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
 import io.reactivex.Observable;
@@ -107,7 +108,7 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
     @Override
     public void doBusiness() {
         if(mPreA == mQRPre || mPreA == mESNPre) {
-            getPwd1FromNet();
+            checkDeviceIsBind();
         } else {
             gotoBleConnectFail();
         }
@@ -136,7 +137,6 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
 
     @Override
     protected void onDestroy() {
-        App.getInstance().clearBleDeviceListener();
         if(mScanManager != null && mScanManager.isScanning()) {
             mScanManager.stopScan();
         }
@@ -231,10 +231,7 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
                 getPwd3(bleResultBean, data);
                 // 鉴权成功后，同步当前时间
                 syNowTime();
-                startActivity(new Intent(AddDeviceStep2BleConnectActivity.this, BleConnectSucActivity.class));
-                finish();
-                // TODO: 2021/2/3 临时屏蔽服务器
-//                addDeviceToService();
+                addDeviceToService();
             }
         }
     }
@@ -440,6 +437,7 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
         if(isDeviceEsnEqualsInputEsn(device, mEsn)) {
             mScanManager.stopScan();
             mScanResult = device;
+            mMac = device.getMacAddress();
             App.getInstance().connectDevice(device);
         }
     }
@@ -472,6 +470,50 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
             return sn.equalsIgnoreCase(esn);
         }
         return false;
+    }
+
+    private void checkDeviceIsBind() {
+        LockIsBindBeanReq req = new LockIsBindBeanReq();
+        req.setDeviceSN(mEsn);
+        req.setUser_id(App.getInstance().getUserBean().getUid());
+        Observable<LockIsBindBeanRsp> observable = HttpRequest.getInstance()
+                .lockIsBind(App.getInstance().getUserBean().getToken(), req);
+        ObservableDecorator.decorate(observable).safeSubscribe(new Observer<LockIsBindBeanRsp>() {
+            @Override
+            public void onSubscribe(@NonNull Disposable d) {
+
+            }
+
+            @Override
+            public void onNext(@NonNull LockIsBindBeanRsp lockIsBindBeanRsp) {
+                if(lockIsBindBeanRsp.getCode() == null) {
+                    return;
+                }
+                if(lockIsBindBeanRsp.getCode().equals("202")) {
+                    // 提示已绑定，并退出
+                    // TODO: 2021/2/6 修改显示方式
+                    ToastUtils.showLong("The device is already bound");
+                    App.getInstance().finishPreActivities();
+                    finish();
+                    return;
+                }
+                if(lockIsBindBeanRsp.getCode().equals("201")) {
+                    getPwd1FromNet();
+                    return;
+                }
+                Timber.e("code: %1s，msg: %2s", lockIsBindBeanRsp.getCode(), lockIsBindBeanRsp.getMsg());
+            }
+
+            @Override
+            public void onError(@NonNull Throwable e) {
+                Timber.e(e);
+            }
+
+            @Override
+            public void onComplete() {
+
+            }
+        });
     }
 
 }

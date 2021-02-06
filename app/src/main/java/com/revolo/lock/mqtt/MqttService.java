@@ -148,6 +148,9 @@ public class MqttService extends Service {
 
     //连接
     public void mqttConnection() {
+        if(App.getInstance().getUserBean() == null) {
+            return;
+        }
         userId= App.getInstance().getUserBean().getUid();
         token= App.getInstance().getUserBean().getToken();
         Timber.d("userId-->"+userId+" ----token--->" + token);
