@@ -4,10 +4,17 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
+import com.revolo.lock.App;
 import com.revolo.lock.bean.test.TestLockBean;
+import com.revolo.lock.mqtt.MqttCommandFactory;
+import com.revolo.lock.mqtt.MqttConstant;
+import com.revolo.lock.mqtt.bean.MqttData;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import io.reactivex.Observer;
+import io.reactivex.disposables.Disposable;
 
 public class DeviceViewModel extends ViewModel {
 
@@ -25,7 +32,13 @@ public class DeviceViewModel extends ViewModel {
 
         mTestLockBean = new MutableLiveData<>();
         mTestLockBean.setValue(testLockBeans);
+
     }
 
     public LiveData<List<TestLockBean>> getTestLockBeans() { return mTestLockBean; }
+
+
+
+
+
 }

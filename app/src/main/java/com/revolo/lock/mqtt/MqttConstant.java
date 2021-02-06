@@ -15,8 +15,9 @@ public class MqttConstant {
     public final static String PARTERN_ID = "HQQ8H3HJGJ2KPQJ7NXZY";
     public final static int DC_TEST = 6750465;
 
-
-    public static final String MQTT_BASE_URL = "tcp://test1.juziwulian.com:1883";
+    public static final String MQTT_ABROAD_URL = "tcp://test.irevolo.com:1883";
+    public static final String MQTT_TEST_URL = "tcp://test1.juziwulian.com:1883";
+    public static final String MQTT_BASE_URL = MQTT_ABROAD_URL;
 
     public static final String MQTT_REQUEST_APP = "/request/app/func";
 
@@ -62,6 +63,7 @@ public class MqttConstant {
     public static final String PUBLISH_TO_SERVER = "/request/app/func";
     //发布给服务器中转网关消息的主题，/clientid/rpc/call
     public static String PUBLISH_TO_GATEWAY = "/rpc/call";
+    public static final String PUBLISH_GET_RANDOM_CODE_TOPIC = "orangeiot/sn/encreport";
 
 
 

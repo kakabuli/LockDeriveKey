@@ -40,28 +40,28 @@ public class MainActivity extends BaseActivity {
         NavigationUI.setupWithNavController(navView, navController);
 
         //TODO:Mqtt连接放到基类
-        App.getInstance().getMqttService().mqttPublish(MqttConstant.getCallTopic(App.getInstance().getUserBean().getUid()),
-                MqttCommandFactory.setLock("WF12345678",1)).subscribe(new Observer<MqttData>() {
-            @Override
-            public void onSubscribe(Disposable d) {
-
-            }
-
-            @Override
-            public void onNext(MqttData mqttData) {
-
-            }
-
-            @Override
-            public void onError(Throwable e) {
-
-            }
-
-            @Override
-            public void onComplete() {
-
-            }
-        });
+//        App.getInstance().getMqttService().mqttPublish(MqttConstant.getCallTopic(App.getInstance().getUserBean().getUid()),
+//                MqttCommandFactory.setLock("WF12345678",1)).subscribe(new Observer<MqttData>() {
+//            @Override
+//            public void onSubscribe(Disposable d) {
+//
+//            }
+//
+//            @Override
+//            public void onNext(MqttData mqttData) {
+//
+//            }
+//
+//            @Override
+//            public void onError(Throwable e) {
+//
+//            }
+//
+//            @Override
+//            public void onComplete() {
+//
+//            }
+//        });
 
     }
 

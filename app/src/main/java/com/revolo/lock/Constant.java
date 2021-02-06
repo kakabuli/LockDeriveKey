@@ -33,6 +33,7 @@ public class Constant {
     public static final String LOCK_ESN = "LockEsn";
     public static final String BLE_DEVICE = "BleDevice";
     public static final String KEY_PWD_NUM = "keyPwdNum";
+    public static final String UNBIND_REQ = "UnbindReq";
 
     /**
      * 在login界面，是否显示提示对话框key

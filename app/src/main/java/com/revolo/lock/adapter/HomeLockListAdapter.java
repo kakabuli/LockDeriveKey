@@ -1,17 +1,17 @@
 package com.revolo.lock.adapter;
 
 import android.text.TextUtils;
-import android.view.View;
 
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.chad.library.adapter.base.viewholder.BaseViewHolder;
 import com.revolo.lock.R;
-import com.revolo.lock.bean.test.TestLockBean;
+import com.revolo.lock.bean.showBean.WifiShowBean;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+
 
 /**
  * author : Jack
@@ -19,8 +19,8 @@ import java.util.List;
  * E-mail : wengmaowei@kaadas.com
  * desc   : 首页锁列表适配器
  */
-public class HomeLockListAdapter extends BaseQuickAdapter<TestLockBean, BaseViewHolder> {
-    public HomeLockListAdapter(int layoutResId, @Nullable List<TestLockBean> data) {
+public class HomeLockListAdapter extends BaseQuickAdapter<WifiShowBean, BaseViewHolder> {
+    public HomeLockListAdapter(int layoutResId, @Nullable List<WifiShowBean> data) {
         super(layoutResId, data);
     }
 
@@ -29,7 +29,7 @@ public class HomeLockListAdapter extends BaseQuickAdapter<TestLockBean, BaseView
     }
 
     @Override
-    protected void convert(@NotNull BaseViewHolder baseViewHolder, TestLockBean testLockBean) {
+    protected void convert(@NotNull BaseViewHolder baseViewHolder, WifiShowBean testLockBean) {
         if(testLockBean == null) {
             return;
         }
@@ -59,7 +59,8 @@ public class HomeLockListAdapter extends BaseQuickAdapter<TestLockBean, BaseView
         } else {
             baseViewHolder.setImageResource(R.id.ivNetState, R.drawable.ic_home_icon_bluetooth);
         }
-        baseViewHolder.setText(R.id.tvLockName, TextUtils.isEmpty(testLockBean.getName())?"":testLockBean.getName());
+        String wifiName = testLockBean.getWifiListBean().getWifiName();
+        baseViewHolder.setText(R.id.tvLockName, TextUtils.isEmpty(wifiName)?"":wifiName);
     }
 
     private OnLockClickListener mOnLockClickListener;

@@ -109,6 +109,7 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
     public void doBusiness() {
         if(mPreA == mQRPre || mPreA == mESNPre) {
             checkDeviceIsBind();
+//            getPwd1FromNet();
         } else {
             gotoBleConnectFail();
         }

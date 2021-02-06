@@ -1,5 +1,7 @@
 package com.revolo.lock.mqtt;
 
+import com.blankj.utilcode.util.EncodeUtils;
+import com.blankj.utilcode.util.EncryptUtils;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.revolo.lock.App;
@@ -8,11 +10,14 @@ import com.revolo.lock.mqtt.bean.publishbean.WifiLockApproachOpenPublishBean;
 import com.revolo.lock.mqtt.bean.publishbean.WifiLockCloseWifiPublishBean;
 import com.revolo.lock.mqtt.bean.publishbean.WifiLockDoorOptPublishBean;
 import com.revolo.lock.mqtt.bean.publishbean.WifiLockEncryptPublishBean;
+import com.revolo.lock.mqtt.bean.publishbean.WifiLockGetAllBindDevicePublishBean;
 import com.revolo.lock.mqtt.bean.publishbean.WifiLockRemovePasswordPublishBean;
 import com.revolo.lock.mqtt.bean.publishbean.WifiLockSetMagneticPublishBean;
 import com.revolo.lock.mqtt.bean.publishbean.WifiLockUpdatePasswordPublishBean;
 
 import org.eclipse.paho.client.mqttv3.MqttMessage;
+
+import java.nio.charset.StandardCharsets;
 
 public class MqttCommandFactory {
 
@@ -25,6 +30,13 @@ public class MqttCommandFactory {
         return MESSAGE_ID++;
     }
 
+
+    public static MqttMessage getAllBindDevices(String uid) {
+        int messageId = getMessageId();
+        WifiLockGetAllBindDevicePublishBean bean = new WifiLockGetAllBindDevicePublishBean(messageId,
+                MqttConstant.MSG_TYPE_REQUEST, MqttConstant.GET_ALL_BIND_DEVICE, uid, 2);
+        return getMessage(bean, messageId);
+    }
 
     /**
      * 3.App设置门磁
@@ -63,23 +75,30 @@ public class MqttCommandFactory {
     /**
      *  加密数据发送
      */
-    public static MqttMessage SendEncryptData(String wifiID,String encrypt){
+    public static MqttMessage sendEncryptData(String wifiID,String encrypt){
         int messageId = getMessageId();
         WifiLockEncryptPublishBean wifiLockEncryptPublishBean = new WifiLockEncryptPublishBean(App.getInstance().getUserBean().getUid(),
                 wifiID,encrypt);
-        return getMessage(wifiLockEncryptPublishBean, messageId);
+        return getMessage(wifiLockEncryptPublishBean, messageId,2);
     }
 
     /**
      * 7.App 下发开门，关门指令
      */
-    public static MqttMessage setLock(String wifiID,int dooropt){
+    public static MqttMessage setLock(String wifiID,int dooropt, byte[] pwd){
         int messageId = getMessageId();
         WifiLockDoorOptPublishBean.ParamsBean setLock = new WifiLockDoorOptPublishBean.ParamsBean();
         setLock.setDooropt(dooropt);
+        // TODO: 2021/2/6 临时放一个测试 后续需要修改randomCode从外部调进来
+        setLock.setRandomCode("123456");
         WifiLockDoorOptPublishBean mWifiLockDoorOptPublishBean = new WifiLockDoorOptPublishBean(MqttConstant.MSG_TYPE_REQUEST,messageId,
                 App.getInstance().getUserBean().getUid(),wifiID,MqttConstant.SET_LOCK,setLock,System.currentTimeMillis() + "");
-        return getMessage(mWifiLockDoorOptPublishBean, messageId);
+        String json = new Gson().toJson(mWifiLockDoorOptPublishBean);
+        // 先AES加密
+        byte[] aesJson = EncryptUtils.encryptAES(json.getBytes(StandardCharsets.UTF_8), pwd, "AES/ECB/PKCS5Padding", null);
+        // 后Base64字符串编码
+        String base64Json = EncodeUtils.base64Encode2String(aesJson);
+        return sendEncryptData(wifiID, base64Json);
     }
 
     /**

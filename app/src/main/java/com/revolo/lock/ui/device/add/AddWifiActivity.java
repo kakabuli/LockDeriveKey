@@ -38,6 +38,7 @@ import timber.log.Timber;
  * E-mail : wengmaowei@kaadas.com
  * desc   : 添加Wifi
  */
+// TODO: 2021/2/6 wifi配网前记得查询电量
 public class AddWifiActivity extends BaseActivity {
 
     private BleBean mBleBean;

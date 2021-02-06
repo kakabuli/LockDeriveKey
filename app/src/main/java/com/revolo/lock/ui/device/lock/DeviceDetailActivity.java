@@ -11,10 +11,12 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 
+import com.revolo.lock.App;
 import com.revolo.lock.Constant;
 import com.revolo.lock.R;
 import com.revolo.lock.base.BaseActivity;
-import com.revolo.lock.bean.test.TestLockBean;
+import com.revolo.lock.bean.request.DeviceUnbindBeanReq;
+import com.revolo.lock.bean.showBean.WifiShowBean;
 import com.revolo.lock.ui.device.lock.setting.DeviceSettingActivity;
 
 /**
@@ -25,13 +27,13 @@ import com.revolo.lock.ui.device.lock.setting.DeviceSettingActivity;
  */
 public class DeviceDetailActivity extends BaseActivity {
 
-    private TestLockBean mTestLockBean;
+    private WifiShowBean mWifiShowBean;
 
     @Override
     public void initData(@Nullable Bundle bundle) {
         Intent intent = getIntent();
         if(intent.hasExtra(Constant.LOCK_DETAIL)) {
-            mTestLockBean = intent.getParcelableExtra(Constant.LOCK_DETAIL);
+            mWifiShowBean = intent.getParcelableExtra(Constant.LOCK_DETAIL);
         }
     }
 
@@ -66,12 +68,17 @@ public class DeviceDetailActivity extends BaseActivity {
             return;
         }
         if(view.getId() == R.id.llSetting) {
-            startActivity(new Intent(this, DeviceSettingActivity.class));
+            Intent intent = new Intent(this, DeviceSettingActivity.class);
+            DeviceUnbindBeanReq req = new DeviceUnbindBeanReq();
+            req.setUid(mWifiShowBean.getWifiListBean().getAdminUid());
+            req.setWifiSN(mWifiShowBean.getWifiListBean().getWifiSN());
+            intent.putExtra(Constant.UNBIND_REQ, req);
+            startActivity(intent);
         }
     }
 
     private void initDevice() {
-        if(mTestLockBean == null) {
+        if(mWifiShowBean == null) {
             return;
         }
         ImageView ivLockState = findViewById(R.id.ivLockState);
@@ -89,14 +96,14 @@ public class DeviceDetailActivity extends BaseActivity {
 
         applyDebouncingClickListener(llNotification, llPwd, llUser, llSetting);
 
-        if(mTestLockBean.getModeState() == 2) {
+        if(mWifiShowBean.getModeState() == 2) {
             ivLockState.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_home_img_lock_privacymodel));
             tvPrivateMode.setVisibility(View.VISIBLE);
             llDoorState.setVisibility(View.GONE);
         } else {
             tvPrivateMode.setVisibility(View.GONE);
             llDoorState.setVisibility(View.VISIBLE);
-            if(mTestLockBean.getDoorState() == 1) {
+            if(mWifiShowBean.getDoorState() == 1) {
                 ivLockState.setImageResource(R.drawable.ic_home_img_lock_open);
                 ivDoorState.setImageResource(R.drawable.ic_home_icon_door_open);
                 tvDoorState.setText(R.string.tip_opened);
@@ -106,7 +113,7 @@ public class DeviceDetailActivity extends BaseActivity {
                 tvDoorState.setText(R.string.tip_closed);
             }
         }
-        if(mTestLockBean.getInternetState() == 1) {
+        if(mWifiShowBean.getInternetState() == 1) {
             ivNetState.setImageResource(R.drawable.ic_home_icon_wifi);
         } else {
             ivNetState.setImageResource(R.drawable.ic_home_icon_bluetooth);

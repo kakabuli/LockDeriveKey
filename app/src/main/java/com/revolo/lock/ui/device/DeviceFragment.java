@@ -20,11 +20,13 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.a1anwang.okble.client.scan.BLEScanResult;
 import com.blankj.utilcode.util.ConvertUtils;
 import com.blankj.utilcode.util.TimeUtils;
+import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
 import com.revolo.lock.App;
 import com.revolo.lock.Constant;
 import com.revolo.lock.R;
 import com.revolo.lock.adapter.HomeLockListAdapter;
-import com.revolo.lock.ble.BleByteUtil;
+import com.revolo.lock.bean.showBean.WifiShowBean;
 import com.revolo.lock.ble.bean.BleBean;
 import com.revolo.lock.bean.test.TestLockBean;
 import com.revolo.lock.ble.BleCommandFactory;
@@ -32,39 +34,42 @@ import com.revolo.lock.ble.BleProtocolState;
 import com.revolo.lock.ble.BleResultProcess;
 import com.revolo.lock.ble.OnBleDeviceListener;
 import com.revolo.lock.ble.bean.BleResultBean;
+import com.revolo.lock.mqtt.MqttCommandFactory;
+import com.revolo.lock.mqtt.MqttConstant;
+import com.revolo.lock.mqtt.bean.MqttData;
+import com.revolo.lock.mqtt.bean.publishresultbean.WifiLockGetAllBindDeviceRspBean;
 import com.revolo.lock.ui.MainActivity;
 import com.revolo.lock.ui.TitleBar;
 import com.revolo.lock.ui.device.add.AddDeviceActivity;
 import com.revolo.lock.ui.device.lock.DeviceDetailActivity;
 
-import java.nio.charset.StandardCharsets;
+import org.jetbrains.annotations.NotNull;
 
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
+
+import io.reactivex.Observer;
+import io.reactivex.disposables.Disposable;
 import timber.log.Timber;
 
 public class DeviceFragment extends Fragment {
 
     private DeviceViewModel mDeviceViewModel;
     private HomeLockListAdapter mHomeLockListAdapter;
+    private ConstraintLayout mClNoDevice, mClHadDevice;
+    
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
         mDeviceViewModel =
                 new ViewModelProvider(this).get(DeviceViewModel.class);
         View root = inflater.inflate(R.layout.fragment_device, container, false);
-        ConstraintLayout clNoDevice = root.findViewById(R.id.clNoDevice);
-        ConstraintLayout clHadDevice = root.findViewById(R.id.clHadDevice);
-        mDeviceViewModel.getTestLockBeans().observe(getViewLifecycleOwner(), testLockBeans -> {
-            if(testLockBeans != null) {
-                if(testLockBeans.isEmpty()) {
-                    clNoDevice.setVisibility(View.VISIBLE);
-                    clHadDevice.setVisibility(View.GONE);
-                } else {
-                    clNoDevice.setVisibility(View.GONE);
-                    clHadDevice.setVisibility(View.VISIBLE);
-                }
-                mHomeLockListAdapter.setList(testLockBeans);
-            }
-        });
+        mClNoDevice = root.findViewById(R.id.clNoDevice);
+        mClHadDevice = root.findViewById(R.id.clHadDevice);
+//        mDeviceViewModel.getTestLockBeans().observe(getViewLifecycleOwner(), testLockBeans -> {
+//            updateData(clNoDevice, clHadDevice, testLockBeans);
+//        });
         // 无设备的时候控件UI
         ImageView ivAdd = root.findViewById(R.id.ivAdd);
         ivAdd.setOnClickListener(v -> startActivity(new Intent(getContext(), AddDeviceActivity.class)));
@@ -78,19 +83,22 @@ public class DeviceFragment extends Fragment {
             rvLockList.setLayoutManager(new LinearLayoutManager(getContext()));
             mHomeLockListAdapter = new HomeLockListAdapter(R.layout.item_home_lock_list_rv);
             mHomeLockListAdapter.setOnItemClickListener((adapter, view, position) -> {
-                if(adapter.getItem(position) instanceof TestLockBean) {
+                if(adapter.getItem(position) instanceof WifiShowBean) {
                     if(position < 0 || position >= adapter.getData().size()) return;
-                    TestLockBean testLockBean = (TestLockBean) adapter.getItem(position);
+                    WifiShowBean wifiShowBean = (WifiShowBean) adapter.getItem(position);
                     Intent intent = new Intent(getContext(), DeviceDetailActivity.class);
-                    intent.putExtra(Constant.LOCK_DETAIL, testLockBean);
+                    intent.putExtra(Constant.LOCK_DETAIL, wifiShowBean);
                     startActivity(intent);
                 }
             });
             mHomeLockListAdapter.setOnLockClickListener(new HomeLockListAdapter.OnLockClickListener() {
                 @Override
                 public void onClick() {
-                    App.getInstance().writeControlMsg(BleCommandFactory
-                            .lockControlCommand((byte) 0x00, (byte) 0x04, (byte) 0x01, mPwd1, mPwd3));
+                    // TODO: 2021/2/6 要选择来切换发送对应的指令
+                    // 蓝牙发送开关门指令
+//                    App.getInstance().writeControlMsg(BleCommandFactory
+//                            .lockControlCommand((byte) 0x00, (byte) 0x04, (byte) 0x01, mPwd1, mPwd3));
+                    publishOpenOrCloseDoor(mHomeLockListAdapter.getItem(0).getWifiListBean().getWifiSN(), 1);
                 }
             });
             rvLockList.setAdapter(mHomeLockListAdapter);
@@ -100,8 +108,27 @@ public class DeviceFragment extends Fragment {
         }
         initBleListener();
         initData();
+        new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                initGetAllBindDevicesFromMQTT();
+            }
+        }, 500);
 
         return root;
+    }
+
+    private void updateData(List<WifiShowBean> testLockBeans) {
+        if(testLockBeans != null) {
+            if(testLockBeans.isEmpty()) {
+                mClNoDevice.setVisibility(View.VISIBLE);
+                mClHadDevice.setVisibility(View.GONE);
+            } else {
+                mClNoDevice.setVisibility(View.GONE);
+                mClHadDevice.setVisibility(View.VISIBLE);
+            }
+            mHomeLockListAdapter.setList(testLockBeans);
+        }
     }
 
     private BleBean mBleBean;
@@ -178,28 +205,136 @@ public class DeviceFragment extends Fragment {
     }
 
     private void initData() {
-        if(App.getInstance().getBleBean() == null) {
-            mEsn = App.getInstance().getCacheDiskUtils().getString(Constant.LOCK_ESN);
-            mPwd1 = App.getInstance().getCacheDiskUtils().getBytes(Constant.KEY_PWD1);
-            mPwd2 = App.getInstance().getCacheDiskUtils().getBytes(Constant.KEY_PWD2);
-            BLEScanResult bleScanResult = App.getInstance().getCacheDiskUtils()
-                    .getParcelable(Constant.BLE_DEVICE, BLEScanResult.CREATOR, null);
-            if(bleScanResult != null) {
-                App.getInstance().connectDevice(bleScanResult);
-                mBleBean = App.getInstance().getBleBean();
+        mEsn = App.getInstance().getCacheDiskUtils().getString(Constant.LOCK_ESN);
+        mPwd1 = App.getInstance().getCacheDiskUtils().getBytes(Constant.KEY_PWD1);
+        mPwd2 = App.getInstance().getCacheDiskUtils().getBytes(Constant.KEY_PWD2);
+//        if(App.getInstance().getBleBean() == null) {
+//            BLEScanResult bleScanResult = App.getInstance().getCacheDiskUtils()
+//                    .getParcelable(Constant.BLE_DEVICE, BLEScanResult.CREATOR, null);
+//            if(bleScanResult != null) {
+//                App.getInstance().connectDevice(bleScanResult);
+//                mBleBean = App.getInstance().getBleBean();
+//                mBleBean.setPwd1(mPwd1);
+//                mBleBean.setPwd2(mPwd2);
+//            } else {
+//                // TODO: 2021/1/26 处理为空的情况
+//            }
+//        } else {
+//            mBleBean = App.getInstance().getBleBean();
+//            if(mBleBean.getOKBLEDeviceImp() != null) {
+//                if(!mBleBean.getOKBLEDeviceImp().isConnected()) {
+//                    mBleBean.getOKBLEDeviceImp().connect(true);
+//                }
+//                mBleBean.setPwd1(mPwd1);
+//                mBleBean.setPwd2(mPwd2);
+//            } else {
+//                // TODO: 2021/1/26 为空的处理
+//            }
+//        }
+    }
+
+    // TODO: 2021/2/6 后面想办法写的更好
+    private byte[] getPwd(byte[] pwd1, byte[] pwd2) {
+        byte[] pwd = new byte[16];
+        for (int i=0; i < pwd.length; i++) {
+            if(i <= 11) {
+                pwd[i]=pwd1[i];
             } else {
-                // TODO: 2021/1/26 处理为空的情况
-            }
-        } else {
-            mBleBean = App.getInstance().getBleBean();
-            if(mBleBean.getOKBLEDeviceImp() != null) {
-                if(!mBleBean.getOKBLEDeviceImp().isConnected()) {
-                    mBleBean.getOKBLEDeviceImp().connect(true);
-                }
-            } else {
-                // TODO: 2021/1/26 为空的处理
+                pwd[i]=pwd2[i-12];
             }
         }
+        return pwd;
+    }
+
+    /**
+     *  开关门
+     * @param wifiId wifi的id
+     * @param doorOpt 1:表示开门，0表示关门
+     */
+    public void publishOpenOrCloseDoor(String wifiId, int doorOpt) {
+        // TODO: 2021/2/6 发送开门或者关门的指令
+        App.getInstance().getMqttService().mqttPublish(MqttConstant.getCallTopic(App.getInstance().getUserBean().getUid()),
+                MqttCommandFactory.setLock(wifiId,doorOpt, getPwd(mPwd1, mPwd2))).subscribe(new Observer<MqttData>() {
+            @Override
+            public void onSubscribe(@NotNull Disposable d) {
+
+            }
+
+            @Override
+            public void onNext(@NotNull MqttData mqttData) {
+                if(mqttData.getFunc().equals("setLock")) {
+                    Timber.d("开关门信息: %1s", mqttData);
+                }
+                Timber.d("%1s", mqttData.toString());
+            }
+
+            @Override
+            public void onError(@NotNull Throwable e) {
+                Timber.e(e);
+            }
+
+            @Override
+            public void onComplete() {
+
+            }
+        });
+    }
+
+    public void initGetAllBindDevicesFromMQTT() {
+
+        Timber.d("执行获取设备信息");
+        App.getInstance().getMqttService()
+                .mqttPublish(MqttConstant.PUBLISH_TO_SERVER,
+                        MqttCommandFactory.getAllBindDevices(App.getInstance().getUserBean().getUid()))
+                .safeSubscribe(new Observer<MqttData>() {
+                    @Override
+                    public void onSubscribe(@NotNull Disposable d) {
+
+                    }
+
+                    @Override
+                    public void onNext(@NotNull MqttData mqttData) {
+                        Gson gson = new Gson();
+                        WifiLockGetAllBindDeviceRspBean bean = null;
+                        try {
+                            bean = gson.fromJson(mqttData.getPayload(), WifiLockGetAllBindDeviceRspBean.class);
+                        } catch (JsonSyntaxException e) {
+                            // TODO: 2021/2/6 解析失败的处理 
+                            Timber.e(e);
+                        }
+                        if(bean == null) {
+                            Timber.e("WifiLockGetAllBindDeviceRspBean is null");
+                            return;
+                        }
+                        if(bean.getData() == null) {
+                            Timber.e("WifiLockGetAllBindDeviceRspBean.Data is null");
+                            return;
+                        }
+                        if(bean.getData().getWifiList() == null) {
+                            Timber.e("WifiLockGetAllBindDeviceRspBean..getData().getWifiList() is null");
+                            return;
+                        }
+                        if(bean.getData().getWifiList().isEmpty()) {
+                            Timber.e("WifiLockGetAllBindDeviceRspBean..getData().getWifiList().isEmpty()");
+                            return;
+                        }
+                        List<WifiShowBean> showBeans = new ArrayList<>();
+                        for (WifiLockGetAllBindDeviceRspBean.DataBean.WifiListBean wifiListBean : bean.getData().getWifiList()) {
+                            showBeans.add(new WifiShowBean(2, 1,1, wifiListBean));
+                        }
+                        updateData(showBeans);
+                    }
+
+                    @Override
+                    public void onError(@NotNull Throwable e) {
+                        Timber.e(e);
+                    }
+
+                    @Override
+                    public void onComplete() {
+
+                    }
+                });
     }
 
 }
