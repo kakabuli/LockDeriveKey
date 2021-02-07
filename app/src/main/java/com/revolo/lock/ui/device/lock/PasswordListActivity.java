@@ -160,8 +160,10 @@ public class PasswordListActivity extends BaseActivity {
                         1, "***********", "Permanence", "02,04,2020 12:00", mCurrentSearchNum);
                 mTestPwdBeans.add(testPwdBean);
             } else if(attribute == KEY_SET_ATTRIBUTE_TIME_KEY) {
+                // TODO: 2021/2/7 时间高低位反回来取
                 addTimePwd(bean, name);
             } else if(attribute == KEY_SET_ATTRIBUTE_WEEK_KEY) {
+                // TODO: 2021/2/7 时间高低位反回来取
                 addWeeklyPwd(bean, name);
             }
             runOnUiThread(() -> mPasswordListAdapter.setList(mTestPwdBeans));

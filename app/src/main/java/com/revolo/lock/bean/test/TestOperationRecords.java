@@ -3,6 +3,8 @@ package com.revolo.lock.bean.test;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.revolo.lock.bean.showBean.RecordState;
+
 import java.util.List;
 
 /**
@@ -19,9 +21,10 @@ public class TestOperationRecords implements Parcelable {
     public static class TestOperationRecord implements Parcelable {
         private long operationTime;
         private String message;
+        @RecordState.OpRecordState
         private int state;
 
-        public TestOperationRecord(long operationTime, String message, int state) {
+        public TestOperationRecord(long operationTime, String message, @RecordState.OpRecordState int state) {
             this.operationTime = operationTime;
             this.message = message;
             this.state = state;
@@ -47,7 +50,7 @@ public class TestOperationRecords implements Parcelable {
             return state;
         }
 
-        public void setState(int state) {
+        public void setState(@RecordState.OpRecordState int state) {
             this.state = state;
         }
 

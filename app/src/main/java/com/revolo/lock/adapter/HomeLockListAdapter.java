@@ -33,11 +33,6 @@ public class HomeLockListAdapter extends BaseQuickAdapter<WifiShowBean, BaseView
         if(testLockBean == null) {
             return;
         }
-        baseViewHolder.getView(R.id.ivLockState).setOnClickListener(v -> {
-            if(mOnLockClickListener != null) {
-                mOnLockClickListener.onClick();
-            }
-        });
         if(testLockBean.getModeState() == 2) {
             baseViewHolder.setImageResource(R.id.ivLockState, R.drawable.ic_home_img_lock_privacymodel);
             baseViewHolder.setText(R.id.tvDoorState, getContext().getString(R.string.tip_private_mode));
@@ -63,13 +58,4 @@ public class HomeLockListAdapter extends BaseQuickAdapter<WifiShowBean, BaseView
         baseViewHolder.setText(R.id.tvLockName, TextUtils.isEmpty(wifiName)?"":wifiName);
     }
 
-    private OnLockClickListener mOnLockClickListener;
-
-    public void setOnLockClickListener(OnLockClickListener onLockClickListener) {
-        mOnLockClickListener = onLockClickListener;
-    }
-
-    public interface OnLockClickListener{
-        void onClick();
-    }
 }

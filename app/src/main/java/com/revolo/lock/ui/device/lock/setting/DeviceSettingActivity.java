@@ -112,7 +112,9 @@ public class DeviceSettingActivity extends BaseActivity {
             return;
         }
         if(view.getId() == R.id.clDoorLockInformation) {
-            startActivity(new Intent(this, DoorLockInformationActivity.class));
+            Intent intent = new Intent(this, DoorLockInformationActivity.class);
+            intent.putExtra(Constant.UNBIND_REQ, mReq);
+            startActivity(intent);
             return;
         }
         if(view.getId() == R.id.clGeoFenceLock) {

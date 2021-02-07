@@ -9,6 +9,7 @@ import static com.revolo.lock.ble.BleProtocolState.CMD_KEY_ADD;
 import static com.revolo.lock.ble.BleProtocolState.CMD_KEY_ATTRIBUTES_READ;
 import static com.revolo.lock.ble.BleProtocolState.CMD_KEY_ATTRIBUTES_SET;
 import static com.revolo.lock.ble.BleProtocolState.CMD_LOCK_ALARM_RECORD_CHECK;
+import static com.revolo.lock.ble.BleProtocolState.CMD_LOCK_INFO;
 import static com.revolo.lock.ble.BleProtocolState.CMD_LOCK_NUM_CHECK;
 import static com.revolo.lock.ble.BleProtocolState.CMD_LOCK_OPEN_COUNT_CHECK;
 import static com.revolo.lock.ble.BleProtocolState.CMD_LOCK_PARAMETER_CHECK;
@@ -63,7 +64,7 @@ public class BleCommandFactory {
         }
     }
 
-    private static byte[] littleMode(byte[] bytes) {
+    public static byte[] littleMode(byte[] bytes) {
         for (int i=0; i<bytes.length/2; i++) {
             byte tmp = bytes[i];
             bytes[i] = bytes[bytes.length-1-i];
@@ -609,10 +610,14 @@ public class BleCommandFactory {
      * 查询门锁基本信息
      * @param mode 0x01：查询
      */
-    public static byte[] checkLockBaseInfoCommand(byte mode, byte[] pwd1, byte[] pwd2) {
+    public static byte[] checkLockBaseInfoCommand(byte mode, byte[] pwd1, byte[] pwd3) {
         byte[] data = new byte[1];
         data[0] = mode;
-        return commandPackage(true, (byte) 0x12, commandTSN(), data, pwd1, pwd2);
+        return commandPackage(true, (byte) CMD_LOCK_INFO, commandTSN(), data, pwd1, pwd3);
+    }
+
+    public static byte[] checkLockBaseInfoCommand(byte[] pwd1, byte[] pwd3) {
+        return checkLockBaseInfoCommand((byte) 0x01, pwd1, pwd3);
     }
 
     /**

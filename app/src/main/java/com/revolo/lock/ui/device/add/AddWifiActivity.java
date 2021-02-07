@@ -108,9 +108,7 @@ public class AddWifiActivity extends BaseActivity {
         }
         String wifiPwd = mEtPwd.getText().toString();
         if(TextUtils.isEmpty(wifiPwd)) {
-            // TODO: 2021/1/22 调整提示语
-            ToastUtils.showShort("Please input wifi password!");
-            return;
+            wifiPwd = "";
         }
         Intent intent = new Intent(this, WifiConnectActivity.class);
         intent.putExtra(Constant.WIFI_NAME, wifiSn);

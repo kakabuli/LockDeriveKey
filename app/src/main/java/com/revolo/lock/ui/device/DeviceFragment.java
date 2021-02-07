@@ -20,6 +20,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.a1anwang.okble.client.scan.BLEScanResult;
 import com.blankj.utilcode.util.ConvertUtils;
 import com.blankj.utilcode.util.TimeUtils;
+import com.chad.library.adapter.base.BaseQuickAdapter;
+import com.chad.library.adapter.base.listener.OnItemChildClickListener;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import com.revolo.lock.App;
@@ -91,14 +93,19 @@ public class DeviceFragment extends Fragment {
                     startActivity(intent);
                 }
             });
-            mHomeLockListAdapter.setOnLockClickListener(new HomeLockListAdapter.OnLockClickListener() {
+            mHomeLockListAdapter.addChildClickViewIds(R.id.ivLockState);
+            mHomeLockListAdapter.setOnItemChildClickListener(new OnItemChildClickListener() {
                 @Override
-                public void onClick() {
-                    // TODO: 2021/2/6 要选择来切换发送对应的指令
-                    // 蓝牙发送开关门指令
-//                    App.getInstance().writeControlMsg(BleCommandFactory
-//                            .lockControlCommand((byte) 0x00, (byte) 0x04, (byte) 0x01, mPwd1, mPwd3));
-                    publishOpenOrCloseDoor(mHomeLockListAdapter.getItem(0).getWifiListBean().getWifiSN(), 1);
+                public void onItemChildClick(@NonNull BaseQuickAdapter adapter, @NonNull View view, int position) {
+                    if(view.getId() == R.id.ivLockState) {
+                        // TODO: 2021/2/6 要选择来切换发送对应的指令
+                        // 发送查询状态
+                        App.getInstance().writeControlMsg(BleCommandFactory.checkLockBaseInfoCommand(mPwd1, mPwd3));
+                        // 蓝牙发送开关门指令
+//                           App.getInstance().writeControlMsg(BleCommandFactory
+//                                   .lockControlCommand((byte) 0x00, (byte) 0x04, (byte) 0x01, mPwd1, mPwd3));
+//                        publishOpenOrCloseDoor(mHomeLockListAdapter.getItem(position).getWifiListBean().getWifiSN(), 1);
+                    }
                 }
             });
             rvLockList.setAdapter(mHomeLockListAdapter);
@@ -142,25 +149,47 @@ public class DeviceFragment extends Fragment {
             Timber.e("mOnReceivedProcess bleResultBean == null");
             return;
         }
-        auth(bleResultBean);
+        processBleResult(bleResultBean);
     };
 
-    private void auth(BleResultBean bleResultBean) {
-        if(bleResultBean.getCMD() == BleProtocolState.CMD_ENCRYPT_KEY_UPLOAD) {
-            byte[] data = bleResultBean.getPayload();
-            if(data[0] == 0x02) {
-                // 获取pwd3
-                mPwd3 = new byte[4];
-                System.arraycopy(data, 1, mPwd3, 0, mPwd3.length);
-                Timber.d("鉴权成功, pwd3: %1s\n", ConvertUtils.bytes2HexString(mPwd3));
-                // 内存存储
-                App.getInstance().getBleBean().setPwd3(mPwd3);
-                App.getInstance().writeControlMsg(BleCommandFactory.ackCommand(bleResultBean.getTSN(), (byte)0x00, bleResultBean.getCMD()));
-                // 鉴权成功后，同步当前时间
-                syNowTime();
-                // TODO: 2021/1/26 鉴权成功
-            }
+    private void processBleResult(BleResultBean bean) {
+        if(bean.getCMD() == BleProtocolState.CMD_ENCRYPT_KEY_UPLOAD) {
+            auth(bean);
+        } else if(bean.getCMD() == BleProtocolState.CMD_LOCK_INFO) {
+            lockInfo(bean);
+        } else if(bean.getCMD() == BleProtocolState.CMD_LOCK_CONTROL_ACK) {
+            controlOpenOrCloseDoorAck(bean);
+        } else if(bean.getCMD() == BleProtocolState.CMD_LOCK_UPLOAD) {
+            lockUpdateInfo(bean);
         }
+    }
+
+    private void auth(BleResultBean bean) {
+        byte[] data = bean.getPayload();
+        if(data[0] == 0x02) {
+            // 获取pwd3
+            mPwd3 = new byte[4];
+            System.arraycopy(data, 1, mPwd3, 0, mPwd3.length);
+            Timber.d("鉴权成功, pwd3: %1s\n", ConvertUtils.bytes2HexString(mPwd3));
+            // 内存存储
+            App.getInstance().getBleBean().setPwd3(mPwd3);
+            App.getInstance().writeControlMsg(BleCommandFactory.ackCommand(bean.getTSN(), (byte)0x00, bean.getCMD()));
+            // 鉴权成功后，同步当前时间
+            syNowTime();
+            // TODO: 2021/1/26 鉴权成功
+        }
+    }
+
+    private void lockInfo(BleResultBean bean) {
+
+    }
+
+    private void controlOpenOrCloseDoorAck(BleResultBean bean) {
+        // TODO: 2021/2/7 处理控制开关锁确认帧
+    }
+
+    private void lockUpdateInfo(BleResultBean bean) {
+        // TODO: 2021/2/7 锁操作上报
     }
 
     private void syNowTime() {
@@ -208,29 +237,29 @@ public class DeviceFragment extends Fragment {
         mEsn = App.getInstance().getCacheDiskUtils().getString(Constant.LOCK_ESN);
         mPwd1 = App.getInstance().getCacheDiskUtils().getBytes(Constant.KEY_PWD1);
         mPwd2 = App.getInstance().getCacheDiskUtils().getBytes(Constant.KEY_PWD2);
-//        if(App.getInstance().getBleBean() == null) {
-//            BLEScanResult bleScanResult = App.getInstance().getCacheDiskUtils()
-//                    .getParcelable(Constant.BLE_DEVICE, BLEScanResult.CREATOR, null);
-//            if(bleScanResult != null) {
-//                App.getInstance().connectDevice(bleScanResult);
-//                mBleBean = App.getInstance().getBleBean();
-//                mBleBean.setPwd1(mPwd1);
-//                mBleBean.setPwd2(mPwd2);
-//            } else {
-//                // TODO: 2021/1/26 处理为空的情况
-//            }
-//        } else {
-//            mBleBean = App.getInstance().getBleBean();
-//            if(mBleBean.getOKBLEDeviceImp() != null) {
-//                if(!mBleBean.getOKBLEDeviceImp().isConnected()) {
-//                    mBleBean.getOKBLEDeviceImp().connect(true);
-//                }
-//                mBleBean.setPwd1(mPwd1);
-//                mBleBean.setPwd2(mPwd2);
-//            } else {
-//                // TODO: 2021/1/26 为空的处理
-//            }
-//        }
+        if(App.getInstance().getBleBean() == null) {
+            BLEScanResult bleScanResult = App.getInstance().getCacheDiskUtils()
+                    .getParcelable(Constant.BLE_DEVICE, BLEScanResult.CREATOR, null);
+            if(bleScanResult != null) {
+                App.getInstance().connectDevice(bleScanResult);
+                mBleBean = App.getInstance().getBleBean();
+                mBleBean.setPwd1(mPwd1);
+                mBleBean.setPwd2(mPwd2);
+            } else {
+                // TODO: 2021/1/26 处理为空的情况
+            }
+        } else {
+            mBleBean = App.getInstance().getBleBean();
+            if(mBleBean.getOKBLEDeviceImp() != null) {
+                if(!mBleBean.getOKBLEDeviceImp().isConnected()) {
+                    mBleBean.getOKBLEDeviceImp().connect(true);
+                }
+                mBleBean.setPwd1(mPwd1);
+                mBleBean.setPwd2(mPwd2);
+            } else {
+                // TODO: 2021/1/26 为空的处理
+            }
+        }
     }
 
     // TODO: 2021/2/6 后面想办法写的更好

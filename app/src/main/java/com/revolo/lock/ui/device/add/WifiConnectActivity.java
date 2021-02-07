@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.text.TextUtils;
 import android.view.View;
 
 import androidx.annotation.NonNull;
@@ -197,7 +198,17 @@ public class WifiConnectActivity extends BaseActivity {
     }
 
     private void splitWifiPwd() {
-        byte[] wifiPwdBytes = mWifiPwd.getBytes(StandardCharsets.UTF_8);
+        byte[] wifiPwdBytes;
+        if(TextUtils.isEmpty(mWifiPwd)) {
+            // 密码为空的时候，都设置为0xff
+            // TODO: 2021/2/7 需要验证没有密码的情况
+            wifiPwdBytes = new byte[14];
+            for (int i=0; i<14; i++) {
+                wifiPwdBytes[i] = (byte) 0xff;
+            }
+        } else {
+            wifiPwdBytes = mWifiPwd.getBytes(StandardCharsets.UTF_8);
+        }
         Timber.d("startSendWifiInfo WifiPwd: %1s\n", ConvertUtils.bytes2HexString(wifiPwdBytes));
         mWifiPwdLen = wifiPwdBytes.length;
         for (int i=0; i<mWifiPwdLen; i=i+14) {
