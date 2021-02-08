@@ -15,13 +15,11 @@ public class MqttConstant {
     public final static String PARTERN_ID = "HQQ8H3HJGJ2KPQJ7NXZY";
     public final static int DC_TEST = 6750465;
 
-    public static final String MQTT_ABROAD_URL = "tcp://test.irevolo.com:1883";
-    public static final String MQTT_TEST_URL = "tcp://test1.juziwulian.com:1883";
+    public static final String MQTT_ABROAD_URL = "tcp://test.irevolo.com:1883";     // 海外服务器
+    public static final String MQTT_TEST_URL = "tcp://test1.juziwulian.com:1883";   // 国内测试服务器
     public static final String MQTT_BASE_URL = MQTT_ABROAD_URL;
 
     public static final String MQTT_REQUEST_APP = "/request/app/func";
-
-
 
 
     //断开后，是否自动连接

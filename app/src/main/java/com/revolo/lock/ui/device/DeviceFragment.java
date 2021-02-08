@@ -29,8 +29,8 @@ import com.revolo.lock.Constant;
 import com.revolo.lock.R;
 import com.revolo.lock.adapter.HomeLockListAdapter;
 import com.revolo.lock.bean.showBean.WifiShowBean;
+import com.revolo.lock.ble.BleByteUtil;
 import com.revolo.lock.ble.bean.BleBean;
-import com.revolo.lock.bean.test.TestLockBean;
 import com.revolo.lock.ble.BleCommandFactory;
 import com.revolo.lock.ble.BleProtocolState;
 import com.revolo.lock.ble.BleResultProcess;
@@ -101,9 +101,16 @@ public class DeviceFragment extends Fragment {
                         // TODO: 2021/2/6 要选择来切换发送对应的指令
                         // 发送查询状态
                         App.getInstance().writeControlMsg(BleCommandFactory.checkLockBaseInfoCommand(mPwd1, mPwd3));
-                        // 蓝牙发送开关门指令
-//                           App.getInstance().writeControlMsg(BleCommandFactory
-//                                   .lockControlCommand((byte) 0x00, (byte) 0x04, (byte) 0x01, mPwd1, mPwd3));
+                        // TODO: 2021/2/7 看看是否接收了再发指令还是如何处理
+                        new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                // 蓝牙发送开关门指令
+                                App.getInstance().writeControlMsg(BleCommandFactory
+                                        .lockControlCommand((byte) 0x00, (byte) 0x04, (byte) 0x01, mPwd1, mPwd3));
+                            }
+                        }, 100);
+
 //                        publishOpenOrCloseDoor(mHomeLockListAdapter.getItem(position).getWifiListBean().getWifiSN(), 1);
                     }
                 }
@@ -181,6 +188,32 @@ public class DeviceFragment extends Fragment {
     }
 
     private void lockInfo(BleResultBean bean) {
+        // TODO: 2021/2/8 锁基本信息处理
+        byte[] lockFunBytes = new byte[4];
+        System.arraycopy(bean.getPayload(), 0, lockFunBytes, 0, lockFunBytes.length);
+        // 以下标来命名区分 bit0~7
+        byte[] bit0_7 = BleByteUtil.byteToBit(lockFunBytes[3]);
+        // bit8~15
+        byte[] bit8_15 = BleByteUtil.byteToBit(lockFunBytes[2]);
+        // bit16~23
+        byte[] bit16_23 = BleByteUtil.byteToBit(lockFunBytes[1]);
+
+        byte[] lockState = new byte[4];
+        System.arraycopy(bean.getPayload(), 4, lockState, 0, lockState.length);
+        byte[] lockStateBit0_7 = BleByteUtil.byteToBit(lockState[3]);
+        byte[] lockStateBit8_15 = BleByteUtil.byteToBit(lockState[2]);
+        int soundVolume = bean.getPayload()[8];
+        byte[] language = new byte[2];
+        System.arraycopy(bean.getPayload(), 9, language, 0, language.length);
+        String languageStr = new String(language, StandardCharsets.UTF_8);
+        int battery = bean.getPayload()[11];
+        byte[] time = new byte[4];
+        System.arraycopy(bean.getPayload(), 12, time, 0, time.length);
+        long realTime = (BleByteUtil.bytesToLong(BleCommandFactory.littleMode(time)) + Constant.WILL_ADD_TIME)*1000;
+        Timber.d("CMD: %1d, lockFunBytes: bit0_7: %2s, bit8_15: %3s, bit16_23: %4s, lockStateBit0_7: %5s, lockStateBit8_15: %6s, soundVolume: %7d, language: %8s, battery: %9d, time: %10d",
+                bean.getCMD(), ConvertUtils.bytes2HexString(bit0_7), ConvertUtils.bytes2HexString(bit8_15),
+                ConvertUtils.bytes2HexString(bit16_23), ConvertUtils.bytes2HexString(lockStateBit0_7),
+                ConvertUtils.bytes2HexString(lockStateBit8_15), soundVolume, languageStr, battery, realTime);
 
     }
 
@@ -190,6 +223,16 @@ public class DeviceFragment extends Fragment {
 
     private void lockUpdateInfo(BleResultBean bean) {
         // TODO: 2021/2/7 锁操作上报
+        int eventType = bean.getPayload()[0];
+        int eventSource = bean.getPayload()[1];
+        int eventCode = bean.getPayload()[2];
+        int userID = bean.getPayload()[3];
+        byte[] time = new byte[4];
+        System.arraycopy(bean.getPayload(), 4, time, 0, time.length);
+        // TODO: 2021/2/8 要做时间都是ffffffff的处理判断
+        long realTime = (BleByteUtil.bytesToLong(BleCommandFactory.littleMode(time)) + Constant.WILL_ADD_TIME)*1000;
+        Timber.d("CMD: %1d, eventType: %2d, eventSource: %3d, eventCode: %4d, userID: %5d, time: %6d",
+                bean.getCMD(), eventType, eventSource, eventCode, userID, realTime);
     }
 
     private void syNowTime() {

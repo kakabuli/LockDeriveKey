@@ -189,6 +189,11 @@ public class RegisterActivity extends BaseActivity {
             ToastUtils.showShort("Please input right password");
             return;
         }
+        // TODO: 2021/2/8 抽离提示语
+        if(!isSelected) {
+            ToastUtils.showShort("Please agree to the terms of use");
+            return;
+        }
         MailRegisterBeanReq req = new MailRegisterBeanReq();
         req.setName(mail);
         req.setTokens(tokens);
@@ -213,7 +218,9 @@ public class RegisterActivity extends BaseActivity {
                             mailRegisterBeanRsp.getMsg());
                     return;
                 }
-                startActivity(new Intent(RegisterActivity.this, RegisterInputNameActivity.class));
+                // TODO: 2021/2/8 注册成功
+                ToastUtils.showShort("Register Success!");
+//                startActivity(new Intent(RegisterActivity.this, RegisterInputNameActivity.class));
                 finish();
             }
 

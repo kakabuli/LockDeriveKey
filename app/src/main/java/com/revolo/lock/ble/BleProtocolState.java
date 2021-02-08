@@ -17,7 +17,7 @@ public class BleProtocolState {
             CMD_KEY_ATTRIBUTES_READ, CMD_HEART_ACK, CMD_KEY_ADD, CMD_DOOR_SENSOR_CALIBRATION,
             CMD_SET_SENSITIVITY, CMD_SET_AUTO_LOCK_TIME, CMD_KNOCK_DOOR_AND_UNLOCK_TIME,
             CMD_AUTHENTICATION_ACK, CMD_LOCK_CONTROL_ACK, CMD_LOCK_KEY_MANAGER_ACK, CMD_SY_LOCK_TIME,
-            CMD_LOCK_PARAMETER_CHANGED_ACK, CMD_USER_TYPE_SETTING_ACK, CMD_WEEKLY_PLAN_SETTING_ACK,
+            CMD_LOCK_PARAMETER_CHANGED, CMD_USER_TYPE_SETTING_ACK, CMD_WEEKLY_PLAN_SETTING_ACK,
             CMD_WEEKLY_PLAN_DELETE_ACK, CMD_YEAR_MON_DAY_PLAN_SETTING_ACK,  CMD_YEAR_MON_DAY_PLAN_DELETE_ACK,
             CMD_SY_KEY_STATE, CMD_LOCK_INFO, CMD_REQUEST_BIND_ACK, CMD_SS_ID_ACK, CMD_PWD_ACK,
             CMD_UPLOAD_PAIR_NETWORK, CMD_UPLOAD_PAIR_NETWORK_STATE, CMD_KEY_VERIFY_RESULT_ACK,
@@ -50,7 +50,7 @@ public class BleProtocolState {
     public static final int CMD_AUTHENTICATION_ACK = 0x01;              // 鉴权确认帧
     public static final int CMD_LOCK_CONTROL_ACK =  0x02;               // 锁控制确认帧
     public static final int CMD_LOCK_KEY_MANAGER_ACK = 0x03;            // 锁密钥管理确认帧
-    public static final int CMD_LOCK_PARAMETER_CHANGED_ACK = 0x06;      // 锁参数修改确认帧
+    public static final int CMD_LOCK_PARAMETER_CHANGED = 0x06;          // 锁参数修改
     public static final int CMD_USER_TYPE_SETTING_ACK = 0x09;           // 用户类型设置确认帧
     public static final int CMD_WEEKLY_PLAN_SETTING_ACK = 0x0B;         // 周计划设置确认帧
     public static final int CMD_WEEKLY_PLAN_DELETE_ACK = 0x0D;          // 周计划删除确认帧

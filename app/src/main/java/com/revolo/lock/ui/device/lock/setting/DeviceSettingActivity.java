@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -17,6 +18,12 @@ import com.revolo.lock.R;
 import com.revolo.lock.base.BaseActivity;
 import com.revolo.lock.bean.request.DeviceUnbindBeanReq;
 import com.revolo.lock.bean.respone.DeviceUnbindBeanRsp;
+import com.revolo.lock.ble.BleByteUtil;
+import com.revolo.lock.ble.BleCommandFactory;
+import com.revolo.lock.ble.BleProtocolState;
+import com.revolo.lock.ble.BleResultProcess;
+import com.revolo.lock.ble.OnBleDeviceListener;
+import com.revolo.lock.ble.bean.BleResultBean;
 import com.revolo.lock.dialog.UnbindLockDialog;
 import com.revolo.lock.net.HttpRequest;
 import com.revolo.lock.net.ObservableDecorator;
@@ -26,6 +33,8 @@ import io.reactivex.Observable;
 import io.reactivex.Observer;
 import io.reactivex.disposables.Disposable;
 import timber.log.Timber;
+
+import static com.revolo.lock.ble.BleProtocolState.CMD_LOCK_PARAMETER_CHANGED;
 
 /**
  * author : Jack
@@ -38,6 +47,7 @@ public class DeviceSettingActivity extends BaseActivity {
     private TextView mTvName, mTvWifiName;
     private DeviceUnbindBeanReq mReq;
     private CustomerLoadingDialog mLoadingDialog;
+    private ImageView ivMuteEnable;
 
 
     @Override
@@ -61,11 +71,12 @@ public class DeviceSettingActivity extends BaseActivity {
         useCommonTitleBar(getString(R.string.title_setting));
         mTvName = findViewById(R.id.tvName);
         mTvWifiName = findViewById(R.id.tvWifiName);
+        ivMuteEnable = findViewById(R.id.ivMuteEnable);
         applyDebouncingClickListener(mTvName, mTvWifiName,
                 findViewById(R.id.clAutoLock), findViewById(R.id.clPrivateMode),
                 findViewById(R.id.clDuressCode), findViewById(R.id.clDoorLockInformation),
                 findViewById(R.id.clGeoFenceLock), findViewById(R.id.clDoorMagneticSwitch),
-                findViewById(R.id.clUnbind));
+                findViewById(R.id.clUnbind), findViewById(R.id.clMute));
         // TODO: 2021/1/29 抽离英文
         mLoadingDialog = new CustomerLoadingDialog.Builder(this)
                 .setMessage("Unbinding...")
@@ -77,6 +88,7 @@ public class DeviceSettingActivity extends BaseActivity {
     @Override
     public void doBusiness() {
         initTestData();
+        initBleListener();
     }
 
     @Override
@@ -127,6 +139,10 @@ public class DeviceSettingActivity extends BaseActivity {
         }
         if(view.getId() == R.id.clUnbind) {
             showUnbindDialog();
+            return;
+        }
+        if(view.getId() == R.id.clMute) {
+            mute();
         }
     }
 
@@ -139,6 +155,19 @@ public class DeviceSettingActivity extends BaseActivity {
     private void initTestData() {
         mTvName.setText("Tester");
         mTvWifiName.setText("Kaadas123");
+    }
+
+    private boolean isMute = false;
+
+    private void mute() {
+        // 0x00：Silent Mode静音
+        // 0x01：Low Volume低音量
+        // 0x02：High Volume高音量
+        // TODO: 2021/2/8 后面需要动态修改
+        byte[] value = new byte[1];
+        value[0] = (byte) (isMute?0x01:0x00);
+        App.getInstance().writeControlMsg(BleCommandFactory.lockParameterModificationCommand((byte) 0x02,
+                (byte) 0x01, value, App.getInstance().getBleBean().getPwd1(), App.getInstance().getBleBean().getPwd3()));
     }
 
     private void showUnbindDialog() {
@@ -189,6 +218,82 @@ public class DeviceSettingActivity extends BaseActivity {
 
             }
         });
+    }
+
+    private final BleResultProcess.OnReceivedProcess mOnReceivedProcess = bleResultBean -> {
+        if(bleResultBean == null) {
+            Timber.e("mOnReceivedProcess bleResultBean == null");
+            return;
+        }
+        processBleResult(bleResultBean);
+    };
+
+    private void processBleResult(BleResultBean bean) {
+        // TODO: 2021/2/7 需要初始化设置和设置各种参数的回调
+        if(bean.getCMD() == CMD_LOCK_PARAMETER_CHANGED) {
+            processMute(bean);
+        } else if(bean.getCMD() == BleProtocolState.CMD_LOCK_UPLOAD) {
+            lockUpdateInfo(bean);
+        }
+    }
+
+    private void processMute(BleResultBean bean) {
+        if(bean.getPayload()[0] == 0x00) {
+            // TODO: 2021/2/8 处理数据
+            runOnUiThread(() -> {
+                isMute = !isMute;
+                ivMuteEnable.setImageResource(isMute?R.drawable.ic_icon_switch_open:R.drawable.ic_icon_switch_close);
+            });
+        } else {
+            // TODO: 2021/2/7 信息失败了的操作
+            ToastUtils.showShort("Setting Mute Fail");
+        }
+    }
+
+    private void lockUpdateInfo(BleResultBean bean) {
+        // TODO: 2021/2/7 锁操作上报
+        int eventType = bean.getPayload()[0];
+        int eventSource = bean.getPayload()[1];
+        int eventCode = bean.getPayload()[2];
+        int userID = bean.getPayload()[3];
+        byte[] time = new byte[4];
+        System.arraycopy(bean.getPayload(), 4, time, 0, time.length);
+        // TODO: 2021/2/8 要做时间都是ffffffff的处理判断
+        long realTime = (BleByteUtil.bytesToLong(BleCommandFactory.littleMode(time)) + Constant.WILL_ADD_TIME)*1000;
+        Timber.d("CMD: %1d, eventType: %2d, eventSource: %3d, eventCode: %4d, userID: %5d, time: %6d",
+                bean.getCMD(), eventType, eventSource, eventCode, userID, realTime);
+    }
+
+    private void initBleListener() {
+        App.getInstance().setOnBleDeviceListener(new OnBleDeviceListener() {
+            @Override
+            public void onConnected() {
+
+            }
+
+            @Override
+            public void onDisconnected() {
+
+            }
+
+            @Override
+            public void onReceivedValue(String uuid, byte[] value) {
+                if(value == null) {
+                    return;
+                }
+                BleResultProcess.setOnReceivedProcess(mOnReceivedProcess);
+                BleResultProcess.processReceivedData(value,
+                        App.getInstance().getBleBean().getPwd1(),
+                        App.getInstance().getBleBean().getPwd3(),
+                        App.getInstance().getBleBean().getOKBLEDeviceImp().getBleScanResult());
+            }
+
+            @Override
+            public void onWriteValue(String uuid, byte[] value, boolean success) {
+
+            }
+        });
+        // TODO: 2021/2/8 查询一下当前设置
     }
 
 }

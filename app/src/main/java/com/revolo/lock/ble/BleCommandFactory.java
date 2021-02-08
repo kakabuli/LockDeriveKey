@@ -12,6 +12,7 @@ import static com.revolo.lock.ble.BleProtocolState.CMD_LOCK_ALARM_RECORD_CHECK;
 import static com.revolo.lock.ble.BleProtocolState.CMD_LOCK_INFO;
 import static com.revolo.lock.ble.BleProtocolState.CMD_LOCK_NUM_CHECK;
 import static com.revolo.lock.ble.BleProtocolState.CMD_LOCK_OPEN_COUNT_CHECK;
+import static com.revolo.lock.ble.BleProtocolState.CMD_LOCK_PARAMETER_CHANGED;
 import static com.revolo.lock.ble.BleProtocolState.CMD_LOCK_PARAMETER_CHECK;
 
 /**
@@ -434,7 +435,7 @@ public class BleCommandFactory {
         data[0] = num;
         data[1] = length;
         System.arraycopy(value, 0, data, 2, value.length);
-        return commandPackage(true, (byte) 0x06, commandTSN(), data, pwd1, pwd3);
+        return commandPackage(true, (byte) CMD_LOCK_PARAMETER_CHANGED, commandTSN(), data, pwd1, pwd3);
     }
 
     /**
