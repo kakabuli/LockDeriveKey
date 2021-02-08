@@ -39,11 +39,11 @@
         android:id="@+id/textView35"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Detection lock"
+        android:layout_marginStart="16pt"
+        android:layout_marginTop="30pt"
+        android:text="@string/detection_lock"
         android:textColor="@color/c333333"
         android:textSize="15pt"
-        android:layout_marginTop="30pt"
-        android:layout_marginStart="16pt"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView34" />
 
@@ -57,51 +57,63 @@
         app:layout_constraintTop_toBottomOf="@+id/ivAutoLockEnable"
         app:srcCompat="@drawable/ic_icon_switch_close" />
 
-    <TextView
-        android:id="@+id/textView36"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16pt"
-        android:layout_marginTop="30pt"
-        android:text="@string/set_lock_time"
-        android:textColor="@color/c333333"
-        android:textSize="15pt"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView35" />
-
-    <TextView
-        android:id="@+id/tvTime"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="15pt"
-        android:text="0s"
-        android:textColor="@color/c333333"
-        android:textSize="14pt"
-        app:layout_constraintBottom_toBottomOf="@+id/textView36"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/textView36" />
-
-    <TextView
-        android:id="@+id/tvTip"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="60pt"
-        android:textSize="12pt"
-        android:textColor="@color/c666666"
-        android:layout_marginStart="15pt"
-        android:text="@string/tip_the_timer_will_start_when_your_door_is_closed"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView36" />
-
-    <SeekBar
-        android:id="@+id/seekBar"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="10pt"
-        android:layout_marginEnd="10pt"
-        android:layout_marginTop="15pt"
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/clSetLockTime"
+        android:layout_width="match_parent"
+        android:layout_height="0pt"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView36" />
+        app:layout_constraintTop_toBottomOf="@+id/textView35">
+
+        <TextView
+            android:id="@+id/textView36"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16pt"
+            android:layout_marginTop="30pt"
+            android:text="@string/set_lock_time"
+            android:textColor="@color/c333333"
+            android:textSize="15pt"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/tvTime"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="15pt"
+            android:text="0s"
+            android:textColor="@color/c333333"
+            android:textSize="14pt"
+            app:layout_constraintBottom_toBottomOf="@+id/textView36"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/textView36" />
+
+        <TextView
+            android:id="@+id/tvTip"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="60pt"
+            android:textSize="12pt"
+            android:textColor="@color/c666666"
+            android:layout_marginStart="15pt"
+            android:text="@string/tip_the_timer_will_start_when_your_door_is_closed"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/textView36" />
+
+        <SeekBar
+            android:id="@+id/seekBar"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10pt"
+            android:layout_marginEnd="10pt"
+            android:layout_marginTop="15pt"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/textView36" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

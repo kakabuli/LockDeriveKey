@@ -353,5 +353,6 @@
     <string name="start_date">Start date</string>
     <string name="time">time</string>
     <string name="end_date">End date</string>
+    <string name="detection_lock">Detection lock</string>
 
 </resources>

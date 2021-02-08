@@ -2,12 +2,15 @@ package com.revolo.lock.ui.device.lock.setting;
 
 import android.os.Bundle;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.constraintlayout.widget.ConstraintLayout;
 
+import com.blankj.utilcode.util.SPUtils;
 import com.revolo.lock.App;
 import com.revolo.lock.R;
 import com.revolo.lock.base.BaseActivity;
@@ -24,10 +27,19 @@ public class AutoLockActivity extends BaseActivity {
     private SeekBar mSeekBar;
     private TextView mTvTime;
     private int mTime = 0;
+    private ImageView ivDetectionLockEnable, ivAutoLockEnable;
+    boolean isOpenAutoLock= false;
+    private ConstraintLayout clSetLockTime;
+    // TODO: 2021/2/8 存在锁的数据列表里
+    private boolean isShowSetLockTime;
+    // TODO: 2021/2/8 临时的bool值来判断是否开启自动上锁功能，后续需要通过查询状态来实现功能
+    private final String TEST_SET_LOCK_TIME = "TestSetLockTime";
+    private final String TEST_AUTO_LOCK = "TestAutoLock";
 
     @Override
     public void initData(@Nullable Bundle bundle) {
-
+        isShowSetLockTime = SPUtils.getInstance().getBoolean(TEST_SET_LOCK_TIME);
+        isOpenAutoLock = SPUtils.getInstance().getBoolean(TEST_AUTO_LOCK);
     }
 
     @Override
@@ -40,6 +52,10 @@ public class AutoLockActivity extends BaseActivity {
         useCommonTitleBar(getString(R.string.title_auto_lock));
         mSeekBar = findViewById(R.id.seekBar);
         mTvTime = findViewById(R.id.tvTime);
+        clSetLockTime = findViewById(R.id.clSetLockTime);
+        ivAutoLockEnable = findViewById(R.id.ivAutoLockEnable);
+        ivDetectionLockEnable = findViewById(R.id.ivDetectionLockEnable);
+        applyDebouncingClickListener(ivAutoLockEnable, ivDetectionLockEnable);
         mSeekBar.setMax(140);
         mSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
@@ -66,7 +82,29 @@ public class AutoLockActivity extends BaseActivity {
 
     @Override
     public void onDebouncingClick(@NonNull View view) {
+        if(view.getId() == R.id.ivAutoLockEnable) {
+            openOrCloseAutoLock();
+            return;
+        }
+        if(view.getId() == R.id.ivDetectionLockEnable) {
+            isShowSetLockTime = !isShowSetLockTime;
+            SPUtils.getInstance().put(TEST_SET_LOCK_TIME, isShowSetLockTime);
+            clSetLockTime.setVisibility(isShowSetLockTime?View.VISIBLE:View.GONE);
+            ivDetectionLockEnable.setImageResource(isShowSetLockTime?R.drawable.ic_icon_switch_open:R.drawable.ic_icon_switch_close);
+        }
+    }
 
+    // TODO: 2021/2/8 要接收回调处理
+    private void openOrCloseAutoLock() {
+        byte[] value = new byte[1];
+        value[0] = (byte) (isOpenAutoLock?0x01:0x00);
+        isOpenAutoLock = !isOpenAutoLock;
+        ivAutoLockEnable.setImageResource(isOpenAutoLock?R.drawable.ic_icon_switch_open:R.drawable.ic_icon_switch_close);
+        SPUtils.getInstance().put(TEST_AUTO_LOCK, isOpenAutoLock);
+        App.getInstance().writeControlMsg(BleCommandFactory
+                .lockParameterModificationCommand((byte) 0x04, (byte) 0x01, value,
+                        App.getInstance().getBleBean().getPwd1(),
+                        App.getInstance().getBleBean().getPwd3()));
     }
 
     private void stopTrackingTouch(SeekBar seekBar) {

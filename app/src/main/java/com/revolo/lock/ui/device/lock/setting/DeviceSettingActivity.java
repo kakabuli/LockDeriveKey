@@ -11,6 +11,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.blankj.utilcode.util.AdaptScreenUtils;
+import com.blankj.utilcode.util.SPUtils;
 import com.blankj.utilcode.util.ToastUtils;
 import com.revolo.lock.App;
 import com.revolo.lock.Constant;
@@ -47,8 +48,11 @@ public class DeviceSettingActivity extends BaseActivity {
     private TextView mTvName, mTvWifiName;
     private DeviceUnbindBeanReq mReq;
     private CustomerLoadingDialog mLoadingDialog;
-    private ImageView ivMuteEnable;
+    private ImageView ivMuteEnable, ivAutoLockEnable;
 
+    // TODO: 2021/2/8 临时的bool值来判断是否开启自动上锁功能，后续需要通过查询状态来实现功能
+    boolean isOpenAutoLock= false;
+    private final String TEST_AUTO_LOCK = "TestAutoLock";
 
     @Override
     public void initData(@Nullable Bundle bundle) {
@@ -59,6 +63,7 @@ public class DeviceSettingActivity extends BaseActivity {
             // TODO: 2021/2/6 提示没从上一个页面传递数据过来
             finish();
         }
+        isOpenAutoLock = SPUtils.getInstance().getBoolean(TEST_AUTO_LOCK);
     }
 
     @Override
@@ -83,6 +88,8 @@ public class DeviceSettingActivity extends BaseActivity {
                 .setCancelable(true)
                 .setCancelOutside(false)
                 .create();
+        ivAutoLockEnable = findViewById(R.id.ivAutoLockEnable);
+        ivAutoLockEnable.setImageResource(isOpenAutoLock?R.drawable.ic_icon_switch_open:R.drawable.ic_icon_switch_close);
     }
 
     @Override
