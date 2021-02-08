@@ -183,6 +183,8 @@ public class DeviceFragment extends Fragment {
             App.getInstance().writeControlMsg(BleCommandFactory.ackCommand(bean.getTSN(), (byte)0x00, bean.getCMD()));
             // 鉴权成功后，同步当前时间
             syNowTime();
+            isAuth = true;
+            App.getInstance().setAutoAuth(true);
             // TODO: 2021/1/26 鉴权成功
         }
     }
@@ -243,13 +245,19 @@ public class DeviceFragment extends Fragment {
         }, 20);
     }
 
+    private boolean isAuth = false;
+
     private void initBleListener() {
         App.getInstance().setOnBleDeviceListener(new OnBleDeviceListener() {
             @Override
             public void onConnected() {
+                if(isAuth) {
+                    return;
+                }
                 Timber.d("initBleListener 连接成功 发送鉴权指令, pwd2: %1s\n", ConvertUtils.bytes2HexString(mPwd2));
                 mBleBean.setPwd1(mPwd1);
                 mBleBean.setPwd2(mPwd2);
+                mBleBean.setEsn(mEsn);
                 App.getInstance().writeControlMsg(BleCommandFactory
                         .authCommand(mPwd1, mPwd2, mEsn.getBytes(StandardCharsets.UTF_8)));
             }
@@ -288,6 +296,7 @@ public class DeviceFragment extends Fragment {
                 mBleBean = App.getInstance().getBleBean();
                 mBleBean.setPwd1(mPwd1);
                 mBleBean.setPwd2(mPwd2);
+                mBleBean.setEsn(mEsn);
             } else {
                 // TODO: 2021/1/26 处理为空的情况
             }
@@ -299,6 +308,7 @@ public class DeviceFragment extends Fragment {
                 }
                 mBleBean.setPwd1(mPwd1);
                 mBleBean.setPwd2(mPwd2);
+                mBleBean.setEsn(mEsn);
             } else {
                 // TODO: 2021/1/26 为空的处理
             }

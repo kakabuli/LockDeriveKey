@@ -176,8 +176,8 @@ public class PasswordListActivity extends BaseActivity {
         byte[] endTimeBytes = new byte[4];
         System.arraycopy(bean.getPayload(), 2, startTimeBytes, 0, startTimeBytes.length);
         System.arraycopy(bean.getPayload(), 6, endTimeBytes, 0, endTimeBytes.length);
-        long startTimeMill = BleByteUtil.bytesToLong(startTimeBytes)*1000;
-        long endTimeMill = BleByteUtil.bytesToLong(endTimeBytes)*1000;
+        long startTimeMill = BleByteUtil.bytesToLong(BleCommandFactory.littleMode(startTimeBytes))*1000;
+        long endTimeMill = BleByteUtil.bytesToLong(BleCommandFactory.littleMode(endTimeBytes))*1000;
         String detail = "start: "
                 + TimeUtils.millis2String(startTimeMill, "MM,dd,yyyy   HH:mm")
                 + "\n" + "end: "
@@ -219,8 +219,8 @@ public class PasswordListActivity extends BaseActivity {
         byte[] endTimeBytes = new byte[4];
         System.arraycopy(bean.getPayload(), 2, startTimeBytes, 0, startTimeBytes.length);
         System.arraycopy(bean.getPayload(), 6, endTimeBytes, 0, endTimeBytes.length);
-        long startTimeMill = BleByteUtil.bytesToLong(startTimeBytes)*1000;
-        long endTimeMill = BleByteUtil.bytesToLong(endTimeBytes)*1000;
+        long startTimeMill = BleByteUtil.bytesToLong(BleCommandFactory.littleMode(startTimeBytes))*1000;
+        long endTimeMill = BleByteUtil.bytesToLong(BleCommandFactory.littleMode(endTimeBytes))*1000;
         String detail = weekly
                 + TimeUtils.millis2String(startTimeMill, "HH:mm")
                 + " - "

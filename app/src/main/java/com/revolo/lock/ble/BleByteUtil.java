@@ -1,6 +1,7 @@
 package com.revolo.lock.ble;
 
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.Arrays;
 
 /**
@@ -38,6 +39,10 @@ public class BleByteUtil {
             a = a + 256;
         }
         return a;
+    }
+
+    public static short bytesToShort(byte[] bytes) {
+        return ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN).getShort();
     }
 
 

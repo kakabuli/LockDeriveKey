@@ -22,8 +22,8 @@ import timber.log.Timber;
  */
 public class BleResultProcess {
 
-    private static final byte CONTROL_ENCRYPTION = 0x01;
-    private static final byte CONTROL_NORMAL = 0x00;
+    public static final byte CONTROL_ENCRYPTION = 0x01;
+    public static final byte CONTROL_NORMAL = 0x00;
 
     public static void processReceivedData(byte[] receivedData,
                                            byte[] pwd1,
@@ -72,7 +72,7 @@ public class BleResultProcess {
      * @param payload 要校验和的数据
      * @return 校验和
      */
-    private static byte checksum(byte[] payload) {
+    public static byte checksum(byte[] payload) {
         //加密前把数据的校验和算出来
         byte  checkSum = 0;
         for (byte b : payload) {
@@ -88,7 +88,7 @@ public class BleResultProcess {
      * @param pwd2Or3          解密的key pwd2或者pwd3，与pwd1结合生成pwd，可以为null，表示只用pwd1解密
      * @return                 解密后的数据，可能为null
      */
-    private static byte[] pwdDecrypt(@NotNull byte[] needDecryptData,
+    public static byte[] pwdDecrypt(@NotNull byte[] needDecryptData,
                                      @NotNull byte[] pwd1,
                                      @Nullable byte[] pwd2Or3) {
         if(pwd1 == null) {
@@ -118,7 +118,7 @@ public class BleResultProcess {
      * @param pwd2Or3          需要解密的pwd2或者pwd3
      * @return                 解密后的数据
      */
-    private static byte[] pwd1n2Or3Decrypt(@NotNull byte[] needDecryptData,
+    public static byte[] pwd1n2Or3Decrypt(@NotNull byte[] needDecryptData,
                                            @NotNull byte[] pwd1,
                                            @NotNull byte[] pwd2Or3) {
         byte[] pwd = new byte[16];
@@ -145,7 +145,7 @@ public class BleResultProcess {
      * @param pwd1             解密需要用到的pwd1
      * @return                 解密后的数据
      */
-    private static byte[] pwd1Decrypt(@NotNull byte[] needDecryptData, @NotNull byte[] pwd1) {
+    public static byte[] pwd1Decrypt(@NotNull byte[] needDecryptData, @NotNull byte[] pwd1) {
         byte[] payload = EncryptUtils.decryptAES(needDecryptData, pwd1, "AES/ECB/NoPadding", null);
         Timber.d("pwd1Decrypt 解密之前的数据：%1s\n pwd1：%2s\n 解密后的数据：%3s",
                 ConvertUtils.bytes2HexString(needDecryptData),

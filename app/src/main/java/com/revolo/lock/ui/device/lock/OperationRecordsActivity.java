@@ -28,6 +28,8 @@ import java.util.List;
 
 import timber.log.Timber;
 
+import static com.revolo.lock.ble.BleProtocolState.CMD_GET_ALL_RECORD;
+
 /**
  * author : Jack
  * time   : 2021/1/13
@@ -111,24 +113,27 @@ public class OperationRecordsActivity extends BaseActivity {
             Timber.e("mOnReceivedProcess bleResultBean == null");
             return;
         }
-        if(bleResultBean.getCMD() == BleProtocolState.CMD_LOCK_OP_RECORD) {
-            refreshDataFromBle(bleResultBean);
-            @BleProtocolState.LockRecordOpEventType int event = bleResultBean.getPayload()[5];
-            switch (event) {
-                case BleProtocolState.LOCK_RECORD_OP_EVENT_TYPE_ALARM:
-                    processAlarmRecord(bleResultBean);
-                    break;
-                case BleProtocolState.LOCK_RECORD_OP_EVENT_TYPE_OP:
-                    processOpRecord(bleResultBean);
-                    break;
-                case BleProtocolState.LOCK_RECORD_OP_EVENT_TYPE_PROGRAM:
-                    processProgramRecord(bleResultBean);
-                    break;
-                default:
-                    // TODO: 2021/1/27 类型错误，其实可以什么都不处理
-                    break;
-            }
+        if(bleResultBean.getCMD() == CMD_GET_ALL_RECORD) {
+            refreshRecordFormBle(bleResultBean);
         }
+//        if(bleResultBean.getCMD() == BleProtocolState.CMD_LOCK_OP_RECORD) {
+//            refreshDataFromBle(bleResultBean);
+//            @BleProtocolState.LockRecordOpEventType int event = bleResultBean.getPayload()[5];
+//            switch (event) {
+//                case BleProtocolState.LOCK_RECORD_OP_EVENT_TYPE_ALARM:
+//                    processAlarmRecord(bleResultBean);
+//                    break;
+//                case BleProtocolState.LOCK_RECORD_OP_EVENT_TYPE_OP:
+//                    processOpRecord(bleResultBean);
+//                    break;
+//                case BleProtocolState.LOCK_RECORD_OP_EVENT_TYPE_PROGRAM:
+//                    processProgramRecord(bleResultBean);
+//                    break;
+//                default:
+//                    // TODO: 2021/1/27 类型错误，其实可以什么都不处理
+//                    break;
+//            }
+//        }
     };
 
     private void processAlarmRecord(BleResultBean bean) {
@@ -158,11 +163,30 @@ public class OperationRecordsActivity extends BaseActivity {
                 byte[] end = new byte[2];
                 end[0] = 0x14;
                 App.getInstance().writeControlMsg(BleCommandFactory
-                        .lockOperateRecordCommand(start, end, mBleBean.getPwd1(), mBleBean.getPwd3()));
+                        .readAllRecord(start, end, mBleBean.getPwd1(), mBleBean.getPwd3()));
             } else {
                 // TODO: 2021/1/26 没有连接上，需要连接上才能发送指令
             }
         }
+    }
+
+    private void refreshRecordFormBle(BleResultBean bean) {
+        byte[] total = new byte[2];
+        System.arraycopy(bean.getPayload(), 0, total, 0, total.length);
+        short totalShort = BleByteUtil.bytesToShort(total);
+        byte[] index = new byte[2];
+        System.arraycopy(bean.getPayload(), 2, index, 0, index.length);
+        short indexShort = BleByteUtil.bytesToShort(index);
+        int eventType = bean.getPayload()[4];
+        int eventSource = bean.getPayload()[5];
+        int eventCode = bean.getPayload()[6];
+        int userId = bean.getPayload()[7];
+        int appId = bean.getPayload()[8];
+        byte[] time = new byte[4];
+        System.arraycopy(bean.getPayload(), 9, time, 0, time.length);
+        long realTime = BleByteUtil.bytesToLong(BleCommandFactory.littleMode(time));
+        Timber.d("total: %1d, index: %2d, eventType: %3d, eventSource: %4d, eventCode: %5d, userId: %6d, appId: %7d, time: %8d",
+                totalShort, indexShort, eventType, eventSource, eventCode, userId, appId, realTime);
     }
 
     private void refreshDataFromBle(BleResultBean bean) {

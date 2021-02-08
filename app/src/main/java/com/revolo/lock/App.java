@@ -6,8 +6,9 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.os.Handler;
 import android.os.IBinder;
-import android.text.TextUtils;
+import android.os.Looper;
 
 import com.a1anwang.okble.client.core.OKBLEDeviceImp;
 import com.a1anwang.okble.client.core.OKBLEDeviceListener;
@@ -15,17 +16,26 @@ import com.a1anwang.okble.client.core.OKBLEOperation;
 import com.a1anwang.okble.client.scan.BLEScanResult;
 import com.blankj.utilcode.util.CacheDiskUtils;
 import com.blankj.utilcode.util.ConvertUtils;
+import com.blankj.utilcode.util.TimeUtils;
 import com.revolo.lock.bean.respone.MailLoginBeanRsp;
+import com.revolo.lock.ble.BleByteUtil;
+import com.revolo.lock.ble.BleCommandFactory;
 import com.revolo.lock.ble.bean.BleBean;
 import com.revolo.lock.ble.OnBleDeviceListener;
 import com.revolo.lock.mqtt.MqttService;
 import com.revolo.lock.ui.sign.LoginActivity;
 
 import java.io.File;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
 import timber.log.Timber;
+
+import static com.revolo.lock.ble.BleProtocolState.CMD_ENCRYPT_KEY_UPLOAD;
+import static com.revolo.lock.ble.BleResultProcess.CONTROL_ENCRYPTION;
+import static com.revolo.lock.ble.BleResultProcess.checksum;
+import static com.revolo.lock.ble.BleResultProcess.pwdDecrypt;
 
 /**
  * author :
@@ -75,11 +85,20 @@ public class App extends Application {
         mOnBleDeviceListener = null;
     }
 
+    private boolean isAutoAuth = false;
+
+    // 设置就进入自动鉴权
+    public void setAutoAuth(boolean autoAuth) {
+        isAutoAuth = autoAuth;
+    }
+
+    // TODO: 2021/2/8 存在bug, 后续要下沉自动鉴权的完整流程
     public void connectDevice(BLEScanResult bleScanResult) {
         if(mDevice != null) {
             // 如果之前存在设备，需要先断开之前的连接
             mDevice.disConnect(false);
         }
+        isAutoAuth = false;
         mDevice = new OKBLEDeviceImp(getApplicationContext(), bleScanResult);
         mBleBean = new BleBean(mDevice);
         OKBLEDeviceListener okbleDeviceListener = new OKBLEDeviceListener() {
@@ -87,6 +106,11 @@ public class App extends Application {
             public void onConnected(String deviceTAG) {
                 Timber.d("onConnected deviceTAG: %1s", deviceTAG);
                 openControlNotify();
+                if(isAutoAuth) {
+                    // 走自动鉴权流程
+                    App.getInstance().writeControlMsg(BleCommandFactory
+                            .authCommand(mBleBean.getPwd1(), mBleBean.getPwd2(), mBleBean.getEsn().getBytes(StandardCharsets.UTF_8)));
+                }
                 if(mOnBleDeviceListener == null) {
                     Timber.e("mOnBleDeviceListener == null");
                     return;
@@ -111,6 +135,12 @@ public class App extends Application {
             @Override
             public void onReceivedValue(String deviceTAG, String uuid, byte[] value) {
                 Timber.d("onReceivedValue value: %1s", ConvertUtils.bytes2HexString(value));
+                if(isAutoAuth) {
+                    int cmd = BleByteUtil.byteToInt(value[3]);
+                    if(cmd == CMD_ENCRYPT_KEY_UPLOAD) {
+                        authProcess(value, mBleBean.getPwd1(), mBleBean.getPwd3());
+                    }
+                }
                 if(mOnBleDeviceListener == null) {
                     Timber.e("mOnBleDeviceListener == null");
                     return;
@@ -142,6 +172,39 @@ public class App extends Application {
         // 自动重连
         mDevice.connect(true);
 
+    }
+
+    private void authProcess(byte[] value, byte[] pwd1, byte[] pwd2Or3) {
+        boolean isEncrypt = (value[0]==CONTROL_ENCRYPTION);
+        byte[] payload = new byte[16];
+        System.arraycopy(value,  4, payload, 0, payload.length);
+        byte[] decryptPayload = isEncrypt?pwdDecrypt(payload, pwd1, pwd2Or3):payload;
+        byte sum = checksum(decryptPayload);
+        if(value[2] != sum) {
+            Timber.d("authProcess 校验和失败，接收数据中的校验和：%1s，\n接收数据后计算的校验和：%2s",
+                    ConvertUtils.int2HexString(value[2]), ConvertUtils.int2HexString(sum));
+            return;
+        }
+        int cmd = BleByteUtil.byteToInt(value[3]);
+        if(decryptPayload[0] == 0x02) {
+            // 获取pwd3
+            byte[] pwd3 = new byte[4];
+            System.arraycopy(decryptPayload, 1, pwd3, 0, pwd3.length);
+            Timber.d("鉴权成功, pwd3: %1s\n", ConvertUtils.bytes2HexString(pwd3));
+            // 内存存储
+            mBleBean.setPwd3(pwd3);
+            App.getInstance().writeControlMsg(BleCommandFactory.ackCommand(BleByteUtil.byteToInt(value[1]), (byte)0x00, cmd));
+            // 鉴权成功后，同步当前时间
+            syNowTime();
+        }
+    }
+
+    private void syNowTime() {
+        new Handler(Looper.getMainLooper()).postDelayed(() -> {
+            long nowTime = TimeUtils.getNowMills()/1000;
+            App.getInstance().writeControlMsg(BleCommandFactory
+                    .syLockTime(nowTime, mBleBean.getPwd1(), mBleBean.getPwd3()));
+        }, 20);
     }
 
     private static final String sControlWriteCharacteristicUUID = "FFE9";

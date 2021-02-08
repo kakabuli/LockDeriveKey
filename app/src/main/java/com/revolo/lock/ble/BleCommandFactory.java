@@ -5,6 +5,7 @@ import com.blankj.utilcode.util.EncryptUtils;
 
 import timber.log.Timber;
 
+import static com.revolo.lock.ble.BleProtocolState.CMD_GET_ALL_RECORD;
 import static com.revolo.lock.ble.BleProtocolState.CMD_KEY_ADD;
 import static com.revolo.lock.ble.BleProtocolState.CMD_KEY_ATTRIBUTES_READ;
 import static com.revolo.lock.ble.BleProtocolState.CMD_KEY_ATTRIBUTES_SET;
@@ -863,6 +864,17 @@ public class BleCommandFactory {
     public static byte[] syLockTime(long time, byte[] pwd1, byte[] pwd3) {
         byte[] realTime = littleMode(BleByteUtil.longToUnsigned32Bytes(time));
         return commandPackage(true, (byte) 0x23, commandTSN(), realTime, pwd1, pwd3);
+    }
+
+
+    public static byte[] readAllRecord(byte[] logIndexStart, byte[] logIndexEnd,
+                                       byte[] pwd1, byte[] pwd3) {
+        byte[] data = new byte[4];
+        data[0] = logIndexStart[1];
+        data[1] = logIndexStart[0];
+        data[2] = logIndexEnd[1];
+        data[3] = logIndexEnd[0];
+        return commandPackage(true, (byte) CMD_GET_ALL_RECORD, commandTSN(), data, pwd1, pwd3);
     }
 
     /**

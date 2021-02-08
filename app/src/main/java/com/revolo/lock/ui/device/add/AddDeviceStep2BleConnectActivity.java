@@ -110,6 +110,9 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
         if(mPreA == mQRPre || mPreA == mESNPre) {
             checkDeviceIsBind();
 //            getPwd1FromNet();
+
+//            initScanManager();
+//            initBleListener();
         } else {
             gotoBleConnectFail();
         }
@@ -233,6 +236,7 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
                 // 鉴权成功后，同步当前时间
                 syNowTime();
                 addDeviceToService();
+                App.getInstance().setAutoAuth(true);
             }
         }
     }
@@ -267,6 +271,7 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
         // TODO: 2021/1/21 打包数据上传到服务器后再发送确认指令
         isHavePwd2Or3 = true;
         App.getInstance().getBleBean().setPwd2(mPwd2);
+        App.getInstance().getBleBean().setEsn(mEsn);
         App.getInstance().writeControlMsg(BleCommandFactory.ackCommand(bleResultBean.getTSN(), (byte)0x00, bleResultBean.getCMD()));
         new Handler(Looper.getMainLooper()).postDelayed(() -> {
             Timber.d("getPwd2AndSendAuthCommand 延时发送鉴权指令, pwd2: %1s\n", ConvertUtils.bytes2HexString(mPwd2));
@@ -324,6 +329,7 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
     }
 
     private void initBleListener() {
+        // 因为需要配网，所以不让自动走鉴权流程先
         App.getInstance().setOnBleDeviceListener(new OnBleDeviceListener() {
             @Override
             public void onConnected() {
@@ -454,6 +460,7 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
     }
 
     private boolean isDeviceEsnEqualsInputEsn(BLEScanResult device, String esn) {
+        // TODO: 2021/2/8 判断长度
         //返回Manufacture ID之后的data
         SparseArray<byte[]> hex16 = device.getManufacturerSpecificData();
         if(hex16 != null && hex16.size() > 0) {
@@ -466,7 +473,7 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
                 sb.append((char) value[j]);
             }
             String sn = sb.toString().trim();
-            Timber.d("%1s, %2s", ConvertUtils.bytes2HexString(value), new String(value, StandardCharsets.UTF_8));
+            Timber.d("%1s, %2s, len: %3d", ConvertUtils.bytes2HexString(value), new String(value, StandardCharsets.UTF_8), value.length);
             Timber.d("getAndCheckESN device esn: %1s, input esn: %2s", sn, esn);
             return sn.equalsIgnoreCase(esn);
         }

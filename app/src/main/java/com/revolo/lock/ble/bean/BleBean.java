@@ -15,6 +15,7 @@ public class BleBean implements Serializable {
     private byte[] pwd1;
     private byte[] pwd2;
     private byte[] pwd3;
+    private String esn;
     private OKBLEDeviceImp mOKBLEDeviceImp;
 
     public byte[] getPwd1() {
@@ -49,8 +50,18 @@ public class BleBean implements Serializable {
         mOKBLEDeviceImp = OKBLEDeviceImp;
     }
 
+    public String getEsn() {
+        return esn;
+    }
+
+    public void setEsn(String esn) {
+        this.esn = esn;
+    }
+
     public BleBean(OKBLEDeviceImp OKBLEDeviceImp) {
         mOKBLEDeviceImp = OKBLEDeviceImp;
     }
+
+
 
 }
