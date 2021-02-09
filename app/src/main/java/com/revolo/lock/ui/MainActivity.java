@@ -1,27 +1,44 @@
 package com.revolo.lock.ui;
 
 import android.os.Bundle;
+import android.os.PersistableBundle;
 import android.view.View;
 
+import com.blankj.utilcode.util.FragmentUtils;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.revolo.lock.App;
 import com.revolo.lock.R;
 import com.revolo.lock.base.BaseActivity;
-import com.revolo.lock.mqtt.MqttCommandFactory;
-import com.revolo.lock.mqtt.MqttConstant;
-import com.revolo.lock.mqtt.bean.MqttData;
+import com.revolo.lock.ui.device.DeviceFragment;
+import com.revolo.lock.ui.mine.MineFragment;
+import com.revolo.lock.ui.user.UserFragment;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.navigation.NavController;
-import androidx.navigation.Navigation;
-import androidx.navigation.ui.AppBarConfiguration;
-import androidx.navigation.ui.NavigationUI;
-import io.reactivex.Observer;
-import io.reactivex.disposables.Disposable;
+import androidx.fragment.app.Fragment;
+import java.util.ArrayList;
+
 
 public class MainActivity extends BaseActivity {
+
+    private final ArrayList<Fragment> mFragments = new ArrayList<>();
+    private final String CUR_INDEX = "curIndex";
+    private int mCurIndex = 0;
+
+    private final BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener = item -> {
+        if(item.getItemId() == R.id.navigation_device) {
+            showCurrentFragment(0);
+            return true;
+        }
+        if(item.getItemId() == R.id.navigation_user) {
+            showCurrentFragment(1);
+            return true;
+        }
+        if(item.getItemId() == R.id.navigation_mine) {
+            showCurrentFragment(2);
+            return true;
+        }
+        return false;
+    };
 
     @Override
     public void initData(@Nullable Bundle bundle) {
@@ -36,32 +53,18 @@ public class MainActivity extends BaseActivity {
     @Override
     public void initView(@Nullable Bundle savedInstanceState, @Nullable View contentView) {
         BottomNavigationView navView = findViewById(R.id.nav_view);
-        NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
-        NavigationUI.setupWithNavController(navView, navController);
-
-        //TODO:Mqtt连接放到基类
-//        App.getInstance().getMqttService().mqttPublish(MqttConstant.getCallTopic(App.getInstance().getUserBean().getUid()),
-//                MqttCommandFactory.setLock("WF12345678",1)).subscribe(new Observer<MqttData>() {
-//            @Override
-//            public void onSubscribe(Disposable d) {
-//
-//            }
-//
-//            @Override
-//            public void onNext(MqttData mqttData) {
-//
-//            }
-//
-//            @Override
-//            public void onError(Throwable e) {
-//
-//            }
-//
-//            @Override
-//            public void onComplete() {
-//
-//            }
-//        });
+        if (savedInstanceState != null) {
+            mCurIndex = savedInstanceState.getInt(CUR_INDEX);
+        }
+        navView.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
+        mFragments.add(new DeviceFragment());
+        mFragments.add(new UserFragment());
+        mFragments.add(new MineFragment());
+        FragmentUtils.add(getSupportFragmentManager(),
+                mFragments,
+                R.id.nav_host_fragment,
+                new String[]{"DeviceFragment", "UserFragment", "MineFragment"},
+                mCurIndex);
 
     }
 
@@ -74,4 +77,23 @@ public class MainActivity extends BaseActivity {
     public void onDebouncingClick(@NonNull View view) {
 
     }
+
+    @Override
+    public void onBackPressed() {
+        if(!FragmentUtils.dispatchBackPress(mFragments.get(mCurIndex))) {
+            super.onBackPressed();
+        }
+    }
+
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState, @NonNull PersistableBundle outPersistentState) {
+        super.onSaveInstanceState(outState, outPersistentState);
+        outState.putInt(CUR_INDEX, mCurIndex);
+    }
+
+    private void showCurrentFragment(int index) {
+        mCurIndex = index;
+        FragmentUtils.showHide(index, mFragments);
+    }
+
 }

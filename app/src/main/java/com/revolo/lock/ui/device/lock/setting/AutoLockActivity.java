@@ -38,7 +38,7 @@ public class AutoLockActivity extends BaseActivity {
 
     @Override
     public void initData(@Nullable Bundle bundle) {
-        isShowSetLockTime = SPUtils.getInstance().getBoolean(TEST_SET_LOCK_TIME);
+        isShowSetLockTime = SPUtils.getInstance().getBoolean(TEST_SET_LOCK_TIME, false);
         isOpenAutoLock = SPUtils.getInstance().getBoolean(TEST_AUTO_LOCK);
     }
 
@@ -73,6 +73,9 @@ public class AutoLockActivity extends BaseActivity {
                 stopTrackingTouch(seekBar);
             }
         });
+
+        clSetLockTime.setVisibility(isShowSetLockTime?View.VISIBLE:View.GONE);
+        ivDetectionLockEnable.setImageResource(isShowSetLockTime?R.drawable.ic_icon_switch_open:R.drawable.ic_icon_switch_close);
     }
 
     @Override

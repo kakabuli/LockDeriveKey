@@ -48,11 +48,12 @@ public class DeviceSettingActivity extends BaseActivity {
     private TextView mTvName, mTvWifiName;
     private DeviceUnbindBeanReq mReq;
     private CustomerLoadingDialog mLoadingDialog;
-    private ImageView ivMuteEnable, ivAutoLockEnable;
+    private ImageView ivMuteEnable;
 
     // TODO: 2021/2/8 临时的bool值来判断是否开启自动上锁功能，后续需要通过查询状态来实现功能
     boolean isOpenAutoLock= false;
-    private final String TEST_AUTO_LOCK = "TestAutoLock";
+
+    private String TEST_MUTE = "TestMute";
 
     @Override
     public void initData(@Nullable Bundle bundle) {
@@ -63,7 +64,9 @@ public class DeviceSettingActivity extends BaseActivity {
             // TODO: 2021/2/6 提示没从上一个页面传递数据过来
             finish();
         }
+        String TEST_AUTO_LOCK = "TestAutoLock";
         isOpenAutoLock = SPUtils.getInstance().getBoolean(TEST_AUTO_LOCK);
+        isMute = SPUtils.getInstance().getBoolean(TEST_MUTE);
     }
 
     @Override
@@ -88,8 +91,9 @@ public class DeviceSettingActivity extends BaseActivity {
                 .setCancelable(true)
                 .setCancelOutside(false)
                 .create();
-        ivAutoLockEnable = findViewById(R.id.ivAutoLockEnable);
+        ImageView ivAutoLockEnable = findViewById(R.id.ivAutoLockEnable);
         ivAutoLockEnable.setImageResource(isOpenAutoLock?R.drawable.ic_icon_switch_open:R.drawable.ic_icon_switch_close);
+        ivMuteEnable.setImageResource(isMute?R.drawable.ic_icon_switch_open:R.drawable.ic_icon_switch_close);
     }
 
     @Override
@@ -250,6 +254,7 @@ public class DeviceSettingActivity extends BaseActivity {
             runOnUiThread(() -> {
                 isMute = !isMute;
                 ivMuteEnable.setImageResource(isMute?R.drawable.ic_icon_switch_open:R.drawable.ic_icon_switch_close);
+                SPUtils.getInstance().put(TEST_MUTE, isMute);
             });
         } else {
             // TODO: 2021/2/7 信息失败了的操作
