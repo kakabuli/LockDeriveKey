@@ -9,6 +9,7 @@ import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.blankj.utilcode.util.ConvertUtils;
+import com.blankj.utilcode.util.TimeUtils;
 import com.revolo.lock.App;
 import com.revolo.lock.R;
 import com.revolo.lock.adapter.AutoMeasureLinearLayoutManager;
@@ -184,10 +185,505 @@ public class OperationRecordsActivity extends BaseActivity {
         int appId = bean.getPayload()[8];
         byte[] time = new byte[4];
         System.arraycopy(bean.getPayload(), 9, time, 0, time.length);
-        long realTime = BleByteUtil.bytesToLong(BleCommandFactory.littleMode(time));
+        long realTime = BleByteUtil.bytesToLong(BleCommandFactory.littleMode(time)) * 1000;
         Timber.d("total: %1d, index: %2d, eventType: %3d, eventSource: %4d, eventCode: %5d, userId: %6d, appId: %7d, time: %8d",
                 totalShort, indexShort, eventType, eventSource, eventCode, userId, appId, realTime);
+
+        if(eventType == 0x01) {
+            // Operation操作(动作类)（开锁记录）
+
+            if(eventSource == 0x00) {
+                // Keypad键盘（密码）
+
+                if(eventCode == 0x01) {
+                    // lock上锁
+                    Timber.d("记录：Keypad键盘 lock上锁 userId: %1d, AppId: %2d, 时间：%3s", userId, appId, TimeUtils.millis2String(realTime));
+                } else if(eventCode == 0x02) {
+                    // Unlock开锁
+                    Timber.d("记录：Keypad键盘 Unlock开锁 userId: %1d, AppId: %2d, 时间：%3s", userId, appId, TimeUtils.millis2String(realTime));
+                } else {
+                    // TODO: 2021/2/9 如果出错，输出对应日志
+                }
+
+
+            } else if(eventSource ==  0x03) {
+                // RFID卡片
+
+                if(eventCode == 0x01) {
+                    // lock上锁
+                    Timber.d("记录：RFID卡片 lock上锁 userId: %1d, AppId: %2d, 时间：%3s", userId, appId, TimeUtils.millis2String(realTime));
+                } else if(eventCode == 0x02) {
+                    // Unlock开锁
+                    Timber.d("记录：RFID卡片 Unlock开锁 userId: %1d, AppId: %2d, 时间：%3s", userId, appId, TimeUtils.millis2String(realTime));
+                } else {
+                    // TODO: 2021/2/9 如果出错，输出对应日志
+                }
+
+            } else if(eventSource == 0x04) {
+                // Fingerprint指纹
+
+                if(eventCode == 0x01) {
+                    // lock上锁
+                    Timber.d("记录：Fingerprint指纹 lock上锁 userId: %1d, AppId: %2d, 时间：%3s", userId, appId, TimeUtils.millis2String(realTime));
+                } else if(eventCode == 0x02) {
+                    // Unlock开锁
+                    Timber.d("记录：Fingerprint指纹 Unlock开锁 userId: %1d, AppId: %2d, 时间：%3s", userId, appId, TimeUtils.millis2String(realTime));
+                } else {
+                    // TODO: 2021/2/9 如果出错，输出对应日志
+                }
+
+            } else if(eventSource == 0x08) {
+                // App
+
+                if(eventCode == 0x01) {
+                    // lock上锁
+                    Timber.d("记录：App lock上锁 userId: %1d, AppId: %2d, 时间：%3s", userId, appId, TimeUtils.millis2String(realTime));
+                } else if(eventCode == 0x02) {
+                    // Unlock开锁
+                    Timber.d("记录：App Unlock开锁 userId: %1d, AppId: %2d, 时间：%3s", userId, appId, TimeUtils.millis2String(realTime));
+                } else {
+                    // TODO: 2021/2/9 如果出错，输出对应日志
+                }
+
+            } else if(eventSource == 0x09) {
+                // Key Unlock机械钥匙（室内机械方式开锁、室外机械钥匙开锁）
+
+                if(eventCode == 0x01) {
+                    // lock上锁
+                    Timber.d("记录：Key lock上锁 userId: %1d, AppId: %2d, 时间：%3s", userId, appId, TimeUtils.millis2String(realTime));
+                } else if(eventCode == 0x02) {
+                    // Unlock开锁
+                    Timber.d("记录：Key Unlock开锁 userId: %1d, AppId: %2d, 时间：%3s", userId, appId, TimeUtils.millis2String(realTime));
+                } else {
+                    // TODO: 2021/2/9 如果出错，输出对应日志
+                }
+
+            } else if(eventSource == 0x0A) {
+                // 室内open键开锁
+
+
+                if(eventCode == 0x01) {
+                    // lock上锁
+                    Timber.d("记录：室内open键开锁 lock上锁 userId: %1d, AppId: %2d, 时间：%3s", userId, appId, TimeUtils.millis2String(realTime));
+                } else if(eventCode == 0x02) {
+                    // Unlock开锁
+                    Timber.d("记录：室内open键开锁 Unlock开锁 userId: %1d, AppId: %2d, 时间：%3s", userId, appId, TimeUtils.millis2String(realTime));
+                } else {
+                    // TODO: 2021/2/9 如果出错，输出对应日志
+                }
+
+            } else if(eventSource == 0x0B) {
+                // 室内感应把手开锁
+
+
+                if(eventCode == 0x01) {
+                    // lock上锁
+                    Timber.d("记录：室内感应把手开锁 lock上锁 userId: %1d, AppId: %2d, 时间：%3s", userId, appId, TimeUtils.millis2String(realTime));
+                } else if(eventCode == 0x02) {
+                    // Unlock开锁
+                    Timber.d("记录：室内感应把手开锁 Unlock开锁 userId: %1d, AppId: %2d, 时间：%3s", userId, appId, TimeUtils.millis2String(realTime));
+                } else {
+                    // TODO: 2021/2/9 如果出错，输出对应日志
+                }
+
+            } else if(eventSource == 0x0F) {
+                // 不确定（无效值）
+            } else {
+                // TODO: 2021/2/9 其他错误，打印日志
+            }
+
+
+
+        } else if(eventType == 0x02) {
+            // Program程序(用户管理类)（增删改记录）
+
+
+
+            if(eventSource == 0x00) {
+                // Keypad键盘（密码）
+
+                if(eventCode == 0x01) {
+                    // 修改
+                    Timber.d("记录：Keypad键盘 修改密码 userId: %1d, AppId: %2d, 时间：%3s", userId, appId, TimeUtils.millis2String(realTime));
+                } else if(eventCode == 0x02) {
+                    // 添加
+                    Timber.d("记录：Keypad键盘 添加密码 userId: %1d, AppId: %2d, 时间：%3s", userId, appId, TimeUtils.millis2String(realTime));
+                } else if(eventCode == 0x03) {
+                    // 删除
+                    Timber.d("记录：Keypad键盘 删除密码 userId: %1d, AppId: %2d, 时间：%3s", userId, appId, TimeUtils.millis2String(realTime));
+                } else if(eventCode == 0x0F) {
+                    // 恢复出厂设置
+                    Timber.d("记录：Keypad键盘 恢复出厂设置 userId: %1d, AppId: %2d, 时间：%3s", userId, appId, TimeUtils.millis2String(realTime));
+                } else {
+                    // TODO: 2021/2/9 错误操作日志
+                }
+
+            } else if(eventSource ==  0x03) {
+                // RFID卡片
+
+
+                if(eventCode == 0x01) {
+                    // 修改
+                    Timber.d("记录：RFID卡片 修改 userId: %1d, AppId: %2d, 时间：%3s", userId, appId, TimeUtils.millis2String(realTime));
+                } else if(eventCode == 0x02) {
+                    // 添加
+                    Timber.d("记录：RFID卡片 添加 userId: %1d, AppId: %2d, 时间：%3s", userId, appId, TimeUtils.millis2String(realTime));
+                } else if(eventCode == 0x03) {
+                    // 删除
+                    Timber.d("记录：RFID卡片 删除 userId: %1d, AppId: %2d, 时间：%3s", userId, appId, TimeUtils.millis2String(realTime));
+                } else if(eventCode == 0x0F) {
+                    // 恢复出厂设置
+                    Timber.d("记录：RFID卡片 恢复出厂设置 userId: %1d, AppId: %2d, 时间：%3s", userId, appId, TimeUtils.millis2String(realTime));
+                } else {
+                    // TODO: 2021/2/9 错误操作日志
+                }
+
+            } else if(eventSource == 0x04) {
+                // Fingerprint指纹
+
+                if(eventCode == 0x01) {
+                    // 修改
+                    Timber.d("记录：Fingerprint指纹 修改 userId: %1d, AppId: %2d, 时间：%3s", userId, appId, TimeUtils.millis2String(realTime));
+                } else if(eventCode == 0x02) {
+                    // 添加
+                    Timber.d("记录：Fingerprint指纹 添加 userId: %1d, AppId: %2d, 时间：%3s", userId, appId, TimeUtils.millis2String(realTime));
+                } else if(eventCode == 0x03) {
+                    // 删除
+                    Timber.d("记录：Fingerprint指纹 删除 userId: %1d, AppId: %2d, 时间：%3s", userId, appId, TimeUtils.millis2String(realTime));
+                } else if(eventCode == 0x0F) {
+                    // 恢复出厂设置
+                    Timber.d("记录：Fingerprint指纹 恢复出厂设置 userId: %1d, AppId: %2d, 时间：%3s", userId, appId, TimeUtils.millis2String(realTime));
+                } else {
+                    // TODO: 2021/2/9 错误操作日志
+                }
+
+
+            } else if(eventSource == 0x08) {
+                // App
+
+
+                if(eventCode == 0x01) {
+                    // 修改
+                    Timber.d("记录：App 修改 userId: %1d, AppId: %2d, 时间：%3s", userId, appId, TimeUtils.millis2String(realTime));
+                } else if(eventCode == 0x02) {
+                    // 添加
+                    Timber.d("记录：App 添加 userId: %1d, AppId: %2d, 时间：%3s", userId, appId, TimeUtils.millis2String(realTime));
+                } else if(eventCode == 0x03) {
+                    // 删除
+                    Timber.d("记录：App 删除 userId: %1d, AppId: %2d, 时间：%3s", userId, appId, TimeUtils.millis2String(realTime));
+                } else if(eventCode == 0x0F) {
+                    // 恢复出厂设置
+                    Timber.d("记录：App 恢复出厂设置 userId: %1d, AppId: %2d, 时间：%3s", userId, appId, TimeUtils.millis2String(realTime));
+                } else {
+                    // TODO: 2021/2/9 错误操作日志
+                }
+
+            } else if(eventSource == 0x09) {
+                // Key Unlock机械钥匙（室内机械方式开锁、室外机械钥匙开锁）
+
+
+                if(eventCode == 0x01) {
+                    // 修改
+                    Timber.d("记录：Key 修改 userId: %1d, AppId: %2d, 时间：%3s", userId, appId, TimeUtils.millis2String(realTime));
+                } else if(eventCode == 0x02) {
+                    // 添加
+                    Timber.d("记录：Key 添加 userId: %1d, AppId: %2d, 时间：%3s", userId, appId, TimeUtils.millis2String(realTime));
+                } else if(eventCode == 0x03) {
+                    // 删除
+                    Timber.d("记录：Key 删除 userId: %1d, AppId: %2d, 时间：%3s", userId, appId, TimeUtils.millis2String(realTime));
+                } else if(eventCode == 0x0F) {
+                    // 恢复出厂设置
+                    Timber.d("记录：Key 恢复出厂设置 userId: %1d, AppId: %2d, 时间：%3s", userId, appId, TimeUtils.millis2String(realTime));
+                } else {
+                    // TODO: 2021/2/9 错误操作日志
+                }
+
+            } else if(eventSource == 0x0A) {
+                // 室内open键开锁
+
+                if(eventCode == 0x01) {
+                    // 修改
+                    Timber.d("记录：室内open键开锁 修改 userId: %1d, AppId: %2d, 时间：%3s", userId, appId, TimeUtils.millis2String(realTime));
+                } else if(eventCode == 0x02) {
+                    // 添加
+                    Timber.d("记录：室内open键开锁 添加 userId: %1d, AppId: %2d, 时间：%3s", userId, appId, TimeUtils.millis2String(realTime));
+                } else if(eventCode == 0x03) {
+                    // 删除
+                    Timber.d("记录：室内open键开锁 删除 userId: %1d, AppId: %2d, 时间：%3s", userId, appId, TimeUtils.millis2String(realTime));
+                } else if(eventCode == 0x0F) {
+                    // 恢复出厂设置
+                    Timber.d("记录：室内open键开锁 恢复出厂设置 userId: %1d, AppId: %2d, 时间：%3s", userId, appId, TimeUtils.millis2String(realTime));
+                } else {
+                    // TODO: 2021/2/9 错误操作日志
+                }
+
+
+            } else if(eventSource == 0x0B) {
+                // 室内感应把手开锁
+
+
+                if(eventCode == 0x01) {
+                    // 修改
+                    Timber.d("记录：室内感应把手开锁 修改 userId: %1d, AppId: %2d, 时间：%3s", userId, appId, TimeUtils.millis2String(realTime));
+                } else if(eventCode == 0x02) {
+                    // 添加
+                    Timber.d("记录：室内感应把手开锁 添加 userId: %1d, AppId: %2d, 时间：%3s", userId, appId, TimeUtils.millis2String(realTime));
+                } else if(eventCode == 0x03) {
+                    // 删除
+                    Timber.d("记录：室内感应把手开锁 删除 userId: %1d, AppId: %2d, 时间：%3s", userId, appId, TimeUtils.millis2String(realTime));
+                } else if(eventCode == 0x0F) {
+                    // 恢复出厂设置
+                    Timber.d("记录：室内感应把手开锁 恢复出厂设置 userId: %1d, AppId: %2d, 时间：%3s", userId, appId, TimeUtils.millis2String(realTime));
+                } else {
+                    // TODO: 2021/2/9 错误操作日志
+                }
+
+            } else if(eventSource == 0x0F) {
+                // 不确定（无效值）
+            } else {
+                // TODO: 2021/2/9 其他错误，打印日志
+            }
+
+        } else if(eventType == 0x03) {
+            // Alarm 报警记录
+
+
+            if(eventSource == 0x00) {
+                // Keypad键盘（密码）
+
+                if(eventCode == 0x01) {
+                    // 锁定报警（输入错误密码或指纹或卡片超过5次就会系统锁定报警）
+                    Timber.d("记录：Keypad键盘 锁定报警 userId: %1d, AppId: %2d, 时间：%3s", userId, appId, TimeUtils.millis2String(realTime));
+                } else if(eventCode == 0x02) {
+                    // 劫持报警（输入防劫持密码或防劫持指纹开锁就报警）
+                    Timber.d("记录：Keypad键盘 劫持报警 userId: %1d, AppId: %2d, 时间：%3s", userId, appId, TimeUtils.millis2String(realTime));
+                } else if(eventCode == 0x03) {
+                    // 三次错误，上报提醒
+                    Timber.d("记录：Keypad键盘 三次错误，上报提醒 userId: %1d, AppId: %2d, 时间：%3s", userId, appId, TimeUtils.millis2String(realTime));
+                } else if(eventCode == 0x04) {
+                    // 撬锁报警（锁被撬开）
+                    Timber.d("记录：Keypad键盘 撬锁报警 userId: %1d, AppId: %2d, 时间：%3s", userId, appId, TimeUtils.millis2String(realTime));
+                } else if(eventCode == 0x08) {
+                    // 机械钥匙报警（使用机械钥匙开锁）
+                    Timber.d("记录：Keypad键盘 机械钥匙报警 userId: %1d, AppId: %2d, 时间：%3s", userId, appId, TimeUtils.millis2String(realTime));
+                } else if(eventCode == 0x10) {
+                    // 低电压报警（电池电量不足）
+                    Timber.d("记录：Keypad键盘 低电压报警 userId: %1d, AppId: %2d, 时间：%3s", userId, appId, TimeUtils.millis2String(realTime));
+                } else if(eventCode == 0x20) {
+                    // 门锁异常报警
+                    Timber.d("记录：Keypad键盘 门锁异常报警 userId: %1d, AppId: %2d, 时间：%3s", userId, appId, TimeUtils.millis2String(realTime));
+                } else if(eventCode == 0x40) {
+                    // 门锁布防报警（门外布防后，从门内开锁了就会报警）
+                    Timber.d("记录：Keypad键盘 门锁布防报警 userId: %1d, AppId: %2d, 时间：%3s", userId, appId, TimeUtils.millis2String(realTime));
+                } else {
+
+                }
+
+
+            } else if(eventSource ==  0x03) {
+                // RFID卡片
+
+
+                if(eventCode == 0x01) {
+                    // 锁定报警（输入错误密码或指纹或卡片超过5次就会系统锁定报警）
+                    Timber.d("记录：RFID卡片 锁定报警 userId: %1d, AppId: %2d, 时间：%3s", userId, appId, TimeUtils.millis2String(realTime));
+                } else if(eventCode == 0x02) {
+                    // 劫持报警（输入防劫持密码或防劫持指纹开锁就报警）
+                    Timber.d("记录：RFID卡片 劫持报警 userId: %1d, AppId: %2d, 时间：%3s", userId, appId, TimeUtils.millis2String(realTime));
+                } else if(eventCode == 0x03) {
+                    // 三次错误，上报提醒
+                    Timber.d("记录：RFID卡片 三次错误，上报提醒 userId: %1d, AppId: %2d, 时间：%3s", userId, appId, TimeUtils.millis2String(realTime));
+                } else if(eventCode == 0x04) {
+                    // 撬锁报警（锁被撬开）
+                    Timber.d("记录：RFID卡片 撬锁报警 userId: %1d, AppId: %2d, 时间：%3s", userId, appId, TimeUtils.millis2String(realTime));
+                } else if(eventCode == 0x08) {
+                    // 机械钥匙报警（使用机械钥匙开锁）
+                    Timber.d("记录：RFID卡片 机械钥匙报警 userId: %1d, AppId: %2d, 时间：%3s", userId, appId, TimeUtils.millis2String(realTime));
+                } else if(eventCode == 0x10) {
+                    // 低电压报警（电池电量不足）
+                    Timber.d("记录：RFID卡片 低电压报警 userId: %1d, AppId: %2d, 时间：%3s", userId, appId, TimeUtils.millis2String(realTime));
+                } else if(eventCode == 0x20) {
+                    // 门锁异常报警
+                    Timber.d("记录：RFID卡片 门锁异常报警 userId: %1d, AppId: %2d, 时间：%3s", userId, appId, TimeUtils.millis2String(realTime));
+                } else if(eventCode == 0x40) {
+                    // 门锁布防报警（门外布防后，从门内开锁了就会报警）
+                    Timber.d("记录：RFID卡片 门锁布防报警 userId: %1d, AppId: %2d, 时间：%3s", userId, appId, TimeUtils.millis2String(realTime));
+                } else {
+
+                }
+
+            } else if(eventSource == 0x04) {
+                // Fingerprint指纹
+
+
+                if(eventCode == 0x01) {
+                    // 锁定报警（输入错误密码或指纹或卡片超过5次就会系统锁定报警）
+                    Timber.d("记录：Fingerprint指纹 锁定报警 userId: %1d, AppId: %2d, 时间：%3s", userId, appId, TimeUtils.millis2String(realTime));
+                } else if(eventCode == 0x02) {
+                    // 劫持报警（输入防劫持密码或防劫持指纹开锁就报警）
+                    Timber.d("记录：Fingerprint指纹 劫持报警 userId: %1d, AppId: %2d, 时间：%3s", userId, appId, TimeUtils.millis2String(realTime));
+                } else if(eventCode == 0x03) {
+                    // 三次错误，上报提醒
+                    Timber.d("记录：Fingerprint指纹 三次错误，上报提醒 userId: %1d, AppId: %2d, 时间：%3s", userId, appId, TimeUtils.millis2String(realTime));
+                } else if(eventCode == 0x04) {
+                    // 撬锁报警（锁被撬开）
+                    Timber.d("记录：Fingerprint指纹 撬锁报警 userId: %1d, AppId: %2d, 时间：%3s", userId, appId, TimeUtils.millis2String(realTime));
+                } else if(eventCode == 0x08) {
+                    // 机械钥匙报警（使用机械钥匙开锁）
+                    Timber.d("记录：Fingerprint指纹 机械钥匙报警 userId: %1d, AppId: %2d, 时间：%3s", userId, appId, TimeUtils.millis2String(realTime));
+                } else if(eventCode == 0x10) {
+                    // 低电压报警（电池电量不足）
+                    Timber.d("记录：Fingerprint指纹 低电压报警 userId: %1d, AppId: %2d, 时间：%3s", userId, appId, TimeUtils.millis2String(realTime));
+                } else if(eventCode == 0x20) {
+                    // 门锁异常报警
+                    Timber.d("记录：Fingerprint指纹 门锁异常报警 userId: %1d, AppId: %2d, 时间：%3s", userId, appId, TimeUtils.millis2String(realTime));
+                } else if(eventCode == 0x40) {
+                    // 门锁布防报警（门外布防后，从门内开锁了就会报警）
+                    Timber.d("记录：Fingerprint指纹 门锁布防报警 userId: %1d, AppId: %2d, 时间：%3s", userId, appId, TimeUtils.millis2String(realTime));
+                } else {
+
+                }
+
+            } else if(eventSource == 0x08) {
+                // App
+
+
+                if(eventCode == 0x01) {
+                    // 锁定报警（输入错误密码或指纹或卡片超过5次就会系统锁定报警）
+                    Timber.d("记录：App 锁定报警 userId: %1d, AppId: %2d, 时间：%3s", userId, appId, TimeUtils.millis2String(realTime));
+                } else if(eventCode == 0x02) {
+                    // 劫持报警（输入防劫持密码或防劫持指纹开锁就报警）
+                    Timber.d("记录：App 劫持报警 userId: %1d, AppId: %2d, 时间：%3s", userId, appId, TimeUtils.millis2String(realTime));
+                } else if(eventCode == 0x03) {
+                    // 三次错误，上报提醒
+                    Timber.d("记录：App 三次错误，上报提醒 userId: %1d, AppId: %2d, 时间：%3s", userId, appId, TimeUtils.millis2String(realTime));
+                } else if(eventCode == 0x04) {
+                    // 撬锁报警（锁被撬开）
+                    Timber.d("记录：App 撬锁报警 userId: %1d, AppId: %2d, 时间：%3s", userId, appId, TimeUtils.millis2String(realTime));
+                } else if(eventCode == 0x08) {
+                    // 机械钥匙报警（使用机械钥匙开锁）
+                    Timber.d("记录：App 机械钥匙报警 userId: %1d, AppId: %2d, 时间：%3s", userId, appId, TimeUtils.millis2String(realTime));
+                } else if(eventCode == 0x10) {
+                    // 低电压报警（电池电量不足）
+                    Timber.d("记录：App 低电压报警 userId: %1d, AppId: %2d, 时间：%3s", userId, appId, TimeUtils.millis2String(realTime));
+                } else if(eventCode == 0x20) {
+                    // 门锁异常报警
+                    Timber.d("记录：App 门锁异常报警 userId: %1d, AppId: %2d, 时间：%3s", userId, appId, TimeUtils.millis2String(realTime));
+                } else if(eventCode == 0x40) {
+                    // 门锁布防报警（门外布防后，从门内开锁了就会报警）
+                    Timber.d("记录：App 门锁布防报警 userId: %1d, AppId: %2d, 时间：%3s", userId, appId, TimeUtils.millis2String(realTime));
+                } else {
+
+                }
+
+            } else if(eventSource == 0x09) {
+                // Key Unlock机械钥匙（室内机械方式开锁、室外机械钥匙开锁）
+
+
+                if(eventCode == 0x01) {
+                    // 锁定报警（输入错误密码或指纹或卡片超过5次就会系统锁定报警）
+                    Timber.d("记录：Key 锁定报警 userId: %1d, AppId: %2d, 时间：%3s", userId, appId, TimeUtils.millis2String(realTime));
+                } else if(eventCode == 0x02) {
+                    // 劫持报警（输入防劫持密码或防劫持指纹开锁就报警）
+                    Timber.d("记录：Key 劫持报警 userId: %1d, AppId: %2d, 时间：%3s", userId, appId, TimeUtils.millis2String(realTime));
+                } else if(eventCode == 0x03) {
+                    // 三次错误，上报提醒
+                    Timber.d("记录：Key 三次错误，上报提醒 userId: %1d, AppId: %2d, 时间：%3s", userId, appId, TimeUtils.millis2String(realTime));
+                } else if(eventCode == 0x04) {
+                    // 撬锁报警（锁被撬开）
+                    Timber.d("记录：Key 撬锁报警 userId: %1d, AppId: %2d, 时间：%3s", userId, appId, TimeUtils.millis2String(realTime));
+                } else if(eventCode == 0x08) {
+                    // 机械钥匙报警（使用机械钥匙开锁）
+                    Timber.d("记录：Key 机械钥匙报警 userId: %1d, AppId: %2d, 时间：%3s", userId, appId, TimeUtils.millis2String(realTime));
+                } else if(eventCode == 0x10) {
+                    // 低电压报警（电池电量不足）
+                    Timber.d("记录：Key 低电压报警 userId: %1d, AppId: %2d, 时间：%3s", userId, appId, TimeUtils.millis2String(realTime));
+                } else if(eventCode == 0x20) {
+                    // 门锁异常报警
+                    Timber.d("记录：Key 门锁异常报警 userId: %1d, AppId: %2d, 时间：%3s", userId, appId, TimeUtils.millis2String(realTime));
+                } else if(eventCode == 0x40) {
+                    // 门锁布防报警（门外布防后，从门内开锁了就会报警）
+                    Timber.d("记录：Key 门锁布防报警 userId: %1d, AppId: %2d, 时间：%3s", userId, appId, TimeUtils.millis2String(realTime));
+                } else {
+
+                }
+
+            } else if(eventSource == 0x0A) {
+                // 室内open键开锁
+
+
+                if(eventCode == 0x01) {
+                    // 锁定报警（输入错误密码或指纹或卡片超过5次就会系统锁定报警）
+                    Timber.d("记录：室内open键开锁 锁定报警 userId: %1d, AppId: %2d, 时间：%3s", userId, appId, TimeUtils.millis2String(realTime));
+                } else if(eventCode == 0x02) {
+                    // 劫持报警（输入防劫持密码或防劫持指纹开锁就报警）
+                    Timber.d("记录：室内open键开锁 劫持报警 userId: %1d, AppId: %2d, 时间：%3s", userId, appId, TimeUtils.millis2String(realTime));
+                } else if(eventCode == 0x03) {
+                    // 三次错误，上报提醒
+                    Timber.d("记录：室内open键开锁 三次错误，上报提醒 userId: %1d, AppId: %2d, 时间：%3s", userId, appId, TimeUtils.millis2String(realTime));
+                } else if(eventCode == 0x04) {
+                    // 撬锁报警（锁被撬开）
+                    Timber.d("记录：室内open键开锁 撬锁报警 userId: %1d, AppId: %2d, 时间：%3s", userId, appId, TimeUtils.millis2String(realTime));
+                } else if(eventCode == 0x08) {
+                    // 机械钥匙报警（使用机械钥匙开锁）
+                    Timber.d("记录：室内open键开锁 机械钥匙报警 userId: %1d, AppId: %2d, 时间：%3s", userId, appId, TimeUtils.millis2String(realTime));
+                } else if(eventCode == 0x10) {
+                    // 低电压报警（电池电量不足）
+                    Timber.d("记录：室内open键开锁 低电压报警 userId: %1d, AppId: %2d, 时间：%3s", userId, appId, TimeUtils.millis2String(realTime));
+                } else if(eventCode == 0x20) {
+                    // 门锁异常报警
+                    Timber.d("记录：室内open键开锁 门锁异常报警 userId: %1d, AppId: %2d, 时间：%3s", userId, appId, TimeUtils.millis2String(realTime));
+                } else if(eventCode == 0x40) {
+                    // 门锁布防报警（门外布防后，从门内开锁了就会报警）
+                    Timber.d("记录：室内open键开锁 门锁布防报警 userId: %1d, AppId: %2d, 时间：%3s", userId, appId, TimeUtils.millis2String(realTime));
+                } else {
+
+                }
+
+            } else if(eventSource == 0x0B) {
+                // 室内感应把手开锁
+
+
+                if(eventCode == 0x01) {
+                    // 锁定报警（输入错误密码或指纹或卡片超过5次就会系统锁定报警）
+                    Timber.d("记录：室内感应把手开锁 锁定报警 userId: %1d, AppId: %2d, 时间：%3s", userId, appId, TimeUtils.millis2String(realTime));
+                } else if(eventCode == 0x02) {
+                    // 劫持报警（输入防劫持密码或防劫持指纹开锁就报警）
+                    Timber.d("记录：室内感应把手开锁 劫持报警 userId: %1d, AppId: %2d, 时间：%3s", userId, appId, TimeUtils.millis2String(realTime));
+                } else if(eventCode == 0x03) {
+                    // 三次错误，上报提醒
+                    Timber.d("记录：室内感应把手开锁 三次错误，上报提醒 userId: %1d, AppId: %2d, 时间：%3s", userId, appId, TimeUtils.millis2String(realTime));
+                } else if(eventCode == 0x04) {
+                    // 撬锁报警（锁被撬开）
+                    Timber.d("记录：室内感应把手开锁 撬锁报警 userId: %1d, AppId: %2d, 时间：%3s", userId, appId, TimeUtils.millis2String(realTime));
+                } else if(eventCode == 0x08) {
+                    // 机械钥匙报警（使用机械钥匙开锁）
+                    Timber.d("记录：室内感应把手开锁 机械钥匙报警 userId: %1d, AppId: %2d, 时间：%3s", userId, appId, TimeUtils.millis2String(realTime));
+                } else if(eventCode == 0x10) {
+                    // 低电压报警（电池电量不足）
+                    Timber.d("记录：室内感应把手开锁 低电压报警 userId: %1d, AppId: %2d, 时间：%3s", userId, appId, TimeUtils.millis2String(realTime));
+                } else if(eventCode == 0x20) {
+                    // 门锁异常报警
+                    Timber.d("记录：室内感应把手开锁 门锁异常报警 userId: %1d, AppId: %2d, 时间：%3s", userId, appId, TimeUtils.millis2String(realTime));
+                } else if(eventCode == 0x40) {
+                    // 门锁布防报警（门外布防后，从门内开锁了就会报警）
+                    Timber.d("记录：室内感应把手开锁 门锁布防报警 userId: %1d, AppId: %2d, 时间：%3s", userId, appId, TimeUtils.millis2String(realTime));
+                } else {
+
+                }
+
+            } else if(eventSource == 0x0F) {
+                // 不确定（无效值）
+            } else {
+                // TODO: 2021/2/9 其他错误，打印日志
+            }
+
+        } else {
+            // TODO: 2021/2/9 其他类型，是否指令错误
+        }
     }
+
+    ArrayList<TestOperationRecords.TestOperationRecord> mList = new ArrayList<>();
 
     private void refreshDataFromBle(BleResultBean bean) {
         int eventType = bean.getPayload()[5];
