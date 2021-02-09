@@ -27,6 +27,13 @@ public class UserFragment extends Fragment {
 
     private UserViewModel mUserViewModel;
 
+    public static UserFragment newInstance() {
+        Bundle bundle = new Bundle();
+        UserFragment userFragment = new UserFragment();
+        userFragment.setArguments(bundle);
+        return userFragment;
+    }
+
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
         mUserViewModel =

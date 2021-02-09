@@ -138,6 +138,7 @@ public class LoginActivity extends BaseActivity {
                         mailLoginBeanRsp.getData().getToken(), mailLoginBeanRsp.getData().getUid());
                 App.getInstance().setUserBean(mailLoginBeanRsp.getData());
                 startActivity(new Intent(LoginActivity.this, MainActivity.class));
+                App.getInstance().finishPreActivities();
                 finish();
             }
 

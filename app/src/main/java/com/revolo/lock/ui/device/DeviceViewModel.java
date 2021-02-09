@@ -7,6 +7,7 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
+import com.blankj.utilcode.util.ThreadUtils;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import com.revolo.lock.App;
@@ -32,7 +33,7 @@ public class DeviceViewModel extends ViewModel {
     public DeviceViewModel() {
 
         mWifiShowBean = new MutableLiveData<>();
-        new Handler(Looper.getMainLooper()).postDelayed(this::initGetAllBindDevicesFromMQTT, 500);
+        new Handler(Looper.getMainLooper()).postDelayed(this::initGetAllBindDevicesFromMQTT, 200);
 
     }
 

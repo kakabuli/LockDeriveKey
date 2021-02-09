@@ -9,6 +9,7 @@ import com.revolo.lock.bean.request.ChangeFeaturesBeanReq;
 import com.revolo.lock.bean.request.ChangeKeyNickBeanReq;
 import com.revolo.lock.bean.request.ChangeOpenLockParameterBeanReq;
 import com.revolo.lock.bean.request.CheckDoorSensorStateBeanReq;
+import com.revolo.lock.bean.request.CheckOTABeanReq;
 import com.revolo.lock.bean.request.DelDeviceBeanReq;
 import com.revolo.lock.bean.request.DelKeyBeanReq;
 import com.revolo.lock.bean.request.DeviceUnbindBeanReq;
@@ -23,6 +24,7 @@ import com.revolo.lock.bean.request.OpenDoorRecordSearchBeanReq;
 import com.revolo.lock.bean.request.SearchAlarmRecordBeanReq;
 import com.revolo.lock.bean.request.SearchKeyListBeanReq;
 import com.revolo.lock.bean.request.SearchProductNoBeanReq;
+import com.revolo.lock.bean.request.StartOTAUpdateBeanReq;
 import com.revolo.lock.bean.request.UpdateDoorSensorStateBeanReq;
 import com.revolo.lock.bean.request.UploadAlarmRecordBeanReq;
 import com.revolo.lock.bean.request.UploadOpenDoorRecordBeanReq;
@@ -34,6 +36,7 @@ import com.revolo.lock.bean.respone.ChangeFeaturesBeanRsp;
 import com.revolo.lock.bean.respone.ChangeKeyNickBeanRsp;
 import com.revolo.lock.bean.respone.ChangeOpenLockParameterBeanRsp;
 import com.revolo.lock.bean.respone.CheckDoorSensorStateBeanRsp;
+import com.revolo.lock.bean.respone.CheckOTABeanRsp;
 import com.revolo.lock.bean.respone.DelDeviceBeanRsp;
 import com.revolo.lock.bean.respone.DelKeyBeanRsp;
 import com.revolo.lock.bean.respone.DeviceUnbindBeanRsp;
@@ -48,6 +51,7 @@ import com.revolo.lock.bean.respone.OpenDoorRecordSearchBeanRsp;
 import com.revolo.lock.bean.respone.SearchAlarmRecordBeanRsp;
 import com.revolo.lock.bean.respone.SearchKeyListBeanRsp;
 import com.revolo.lock.bean.respone.SearchProductNoBeanRsp;
+import com.revolo.lock.bean.respone.StartOTAUpdateBeanRsp;
 import com.revolo.lock.bean.respone.UpdateDoorSensorStateBeanRsp;
 import com.revolo.lock.bean.respone.UploadAlarmRecordBeanRsp;
 import com.revolo.lock.bean.respone.UploadOpenDoorRecordBeanRsp;
@@ -159,5 +163,14 @@ public interface ApiService {
     @Headers({"Content-Type: application/json"})
     @POST("/user/reg/putuserbyemail")
     Observable<MailRegisterBeanRsp> register(@Body MailRegisterBeanReq req);
+
+    @Headers({"Content-Type: application/json"})
+    @POST("/api/otaUpgrade/check")
+    Observable<CheckOTABeanRsp> checkOtaVer(@Header("token") String token, @Body CheckOTABeanReq req);
+
+    @Headers({"Content-Type: application/json"})
+    @POST("/wifi/device/ota")
+    Observable<StartOTAUpdateBeanRsp> startOtaUpdate(@Header("token") String token, @Body StartOTAUpdateBeanReq req);
+
 
 }

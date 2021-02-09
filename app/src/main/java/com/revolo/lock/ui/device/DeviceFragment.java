@@ -19,6 +19,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.a1anwang.okble.client.scan.BLEScanResult;
 import com.blankj.utilcode.util.ConvertUtils;
+import com.blankj.utilcode.util.FragmentUtils;
 import com.blankj.utilcode.util.TimeUtils;
 import com.revolo.lock.App;
 import com.revolo.lock.Constant;
@@ -54,7 +55,13 @@ public class DeviceFragment extends Fragment {
     private DeviceViewModel mDeviceViewModel;
     private HomeLockListAdapter mHomeLockListAdapter;
     private ConstraintLayout mClNoDevice, mClHadDevice;
-    
+
+    public static DeviceFragment newInstance() {
+        Bundle bundle = new Bundle();
+        DeviceFragment deviceFragment = new DeviceFragment();
+        deviceFragment.setArguments(bundle);
+        return deviceFragment;
+    }
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {

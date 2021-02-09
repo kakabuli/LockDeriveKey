@@ -20,6 +20,13 @@ public class MineFragment extends Fragment {
 
     private MineViewModel mMineViewModel;
 
+    public static MineFragment newInstance() {
+        Bundle bundle = new Bundle();
+        MineFragment mineFragment = new MineFragment();
+        mineFragment.setArguments(bundle);
+        return mineFragment;
+    }
+
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
         mMineViewModel =

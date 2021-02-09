@@ -73,8 +73,8 @@
 
     <View
         android:id="@+id/vVersion"
-        android:layout_width="9pt"
-        android:layout_height="9pt"
+        android:layout_width="8pt"
+        android:layout_height="8pt"
         android:layout_marginEnd="9pt"
         android:visibility="gone"
         android:background="@drawable/shape_version_circle"
@@ -103,6 +103,17 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@+id/textView46"
         app:srcCompat="@drawable/ic_icon_more" />
+
+    <View
+        android:id="@+id/vFirmwareVersion"
+        android:layout_width="8pt"
+        android:layout_height="8pt"
+        android:layout_marginEnd="9pt"
+        android:visibility="gone"
+        android:background="@drawable/shape_version_circle"
+        app:layout_constraintBottom_toBottomOf="@+id/textView46"
+        app:layout_constraintEnd_toStartOf="@+id/tvFirmwareVersion"
+        app:layout_constraintTop_toTopOf="@+id/textView46" />
 
     <TextView
         android:id="@+id/tvFirmwareVersion"

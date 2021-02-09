@@ -15,6 +15,10 @@ import com.revolo.lock.ui.user.UserFragment;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
+import androidx.navigation.ui.NavigationUI;
+
 import java.util.ArrayList;
 
 
@@ -24,21 +28,21 @@ public class MainActivity extends BaseActivity {
     private final String CUR_INDEX = "curIndex";
     private int mCurIndex = 0;
 
-    private final BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener = item -> {
-        if(item.getItemId() == R.id.navigation_device) {
-            showCurrentFragment(0);
-            return true;
-        }
-        if(item.getItemId() == R.id.navigation_user) {
-            showCurrentFragment(1);
-            return true;
-        }
-        if(item.getItemId() == R.id.navigation_mine) {
-            showCurrentFragment(2);
-            return true;
-        }
-        return false;
-    };
+//    private final BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener = item -> {
+//        if(item.getItemId() == R.id.navigation_device) {
+//            showCurrentFragment(0);
+//            return true;
+//        }
+//        if(item.getItemId() == R.id.navigation_user) {
+//            showCurrentFragment(1);
+//            return true;
+//        }
+//        if(item.getItemId() == R.id.navigation_mine) {
+//            showCurrentFragment(2);
+//            return true;
+//        }
+//        return false;
+//    };
 
     @Override
     public void initData(@Nullable Bundle bundle) {
@@ -53,18 +57,22 @@ public class MainActivity extends BaseActivity {
     @Override
     public void initView(@Nullable Bundle savedInstanceState, @Nullable View contentView) {
         BottomNavigationView navView = findViewById(R.id.nav_view);
-        if (savedInstanceState != null) {
-            mCurIndex = savedInstanceState.getInt(CUR_INDEX);
-        }
-        navView.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
-        mFragments.add(new DeviceFragment());
-        mFragments.add(new UserFragment());
-        mFragments.add(new MineFragment());
-        FragmentUtils.add(getSupportFragmentManager(),
-                mFragments,
-                R.id.nav_host_fragment,
-                new String[]{"DeviceFragment", "UserFragment", "MineFragment"},
-                mCurIndex);
+        NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
+        NavigationUI.setupWithNavController(navView, navController);
+
+//        NavigationUI.setupWithNavController(navView, navController);
+//        if (savedInstanceState != null) {
+//            mCurIndex = savedInstanceState.getInt(CUR_INDEX);
+//        }
+//        navView.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
+//        mFragments.add(DeviceFragment.newInstance());
+//        mFragments.add(UserFragment.newInstance());
+//        mFragments.add(MineFragment.newInstance());
+//        FragmentUtils.add(getSupportFragmentManager(),
+//                mFragments,
+//                R.id.nav_host_fragment,
+//                new String[]{"DeviceFragment", "UserFragment", "MineFragment"},
+//                mCurIndex);
 
     }
 
@@ -78,22 +86,23 @@ public class MainActivity extends BaseActivity {
 
     }
 
-    @Override
-    public void onBackPressed() {
-        if(!FragmentUtils.dispatchBackPress(mFragments.get(mCurIndex))) {
-            super.onBackPressed();
-        }
-    }
 
-    @Override
-    public void onSaveInstanceState(@NonNull Bundle outState, @NonNull PersistableBundle outPersistentState) {
-        super.onSaveInstanceState(outState, outPersistentState);
-        outState.putInt(CUR_INDEX, mCurIndex);
-    }
+    //    @Override
+//    public void onBackPressed() {
+//        if(!FragmentUtils.dispatchBackPress(mFragments.get(mCurIndex))) {
+//            super.onBackPressed();
+//        }
+//    }
+//
+//    @Override
+//    public void onSaveInstanceState(@NonNull Bundle outState, @NonNull PersistableBundle outPersistentState) {
+//        super.onSaveInstanceState(outState, outPersistentState);
+//        outState.putInt(CUR_INDEX, mCurIndex);
+//    }
 
-    private void showCurrentFragment(int index) {
-        mCurIndex = index;
-        FragmentUtils.showHide(index, mFragments);
-    }
+//    private void showCurrentFragment(int index) {
+//        mCurIndex = index;
+//        FragmentUtils.showHide(index, mFragments);
+//    }
 
 }

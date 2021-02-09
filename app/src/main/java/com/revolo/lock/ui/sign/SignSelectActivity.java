@@ -7,6 +7,7 @@ import android.view.View;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.revolo.lock.App;
 import com.revolo.lock.R;
 import com.revolo.lock.base.BaseActivity;
 
@@ -24,6 +25,7 @@ public class SignSelectActivity extends BaseActivity {
     @Override
     public void initView(@Nullable Bundle savedInstanceState, @Nullable View contentView) {
         applyDebouncingClickListener(findViewById(R.id.btnRegister), findViewById(R.id.btnSignIn));
+        App.getInstance().addWillFinishAct(this);
     }
 
     @Override

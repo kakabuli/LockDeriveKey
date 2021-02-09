@@ -474,7 +474,7 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
             }
             String sn = sb.toString().trim();
             Timber.d("%1s, %2s, len: %3d", ConvertUtils.bytes2HexString(value), new String(value, StandardCharsets.UTF_8), value.length);
-            Timber.d("getAndCheckESN device esn: %1s, input esn: %2s", sn, esn);
+            Timber.d("getAndCheckESN device esn: %1s, input esn: %2s, mac: %3s", sn, esn, device.getMacAddress());
             return sn.equalsIgnoreCase(esn);
         }
         return false;

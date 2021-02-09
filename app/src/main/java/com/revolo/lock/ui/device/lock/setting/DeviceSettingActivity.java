@@ -215,6 +215,8 @@ public class DeviceSettingActivity extends BaseActivity {
                     return;
                 }
                 // TODO: 2021/2/6 抽离文字 和校对
+                // TODO: 2021/2/9 清除了本地所有数据
+                App.getInstance().getCacheDiskUtils().clear();
                 ToastUtils.showShort("Unbind success");
                 finish();
             }
