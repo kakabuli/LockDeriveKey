@@ -59,8 +59,6 @@ public class MainActivity extends BaseActivity {
         BottomNavigationView navView = findViewById(R.id.nav_view);
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
         NavigationUI.setupWithNavController(navView, navController);
-
-//        NavigationUI.setupWithNavController(navView, navController);
 //        if (savedInstanceState != null) {
 //            mCurIndex = savedInstanceState.getInt(CUR_INDEX);
 //        }
@@ -87,7 +85,7 @@ public class MainActivity extends BaseActivity {
     }
 
 
-    //    @Override
+//    @Override
 //    public void onBackPressed() {
 //        if(!FragmentUtils.dispatchBackPress(mFragments.get(mCurIndex))) {
 //            super.onBackPressed();
@@ -99,7 +97,7 @@ public class MainActivity extends BaseActivity {
 //        super.onSaveInstanceState(outState, outPersistentState);
 //        outState.putInt(CUR_INDEX, mCurIndex);
 //    }
-
+//
 //    private void showCurrentFragment(int index) {
 //        mCurIndex = index;
 //        FragmentUtils.showHide(index, mFragments);

@@ -1,43 +1,25 @@
 package com.revolo.lock.base;
 
-import android.app.Activity;
 import android.content.Context;
-import android.content.res.Resources;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.Window;
-import android.view.WindowManager;
 
-import androidx.annotation.ColorRes;
 import androidx.annotation.IdRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
-import com.blankj.utilcode.util.AdaptScreenUtils;
 import com.blankj.utilcode.util.AppUtils;
 import com.blankj.utilcode.util.ClickUtils;
 
-import org.jetbrains.annotations.NotNull;
-
 import timber.log.Timber;
 
-/**
- * <pre>
- *     author: Blankj
- *     blog  : http://blankj.com
- *     time  : 2017/03/28
- *     desc  : base about v4-fragment
- * </pre>
- */
-public abstract class BaseFragment extends Fragment
-        implements IBaseView  {
+public abstract class BaseFragment extends Fragment implements IBaseView {
 
     private static Boolean isDebug;
 
@@ -75,7 +57,7 @@ public abstract class BaseFragment extends Fragment
     }
 
     @Override
-    public void onAttach(@NotNull Context context) {
+    public void onAttach(Context context) {
         log("onAttach");
         super.onAttach(context);
         mActivity = (AppCompatActivity) context;
@@ -85,8 +67,8 @@ public abstract class BaseFragment extends Fragment
     public void onCreate(@Nullable Bundle savedInstanceState) {
         log("onCreate");
         super.onCreate(savedInstanceState);
-        if(getActivity() == null) return;
-        FragmentManager fm = getActivity().getSupportFragmentManager();
+        FragmentManager fm = getFragmentManager();
+        if (fm == null) return;
         if (savedInstanceState != null) {
             boolean isSupportHidden = savedInstanceState.getBoolean(STATE_SAVE_IS_HIDDEN);
             FragmentTransaction ft = fm.beginTransaction();
@@ -103,9 +85,7 @@ public abstract class BaseFragment extends Fragment
 
     @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater,
-                             @Nullable ViewGroup container,
-                             @Nullable Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         log("onCreateView");
         super.onCreateView(inflater, container, savedInstanceState);
         mInflater = inflater;
@@ -177,18 +157,8 @@ public abstract class BaseFragment extends Fragment
             isDebug = AppUtils.isAppDebug();
         }
         if (isDebug) {
-            Timber.d(msg);
+            Timber.d(getClass().getSimpleName() + ": " + msg);
         }
-    }
-
-    public void setStatusBarColor(@NotNull Activity activity, @ColorRes int id) {
-        Window window = activity.getWindow();
-        // clear FLAG_TRANSLUCENT_STATUS flag:
-        window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
-        // add FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS flag to the window
-        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-        // finally change the color
-        window.setStatusBarColor(ContextCompat.getColor(activity, id));
     }
 
 }
