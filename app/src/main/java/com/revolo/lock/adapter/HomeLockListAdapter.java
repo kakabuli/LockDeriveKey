@@ -54,7 +54,8 @@ public class HomeLockListAdapter extends BaseQuickAdapter<WifiShowBean, BaseView
         } else {
             baseViewHolder.setImageResource(R.id.ivNetState, R.drawable.ic_home_icon_bluetooth);
         }
-        String wifiName = testLockBean.getWifiListBean().getWifiName();
+        // TODO: 2021/2/10 到时候修改为名字
+        String wifiName = testLockBean.getWifiListBean().getWifiSN();
         baseViewHolder.setText(R.id.tvLockName, TextUtils.isEmpty(wifiName)?"":wifiName);
     }
 

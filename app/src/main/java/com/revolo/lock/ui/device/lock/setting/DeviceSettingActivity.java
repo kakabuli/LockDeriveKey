@@ -3,6 +3,7 @@ package com.revolo.lock.ui.device.lock.setting;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -19,6 +20,7 @@ import com.revolo.lock.R;
 import com.revolo.lock.base.BaseActivity;
 import com.revolo.lock.bean.request.DeviceUnbindBeanReq;
 import com.revolo.lock.bean.respone.DeviceUnbindBeanRsp;
+import com.revolo.lock.bean.showBean.WifiShowBean;
 import com.revolo.lock.ble.BleByteUtil;
 import com.revolo.lock.ble.BleCommandFactory;
 import com.revolo.lock.ble.BleProtocolState;
@@ -49,6 +51,7 @@ public class DeviceSettingActivity extends BaseActivity {
     private DeviceUnbindBeanReq mReq;
     private CustomerLoadingDialog mLoadingDialog;
     private ImageView ivMuteEnable;
+    private WifiShowBean mWifiShowBean;
 
     // TODO: 2021/2/8 临时的bool值来判断是否开启自动上锁功能，后续需要通过查询状态来实现功能
     boolean isOpenAutoLock= false;
@@ -63,6 +66,9 @@ public class DeviceSettingActivity extends BaseActivity {
         } else {
             // TODO: 2021/2/6 提示没从上一个页面传递数据过来
             finish();
+        }
+        if(intent.hasExtra(Constant.LOCK_DETAIL)) {
+            mWifiShowBean = intent.getParcelableExtra(Constant.LOCK_DETAIL);
         }
         String TEST_AUTO_LOCK = "TestAutoLock";
         isOpenAutoLock = SPUtils.getInstance().getBoolean(TEST_AUTO_LOCK);
@@ -164,8 +170,10 @@ public class DeviceSettingActivity extends BaseActivity {
     }
 
     private void initTestData() {
-        mTvName.setText("Tester");
-        mTvWifiName.setText("Kaadas123");
+        String name = mWifiShowBean.getWifiListBean().getWifiSN();
+        mTvName.setText(name);
+        String wifiName = mWifiShowBean.getWifiListBean().getWifiName();
+        mTvWifiName.setText(TextUtils.isEmpty(wifiName)?"":wifiName);
     }
 
     private boolean isMute = false;
@@ -194,6 +202,9 @@ public class DeviceSettingActivity extends BaseActivity {
     private void unbindDevice() {
         if(mLoadingDialog != null) {
             mLoadingDialog.show();
+        }
+        if(App.getInstance().getBleBean() != null && App.getInstance().getBleBean().getOKBLEDeviceImp() != null) {
+            App.getInstance().getBleBean().getOKBLEDeviceImp().disConnect(false);
         }
         Observable<DeviceUnbindBeanRsp> observable = HttpRequest
                 .getInstance().unbindDevice(App.getInstance().getUserBean().getToken(), mReq);

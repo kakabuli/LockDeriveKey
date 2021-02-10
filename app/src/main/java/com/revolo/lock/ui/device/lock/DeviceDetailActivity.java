@@ -17,7 +17,17 @@ import com.revolo.lock.R;
 import com.revolo.lock.base.BaseActivity;
 import com.revolo.lock.bean.request.DeviceUnbindBeanReq;
 import com.revolo.lock.bean.showBean.WifiShowBean;
+import com.revolo.lock.ble.BleCommandFactory;
+import com.revolo.lock.mqtt.MqttCommandFactory;
+import com.revolo.lock.mqtt.MqttConstant;
+import com.revolo.lock.mqtt.bean.MqttData;
 import com.revolo.lock.ui.device.lock.setting.DeviceSettingActivity;
+
+import org.jetbrains.annotations.NotNull;
+
+import io.reactivex.Observer;
+import io.reactivex.disposables.Disposable;
+import timber.log.Timber;
 
 /**
  * author : Jack
@@ -73,7 +83,12 @@ public class DeviceDetailActivity extends BaseActivity {
             req.setUid(mWifiShowBean.getWifiListBean().getAdminUid());
             req.setWifiSN(mWifiShowBean.getWifiListBean().getWifiSN());
             intent.putExtra(Constant.UNBIND_REQ, req);
+            intent.putExtra(Constant.LOCK_DETAIL, mWifiShowBean);
             startActivity(intent);
+            return;
+        }
+        if(view.getId() == R.id.ivLockState) {
+            openDoor();
         }
     }
 
@@ -94,7 +109,7 @@ public class DeviceDetailActivity extends BaseActivity {
         LinearLayout llDoorState = findViewById(R.id.llDoorState);
         TextView tvPrivateMode = findViewById(R.id.tvPrivateMode);
 
-        applyDebouncingClickListener(llNotification, llPwd, llUser, llSetting);
+        applyDebouncingClickListener(llNotification, llPwd, llUser, llSetting, ivLockState);
 
         if(mWifiShowBean.getModeState() == 2) {
             ivLockState.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_home_img_lock_privacymodel));
@@ -121,5 +136,76 @@ public class DeviceDetailActivity extends BaseActivity {
         tvNetState.setText(getString(R.string.tip_online));
 
     }
+
+    private void openDoor() {
+        if(App.getInstance().getBleBean() == null) {
+            return;
+        }
+        if(App.getInstance().getBleBean().getPwd1() == null) {
+            return;
+        }
+        if(App.getInstance().getBleBean().getPwd2() == null) {
+            return;
+        }
+        if(App.getInstance().getBleBean().getPwd3() == null) {
+            return;
+        }
+        if(App.getInstance().isUseBle()) {
+            App.getInstance().writeControlMsg(BleCommandFactory
+                    .lockControlCommand((byte) 0x00, (byte) 0x04, (byte) 0x01, App.getInstance().getBleBean().getPwd1(), App.getInstance().getBleBean().getPwd3()));
+        } else {
+            publishOpenOrCloseDoor(mWifiShowBean.getWifiListBean().getWifiSN(), 1);
+        }
+    }
+
+    // TODO: 2021/2/6 后面想办法写的更好
+    private byte[] getPwd(byte[] pwd1, byte[] pwd2) {
+        byte[] pwd = new byte[16];
+        for (int i=0; i < pwd.length; i++) {
+            if(i <= 11) {
+                pwd[i]=pwd1[i];
+            } else {
+                pwd[i]=pwd2[i-12];
+            }
+        }
+        return pwd;
+    }
+
+    /**
+     *  开关门
+     * @param wifiId wifi的id
+     * @param doorOpt 1:表示开门，0表示关门
+     */
+    public void publishOpenOrCloseDoor(String wifiId, int doorOpt) {
+        // TODO: 2021/2/6 发送开门或者关门的指令
+        App.getInstance().getMqttService().mqttPublish(MqttConstant.getCallTopic(App.getInstance().getUserBean().getUid()),
+                MqttCommandFactory.setLock(wifiId,doorOpt,
+                        getPwd(App.getInstance().getBleBean().getPwd1(), App.getInstance().getBleBean().getPwd2())))
+                .subscribe(new Observer<MqttData>() {
+            @Override
+            public void onSubscribe(@NotNull Disposable d) {
+
+            }
+
+            @Override
+            public void onNext(@NotNull MqttData mqttData) {
+                if(mqttData.getFunc().equals("setLock")) {
+                    Timber.d("开关门信息: %1s", mqttData);
+                }
+                Timber.d("%1s", mqttData.toString());
+            }
+
+            @Override
+            public void onError(@NotNull Throwable e) {
+                Timber.e(e);
+            }
+
+            @Override
+            public void onComplete() {
+
+            }
+        });
+    }
+
 
 }

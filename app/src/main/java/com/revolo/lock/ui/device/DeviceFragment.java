@@ -102,9 +102,10 @@ public class DeviceFragment extends Fragment {
 //                        App.getInstance().writeControlMsg(BleCommandFactory
 //                                .lockControlCommand((byte) 0x00, (byte) 0x04, (byte) 0x01, mBleBean.getPwd1(), mBleBean.getPwd3()));
 //                    }, 100);
+                    int state = mHomeLockListAdapter.getItem(position).getDoorState();
                     if(App.getInstance().isUseBle()) {
                         App.getInstance().writeControlMsg(BleCommandFactory
-                                .lockControlCommand((byte) 0x00, (byte) 0x04, (byte) 0x01, mBleBean.getPwd1(), mBleBean.getPwd3()));
+                                .lockControlCommand((byte) (state==1?0x01:0x00), (byte) 0x04, (byte) 0x01, mBleBean.getPwd1(), mBleBean.getPwd3()));
                     } else {
                         publishOpenOrCloseDoor(mHomeLockListAdapter.getItem(position).getWifiListBean().getWifiSN(), 1);
                     }
@@ -218,6 +219,23 @@ public class DeviceFragment extends Fragment {
 
     private void controlOpenOrCloseDoorAck(BleResultBean bean) {
         // TODO: 2021/2/7 处理控制开关锁确认帧
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if(bean.getPayload()[0] == 0x00) {
+                    // 上锁
+                    int state = mHomeLockListAdapter.getData().get(0).getDoorState();
+                    if(state == 1) {
+                        state = 2;
+                    } else if(state == 2) {
+                        state = 1;
+                    }
+                    mHomeLockListAdapter.getData().get(0).setDoorState(state);
+                    mHomeLockListAdapter.notifyDataSetChanged();
+                }
+            }
+        });
+
     }
 
     private void lockUpdateInfo(BleResultBean bean) {
@@ -232,6 +250,29 @@ public class DeviceFragment extends Fragment {
         long realTime = (BleByteUtil.bytesToLong(BleCommandFactory.littleMode(time)) + Constant.WILL_ADD_TIME)*1000;
         Timber.d("CMD: %1d, eventType: %2d, eventSource: %3d, eventCode: %4d, userID: %5d, time: %6d",
                 bean.getCMD(), eventType, eventSource, eventCode, userID, realTime);
+
+        // TODO: 2021/2/10 后期需要移植修改
+        if(getActivity() == null) {
+            return;
+        }
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if(eventType == 0x01) {
+                    if(eventSource == 0x01) {
+                        // 上锁
+                        mHomeLockListAdapter.getData().get(0).setDoorState(2);
+                        mHomeLockListAdapter.notifyDataSetChanged();
+                    } else if(eventCode == 0x02) {
+                        // 开锁
+                        mHomeLockListAdapter.getData().get(0).setDoorState(1);
+                        mHomeLockListAdapter.notifyDataSetChanged();
+                    } else {
+                        // TODO: 2021/2/10 其他处理
+                    }
+                }
+            }
+        });
     }
 
     private void syNowTime() {
