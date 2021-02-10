@@ -867,6 +867,13 @@ public class BleCommandFactory {
     }
 
 
+    /**
+     *  读取混合记录
+     * @param logIndexStart   查询的记录起始序号 2个字节
+     * @param logIndexEnd     结束编号（当start index =end index时 读取一条记录
+     *                        一次最多读100条 如范围0-99    第一条记录的编号为0）
+     *                        2个字节
+     */
     public static byte[] readAllRecord(byte[] logIndexStart, byte[] logIndexEnd,
                                        byte[] pwd1, byte[] pwd3) {
         byte[] data = new byte[4];

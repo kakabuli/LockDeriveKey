@@ -11,9 +11,10 @@ import androidx.room.PrimaryKey;
  * desc   :
  */
 //@Entity
-public class BleDevice {
+public class BleDeviceLocal {
 
     @PrimaryKey(autoGenerate = true)
+    @ColumnInfo(name = "d_id")
     private int id;
 
     @ColumnInfo(name = "d_user_id")
@@ -30,6 +31,9 @@ public class BleDevice {
 
     @ColumnInfo(name = "d_mac")
     private String mac;
+
+    @ColumnInfo(name = "d_scan_result_json")
+    private String scanResultJson;
 
 
     public int getId() {
@@ -78,5 +82,13 @@ public class BleDevice {
 
     public void setMac(String mac) {
         this.mac = mac;
+    }
+
+    public String getScanResultJson() {
+        return scanResultJson;
+    }
+
+    public void setScanResultJson(String scanResultJson) {
+        this.scanResultJson = scanResultJson;
     }
 }

@@ -37,9 +37,15 @@ public class Constant {
     public static final String KEY_PWD_NUM = "keyPwdNum";
     public static final String UNBIND_REQ = "UnbindReq";
 
+    public static final String DEVICE_ID = "DeviceId";
+    public static final String USER_MAIL = "UserMail";
+
     /**
      * 在login界面，是否显示提示对话框key
      */
     public static final String IS_SHOW_DIALOG = "isShowDialog";
+
+    // TODO: 2021/2/10 后续要整理
+    public static final String IS_USE_BLE = "isUseBle";
 
 }

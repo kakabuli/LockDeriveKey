@@ -3,11 +3,13 @@ package com.revolo.lock.room.dao;
 import androidx.room.Dao;
 import androidx.room.Delete;
 import androidx.room.Insert;
+import androidx.room.OnConflictStrategy;
 import androidx.room.Query;
 import androidx.room.Update;
 
-import com.revolo.lock.room.entity.BleDevice;
-import com.revolo.lock.room.entity.User;
+import com.revolo.lock.room.entity.BleDeviceLocal;
+
+import java.util.List;
 
 /**
  * author :
@@ -19,15 +21,39 @@ import com.revolo.lock.room.entity.User;
 public interface BleDeviceDao {
 
     @Insert
-    public void insertBleDevice(BleDevice bleDevice);
+    void insert(BleDeviceLocal bleDeviceLocal);
 
-    @Update
-    public void updateBleDevice(BleDevice bleDevice);
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    void insert(List<BleDeviceLocal> bleDeviceLocals);
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    void insert(BleDeviceLocal... bleDeviceLocal);
 
     @Delete
-    public void delBleDevice(BleDevice bleDevice);
+    void delete(BleDeviceLocal bleDeviceLocal);
 
-    @Query("SELECT * FROM bledevice WHERE d_esn=:esn")
-    public void searchBleDeviceFromId(String esn);
+    @Delete
+    void delete(BleDeviceLocal... bleDeviceLocal);
+
+    @Delete
+    void delete(List<BleDeviceLocal> bleDeviceLocal);
+
+    @Update
+    void update(BleDeviceLocal bleDeviceLocal);
+
+    @Query("SELECT * FROM BleDeviceLocal WHERE d_esn=:esn")
+    BleDeviceLocal findBleDeviceFromEsn(String esn);
+
+    @Query("SELECT * FROM BleDeviceLocal")
+    List<BleDeviceLocal> findAllBleDevice();
+
+    @Query("SELECT * FROM BleDeviceLocal WHERE d_user_id=:id")
+    List<BleDeviceLocal> findBleDevicesFromUserId(long id);
+
+    @Query("SELECT * FROM BleDeviceLocal WHERE d_id=:id ")
+    BleDeviceLocal findBleDeviceFromId(long id);
+
+    @Query("SELECT * FROM BleDeviceLocal WHERE d_id in(:ids)")
+    List<BleDeviceLocal> findBleDeviceFromIds(long... ids);
 
 }

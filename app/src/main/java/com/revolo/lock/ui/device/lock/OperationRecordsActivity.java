@@ -159,10 +159,10 @@ public class OperationRecordsActivity extends BaseActivity {
     private void initDataFromLock() {
         if(mBleBean.getOKBLEDeviceImp() != null) {
             if (mBleBean.getOKBLEDeviceImp().isConnected()) {
-                // 查询20条记录
+                // 查询100条记录
                 byte[] start = new byte[2];
                 byte[] end = new byte[2];
-                end[0] = 0x14;
+                end[0] = 0x64;
                 App.getInstance().writeControlMsg(BleCommandFactory
                         .readAllRecord(start, end, mBleBean.getPwd1(), mBleBean.getPwd3()));
             } else {
@@ -189,6 +189,34 @@ public class OperationRecordsActivity extends BaseActivity {
         Timber.d("total: %1d, index: %2d, eventType: %3d, eventSource: %4d, eventCode: %5d, userId: %6d, appId: %7d, time: %8d",
                 totalShort, indexShort, eventType, eventSource, eventCode, userId, appId, realTime);
 
+        if(eventType == 0x01) {
+            // 开锁记录
+            if(userId == 100) {
+                // 机械方式开锁
+
+            } else if(userId == 102) {
+                // 一键开锁
+            } else if(userId == 106) {
+                // 感应把手开锁
+            } else if(userId == 103) {
+                // APP指令开锁
+            } else if(userId == 254) {
+                // 管理员用户开锁
+            } else if(userId == 253) {
+                // 访客密码开锁
+            } else if(userId == 252) {
+                // 一次性密码开锁
+            } else if(userId == 250) {
+                // 离线密码开锁
+            } else {
+                // TODO: 2021/2/10 标准密码，指纹编号，卡片编号
+            }
+        } else if(eventType == 0x02) {
+            // Program程序
+        } else if(eventType == 0x03) {
+            // Alarm 报警记录
+        }
+        
         if(eventType == 0x01) {
             // Operation操作(动作类)（开锁记录）
 
@@ -286,8 +314,21 @@ public class OperationRecordsActivity extends BaseActivity {
                     // TODO: 2021/2/9 如果出错，输出对应日志
                 }
 
-            } else if(eventSource == 0x0F) {
+            } else if(eventSource == -1) {
                 // 不确定（无效值）
+
+
+                if(eventCode == 0x01) {
+                    // lock上锁
+                    Timber.d("记录：不确定 lock上锁 userId: %1d, AppId: %2d, 时间：%3s", userId, appId, TimeUtils.millis2String(realTime));
+                } else if(eventCode == 0x02) {
+                    // Unlock开锁
+                    Timber.d("记录：不确定 Unlock开锁 userId: %1d, AppId: %2d, 时间：%3s", userId, appId, TimeUtils.millis2String(realTime));
+                } else {
+                    // TODO: 2021/2/9 如果出错，输出对应日志
+                }
+
+
             } else {
                 // TODO: 2021/2/9 其他错误，打印日志
             }
@@ -438,9 +479,27 @@ public class OperationRecordsActivity extends BaseActivity {
                     // TODO: 2021/2/9 错误操作日志
                 }
 
-            } else if(eventSource == 0x0F) {
+            }  else if(eventSource == -1) {
                 // 不确定（无效值）
-            } else {
+
+
+                if(eventCode == 0x01) {
+                    // 修改
+                    Timber.d("记录：不确定 修改密码 userId: %1d, AppId: %2d, 时间：%3s", userId, appId, TimeUtils.millis2String(realTime));
+                } else if(eventCode == 0x02) {
+                    // 添加
+                    Timber.d("记录：不确定 添加密码 userId: %1d, AppId: %2d, 时间：%3s", userId, appId, TimeUtils.millis2String(realTime));
+                } else if(eventCode == 0x03) {
+                    // 删除
+                    Timber.d("记录：不确定 删除密码 userId: %1d, AppId: %2d, 时间：%3s", userId, appId, TimeUtils.millis2String(realTime));
+                } else if(eventCode == 0x0F) {
+                    // 恢复出厂设置
+                    Timber.d("记录：不确定 恢复出厂设置 userId: %1d, AppId: %2d, 时间：%3s", userId, appId, TimeUtils.millis2String(realTime));
+                } else {
+                    // TODO: 2021/2/9 错误操作日志
+                }
+
+            }  else {
                 // TODO: 2021/2/9 其他错误，打印日志
             }
 
@@ -682,6 +741,7 @@ public class OperationRecordsActivity extends BaseActivity {
             // TODO: 2021/2/9 其他类型，是否指令错误
         }
     }
+    
 
     ArrayList<TestOperationRecords.TestOperationRecord> mList = new ArrayList<>();
 

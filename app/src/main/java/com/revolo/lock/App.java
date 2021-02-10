@@ -16,6 +16,7 @@ import com.a1anwang.okble.client.core.OKBLEOperation;
 import com.a1anwang.okble.client.scan.BLEScanResult;
 import com.blankj.utilcode.util.CacheDiskUtils;
 import com.blankj.utilcode.util.ConvertUtils;
+import com.blankj.utilcode.util.SPUtils;
 import com.blankj.utilcode.util.TimeUtils;
 import com.revolo.lock.bean.respone.MailLoginBeanRsp;
 import com.revolo.lock.ble.BleByteUtil;
@@ -59,6 +60,8 @@ public class App extends Application {
 
     protected MqttService mqttService;
 
+    private boolean isUseBle = true;
+
     @Override
     public void onCreate() {
         super.onCreate();
@@ -68,6 +71,16 @@ public class App extends Application {
         }
         initCacheDisk();
         initMqttService();
+        isUseBle = SPUtils.getInstance().getBoolean(Constant.IS_USE_BLE, true);
+    }
+
+    public boolean isUseBle() {
+        return isUseBle;
+    }
+
+    public void setUseBle(boolean useBle) {
+        isUseBle = useBle;
+        SPUtils.getInstance().put(Constant.IS_USE_BLE, isUseBle);
     }
 
     private void initCacheDisk() {

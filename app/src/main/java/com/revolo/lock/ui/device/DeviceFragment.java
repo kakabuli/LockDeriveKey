@@ -102,8 +102,12 @@ public class DeviceFragment extends Fragment {
 //                        App.getInstance().writeControlMsg(BleCommandFactory
 //                                .lockControlCommand((byte) 0x00, (byte) 0x04, (byte) 0x01, mBleBean.getPwd1(), mBleBean.getPwd3()));
 //                    }, 100);
-
+                    if(App.getInstance().isUseBle()) {
+                        App.getInstance().writeControlMsg(BleCommandFactory
+                                .lockControlCommand((byte) 0x00, (byte) 0x04, (byte) 0x01, mBleBean.getPwd1(), mBleBean.getPwd3()));
+                    } else {
                         publishOpenOrCloseDoor(mHomeLockListAdapter.getItem(position).getWifiListBean().getWifiSN(), 1);
+                    }
                 }
             });
             rvLockList.setAdapter(mHomeLockListAdapter);
@@ -111,8 +115,13 @@ public class DeviceFragment extends Fragment {
                 ((MainActivity)getActivity()).setStatusBarColor(R.color.white);
             }
         }
-        initBleListener();
-        initData();
+        mEsn = App.getInstance().getCacheDiskUtils().getString(Constant.LOCK_ESN);
+        mPwd1 = App.getInstance().getCacheDiskUtils().getBytes(Constant.KEY_PWD1);
+        mPwd2 = App.getInstance().getCacheDiskUtils().getBytes(Constant.KEY_PWD2);
+        if(App.getInstance().isUseBle()) {
+            initBleListener();
+            initData();
+        }
         initDataFromCache();
         return root;
     }
@@ -288,9 +297,6 @@ public class DeviceFragment extends Fragment {
     }
 
     private void initData() {
-        mEsn = App.getInstance().getCacheDiskUtils().getString(Constant.LOCK_ESN);
-        mPwd1 = App.getInstance().getCacheDiskUtils().getBytes(Constant.KEY_PWD1);
-        mPwd2 = App.getInstance().getCacheDiskUtils().getBytes(Constant.KEY_PWD2);
         if(App.getInstance().getBleBean() == null) {
             BLEScanResult bleScanResult = App.getInstance().getCacheDiskUtils()
                     .getParcelable(Constant.BLE_DEVICE, BLEScanResult.CREATOR, null);

@@ -14,7 +14,11 @@ import androidx.room.PrimaryKey;
 public class User {
 
     @PrimaryKey(autoGenerate = true)
+    @ColumnInfo(name = "u_id")
     private int id;
+
+    @ColumnInfo(name = "u_mail")
+    private String mail;
 
     @ColumnInfo(name = "u_user_name")
     private String userName;
@@ -37,6 +41,14 @@ public class User {
 
     public void setId(int id) {
         this.id = id;
+    }
+
+    public String getMail() {
+        return mail;
+    }
+
+    public void setMail(String mail) {
+        this.mail = mail;
     }
 
     public String getUserName() {
