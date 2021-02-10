@@ -100,8 +100,8 @@ public class RegisterActivity extends BaseActivity {
         }
         if(view.getId() == R.id.ivSelect) {
             ImageView ivSelect = findViewById(R.id.ivSelect);
-            ivSelect.setImageResource(isSelected?R.drawable.ic_sign_in_icon_selected:R.drawable.ic_sign_in_icon_default);
             isSelected = !isSelected;
+            ivSelect.setImageResource(isSelected?R.drawable.ic_sign_in_icon_selected:R.drawable.ic_sign_in_icon_default);
             return;
         }
         if(view.getId() == R.id.tvGetCode) {
