@@ -311,7 +311,6 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
                 Timber.d("addDeviceToService 添加设备成功");
                 Timber.d("rsp: %1s", adminAddDeviceBeanRsp.toString());
                 App.getInstance().setAutoAuth(true);
-                App.getInstance().setUseBle(true);
                 startActivity(new Intent(AddDeviceStep2BleConnectActivity.this, BleConnectSucActivity.class));
                 finish();
             }

@@ -11,7 +11,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.blankj.utilcode.util.ConvertUtils;
-import com.blankj.utilcode.util.SPUtils;
 import com.revolo.lock.App;
 import com.revolo.lock.Constant;
 import com.revolo.lock.R;
@@ -135,7 +134,6 @@ public class WifiConnectActivity extends BaseActivity {
             if(bleResultBean.getPayload()[0] == 0x00) {
                 // 配网成功
                 changeValue(100);
-                App.getInstance().setUseBle(false);
                 startActivity(new Intent(this, AddWifiSucActivity.class));
                 mBleBean.getOKBLEDeviceImp().disConnect(false);
                 finish();

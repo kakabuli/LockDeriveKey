@@ -11,19 +11,27 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 
+import com.blankj.utilcode.util.ConvertUtils;
 import com.revolo.lock.App;
 import com.revolo.lock.Constant;
 import com.revolo.lock.R;
 import com.revolo.lock.base.BaseActivity;
 import com.revolo.lock.bean.request.DeviceUnbindBeanReq;
 import com.revolo.lock.bean.showBean.WifiShowBean;
+import com.revolo.lock.ble.BleByteUtil;
 import com.revolo.lock.ble.BleCommandFactory;
+import com.revolo.lock.ble.BleProtocolState;
+import com.revolo.lock.ble.BleResultProcess;
+import com.revolo.lock.ble.OnBleDeviceListener;
+import com.revolo.lock.ble.bean.BleResultBean;
 import com.revolo.lock.mqtt.MqttCommandFactory;
 import com.revolo.lock.mqtt.MqttConstant;
 import com.revolo.lock.mqtt.bean.MqttData;
 import com.revolo.lock.ui.device.lock.setting.DeviceSettingActivity;
 
 import org.jetbrains.annotations.NotNull;
+
+import java.nio.charset.StandardCharsets;
 
 import io.reactivex.Observer;
 import io.reactivex.disposables.Disposable;
@@ -56,6 +64,7 @@ public class DeviceDetailActivity extends BaseActivity {
     public void initView(@Nullable Bundle savedInstanceState, @Nullable View contentView) {
         useCommonTitleBar("Homepage");
         initDevice();
+        initBleListener();
     }
 
     @Override
@@ -91,6 +100,150 @@ public class DeviceDetailActivity extends BaseActivity {
             openDoor();
         }
     }
+
+    private void initBleListener() {
+        App.getInstance().setOnBleDeviceListener(new OnBleDeviceListener() {
+            @Override
+            public void onConnected() {
+            }
+
+            @Override
+            public void onDisconnected() {
+
+            }
+
+            @Override
+            public void onReceivedValue(String uuid, byte[] value) {
+                if(value == null) {
+                    return;
+                }
+                if(App.getInstance().getBleBean() == null) {
+                    return;
+                }
+                if(App.getInstance().getBleBean().getOKBLEDeviceImp() == null) {
+                    return;
+                }
+                if(App.getInstance().getBleBean().getPwd1() == null) {
+                    return;
+                }
+                if(App.getInstance().getBleBean().getPwd3() == null) {
+                    return;
+                }
+                BleResultProcess.setOnReceivedProcess(mOnReceivedProcess);
+                BleResultProcess.processReceivedData(value, App.getInstance().getBleBean().getPwd1(), App.getInstance().getBleBean().getPwd3(),
+                        App.getInstance().getBleBean().getOKBLEDeviceImp().getBleScanResult());
+            }
+
+            @Override
+            public void onWriteValue(String uuid, byte[] value, boolean success) {
+
+            }
+        });
+    }
+
+    private final BleResultProcess.OnReceivedProcess mOnReceivedProcess = bleResultBean -> {
+        if(bleResultBean == null) {
+            Timber.e("mOnReceivedProcess bleResultBean == null");
+            return;
+        }
+        processBleResult(bleResultBean);
+    };
+
+    private void processBleResult(BleResultBean bean) {
+        if(bean.getCMD() == BleProtocolState.CMD_LOCK_INFO) {
+            lockInfo(bean);
+        } else if(bean.getCMD() == BleProtocolState.CMD_LOCK_CONTROL_ACK) {
+            controlOpenOrCloseDoorAck(bean);
+        } else if(bean.getCMD() == BleProtocolState.CMD_LOCK_UPLOAD) {
+            lockUpdateInfo(bean);
+        }
+    }
+
+    private void lockInfo(BleResultBean bean) {
+        // TODO: 2021/2/8 锁基本信息处理
+        byte[] lockFunBytes = new byte[4];
+        System.arraycopy(bean.getPayload(), 0, lockFunBytes, 0, lockFunBytes.length);
+        // 以下标来命名区分 bit0~7
+        byte[] bit0_7 = BleByteUtil.byteToBit(lockFunBytes[3]);
+        // bit8~15
+        byte[] bit8_15 = BleByteUtil.byteToBit(lockFunBytes[2]);
+        // bit16~23
+        byte[] bit16_23 = BleByteUtil.byteToBit(lockFunBytes[1]);
+
+        byte[] lockState = new byte[4];
+        System.arraycopy(bean.getPayload(), 4, lockState, 0, lockState.length);
+        byte[] lockStateBit0_7 = BleByteUtil.byteToBit(lockState[3]);
+        byte[] lockStateBit8_15 = BleByteUtil.byteToBit(lockState[2]);
+        int soundVolume = bean.getPayload()[8];
+        byte[] language = new byte[2];
+        System.arraycopy(bean.getPayload(), 9, language, 0, language.length);
+        String languageStr = new String(language, StandardCharsets.UTF_8);
+        int battery = bean.getPayload()[11];
+        byte[] time = new byte[4];
+        System.arraycopy(bean.getPayload(), 12, time, 0, time.length);
+        long realTime = (BleByteUtil.bytesToLong(BleCommandFactory.littleMode(time)) + Constant.WILL_ADD_TIME)*1000;
+        Timber.d("CMD: %1d, lockFunBytes: bit0_7: %2s, bit8_15: %3s, bit16_23: %4s, lockStateBit0_7: %5s, lockStateBit8_15: %6s, soundVolume: %7d, language: %8s, battery: %9d, time: %10d",
+                bean.getCMD(), ConvertUtils.bytes2HexString(bit0_7), ConvertUtils.bytes2HexString(bit8_15),
+                ConvertUtils.bytes2HexString(bit16_23), ConvertUtils.bytes2HexString(lockStateBit0_7),
+                ConvertUtils.bytes2HexString(lockStateBit8_15), soundVolume, languageStr, battery, realTime);
+
+    }
+
+    private void controlOpenOrCloseDoorAck(BleResultBean bean) {
+        // TODO: 2021/2/7 处理控制开关锁确认帧
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if(bean.getPayload()[0] == 0x00) {
+                    // 上锁
+                    int state = mWifiShowBean.getDoorState();
+                    if(state == 1) {
+                        state = 2;
+                    } else if(state == 2) {
+                        state = 1;
+                    }
+                    mWifiShowBean.setDoorState(state);
+                    initDevice();
+                }
+            }
+        });
+
+    }
+
+    private void lockUpdateInfo(BleResultBean bean) {
+        // TODO: 2021/2/7 锁操作上报
+        int eventType = bean.getPayload()[0];
+        int eventSource = bean.getPayload()[1];
+        int eventCode = bean.getPayload()[2];
+        int userID = bean.getPayload()[3];
+        byte[] time = new byte[4];
+        System.arraycopy(bean.getPayload(), 4, time, 0, time.length);
+        // TODO: 2021/2/8 要做时间都是ffffffff的处理判断
+        long realTime = (BleByteUtil.bytesToLong(BleCommandFactory.littleMode(time)) + Constant.WILL_ADD_TIME)*1000;
+        Timber.d("CMD: %1d, eventType: %2d, eventSource: %3d, eventCode: %4d, userID: %5d, time: %6d",
+                bean.getCMD(), eventType, eventSource, eventCode, userID, realTime);
+
+        // TODO: 2021/2/10 后期需要移植修改
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if(eventType == 0x01) {
+                    if(eventSource == 0x01) {
+                        // 上锁
+                        mWifiShowBean.setDoorState(2);
+                        initDevice();
+                    } else if(eventCode == 0x02) {
+                        // 开锁
+                        mWifiShowBean.setDoorState(1);
+                        initDevice();
+                    } else {
+                        // TODO: 2021/2/10 其他处理
+                    }
+                }
+            }
+        });
+    }
+
 
     private void initDevice() {
         if(mWifiShowBean == null) {
@@ -150,12 +303,9 @@ public class DeviceDetailActivity extends BaseActivity {
         if(App.getInstance().getBleBean().getPwd3() == null) {
             return;
         }
-        if(App.getInstance().isUseBle()) {
-            App.getInstance().writeControlMsg(BleCommandFactory
-                    .lockControlCommand((byte) 0x00, (byte) 0x04, (byte) 0x01, App.getInstance().getBleBean().getPwd1(), App.getInstance().getBleBean().getPwd3()));
-        } else {
-            publishOpenOrCloseDoor(mWifiShowBean.getWifiListBean().getWifiSN(), 1);
-        }
+        App.getInstance().writeControlMsg(BleCommandFactory
+                .lockControlCommand((byte) (mWifiShowBean.getDoorState()==1?0x01:0x00), (byte) 0x04, (byte) 0x01, App.getInstance().getBleBean().getPwd1(), App.getInstance().getBleBean().getPwd3()));
+//        publishOpenOrCloseDoor(mWifiShowBean.getWifiListBean().getWifiSN(), mWifiShowBean.getDoorState()==1?1:0);
     }
 
     // TODO: 2021/2/6 后面想办法写的更好

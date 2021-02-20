@@ -80,7 +80,7 @@ public class DeviceViewModel extends ViewModel {
                         }
                         List<WifiShowBean> showBeans = new ArrayList<>();
                         for (WifiLockGetAllBindDeviceRspBean.DataBean.WifiListBean wifiListBean : bean.getData().getWifiList()) {
-                            showBeans.add(new WifiShowBean(2, App.getInstance().isUseBle()?2:1,1, wifiListBean));
+                            showBeans.add(new WifiShowBean(2, 1,1, wifiListBean));
                         }
                         updateData(showBeans);
                     }

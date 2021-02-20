@@ -39,6 +39,7 @@ public interface BleDeviceDao {
     void delete(List<BleDeviceLocal> bleDeviceLocal);
 
     @Update
+
     void update(BleDeviceLocal bleDeviceLocal);
 
     @Query("SELECT * FROM BleDeviceLocal WHERE d_esn=:esn")

@@ -103,12 +103,9 @@ public class DeviceFragment extends Fragment {
 //                                .lockControlCommand((byte) 0x00, (byte) 0x04, (byte) 0x01, mBleBean.getPwd1(), mBleBean.getPwd3()));
 //                    }, 100);
                     int state = mHomeLockListAdapter.getItem(position).getDoorState();
-                    if(App.getInstance().isUseBle()) {
-                        App.getInstance().writeControlMsg(BleCommandFactory
-                                .lockControlCommand((byte) (state==1?0x01:0x00), (byte) 0x04, (byte) 0x01, mBleBean.getPwd1(), mBleBean.getPwd3()));
-                    } else {
-                        publishOpenOrCloseDoor(mHomeLockListAdapter.getItem(position).getWifiListBean().getWifiSN(), 1);
-                    }
+                    App.getInstance().writeControlMsg(BleCommandFactory
+                            .lockControlCommand((byte) (state==1?0x01:0x00), (byte) 0x04, (byte) 0x01, mBleBean.getPwd1(), mBleBean.getPwd3()));
+//                    publishOpenOrCloseDoor(mHomeLockListAdapter.getItem(position).getWifiListBean().getWifiSN(), state==1?1:0);
                 }
             });
             rvLockList.setAdapter(mHomeLockListAdapter);
@@ -119,10 +116,8 @@ public class DeviceFragment extends Fragment {
         mEsn = App.getInstance().getCacheDiskUtils().getString(Constant.LOCK_ESN);
         mPwd1 = App.getInstance().getCacheDiskUtils().getBytes(Constant.KEY_PWD1);
         mPwd2 = App.getInstance().getCacheDiskUtils().getBytes(Constant.KEY_PWD2);
-        if(App.getInstance().isUseBle()) {
-            initBleListener();
-            initData();
-        }
+        initBleListener();
+        initData();
         initDataFromCache();
         return root;
     }
@@ -309,6 +304,9 @@ public class DeviceFragment extends Fragment {
             public void onReceivedValue(String uuid, byte[] value) {
                 if(value == null) {
                     return;
+                }
+                if(!isAuth && mBleBean != null && mBleBean.getPwd3() != null) {
+                    mPwd3 = mBleBean.getPwd3();
                 }
                 BleResultProcess.setOnReceivedProcess(mOnReceivedProcess);
                 BleResultProcess.processReceivedData(value, mPwd1, (mPwd3 == null)?mPwd2:mPwd3,
