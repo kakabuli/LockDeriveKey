@@ -26,6 +26,7 @@ import com.revolo.lock.room.entity.User;
 import com.revolo.lock.ui.MainActivity;
 import com.revolo.lock.R;
 import com.revolo.lock.base.BaseActivity;
+import com.revolo.lock.widget.iosloading.CustomerLoadingDialog;
 
 import io.reactivex.Observable;
 import io.reactivex.Observer;
@@ -116,6 +117,13 @@ public class LoginActivity extends BaseActivity {
             ToastUtils.showShort("Please input your password!");
             return;
         }
+        // TODO: 2021/2/21 抽离文字
+        CustomerLoadingDialog loadingDialog = new CustomerLoadingDialog.Builder(this)
+                .setMessage("loading...")
+                .setCancelable(true)
+                .setCancelOutside(false)
+                .create();
+        loadingDialog.show();
         MailLoginBeanReq req = new MailLoginBeanReq();
         req.setMail(mail);
         req.setPassword(pwd);
@@ -129,6 +137,9 @@ public class LoginActivity extends BaseActivity {
 
             @Override
             public void onNext(@NonNull MailLoginBeanRsp mailLoginBeanRsp) {
+                if(loadingDialog != null) {
+                    loadingDialog.dismiss();
+                }
                 if(!mailLoginBeanRsp.getCode().equals("200")) {
                     // TODO: 2021/1/26 获取弹出错误的信息
                     Timber.e("登录请求错误了！ code : %1s, msg: %2s",
