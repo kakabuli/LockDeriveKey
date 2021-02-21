@@ -32,6 +32,15 @@ public class BleDeviceLocal {
     @ColumnInfo(name = "d_mac")
     private String mac;                                     // 设备蓝牙MAC
 
+    @ColumnInfo(name = "d_name")
+    private String name;                                    // 锁自定义的名字
+
+    @ColumnInfo(name = "d_function_set")
+    private String functionSet;                             // 功能集
+
+    @ColumnInfo(name = "d_create_time")
+    private long createTime;                                // 创建时间
+
     @ColumnInfo(name = "d_scan_result_json")
     private String scanResultJson;                          // 检索到的蓝牙设备结果数据
 
@@ -51,10 +60,10 @@ public class BleDeviceLocal {
     private String connectedWifiName;                       // 连接上的wifi名称
 
     @ColumnInfo(name = "d_connected_type")
-    private int connectedType;                              // 连接的类型，wifi还是ble
+    private int connectedType;                              // 连接的类型，wifi还是ble  1 wifi  2 ble
 
     @ColumnInfo(name = "d_lock_state")
-    private int lockState;                                  // 锁的开关状态（还有私密模式,存在分享用户）
+    private int lockState;                                  // 锁的开关状态（还有私密模式,存在分享用户） 1 开  2 关  3 私密模式
 
     @ColumnInfo(name = "d_lock_power")
     private int lockPower;                                  // 锁的剩余电量
@@ -138,6 +147,30 @@ public class BleDeviceLocal {
 
     public void setScanResultJson(String scanResultJson) {
         this.scanResultJson = scanResultJson;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getFunctionSet() {
+        return functionSet;
+    }
+
+    public void setFunctionSet(String functionSet) {
+        this.functionSet = functionSet;
+    }
+
+    public long getCreateTime() {
+        return createTime;
+    }
+
+    public void setCreateTime(long createTime) {
+        this.createTime = createTime;
     }
 
     public String getType() {

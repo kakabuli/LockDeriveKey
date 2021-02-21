@@ -38,6 +38,9 @@ import com.revolo.lock.ble.bean.BleResultBean;
 import com.revolo.lock.mqtt.MqttCommandFactory;
 import com.revolo.lock.mqtt.MqttConstant;
 import com.revolo.lock.mqtt.bean.MqttData;
+import com.revolo.lock.room.AppDatabase;
+import com.revolo.lock.room.entity.BleDeviceLocal;
+import com.revolo.lock.room.entity.User;
 import com.revolo.lock.ui.MainActivity;
 import com.revolo.lock.ui.TitleBar;
 import com.revolo.lock.ui.device.add.AddDeviceActivity;
@@ -113,11 +116,8 @@ public class DeviceFragment extends Fragment {
                 ((MainActivity)getActivity()).setStatusBarColor(R.color.white);
             }
         }
-        mEsn = App.getInstance().getCacheDiskUtils().getString(Constant.LOCK_ESN);
-        mPwd1 = App.getInstance().getCacheDiskUtils().getBytes(Constant.KEY_PWD1);
-        mPwd2 = App.getInstance().getCacheDiskUtils().getBytes(Constant.KEY_PWD2);
-        initBleListener();
         initData();
+        initBleListener();
         initDataFromCache();
         return root;
     }
@@ -336,9 +336,24 @@ public class DeviceFragment extends Fragment {
     }
 
     private void initData() {
+        User user = App.getInstance().getUser();
+        if(user == null) {
+            return;
+        }
+        List<BleDeviceLocal> bleDeviceLocals = AppDatabase.getInstance(App.getInstance()).bleDeviceDao().findBleDevicesFromUserId(user.getId());
+        if(bleDeviceLocals == null) {
+            return;
+        }
+        if(bleDeviceLocals.isEmpty()) {
+            return;
+        }
+        // TODO: 2021/2/21 暂时选择第一个，后续整合成列表，然后做选择
+        mEsn = bleDeviceLocals.get(0).getEsn();
+        mPwd1 = ConvertUtils.hexString2Bytes(bleDeviceLocals.get(0).getPwd1());
+        mPwd2 = ConvertUtils.hexString2Bytes(bleDeviceLocals.get(0).getPwd2());
+
         if(App.getInstance().getBleBean() == null) {
-            BLEScanResult bleScanResult = App.getInstance().getCacheDiskUtils()
-                    .getParcelable(Constant.BLE_DEVICE, BLEScanResult.CREATOR, null);
+            BLEScanResult bleScanResult = GsonUtils.fromJson(bleDeviceLocals.get(0).getScanResultJson(), BLEScanResult.class);
             if(bleScanResult != null) {
                 App.getInstance().connectDevice(bleScanResult);
                 mBleBean = App.getInstance().getBleBean();

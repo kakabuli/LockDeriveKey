@@ -2,6 +2,8 @@ package com.revolo.lock.ui.device.lock;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.EditText;
@@ -14,6 +16,8 @@ import com.revolo.lock.App;
 import com.revolo.lock.Constant;
 import com.revolo.lock.R;
 import com.revolo.lock.base.BaseActivity;
+import com.revolo.lock.room.AppDatabase;
+import com.revolo.lock.room.entity.DevicePwd;
 
 
 /**
@@ -24,15 +28,17 @@ import com.revolo.lock.base.BaseActivity;
  */
 public class AddNewPwdNameActivity extends BaseActivity {
 
-    private byte mNum;
-    private final byte mMaxValue = (byte) 0xff;
+    private long mPwdId;
 
     @Override
     public void initData(@Nullable Bundle bundle) {
         Intent intent = getIntent();
-        if(intent.hasExtra(Constant.KEY_PWD_NUM)) {
-            // TODO: 2021/1/30 要跟软件确认num的最大值是多少
-            mNum = intent.getByteExtra(Constant.KEY_PWD_NUM, mMaxValue);
+        if(intent.hasExtra(Constant.PWD_ID)) {
+            mPwdId = intent.getLongExtra(Constant.PWD_ID, -1);
+        }
+        if(mPwdId == -1) {
+            // TODO: 2021/2/21 或者有其他更好的处理方式
+            finish();
         }
     }
 
@@ -76,9 +82,11 @@ public class AddNewPwdNameActivity extends BaseActivity {
             ToastUtils.showShort("Please Input Password Name!");
             return;
         }
-        // TODO: 2021/1/30 暂时存储在这里，后面需要修改，存在服务器或者本地数据库
-        App.getInstance().getCacheDiskUtils().put("pwdName"+mNum, pwdName);
-        finish();
+        // TODO: 2021/1/30 后面需要修改，同步存在服务器或者本地数据库
+        DevicePwd devicePwd = AppDatabase.getInstance(this).devicePwdDao().findDevicePwdFromId(mPwdId);
+        devicePwd.setPwdName(pwdName);
+        AppDatabase.getInstance(this).devicePwdDao().update(devicePwd);
+        new Handler(Looper.getMainLooper()).postDelayed(this::finish, 50);
     }
 
 }

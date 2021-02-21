@@ -4,6 +4,8 @@ import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
+import com.revolo.lock.ble.BleCommandState;
+
 /**
  * author :
  * time   : 2021/2/3
@@ -18,7 +20,7 @@ public class DevicePwd {
     private int id;                               // 自增长id
 
     @ColumnInfo(name = "dp_device_id")
-    private int deviceId;                         // 设备ID
+    private long deviceId;                         // 设备ID
 
     @ColumnInfo(name = "dp_create_time")
     private long createTime;                      // 创建时间
@@ -41,6 +43,9 @@ public class DevicePwd {
     @ColumnInfo(name = "dp_pwd_name")
     private String pwdName;                       // 密码名称
 
+    @ColumnInfo(name = "dp_pwd_state", defaultValue = "1")
+    private int pwdState;                         // 1: 可用  2: 不可用
+
     public int getId() {
         return id;
     }
@@ -49,11 +54,11 @@ public class DevicePwd {
         this.id = id;
     }
 
-    public int getDeviceId() {
+    public long getDeviceId() {
         return deviceId;
     }
 
-    public void setDeviceId(int deviceId) {
+    public void setDeviceId(long deviceId) {
         this.deviceId = deviceId;
     }
 
@@ -93,7 +98,7 @@ public class DevicePwd {
         return attribute;
     }
 
-    public void setAttribute(int attribute) {
+    public void setAttribute(@BleCommandState.KeySetAttribute int attribute) {
         this.attribute = attribute;
     }
 
@@ -111,5 +116,13 @@ public class DevicePwd {
 
     public void setPwdName(String pwdName) {
         this.pwdName = pwdName;
+    }
+
+    public int getPwdState() {
+        return pwdState;
+    }
+
+    public void setPwdState(int pwdState) {
+        this.pwdState = pwdState;
     }
 }

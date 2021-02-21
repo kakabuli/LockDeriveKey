@@ -2,26 +2,32 @@ package com.revolo.lock.ui.device.lock;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.blankj.utilcode.util.TimeUtils;
 import com.revolo.lock.App;
 import com.revolo.lock.Constant;
 import com.revolo.lock.R;
 import com.revolo.lock.base.BaseActivity;
-import com.revolo.lock.bean.test.TestPwdBean;
+import com.revolo.lock.ble.BleByteUtil;
 import com.revolo.lock.ble.BleCommandFactory;
 import com.revolo.lock.ble.BleResultProcess;
 import com.revolo.lock.ble.OnBleDeviceListener;
 import com.revolo.lock.dialog.MessageDialog;
 import com.revolo.lock.dialog.SelectDialog;
+import com.revolo.lock.room.AppDatabase;
+import com.revolo.lock.room.entity.DevicePwd;
 import com.revolo.lock.widget.iosloading.CustomerLoadingDialog;
 
 import timber.log.Timber;
 
+import static com.revolo.lock.ble.BleCommandState.KEY_SET_ATTRIBUTE_ALWAYS;
+import static com.revolo.lock.ble.BleCommandState.KEY_SET_ATTRIBUTE_TIME_KEY;
 import static com.revolo.lock.ble.BleCommandState.KEY_SET_ATTRIBUTE_WEEK_KEY;
 import static com.revolo.lock.ble.BleCommandState.KEY_SET_KEY_OPTION_DEL;
 import static com.revolo.lock.ble.BleCommandState.KEY_SET_KEY_TYPE_PWD;
@@ -35,15 +41,23 @@ import static com.revolo.lock.ble.BleProtocolState.CMD_KEY_ATTRIBUTES_SET;
  */
 public class PasswordDetailActivity extends BaseActivity {
 
-    private TestPwdBean mTestPwdBean;
     private TextView mTvPwdName, mTvPwd, mTvPwdCharacteristic, mTvCreationDate;
     private CustomerLoadingDialog mLoadingDialog;
+    private long mDeviceId;
+    private DevicePwd mDevicePwd;
 
     @Override
     public void initData(@Nullable Bundle bundle) {
         Intent intent = getIntent();
-        if(intent.hasExtra(Constant.PWD_DETAIL)) {
-            mTestPwdBean = intent.getParcelableExtra(Constant.PWD_DETAIL);
+        if(intent.hasExtra(Constant.DEVICE_ID)) {
+            mDeviceId = intent.getLongExtra(Constant.DEVICE_ID, -1);
+        }
+        if(mDeviceId == -1) {
+            finish();
+        }
+        mDevicePwd = AppDatabase.getInstance(this).devicePwdDao().findDevicePwdFromId(mDeviceId);
+        if(mDevicePwd == null) {
+            finish();
         }
     }
 
@@ -86,12 +100,57 @@ public class PasswordDetailActivity extends BaseActivity {
     }
 
     private void initDetail() {
-        if(mTestPwdBean != null) {
-            mTvPwdName.setText(mTestPwdBean.getPwdName());
-            mTvPwd.setText(mTestPwdBean.getPwd());
-            mTvPwdCharacteristic.setText(mTestPwdBean.getPwdCharacteristic());
-            mTvCreationDate.setText(mTestPwdBean.getCreateDate());
+        if(mDevicePwd != null) {
+            mTvPwdName.setText(mDevicePwd.getPwdName());
+            mTvPwd.setText("***********");
+            mTvPwdCharacteristic.setText(getPwdCharacteristic(mDevicePwd));
+            mTvCreationDate.setText(TimeUtils.millis2String(mDevicePwd.getCreateTime()*1000));
         }
+    }
+
+    private String getPwdCharacteristic(DevicePwd devicePwd) {
+        int attribute = devicePwd.getAttribute();
+        String detail = "";
+        if(attribute == KEY_SET_ATTRIBUTE_ALWAYS) {
+            detail = "Permanent";
+        } else if(attribute == KEY_SET_ATTRIBUTE_TIME_KEY) {
+            long startTimeMill = devicePwd.getStartTime()*1000;
+            long endTimeMill = devicePwd.getEndTime()*1000;
+            detail = TimeUtils.millis2String(startTimeMill, "MM,dd,yyyy   HH:mm")
+                    + "-" + TimeUtils.millis2String(endTimeMill, "MM,dd,yyyy   HH:mm");
+        } else if(attribute == KEY_SET_ATTRIBUTE_WEEK_KEY) {
+            byte[] weekBytes = BleByteUtil.byteToBit(devicePwd.getWeekly());
+            String weekly = "";
+            if(weekBytes[0] == 0x01) {
+                weekly += "Sun";
+            }
+            if(weekBytes[1] == 0x01) {
+                weekly += TextUtils.isEmpty(weekly)?"Mon":"、Mon";
+            }
+            if(weekBytes[2] == 0x01) {
+                weekly += TextUtils.isEmpty(weekly)?"Tues":"、Tues";
+            }
+            if(weekBytes[3] == 0x01) {
+                weekly += TextUtils.isEmpty(weekly)?"Wed":"、Wed";
+            }
+            if(weekBytes[4] == 0x01) {
+                weekly += TextUtils.isEmpty(weekly)?"Thur":"、Thur";
+            }
+            if(weekBytes[5] == 0x01) {
+                weekly += TextUtils.isEmpty(weekly)?"Fri":"、Fri";
+            }
+            if(weekBytes[6] == 0x01) {
+                weekly += TextUtils.isEmpty(weekly)?"Sat":"、Sat";
+            }
+            weekly += "\n";
+            long startTimeMill = devicePwd.getStartTime()*1000;
+            long endTimeMill = devicePwd.getEndTime()*1000;
+            detail = weekly
+                    + TimeUtils.millis2String(startTimeMill, "HH:mm")
+                    + " - "
+                    + TimeUtils.millis2String(endTimeMill, "HH:mm");
+        }
+        return detail;
     }
 
     private void showDelDialog() {
@@ -112,7 +171,7 @@ public class PasswordDetailActivity extends BaseActivity {
         App.getInstance().writeControlMsg(BleCommandFactory
                         .keyAttributesSet(KEY_SET_KEY_OPTION_DEL,
                                 KEY_SET_KEY_TYPE_PWD,
-                                (byte)mTestPwdBean.getNum(),
+                                (byte)mDevicePwd.getPwdNum(),
                                 KEY_SET_ATTRIBUTE_WEEK_KEY,
                                 (byte)0x00,
                                 (byte)0x00,
@@ -135,6 +194,7 @@ public class PasswordDetailActivity extends BaseActivity {
                     }
                     MessageDialog messageDialog = new MessageDialog(PasswordDetailActivity.this);
                     if(bleResultBean.getPayload()[0] == 0x00) {
+                        AppDatabase.getInstance(getApplicationContext()).devicePwdDao().delete(mDevicePwd);
                         // 删除成功
                         messageDialog.setMessage(getString(R.string.dialog_tip_password_deleted));
                         messageDialog.setOnListener(v -> {

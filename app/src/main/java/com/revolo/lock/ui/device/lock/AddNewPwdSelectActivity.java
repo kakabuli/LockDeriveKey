@@ -25,11 +25,14 @@ import com.revolo.lock.R;
 import com.revolo.lock.base.BaseActivity;
 import com.revolo.lock.ble.BleByteUtil;
 import com.revolo.lock.ble.BleCommandFactory;
+import com.revolo.lock.ble.BleCommandState;
 import com.revolo.lock.ble.BleProtocolState;
 import com.revolo.lock.ble.BleResultProcess;
 import com.revolo.lock.ble.OnBleDeviceListener;
 import com.revolo.lock.ble.bean.BleBean;
 import com.revolo.lock.dialog.MessageDialog;
+import com.revolo.lock.room.AppDatabase;
+import com.revolo.lock.room.entity.DevicePwd;
 import com.revolo.lock.widget.iosloading.CustomerLoadingDialog;
 
 import java.nio.charset.StandardCharsets;
@@ -78,12 +81,21 @@ public class AddNewPwdSelectActivity extends BaseActivity {
     @AttributeState
     private int mSelectedPwdState = PERMANENT_STATE;
 
+    private long mDeviceId;
+
     @Override
     public void initData(@Nullable Bundle bundle) {
         mBleBean = App.getInstance().getBleBean();
         Intent intent = getIntent();
         if(intent.hasExtra(Constant.USER_PWD)) {
             mKey = intent.getStringExtra(Constant.USER_PWD);
+        }
+        if(intent.hasExtra(Constant.DEVICE_ID)) {
+            mDeviceId = intent.getLongExtra(Constant.DEVICE_ID, -1);
+        }
+        if(mDeviceId == -1) {
+            // TODO: 2021/2/21 或者有其他方法
+            finish();
         }
     }
 
@@ -148,6 +160,8 @@ public class AddNewPwdSelectActivity extends BaseActivity {
     public void doBusiness() {
         initScheduleStartTimeMill();
         initScheduleEndTimeMill();
+        initTemStartDateTimeMill();
+        initTemEndDateTimeMill();
         initDevice();
     }
 
@@ -310,6 +324,8 @@ public class AddNewPwdSelectActivity extends BaseActivity {
     private long mTemEndDateTimeMill = TimeUtils.string2Millis("2020-12-28 14:00:00");
     private String mTemStartDateTimeStr = "10:00:00";
     private String mTemEndDateTimeStr = "14:00:00";
+    private String mTemStartDateStr = "2020-12-28";
+    private String mTemEndDateStr = "2020-12-28";
 
     private void initScheduleStartTimeMill() {
         String nowDate = TimeUtils.millis2String(TimeUtils.getNowMills(), TimeUtils.getSafeDateFormat("yyyy-MM-dd"));
@@ -321,6 +337,20 @@ public class AddNewPwdSelectActivity extends BaseActivity {
         String nowDate = TimeUtils.millis2String(TimeUtils.getNowMills(), TimeUtils.getSafeDateFormat("yyyy-MM-dd"));
         String date = nowDate + " 23:59:00";
         mScheduleEndTimeMill = TimeUtils.string2Millis(date);
+    }
+
+    private void initTemStartDateTimeMill() {
+        String nowDate = TimeUtils.millis2String(TimeUtils.getNowMills(), TimeUtils.getSafeDateFormat("yyyy-MM-dd"));
+        mTemStartDateStr = nowDate;
+        String date = nowDate + " 10:00:00";
+        mTemStartDateTimeMill = TimeUtils.string2Millis(date);
+    }
+
+    private void initTemEndDateTimeMill() {
+        String nowDate = TimeUtils.millis2String(TimeUtils.getNowMills(), TimeUtils.getSafeDateFormat("yyyy-MM-dd"));
+        mTemEndDateStr = nowDate;
+        String date = nowDate + " 14:00:00";
+        mTemEndDateTimeMill = TimeUtils.string2Millis(date);
     }
 
     private void showTimePicker(@IdRes int id) {
@@ -350,8 +380,6 @@ public class AddNewPwdSelectActivity extends BaseActivity {
         timePickerDialog.show();
     }
 
-    private String mTemEndDateStr = "2020-12-28";
-    private String mTemStartDateStr = "2020-12-28";
     private void showDatePicker(@IdRes int id) {
         DatePickerDialog datePickerDialog = new DatePickerDialog(this, R.style.MyTimePickerDialogTheme);
         datePickerDialog.setOnDateSetListener((view, year, month, dayOfMonth) -> {
@@ -376,6 +404,7 @@ public class AddNewPwdSelectActivity extends BaseActivity {
 
     /**                  蓝牙指令与处理               **/
     private byte mNum;
+    private DevicePwd mDevicePwd = new DevicePwd();
 
     private final OnBleDeviceListener mOnBleDeviceListener = new OnBleDeviceListener() {
         @Override
@@ -419,7 +448,11 @@ public class AddNewPwdSelectActivity extends BaseActivity {
             byte state = bleResultBean.getPayload()[0];
             if(state == 0x00) {
                 mNum = bleResultBean.getPayload()[1];
-                App.getInstance().getCacheDiskUtils().put("createTime"+mNum, TimeUtils.getNowMills());
+                mDevicePwd.setPwdNum(mNum);
+                // 使用秒存储，所以除以1000
+                mDevicePwd.setCreateTime(TimeUtils.getNowMills()/1000);
+                mDevicePwd.setDeviceId(mDeviceId);
+                mDevicePwd.setAttribute(BleCommandState.KEY_SET_ATTRIBUTE_ALWAYS);
                 if(mSelectedPwdState == PERMANENT_STATE) {
                     showSucAndGotoAnotherPage();
                 } else if(mSelectedPwdState == SCHEDULE_STATE) {
@@ -435,6 +468,7 @@ public class AddNewPwdSelectActivity extends BaseActivity {
         } else if(bleResultBean.getCMD() == CMD_KEY_ATTRIBUTES_SET) {
             byte state = bleResultBean.getPayload()[0];
             if(state == 0x00) {
+                // TODO: 2021/2/21 执行存储到数据库
                 showSucAndGotoAnotherPage();
             } else {
                 // TODO: 2021/2/4  设置密钥属性失败要如何处理
@@ -446,6 +480,9 @@ public class AddNewPwdSelectActivity extends BaseActivity {
     private void setTimePwd() {
         Timber.d("num: %1s, startTime: %2d, endTime: %3d",
                 mNum, mTemStartDateTimeMill/1000, mTemEndDateTimeMill/1000);
+        mDevicePwd.setStartTime(mTemStartDateTimeMill/1000);
+        mDevicePwd.setEndTime(mTemEndDateTimeMill/1000);
+        mDevicePwd.setAttribute(KEY_SET_ATTRIBUTE_TIME_KEY);
         App.getInstance()
                 .writeControlMsg(BleCommandFactory
                         .keyAttributesSet(KEY_SET_KEY_OPTION_ADD_OR_CHANGE,
@@ -477,6 +514,10 @@ public class AddNewPwdSelectActivity extends BaseActivity {
         Timber.d("num: %1s, week: %2s, weekBytes: %3s, startTime: %4d, endTime: %5d",
                 mNum, ConvertUtils.int2HexString(week), ConvertUtils.bytes2HexString(weekBit),
                 mScheduleStartTimeMill/1000, mScheduleEndTimeMill/1000);
+        mDevicePwd.setWeekly(week);
+        mDevicePwd.setStartTime(mScheduleStartTimeMill/1000);
+        mDevicePwd.setEndTime(mScheduleEndTimeMill/1000);
+        mDevicePwd.setAttribute(KEY_SET_ATTRIBUTE_WEEK_KEY);
         App.getInstance()
                 .writeControlMsg(BleCommandFactory
                         .keyAttributesSet(KEY_SET_KEY_OPTION_ADD_OR_CHANGE,
@@ -491,6 +532,10 @@ public class AddNewPwdSelectActivity extends BaseActivity {
     }
 
     private void showSucAndGotoAnotherPage() {
+        if(mDevicePwd == null) {
+            return;
+        }
+        long id = AppDatabase.getInstance(this).devicePwdDao().insert(mDevicePwd);
         runOnUiThread(() -> {
             MessageDialog dialog = new MessageDialog(AddNewPwdSelectActivity.this);
             dialog.setMessage(getString(R.string.dialog_tip_password_added));
@@ -499,12 +544,13 @@ public class AddNewPwdSelectActivity extends BaseActivity {
                 dialog.dismiss();
                 App.getInstance().addWillFinishAct(this);
                 Intent intent = new Intent(AddNewPwdSelectActivity.this, AddNewPwdNameActivity.class);
-                intent.putExtra(Constant.KEY_PWD_NUM, mNum);
+                intent.putExtra(Constant.PWD_ID, id);
                 startActivity(intent);
             });
             dialog.show();
         });
     }
+
 
     private void initDevice() {
         if(mBleBean == null || mBleBean.getOKBLEDeviceImp() == null) {

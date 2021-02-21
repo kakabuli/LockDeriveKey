@@ -21,7 +21,7 @@ import java.util.List;
 public interface DevicePwdDao {
 
     @Insert
-    void insert(DevicePwd devicePwd);
+    long insert(DevicePwd devicePwd);
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insert(List<DevicePwd> devicePwdList);

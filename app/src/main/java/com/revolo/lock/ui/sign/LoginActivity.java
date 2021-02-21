@@ -87,18 +87,22 @@ public class LoginActivity extends BaseActivity {
             return;
         }
         if(view.getId() == R.id.ivEye) {
-            ImageView ivEye = findViewById(R.id.ivEye);
-            ivEye.setImageResource(isShowPwd?R.drawable.ic_login_icon_display:R.drawable.ic_login_icon_hide);
-            EditText etPwd = findViewById(R.id.etPwd);
-            etPwd.setInputType(isShowPwd?
-                    InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
-                    :(InputType.TYPE_CLASS_TEXT|InputType.TYPE_TEXT_VARIATION_PASSWORD));
-            isShowPwd = !isShowPwd;
+            openOrClosePwdEye();
             return;
         }
         if(view.getId() == R.id.btnSignIn) {
             login();
         }
+    }
+
+    private void openOrClosePwdEye() {
+        ImageView ivEye = findViewById(R.id.ivEye);
+        ivEye.setImageResource(isShowPwd?R.drawable.ic_login_icon_display:R.drawable.ic_login_icon_hide);
+        EditText etPwd = findViewById(R.id.etPwd);
+        etPwd.setInputType(isShowPwd?
+                InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
+                :(InputType.TYPE_CLASS_TEXT|InputType.TYPE_TEXT_VARIATION_PASSWORD));
+        isShowPwd = !isShowPwd;
     }
 
     private void login() {
@@ -140,22 +144,7 @@ public class LoginActivity extends BaseActivity {
                 if(loadingDialog != null) {
                     loadingDialog.dismiss();
                 }
-                if(!mailLoginBeanRsp.getCode().equals("200")) {
-                    // TODO: 2021/1/26 获取弹出错误的信息
-                    Timber.e("登录请求错误了！ code : %1s, msg: %2s",
-                            mailLoginBeanRsp.getCode(), mailLoginBeanRsp.getMsg());
-                    return;
-                }
-                if(mailLoginBeanRsp.getData() == null) {
-                    return;
-                }
-                updateUser(mail, mailLoginBeanRsp.getData().getMeUsername());
-                Timber.d("登录成功，token: %1s\n userId: %2s",
-                        mailLoginBeanRsp.getData().getToken(), mailLoginBeanRsp.getData().getUid());
-                App.getInstance().setUserBean(mailLoginBeanRsp.getData());
-                startActivity(new Intent(LoginActivity.this, MainActivity.class));
-                App.getInstance().finishPreActivities();
-                new Handler(Looper.getMainLooper()).postDelayed(() -> finish(), 50);
+                processLoginRsp(mailLoginBeanRsp, mail);
             }
 
             @Override
@@ -168,6 +157,25 @@ public class LoginActivity extends BaseActivity {
 
             }
         });
+    }
+
+    private void processLoginRsp(@NonNull MailLoginBeanRsp mailLoginBeanRsp, String mail) {
+        if(!mailLoginBeanRsp.getCode().equals("200")) {
+            // TODO: 2021/1/26 获取弹出错误的信息
+            Timber.e("登录请求错误了！ code : %1s, msg: %2s",
+                    mailLoginBeanRsp.getCode(), mailLoginBeanRsp.getMsg());
+            return;
+        }
+        if(mailLoginBeanRsp.getData() == null) {
+            return;
+        }
+        updateUser(mail, mailLoginBeanRsp.getData().getMeUsername());
+        Timber.d("登录成功，token: %1s\n userId: %2s",
+                mailLoginBeanRsp.getData().getToken(), mailLoginBeanRsp.getData().getUid());
+        App.getInstance().setUserBean(mailLoginBeanRsp.getData());
+        startActivity(new Intent(LoginActivity.this, MainActivity.class));
+        App.getInstance().finishPreActivities();
+        new Handler(Looper.getMainLooper()).postDelayed(this::finish, 50);
     }
 
     private void updateUser(String mail, String name) {

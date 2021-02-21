@@ -23,10 +23,14 @@ import com.revolo.lock.base.BaseActivity;
 public class AddInputNewPwdActivity extends BaseActivity {
 
     private EditText mEtPwd;
+    private long mDeviceId;
 
     @Override
     public void initData(@Nullable Bundle bundle) {
-
+        Intent intent = getIntent();
+        if(intent.hasExtra(Constant.DEVICE_ID)) {
+            mDeviceId = intent.getLongExtra(Constant.DEVICE_ID, -1);
+        }
     }
 
     @Override
@@ -52,8 +56,13 @@ public class AddInputNewPwdActivity extends BaseActivity {
             String pwd = mEtPwd.getText().toString().trim();
             if(pwd.length() >= 4 && pwd.length() <= 12) {
                 App.getInstance().addWillFinishAct(this);
+                if(mDeviceId == -1) {
+                    // TODO: 2021/2/21 todo something 
+                    return;
+                }
                 Intent intent = new Intent(this, AddNewPwdSelectActivity.class);
                 intent.putExtra(Constant.USER_PWD, pwd);
+                intent.putExtra(Constant.DEVICE_ID, mDeviceId);
                 startActivity(intent);
             } else {
                 // TODO: 2021/1/25 抽离文字

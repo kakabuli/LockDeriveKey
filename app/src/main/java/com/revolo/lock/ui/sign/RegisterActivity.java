@@ -29,6 +29,7 @@ import com.revolo.lock.net.ObservableDecorator;
 import com.revolo.lock.room.AppDatabase;
 import com.revolo.lock.room.entity.User;
 import com.revolo.lock.util.LinkClickableSpan;
+import com.revolo.lock.widget.iosloading.CustomerLoadingDialog;
 
 import io.reactivex.Observable;
 import io.reactivex.Observer;
@@ -197,6 +198,13 @@ public class RegisterActivity extends BaseActivity {
             ToastUtils.showShort("Please agree to the terms of use");
             return;
         }
+        // TODO: 2021/2/21 抽离文字
+        CustomerLoadingDialog loadingDialog = new CustomerLoadingDialog.Builder(this)
+                .setMessage("loading...")
+                .setCancelable(true)
+                .setCancelOutside(false)
+                .create();
+        loadingDialog.show();
         MailRegisterBeanReq req = new MailRegisterBeanReq();
         req.setName(mail);
         req.setTokens(tokens);
@@ -210,6 +218,9 @@ public class RegisterActivity extends BaseActivity {
 
             @Override
             public void onNext(@NonNull MailRegisterBeanRsp mailRegisterBeanRsp) {
+                if(loadingDialog != null) {
+                    loadingDialog.dismiss();
+                }
                 if(TextUtils.isEmpty(mailRegisterBeanRsp.getCode())) {
                     Timber.e("mailRegisterBeanRsp.getCode() is null");
                     return;
@@ -219,6 +230,9 @@ public class RegisterActivity extends BaseActivity {
                     Timber.e("code: %1s, msg: %2s", 
                             mailRegisterBeanRsp.getCode(),
                             mailRegisterBeanRsp.getMsg());
+                    if(mailRegisterBeanRsp.getMsg() != null) {
+                        ToastUtils.showShort(mailRegisterBeanRsp.getMsg());
+                    }
                     return;
                 }
                 addUserToLocal(mail);

@@ -27,6 +27,8 @@ import com.revolo.lock.ble.bean.BleResultBean;
 import com.revolo.lock.mqtt.MqttCommandFactory;
 import com.revolo.lock.mqtt.MqttConstant;
 import com.revolo.lock.mqtt.bean.MqttData;
+import com.revolo.lock.room.AppDatabase;
+import com.revolo.lock.room.entity.BleDeviceLocal;
 import com.revolo.lock.ui.device.lock.setting.DeviceSettingActivity;
 
 import org.jetbrains.annotations.NotNull;
@@ -46,12 +48,14 @@ import timber.log.Timber;
 public class DeviceDetailActivity extends BaseActivity {
 
     private WifiShowBean mWifiShowBean;
+    private BleDeviceLocal mBleDeviceLocal;
 
     @Override
     public void initData(@Nullable Bundle bundle) {
         Intent intent = getIntent();
         if(intent.hasExtra(Constant.LOCK_DETAIL)) {
             mWifiShowBean = intent.getParcelableExtra(Constant.LOCK_DETAIL);
+            mBleDeviceLocal = AppDatabase.getInstance(this).bleDeviceDao().findBleDeviceFromEsn(mWifiShowBean.getWifiListBean().getWifiSN());
         }
     }
 
@@ -79,7 +83,9 @@ public class DeviceDetailActivity extends BaseActivity {
             return;
         }
         if(view.getId() == R.id.llPwd) {
-            startActivity(new Intent(this, PasswordListActivity.class));
+            Intent intent = new Intent(this, PasswordListActivity.class);
+            intent.putExtra(Constant.DEVICE_ID, mBleDeviceLocal.getId());
+            startActivity(intent);
             return;
         }
         if(view.getId() == R.id.llUser) {

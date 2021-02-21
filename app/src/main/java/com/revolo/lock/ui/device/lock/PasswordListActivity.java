@@ -26,6 +26,8 @@ import com.revolo.lock.ble.BleCommandFactory;
 import com.revolo.lock.ble.BleResultProcess;
 import com.revolo.lock.ble.OnBleDeviceListener;
 import com.revolo.lock.ble.bean.BleResultBean;
+import com.revolo.lock.room.AppDatabase;
+import com.revolo.lock.room.entity.DevicePwd;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -48,10 +50,14 @@ import static com.revolo.lock.ble.BleProtocolState.CMD_SY_KEY_STATE;
 public class PasswordListActivity extends BaseActivity {
 
     private PasswordListAdapter mPasswordListAdapter;
+    private long mDeviceId;
 
     @Override
     public void initData(@Nullable Bundle bundle) {
-
+        Intent intent = getIntent();
+        if(intent.hasExtra(Constant.DEVICE_ID)) {
+            mDeviceId = intent.getLongExtra(Constant.DEVICE_ID, -1);
+        }
     }
 
     @Override
@@ -63,15 +69,22 @@ public class PasswordListActivity extends BaseActivity {
     public void initView(@Nullable Bundle savedInstanceState, @Nullable View contentView) {
         useCommonTitleBar(getString(R.string.password))
                 .setRight(ContextCompat.getDrawable(this, R.drawable.ic_home_icon_add),
-                        v -> startActivity(new Intent(this, AddInputNewPwdActivity.class)));
+                        v -> {
+                    if(mDeviceId == -1) {
+                        return;
+                    }
+                    Intent intent = new Intent(this, AddInputNewPwdActivity.class);
+                    intent.putExtra(Constant.DEVICE_ID, mDeviceId);
+                    startActivity(intent);
+                });
         RecyclerView rvPwdList = findViewById(R.id.rvPwdList);
         rvPwdList.setLayoutManager(new LinearLayoutManager(this));
         mPasswordListAdapter = new PasswordListAdapter(R.layout.item_pwd_list_rv);
         mPasswordListAdapter.setOnItemClickListener((adapter, view, position) -> {
-            if(position >= 0 && adapter.getItem(position) instanceof TestPwdBean) {
+            if(position >= 0 && adapter.getItem(position) instanceof DevicePwd) {
                 Intent intent = new Intent(PasswordListActivity.this, PasswordDetailActivity.class);
-                TestPwdBean testPwdBean  = (TestPwdBean) adapter.getItem(position);
-                intent.putExtra(Constant.PWD_DETAIL, testPwdBean);
+                DevicePwd item  = (DevicePwd) adapter.getItem(position);
+                intent.putExtra(Constant.PWD_ID, item.getId());
                 startActivity(intent);
             }
         });
@@ -80,8 +93,8 @@ public class PasswordListActivity extends BaseActivity {
 
     @Override
     public void doBusiness() {
-//        testInitPwd();
-        initBleListener();
+//        initBleListener();
+        searchPwdListFromLocal();
     }
 
     @Override
@@ -126,18 +139,18 @@ public class PasswordListActivity extends BaseActivity {
 
             }
         });
-        new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                mWillSearchList.clear();
-                mPasswordListAdapter.setList(mTestPwdBeans);
-                App.getInstance().writeControlMsg(BleCommandFactory
-                        .synchronizeLockKeyStatusCommand((byte) 0x01,
-                                App.getInstance().getBleBean().getPwd1(),
-                                App.getInstance().getBleBean().getPwd3()));
-                Timber.d("发送了请求密钥列表指令");
-            }
-        }, 100);
+//        new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
+//            @Override
+//            public void run() {
+//                mWillSearchList.clear();
+//                mPasswordListAdapter.setList(mTestPwdBeans);
+//                App.getInstance().writeControlMsg(BleCommandFactory
+//                        .synchronizeLockKeyStatusCommand((byte) 0x01,
+//                                App.getInstance().getBleBean().getPwd1(),
+//                                App.getInstance().getBleBean().getPwd3()));
+//                Timber.d("发送了请求密钥列表指令");
+//            }
+//        }, 100);
 
     }
 
@@ -166,7 +179,7 @@ public class PasswordListActivity extends BaseActivity {
                 // TODO: 2021/2/7 时间高低位反回来取
                 addWeeklyPwd(bean, name);
             }
-            runOnUiThread(() -> mPasswordListAdapter.setList(mTestPwdBeans));
+//            runOnUiThread(() -> mPasswordListAdapter.setList(mTestPwdBeans));
             mHandler.postDelayed(mSearchPwdListRunnable, 20);
         }
     }
@@ -283,6 +296,22 @@ public class PasswordListActivity extends BaseActivity {
                         App.getInstance().getBleBean().getPwd1(),
                         App.getInstance().getBleBean().getPwd3()));
         mWillSearchList.remove(0);
+    }
+
+    private void searchPwdListFromLocal() {
+        if(mDeviceId == -1) {
+            // TODO: 2021/2/21 错误的数据如何处理
+            return;
+        }
+        List<DevicePwd> devicePwds = AppDatabase.getInstance(this).devicePwdDao().findDevicePwdListFromDeviceId(mDeviceId);
+        if(devicePwds == null) {
+            return;
+        }
+        if(devicePwds.isEmpty()) {
+            return;
+        }
+        // TODO: 2021/2/21 取得所有密码数据并进行显示
+        runOnUiThread(() -> mPasswordListAdapter.setList(devicePwds));
     }
 
 }
