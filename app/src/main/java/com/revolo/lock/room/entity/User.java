@@ -10,30 +10,39 @@ import androidx.room.PrimaryKey;
  * E-mail : wengmaowei@kaadas.com
  * desc   :
  */
-//@Entity
+@Entity
 public class User {
 
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "u_id")
-    private int id;
+    private int id;                                 // 自增长id
 
     @ColumnInfo(name = "u_mail")
-    private String mail;
+    private String mail;                            // 用户邮箱
 
     @ColumnInfo(name = "u_user_name")
-    private String userName;
+    private String userName;                        // 用户名字
 
     @ColumnInfo(name = "u_register_time")
-    private long registerTime;
+    private long registerTime;                      // 注册时间
 
     @ColumnInfo(name = "u_first_name")
-    private String firstName;
+    private String firstName;                       // 名
 
     @ColumnInfo(name = "u_last_name")
-    private String lastName;
+    private String lastName;                        // 姓
 
     @ColumnInfo(name = "u_avatar_url")
-    private String avatarUrl;
+    private String avatarUrl;                       // 头像地址
+
+    @ColumnInfo(name = "u_is_use_gesture_password", defaultValue = "false")
+    private boolean isUseGesturePassword;           // 是否使用手势密码
+
+    @ColumnInfo(name = "u_is_use_face_id", defaultValue = "false")
+    private boolean isUseFaceId;                    // 是否使用faceId
+
+    @ColumnInfo(name = "u_is_use_touch_id", defaultValue = "false")
+    private boolean isUseTouchId;                   // 是否使用指纹
 
     public int getId() {
         return id;
@@ -89,5 +98,29 @@ public class User {
 
     public void setAvatarUrl(String avatarUrl) {
         this.avatarUrl = avatarUrl;
+    }
+
+    public boolean isUseGesturePassword() {
+        return isUseGesturePassword;
+    }
+
+    public void setUseGesturePassword(boolean useGesturePassword) {
+        isUseGesturePassword = useGesturePassword;
+    }
+
+    public boolean isUseFaceId() {
+        return isUseFaceId;
+    }
+
+    public void setUseFaceId(boolean useFaceId) {
+        isUseFaceId = useFaceId;
+    }
+
+    public boolean isUseTouchId() {
+        return isUseTouchId;
+    }
+
+    public void setUseTouchId(boolean useTouchId) {
+        isUseTouchId = useTouchId;
     }
 }

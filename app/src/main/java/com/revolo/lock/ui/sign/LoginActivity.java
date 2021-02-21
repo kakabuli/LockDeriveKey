@@ -2,6 +2,8 @@ package com.revolo.lock.ui.sign;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.text.InputType;
 import android.text.TextUtils;
 import android.view.View;
@@ -19,6 +21,8 @@ import com.revolo.lock.bean.request.MailLoginBeanReq;
 import com.revolo.lock.bean.respone.MailLoginBeanRsp;
 import com.revolo.lock.net.HttpRequest;
 import com.revolo.lock.net.ObservableDecorator;
+import com.revolo.lock.room.AppDatabase;
+import com.revolo.lock.room.entity.User;
 import com.revolo.lock.ui.MainActivity;
 import com.revolo.lock.R;
 import com.revolo.lock.base.BaseActivity;
@@ -134,12 +138,13 @@ public class LoginActivity extends BaseActivity {
                 if(mailLoginBeanRsp.getData() == null) {
                     return;
                 }
+                updateUser(mail, mailLoginBeanRsp.getData().getMeUsername());
                 Timber.d("登录成功，token: %1s\n userId: %2s",
                         mailLoginBeanRsp.getData().getToken(), mailLoginBeanRsp.getData().getUid());
                 App.getInstance().setUserBean(mailLoginBeanRsp.getData());
                 startActivity(new Intent(LoginActivity.this, MainActivity.class));
                 App.getInstance().finishPreActivities();
-                finish();
+                new Handler(Looper.getMainLooper()).postDelayed(() -> finish(), 50);
             }
 
             @Override
@@ -152,6 +157,14 @@ public class LoginActivity extends BaseActivity {
 
             }
         });
+    }
+
+    private void updateUser(String mail, String name) {
+        User user = App.getInstance().getUserFromLocal(mail);
+        if(user != null) {
+            user.setUserName(name);
+            AppDatabase.getInstance(this).userDao().update(user);
+        }
     }
 
 }

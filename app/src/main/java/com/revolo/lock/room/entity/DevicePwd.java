@@ -10,36 +10,36 @@ import androidx.room.PrimaryKey;
  * E-mail : wengmaowei@kaadas.com
  * desc   :
  */
-//@Entity
+@Entity
 public class DevicePwd {
 
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "dp_id")
-    private int id;
+    private int id;                               // 自增长id
 
     @ColumnInfo(name = "dp_device_id")
-    private int deviceId;
+    private int deviceId;                         // 设备ID
 
     @ColumnInfo(name = "dp_create_time")
-    private long createTime;
+    private long createTime;                      // 创建时间
 
     @ColumnInfo(name = "dp_pwd_num")
-    private int pwdNum;
+    private int pwdNum;                           // 密码编号
 
     @ColumnInfo(name = "dp_start_time")
-    private long startTime;
+    private long startTime;                       // 开始时间
 
     @ColumnInfo(name = "dp_end_time")
-    private long endTime;
+    private long endTime;                         // 结束时间
 
     @ColumnInfo(name = "dp_attribute")
-    private int attribute;
+    private int attribute;                        // 密码属性
 
     @ColumnInfo(name = "dp_weekly")
-    private byte weekly;
+    private byte weekly;                          // 周策略
 
     @ColumnInfo(name = "dp_pwd_name")
-    private String pwdName;
+    private String pwdName;                       // 密码名称
 
     public int getId() {
         return id;

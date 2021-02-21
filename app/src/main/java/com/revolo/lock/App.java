@@ -16,6 +16,7 @@ import com.a1anwang.okble.client.core.OKBLEOperation;
 import com.a1anwang.okble.client.scan.BLEScanResult;
 import com.blankj.utilcode.util.CacheDiskUtils;
 import com.blankj.utilcode.util.ConvertUtils;
+import com.blankj.utilcode.util.SPUtils;
 import com.blankj.utilcode.util.TimeUtils;
 import com.revolo.lock.bean.respone.MailLoginBeanRsp;
 import com.revolo.lock.ble.BleByteUtil;
@@ -23,6 +24,8 @@ import com.revolo.lock.ble.BleCommandFactory;
 import com.revolo.lock.ble.bean.BleBean;
 import com.revolo.lock.ble.OnBleDeviceListener;
 import com.revolo.lock.mqtt.MqttService;
+import com.revolo.lock.room.AppDatabase;
+import com.revolo.lock.room.entity.User;
 import com.revolo.lock.ui.sign.LoginActivity;
 
 import java.io.File;
@@ -32,6 +35,8 @@ import java.util.List;
 
 import timber.log.Timber;
 
+import static com.revolo.lock.Constant.REVOLO_SP;
+import static com.revolo.lock.Constant.USER_MAIL;
 import static com.revolo.lock.ble.BleProtocolState.CMD_ENCRYPT_KEY_UPLOAD;
 import static com.revolo.lock.ble.BleResultProcess.CONTROL_ENCRYPTION;
 import static com.revolo.lock.ble.BleResultProcess.checksum;
@@ -73,6 +78,26 @@ public class App extends Application {
     private void initCacheDisk() {
         File file = new File(getDir("Ble", MODE_PRIVATE) + mFilePath);
         mCacheDiskUtils = CacheDiskUtils.getInstance(file);
+    }
+
+    private User mUser;
+    private String mMail;
+
+    public User getUserFromLocal(String mail) {
+        mMail = mail;
+        SPUtils.getInstance(REVOLO_SP).put(USER_MAIL, mail);
+        mUser = AppDatabase.getInstance(getApplicationContext()).userDao().findUserFromMail(mail);
+        return mUser;
+    }
+
+    public User getUser() {
+        if(mMail == null) {
+            mMail = SPUtils.getInstance(REVOLO_SP).getString(USER_MAIL);
+        }
+        if(mUser == null) {
+            return getUserFromLocal(mMail);
+        }
+        return mUser;
     }
 
     // TODO: 2021/1/28 后面监听需要修改 适应多设备

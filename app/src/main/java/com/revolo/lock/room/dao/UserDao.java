@@ -17,7 +17,7 @@ import java.util.List;
  * E-mail : wengmaowei@kaadas.com
  * desc   :
  */
-//@Dao
+@Dao
 public interface UserDao {
 
     @Insert
@@ -42,13 +42,13 @@ public interface UserDao {
     void update(User user);
 
     @Query("SELECT * FROM User WHERE u_mail=:mail")
-    User findBleDeviceFromEsn(String mail);
+    User findUserFromMail(String mail);
 
     @Query("SELECT * FROM User")
     List<User> findAllUser();
 
     @Query("SELECT * FROM User WHERE u_id=:id ")
-    User findBleUserFromId(long id);
+    User findUserFromId(long id);
 
     @Query("SELECT * FROM User WHERE u_id in(:ids)")
     List<User> findUsersFromIds(long... ids);

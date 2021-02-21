@@ -17,7 +17,7 @@ import java.util.List;
  * E-mail : wengmaowei@kaadas.com
  * desc   :
  */
-//@Dao
+@Dao
 public interface DevicePwdDao {
 
     @Insert

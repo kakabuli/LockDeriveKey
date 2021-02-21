@@ -2,6 +2,8 @@ package com.revolo.lock.ui.sign;
 
 import android.os.Bundle;
 import android.os.CountDownTimer;
+import android.os.Handler;
+import android.os.Looper;
 import android.text.InputType;
 import android.text.SpannableString;
 import android.text.Spanned;
@@ -24,6 +26,8 @@ import com.revolo.lock.bean.respone.GetCodeBeanRsp;
 import com.revolo.lock.bean.respone.MailRegisterBeanRsp;
 import com.revolo.lock.net.HttpRequest;
 import com.revolo.lock.net.ObservableDecorator;
+import com.revolo.lock.room.AppDatabase;
+import com.revolo.lock.room.entity.User;
 import com.revolo.lock.util.LinkClickableSpan;
 
 import io.reactivex.Observable;
@@ -217,10 +221,11 @@ public class RegisterActivity extends BaseActivity {
                             mailRegisterBeanRsp.getMsg());
                     return;
                 }
+                addUserToLocal(mail);
                 // TODO: 2021/2/8 注册成功
                 ToastUtils.showShort("Register Success!");
 //                startActivity(new Intent(RegisterActivity.this, RegisterInputNameActivity.class));
-                finish();
+                new Handler(Looper.getMainLooper()).postDelayed(() -> finish(), 50);
             }
 
             @Override
@@ -248,5 +253,11 @@ public class RegisterActivity extends BaseActivity {
             mTvGetCode.setText(getString(R.string.get_code));
         }
     };
+
+    private void addUserToLocal(String mail) {
+        User user = new User();
+        user.setMail(mail);
+        AppDatabase.getInstance(this).userDao().insert(user);
+    }
 
 }
