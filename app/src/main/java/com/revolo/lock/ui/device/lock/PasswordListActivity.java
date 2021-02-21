@@ -56,7 +56,8 @@ public class PasswordListActivity extends BaseActivity {
     public void initData(@Nullable Bundle bundle) {
         Intent intent = getIntent();
         if(intent.hasExtra(Constant.DEVICE_ID)) {
-            mDeviceId = intent.getLongExtra(Constant.DEVICE_ID, -1);
+            mDeviceId = intent.getLongExtra(Constant.DEVICE_ID, -1L);
+            Timber.d("Device Id: %1d", mDeviceId);
         }
     }
 

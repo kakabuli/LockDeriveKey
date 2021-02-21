@@ -43,19 +43,19 @@ public class PasswordDetailActivity extends BaseActivity {
 
     private TextView mTvPwdName, mTvPwd, mTvPwdCharacteristic, mTvCreationDate;
     private CustomerLoadingDialog mLoadingDialog;
-    private long mDeviceId;
+    private long mPwdId;
     private DevicePwd mDevicePwd;
 
     @Override
     public void initData(@Nullable Bundle bundle) {
         Intent intent = getIntent();
-        if(intent.hasExtra(Constant.DEVICE_ID)) {
-            mDeviceId = intent.getLongExtra(Constant.DEVICE_ID, -1);
+        if(intent.hasExtra(Constant.PWD_ID)) {
+            mPwdId = intent.getLongExtra(Constant.PWD_ID, -1L);
         }
-        if(mDeviceId == -1) {
+        if(mPwdId == -1) {
             finish();
         }
-        mDevicePwd = AppDatabase.getInstance(this).devicePwdDao().findDevicePwdFromId(mDeviceId);
+        mDevicePwd = AppDatabase.getInstance(this).devicePwdDao().findDevicePwdFromId(mPwdId);
         if(mDevicePwd == null) {
             finish();
         }
@@ -104,7 +104,7 @@ public class PasswordDetailActivity extends BaseActivity {
             mTvPwdName.setText(mDevicePwd.getPwdName());
             mTvPwd.setText("***********");
             mTvPwdCharacteristic.setText(getPwdCharacteristic(mDevicePwd));
-            mTvCreationDate.setText(TimeUtils.millis2String(mDevicePwd.getCreateTime()*1000));
+            mTvCreationDate.setText(TimeUtils.millis2String(mDevicePwd.getCreateTime()*1000, "MM,dd,yyyy HH:mm:ss"));
         }
     }
 

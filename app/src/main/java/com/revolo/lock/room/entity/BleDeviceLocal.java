@@ -15,10 +15,10 @@ public class BleDeviceLocal {
 
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "d_id")
-    private int id;                                         // 自增长id
+    private long id;                                         // 自增长id
 
     @ColumnInfo(name = "d_user_id")
-    private int userId;                                     // 用户id
+    private long userId;                                     // 用户id
 
     @ColumnInfo(name = "d_pwd1")
     private String pwd1;                                    // 密码1
@@ -42,7 +42,7 @@ public class BleDeviceLocal {
     private long createTime;                                // 创建时间
 
     @ColumnInfo(name = "d_scan_result_json")
-    private String scanResultJson;                          // 检索到的蓝牙设备结果数据
+    private byte[] scanResultJson;                          // 检索到的蓝牙设备结果数据
 
     @ColumnInfo(name = "d_type")
     private String type;                                    // 设备的型号
@@ -93,19 +93,19 @@ public class BleDeviceLocal {
     private boolean isDoNotDisturbMode;                     // 是否开启勿扰模式
 
 
-    public int getId() {
+    public long getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(long id) {
         this.id = id;
     }
 
-    public int getUserId() {
+    public long getUserId() {
         return userId;
     }
 
-    public void setUserId(int userId) {
+    public void setUserId(long userId) {
         this.userId = userId;
     }
 
@@ -141,11 +141,11 @@ public class BleDeviceLocal {
         this.mac = mac;
     }
 
-    public String getScanResultJson() {
+    public byte[] getScanResultJson() {
         return scanResultJson;
     }
 
-    public void setScanResultJson(String scanResultJson) {
+    public void setScanResultJson(byte[] scanResultJson) {
         this.scanResultJson = scanResultJson;
     }
 

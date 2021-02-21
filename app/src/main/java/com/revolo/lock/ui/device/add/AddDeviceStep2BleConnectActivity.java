@@ -300,7 +300,7 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
         System.arraycopy(data, 1, mPwd3, 0, mPwd3.length);
         Timber.d("getPwd3 鉴权成功, pwd3: %1s\n", ConvertUtils.bytes2HexString(mPwd3));
         // 本地存储
-        addDeviceToLocal(mEsn, mMac, ConvertUtils.bytes2HexString(mPwd1), ConvertUtils.bytes2HexString(mPwd2), GsonUtils.toJson(mScanResult));
+        addDeviceToLocal(mEsn, mMac, ConvertUtils.bytes2HexString(mPwd1), ConvertUtils.bytes2HexString(mPwd2), mScanResult);
         // 内存存储
         App.getInstance().getBleBean().setPwd1(mPwd1);
         App.getInstance().getBleBean().setPwd3(mPwd3);
@@ -311,7 +311,7 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
                                   @NotNull String mac,
                                   @NotNull String pwd1,
                                   @NotNull String pwd2,
-                                  @NotNull String scanResultJson) {
+                                  @NotNull BLEScanResult scanResultJson) {
         User user = App.getInstance().getUser();
         if(user != null) {
             BleDeviceLocal bleDeviceLocal = new BleDeviceLocal();
@@ -320,7 +320,7 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
             bleDeviceLocal.setPwd1(pwd1);
             bleDeviceLocal.setPwd2(pwd2);
             bleDeviceLocal.setUserId(user.getId());
-            bleDeviceLocal.setScanResultJson(scanResultJson);
+            bleDeviceLocal.setScanResultJson(ConvertUtils.parcelable2Bytes(scanResultJson));
             // 统一使用秒，所以毫秒要除以1000
             bleDeviceLocal.setCreateTime(TimeUtils.getNowMills()/1000);
             AppDatabase.getInstance(this).bleDeviceDao().insert(bleDeviceLocal);

@@ -91,7 +91,7 @@ public class AddNewPwdSelectActivity extends BaseActivity {
             mKey = intent.getStringExtra(Constant.USER_PWD);
         }
         if(intent.hasExtra(Constant.DEVICE_ID)) {
-            mDeviceId = intent.getLongExtra(Constant.DEVICE_ID, -1);
+            mDeviceId = intent.getLongExtra(Constant.DEVICE_ID, -1L);
         }
         if(mDeviceId == -1) {
             // TODO: 2021/2/21 或者有其他方法
@@ -342,6 +342,7 @@ public class AddNewPwdSelectActivity extends BaseActivity {
     private void initTemStartDateTimeMill() {
         String nowDate = TimeUtils.millis2String(TimeUtils.getNowMills(), TimeUtils.getSafeDateFormat("yyyy-MM-dd"));
         mTemStartDateStr = nowDate;
+        mTvStartDate.setText(mTemStartDateStr);
         String date = nowDate + " 10:00:00";
         mTemStartDateTimeMill = TimeUtils.string2Millis(date);
     }
@@ -349,6 +350,7 @@ public class AddNewPwdSelectActivity extends BaseActivity {
     private void initTemEndDateTimeMill() {
         String nowDate = TimeUtils.millis2String(TimeUtils.getNowMills(), TimeUtils.getSafeDateFormat("yyyy-MM-dd"));
         mTemEndDateStr = nowDate;
+        mTvEndDate.setText(mTemEndDateStr);
         String date = nowDate + " 14:00:00";
         mTemEndDateTimeMill = TimeUtils.string2Millis(date);
     }

@@ -45,14 +45,15 @@ public class PasswordListAdapter extends BaseQuickAdapter<DevicePwd, BaseViewHol
         if(devicePwd != null) {
             TextView tvPwdName = baseViewHolder.getView(R.id.tvPwdName);
             TextView tvDetail = baseViewHolder.getView(R.id.tvDetail);
-            if(devicePwd.getPwdState() == 1) {
-                baseViewHolder.setImageResource(R.id.ivPwdState, R.drawable.ic_home_icon_password);
-                tvPwdName.setTextColor(ContextCompat.getColor(getContext(), R.color.c333333));
-                tvDetail.setTextColor(ContextCompat.getColor(getContext(), R.color.c666666));
-            } else {
+            // TODO: 2021/2/21 要提前判断密码是否失效
+            if(devicePwd.getPwdState() == 2) {
                 baseViewHolder.setImageResource(R.id.ivPwdState, R.drawable.ic_home_icon_password_overdue);
                 tvPwdName.setTextColor(ContextCompat.getColor(getContext(), R.color.cCCCCCC));
                 tvDetail.setTextColor(ContextCompat.getColor(getContext(), R.color.cCCCCCC));
+            } else {
+                baseViewHolder.setImageResource(R.id.ivPwdState, R.drawable.ic_home_icon_password);
+                tvPwdName.setTextColor(ContextCompat.getColor(getContext(), R.color.c333333));
+                tvDetail.setTextColor(ContextCompat.getColor(getContext(), R.color.c666666));
             }
 
             baseViewHolder.setText(R.id.tvPwdName, devicePwd.getPwdName());

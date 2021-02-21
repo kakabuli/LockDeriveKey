@@ -14,6 +14,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.blankj.utilcode.util.RegexUtils;
+import com.blankj.utilcode.util.ThreadUtils;
 import com.blankj.utilcode.util.ToastUtils;
 import com.revolo.lock.App;
 import com.revolo.lock.Constant;
@@ -164,23 +165,35 @@ public class LoginActivity extends BaseActivity {
             // TODO: 2021/1/26 获取弹出错误的信息
             Timber.e("登录请求错误了！ code : %1s, msg: %2s",
                     mailLoginBeanRsp.getCode(), mailLoginBeanRsp.getMsg());
+            ToastUtils.showShort(mailLoginBeanRsp.getMsg());
             return;
         }
         if(mailLoginBeanRsp.getData() == null) {
+            Timber.e("mailLoginBeanRsp.getData() == null");
             return;
         }
-        updateUser(mail, mailLoginBeanRsp.getData().getMeUsername());
-        Timber.d("登录成功，token: %1s\n userId: %2s",
-                mailLoginBeanRsp.getData().getToken(), mailLoginBeanRsp.getData().getUid());
-        App.getInstance().setUserBean(mailLoginBeanRsp.getData());
-        startActivity(new Intent(LoginActivity.this, MainActivity.class));
-        App.getInstance().finishPreActivities();
-        new Handler(Looper.getMainLooper()).postDelayed(this::finish, 50);
+        ThreadUtils.getSinglePool().execute(() -> {
+            updateUser(mail, mailLoginBeanRsp.getData().getMeUsername());
+            Timber.d("登录成功，token: %1s\n userId: %2s",
+                    mailLoginBeanRsp.getData().getToken(), mailLoginBeanRsp.getData().getUid());
+            App.getInstance().setUserBean(mailLoginBeanRsp.getData());
+            runOnUiThread(() -> new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                App.getInstance().finishPreActivities();
+                startActivity(new Intent(LoginActivity.this, MainActivity.class));
+                finish();
+            }, 50));
+        });
+
     }
 
     private void updateUser(String mail, String name) {
         User user = App.getInstance().getUserFromLocal(mail);
-        if(user != null) {
+        if(user == null) {
+            user = new User();
+            user.setMail(mail);
+            user.setUserName(name);
+            AppDatabase.getInstance(this).userDao().insert(user);
+        } else {
             user.setUserName(name);
             AppDatabase.getInstance(this).userDao().update(user);
         }

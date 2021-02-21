@@ -15,7 +15,7 @@ public class User {
 
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "u_id")
-    private int id;                                 // 自增长id
+    private long id;                                 // 自增长id
 
     @ColumnInfo(name = "u_mail")
     private String mail;                            // 用户邮箱
@@ -44,11 +44,11 @@ public class User {
     @ColumnInfo(name = "u_is_use_touch_id", defaultValue = "false")
     private boolean isUseTouchId;                   // 是否使用指纹
 
-    public int getId() {
+    public long getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(long id) {
         this.id = id;
     }
 

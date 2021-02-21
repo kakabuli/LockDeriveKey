@@ -29,7 +29,7 @@ public class AddInputNewPwdActivity extends BaseActivity {
     public void initData(@Nullable Bundle bundle) {
         Intent intent = getIntent();
         if(intent.hasExtra(Constant.DEVICE_ID)) {
-            mDeviceId = intent.getLongExtra(Constant.DEVICE_ID, -1);
+            mDeviceId = intent.getLongExtra(Constant.DEVICE_ID, -1L);
         }
     }
 

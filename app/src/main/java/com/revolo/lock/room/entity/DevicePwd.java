@@ -17,7 +17,7 @@ public class DevicePwd {
 
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "dp_id")
-    private int id;                               // 自增长id
+    private long id;                               // 自增长id
 
     @ColumnInfo(name = "dp_device_id")
     private long deviceId;                         // 设备ID
@@ -46,11 +46,11 @@ public class DevicePwd {
     @ColumnInfo(name = "dp_pwd_state", defaultValue = "1")
     private int pwdState;                         // 1: 可用  2: 不可用
 
-    public int getId() {
+    public long getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(long id) {
         this.id = id;
     }
 

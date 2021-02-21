@@ -116,8 +116,9 @@ public class DeviceFragment extends Fragment {
                 ((MainActivity)getActivity()).setStatusBarColor(R.color.white);
             }
         }
-        initData();
+        initBaseData();
         initBleListener();
+        initData(mBleDeviceLocals);
         initDataFromCache();
         return root;
     }
@@ -131,6 +132,7 @@ public class DeviceFragment extends Fragment {
                 mClNoDevice.setVisibility(View.GONE);
                 mClHadDevice.setVisibility(View.VISIBLE);
             }
+            // TODO: 2021/2/21 需要后期通过数据库修复该bug， 存在登录其他用户账号时，会读取上个用户的缓存
             String json = GsonUtils.toJson(wifiShowBeans);
             Timber.d("updateData json: %1s", json);
             App.getInstance().getCacheDiskUtils().put(WIFI_SHOW_BEAN_LIST, json);
@@ -335,25 +337,36 @@ public class DeviceFragment extends Fragment {
         updateData(wifiShowBeans);
     }
 
-    private void initData() {
+    private List<BleDeviceLocal> mBleDeviceLocals;
+
+    private void initBaseData() {
         User user = App.getInstance().getUser();
         if(user == null) {
             return;
         }
-        List<BleDeviceLocal> bleDeviceLocals = AppDatabase.getInstance(App.getInstance()).bleDeviceDao().findBleDevicesFromUserId(user.getId());
+        mBleDeviceLocals = AppDatabase.getInstance(App.getInstance()).bleDeviceDao().findBleDevicesFromUserId(user.getId());
+        if(mBleDeviceLocals == null) {
+            return;
+        }
+        if(mBleDeviceLocals.isEmpty()) {
+            return;
+        }
+        // TODO: 2021/2/21 暂时选择第一个，后续整合成列表，然后做选择
+        mEsn = mBleDeviceLocals.get(0).getEsn();
+        mPwd1 = ConvertUtils.hexString2Bytes(mBleDeviceLocals.get(0).getPwd1());
+        mPwd2 = ConvertUtils.hexString2Bytes(mBleDeviceLocals.get(0).getPwd2());
+
+    }
+
+    private void initData(List<BleDeviceLocal> bleDeviceLocals) {
         if(bleDeviceLocals == null) {
             return;
         }
         if(bleDeviceLocals.isEmpty()) {
             return;
         }
-        // TODO: 2021/2/21 暂时选择第一个，后续整合成列表，然后做选择
-        mEsn = bleDeviceLocals.get(0).getEsn();
-        mPwd1 = ConvertUtils.hexString2Bytes(bleDeviceLocals.get(0).getPwd1());
-        mPwd2 = ConvertUtils.hexString2Bytes(bleDeviceLocals.get(0).getPwd2());
-
         if(App.getInstance().getBleBean() == null) {
-            BLEScanResult bleScanResult = GsonUtils.fromJson(bleDeviceLocals.get(0).getScanResultJson(), BLEScanResult.class);
+            BLEScanResult bleScanResult = ConvertUtils.bytes2Parcelable(bleDeviceLocals.get(0).getScanResultJson(), BLEScanResult.CREATOR);
             if(bleScanResult != null) {
                 App.getInstance().connectDevice(bleScanResult);
                 mBleBean = App.getInstance().getBleBean();
