@@ -1,5 +1,8 @@
 package com.revolo.lock.room.entity;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
@@ -11,14 +14,14 @@ import androidx.room.PrimaryKey;
  * desc   :
  */
 @Entity
-public class BleDeviceLocal {
+public class BleDeviceLocal implements Parcelable {
 
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "d_id")
-    private long id;                                         // 自增长id
+    private long id;                                        // 自增长id
 
     @ColumnInfo(name = "d_user_id")
-    private long userId;                                     // 用户id
+    private long userId;                                    // 用户id
 
     @ColumnInfo(name = "d_pwd1")
     private String pwd1;                                    // 密码1
@@ -59,8 +62,8 @@ public class BleDeviceLocal {
     @ColumnInfo(name = "d_connected_wifi_name")
     private String connectedWifiName;                       // 连接上的wifi名称
 
-    @ColumnInfo(name = "d_connected_type")
-    private int connectedType;                              // 连接的类型，wifi还是ble  1 wifi  2 ble
+    @ColumnInfo(name = "d_connected_type", defaultValue = "2")
+    private int connectedType;                              // 连接的类型，wifi还是ble  1 wifi  2 ble, 默认为蓝牙
 
     @ColumnInfo(name = "d_lock_state")
     private int lockState;                                  // 锁的开关状态（还有私密模式,存在分享用户） 1 开  2 关  3 私密模式
@@ -79,6 +82,9 @@ public class BleDeviceLocal {
 
     @ColumnInfo(name = "d_set_electric_fence_sensitivity")
     private int setElectricFenceSensitivity;                // 设置电子围栏灵敏度
+
+    @ColumnInfo(name = "d_is_auto_lock", defaultValue = "false")
+    private boolean isAutoLock;                             // 是否开启自动上锁
 
     @ColumnInfo(name = "d_is_open_electric_fence", defaultValue = "false")
     private boolean isOpenElectricFence;                    // 是否开启电子围栏
@@ -311,4 +317,96 @@ public class BleDeviceLocal {
     public void setDuress(boolean duress) {
         isDuress = duress;
     }
+
+    public boolean isAutoLock() {
+        return isAutoLock;
+    }
+
+    public void setAutoLock(boolean autoLock) {
+        isAutoLock = autoLock;
+    }
+
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeLong(this.id);
+        dest.writeLong(this.userId);
+        dest.writeString(this.pwd1);
+        dest.writeString(this.pwd2);
+        dest.writeString(this.esn);
+        dest.writeString(this.mac);
+        dest.writeString(this.name);
+        dest.writeString(this.functionSet);
+        dest.writeLong(this.createTime);
+        dest.writeByteArray(this.scanResultJson);
+        dest.writeString(this.type);
+        dest.writeString(this.wifiVer);
+        dest.writeString(this.lockVer);
+        dest.writeInt(this.doorSensor);
+        dest.writeString(this.connectedWifiName);
+        dest.writeInt(this.connectedType);
+        dest.writeInt(this.lockState);
+        dest.writeInt(this.lockPower);
+        dest.writeInt(this.setAutoLockTime);
+        dest.writeByte(this.isDetectionLock ? (byte) 1 : (byte) 0);
+        dest.writeInt(this.setElectricFenceTime);
+        dest.writeInt(this.setElectricFenceSensitivity);
+        dest.writeByte(this.isAutoLock ? (byte) 1 : (byte) 0);
+        dest.writeByte(this.isOpenElectricFence ? (byte) 1 : (byte) 0);
+        dest.writeByte(this.isOpenDoorSensor ? (byte) 1 : (byte) 0);
+        dest.writeByte(this.isMute ? (byte) 1 : (byte) 0);
+        dest.writeByte(this.isDoNotDisturbMode ? (byte) 1 : (byte) 0);
+        dest.writeByte(this.isDuress ? (byte) 1 : (byte) 0);
+    }
+
+    public BleDeviceLocal() {
+    }
+
+    protected BleDeviceLocal(Parcel in) {
+        this.id = in.readLong();
+        this.userId = in.readLong();
+        this.pwd1 = in.readString();
+        this.pwd2 = in.readString();
+        this.esn = in.readString();
+        this.mac = in.readString();
+        this.name = in.readString();
+        this.functionSet = in.readString();
+        this.createTime = in.readLong();
+        this.scanResultJson = in.createByteArray();
+        this.type = in.readString();
+        this.wifiVer = in.readString();
+        this.lockVer = in.readString();
+        this.doorSensor = in.readInt();
+        this.connectedWifiName = in.readString();
+        this.connectedType = in.readInt();
+        this.lockState = in.readInt();
+        this.lockPower = in.readInt();
+        this.setAutoLockTime = in.readInt();
+        this.isDetectionLock = in.readByte() != 0;
+        this.setElectricFenceTime = in.readInt();
+        this.setElectricFenceSensitivity = in.readInt();
+        this.isAutoLock = in.readByte() != 0;
+        this.isOpenElectricFence = in.readByte() != 0;
+        this.isOpenDoorSensor = in.readByte() != 0;
+        this.isMute = in.readByte() != 0;
+        this.isDoNotDisturbMode = in.readByte() != 0;
+        this.isDuress = in.readByte() != 0;
+    }
+
+    public static final Parcelable.Creator<BleDeviceLocal> CREATOR = new Parcelable.Creator<BleDeviceLocal>() {
+        @Override
+        public BleDeviceLocal createFromParcel(Parcel source) {
+            return new BleDeviceLocal(source);
+        }
+
+        @Override
+        public BleDeviceLocal[] newArray(int size) {
+            return new BleDeviceLocal[size];
+        }
+    };
 }

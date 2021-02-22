@@ -131,14 +131,14 @@
             app:layout_constraintTop_toTopOf="parent" />
 
         <ImageView
-            android:id="@+id/ivAutoLockEnable"
+            android:id="@+id/imageView19"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="15pt"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@drawable/ic_icon_switch_close" />
+            app:srcCompat="@drawable/ic_icon_more" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -164,14 +164,14 @@
             app:layout_constraintTop_toTopOf="parent" />
 
         <ImageView
-            android:id="@+id/ivGeoFenceLockEnable"
+            android:id="@+id/imageView22"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="15pt"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@drawable/ic_icon_switch_close" />
+            app:srcCompat="@drawable/ic_icon_more" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -255,7 +255,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="16pt"
-            android:text="@string/duress_code"
+            android:text="@string/duress_password"
             android:textColor="@color/c333333"
             android:textSize="15pt"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -263,14 +263,14 @@
             app:layout_constraintTop_toTopOf="parent" />
 
         <ImageView
-            android:id="@+id/ivDuressCodeEnable"
+            android:id="@+id/imageView23"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="15pt"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@drawable/ic_icon_switch_close" />
+            app:srcCompat="@drawable/ic_icon_more" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

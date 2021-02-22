@@ -134,7 +134,7 @@
     <string name="auto_lock">Auto lock</string>
     <string name="geo_fence_lock">Geo-fence Lock</string>
     <string name="door_magnetic_switch">Door magnetic switch</string>
-    <string name="duress_code">Duress code</string>
+    <string name="duress_password">Duress password</string>
     <string name="mute">Mute</string>
     <string name="private_mode">Private mode</string>
     <string name="join_alexa">Join Alexa</string>

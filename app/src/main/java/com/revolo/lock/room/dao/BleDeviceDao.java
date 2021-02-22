@@ -21,7 +21,7 @@ import java.util.List;
 public interface BleDeviceDao {
 
     @Insert
-    void insert(BleDeviceLocal bleDeviceLocal);
+    long insert(BleDeviceLocal bleDeviceLocal);
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insert(List<BleDeviceLocal> bleDeviceLocals);

@@ -20,6 +20,8 @@ import com.revolo.lock.ble.BleCommandFactory;
 import com.revolo.lock.ble.BleProtocolState;
 import com.revolo.lock.ble.BleResultProcess;
 import com.revolo.lock.ble.OnBleDeviceListener;
+import com.revolo.lock.room.AppDatabase;
+import com.revolo.lock.room.entity.BleDeviceLocal;
 import com.revolo.lock.widget.WifiCircleProgress;
 
 import java.nio.charset.StandardCharsets;
@@ -41,6 +43,7 @@ public class WifiConnectActivity extends BaseActivity {
     private String mWifiPwd;
     private BleBean mBleBean;
     private WifiCircleProgress mWifiCircleProgress;
+    private BleDeviceLocal mBleDeviceLocal;
 
     @Override
     public void initData(@Nullable Bundle bundle) {
@@ -52,6 +55,15 @@ public class WifiConnectActivity extends BaseActivity {
         }
         if(!intent.hasExtra(Constant.WIFI_PWD)) {
             // TODO: 2021/1/22 没有输入wifi pwd
+            finish();
+            return;
+        }
+        if(!intent.hasExtra(Constant.BLE_DEVICE)) {
+            finish();
+            return;
+        }
+        mBleDeviceLocal = intent.getParcelableExtra(Constant.BLE_DEVICE);
+        if(mBleDeviceLocal == null) {
             finish();
             return;
         }
@@ -136,7 +148,11 @@ public class WifiConnectActivity extends BaseActivity {
                 changeValue(100);
                 startActivity(new Intent(this, AddWifiSucActivity.class));
                 mBleBean.getOKBLEDeviceImp().disConnect(false);
-                finish();
+                // 改成1,设置为wifi模式
+                mBleDeviceLocal.setConnectedType(1);
+                mBleDeviceLocal.setConnectedWifiName(mWifiName);
+                AppDatabase.getInstance(this).bleDeviceDao().update(mBleDeviceLocal);
+                runOnUiThread(() -> new Handler(Looper.getMainLooper()).postDelayed(this::finish, 50));
             } else if(bleResultBean.getPayload()[0] == 0x01) {
                 // 配网失败
                 Intent intent = new Intent(this, AddWifiFailActivity.class);

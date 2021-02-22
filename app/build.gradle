@@ -14,6 +14,13 @@ android {
         versionName "1.0.5"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
+        //指定room.schemaLocation生成的文件路径
+        javaCompileOptions {
+            annotationProcessorOptions {
+                arguments = ["room.schemaLocation": "$projectDir/schemas".toString()]
+            }
+        }
     }
 
     buildTypes {
@@ -32,13 +39,6 @@ android {
             dirs 'libs'
         }
     }
-
-//    //指定room.schemaLocation生成的文件路径
-//    javaCompileOptions {
-//        annotationProcessorOptions {
-//            arguments = ["room.schemaLocation": "$projectDir/schemas".toString()]
-//        }
-//    }
 
 }
 

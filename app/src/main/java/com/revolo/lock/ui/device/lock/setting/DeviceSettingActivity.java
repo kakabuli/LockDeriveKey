@@ -12,7 +12,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.blankj.utilcode.util.AdaptScreenUtils;
-import com.blankj.utilcode.util.SPUtils;
 import com.blankj.utilcode.util.ToastUtils;
 import com.revolo.lock.App;
 import com.revolo.lock.Constant;
@@ -20,7 +19,6 @@ import com.revolo.lock.R;
 import com.revolo.lock.base.BaseActivity;
 import com.revolo.lock.bean.request.DeviceUnbindBeanReq;
 import com.revolo.lock.bean.respone.DeviceUnbindBeanRsp;
-import com.revolo.lock.bean.showBean.WifiShowBean;
 import com.revolo.lock.ble.BleByteUtil;
 import com.revolo.lock.ble.BleCommandFactory;
 import com.revolo.lock.ble.BleProtocolState;
@@ -30,6 +28,8 @@ import com.revolo.lock.ble.bean.BleResultBean;
 import com.revolo.lock.dialog.UnbindLockDialog;
 import com.revolo.lock.net.HttpRequest;
 import com.revolo.lock.net.ObservableDecorator;
+import com.revolo.lock.room.AppDatabase;
+import com.revolo.lock.room.entity.BleDeviceLocal;
 import com.revolo.lock.widget.iosloading.CustomerLoadingDialog;
 
 import io.reactivex.Observable;
@@ -50,13 +50,8 @@ public class DeviceSettingActivity extends BaseActivity {
     private TextView mTvName, mTvWifiName;
     private DeviceUnbindBeanReq mReq;
     private CustomerLoadingDialog mLoadingDialog;
-    private ImageView ivMuteEnable;
-    private WifiShowBean mWifiShowBean;
-
-    // TODO: 2021/2/8 临时的bool值来判断是否开启自动上锁功能，后续需要通过查询状态来实现功能
-    boolean isOpenAutoLock= false;
-
-    private String TEST_MUTE = "TestMute";
+    private ImageView mIvMuteEnable, mIvDoorMagneticSwitchEnable, mIvDoNotDisturbModeEnable;
+    private BleDeviceLocal mBleDeviceLocal;
 
     @Override
     public void initData(@Nullable Bundle bundle) {
@@ -68,11 +63,12 @@ public class DeviceSettingActivity extends BaseActivity {
             finish();
         }
         if(intent.hasExtra(Constant.LOCK_DETAIL)) {
-            mWifiShowBean = intent.getParcelableExtra(Constant.LOCK_DETAIL);
+            mBleDeviceLocal = intent.getParcelableExtra(Constant.LOCK_DETAIL);
         }
-        String TEST_AUTO_LOCK = "TestAutoLock";
-        isOpenAutoLock = SPUtils.getInstance().getBoolean(TEST_AUTO_LOCK);
-        isMute = SPUtils.getInstance().getBoolean(TEST_MUTE);
+        if(mBleDeviceLocal == null) {
+            // TODO: 2021/2/22 传递数据为空的处理
+            finish();
+        }
     }
 
     @Override
@@ -85,7 +81,9 @@ public class DeviceSettingActivity extends BaseActivity {
         useCommonTitleBar(getString(R.string.title_setting));
         mTvName = findViewById(R.id.tvName);
         mTvWifiName = findViewById(R.id.tvWifiName);
-        ivMuteEnable = findViewById(R.id.ivMuteEnable);
+        mIvMuteEnable = findViewById(R.id.ivMuteEnable);
+        mIvDoorMagneticSwitchEnable = findViewById(R.id.ivDoorMagneticSwitchEnable);
+        mIvDoNotDisturbModeEnable = findViewById(R.id.ivDoNotDisturbModeEnable);
         applyDebouncingClickListener(mTvName, mTvWifiName,
                 findViewById(R.id.clAutoLock), findViewById(R.id.clPrivateMode),
                 findViewById(R.id.clDuressCode), findViewById(R.id.clDoorLockInformation),
@@ -97,9 +95,9 @@ public class DeviceSettingActivity extends BaseActivity {
                 .setCancelable(true)
                 .setCancelOutside(false)
                 .create();
-        ImageView ivAutoLockEnable = findViewById(R.id.ivAutoLockEnable);
-        ivAutoLockEnable.setImageResource(isOpenAutoLock?R.drawable.ic_icon_switch_open:R.drawable.ic_icon_switch_close);
-        ivMuteEnable.setImageResource(isMute?R.drawable.ic_icon_switch_open:R.drawable.ic_icon_switch_close);
+        mIvDoorMagneticSwitchEnable.setImageResource(mBleDeviceLocal.isOpenDoorSensor()?R.drawable.ic_icon_switch_open:R.drawable.ic_icon_switch_close);
+        mIvDoNotDisturbModeEnable.setImageResource(mBleDeviceLocal.isDoNotDisturbMode()?R.drawable.ic_icon_switch_open:R.drawable.ic_icon_switch_close);
+        mIvMuteEnable.setImageResource(mBleDeviceLocal.isMute()?R.drawable.ic_icon_switch_open:R.drawable.ic_icon_switch_close);
     }
 
     @Override
@@ -151,7 +149,7 @@ public class DeviceSettingActivity extends BaseActivity {
             return;
         }
         if(view.getId() == R.id.clDoorMagneticSwitch) {
-            startActivity(new Intent(this, DoorMagnetAlignmentActivity.class));
+            // TODO: 2021/2/22 提示并进入门磁校验流程
             return;
         }
         if(view.getId() == R.id.clUnbind) {
@@ -170,13 +168,12 @@ public class DeviceSettingActivity extends BaseActivity {
     }
 
     private void initTestData() {
-        String name = mWifiShowBean.getWifiListBean().getWifiSN();
-        mTvName.setText(name);
-        String wifiName = mWifiShowBean.getWifiListBean().getWifiName();
+        String name = mBleDeviceLocal.getName();
+        name = TextUtils.isEmpty(name)?mBleDeviceLocal.getEsn():name;
+        mTvName.setText(TextUtils.isEmpty(name)?"":name);
+        String wifiName = mBleDeviceLocal.getConnectedWifiName();
         mTvWifiName.setText(TextUtils.isEmpty(wifiName)?"":wifiName);
     }
-
-    private boolean isMute = false;
 
     private void mute() {
         // 0x00：Silent Mode静音
@@ -184,7 +181,7 @@ public class DeviceSettingActivity extends BaseActivity {
         // 0x02：High Volume高音量
         // TODO: 2021/2/8 后面需要动态修改
         byte[] value = new byte[1];
-        value[0] = (byte) (isMute?0x01:0x00);
+        value[0] = (byte) (mBleDeviceLocal.isMute()?0x01:0x00);
         App.getInstance().writeControlMsg(BleCommandFactory.lockParameterModificationCommand((byte) 0x02,
                 (byte) 0x01, value, App.getInstance().getBleBean().getPwd1(), App.getInstance().getBleBean().getPwd3()));
     }
@@ -228,6 +225,11 @@ public class DeviceSettingActivity extends BaseActivity {
                 // TODO: 2021/2/6 抽离文字 和校对
                 // TODO: 2021/2/9 清除了本地所有数据
                 App.getInstance().getCacheDiskUtils().clear();
+                // 如果是蓝牙，断开蓝牙连接
+                if(mBleDeviceLocal.getConnectedType() == 2) {
+                    App.getInstance().getBleBean().getOKBLEDeviceImp().disConnect(false);
+                }
+                AppDatabase.getInstance(getApplicationContext()).bleDeviceDao().delete(mBleDeviceLocal);
                 ToastUtils.showShort("Unbind success");
                 finish();
             }
@@ -264,10 +266,10 @@ public class DeviceSettingActivity extends BaseActivity {
     private void processMute(BleResultBean bean) {
         if(bean.getPayload()[0] == 0x00) {
             // TODO: 2021/2/8 处理数据
+            mBleDeviceLocal.setMute(!mBleDeviceLocal.isMute());
+            AppDatabase.getInstance(this).bleDeviceDao().update(mBleDeviceLocal);
             runOnUiThread(() -> {
-                isMute = !isMute;
-                ivMuteEnable.setImageResource(isMute?R.drawable.ic_icon_switch_open:R.drawable.ic_icon_switch_close);
-                SPUtils.getInstance().put(TEST_MUTE, isMute);
+                mIvMuteEnable.setImageResource(mBleDeviceLocal.isMute()?R.drawable.ic_icon_switch_open:R.drawable.ic_icon_switch_close);
             });
         } else {
             // TODO: 2021/2/7 信息失败了的操作

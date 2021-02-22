@@ -299,13 +299,13 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
         mPwd3 = new byte[4];
         System.arraycopy(data, 1, mPwd3, 0, mPwd3.length);
         Timber.d("getPwd3 鉴权成功, pwd3: %1s\n", ConvertUtils.bytes2HexString(mPwd3));
-        // 本地存储
-        addDeviceToLocal(mEsn, mMac, ConvertUtils.bytes2HexString(mPwd1), ConvertUtils.bytes2HexString(mPwd2), mScanResult);
         // 内存存储
         App.getInstance().getBleBean().setPwd1(mPwd1);
         App.getInstance().getBleBean().setPwd3(mPwd3);
         App.getInstance().writeControlMsg(BleCommandFactory.ackCommand(bleResultBean.getTSN(), (byte)0x00, bleResultBean.getCMD()));
     }
+
+    private long mDeviceId = -1;
 
     private void addDeviceToLocal(@NotNull String esn,
                                   @NotNull String mac,
@@ -323,7 +323,7 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
             bleDeviceLocal.setScanResultJson(ConvertUtils.parcelable2Bytes(scanResultJson));
             // 统一使用秒，所以毫秒要除以1000
             bleDeviceLocal.setCreateTime(TimeUtils.getNowMills()/1000);
-            AppDatabase.getInstance(this).bleDeviceDao().insert(bleDeviceLocal);
+            mDeviceId = AppDatabase.getInstance(this).bleDeviceDao().insert(bleDeviceLocal);
         }
     }
 
@@ -343,6 +343,8 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
     }
 
     private void addDeviceToService()  {
+        // 本地存储
+        addDeviceToLocal(mEsn, mMac, ConvertUtils.bytes2HexString(mPwd1), ConvertUtils.bytes2HexString(mPwd2), mScanResult);
         AdminAddDeviceBeanReq req = new AdminAddDeviceBeanReq();
         req.setDevmac(mMac);
         req.setDeviceSN(mEsn);
@@ -374,7 +376,9 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
                 Timber.d("addDeviceToService 添加设备成功");
                 Timber.d("rsp: %1s", adminAddDeviceBeanRsp.toString());
                 App.getInstance().setAutoAuth(true);
-                startActivity(new Intent(AddDeviceStep2BleConnectActivity.this, BleConnectSucActivity.class));
+                Intent intent = new Intent(AddDeviceStep2BleConnectActivity.this, BleConnectSucActivity.class);
+                intent.putExtra(Constant.DEVICE_ID, mDeviceId);
+                startActivity(intent);
                 finish();
             }
 

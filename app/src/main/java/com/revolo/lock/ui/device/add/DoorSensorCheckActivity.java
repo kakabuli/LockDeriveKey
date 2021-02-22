@@ -12,6 +12,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.revolo.lock.App;
+import com.revolo.lock.Constant;
 import com.revolo.lock.R;
 import com.revolo.lock.base.BaseActivity;
 import com.revolo.lock.ble.BleCommandFactory;
@@ -30,7 +31,7 @@ import timber.log.Timber;
  *          步骤：关闭门磁->开门->关门->开门->虚掩->开启门磁
  */
 public class DoorSensorCheckActivity extends BaseActivity {
-
+    // TODO: 2021/2/22 需要存储到本地数据库
     private ImageView mIvDoorState;
     private TextView mTvTip, mTvSkip;
     private Button mBtnNext;
@@ -50,9 +51,18 @@ public class DoorSensorCheckActivity extends BaseActivity {
     @DoorState
     private int mDoorState = DOOR_OPEN;
 
+    private long mDeviceId = -1L;
+
     @Override
     public void initData(@Nullable Bundle bundle) {
-
+        Intent intent = getIntent();
+        if(intent.hasExtra(Constant.DEVICE_ID)) {
+            mDeviceId = intent.getLongExtra(Constant.DEVICE_ID, -1L);
+        }
+        if(mDeviceId == -1) {
+            // TODO: 2021/2/22 做处理
+            finish();
+        }
     }
 
     @Override
@@ -81,14 +91,18 @@ public class DoorSensorCheckActivity extends BaseActivity {
 
     @Override
     public void onBackPressed() {
-        // TODO: 2021/2/22 重新梳理状态
-        if(mDoorState == DOOR_CLOSE) {
+        // 步骤：关闭门磁->开门->关门->开门->虚掩->开启门磁
+        if(mDoorState == DOOR_OPEN) {
             super.onBackPressed();
         } else {
-            if(mDoorState == DOOR_HALF) {
+            if(mDoorState == DOOR_CLOSE) {
+                isOpenAgain = false;
                 refreshOpenTheDoor();
-            } else if(mDoorState == DOOR_OPEN) {
+            } else if(mDoorState == DOOR_OPEN_AGAIN) {
                 refreshCloseTheDoor();
+            } else if(mDoorState == DOOR_HALF) {
+                isOpenAgain = true;
+                refreshOpenTheDoor();
             }
         }
     }
@@ -131,7 +145,9 @@ public class DoorSensorCheckActivity extends BaseActivity {
     }
 
     private void gotoAddWifi() {
-        startActivity(new Intent(this, AddWifiActivity.class));
+        Intent intent = new Intent(this, AddWifiActivity.class);
+        intent.putExtra(Constant.DEVICE_ID, mDeviceId);
+        startActivity(intent);
         finish();
     }
 

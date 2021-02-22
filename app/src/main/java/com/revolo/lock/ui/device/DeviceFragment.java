@@ -96,19 +96,13 @@ public class DeviceFragment extends Fragment {
             mHomeLockListAdapter.addChildClickViewIds(R.id.ivLockState);
             mHomeLockListAdapter.setOnItemChildClickListener((adapter, view, position) -> {
                 if(view.getId() == R.id.ivLockState) {
-                    // TODO: 2021/2/6 要选择来切换发送对应的指令
-                    // 发送查询状态
-//                    App.getInstance().writeControlMsg(BleCommandFactory.checkLockBaseInfoCommand(mBleBean.getPwd1(), mBleBean.getPwd3()));
-//                    // TODO: 2021/2/7 看看是否接收了再发指令还是如何处理
-//                    new Handler(Looper.getMainLooper()).postDelayed(() -> {
-//                        // 蓝牙发送开关门指令
-//                        App.getInstance().writeControlMsg(BleCommandFactory
-//                                .lockControlCommand((byte) 0x00, (byte) 0x04, (byte) 0x01, mBleBean.getPwd1(), mBleBean.getPwd3()));
-//                    }, 100);
                     int state = mHomeLockListAdapter.getItem(position).getDoorState();
-                    App.getInstance().writeControlMsg(BleCommandFactory
-                            .lockControlCommand((byte) (state==1?0x01:0x00), (byte) 0x04, (byte) 0x01, mBleBean.getPwd1(), mBleBean.getPwd3()));
-//                    publishOpenOrCloseDoor(mHomeLockListAdapter.getItem(position).getWifiListBean().getWifiSN(), state==1?1:0);
+                    if(mBleDeviceLocals.get(0).getConnectedType() == 2) {
+                        App.getInstance().writeControlMsg(BleCommandFactory
+                                .lockControlCommand((byte) (state==1?0x01:0x00), (byte) 0x04, (byte) 0x01, mBleBean.getPwd1(), mBleBean.getPwd3()));
+                    } else if(mBleDeviceLocals.get(0).getConnectedType() == 1) {
+                        publishOpenOrCloseDoor(mHomeLockListAdapter.getItem(position).getWifiListBean().getWifiSN(), state==1?1:0);
+                    }
                 }
             });
             rvLockList.setAdapter(mHomeLockListAdapter);
@@ -412,7 +406,7 @@ public class DeviceFragment extends Fragment {
     public void publishOpenOrCloseDoor(String wifiId, int doorOpt) {
         // TODO: 2021/2/6 发送开门或者关门的指令
         App.getInstance().getMqttService().mqttPublish(MqttConstant.getCallTopic(App.getInstance().getUserBean().getUid()),
-                MqttCommandFactory.setLock(wifiId,doorOpt, getPwd(mPwd1, mPwd2))).subscribe(new Observer<MqttData>() {
+                MqttCommandFactory.setLock(wifiId, doorOpt, getPwd(mPwd1, mPwd2))).subscribe(new Observer<MqttData>() {
             @Override
             public void onSubscribe(@NotNull Disposable d) {
 

@@ -25,6 +25,8 @@ import com.revolo.lock.ble.OnBleDeviceListener;
 import com.revolo.lock.ble.bean.WifiSnBean;
 import com.revolo.lock.ble.bean.BleResultBean;
 import com.revolo.lock.popup.WifiListPopup;
+import com.revolo.lock.room.AppDatabase;
+import com.revolo.lock.room.entity.BleDeviceLocal;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -46,9 +48,24 @@ public class AddWifiActivity extends BaseActivity {
     private EditText mEtWifiName, mEtPwd;
     private boolean isShowPwd = false;
 
+    private long mDeviceId = -1L;
+    private BleDeviceLocal mBleDeviceLocal;
+
     @Override
     public void initData(@Nullable Bundle bundle) {
-
+        Intent intent = getIntent();
+        if(intent.hasExtra(Constant.DEVICE_ID)) {
+            mDeviceId = intent.getLongExtra(Constant.DEVICE_ID, -1L);
+        }
+        if(mDeviceId == -1) {
+            // TODO: 2021/2/22 做处理
+            finish();
+        }
+        mBleDeviceLocal = AppDatabase.getInstance(this).bleDeviceDao().findBleDeviceFromId(mDeviceId);
+        if(mBleDeviceLocal == null) {
+            // TODO: 2021/2/22 做处理
+            finish();
+        }
     }
 
     @Override
@@ -113,6 +130,7 @@ public class AddWifiActivity extends BaseActivity {
         Intent intent = new Intent(this, WifiConnectActivity.class);
         intent.putExtra(Constant.WIFI_NAME, wifiSn);
         intent.putExtra(Constant.WIFI_PWD, wifiPwd);
+        intent.putExtra(Constant.BLE_DEVICE, mBleDeviceLocal);
         startActivity(intent);
     }
 
@@ -136,14 +154,6 @@ public class AddWifiActivity extends BaseActivity {
                 :(InputType.TYPE_CLASS_TEXT|InputType.TYPE_TEXT_VARIATION_PASSWORD));
         isShowPwd = !isShowPwd;
     }
-
-    @Override
-    protected void onDestroy() {
-        // TODO: 2021/2/2 解决可能为空的bug
-//        App.getInstance().clearBleDeviceListener();
-        super.onDestroy();
-    }
-
 
     private void initDevice() {
         mBleBean = App.getInstance().getBleBean();

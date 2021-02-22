@@ -98,7 +98,7 @@ public class DeviceDetailActivity extends BaseActivity {
             req.setUid(mWifiShowBean.getWifiListBean().getAdminUid());
             req.setWifiSN(mWifiShowBean.getWifiListBean().getWifiSN());
             intent.putExtra(Constant.UNBIND_REQ, req);
-            intent.putExtra(Constant.LOCK_DETAIL, mWifiShowBean);
+            intent.putExtra(Constant.LOCK_DETAIL, mBleDeviceLocal);
             startActivity(intent);
             return;
         }
