@@ -135,7 +135,9 @@ public class DeviceSettingActivity extends BaseActivity {
             return;
         }
         if(view.getId() == R.id.clDuressCode) {
-            startActivity(new Intent(this, DuressCodeActivity.class));
+            Intent intent = new Intent(this, DuressCodeActivity.class);
+            intent.putExtra(Constant.BLE_DEVICE, mBleDeviceLocal);
+            startActivity(intent);
             return;
         }
         if(view.getId() == R.id.clDoorLockInformation) {

@@ -5,6 +5,7 @@ import com.blankj.utilcode.util.EncryptUtils;
 
 import timber.log.Timber;
 
+import static com.revolo.lock.ble.BleProtocolState.CMD_DURESS_PWD_SWITCH;
 import static com.revolo.lock.ble.BleProtocolState.CMD_GET_ALL_RECORD;
 import static com.revolo.lock.ble.BleProtocolState.CMD_KEY_ADD;
 import static com.revolo.lock.ble.BleProtocolState.CMD_KEY_ATTRIBUTES_READ;
@@ -882,6 +883,16 @@ public class BleCommandFactory {
         data[2] = logIndexEnd[1];
         data[3] = logIndexEnd[0];
         return commandPackage(true, (byte) CMD_GET_ALL_RECORD, commandTSN(), data, pwd1, pwd3);
+    }
+
+    /**
+     * 胁迫密码开关
+     * @param control 1:打开胁迫密码功能   0：关闭胁迫密码功能
+     */
+    public static byte[] duressPwdSwitch(@BleCommandState.DuressPwdControl int control, byte[] pwd1, byte[] pwd3) {
+        byte[] data = new byte[1];
+        data[0] = (byte) control;
+        return commandPackage(true, (byte) CMD_DURESS_PWD_SWITCH, commandTSN(), data, pwd1, pwd3);
     }
 
     /**

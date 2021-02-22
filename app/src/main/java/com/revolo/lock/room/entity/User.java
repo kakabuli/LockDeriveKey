@@ -15,7 +15,7 @@ public class User {
 
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "u_id")
-    private long id;                                 // 自增长id
+    private long id;                                // 自增长id
 
     @ColumnInfo(name = "u_mail")
     private String mail;                            // 用户邮箱

@@ -137,4 +137,9 @@ public class BleCommandState {
     public static final int DOOR_CALIBRATION_STATE_START_SE = 0x04;
     public static final int DOOR_CALIBRATION_STATE_CLOSE_SE = 0x05;
 
+    @IntDef(value = {DURESS_PWD_OPEN, DURESS_PWD_CLOSE})
+    public @interface DuressPwdControl{}
+    public static final int DURESS_PWD_OPEN = 0x01;
+    public static final int DURESS_PWD_CLOSE = 0x00;
+
 }
