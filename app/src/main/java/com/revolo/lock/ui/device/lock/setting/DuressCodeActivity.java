@@ -20,6 +20,7 @@ import com.revolo.lock.ble.BleCommandState;
 import com.revolo.lock.ble.BleResultProcess;
 import com.revolo.lock.ble.OnBleDeviceListener;
 import com.revolo.lock.ble.bean.BleResultBean;
+import com.revolo.lock.room.AppDatabase;
 import com.revolo.lock.room.entity.BleDeviceLocal;
 
 import timber.log.Timber;
@@ -150,6 +151,7 @@ public class DuressCodeActivity extends BaseActivity {
         byte state = bean.getPayload()[0];
         if(state == 0x00) {
             mBleDeviceLocal.setDuress(!mBleDeviceLocal.isDuress());
+            AppDatabase.getInstance(this).bleDeviceDao().update(mBleDeviceLocal);
             initUI();
         } else {
             Timber.e("处理失败原因 state：%1s", ConvertUtils.int2HexString(BleByteUtil.byteToInt(state)));

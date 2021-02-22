@@ -1,5 +1,6 @@
 package com.revolo.lock.ui.device.lock.setting;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageView;
@@ -10,11 +11,22 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
 
-import com.blankj.utilcode.util.SPUtils;
+import com.blankj.utilcode.util.ConvertUtils;
 import com.revolo.lock.App;
+import com.revolo.lock.Constant;
 import com.revolo.lock.R;
 import com.revolo.lock.base.BaseActivity;
+import com.revolo.lock.ble.BleByteUtil;
 import com.revolo.lock.ble.BleCommandFactory;
+import com.revolo.lock.ble.BleResultProcess;
+import com.revolo.lock.ble.OnBleDeviceListener;
+import com.revolo.lock.ble.bean.BleResultBean;
+import com.revolo.lock.room.AppDatabase;
+import com.revolo.lock.room.entity.BleDeviceLocal;
+
+import timber.log.Timber;
+
+import static com.revolo.lock.ble.BleProtocolState.CMD_LOCK_PARAMETER_CHANGED;
 
 /**
  * author : Jack
@@ -25,21 +37,25 @@ import com.revolo.lock.ble.BleCommandFactory;
 public class AutoLockActivity extends BaseActivity {
 
     private SeekBar mSeekBar;
-    private TextView mTvTime;
+    private TextView mTvTime, mTvDetectionLock;
     private int mTime = 0;
-    private ImageView ivDetectionLockEnable, ivAutoLockEnable;
-    boolean isOpenAutoLock= false;
-    private ConstraintLayout clSetLockTime;
-    // TODO: 2021/2/8 存在锁的数据列表里
-    private boolean isShowSetLockTime;
-    // TODO: 2021/2/8 临时的bool值来判断是否开启自动上锁功能，后续需要通过查询状态来实现功能
-    private final String TEST_SET_LOCK_TIME = "TestSetLockTime";
-    private final String TEST_AUTO_LOCK = "TestAutoLock";
+    private ImageView mIvDetectionLockEnable, mIvAutoLockEnable;
+    private ConstraintLayout mClSetLockTime;
+    private BleDeviceLocal mBleDeviceLocal;
+
 
     @Override
     public void initData(@Nullable Bundle bundle) {
-        isShowSetLockTime = SPUtils.getInstance().getBoolean(TEST_SET_LOCK_TIME, false);
-        isOpenAutoLock = SPUtils.getInstance().getBoolean(TEST_AUTO_LOCK);
+        Intent intent = getIntent();
+        if(!intent.hasExtra(Constant.BLE_DEVICE)) {
+            // TODO: 2021/2/22 处理
+            finish();
+            return;
+        }
+        mBleDeviceLocal = intent.getParcelableExtra(Constant.BLE_DEVICE);
+        if(mBleDeviceLocal == null) {
+            finish();
+        }
     }
 
     @Override
@@ -52,10 +68,11 @@ public class AutoLockActivity extends BaseActivity {
         useCommonTitleBar(getString(R.string.title_auto_lock));
         mSeekBar = findViewById(R.id.seekBar);
         mTvTime = findViewById(R.id.tvTime);
-        clSetLockTime = findViewById(R.id.clSetLockTime);
-        ivAutoLockEnable = findViewById(R.id.ivAutoLockEnable);
-        ivDetectionLockEnable = findViewById(R.id.ivDetectionLockEnable);
-        applyDebouncingClickListener(ivAutoLockEnable, ivDetectionLockEnable);
+        mTvDetectionLock = findViewById(R.id.tvDetectionLock);
+        mClSetLockTime = findViewById(R.id.clSetLockTime);
+        mIvAutoLockEnable = findViewById(R.id.ivAutoLockEnable);
+        mIvDetectionLockEnable = findViewById(R.id.ivDetectionLockEnable);
+        applyDebouncingClickListener(mIvAutoLockEnable, mIvDetectionLockEnable);
         mSeekBar.setMax(140);
         mSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
@@ -74,13 +91,12 @@ public class AutoLockActivity extends BaseActivity {
             }
         });
 
-        clSetLockTime.setVisibility(isShowSetLockTime?View.VISIBLE:View.GONE);
-        ivDetectionLockEnable.setImageResource(isShowSetLockTime?R.drawable.ic_icon_switch_open:R.drawable.ic_icon_switch_close);
+        initUI();
     }
 
     @Override
     public void doBusiness() {
-
+        initBleListener();
     }
 
     @Override
@@ -90,20 +106,33 @@ public class AutoLockActivity extends BaseActivity {
             return;
         }
         if(view.getId() == R.id.ivDetectionLockEnable) {
-            isShowSetLockTime = !isShowSetLockTime;
-            SPUtils.getInstance().put(TEST_SET_LOCK_TIME, isShowSetLockTime);
-            clSetLockTime.setVisibility(isShowSetLockTime?View.VISIBLE:View.GONE);
-            ivDetectionLockEnable.setImageResource(isShowSetLockTime?R.drawable.ic_icon_switch_open:R.drawable.ic_icon_switch_close);
+            openOrCloseDetectionLock();
         }
+    }
+
+    private void initUI() {
+        runOnUiThread(() -> {
+            mIvAutoLockEnable.setImageResource(mBleDeviceLocal.isAutoLock()?R.drawable.ic_icon_switch_open:R.drawable.ic_icon_switch_close);
+            mTvDetectionLock.setVisibility(mBleDeviceLocal.isAutoLock()?View.VISIBLE:View.GONE);
+            mIvDetectionLockEnable.setVisibility(mBleDeviceLocal.isAutoLock()?View.VISIBLE:View.GONE);
+            mClSetLockTime.setVisibility(mBleDeviceLocal.isAutoLock()?View.VISIBLE:View.GONE);
+            mIvDetectionLockEnable
+                    .setImageResource(mBleDeviceLocal.isDetectionLock()?R.drawable.ic_icon_switch_open:R.drawable.ic_icon_switch_close);
+        });
+
+    }
+
+    private void openOrCloseDetectionLock() {
+        // TODO: 2021/2/22 服务器开启，或者本地开关 2021/2/22 开启服务通知
+        mBleDeviceLocal.setDetectionLock(!mBleDeviceLocal.isDetectionLock());
+        initUI();
+        AppDatabase.getInstance(this).bleDeviceDao().update(mBleDeviceLocal);
     }
 
     // TODO: 2021/2/8 要接收回调处理
     private void openOrCloseAutoLock() {
         byte[] value = new byte[1];
-        value[0] = (byte) (isOpenAutoLock?0x01:0x00);
-        isOpenAutoLock = !isOpenAutoLock;
-        ivAutoLockEnable.setImageResource(isOpenAutoLock?R.drawable.ic_icon_switch_open:R.drawable.ic_icon_switch_close);
-        SPUtils.getInstance().put(TEST_AUTO_LOCK, isOpenAutoLock);
+        value[0] = (byte) (mBleDeviceLocal.isAutoLock()?0x01:0x00);
         App.getInstance().writeControlMsg(BleCommandFactory
                 .lockParameterModificationCommand((byte) 0x04, (byte) 0x01, value,
                         App.getInstance().getBleBean().getPwd1(),
@@ -204,6 +233,63 @@ public class AutoLockActivity extends BaseActivity {
             mTvTime.setText("20min");
         } else if(progress == 140) {
             mTvTime.setText("30min");
+        }
+    }
+
+    private void initBleListener() {
+        App.getInstance().setOnBleDeviceListener(new OnBleDeviceListener() {
+            @Override
+            public void onConnected() {
+
+            }
+
+            @Override
+            public void onDisconnected() {
+
+            }
+
+            @Override
+            public void onReceivedValue(String uuid, byte[] value) {
+                if(value == null) {
+                    return;
+                }
+                BleResultProcess.setOnReceivedProcess(mOnReceivedProcess);
+                BleResultProcess.processReceivedData(value,
+                        App.getInstance().getBleBean().getPwd1(),
+                        App.getInstance().getBleBean().getPwd3(),
+                        App.getInstance().getBleBean().getOKBLEDeviceImp().getBleScanResult());
+            }
+
+            @Override
+            public void onWriteValue(String uuid, byte[] value, boolean success) {
+
+            }
+        });
+        // TODO: 2021/2/8 查询一下当前设置
+    }
+
+    private final BleResultProcess.OnReceivedProcess mOnReceivedProcess = bleResultBean -> {
+        if(bleResultBean == null) {
+            Timber.e("mOnReceivedProcess bleResultBean == null");
+            return;
+        }
+        processBleResult(bleResultBean);
+    };
+
+    private void processBleResult(BleResultBean bean) {
+        if(bean.getCMD() == CMD_LOCK_PARAMETER_CHANGED) {
+            processAutoLock(bean);
+        }
+    }
+
+    private void processAutoLock(BleResultBean bean) {
+        byte state = bean.getPayload()[0];
+        if(state == 0x00) {
+            mBleDeviceLocal.setAutoLock(!mBleDeviceLocal.isAutoLock());
+            AppDatabase.getInstance(this).bleDeviceDao().update(mBleDeviceLocal);
+            initUI();
+        } else {
+            Timber.e("处理失败原因 state：%1s", ConvertUtils.int2HexString(BleByteUtil.byteToInt(state)));
         }
     }
 

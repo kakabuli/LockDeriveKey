@@ -127,7 +127,9 @@ public class DeviceSettingActivity extends BaseActivity {
             return;
         }
         if(view.getId() == R.id.clAutoLock) {
-            startActivity(new Intent(this, AutoLockActivity.class));
+            Intent intent = new Intent(this, AutoLockActivity.class);
+            intent.putExtra(Constant.BLE_DEVICE, mBleDeviceLocal);
+            startActivity(intent);
             return;
         }
         if(view.getId() == R.id.clPrivateMode) {
