@@ -27,6 +27,7 @@ import timber.log.Timber;
  * time   : 2020/12/29
  * E-mail : wengmaowei@kaadas.com
  * desc   : 门磁校验
+ *          步骤：关闭门磁->开门->关门->开门->虚掩->开启门磁
  */
 public class DoorSensorCheckActivity extends BaseActivity {
 
@@ -34,19 +35,20 @@ public class DoorSensorCheckActivity extends BaseActivity {
     private TextView mTvTip, mTvSkip;
     private Button mBtnNext;
 
-    @IntDef(value = {DOOR_OPEN, DOOR_CLOSE, DOOR_HALF, DOOR_SUC, DOOR_FAIL})
+    @IntDef(value = {DOOR_OPEN, DOOR_CLOSE, DOOR_HALF, DOOR_SUC, DOOR_FAIL, DOOR_OPEN_AGAIN})
     private @interface DoorState{}
     private static final int DOOR_OPEN = 1;
     private static final int DOOR_CLOSE = 2;
     private static final int DOOR_HALF = 3;
     private static final int DOOR_SUC = 4;
     private static final int DOOR_FAIL = 5;
+    private static final int DOOR_OPEN_AGAIN = 6;
 
     @BleCommandState.DoorCalibrationState
     private int mCalibrationState = BleCommandState.DOOR_CALIBRATION_STATE_CLOSE_SE;
 
     @DoorState
-    private int mDoorState = DOOR_CLOSE;
+    private int mDoorState = DOOR_OPEN;
 
     @Override
     public void initData(@Nullable Bundle bundle) {
@@ -72,10 +74,14 @@ public class DoorSensorCheckActivity extends BaseActivity {
     public void doBusiness() {
         initBleListener();
         sendCommand(BleCommandState.DOOR_CALIBRATION_STATE_CLOSE_SE);
+        // 初始化默认第一步执行开门
+        isOpenAgain = false;
+        refreshOpenTheDoor();
     }
 
     @Override
     public void onBackPressed() {
+        // TODO: 2021/2/22 重新梳理状态
         if(mDoorState == DOOR_CLOSE) {
             super.onBackPressed();
         } else {
@@ -91,20 +97,22 @@ public class DoorSensorCheckActivity extends BaseActivity {
     public void onDebouncingClick(@NonNull View view) {
         if(view.getId() == R.id.btnNext) {
             switch (mDoorState) {
+                case DOOR_OPEN:
+                case DOOR_OPEN_AGAIN:
+                    sendCommand(BleCommandState.DOOR_CALIBRATION_STATE_OPEN);
+                    break;
                 case DOOR_CLOSE:
                     sendCommand(BleCommandState.DOOR_CALIBRATION_STATE_CLOSE);
                     break;
                 case DOOR_HALF:
                     sendCommand(BleCommandState.DOOR_CALIBRATION_STATE_HALF);
                     break;
-                case DOOR_OPEN:
-                    sendCommand(BleCommandState.DOOR_CALIBRATION_STATE_OPEN);
-                    break;
                 case DOOR_SUC:
                     sendCommand(BleCommandState.DOOR_CALIBRATION_STATE_START_SE);
                     break;
                 case DOOR_FAIL:
                     break;
+
             }
             return;
         }
@@ -127,11 +135,13 @@ public class DoorSensorCheckActivity extends BaseActivity {
         finish();
     }
 
+    private boolean isOpenAgain = false;
+
     private void refreshOpenTheDoor() {
         mIvDoorState.setImageResource(R.drawable.ic_equipment_img_magnetic_door_open);
         mTvTip.setText(getString(R.string.open_the_door));
         mBtnNext.setText(getString(R.string.next));
-        mDoorState = DOOR_OPEN;
+        mDoorState = isOpenAgain?DOOR_OPEN_AGAIN:DOOR_OPEN;
     }
 
     private void refreshCloseTheDoor() {
@@ -205,14 +215,18 @@ public class DoorSensorCheckActivity extends BaseActivity {
                 }
                 runOnUiThread(() -> {
                     switch (mDoorState) {
+                        case DOOR_OPEN:
+                            refreshCloseTheDoor();
+                            break;
                         case DOOR_CLOSE:
+                            isOpenAgain = true;
                             refreshOpenTheDoor();
+                            break;
+                        case DOOR_OPEN_AGAIN:
+                            refreshHalfTheDoor();
                             break;
                         case DOOR_HALF:
                             refreshDoorSuc();
-                            break;
-                        case DOOR_OPEN:
-                            refreshHalfTheDoor();
                             break;
                         case DOOR_SUC:
                             gotoAddWifi();
