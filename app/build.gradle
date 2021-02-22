@@ -33,6 +33,13 @@ android {
         }
     }
 
+//    //指定room.schemaLocation生成的文件路径
+//    javaCompileOptions {
+//        annotationProcessorOptions {
+//            arguments = ["room.schemaLocation": "$projectDir/schemas".toString()]
+//        }
+//    }
+
 }
 
 dependencies {
@@ -98,4 +105,6 @@ dependencies {
     implementation "androidx.room:room-guava:$room_version"
     // optional - Test helpers
     testImplementation "androidx.room:room-testing:$room_version"
+    // 数据库加密
+    implementation "net.zetetic:android-database-sqlcipher:4.4.2"
 }

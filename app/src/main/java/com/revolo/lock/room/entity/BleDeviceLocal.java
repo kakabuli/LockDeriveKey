@@ -92,6 +92,9 @@ public class BleDeviceLocal {
     @ColumnInfo(name = "d_is_do_not_disturb_mode", defaultValue = "false")
     private boolean isDoNotDisturbMode;                     // 是否开启勿扰模式
 
+    @ColumnInfo(name = "d_is_duress")
+    private boolean isDuress;                               // 是否开启胁迫密码
+
 
     public long getId() {
         return id;
@@ -299,5 +302,13 @@ public class BleDeviceLocal {
 
     public void setDoNotDisturbMode(boolean doNotDisturbMode) {
         isDoNotDisturbMode = doNotDisturbMode;
+    }
+
+    public boolean isDuress() {
+        return isDuress;
+    }
+
+    public void setDuress(boolean duress) {
+        isDuress = duress;
     }
 }

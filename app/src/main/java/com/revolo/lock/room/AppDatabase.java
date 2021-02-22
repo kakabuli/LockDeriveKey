@@ -15,6 +15,10 @@ import com.revolo.lock.room.entity.BleDeviceLocal;
 import com.revolo.lock.room.entity.DevicePwd;
 import com.revolo.lock.room.entity.User;
 
+import net.sqlcipher.database.SupportFactory;
+
+import java.nio.charset.StandardCharsets;
+
 import timber.log.Timber;
 
 /**
@@ -32,12 +36,16 @@ public abstract class AppDatabase extends RoomDatabase {
     private static AppDatabase INSTANCE;
     private static final Object sLock = new Object();
 
+    private static final String PASSPHRASE = "ka^222diSHi";
+    private static final SupportFactory FACTORY = new SupportFactory(PASSPHRASE.getBytes(StandardCharsets.UTF_8));
+
     public static AppDatabase getInstance(Context context) {
         synchronized (sLock) {
             if (INSTANCE == null) {
                 INSTANCE =
                         Room.databaseBuilder(context.getApplicationContext(), AppDatabase.class, "rev.db")
                                 .allowMainThreadQueries() // TODO: 2021/2/3 后续需要把这些操作放到非UI线程里
+                                .openHelperFactory(FACTORY)
                                 .addCallback(new Callback() {
                                     @Override
                                     public void onCreate(@NonNull SupportSQLiteDatabase db) {
