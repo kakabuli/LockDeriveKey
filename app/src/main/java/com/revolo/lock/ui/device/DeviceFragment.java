@@ -57,6 +57,9 @@ import io.reactivex.Observer;
 import io.reactivex.disposables.Disposable;
 import timber.log.Timber;
 
+import static com.revolo.lock.ble.BleCommandState.LOCK_SETTING_CLOSE;
+import static com.revolo.lock.ble.BleCommandState.LOCK_SETTING_OPEN;
+
 public class DeviceFragment extends Fragment {
 
     private DeviceViewModel mDeviceViewModel;
@@ -99,7 +102,7 @@ public class DeviceFragment extends Fragment {
                     int state = mHomeLockListAdapter.getItem(position).getDoorState();
                     if(mBleDeviceLocals.get(0).getConnectedType() == 2) {
                         App.getInstance().writeControlMsg(BleCommandFactory
-                                .lockControlCommand((byte) (state==1?0x01:0x00), (byte) 0x04, (byte) 0x01, mBleBean.getPwd1(), mBleBean.getPwd3()));
+                                .lockControlCommand((byte) (state==1?LOCK_SETTING_CLOSE:LOCK_SETTING_OPEN), (byte) 0x04, (byte) 0x01, mBleBean.getPwd1(), mBleBean.getPwd3()));
                     } else if(mBleDeviceLocals.get(0).getConnectedType() == 1) {
                         publishOpenOrCloseDoor(mHomeLockListAdapter.getItem(position).getWifiListBean().getWifiSN(), state==1?1:0);
                     }

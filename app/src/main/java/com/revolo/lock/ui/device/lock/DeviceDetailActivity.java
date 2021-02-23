@@ -39,6 +39,9 @@ import io.reactivex.Observer;
 import io.reactivex.disposables.Disposable;
 import timber.log.Timber;
 
+import static com.revolo.lock.ble.BleCommandState.LOCK_SETTING_CLOSE;
+import static com.revolo.lock.ble.BleCommandState.LOCK_SETTING_OPEN;
+
 /**
  * author : Jack
  * time   : 2021/1/12
@@ -310,7 +313,7 @@ public class DeviceDetailActivity extends BaseActivity {
             return;
         }
         App.getInstance().writeControlMsg(BleCommandFactory
-                .lockControlCommand((byte) (mWifiShowBean.getDoorState()==1?0x01:0x00), (byte) 0x04, (byte) 0x01, App.getInstance().getBleBean().getPwd1(), App.getInstance().getBleBean().getPwd3()));
+                .lockControlCommand((byte) (mWifiShowBean.getDoorState()==1?LOCK_SETTING_CLOSE:LOCK_SETTING_OPEN), (byte) 0x04, (byte) 0x01, App.getInstance().getBleBean().getPwd1(), App.getInstance().getBleBean().getPwd3()));
 //        publishOpenOrCloseDoor(mWifiShowBean.getWifiListBean().getWifiSN(), mWifiShowBean.getDoorState()==1?1:0);
     }
 

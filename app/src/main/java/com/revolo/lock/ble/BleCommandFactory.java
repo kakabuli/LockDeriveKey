@@ -221,10 +221,10 @@ public class BleCommandFactory {
      * @param code      密钥
      *                  Set PIN Code时为ASCII码，如123456为0x313233343536
      */
-    public static byte[] lockControlCommand(byte action, byte codeType, byte userId,
+    public static byte[] lockControlCommand(@BleCommandState.OpenOrClose int action, byte codeType, byte userId,
                                             byte pwdLength, byte[] code, byte[] pwd1, byte[] pwd2) {
         byte[] data = new byte[16];
-        data[0] = action;
+        data[0] = (byte) action;
         data[1] = codeType;
         data[2] = userId;
         data[3] = pwdLength;
@@ -232,9 +232,25 @@ public class BleCommandFactory {
         return commandPackage(true, (byte) 0x02, commandTSN(), data, pwd1, pwd2);
     }
 
-    public static byte[] lockControlCommand(byte action, byte codeType, byte userId, byte[] pwd1, byte[] pwd2) {
+    /**
+     * 锁控制
+     * @param action     动作
+     *                   0x00：UnLock
+     *                   0x01：Lock
+     *                   0x02：Toggle
+     *                   0x03: APP在线解绑门锁
+     *                   0x04~0xFF：保留
+     * @param codeType   密钥类型
+     *                   0x00：保留
+     *                   0x01：PIN密码
+     *                   0x02：RFID卡片
+     *                   0x04：APP开锁（锁不鉴权）
+     * @param userId     用户编号
+     *                   0x01	BLE自动开锁
+     */
+    public static byte[] lockControlCommand(@BleCommandState.OpenOrClose int action, byte codeType, byte userId, byte[] pwd1, byte[] pwd2) {
         byte[] data = new byte[4];
-        data[0] = action;
+        data[0] = (byte) action;
         data[1] = codeType;
         data[2] = userId;
         data[3] = 0x00;
