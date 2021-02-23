@@ -354,5 +354,8 @@
     <string name="time">time</string>
     <string name="end_date">End date</string>
     <string name="detection_lock">Detection lock</string>
+    <string name="medium">Medium</string>
+    <string name="low">Low</string>
+    <string name="high">High</string>
 
 </resources>

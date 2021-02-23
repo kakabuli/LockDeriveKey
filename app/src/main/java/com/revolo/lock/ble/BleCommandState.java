@@ -142,4 +142,10 @@ public class BleCommandState {
     public static final int DURESS_PWD_OPEN = 0x01;
     public static final int DURESS_PWD_CLOSE = 0x00;
 
+    @IntDef(value = {KNOCK_DOOR_SENSITIVITY_LOW, KNOCK_DOOR_SENSITIVITY_MEDIUM, KNOCK_DOOR_SENSITIVITY_HIGH})
+    public @interface KnockDoorSensitivity{}
+    public static final int KNOCK_DOOR_SENSITIVITY_LOW = 0x01;
+    public static final int KNOCK_DOOR_SENSITIVITY_MEDIUM = 0x02;
+    public static final int KNOCK_DOOR_SENSITIVITY_HIGH = 0x03;
+
 }

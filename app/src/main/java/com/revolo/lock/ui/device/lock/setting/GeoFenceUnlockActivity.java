@@ -1,13 +1,36 @@
 package com.revolo.lock.ui.device.lock.setting;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.ImageView;
+import android.widget.SeekBar;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.blankj.utilcode.util.ConvertUtils;
+import com.revolo.lock.App;
+import com.revolo.lock.Constant;
 import com.revolo.lock.R;
 import com.revolo.lock.base.BaseActivity;
+import com.revolo.lock.ble.BleByteUtil;
+import com.revolo.lock.ble.BleCommandFactory;
+import com.revolo.lock.ble.BleCommandState;
+import com.revolo.lock.ble.BleResultProcess;
+import com.revolo.lock.ble.OnBleDeviceListener;
+import com.revolo.lock.ble.bean.BleResultBean;
+import com.revolo.lock.room.AppDatabase;
+import com.revolo.lock.room.entity.BleDeviceLocal;
+
+import timber.log.Timber;
+
+import static com.revolo.lock.ble.BleCommandState.KNOCK_DOOR_SENSITIVITY_HIGH;
+import static com.revolo.lock.ble.BleCommandState.KNOCK_DOOR_SENSITIVITY_LOW;
+import static com.revolo.lock.ble.BleCommandState.KNOCK_DOOR_SENSITIVITY_MEDIUM;
+import static com.revolo.lock.ble.BleProtocolState.CMD_KNOCK_DOOR_AND_UNLOCK_TIME;
+import static com.revolo.lock.ble.BleProtocolState.CMD_SET_SENSITIVITY;
 
 /**
  * author : Jack
@@ -16,9 +39,24 @@ import com.revolo.lock.base.BaseActivity;
  * desc   : 地理围栏设置页面
  */
 public class GeoFenceUnlockActivity extends BaseActivity {
+
+    private ImageView mIvGeoFenceUnlockEnable;
+    private TextView mTvTime, mTvSensitivity;
+    private BleDeviceLocal mBleDeviceLocal;
+    private SeekBar mSeekBarTime, mSeekBarSensitivity;
+
     @Override
     public void initData(@Nullable Bundle bundle) {
-
+        Intent intent = getIntent();
+        if(!intent.hasExtra(Constant.BLE_DEVICE)) {
+            // TODO: 2021/2/22 处理
+            finish();
+            return;
+        }
+        mBleDeviceLocal = intent.getParcelableExtra(Constant.BLE_DEVICE);
+        if(mBleDeviceLocal == null) {
+            finish();
+        }
     }
 
     @Override
@@ -29,15 +67,252 @@ public class GeoFenceUnlockActivity extends BaseActivity {
     @Override
     public void initView(@Nullable Bundle savedInstanceState, @Nullable View contentView) {
         useCommonTitleBar(getString(R.string.title_geo_fence_unlock));
+        mIvGeoFenceUnlockEnable = findViewById(R.id.ivGeoFenceUnlockEnable);
+        mTvTime = findViewById(R.id.tvTime);
+        mTvSensitivity = findViewById(R.id.tvSensitivity);
+        mSeekBarTime = findViewById(R.id.seekBarTime);
+        mSeekBarSensitivity = findViewById(R.id.seekBarSensitivity);
+        mSeekBarTime.setMax(230);
+        mSeekBarTime.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                processChangeTimeFromSeekBar(progress);
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                processStopTimeFromSeekBar(seekBar, true);
+            }
+        });
+        mSeekBarSensitivity.setMax(100);
+        mSeekBarSensitivity.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                processChangeSensitivityFromSeekBar(progress);
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                processStopSensitivityFromSeekBar(seekBar, true);
+            }
+        });
+
+        mIvGeoFenceUnlockEnable.setImageResource(mBleDeviceLocal.isOpenElectricFence()?R.drawable.ic_icon_switch_open:R.drawable.ic_icon_switch_close);
+
+        applyDebouncingClickListener(mIvGeoFenceUnlockEnable);
     }
 
     @Override
     public void doBusiness() {
-
+        initDefaultValue();
+        initTimeNSensitivityDataUI();
+        initBleListener();
     }
 
     @Override
     public void onDebouncingClick(@NonNull View view) {
-
+        if(view.getId() == R.id.ivGeoFenceUnlockEnable) {
+            // TODO: 2021/2/23 开关电子围栏
+        }
     }
+
+    private int mTime;
+    private String mTimeStr;
+
+    private @BleCommandState.KnockDoorSensitivity int mSensitivity;
+    private String mSensitivityStr;
+
+    private void initDefaultValue() {
+        mTime = mBleDeviceLocal.getSetElectricFenceTime();
+        mSensitivity = mBleDeviceLocal.getSetElectricFenceSensitivity();
+        boolean isNeedSave = false;
+        if(mTime == 0) {
+            mTime = 10*60;
+            mBleDeviceLocal.setSetElectricFenceTime(mTime);
+            isNeedSave = true;
+        }
+        if(mSensitivity == 0) {
+            mSensitivity = KNOCK_DOOR_SENSITIVITY_MEDIUM;
+            mBleDeviceLocal.setSetElectricFenceSensitivity(mSensitivity);
+            isNeedSave = true;
+        }
+        if(isNeedSave) {
+            AppDatabase.getInstance(this).bleDeviceDao().update(mBleDeviceLocal);
+        }
+    }
+    
+    private void initTimeNSensitivityDataUI() {
+        for (int i=3; i<=30; i++) {
+            if(mTime == i*60) {
+                mTimeStr = i+"min";
+                break;
+            }
+        }
+        processStopTimeFromSeekBar(mSeekBarTime, false);
+        if(mSensitivity == KNOCK_DOOR_SENSITIVITY_LOW) {
+            mSensitivityStr = getString(R.string.low);
+        } else if(mSensitivity == KNOCK_DOOR_SENSITIVITY_MEDIUM) {
+            mSensitivityStr = getString(R.string.medium);
+        } else if(mSensitivity == KNOCK_DOOR_SENSITIVITY_HIGH) {
+            mSensitivityStr = getString(R.string.high);
+        }
+        mTvSensitivity.setText(mSensitivityStr);
+        processStopSensitivityFromSeekBar(mSeekBarSensitivity, false);
+    }
+
+    private void processChangeTimeFromSeekBar(int process) {
+        for (int i=1; i<=23; i++) {
+            if(process <= i*10) {
+                if(i==1) {
+                    mTimeStr = "3min";
+                    mTime = 3*60;
+                } else if(i==2) {
+                    mTimeStr = "5min";
+                    mTime = 5*60;
+                } else {
+                    mTimeStr = (i+7) + "min";
+                    mTime = (i+7)*60;
+                }
+                break;
+            }
+        }
+        mTvTime.setText(mTimeStr);
+    }
+
+    private void processStopTimeFromSeekBar(SeekBar seekBar, boolean isSendCommand) {
+        mTvTime.setText(mTimeStr);
+        for (int i=3; i<=30; i++) {
+            if(mTime == i*60) {
+                if(i == 3) {
+                    seekBar.setProgress(0);
+                } else if(i == 5) {
+                    seekBar.setProgress(11);
+                } else if(i == 30) {
+                    seekBar.setProgress(230);
+                } else {
+                    seekBar.setProgress(((i-8)*10)+1);
+                }
+                break;
+            }
+        }
+        if(isSendCommand) {
+            App.getInstance()
+                    .writeControlMsg(BleCommandFactory
+                            .setKnockDoorAndUnlockTime(1,
+                                    mTime,
+                                    App.getInstance().getBleBean().getPwd1(),
+                                    App.getInstance().getBleBean().getPwd3()));
+        }
+    }
+
+    private void processChangeSensitivityFromSeekBar(int process) {
+        if(process <= 30) {
+            mSensitivity = KNOCK_DOOR_SENSITIVITY_LOW;
+            mSensitivityStr = getString(R.string.low);
+        } else if(process <= 70) {
+            mSensitivity = KNOCK_DOOR_SENSITIVITY_MEDIUM;
+            mSensitivityStr = getString(R.string.medium);
+        } else {
+            mSensitivity = KNOCK_DOOR_SENSITIVITY_HIGH;
+            mSensitivityStr = getString(R.string.high);
+        }
+        mTvSensitivity.setText(mSensitivityStr);
+    }
+
+    private void processStopSensitivityFromSeekBar(SeekBar seekBar, boolean isSendCommand) {
+        mTvSensitivity.setText(mSensitivityStr);
+        if(mSensitivity == KNOCK_DOOR_SENSITIVITY_LOW) {
+            seekBar.setProgress(0);
+        } else if(mSensitivity == KNOCK_DOOR_SENSITIVITY_MEDIUM) {
+            seekBar.setProgress(50);
+        } else if(mSensitivity == KNOCK_DOOR_SENSITIVITY_HIGH) {
+            seekBar.setProgress(100);
+        }
+        if(isSendCommand) {
+            App.getInstance()
+                    .writeControlMsg(BleCommandFactory
+                            .setSensitivity(mSensitivity,
+                                    App.getInstance().getBleBean().getPwd1(),
+                                    App.getInstance().getBleBean().getPwd3()));
+        }
+    }
+
+    private void initBleListener() {
+        App.getInstance().setOnBleDeviceListener(new OnBleDeviceListener() {
+            @Override
+            public void onConnected() {
+
+            }
+
+            @Override
+            public void onDisconnected() {
+
+            }
+
+            @Override
+            public void onReceivedValue(String uuid, byte[] value) {
+                if(value == null) {
+                    return;
+                }
+                BleResultProcess.setOnReceivedProcess(mOnReceivedProcess);
+                BleResultProcess.processReceivedData(value,
+                        App.getInstance().getBleBean().getPwd1(),
+                        App.getInstance().getBleBean().getPwd3(),
+                        App.getInstance().getBleBean().getOKBLEDeviceImp().getBleScanResult());
+            }
+
+            @Override
+            public void onWriteValue(String uuid, byte[] value, boolean success) {
+
+            }
+        });
+        // TODO: 2021/2/8 查询一下当前设置
+    }
+
+    private final BleResultProcess.OnReceivedProcess mOnReceivedProcess = bleResultBean -> {
+        if(bleResultBean == null) {
+            Timber.e("mOnReceivedProcess bleResultBean == null");
+            return;
+        }
+        processBleResult(bleResultBean);
+    };
+
+    private void processBleResult(BleResultBean bean) {
+        if(bean.getCMD() == CMD_SET_SENSITIVITY) {
+            processSetSensitivity(bean);
+        } else if(bean.getCMD() == CMD_KNOCK_DOOR_AND_UNLOCK_TIME) {
+            processKnockUnlockTime(bean);
+        }
+    }
+
+    private void processKnockUnlockTime(BleResultBean bean) {
+        byte state = bean.getPayload()[0];
+        if(state == 0x00) {
+            mBleDeviceLocal.setSetElectricFenceTime(mTime);
+            AppDatabase.getInstance(this).bleDeviceDao().update(mBleDeviceLocal);
+        } else {
+            Timber.e("处理失败原因 state：%1s", ConvertUtils.int2HexString(BleByteUtil.byteToInt(state)));
+        }
+    }
+
+    private void processSetSensitivity(BleResultBean bean) {
+        byte state = bean.getPayload()[0];
+        if(state == 0x00) {
+            mBleDeviceLocal.setSetElectricFenceSensitivity(mSensitivity);
+            AppDatabase.getInstance(this).bleDeviceDao().update(mBleDeviceLocal);
+        } else {
+            Timber.e("处理失败原因 state：%1s", ConvertUtils.int2HexString(BleByteUtil.byteToInt(state)));
+        }
+    }
+
 }

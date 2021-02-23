@@ -210,20 +210,20 @@ public class DeviceFragment extends Fragment {
 
     private void controlOpenOrCloseDoorAck(BleResultBean bean) {
         // TODO: 2021/2/7 处理控制开关锁确认帧
-        getActivity().runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                if(bean.getPayload()[0] == 0x00) {
-                    // 上锁
-                    int state = mHomeLockListAdapter.getData().get(0).getDoorState();
-                    if(state == 1) {
-                        state = 2;
-                    } else if(state == 2) {
-                        state = 1;
-                    }
-                    mHomeLockListAdapter.getData().get(0).setDoorState(state);
-                    mHomeLockListAdapter.notifyDataSetChanged();
+        if(getActivity() == null) {
+            return;
+        }
+        getActivity().runOnUiThread(() -> {
+            if(bean.getPayload()[0] == 0x00) {
+                // 上锁
+                int state = mHomeLockListAdapter.getData().get(0).getDoorState();
+                if(state == 1) {
+                    state = 2;
+                } else if(state == 2) {
+                    state = 1;
                 }
+                mHomeLockListAdapter.getData().get(0).setDoorState(state);
+                mHomeLockListAdapter.notifyDataSetChanged();
             }
         });
 
@@ -246,21 +246,18 @@ public class DeviceFragment extends Fragment {
         if(getActivity() == null) {
             return;
         }
-        getActivity().runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                if(eventType == 0x01) {
-                    if(eventSource == 0x01) {
-                        // 上锁
-                        mHomeLockListAdapter.getData().get(0).setDoorState(2);
-                        mHomeLockListAdapter.notifyDataSetChanged();
-                    } else if(eventCode == 0x02) {
-                        // 开锁
-                        mHomeLockListAdapter.getData().get(0).setDoorState(1);
-                        mHomeLockListAdapter.notifyDataSetChanged();
-                    } else {
-                        // TODO: 2021/2/10 其他处理
-                    }
+        getActivity().runOnUiThread(() -> {
+            if(eventType == 0x01) {
+                if(eventSource == 0x01) {
+                    // 上锁
+                    mHomeLockListAdapter.getData().get(0).setDoorState(2);
+                    mHomeLockListAdapter.notifyDataSetChanged();
+                } else if(eventCode == 0x02) {
+                    // 开锁
+                    mHomeLockListAdapter.getData().get(0).setDoorState(1);
+                    mHomeLockListAdapter.notifyDataSetChanged();
+                } else {
+                    // TODO: 2021/2/10 其他处理
                 }
             }
         });

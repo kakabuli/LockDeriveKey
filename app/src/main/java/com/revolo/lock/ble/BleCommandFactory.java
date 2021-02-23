@@ -10,12 +10,14 @@ import static com.revolo.lock.ble.BleProtocolState.CMD_GET_ALL_RECORD;
 import static com.revolo.lock.ble.BleProtocolState.CMD_KEY_ADD;
 import static com.revolo.lock.ble.BleProtocolState.CMD_KEY_ATTRIBUTES_READ;
 import static com.revolo.lock.ble.BleProtocolState.CMD_KEY_ATTRIBUTES_SET;
+import static com.revolo.lock.ble.BleProtocolState.CMD_KNOCK_DOOR_AND_UNLOCK_TIME;
 import static com.revolo.lock.ble.BleProtocolState.CMD_LOCK_ALARM_RECORD_CHECK;
 import static com.revolo.lock.ble.BleProtocolState.CMD_LOCK_INFO;
 import static com.revolo.lock.ble.BleProtocolState.CMD_LOCK_NUM_CHECK;
 import static com.revolo.lock.ble.BleProtocolState.CMD_LOCK_OPEN_COUNT_CHECK;
 import static com.revolo.lock.ble.BleProtocolState.CMD_LOCK_PARAMETER_CHANGED;
 import static com.revolo.lock.ble.BleProtocolState.CMD_LOCK_PARAMETER_CHECK;
+import static com.revolo.lock.ble.BleProtocolState.CMD_SET_SENSITIVITY;
 
 /**
  * author : Jack
@@ -830,10 +832,10 @@ public class BleCommandFactory {
      * 敲门开锁灵敏度
      * @param sensitivity 1:灵敏度低  2：灵敏度中  3：灵敏度高
      */
-    public static byte[] setSensitivity(int sensitivity, byte[] pwd1, byte[] pwd3) {
+    public static byte[] setSensitivity(@BleCommandState.KnockDoorSensitivity int sensitivity, byte[] pwd1, byte[] pwd3) {
         byte[] data = new byte[1];
         data[0] = (byte) sensitivity;
-        return commandPackage(true, (byte) 0x20, commandTSN(), data, pwd1, pwd3);
+        return commandPackage(true, (byte) CMD_SET_SENSITIVITY, commandTSN(), data, pwd1, pwd3);
     }
 
 
@@ -855,7 +857,7 @@ public class BleCommandFactory {
         data[0] = (byte) option;
         byte[] timeBytes = BleByteUtil.longToUnsigned32Bytes(time);
         System.arraycopy(timeBytes, 0, data, 1, 4);
-        return commandPackage(true, (byte) 0x22, commandTSN(), data, pwd1, pwd3);
+        return commandPackage(true, (byte) CMD_KNOCK_DOOR_AND_UNLOCK_TIME, commandTSN(), data, pwd1, pwd3);
     }
 
     /**

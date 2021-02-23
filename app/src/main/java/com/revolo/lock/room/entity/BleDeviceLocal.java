@@ -7,6 +7,8 @@ import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
+import com.revolo.lock.ble.BleCommandState;
+
 /**
  * author :
  * time   : 2021/2/3
@@ -81,7 +83,7 @@ public class BleDeviceLocal implements Parcelable {
     private int setElectricFenceTime;                       // 设置电子围栏时间
 
     @ColumnInfo(name = "d_set_electric_fence_sensitivity")
-    private int setElectricFenceSensitivity;                // 设置电子围栏灵敏度
+    private int setElectricFenceSensitivity;                // 设置电子围栏敲门开门的灵敏度 1:灵敏度低  2：灵敏度中  3：灵敏度高
 
     @ColumnInfo(name = "d_is_auto_lock", defaultValue = "false")
     private boolean isAutoLock;                             // 是否开启自动上锁
@@ -274,7 +276,7 @@ public class BleDeviceLocal implements Parcelable {
         return setElectricFenceSensitivity;
     }
 
-    public void setSetElectricFenceSensitivity(int setElectricFenceSensitivity) {
+    public void setSetElectricFenceSensitivity(@BleCommandState.KnockDoorSensitivity int setElectricFenceSensitivity) {
         this.setElectricFenceSensitivity = setElectricFenceSensitivity;
     }
 

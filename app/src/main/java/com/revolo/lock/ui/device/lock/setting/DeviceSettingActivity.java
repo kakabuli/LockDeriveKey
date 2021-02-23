@@ -149,7 +149,9 @@ public class DeviceSettingActivity extends BaseActivity {
             return;
         }
         if(view.getId() == R.id.clGeoFenceLock) {
-            startActivity(new Intent(this, GeoFenceUnlockActivity.class));
+            Intent intent = new Intent(this, GeoFenceUnlockActivity.class);
+            intent.putExtra(Constant.BLE_DEVICE, mBleDeviceLocal);
+            startActivity(intent);
             return;
         }
         if(view.getId() == R.id.clDoorMagneticSwitch) {
