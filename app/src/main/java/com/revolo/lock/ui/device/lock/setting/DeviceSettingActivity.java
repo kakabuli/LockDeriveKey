@@ -3,6 +3,8 @@ package com.revolo.lock.ui.device.lock.setting;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.ImageView;
@@ -237,7 +239,7 @@ public class DeviceSettingActivity extends BaseActivity {
                 }
                 AppDatabase.getInstance(getApplicationContext()).bleDeviceDao().delete(mBleDeviceLocal);
                 ToastUtils.showShort("Unbind success");
-                finish();
+                new Handler(Looper.getMainLooper()).postDelayed(() -> finish(), 50);
             }
 
             @Override

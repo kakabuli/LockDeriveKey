@@ -860,7 +860,7 @@ public class BleCommandFactory {
      * @param time 自动上锁时间
      */
     public static byte[] setAutoLockTime(int time, byte[] pwd1, byte[] pwd3) {
-        return commandPackage(true, (byte) 0x21, commandTSN(), BleByteUtil.int2BytesArray(time), pwd1, pwd3);
+        return commandPackage(true, (byte) 0x21, commandTSN(), littleMode(BleByteUtil.int2BytesArray(time)), pwd1, pwd3);
     }
 
     /**
@@ -871,7 +871,7 @@ public class BleCommandFactory {
     public static byte[] setKnockDoorAndUnlockTime(int option, long time, byte[] pwd1, byte[] pwd3) {
         byte[] data = new byte[5];
         data[0] = (byte) option;
-        byte[] timeBytes = BleByteUtil.longToUnsigned32Bytes(time);
+        byte[] timeBytes = littleMode(BleByteUtil.longToUnsigned32Bytes(time));
         System.arraycopy(timeBytes, 0, data, 1, 4);
         return commandPackage(true, (byte) CMD_KNOCK_DOOR_AND_UNLOCK_TIME, commandTSN(), data, pwd1, pwd3);
     }

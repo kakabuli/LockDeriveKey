@@ -82,8 +82,9 @@ public class DoorSensorCheckActivity extends BaseActivity {
 
     @Override
     public void doBusiness() {
-        initBleListener();
-        sendCommand(BleCommandState.DOOR_CALIBRATION_STATE_CLOSE_SE);
+        // TODO: 2021/2/23 先屏蔽门磁
+//        initBleListener();
+//        sendCommand(BleCommandState.DOOR_CALIBRATION_STATE_CLOSE_SE);
         // 初始化默认第一步执行开门
         isOpenAgain = false;
         refreshOpenTheDoor();

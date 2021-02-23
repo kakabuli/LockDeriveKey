@@ -97,8 +97,10 @@ public class DuressCodeActivity extends BaseActivity {
     }
 
     private void initUI() {
-        mIvDuressCodeEnable.setImageResource(mBleDeviceLocal.isDuress()?R.drawable.ic_icon_switch_open:R.drawable.ic_icon_switch_close);
-        mClInputEmail.setVisibility(mBleDeviceLocal.isDuress()?View.VISIBLE:View.GONE);
+        runOnUiThread(() -> {
+            mIvDuressCodeEnable.setImageResource(mBleDeviceLocal.isDuress()?R.drawable.ic_icon_switch_open:R.drawable.ic_icon_switch_close);
+            mClInputEmail.setVisibility(mBleDeviceLocal.isDuress()?View.VISIBLE:View.GONE);
+        });
     }
 
     private void initBleListener() {
