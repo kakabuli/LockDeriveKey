@@ -2,6 +2,8 @@ package com.revolo.lock.ui.device.lock;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.TextView;
@@ -14,16 +16,28 @@ import com.revolo.lock.App;
 import com.revolo.lock.Constant;
 import com.revolo.lock.R;
 import com.revolo.lock.base.BaseActivity;
+import com.revolo.lock.bean.request.DelKeyBeanReq;
+import com.revolo.lock.bean.respone.DelKeyBeanRsp;
 import com.revolo.lock.ble.BleByteUtil;
 import com.revolo.lock.ble.BleCommandFactory;
 import com.revolo.lock.ble.BleResultProcess;
 import com.revolo.lock.ble.OnBleDeviceListener;
+import com.revolo.lock.ble.bean.BleResultBean;
 import com.revolo.lock.dialog.MessageDialog;
 import com.revolo.lock.dialog.SelectDialog;
+import com.revolo.lock.net.HttpRequest;
+import com.revolo.lock.net.ObservableDecorator;
 import com.revolo.lock.room.AppDatabase;
+import com.revolo.lock.room.entity.BleDeviceLocal;
 import com.revolo.lock.room.entity.DevicePwd;
-import com.revolo.lock.widget.iosloading.CustomerLoadingDialog;
+import com.revolo.lock.dialog.iosloading.CustomerLoadingDialog;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import io.reactivex.Observable;
+import io.reactivex.Observer;
+import io.reactivex.disposables.Disposable;
 import timber.log.Timber;
 
 import static com.revolo.lock.ble.BleCommandState.KEY_SET_ATTRIBUTE_ALWAYS;
@@ -186,33 +200,64 @@ public class PasswordDetailActivity extends BaseActivity {
             return;
         }
         if(bleResultBean.getCMD() == CMD_KEY_ATTRIBUTES_SET) {
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    if(mLoadingDialog != null) {
-                        mLoadingDialog.dismiss();
-                    }
-                    MessageDialog messageDialog = new MessageDialog(PasswordDetailActivity.this);
-                    if(bleResultBean.getPayload()[0] == 0x00) {
-                        AppDatabase.getInstance(getApplicationContext()).devicePwdDao().delete(mDevicePwd);
-                        // 删除成功
-                        messageDialog.setMessage(getString(R.string.dialog_tip_password_deleted));
-                        messageDialog.setOnListener(v -> {
-                            messageDialog.dismiss();
-                            finish();
-                        });
-                    } else {
-                        // 删除失败
-                        // TODO: 2021/2/5 还有其他原因导致删除失败，不是蓝牙断开
-                        messageDialog.setMessage(getString(R.string.dialog_tip_deletion_failed_door_lock_bluetooth_is_not_found));
-                        messageDialog.setOnListener(v -> messageDialog.dismiss());
-                    }
-                    messageDialog.show();
-                }
-            });
-
+            delServiceAndLocalKey(bleResultBean);
         }
     };
+
+    private void delServiceAndLocalKey(BleResultBean bleResultBean) {
+        runOnUiThread(() -> {
+            if(bleResultBean.getPayload()[0] == 0x00) {
+                // 锁端删除成功，执行服务器和本地数据库删除
+                delKeyFromService();
+            } else {
+                // 锁端删除失败
+                dismissLoading();
+                showFailMessage();
+            }
+        });
+    }
+
+    private void dismissLoadingAndShowFailMessage() {
+        dismissLoading();
+        showFailMessage();
+    }
+
+    private void dismissLoadingAndShowSucMessage() {
+        dismissLoading();
+        showSucMessage();
+    }
+
+    private void showSucMessage() {
+        runOnUiThread(() -> {
+            MessageDialog messageDialog = new MessageDialog(PasswordDetailActivity.this);
+            messageDialog.setMessage(getString(R.string.dialog_tip_password_deleted));
+            messageDialog.setOnListener(v -> {
+                messageDialog.dismiss();
+                finish();
+            });
+            messageDialog.show();
+        });
+
+    }
+
+    private void showFailMessage() {
+        runOnUiThread(() -> {
+            MessageDialog messageDialog = new MessageDialog(PasswordDetailActivity.this);
+            messageDialog.setMessage(getString(R.string.dialog_tip_deletion_failed_door_lock_bluetooth_is_not_found));
+            messageDialog.setOnListener(v -> messageDialog.dismiss());
+            messageDialog.show();
+        });
+
+    }
+
+    private void dismissLoading() {
+        runOnUiThread(() -> {
+            if(mLoadingDialog != null) {
+                mLoadingDialog.dismiss();
+            }
+        });
+
+    }
 
     private void initBleListener() {
         App.getInstance().setOnBleDeviceListener(new OnBleDeviceListener() {
@@ -244,5 +289,86 @@ public class PasswordDetailActivity extends BaseActivity {
             }
         });
     }
-    
+
+    private void delKeyFromService() {
+
+        List<DelKeyBeanReq.PwdListBean> listBeans = new ArrayList<>();
+        DelKeyBeanReq.PwdListBean pwdListBean = new DelKeyBeanReq.PwdListBean();
+        pwdListBean.setNum(mDevicePwd.getPwdNum()+"");
+        pwdListBean.setPwdType(1);
+        listBeans.add(pwdListBean);
+
+        // TODO: 2021/2/24 服务器删除失败，需要检查如何通过服务器再删除，下面所有
+        BleDeviceLocal bleDeviceLocal = AppDatabase.getInstance(this).bleDeviceDao().findBleDeviceFromId(mDevicePwd.getDeviceId());
+        if(bleDeviceLocal == null) {
+            dismissLoadingAndShowFailMessage();
+            Timber.e("delKeyFromService bleDeviceLocal == null");
+            return;
+        }
+        String esn = bleDeviceLocal.getEsn();
+        if(TextUtils.isEmpty(esn)) {
+            dismissLoadingAndShowFailMessage();
+            Timber.e("delKeyFromService esn is Empty");
+            return;
+        }
+        if(App.getInstance().getUserBean() == null) {
+            dismissLoadingAndShowFailMessage();
+            Timber.e("delKeyFromService App.getInstance().getUserBean() == null");
+            return;
+        }
+        String uid = App.getInstance().getUserBean().getUid();
+        if(TextUtils.isEmpty(uid)) {
+            dismissLoadingAndShowFailMessage();
+            Timber.e("delKeyFromService uid is Empty");
+            return;
+        }
+        String token = App.getInstance().getUserBean().getToken();
+        if(TextUtils.isEmpty(token)) {
+            dismissLoadingAndShowFailMessage();
+            Timber.e("delKeyFromService token is Empty");
+            return;
+        }
+        DelKeyBeanReq req = new DelKeyBeanReq();
+        req.setPwdList(listBeans);
+        req.setSn(esn);
+        req.setUid(uid);
+
+        Observable<DelKeyBeanRsp> observable = HttpRequest.getInstance().delKey(token, req);
+        ObservableDecorator.decorate(observable).safeSubscribe(new Observer<DelKeyBeanRsp>() {
+            @Override
+            public void onSubscribe(@NonNull Disposable d) {
+
+            }
+
+            @Override
+            public void onNext(@NonNull DelKeyBeanRsp delKeyBeanRsp) {
+                if(TextUtils.isEmpty(delKeyBeanRsp.getCode())) {
+                    // TODO: 2021/2/24 服务器删除失败，需要检查如何通过服务器再删除
+                    dismissLoadingAndShowFailMessage();
+                    Timber.e("delKeyBeanRsp.getCode() is Empty");
+                    return;
+                }
+                if(!delKeyBeanRsp.getCode().equals("200")) {
+                    // TODO: 2021/2/24 服务器删除失败，需要检查如何通过服务器再删除
+                    dismissLoadingAndShowFailMessage();
+                    Timber.e("");
+                    return;
+                }
+                AppDatabase.getInstance(getApplicationContext()).devicePwdDao().delete(mDevicePwd);
+                new Handler(Looper.getMainLooper()).postDelayed(() -> dismissLoadingAndShowSucMessage(), 50);
+            }
+
+            @Override
+            public void onError(@NonNull Throwable e) {
+                dismissLoadingAndShowFailMessage();
+                Timber.e(e);
+            }
+
+            @Override
+            public void onComplete() {
+
+            }
+        });
+    }
+
 }

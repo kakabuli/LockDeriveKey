@@ -39,6 +39,7 @@ public abstract class AppDatabase extends RoomDatabase {
     private static final String PASSPHRASE = "ka^222diSHi";
     private static final SupportFactory FACTORY = new SupportFactory(PASSPHRASE.getBytes(StandardCharsets.UTF_8));
 
+    // TODO: 2021/2/24 后续把操作放在独立线程里执行
     public static AppDatabase getInstance(Context context) {
         synchronized (sLock) {
             if (INSTANCE == null) {

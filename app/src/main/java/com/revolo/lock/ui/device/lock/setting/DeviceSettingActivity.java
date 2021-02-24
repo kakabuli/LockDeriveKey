@@ -32,7 +32,7 @@ import com.revolo.lock.net.HttpRequest;
 import com.revolo.lock.net.ObservableDecorator;
 import com.revolo.lock.room.AppDatabase;
 import com.revolo.lock.room.entity.BleDeviceLocal;
-import com.revolo.lock.widget.iosloading.CustomerLoadingDialog;
+import com.revolo.lock.dialog.iosloading.CustomerLoadingDialog;
 
 import io.reactivex.Observable;
 import io.reactivex.Observer;

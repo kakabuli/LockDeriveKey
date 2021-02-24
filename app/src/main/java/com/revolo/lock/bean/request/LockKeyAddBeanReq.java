@@ -63,8 +63,8 @@ public class LockKeyAddBeanReq implements Parcelable {
         private int num;
         private String nickName;
         private int type;
-        private int startTime;
-        private int endTime;
+        private long startTime;
+        private long endTime;
         private List<String> items;
 
         public int getPwdType() {
@@ -99,19 +99,19 @@ public class LockKeyAddBeanReq implements Parcelable {
             this.type = type;
         }
 
-        public int getStartTime() {
+        public long getStartTime() {
             return startTime;
         }
 
-        public void setStartTime(int startTime) {
+        public void setStartTime(long startTime) {
             this.startTime = startTime;
         }
 
-        public int getEndTime() {
+        public long getEndTime() {
             return endTime;
         }
 
-        public void setEndTime(int endTime) {
+        public void setEndTime(long endTime) {
             this.endTime = endTime;
         }
 
@@ -135,8 +135,8 @@ public class LockKeyAddBeanReq implements Parcelable {
             dest.writeInt(this.num);
             dest.writeString(this.nickName);
             dest.writeInt(this.type);
-            dest.writeInt(this.startTime);
-            dest.writeInt(this.endTime);
+            dest.writeLong(this.startTime);
+            dest.writeLong(this.endTime);
             dest.writeStringList(this.items);
         }
 
@@ -148,8 +148,8 @@ public class LockKeyAddBeanReq implements Parcelable {
             this.num = in.readInt();
             this.nickName = in.readString();
             this.type = in.readInt();
-            this.startTime = in.readInt();
-            this.endTime = in.readInt();
+            this.startTime = in.readLong();
+            this.endTime = in.readLong();
             this.items = in.createStringArrayList();
         }
 

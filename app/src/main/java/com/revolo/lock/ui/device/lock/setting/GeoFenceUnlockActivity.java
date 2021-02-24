@@ -126,6 +126,7 @@ public class GeoFenceUnlockActivity extends BaseActivity {
         }
     }
 
+    // TODO: 2021/2/24 超时或者失败处理需要恢复为原来的显示
     private int mTime;
     private String mTimeStr;
 

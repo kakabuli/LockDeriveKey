@@ -88,6 +88,7 @@ public class DeviceDetailActivity extends BaseActivity {
         if(view.getId() == R.id.llPwd) {
             Intent intent = new Intent(this, PasswordListActivity.class);
             intent.putExtra(Constant.DEVICE_ID, mBleDeviceLocal.getId());
+            intent.putExtra(Constant.LOCK_ESN, mBleDeviceLocal.getEsn());
             startActivity(intent);
             return;
         }

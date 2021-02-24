@@ -1,4 +1,4 @@
-package com.revolo.lock.widget.iosloading;
+package com.revolo.lock.dialog.iosloading;
 
 import android.app.Dialog;
 import android.content.Context;

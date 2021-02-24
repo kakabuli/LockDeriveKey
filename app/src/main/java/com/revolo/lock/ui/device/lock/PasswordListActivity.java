@@ -15,23 +15,31 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.blankj.utilcode.util.ConvertUtils;
 import com.blankj.utilcode.util.TimeUtils;
+import com.blankj.utilcode.util.ToastUtils;
 import com.revolo.lock.App;
 import com.revolo.lock.Constant;
 import com.revolo.lock.R;
 import com.revolo.lock.adapter.PasswordListAdapter;
 import com.revolo.lock.base.BaseActivity;
-import com.revolo.lock.bean.test.TestPwdBean;
+import com.revolo.lock.bean.request.SearchKeyListBeanReq;
+import com.revolo.lock.bean.respone.SearchKeyListBeanRsp;
 import com.revolo.lock.ble.BleByteUtil;
 import com.revolo.lock.ble.BleCommandFactory;
+import com.revolo.lock.ble.BleCommandState;
 import com.revolo.lock.ble.BleResultProcess;
 import com.revolo.lock.ble.OnBleDeviceListener;
 import com.revolo.lock.ble.bean.BleResultBean;
+import com.revolo.lock.net.HttpRequest;
+import com.revolo.lock.net.ObservableDecorator;
 import com.revolo.lock.room.AppDatabase;
 import com.revolo.lock.room.entity.DevicePwd;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import io.reactivex.Observable;
+import io.reactivex.Observer;
+import io.reactivex.disposables.Disposable;
 import timber.log.Timber;
 
 import static com.revolo.lock.ble.BleCommandState.KEY_SET_ATTRIBUTE_ALWAYS;
@@ -51,13 +59,26 @@ public class PasswordListActivity extends BaseActivity {
 
     private PasswordListAdapter mPasswordListAdapter;
     private long mDeviceId;
+    private String mESN;
 
     @Override
     public void initData(@Nullable Bundle bundle) {
         Intent intent = getIntent();
         if(intent.hasExtra(Constant.DEVICE_ID)) {
             mDeviceId = intent.getLongExtra(Constant.DEVICE_ID, -1L);
-            Timber.d("Device Id: %1d", mDeviceId);
+            Timber.d("initData Device Id: %1d", mDeviceId);
+        }
+        if(mDeviceId == -1) {
+            // TODO: 2021/2/24 处理异常情况
+            finish();
+        }
+        if(intent.hasExtra(Constant.LOCK_ESN)) {
+            mESN = intent.getStringExtra(Constant.LOCK_ESN);
+            Timber.d("initData Device Esn: %1s", mESN);
+        }
+        if(TextUtils.isEmpty(mESN)) {
+            // TODO: 2021/2/24 无法获取esn来处理问题
+            finish();
         }
     }
 
@@ -94,7 +115,7 @@ public class PasswordListActivity extends BaseActivity {
 
     @Override
     public void doBusiness() {
-//        initBleListener();
+        initBleListener();
         searchPwdListFromLocal();
     }
 
@@ -102,6 +123,164 @@ public class PasswordListActivity extends BaseActivity {
     public void onDebouncingClick(@NonNull View view) {
 
     }
+
+    // TODO: 2021/2/24 要做数据校对流程, 要做超时, 需要添加加载框
+    /*-------------------------------- 密钥数据从服务器库获取 ---------------------------------*/
+
+    private void searchPwdListFromNET() {
+        // TODO: 2021/2/24 异常情况处理
+        if(App.getInstance().getUserBean() == null) {
+            Timber.e("searchPwdListFromNET App.getInstance().getUserBean() == null");
+            return;
+        }
+        String uid = App.getInstance().getUserBean().getUid();
+        if(TextUtils.isEmpty(uid)) {
+            Timber.e("searchPwdListFromNET App.getInstance().getUserBean().getUid() is Empty");
+            return;
+        }
+        String token = App.getInstance().getUserBean().getToken();
+        if(TextUtils.isEmpty(token)) {
+            Timber.e("searchPwdListFromNET App.getInstance().getUserBean().getToken()");
+            return;
+        }
+        SearchKeyListBeanReq req = new SearchKeyListBeanReq();
+        req.setPwdType(1);
+        req.setSn(mESN);
+        req.setUid(uid);
+        Observable<SearchKeyListBeanRsp> observable = HttpRequest.getInstance().searchLockKey(token, req);
+        ObservableDecorator.decorate(observable).safeSubscribe(new Observer<SearchKeyListBeanRsp>() {
+            @Override
+            public void onSubscribe(@NonNull Disposable d) {
+
+            }
+
+            @Override
+            public void onNext(@NonNull SearchKeyListBeanRsp searchKeyListBeanRsp) {
+                processKeyListFromNet(searchKeyListBeanRsp);
+            }
+
+            @Override
+            public void onError(@NonNull Throwable e) {
+                Timber.e(e);
+            }
+
+            @Override
+            public void onComplete() {
+
+            }
+        });
+    }
+
+    private void processKeyListFromNet(@NonNull SearchKeyListBeanRsp searchKeyListBeanRsp) {
+        if(TextUtils.isEmpty(searchKeyListBeanRsp.getCode())) {
+            Timber.e("processKeyListFromNet searchKeyListBeanRsp.getCode() is Empty");
+            return;
+        }
+        if(!searchKeyListBeanRsp.getCode().equals("200")) {
+            // TODO: 2021/2/24 还得做其他处理
+            ToastUtils.showShort(searchKeyListBeanRsp.getMsg());
+            Timber.e("processKeyListFromNet code: %1s, msg: %2s",
+                    searchKeyListBeanRsp.getCode(), searchKeyListBeanRsp.getMsg());
+            return;
+        }
+        if(searchKeyListBeanRsp.getData() == null) {
+            Timber.e("processKeyListFromNet searchKeyListBeanRsp.getData() == null");
+            return;
+        }
+        if(searchKeyListBeanRsp.getData().getPwdList() == null) {
+            Timber.e("processKeyListFromNet searchKeyListBeanRsp.getData().getPwdList() == null");
+            return;
+        }
+        if(searchKeyListBeanRsp.getData().getPwdList().isEmpty()) {
+            Timber.e("processKeyListFromNet searchKeyListBeanRsp.getData().getPwdList().isEmpty()");
+            return;
+        }
+        List<DevicePwd> pwdList = new ArrayList<>();
+        for (SearchKeyListBeanRsp.DataBean.PwdListBean bean : searchKeyListBeanRsp.getData().getPwdList()) {
+            DevicePwd devicePwd = new DevicePwd();
+            devicePwd.setPwdNum(bean.getNum());
+            devicePwd.setDeviceId(mDeviceId);
+            devicePwd.setCreateTime(bean.getCreateTime());
+            devicePwd.setPwdName(bean.getNickName());
+            devicePwd.setStartTime(bean.getStartTime());
+            devicePwd.setEndTime(bean.getEndTime());
+            @BleCommandState.KeySetAttribute int attribute = getPwdAttribute(bean.getType());
+            devicePwd.setAttribute(attribute);
+            setWeeklyFromNetData(bean, devicePwd, attribute);
+            // 默认可用
+            // TODO: 2021/2/24 后面需要修改通过策略和时间判断是否可用
+            devicePwd.setPwdState(1);
+            pwdList.add(devicePwd);
+        }
+        AppDatabase.getInstance(getApplicationContext()).devicePwdDao().insert(pwdList);
+    }
+
+    private void setWeeklyFromNetData(SearchKeyListBeanRsp.DataBean.PwdListBean bean, DevicePwd devicePwd, int attribute) {
+        // TODO: 2021/2/24 后续需要考虑为空的情况如何处理
+        // 周策略 BIT:   7   6   5   4   3   2   1   0
+        // 星期：      保留  六  五  四  三  二  一  日
+        if(attribute == KEY_SET_ATTRIBUTE_WEEK_KEY) {
+            boolean isSaveWeekly = true;
+            if(bean.getItems() == null) {
+                Timber.e("processKeyListFromNet bean.getItems() == null");
+                isSaveWeekly = false;
+            }
+            if(bean.getItems().isEmpty()) {
+                Timber.e("processKeyListFromNet bean.getItems().isEmpty()");
+                isSaveWeekly = false;
+            }
+            byte[] weekBit = new byte[8];
+            for (String day : bean.getItems()) {
+                for (int i=0; i<=6; i++) {
+                    String tmpDay = i+"";
+                    if(day.equals(tmpDay)) {
+                        weekBit[i] = 0x01;
+                        break;
+                    }
+                }
+            }
+            if(isSaveWeekly) {
+                devicePwd.setWeekly(BleByteUtil.bitToByte(weekBit));
+            }
+        }
+    }
+
+    private int getPwdAttribute(int type) {
+        if(type == 1) {
+            return BleCommandState.KEY_SET_ATTRIBUTE_ALWAYS;
+        } else if(type == 2) {
+            return BleCommandState.KEY_SET_ATTRIBUTE_TIME_KEY;
+        } else if(type == 3) {
+            return BleCommandState.KEY_SET_ATTRIBUTE_WEEK_KEY;
+        } else {
+            return BleCommandState.KEY_SET_ATTRIBUTE_ALWAYS;
+        }
+    }
+
+    /*-------------------------------- 密钥数据从APP本地数据库获取 ---------------------------------*/
+
+    private List<DevicePwd> mDevicePwdList;
+
+    private void searchPwdListFromLocal() {
+        if(mDeviceId == -1) {
+            // TODO: 2021/2/21 错误的数据如何处理
+            return;
+        }
+        mDevicePwdList = AppDatabase.getInstance(this).devicePwdDao().findDevicePwdListFromDeviceId(mDeviceId);
+        // TODO: 2021/2/24 后续需要使用数据校验
+        if(mDevicePwdList == null) {
+            searchPwdListFromNET();
+            return;
+        }
+        if(mDevicePwdList.isEmpty()) {
+            searchPwdListFromNET();
+            return;
+        }
+        // TODO: 2021/2/21 取得所有密码数据并进行显示
+        runOnUiThread(() -> mPasswordListAdapter.setList(mDevicePwdList));
+    }
+
+    /*-------------------------------- 密钥数据从锁端蓝牙获取 ---------------------------------*/
 
     private final BleResultProcess.OnReceivedProcess mOnReceivedProcess = bleResultBean -> {
         if(bleResultBean == null) {
@@ -140,23 +319,23 @@ public class PasswordListActivity extends BaseActivity {
 
             }
         });
-//        new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
-//            @Override
-//            public void run() {
-//                mWillSearchList.clear();
-//                mPasswordListAdapter.setList(mTestPwdBeans);
-//                App.getInstance().writeControlMsg(BleCommandFactory
-//                        .synchronizeLockKeyStatusCommand((byte) 0x01,
-//                                App.getInstance().getBleBean().getPwd1(),
-//                                App.getInstance().getBleBean().getPwd3()));
-//                Timber.d("发送了请求密钥列表指令");
-//            }
-//        }, 100);
 
     }
 
+    private void checkHadPwdFromBle() {
+        new Handler(Looper.getMainLooper()).postDelayed(() -> {
+            mWillSearchList.clear();
+            mPasswordListAdapter.setList(mDevicePwdFormBle);
+            App.getInstance().writeControlMsg(BleCommandFactory
+                    .synchronizeLockKeyStatusCommand((byte) 0x01,
+                            App.getInstance().getBleBean().getPwd1(),
+                            App.getInstance().getBleBean().getPwd3()));
+            Timber.d("发送了请求密钥列表指令");
+        }, 100);
+    }
+
     private final ArrayList<Byte> mWillSearchList = new ArrayList<>();
-    private final ArrayList<TestPwdBean> mTestPwdBeans = new ArrayList<>();
+    private final ArrayList<DevicePwd> mDevicePwdFormBle = new ArrayList<>();
 
     private void getPwdListFormBle(BleResultBean bean) {
         // TODO: 2021/2/3 可能存在100条数据以上，后续需要做100条数据以上的测试
@@ -169,10 +348,7 @@ public class PasswordListActivity extends BaseActivity {
             String name = App.getInstance().getCacheDiskUtils().getString("pwdName"+mCurrentSearchNum);
             byte attribute = bean.getPayload()[0];
             if(attribute == KEY_SET_ATTRIBUTE_ALWAYS) {
-                Timber.d("getPwdListFormBle num: %1s", mCurrentSearchNum);
-                TestPwdBean testPwdBean = new TestPwdBean(name, "Permanent password",
-                        1, "***********", "Permanence", "02,04,2020 12:00", mCurrentSearchNum);
-                mTestPwdBeans.add(testPwdBean);
+                addPermanentPwd(name);
             } else if(attribute == KEY_SET_ATTRIBUTE_TIME_KEY) {
                 // TODO: 2021/2/7 时间高低位反回来取
                 addTimePwd(bean, name);
@@ -180,9 +356,23 @@ public class PasswordListActivity extends BaseActivity {
                 // TODO: 2021/2/7 时间高低位反回来取
                 addWeeklyPwd(bean, name);
             }
-//            runOnUiThread(() -> mPasswordListAdapter.setList(mTestPwdBeans));
+            runOnUiThread(() -> mPasswordListAdapter.setList(mDevicePwdFormBle));
             mHandler.postDelayed(mSearchPwdListRunnable, 20);
         }
+    }
+
+    private void addPermanentPwd(String name) {
+        Timber.d("addPermanentPwd num: %1s", mCurrentSearchNum);
+        DevicePwd devicePwd = new DevicePwd();
+        devicePwd.setPwdNum(mCurrentSearchNum);
+        // 使用秒存储，所以除以1000
+        // TODO: 2021/2/24 后续需要改掉，存在问题，不可能使用这个创建时间
+        devicePwd.setCreateTime(TimeUtils.getNowMills()/1000);
+        devicePwd.setDeviceId(mDeviceId);
+        devicePwd.setAttribute(BleCommandState.KEY_SET_ATTRIBUTE_ALWAYS);
+        devicePwd.setPwdName(name);
+        AppDatabase.getInstance(this).devicePwdDao().insert(devicePwd);
+        mDevicePwdFormBle.add(devicePwd);
     }
 
     private void addTimePwd(BleResultBean bean, String name) {
@@ -190,60 +380,38 @@ public class PasswordListActivity extends BaseActivity {
         byte[] endTimeBytes = new byte[4];
         System.arraycopy(bean.getPayload(), 2, startTimeBytes, 0, startTimeBytes.length);
         System.arraycopy(bean.getPayload(), 6, endTimeBytes, 0, endTimeBytes.length);
-        long startTimeMill = BleByteUtil.bytesToLong(BleCommandFactory.littleMode(startTimeBytes))*1000;
-        long endTimeMill = BleByteUtil.bytesToLong(BleCommandFactory.littleMode(endTimeBytes))*1000;
-        String detail = "start: "
-                + TimeUtils.millis2String(startTimeMill, "MM,dd,yyyy   HH:mm")
-                + "\n" + "end: "
-                + TimeUtils.millis2String(endTimeMill, "MM,dd,yyyy   HH:mm");
-        String characteristic = TimeUtils.millis2String(startTimeMill, "MM,dd,yyyy   HH:mm")
-                + "-" + TimeUtils.millis2String(endTimeMill, "MM,dd,yyyy   HH:mm");
-        TestPwdBean testPwdBean = new TestPwdBean(name, detail, 1, "***********",
-                characteristic, "02,05,2020 12:00",  mCurrentSearchNum);
-        mTestPwdBeans.add(testPwdBean);
+        long startTimeMill = BleByteUtil.bytesToLong(BleCommandFactory.littleMode(startTimeBytes));
+        long endTimeMill = BleByteUtil.bytesToLong(BleCommandFactory.littleMode(endTimeBytes));
+        DevicePwd devicePwd = new DevicePwd();
+        devicePwd.setDeviceId(mDeviceId);
+        devicePwd.setPwdName(name);
+        devicePwd.setPwdNum(mCurrentSearchNum);
+        devicePwd.setAttribute(KEY_SET_ATTRIBUTE_TIME_KEY);
+        devicePwd.setStartTime(startTimeMill);
+        devicePwd.setEndTime(endTimeMill);
+        AppDatabase.getInstance(this).devicePwdDao().insert(devicePwd);
+        mDevicePwdFormBle.add(devicePwd);
     }
 
     private void addWeeklyPwd(BleResultBean bean, String name) {
         byte[] weekBytes = BleByteUtil.byteToBit(bean.getPayload()[1]);
-        Timber.d("getPwdListFormBle num: %1s week: %1s", mCurrentSearchNum, ConvertUtils.bytes2HexString(weekBytes));
-        String weekly = "";
-        if(weekBytes[0] == 0x01) {
-            weekly += "Sun";
-        }
-        if(weekBytes[1] == 0x01) {
-            weekly += TextUtils.isEmpty(weekly)?"Mon":"、Mon";
-        }
-        if(weekBytes[2] == 0x01) {
-            weekly += TextUtils.isEmpty(weekly)?"Tues":"、Tues";
-        }
-        if(weekBytes[3] == 0x01) {
-            weekly += TextUtils.isEmpty(weekly)?"Wed":"、Wed";
-        }
-        if(weekBytes[4] == 0x01) {
-            weekly += TextUtils.isEmpty(weekly)?"Thur":"、Thur";
-        }
-        if(weekBytes[5] == 0x01) {
-            weekly += TextUtils.isEmpty(weekly)?"Fri":"、Fri";
-        }
-        if(weekBytes[6] == 0x01) {
-            weekly += TextUtils.isEmpty(weekly)?"Sat":"、Sat";
-        }
-        weekly += "\n";
+        Timber.d("addWeeklyPwd num: %1s week: %1s", mCurrentSearchNum, ConvertUtils.bytes2HexString(weekBytes));
         byte[] startTimeBytes = new byte[4];
         byte[] endTimeBytes = new byte[4];
         System.arraycopy(bean.getPayload(), 2, startTimeBytes, 0, startTimeBytes.length);
         System.arraycopy(bean.getPayload(), 6, endTimeBytes, 0, endTimeBytes.length);
-        long startTimeMill = BleByteUtil.bytesToLong(BleCommandFactory.littleMode(startTimeBytes))*1000;
-        long endTimeMill = BleByteUtil.bytesToLong(BleCommandFactory.littleMode(endTimeBytes))*1000;
-        String detail = weekly
-                + TimeUtils.millis2String(startTimeMill, "HH:mm")
-                + " - "
-                + TimeUtils.millis2String(endTimeMill, "HH:mm");
-        TestPwdBean testPwdBean = new TestPwdBean(name,
-                detail, 1, "***********",
-                detail,
-                "02,05,2020 12:00", mCurrentSearchNum);
-        mTestPwdBeans.add(testPwdBean);
+        long startTimeMill = BleByteUtil.bytesToLong(BleCommandFactory.littleMode(startTimeBytes));
+        long endTimeMill = BleByteUtil.bytesToLong(BleCommandFactory.littleMode(endTimeBytes));
+        DevicePwd devicePwd = new DevicePwd();
+        devicePwd.setDeviceId(mDeviceId);
+        devicePwd.setPwdNum(mCurrentSearchNum);
+        devicePwd.setPwdName(name);
+        devicePwd.setWeekly(bean.getPayload()[1]);
+        devicePwd.setStartTime(startTimeMill);
+        devicePwd.setEndTime(endTimeMill);
+        devicePwd.setAttribute(KEY_SET_ATTRIBUTE_WEEK_KEY);
+        AppDatabase.getInstance(this).devicePwdDao().insert(devicePwd);
+        mDevicePwdFormBle.add(devicePwd);
     }
 
     private void checkPwdIsExist(BleResultBean bean) {
@@ -297,22 +465,6 @@ public class PasswordListActivity extends BaseActivity {
                         App.getInstance().getBleBean().getPwd1(),
                         App.getInstance().getBleBean().getPwd3()));
         mWillSearchList.remove(0);
-    }
-
-    private void searchPwdListFromLocal() {
-        if(mDeviceId == -1) {
-            // TODO: 2021/2/21 错误的数据如何处理
-            return;
-        }
-        List<DevicePwd> devicePwds = AppDatabase.getInstance(this).devicePwdDao().findDevicePwdListFromDeviceId(mDeviceId);
-        if(devicePwds == null) {
-            return;
-        }
-        if(devicePwds.isEmpty()) {
-            return;
-        }
-        // TODO: 2021/2/21 取得所有密码数据并进行显示
-        runOnUiThread(() -> mPasswordListAdapter.setList(devicePwds));
     }
 
 }

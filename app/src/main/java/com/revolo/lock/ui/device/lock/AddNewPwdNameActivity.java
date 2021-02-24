@@ -16,8 +16,18 @@ import com.revolo.lock.App;
 import com.revolo.lock.Constant;
 import com.revolo.lock.R;
 import com.revolo.lock.base.BaseActivity;
+import com.revolo.lock.bean.request.ChangeKeyNickBeanReq;
+import com.revolo.lock.bean.respone.ChangeKeyNickBeanRsp;
+import com.revolo.lock.dialog.iosloading.CustomerLoadingDialog;
+import com.revolo.lock.net.HttpRequest;
+import com.revolo.lock.net.ObservableDecorator;
 import com.revolo.lock.room.AppDatabase;
 import com.revolo.lock.room.entity.DevicePwd;
+
+import io.reactivex.Observable;
+import io.reactivex.Observer;
+import io.reactivex.disposables.Disposable;
+import timber.log.Timber;
 
 
 /**
@@ -29,15 +39,22 @@ import com.revolo.lock.room.entity.DevicePwd;
 public class AddNewPwdNameActivity extends BaseActivity {
 
     private long mPwdId;
+    private String mEsn;
 
     @Override
     public void initData(@Nullable Bundle bundle) {
         Intent intent = getIntent();
         if(intent.hasExtra(Constant.PWD_ID)) {
-            mPwdId = intent.getLongExtra(Constant.PWD_ID, -1);
+            mPwdId = intent.getLongExtra(Constant.PWD_ID, -1L);
         }
         if(mPwdId == -1) {
             // TODO: 2021/2/21 或者有其他更好的处理方式
+            finish();
+        }
+        if(intent.hasExtra(Constant.LOCK_ESN)) {
+            mEsn = intent.getStringExtra(Constant.LOCK_ESN);
+        }
+        if(TextUtils.isEmpty(mEsn)) {
             finish();
         }
     }
@@ -61,7 +78,8 @@ public class AddNewPwdNameActivity extends BaseActivity {
     @Override
     public void onDebouncingClick(@NonNull View view) {
         if(view.getId() == R.id.btnComplete) {
-            sendPwdDataToService();
+            savePwdName();
+
             return;
         }
         if(view.getId() == R.id.tvAddNextTime) {
@@ -69,12 +87,11 @@ public class AddNewPwdNameActivity extends BaseActivity {
         }
     }
 
-    private void sendPwdDataToService() {
-        // TODO: 2021/1/30 把密码等信息发送到服务器
-        savePwdName();
+    private void savePwdName() {
+        sendPwdDataToServiceAndLocal();
     }
 
-    private void savePwdName() {
+    private void sendPwdDataToServiceAndLocal() {
         EditText etPwdName = findViewById(R.id.etPwdName);
         String pwdName = etPwdName.getText().toString().trim();
         if(TextUtils.isEmpty(pwdName)) {
@@ -82,11 +99,69 @@ public class AddNewPwdNameActivity extends BaseActivity {
             ToastUtils.showShort("Please Input Password Name!");
             return;
         }
-        // TODO: 2021/1/30 后面需要修改，同步存在服务器或者本地数据库
         DevicePwd devicePwd = AppDatabase.getInstance(this).devicePwdDao().findDevicePwdFromId(mPwdId);
+        if(devicePwd == null) {
+            return;
+        }
         devicePwd.setPwdName(pwdName);
-        AppDatabase.getInstance(this).devicePwdDao().update(devicePwd);
-        new Handler(Looper.getMainLooper()).postDelayed(this::finish, 50);
+        if(App.getInstance().getUserBean() == null) {
+            return;
+        }
+        String uid = App.getInstance().getUserBean().getUid();
+        if(TextUtils.isEmpty(uid)) {
+            return;
+        }
+
+        // TODO: 2021/2/24 抽离文字
+        CustomerLoadingDialog loadingDialog = new CustomerLoadingDialog.Builder(this)
+                .setMessage("loading...")
+                .setCancelable(true)
+                .setCancelOutside(false)
+                .create();
+        loadingDialog.show();
+        ChangeKeyNickBeanReq req = new ChangeKeyNickBeanReq();
+        req.setNickName(pwdName);
+        req.setNum(devicePwd.getPwdNum());
+        req.setPwdType(1);
+        req.setSn(mEsn);
+        req.setUid(uid);
+        String token = App.getInstance().getUserBean().getToken();
+        Observable<ChangeKeyNickBeanRsp> observable = HttpRequest.getInstance().changeKeyNickName(token, req);
+        ObservableDecorator.decorate(observable).safeSubscribe(new Observer<ChangeKeyNickBeanRsp>() {
+            @Override
+            public void onSubscribe(@NonNull Disposable d) {
+
+            }
+
+            @Override
+            public void onNext(@NonNull ChangeKeyNickBeanRsp changeKeyNickBeanRsp) {
+                loadingDialog.dismiss();
+                if(TextUtils.isEmpty(changeKeyNickBeanRsp.getCode())) {
+                    Timber.e("");
+                    return;
+                }
+                if(!changeKeyNickBeanRsp.getCode().equals("200")) {
+                    return;
+                }
+                AppDatabase.getInstance(getApplicationContext()).devicePwdDao().update(devicePwd);
+                new Handler(Looper.getMainLooper()).postDelayed(() -> finishThisAct(), 50);
+            }
+
+            @Override
+            public void onError(@NonNull Throwable e) {
+                Timber.e(e);
+            }
+
+            @Override
+            public void onComplete() {
+
+            }
+        });
+
+    }
+
+    private void finishThisAct() {
+        runOnUiThread(this::finish);
     }
 
 }

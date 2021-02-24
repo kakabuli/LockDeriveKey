@@ -27,7 +27,7 @@ import com.revolo.lock.room.entity.User;
 import com.revolo.lock.ui.MainActivity;
 import com.revolo.lock.R;
 import com.revolo.lock.base.BaseActivity;
-import com.revolo.lock.widget.iosloading.CustomerLoadingDialog;
+import com.revolo.lock.dialog.iosloading.CustomerLoadingDialog;
 
 import io.reactivex.Observable;
 import io.reactivex.Observer;
