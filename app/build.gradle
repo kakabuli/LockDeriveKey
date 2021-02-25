@@ -1,5 +1,8 @@
 plugins {
     id 'com.android.application'
+    id 'com.google.gms.google-services'
+    // Apply the Crashlytics Gradle plugin
+    id 'com.google.firebase.crashlytics'
 }
 
 android {
@@ -107,4 +110,13 @@ dependencies {
     testImplementation "androidx.room:room-testing:$room_version"
     // 数据库加密
     implementation "net.zetetic:android-database-sqlcipher:4.4.2"
+
+    // Firebase BoM
+    implementation platform('com.google.firebase:firebase-bom:26.5.0')
+    // Add the dependency for the Firebase SDK for Google Analytics
+    // When using the BoM, don't specify versions in Firebase dependencies
+    implementation 'com.google.firebase:firebase-analytics'
+    // Declare the dependencies for the Crashlytics and Analytics libraries
+    // When using the BoM, you don't specify versions in Firebase library dependencies
+    implementation 'com.google.firebase:firebase-crashlytics'
 }

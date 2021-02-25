@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "944299184918",
+    "project_id": "revolo-lock",
+    "storage_bucket": "revolo-lock.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:944299184918:android:84196d44be6a0c0b2ab637",
+        "android_client_info": {
+          "package_name": "com.revolo.lock"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "944299184918-afsiulgoap48a7vr83sh6mvq3qm211bq.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCdyzgPkHyqLiPTRerKxvfZdTC0USVZ_6g"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "944299184918-afsiulgoap48a7vr83sh6mvq3qm211bq.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
