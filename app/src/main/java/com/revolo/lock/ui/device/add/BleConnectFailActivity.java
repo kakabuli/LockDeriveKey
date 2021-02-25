@@ -20,10 +20,14 @@ import com.revolo.lock.base.BaseActivity;
  */
 public class BleConnectFailActivity extends BaseActivity {
 
+    private long mDeviceId = -1L;
 
     @Override
     public void initData(@Nullable Bundle bundle) {
-
+        Intent intent = getIntent();
+        if(intent.hasExtra(Constant.DEVICE_ID)) {
+            mDeviceId = intent.getLongExtra(Constant.DEVICE_ID, -1L);
+        }
     }
 
     @Override
@@ -48,12 +52,19 @@ public class BleConnectFailActivity extends BaseActivity {
     @Override
     public void onDebouncingClick(@NonNull View view) {
         if(view.getId() == R.id.tvCancel) {
-            finish();
+            gotoAddWifi();
             return;
         }
         if(view.getId() == R.id.btnReconnect) {
             reconnectBle();
         }
+    }
+
+    private void gotoAddWifi() {
+        Intent intent = new Intent(this, AddWifiActivity.class);
+        intent.putExtra(Constant.DEVICE_ID, mDeviceId);
+        startActivity(intent);
+        finish();
     }
 
     private void reconnectBle() {

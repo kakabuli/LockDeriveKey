@@ -86,6 +86,11 @@ public class BleByteUtil {
         return temp ;
     }
 
-
+    public static byte[] shortToBytes(short value) {
+        byte[] returnByteArray = new byte[2];
+        returnByteArray[0] = (byte) (value & 0xff);
+        returnByteArray[1] = (byte) ((value >>> 8) & 0xff);
+        return returnByteArray;
+    }
 
 }

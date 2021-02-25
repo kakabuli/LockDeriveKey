@@ -255,7 +255,9 @@ public class DoorSensorCheckActivity extends BaseActivity {
 
             } else {
                 mDoorState = DOOR_FAIL;
-                startActivity(new Intent(this, DoorCheckFailActivity.class));
+                Intent intent = new Intent(this, DoorCheckFailActivity.class);
+                intent.putExtra(Constant.DEVICE_ID, mDeviceId);
+                startActivity(intent);
                 finish();
             }
         }

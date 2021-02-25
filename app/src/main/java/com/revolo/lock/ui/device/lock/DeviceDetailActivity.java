@@ -82,7 +82,9 @@ public class DeviceDetailActivity extends BaseActivity {
     @Override
     public void onDebouncingClick(@NonNull View view) {
         if(view.getId() == R.id.llNotification) {
-            startActivity(new Intent(this, OperationRecordsActivity.class));
+            Intent intent = new Intent(this, OperationRecordsActivity.class);
+            intent.putExtra(Constant.DEVICE_ID, mBleDeviceLocal.getId());
+            startActivity(intent);
             return;
         }
         if(view.getId() == R.id.llPwd) {

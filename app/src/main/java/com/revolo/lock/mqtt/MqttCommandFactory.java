@@ -83,6 +83,16 @@ public class MqttCommandFactory {
     }
 
     /**
+     *  加密数据发送
+     */
+    public static MqttMessage sendEncryptData(String wifiID,String encrypt, int qos){
+        int messageId = getMessageId();
+        WifiLockEncryptPublishBean wifiLockEncryptPublishBean = new WifiLockEncryptPublishBean(App.getInstance().getUserBean().getUid(),
+                wifiID,encrypt);
+        return getMessage(wifiLockEncryptPublishBean, messageId,qos);
+    }
+
+    /**
      * 7.App 下发开门，关门指令
      */
     public static MqttMessage setLock(String wifiID,int dooropt, byte[] pwd){
@@ -98,7 +108,7 @@ public class MqttCommandFactory {
         byte[] aesJson = EncryptUtils.encryptAES(json.getBytes(StandardCharsets.UTF_8), pwd, "AES/ECB/PKCS5Padding", null);
         // 后Base64字符串编码
         String base64Json = EncodeUtils.base64Encode2String(aesJson);
-        return sendEncryptData(wifiID, base64Json);
+        return sendEncryptData(wifiID, base64Json, 0);
     }
 
     /**

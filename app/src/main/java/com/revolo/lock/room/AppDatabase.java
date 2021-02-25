@@ -6,13 +6,16 @@ import androidx.annotation.NonNull;
 import androidx.room.Database;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
+import androidx.room.migration.Migration;
 import androidx.sqlite.db.SupportSQLiteDatabase;
 
 import com.revolo.lock.room.dao.BleDeviceDao;
 import com.revolo.lock.room.dao.DevicePwdDao;
+import com.revolo.lock.room.dao.LockRecordDao;
 import com.revolo.lock.room.dao.UserDao;
 import com.revolo.lock.room.entity.BleDeviceLocal;
 import com.revolo.lock.room.entity.DevicePwd;
+import com.revolo.lock.room.entity.LockRecord;
 import com.revolo.lock.room.entity.User;
 
 import net.sqlcipher.database.SupportFactory;
@@ -27,12 +30,13 @@ import timber.log.Timber;
  * E-mail : wengmaowei@kaadas.com
  * desc   :
  */
-@Database(entities = {BleDeviceLocal.class, User.class, DevicePwd.class}, version = 1)
+@Database(entities = {BleDeviceLocal.class, User.class, DevicePwd.class, LockRecord.class}, version = 2)
 public abstract class AppDatabase extends RoomDatabase {
 
     public abstract BleDeviceDao bleDeviceDao();
     public abstract UserDao userDao();
     public abstract DevicePwdDao devicePwdDao();
+    public abstract LockRecordDao lockRecordDao();
     private static AppDatabase INSTANCE;
     private static final Object sLock = new Object();
 
@@ -45,6 +49,7 @@ public abstract class AppDatabase extends RoomDatabase {
             if (INSTANCE == null) {
                 INSTANCE =
                         Room.databaseBuilder(context.getApplicationContext(), AppDatabase.class, "rev.db")
+                                .addMigrations(MIGRATION_1_2)
                                 .allowMainThreadQueries() // TODO: 2021/2/3 后续需要把这些操作放到非UI线程里
                                 .openHelperFactory(FACTORY)
                                 .addCallback(new Callback() {
@@ -70,4 +75,20 @@ public abstract class AppDatabase extends RoomDatabase {
             return INSTANCE;
         }
     }
+
+    static final Migration MIGRATION_1_2 = new Migration(1, 2) {
+        @Override
+        public void migrate(SupportSQLiteDatabase database) {
+            // 创建了消息记录表
+            database.execSQL("CREATE TABLE IF NOT EXISTS LockRecord " +
+                    "(lr_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " +
+                    "lr_event_type INTEGER NOT NULL, lr_event_source INTEGER NOT NULL, " +
+                    "lr_event_code INTEGER NOT NULL, lr_user_id INTEGER NOT NULL, " +
+                    "lr_app_id INTEGER NOT NULL, lr_device_id INTEGER NOT NULL, " +
+                    "lr_create_time INTEGER NOT NULL)");
+            database.execSQL("CREATE INDEX IF NOT EXISTS index_LockRecord_lr_device_id ON LockRecord(lr_device_id)");
+        }
+    };
+
+
 }

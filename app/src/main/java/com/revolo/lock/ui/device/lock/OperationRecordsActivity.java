@@ -1,6 +1,8 @@
 package com.revolo.lock.ui.device.lock;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.View;
 
 import androidx.annotation.NonNull;
@@ -8,24 +10,34 @@ import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.blankj.utilcode.util.ConvertUtils;
+import com.blankj.utilcode.util.ThreadUtils;
 import com.blankj.utilcode.util.TimeUtils;
 import com.revolo.lock.App;
+import com.revolo.lock.Constant;
 import com.revolo.lock.R;
 import com.revolo.lock.adapter.AutoMeasureLinearLayoutManager;
 import com.revolo.lock.adapter.OperationRecordsAdapter;
 import com.revolo.lock.base.BaseActivity;
+import com.revolo.lock.bean.showBean.RecordState;
+import com.revolo.lock.bean.test.TestOperationRecords;
 import com.revolo.lock.ble.BleByteUtil;
 import com.revolo.lock.ble.bean.BleBean;
-import com.revolo.lock.bean.test.TestOperationRecords;
 import com.revolo.lock.ble.BleCommandFactory;
-import com.revolo.lock.ble.BleProtocolState;
 import com.revolo.lock.ble.BleResultProcess;
 import com.revolo.lock.ble.OnBleDeviceListener;
 import com.revolo.lock.ble.bean.BleResultBean;
+import com.revolo.lock.dialog.iosloading.CustomerLoadingDialog;
+import com.revolo.lock.room.AppDatabase;
+import com.revolo.lock.room.entity.LockRecord;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 import timber.log.Timber;
 
@@ -39,12 +51,25 @@ import static com.revolo.lock.ble.BleProtocolState.CMD_GET_ALL_RECORD;
  */
 public class OperationRecordsActivity extends BaseActivity {
 
+    // TODO: 2021/2/25 后续添加超时操作
+
     private OperationRecordsAdapter mRecordsAdapter;
     private BleBean mBleBean;
+    private long mDeviceId;
+    private CustomerLoadingDialog mLoadingDialog;
 
     @Override
     public void initData(@Nullable Bundle bundle) {
         mBleBean = App.getInstance().getBleBean();
+        Intent intent = getIntent();
+        if(intent.hasExtra(Constant.DEVICE_ID)) {
+            mDeviceId = intent.getLongExtra(Constant.DEVICE_ID, -1L);
+            Timber.d("initData Device Id: %1d", mDeviceId);
+        }
+        if(mDeviceId == -1L) {
+            // TODO: 2021/2/24 处理异常情况
+            finish();
+        }
     }
 
     @Override
@@ -63,13 +88,19 @@ public class OperationRecordsActivity extends BaseActivity {
         rvRecords.setLayoutManager(linearLayoutManager);
         mRecordsAdapter = new OperationRecordsAdapter(R.layout.item_operation_record_list_rv);
         rvRecords.setAdapter(mRecordsAdapter);
+        // TODO: 2021/2/25 抽离文字
+        mLoadingDialog = new CustomerLoadingDialog.Builder(this)
+                .setMessage("Loading...")
+                .setCancelable(true)
+                .setCancelOutside(false)
+                .create();
     }
 
     @Override
     public void doBusiness() {
+        showLoading();
         initDevice();
-        initDataFromLock();
-//        initData();
+        searchRecordFromLocalFirst();
     }
 
     @Override
@@ -115,21 +146,9 @@ public class OperationRecordsActivity extends BaseActivity {
             return;
         }
         if(bleResultBean.getCMD() == CMD_GET_ALL_RECORD) {
-            refreshRecordFormBle(bleResultBean);
+            updateRecordFormBle(bleResultBean);
         }
     };
-
-    private void processAlarmRecord(BleResultBean bean) {
-
-    }
-
-    private void processProgramRecord(BleResultBean bean) {
-
-    }
-
-    private void processOpRecord(BleResultBean bean) {
-
-    }
 
     private void initDevice() {
         if (mBleBean.getOKBLEDeviceImp() != null) {
@@ -138,25 +157,30 @@ public class OperationRecordsActivity extends BaseActivity {
         }
     }
 
-    private void initDataFromLock() {
+    private void searchRecordFromBle(short start, short end) {
         if(mBleBean.getOKBLEDeviceImp() != null) {
             if (mBleBean.getOKBLEDeviceImp().isConnected()) {
-                // 查询100条记录
-                byte[] start = new byte[2];
-                byte[] end = new byte[2];
-                end[0] = 0x64;
                 App.getInstance().writeControlMsg(BleCommandFactory
-                        .readAllRecord(start, end, mBleBean.getPwd1(), mBleBean.getPwd3()));
+                        .readAllRecord(BleByteUtil.shortToBytes(start), BleByteUtil.shortToBytes(end),
+                                mBleBean.getPwd1(), mBleBean.getPwd3()));
             } else {
                 // TODO: 2021/1/26 没有连接上，需要连接上才能发送指令
             }
         }
     }
 
-    private void refreshRecordFormBle(BleResultBean bean) {
+    private boolean isNeedToReceiveRecord = true;
+    private short mBleTotalRecord = 0;
+
+    private void updateRecordFormBle(BleResultBean bean) {
+        if(!isNeedToReceiveRecord) {
+            // 不再接收数据的标志位, 不再处理数据
+            return;
+        }
         byte[] total = new byte[2];
         System.arraycopy(bean.getPayload(), 0, total, 0, total.length);
         short totalShort = BleByteUtil.bytesToShort(total);
+        mBleTotalRecord = totalShort;
         byte[] index = new byte[2];
         System.arraycopy(bean.getPayload(), 2, index, 0, index.length);
         short indexShort = BleByteUtil.bytesToShort(index);
@@ -167,83 +191,177 @@ public class OperationRecordsActivity extends BaseActivity {
         int appId = bean.getPayload()[8];
         byte[] time = new byte[4];
         System.arraycopy(bean.getPayload(), 9, time, 0, time.length);
-        long realTime = BleByteUtil.bytesToLong(BleCommandFactory.littleMode(time)) * 1000;
+        long realTime = BleByteUtil.bytesToLong(BleCommandFactory.littleMode(time));
         Timber.d("记录 total: %1d, index: %2d, eventType: %3d, eventSource: %4d, eventCode: %5d, userId: %6d, appId: %7d, time: %8d",
-                totalShort, indexShort, eventType, eventSource, eventCode, userId, appId, realTime);
+                totalShort, indexShort, eventType, eventSource, eventCode, userId, appId, realTime * 1000);
 
-        if(eventType == 0x01) {
-            // 开锁记录
-            if(userId == 100) {
-                // 机械方式开锁
-
-            } else if(userId == 102) {
-                // 一键开锁
-            } else if(userId == 106) {
-                // 感应把手开锁
-            } else if(userId == 103) {
-                // APP指令开锁
-            } else if(userId == 254) {
-                // 管理员用户开锁
-            } else if(userId == 253) {
-                // 访客密码开锁
-            } else if(userId == 252) {
-                // 一次性密码开锁
-            } else if(userId == 250) {
-                // 离线密码开锁
-            } else {
-                // TODO: 2021/2/10 标准密码，指纹编号，卡片编号
+        if(mLastLockRecord != null) {
+            if(realTime == mLastLockRecord.getCreateTime()) {
+                isNeedToReceiveRecord = false;
+                dismissLoading();
+                ThreadUtils.getSinglePool().execute(this::searchAllRecordFromLocal);
+                return;
             }
-        } else if(eventType == 0x02) {
-            // Program程序
-        } else if(eventType == 0x03) {
-            // Alarm 报警记录
         }
+        LockRecord lockRecord = new LockRecord();
+        lockRecord.setDeviceId(mDeviceId);
+        lockRecord.setAppId(appId);
+        lockRecord.setUserId(userId);
+        lockRecord.setCreateTime(realTime);
+        lockRecord.setEventCode(eventCode);
+        lockRecord.setEventSource(eventSource);
+        lockRecord.setEventType(eventType);
+        AppDatabase.getInstance(this).lockRecordDao().insert(lockRecord);
 
+        if((totalShort-1) == indexShort) {
+            searchRecordFromLocal(indexShort, 1);
+            refreshUIFromFinalData();
+        }
     }
-    
 
-    ArrayList<TestOperationRecords.TestOperationRecord> mList = new ArrayList<>();
+    private LockRecord mLastLockRecord;
+    private ArrayList<LockRecord> mLockRecords = new ArrayList<>();
 
-    private void refreshDataFromBle(BleResultBean bean) {
-        int eventType = bean.getPayload()[5];
-        if(eventType == 0x03) {
-            byte[] alarmCodeBytes = new byte[4];
-            System.arraycopy(bean.getPayload(), 6, alarmCodeBytes, 0, alarmCodeBytes.length);
-            // 1~8bit 小端，反向取
-            byte[] bit1_8 = BleByteUtil.byteToBit(alarmCodeBytes[3]);
-            byte[] bit9_16 = BleByteUtil.byteToBit(alarmCodeBytes[2]);
-            int reserved = bean.getPayload()[10];
-            byte[] localTimeBytes = new byte[4];
-            System.arraycopy(bean.getPayload(), 11, localTimeBytes, 0, localTimeBytes.length);
-            int count = 0;
-            for (int i=0; i<4; i++) {
-                if(localTimeBytes[i] == 0xff) {
-                    count++;
+    private short mBleSearchStart = 0;
+    private short mBleSearchEnd = 100;
+
+    private int mBleSearchPage = 1;
+
+    private void searchRecordFromLocalFirst() {
+        LockRecord lockRecord = AppDatabase.getInstance(this).lockRecordDao().findLastCreateTimeLockRecordFromDeviceId(mDeviceId);
+        if(lockRecord == null) {
+            searchRecordFromBle(mBleSearchStart, mBleSearchEnd);
+            return;
+        }
+        mLastLockRecord = lockRecord;
+        searchRecordFromBle(mBleSearchStart, mBleSearchEnd);
+    }
+
+    private void searchRecordFromLocal(int num, int page) {
+        List<LockRecord> lockRecords = AppDatabase
+                .getInstance(this)
+                .lockRecordDao()
+                .findLockRecordsFromDeviceId(mDeviceId, num, page);
+        if(lockRecords == null) {
+            return;
+        }
+        if(lockRecords.isEmpty()) {
+            return;
+        }
+        mLockRecords.addAll(lockRecords);
+    }
+
+    private void searchRecordFromLocal(int page) {
+        searchRecordFromLocal(10, page);
+    }
+
+    private void searchAllRecordFromLocal() {
+        List<LockRecord> lockRecords = AppDatabase
+                .getInstance(this)
+                .lockRecordDao()
+                .findLockRecordsFromDeviceId(mDeviceId);
+        if(lockRecords == null) {
+            return;
+        }
+        if(lockRecords.isEmpty()) {
+            return;
+        }
+        mLockRecords.addAll(lockRecords);
+        refreshUIFromFinalData();
+    }
+
+    private void showLoading() {
+        runOnUiThread(() -> {
+            if(mLoadingDialog != null) {
+                mLoadingDialog.show();
+            }
+        });
+    }
+
+    private void dismissLoading() {
+        runOnUiThread(() -> {
+            if(mLoadingDialog != null) {
+                mLoadingDialog.dismiss();
+            }
+        });
+    }
+
+    private void refreshUIFromFinalData() {
+        dismissLoading();
+        // TODO: 2021/2/25 后面要做的是要代理处理的数据 
+        if(mLockRecords.isEmpty()) {
+            return;
+        }
+        List<TestOperationRecords.TestOperationRecord> records = new ArrayList<>();
+        for (LockRecord lockRecord : mLockRecords) {
+            // eventCode 1:上锁 2:开锁
+            TestOperationRecords.TestOperationRecord record;
+            @RecordState.OpRecordState int state = RecordState.NOTHING;
+            boolean isAlarmRecord = false;
+            String message = "";
+            if(lockRecord.getEventType() == 1) {
+                if(lockRecord.getEventSource() == 0) {
+                    // 键盘
+                    if(lockRecord.getEventCode() == 2) {
+                        message = "Unlocked by password";
+                        state = RecordState.SOMEONE_USE_A_PWD_TO_UNLOCK;
+                    }
+                } else if(lockRecord.getEventSource() == 8) {
+                    // APP
+                    if(lockRecord.getEventCode() == 1) {
+                        // TODO: 2021/2/25 后期改掉
+                        message = "locked the door by APP ";
+                        state = RecordState.SOMEONE_LOCKED_THE_DOOR_BY_APP;
+                    } else if(lockRecord.getEventCode() == 2) {
+                        message = "uses the APP to unlock";
+                        state = RecordState.SOMEONE_USE_THE_APP_TO_UNLOCK;
+                    }
+                } else if(lockRecord.getEventSource() == 9) {
+                    // 机械钥匙
+                    if(lockRecord.getEventCode() == 1) {
+                        message = "Locked the door by mechanical key";
+                        state = RecordState.SOMEONE_LOCKED_THE_DOOR_BY_MECHANICAL_KEY;
+                    } else if(lockRecord.getEventCode() == 2) {
+                        message = "Unlocked by mechanical key ";
+                        state = RecordState.SOMEONE_USE_MECHANICAL_KEY_TO_UNLOCK;
+                    }
+                } else if(lockRecord.getEventSource() == -1) {
+                    // 不确定，todo 有可能是MQTT，需要定义一个值
+                    if(lockRecord.getEventCode() == 1) {
+                        // TODO: 2021/2/25 后期改掉
+                        message = "locked the door by APP ";
+                        state = RecordState.SOMEONE_LOCKED_THE_DOOR_BY_APP;
+                    } else if(lockRecord.getEventCode() == 2) {
+                        message = "uses the APP to unlock";
+                        state = RecordState.SOMEONE_USE_THE_APP_TO_UNLOCK;
+                    }
                 }
             }
-            long localTime;
-            if(count == 4) {
-                localTime = -1;
-            } else {
-                localTime = BleByteUtil.bytesToLong(BleCommandFactory.littleMode(localTimeBytes))*1000;
+            if(TextUtils.isEmpty(message)) {
+                Timber.e("本地记录 eventType: %3d, eventSource: %4d, eventCode: %5d, userId: %6d, appId: %7d, time: %8d",
+                        lockRecord.getEventType(), lockRecord.getEventSource(), lockRecord.getEventCode(),
+                        lockRecord.getUserId(), lockRecord.getAppId(), lockRecord.getCreateTime() * 1000);
+                break;
             }
-            Timber.d("AlarmCode 1~8: %1s, AlarmCode 9~16: %2s, reserved: %3d, localtime: %4d",
-                    ConvertUtils.bytes2HexString(bit1_8), ConvertUtils.bytes2HexString(bit9_16), reserved, localTime);
-
-        } else {
-            int eventSource1 = bean.getPayload()[6];
-            int eventCode = bean.getPayload()[7];
-            int userID1 = bean.getPayload()[8];
-            byte[] localTimeBytes = new byte[4];
-            System.arraycopy(bean.getPayload(), 9, localTimeBytes, 0, localTimeBytes.length);
-            long localTime = BleByteUtil.bytesToLong(BleCommandFactory.littleMode(localTimeBytes))*1000;
-            int eventSource2 =  bean.getPayload()[13];
-            int userID2 = bean.getPayload()[14];
-            Timber.d("eventSource1: %1d, eventCode: %2d, userID1: %3d, localTime: %4d, eventSource2: %5d, userID2: %6d",
-                    eventSource1, eventCode, userID1, localTime, eventSource2, userID2);
+            record = new TestOperationRecords.TestOperationRecord(lockRecord.getCreateTime()*1000, message, state, isAlarmRecord);
+            records.add(record);
         }
+        // 日期分类筛选
+        Map<String, List<TestOperationRecords.TestOperationRecord>> collect = records
+                .stream().collect(Collectors.groupingBy(TestOperationRecords.TestOperationRecord::getDate));
+        List<TestOperationRecords> recordsList = new ArrayList<>();
+        for (String key : collect.keySet()) {
+            Timber.d("refreshUIFromFinalData key: %1s", key);
+            TestOperationRecords operationRecords = new TestOperationRecords(TimeUtils.string2Millis(key, "yyyy-MM-dd"), collect.get(key));
+            recordsList.add(operationRecords);
+        }
+        // 时间降序排列
+        recordsList.sort((o1, o2) -> ((int) o2.getTitleOperationTime() - (int) o1.getTitleOperationTime()));
+        runOnUiThread(() -> mRecordsAdapter.setList(recordsList));
+    }
 
-        // TODO: 2021/2/7
+
+    // TODO: 2021/2/7
 //        case 1:
 //        message = getContext().getString(R.string.log_uses_a_password_to_unlock, "Ming");
 //        case 2:
@@ -288,93 +406,5 @@ public class OperationRecordsActivity extends BaseActivity {
 //        message = getContext().getString(R.string.log_user_added_aa_as_guest_user, "Ming");
 //        case 22:
 //        message = getContext().getString(R.string.log_user_removed_aa_from_guest_user, "Tai");
-    }
-
-//    private void initData() {
-//        List<TestOperationRecords> testOperationRecordsList = new ArrayList<>();
-//        List<TestOperationRecords.TestOperationRecord> records = new ArrayList<>();
-//        TestOperationRecords.TestOperationRecord record13 =
-//                new TestOperationRecords.TestOperationRecord(1611062222000L, "password unlock", 13);
-//        records.add(record13);
-//        TestOperationRecords.TestOperationRecord record14 =
-//                new TestOperationRecords.TestOperationRecord(1611062222000L, "Geo-fence unlock",14);
-//        records.add(record14);
-//        TestOperationRecords.TestOperationRecord record15 =
-//                new TestOperationRecords.TestOperationRecord(1611062222000L, "APP unlock",15);
-//        records.add(record15);
-//        TestOperationRecords.TestOperationRecord record16 =
-//                new TestOperationRecords.TestOperationRecord(1611062222000L, "Manual unlock",16);
-//        records.add(record16);
-//        TestOperationRecords.TestOperationRecord record17 =
-//                new TestOperationRecords.TestOperationRecord(1611062222000L, "Manual unlock",17);
-//        records.add(record17);
-//        TestOperationRecords.TestOperationRecord record18 =
-//                new TestOperationRecords.TestOperationRecord(1611062222000L, "Manual unlock",18);
-//        records.add(record18);
-//        TestOperationRecords.TestOperationRecord record19 =
-//                new TestOperationRecords.TestOperationRecord(1611062222000L, "Manual unlock",19);
-//        records.add(record19);
-//        TestOperationRecords.TestOperationRecord record20 =
-//                new TestOperationRecords.TestOperationRecord(1611062222000L, "Manual unlock",20);
-//        records.add(record20);
-//        TestOperationRecords.TestOperationRecord record21 =
-//                new TestOperationRecords.TestOperationRecord(1611062222000L, "Manual unlock",21);
-//        records.add(record21);
-//        TestOperationRecords.TestOperationRecord record22 =
-//                new TestOperationRecords.TestOperationRecord(1611062222000L, "Manual unlock",22);
-//        records.add(record22);
-//        TestOperationRecords testOperationRecords = new TestOperationRecords(1611062222000L, records);
-//        testOperationRecordsList.add(testOperationRecords);
-//
-//        List<TestOperationRecords.TestOperationRecord> records1 = new ArrayList<>();
-//        TestOperationRecords.TestOperationRecord record1 =
-//                new TestOperationRecords.TestOperationRecord(1610506800000L, "password unlock", 1);
-//        records1.add(record1);
-//        TestOperationRecords.TestOperationRecord record2 =
-//                new TestOperationRecords.TestOperationRecord(1610505000000L, "Geo-fence unlock",2);
-//        records1.add(record2);
-//        TestOperationRecords.TestOperationRecord record3 =
-//                new TestOperationRecords.TestOperationRecord(1610504880000L, "APP unlock",3);
-//        records1.add(record3);
-//        TestOperationRecords.TestOperationRecord record4 =
-//                new TestOperationRecords.TestOperationRecord(1610504880000L, "Manual unlock",4);
-//        records1.add(record4);
-//        TestOperationRecords testOperationRecords1 = new TestOperationRecords(1610504880000L, records1);
-//        testOperationRecordsList.add(testOperationRecords1);
-//
-//        List<TestOperationRecords.TestOperationRecord> records2 = new ArrayList<>();
-//        TestOperationRecords.TestOperationRecord record5 =
-//                new TestOperationRecords.TestOperationRecord(1610418480000L, "Locking inside the door",5);
-//        records2.add(record5);
-//        TestOperationRecords.TestOperationRecord record6 =
-//                new TestOperationRecords.TestOperationRecord(1610418480000L, "Double lock inside the door",6);
-//        records2.add(record6);
-//        TestOperationRecords.TestOperationRecord record7 =
-//                new TestOperationRecords.TestOperationRecord(1610418480000L, "Multi-functional button locking",7);
-//        records2.add(record7);
-//        TestOperationRecords.TestOperationRecord record8 =
-//                new TestOperationRecords.TestOperationRecord(1610418480000L, "One-touch lock outside the door ",8);
-//        records2.add(record8);
-//        TestOperationRecords testOperationRecords2 = new TestOperationRecords(1610418480000L, records2);
-//        testOperationRecordsList.add(testOperationRecords2);
-//
-//        List<TestOperationRecords.TestOperationRecord> records3 = new ArrayList<>();
-//        TestOperationRecords.TestOperationRecord record9 =
-//                new TestOperationRecords.TestOperationRecord(1608863280000L, "Duress password unlock",9);
-//        records3.add(record9);
-//        TestOperationRecords.TestOperationRecord record10 =
-//                new TestOperationRecords.TestOperationRecord(1608863280000L, "lock down alarm",10);
-//        records3.add(record10);
-//        TestOperationRecords.TestOperationRecord record11 =
-//                new TestOperationRecords.TestOperationRecord(1608863280000L, "Low battery alarm",11);
-//        records3.add(record11);
-//        TestOperationRecords.TestOperationRecord record12 =
-//                new TestOperationRecords.TestOperationRecord(1608863280000L, "Jam alarm",12);
-//        records3.add(record12);
-//        TestOperationRecords testOperationRecords3 = new TestOperationRecords(1608863280000L, records3);
-//        testOperationRecordsList.add(testOperationRecords3);
-//
-//        mRecordsAdapter.setList(testOperationRecordsList);
-//    }
 
 }

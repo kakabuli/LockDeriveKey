@@ -3,6 +3,7 @@ package com.revolo.lock.bean.test;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.blankj.utilcode.util.TimeUtils;
 import com.revolo.lock.bean.showBean.RecordState;
 
 import java.util.List;
@@ -21,13 +22,18 @@ public class TestOperationRecords implements Parcelable {
     public static class TestOperationRecord implements Parcelable {
         private long operationTime;
         private String message;
+        // TODO: 2021/2/25 后面修改字段用于显示哪张图片
         @RecordState.OpRecordState
         private int state;
+        private boolean isAlarmRecord;
+        private String date;
 
-        public TestOperationRecord(long operationTime, String message, @RecordState.OpRecordState int state) {
+        public TestOperationRecord(long operationTime, String message, @RecordState.OpRecordState int state, boolean isAlarmRecord) {
             this.operationTime = operationTime;
             this.message = message;
             this.state = state;
+            this.isAlarmRecord = isAlarmRecord;
+            date = TimeUtils.millis2String(operationTime, "yyyy-MM-dd");
         }
 
         public long getOperationTime() {
@@ -36,6 +42,7 @@ public class TestOperationRecords implements Parcelable {
 
         public void setOperationTime(long operationTime) {
             this.operationTime = operationTime;
+            date = TimeUtils.millis2String(operationTime, "yyyy-MM-dd");
         }
 
         public String getMessage() {
@@ -54,6 +61,23 @@ public class TestOperationRecords implements Parcelable {
             this.state = state;
         }
 
+        public String getDate() {
+            return date;
+        }
+
+        public void setDate(String date) {
+            this.date = date;
+        }
+
+        public boolean isAlarmRecord() {
+            return isAlarmRecord;
+        }
+
+        public void setAlarmRecord(boolean alarmRecord) {
+            isAlarmRecord = alarmRecord;
+        }
+
+
         @Override
         public int describeContents() {
             return 0;
@@ -64,15 +88,19 @@ public class TestOperationRecords implements Parcelable {
             dest.writeLong(this.operationTime);
             dest.writeString(this.message);
             dest.writeInt(this.state);
+            dest.writeByte(this.isAlarmRecord ? (byte) 1 : (byte) 0);
+            dest.writeString(this.date);
         }
 
         protected TestOperationRecord(Parcel in) {
             this.operationTime = in.readLong();
             this.message = in.readString();
             this.state = in.readInt();
+            this.isAlarmRecord = in.readByte() != 0;
+            this.date = in.readString();
         }
 
-        public static final Parcelable.Creator<TestOperationRecord> CREATOR = new Parcelable.Creator<TestOperationRecord>() {
+        public static final Creator<TestOperationRecord> CREATOR = new Creator<TestOperationRecord>() {
             @Override
             public TestOperationRecord createFromParcel(Parcel source) {
                 return new TestOperationRecord(source);
