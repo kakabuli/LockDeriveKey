@@ -125,7 +125,13 @@ public class DeviceSettingActivity extends BaseActivity {
             return;
         }
         if(view.getId() == R.id.tvWifiName) {
-            startActivity(new Intent(this, WifiSettingActivity.class));
+            if(mBleDeviceLocal.getConnectedType() == 2) {
+                // 蓝牙连接，所以不需要进入去操作
+                return;
+            }
+            Intent intent = new Intent(this, WifiSettingActivity.class);
+            intent.putExtra(Constant.BLE_DEVICE, mBleDeviceLocal);
+            startActivity(intent);
             return;
         }
         if(view.getId() == R.id.clAutoLock) {

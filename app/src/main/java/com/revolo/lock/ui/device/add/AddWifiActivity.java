@@ -59,7 +59,16 @@ public class AddWifiActivity extends BaseActivity {
         }
         if(mDeviceId == -1) {
             // TODO: 2021/2/22 做处理
-            finish();
+            if(intent.hasExtra(Constant.LOCK_DETAIL)) {
+                mBleDeviceLocal = intent.getParcelableExtra(Constant.LOCK_DETAIL);
+                if(mBleDeviceLocal == null) {
+                    finish();
+                }
+                mDeviceId = mBleDeviceLocal.getId();
+                return;
+            } else {
+                finish();
+            }
         }
         mBleDeviceLocal = AppDatabase.getInstance(this).bleDeviceDao().findBleDeviceFromId(mDeviceId);
         if(mBleDeviceLocal == null) {

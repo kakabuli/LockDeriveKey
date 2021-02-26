@@ -76,7 +76,10 @@ public class HttpRequest {
 
     private static final String HOST_TEST = "https://test1.juziwulian.com:8090";      // 国内服务器测试接口
     private static final String ABROAD_HOST = "https://test.irevolo.com:8090";        // 海外服务器测试接口
-    private static final String HOST = ABROAD_HOST;
+    public static final String HOST = ABROAD_HOST;
+    private static final String CHECK_OTA_HOST_TEST = "https://test1.juziwulian.com:9111";
+    private static final String CHECK_OTA_HOST_ABROAD = "https://test.irevolo.com:9111";
+    public static final String CHECK_OTA_HOST =  CHECK_OTA_HOST_ABROAD;
     
 
   private static HttpRequest ourInstance;
@@ -92,7 +95,6 @@ public class HttpRequest {
         return ourInstance;
     }
 
-
     private HttpRequest() {
 
         // TODO: 2021/1/26 现在是忽略证书，后期需要修正
@@ -100,7 +102,7 @@ public class HttpRequest {
         logInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);//这一句一定要记得写，否则没有数据输出
         OkHttpClient client = new OkHttpClient.Builder()
                 .addNetworkInterceptor(logInterceptor)
-//                .addInterceptor(new LoggingInterceptor())
+                .addInterceptor(new ChangeUrlInterceptor())
                 .connectTimeout(60, TimeUnit.SECONDS)
                 .sslSocketFactory(SSLSocketClient.getSSLSocketFactory(), new X509TrustManager() {
                     @Override
@@ -136,112 +138,118 @@ public class HttpRequest {
 
     }
 
+    private static final String NORMAL = "normal";
+    private static final String OTA_CHECK = "otaCheck";
+
     public Observable<MailLoginBeanRsp> login(MailLoginBeanReq req) {
-        return service.login(req);
+        return service.login(req, NORMAL);
     }
 
     public Observable<LockIsBindBeanRsp> lockIsBind(String token, LockIsBindBeanReq req) {
-        return service.lockIsBind(token, req);
+        return service.lockIsBind(token, req, NORMAL);
     };
 
     public Observable<GetPwd1BeanRsp> getPwd1(String token, GetPwd1BeanReq req){
-        return service.getPwd1(token, req);
+        return service.getPwd1(token, req, NORMAL);
     };
 
     public Observable<AdminAddDeviceBeanRsp> adminAddDevice(String token, AdminAddDeviceBeanReq req){
-        return service.adminAddDevice(token, req);
+        return service.adminAddDevice(token, req, NORMAL);
     };
 
     public Observable<DeviceUnbindBeanRsp> unbindDevice(String token, DeviceUnbindBeanReq req){
-        return service.unbindDevice(token, req);
+        return service.unbindDevice(token, req, NORMAL);
     };
 
     public Observable<ChangeBleVerBeanRsp> changeBleVer(String token, ChangeBleVerBeanReq req){
-        return service.changeBleVer(token, req);
+        return service.changeBleVer(token, req, NORMAL);
     };
 
     public Observable<ChangeDeviceHardVerBeanRsp> changeDeviceHardVer(String token, ChangeDeviceHardVerBeanReq req){
-        return service.changeDeviceHardVer(token, req);
+        return service.changeDeviceHardVer(token, req, NORMAL);
     };
 
     public Observable<ChangeFeaturesBeanRsp> updateFunctionSet(String token, ChangeFeaturesBeanReq req){
-        return service.updateFunctionSet(token, req);
+        return service.updateFunctionSet(token, req, NORMAL);
     };
 
     public Observable<DelDeviceBeanRsp> delDevice(String token, DelDeviceBeanReq req){
-        return service.delDevice(token, req);
+        return service.delDevice(token, req, NORMAL);
     };
 
     public Observable<ChangeDeviceNameBeanRsp> changeDeviceNickName(String token, ChangeDeviceNameBeanReq req){
-        return service.changeDeviceNickName(token, req);
+        return service.changeDeviceNickName(token, req, NORMAL);
     };
 
     public Observable<SearchProductNoBeanRsp> searchDevice(String token, SearchProductNoBeanReq req){
-        return service.searchDevice(token, req);
+        return service.searchDevice(token, req, NORMAL);
     };
 
     public Observable<UploadOpenDoorRecordBeanRsp> uploadOpenDoorRecord(String token, UploadOpenDoorRecordBeanReq req){
-        return service.uploadOpenDoorRecord(token, req);
+        return service.uploadOpenDoorRecord(token, req, NORMAL);
     };
 
     public Observable<OpenDoorRecordSearchBeanRsp> searchOpenLockRecord(String token, OpenDoorRecordSearchBeanReq req){
-        return service.searchOpenLockRecord(token, req);
+        return service.searchOpenLockRecord(token, req, NORMAL);
     };
 
     public Observable<UploadAlarmRecordBeanRsp> uploadAlarmRecord(String token, UploadAlarmRecordBeanReq req){
-        return service.uploadAlarmRecord(token, req);
+        return service.uploadAlarmRecord(token, req, NORMAL);
     };
 
     public Observable<SearchAlarmRecordBeanRsp> searchAlarmRecord(String token, SearchAlarmRecordBeanReq req){
-        return service.searchAlarmRecord(token, req);
+        return service.searchAlarmRecord(token, req, NORMAL);
     };
 
     public Observable<LockKeyAddBeanRsp> addLockKey(String token, LockKeyAddBeanReq req){
-        return service.addLockKey(token, req);
+        return service.addLockKey(token, req, NORMAL);
     };
 
     public Observable<SearchKeyListBeanRsp> searchLockKey(String token, SearchKeyListBeanReq req){
-        return service.searchLockKey(token, req);
+        return service.searchLockKey(token, req, NORMAL);
     };
 
     public Observable<DelKeyBeanRsp> delKey(String token, DelKeyBeanReq req){
-        return service.delKey(token, req);
+        return service.delKey(token, req, NORMAL);
     };
 
     public Observable<ChangeKeyNickBeanRsp> changeKeyNickName(String token, ChangeKeyNickBeanReq req){
-        return service.changeKeyNickName(token, req);
+        return service.changeKeyNickName(token, req, NORMAL);
     };
 
     public Observable<GetLockKeyNickBeanRsp> getKeyNickName(String token, GetLockKeyNickBeanReq req){
-        return service.getKeyNickName(token, req);
+        return service.getKeyNickName(token, req, NORMAL);
     };
 
     public Observable<UpdateDoorSensorStateBeanRsp> updateDoorSensorState(String token, UpdateDoorSensorStateBeanReq req){
-        return service.updateDoorSensorState(token, req);
+        return service.updateDoorSensorState(token, req, NORMAL);
     };
 
     public Observable<CheckDoorSensorStateBeanRsp> checkDoorSensorState(String token, CheckDoorSensorStateBeanReq req){
-        return service.checkDoorSensorState(token, req);
+        return service.checkDoorSensorState(token, req, NORMAL);
     };
 
     public Observable<ChangeOpenLockParameterBeanRsp> changeOpenLockParameter(String token, ChangeOpenLockParameterBeanReq req){
-        return service.changeOpenLockParameter(token, req);
+        return service.changeOpenLockParameter(token, req, NORMAL);
     };
 
     public Observable<GetCodeBeanRsp> getCode(GetCodeBeanReq req) {
-        return service.getCode(req);
+        return service.getCode(req, NORMAL);
     }
 
     public Observable<MailRegisterBeanRsp> register(MailRegisterBeanReq req) {
-        return service.register(req);
+        return service.register(req, NORMAL);
     }
 
+    /**
+     * 检测升级文件，该接口需要使用9111端口
+     */
     public Observable<CheckOTABeanRsp> checkOtaVer(String token, CheckOTABeanReq req) {
-        return service.checkOtaVer(token, req);
+        return service.checkOtaVer(token, req, OTA_CHECK);
     }
 
     public Observable<StartOTAUpdateBeanRsp> startOtaUpdate(String toke, StartOTAUpdateBeanReq req) {
-        return service.startOtaUpdate(toke, req);
+        return service.startOtaUpdate(toke, req, NORMAL);
     }
 
 }
