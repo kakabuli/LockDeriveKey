@@ -18,6 +18,7 @@ import static com.revolo.lock.ble.BleProtocolState.CMD_LOCK_OPEN_COUNT_CHECK;
 import static com.revolo.lock.ble.BleProtocolState.CMD_LOCK_PARAMETER_CHANGED;
 import static com.revolo.lock.ble.BleProtocolState.CMD_LOCK_PARAMETER_CHECK;
 import static com.revolo.lock.ble.BleProtocolState.CMD_SET_SENSITIVITY;
+import static com.revolo.lock.ble.BleProtocolState.CMD_WIFI_SWITCH;
 
 /**
  * author : Jack
@@ -911,6 +912,16 @@ public class BleCommandFactory {
         byte[] data = new byte[1];
         data[0] = (byte) control;
         return commandPackage(true, (byte) CMD_DURESS_PWD_SWITCH, commandTSN(), data, pwd1, pwd3);
+    }
+
+    /**
+     * wifi开关
+     * @param control 1:打开WIFI功能   0：关闭WIFI功能
+     */
+    public static byte[] wifiSwitch(@BleCommandState.WifiControl int control, byte[] pwd1, byte[] pwd3) {
+        byte[] data = new byte[1];
+        data[0] = (byte) control;
+        return commandPackage(true, (byte) CMD_WIFI_SWITCH, commandTSN(), data, pwd1, pwd3);
     }
 
     /**

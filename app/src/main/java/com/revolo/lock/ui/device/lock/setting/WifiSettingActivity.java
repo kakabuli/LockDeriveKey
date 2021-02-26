@@ -9,11 +9,24 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
 
+import com.blankj.utilcode.util.ConvertUtils;
+import com.revolo.lock.App;
 import com.revolo.lock.Constant;
 import com.revolo.lock.R;
 import com.revolo.lock.base.BaseActivity;
+import com.revolo.lock.ble.BleByteUtil;
+import com.revolo.lock.ble.BleCommandFactory;
+import com.revolo.lock.ble.BleCommandState;
+import com.revolo.lock.ble.BleResultProcess;
+import com.revolo.lock.ble.OnBleDeviceListener;
+import com.revolo.lock.ble.bean.BleResultBean;
+import com.revolo.lock.room.AppDatabase;
 import com.revolo.lock.room.entity.BleDeviceLocal;
-import com.revolo.lock.ui.device.add.AddWifiActivity;
+
+import timber.log.Timber;
+
+import static com.revolo.lock.ble.BleCommandState.WIFI_CONTROL_OPEN;
+import static com.revolo.lock.ble.BleProtocolState.CMD_DURESS_PWD_SWITCH;
 
 /**
  * author : Jack
@@ -59,7 +72,7 @@ public class WifiSettingActivity extends BaseActivity {
 
     @Override
     public void doBusiness() {
-
+        initBleListener();
     }
 
     @Override
@@ -67,11 +80,13 @@ public class WifiSettingActivity extends BaseActivity {
         if(view.getId() == R.id.ivWifiEnable) {
             if(isWifiConnected) {
                 // TODO: 2021/2/26 执行关闭wifi
+                closeWifi();
             } else {
                 // TODO: 2021/2/26 跳转到连接wifi页面
 //                Intent intent = new Intent(this, AddWifiActivity.class);
 //                intent.putExtra(Constant.LOCK_DETAIL, mBleDeviceLocal);
 //                startActivity(intent);
+                openWifi();
             }
         }
     }
@@ -89,15 +104,108 @@ public class WifiSettingActivity extends BaseActivity {
         }
     }
 
+    private void openWifi() {
+        if(App.getInstance().getBleBean() == null) {
+            return;
+        }
+        byte[] pwd1 = App.getInstance().getBleBean().getPwd1();
+        byte[] pwd3 = App.getInstance().getBleBean().getPwd3();
+        if(pwd1 == null) {
+            return;
+        }
+        if(pwd3 == null) {
+            return;
+        }
+        App.getInstance().writeControlMsg(BleCommandFactory.wifiSwitch(WIFI_CONTROL_OPEN, pwd1, pwd3));
+    }
+
+    private void closeWifi() {
+        if(App.getInstance().getBleBean() == null) {
+            return;
+        }
+        byte[] pwd1 = App.getInstance().getBleBean().getPwd1();
+        byte[] pwd3 = App.getInstance().getBleBean().getPwd3();
+        if(pwd1 == null) {
+            return;
+        }
+        if(pwd3 == null) {
+            return;
+        }
+        App.getInstance().writeControlMsg(BleCommandFactory.wifiSwitch(BleCommandState.WIFI_CONTROL_CLOSE, pwd1, pwd3));
+    }
+
     private void updateWifiState() {
-        ivWifiEnable.setImageResource(R.drawable.ic_icon_switch_open);
-        clTip.setVisibility(View.GONE);
-        isWifiConnected = true;
+        runOnUiThread(() -> {
+            ivWifiEnable.setImageResource(R.drawable.ic_icon_switch_open);
+            clTip.setVisibility(View.GONE);
+            isWifiConnected = true;
+        });
     }
 
     private void updateBleState() {
-        ivWifiEnable.setImageResource(R.drawable.ic_icon_switch_close);
-        clTip.setVisibility(View.VISIBLE);
-        isWifiConnected = false;
+        runOnUiThread(() -> {
+            ivWifiEnable.setImageResource(R.drawable.ic_icon_switch_close);
+            clTip.setVisibility(View.VISIBLE);
+            isWifiConnected = false;
+        });
     }
+
+    private void initBleListener() {
+        App.getInstance().setOnBleDeviceListener(new OnBleDeviceListener() {
+            @Override
+            public void onConnected() {
+
+            }
+
+            @Override
+            public void onDisconnected() {
+
+            }
+
+            @Override
+            public void onReceivedValue(String uuid, byte[] value) {
+                if(value == null) {
+                    return;
+                }
+                BleResultProcess.setOnReceivedProcess(mOnReceivedProcess);
+                BleResultProcess.processReceivedData(value,
+                        App.getInstance().getBleBean().getPwd1(),
+                        App.getInstance().getBleBean().getPwd3(),
+                        App.getInstance().getBleBean().getOKBLEDeviceImp().getBleScanResult());
+            }
+
+            @Override
+            public void onWriteValue(String uuid, byte[] value, boolean success) {
+
+            }
+        });
+        // TODO: 2021/2/8 查询一下当前设置
+    }
+
+    private final BleResultProcess.OnReceivedProcess mOnReceivedProcess = bleResultBean -> {
+        if(bleResultBean == null) {
+            Timber.e("mOnReceivedProcess bleResultBean == null");
+            return;
+        }
+        processBleResult(bleResultBean);
+    };
+
+    private void processBleResult(BleResultBean bean) {
+        if(bean.getCMD() == CMD_DURESS_PWD_SWITCH) {
+            processWifiSwitch(bean);
+        }
+    }
+
+    private void processWifiSwitch(BleResultBean bean) {
+        byte state = bean.getPayload()[0];
+        if(state == 0x00) {
+            isWifiConnected = !isWifiConnected;
+            mBleDeviceLocal.setConnectedType(isWifiConnected?1:2);
+            AppDatabase.getInstance(this).bleDeviceDao().update(mBleDeviceLocal);
+            updateUI();
+        } else {
+            Timber.e("处理失败原因 state：%1s", ConvertUtils.int2HexString(BleByteUtil.byteToInt(state)));
+        }
+    }
+
 }

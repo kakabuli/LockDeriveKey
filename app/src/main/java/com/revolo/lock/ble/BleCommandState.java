@@ -148,4 +148,9 @@ public class BleCommandState {
     public static final int KNOCK_DOOR_SENSITIVITY_MEDIUM = 0x02;
     public static final int KNOCK_DOOR_SENSITIVITY_HIGH = 0x03;
 
+    @IntDef(value = {WIFI_CONTROL_OPEN, WIFI_CONTROL_CLOSE})
+    public @interface WifiControl{}
+    public static final int WIFI_CONTROL_OPEN = 0x01;
+    public static final int WIFI_CONTROL_CLOSE = 0x00;
+
 }
