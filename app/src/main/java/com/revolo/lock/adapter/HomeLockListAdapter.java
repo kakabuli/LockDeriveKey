@@ -5,7 +5,7 @@ import android.text.TextUtils;
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.chad.library.adapter.base.viewholder.BaseViewHolder;
 import com.revolo.lock.R;
-import com.revolo.lock.bean.showBean.WifiShowBean;
+import com.revolo.lock.room.entity.BleDeviceLocal;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -19,8 +19,8 @@ import java.util.List;
  * E-mail : wengmaowei@kaadas.com
  * desc   : 首页锁列表适配器
  */
-public class HomeLockListAdapter extends BaseQuickAdapter<WifiShowBean, BaseViewHolder> {
-    public HomeLockListAdapter(int layoutResId, @Nullable List<WifiShowBean> data) {
+public class HomeLockListAdapter extends BaseQuickAdapter<BleDeviceLocal, BaseViewHolder> {
+    public HomeLockListAdapter(int layoutResId, @Nullable List<BleDeviceLocal> data) {
         super(layoutResId, data);
     }
 
@@ -29,34 +29,35 @@ public class HomeLockListAdapter extends BaseQuickAdapter<WifiShowBean, BaseView
     }
 
     @Override
-    protected void convert(@NotNull BaseViewHolder baseViewHolder, WifiShowBean testLockBean) {
-        if(testLockBean == null) {
+    protected void convert(@NotNull BaseViewHolder baseViewHolder, BleDeviceLocal deviceLocal) {
+        if(deviceLocal == null) {
             return;
         }
-        if(testLockBean.getModeState() == 2) {
+        if(deviceLocal.getLockState() == 3) {
             baseViewHolder.setImageResource(R.id.ivLockState, R.drawable.ic_home_img_lock_privacymodel);
             baseViewHolder.setText(R.id.tvDoorState, getContext().getString(R.string.tip_private_mode));
             baseViewHolder.setGone(R.id.ivDoorState, true);
         } else {
             baseViewHolder.setGone(R.id.ivDoorState, false);
-            if(testLockBean.getDoorState() == 1) {
+            if(deviceLocal.getLockState() == 1) {
                 baseViewHolder.setImageResource(R.id.ivLockState, R.drawable.ic_home_img_lock_open);
                 baseViewHolder.setImageResource(R.id.ivDoorState, R.drawable.ic_home_icon_door_open);
                 baseViewHolder.setText(R.id.tvDoorState, getContext().getString(R.string.tip_door_opened));
-            } else {
+            } else if(deviceLocal.getLockState() == 2) {
                 baseViewHolder.setImageResource(R.id.ivLockState, R.drawable.ic_home_img_lock_close);
                 baseViewHolder.setImageResource(R.id.ivDoorState, R.drawable.ic_home_icon_door_closed);
                 baseViewHolder.setText(R.id.tvDoorState, getContext().getString(R.string.tip_door_closed));
             }
         }
-        if(testLockBean.getInternetState() == 1) {
+        if(deviceLocal.getConnectedType() == 1) {
             baseViewHolder.setImageResource(R.id.ivNetState, R.drawable.ic_home_icon_wifi);
         } else {
             baseViewHolder.setImageResource(R.id.ivNetState, R.drawable.ic_home_icon_bluetooth);
         }
-        // TODO: 2021/2/10 到时候修改为名字
-        String wifiName = testLockBean.getWifiListBean().getWifiSN();
-        baseViewHolder.setText(R.id.tvLockName, TextUtils.isEmpty(wifiName)?"":wifiName);
+        String name = deviceLocal.getName();
+        baseViewHolder.setText(R.id.tvLockName, TextUtils.isEmpty(name)?
+                (TextUtils.isEmpty(deviceLocal.getEsn())?"":deviceLocal.getEsn())
+                :name);
     }
 
 }

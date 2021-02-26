@@ -10,7 +10,6 @@ import androidx.lifecycle.ViewModel;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import com.revolo.lock.App;
-import com.revolo.lock.bean.showBean.WifiShowBean;
 import com.revolo.lock.mqtt.MqttCommandFactory;
 import com.revolo.lock.mqtt.MqttConstant;
 import com.revolo.lock.mqtt.bean.MqttData;
@@ -18,7 +17,6 @@ import com.revolo.lock.mqtt.bean.publishresultbean.WifiLockGetAllBindDeviceRspBe
 
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import io.reactivex.Observer;
@@ -27,11 +25,11 @@ import timber.log.Timber;
 
 public class DeviceViewModel extends ViewModel {
 
-    private final MutableLiveData<List<WifiShowBean>> mWifiShowBean;
+    private final MutableLiveData<List<WifiLockGetAllBindDeviceRspBean.DataBean.WifiListBean>> mWifiListBean;
 
     public DeviceViewModel() {
 
-        mWifiShowBean = new MutableLiveData<>();
+        mWifiListBean = new MutableLiveData<>();
         new Handler(Looper.getMainLooper()).postDelayed(this::initGetAllBindDevicesFromMQTT, 200);
 
     }
@@ -77,11 +75,7 @@ public class DeviceViewModel extends ViewModel {
                             Timber.e("WifiLockGetAllBindDeviceRspBean..getData().getWifiList().isEmpty()");
                             return;
                         }
-                        List<WifiShowBean> showBeans = new ArrayList<>();
-                        for (WifiLockGetAllBindDeviceRspBean.DataBean.WifiListBean wifiListBean : bean.getData().getWifiList()) {
-                            showBeans.add(new WifiShowBean(2, 1,1, wifiListBean));
-                        }
-                        updateData(showBeans);
+                        updateData(bean.getData().getWifiList());
                     }
 
                     @Override
@@ -96,10 +90,10 @@ public class DeviceViewModel extends ViewModel {
                 });
     }
 
-    public LiveData<List<WifiShowBean>> getWifiShowBeans() { return mWifiShowBean; }
+    public LiveData<List<WifiLockGetAllBindDeviceRspBean.DataBean.WifiListBean>> getWifiListBeans() { return mWifiListBean; }
 
-    private void updateData(List<WifiShowBean> showBeans) {
-        mWifiShowBean.setValue(showBeans);
+    private void updateData(List<WifiLockGetAllBindDeviceRspBean.DataBean.WifiListBean> showBeans) {
+        mWifiListBean.setValue(showBeans);
     }
 
 
