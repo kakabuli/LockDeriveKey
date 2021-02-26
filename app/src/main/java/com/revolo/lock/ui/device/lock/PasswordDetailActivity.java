@@ -59,6 +59,7 @@ public class PasswordDetailActivity extends BaseActivity {
     private CustomerLoadingDialog mLoadingDialog;
     private long mPwdId;
     private DevicePwd mDevicePwd;
+    private String mESN;
 
     @Override
     public void initData(@Nullable Bundle bundle) {
@@ -71,6 +72,14 @@ public class PasswordDetailActivity extends BaseActivity {
         }
         mDevicePwd = AppDatabase.getInstance(this).devicePwdDao().findDevicePwdFromId(mPwdId);
         if(mDevicePwd == null) {
+            finish();
+        }
+        if(intent.hasExtra(Constant.LOCK_ESN)) {
+            mESN = intent.getStringExtra(Constant.LOCK_ESN);
+            Timber.d("initData Device Esn: %1s", mESN);
+        }
+        if(TextUtils.isEmpty(mESN)) {
+            // TODO: 2021/2/24 无法获取esn来处理问题
             finish();
         }
     }
@@ -105,7 +114,10 @@ public class PasswordDetailActivity extends BaseActivity {
     @Override
     public void onDebouncingClick(@NonNull View view) {
         if(view.getId() == R.id.ivEditPwdName) {
-            startActivity(new Intent(this, ChangePwdNameActivity.class));
+            Intent intent = new Intent(this, ChangePwdNameActivity.class);
+            intent.putExtra(Constant.PWD_ID, mPwdId);
+            intent.putExtra(Constant.LOCK_ESN, mESN);
+            startActivity(intent);
             return;
         }
         if(view.getId() == R.id.btnDeletePwd) {

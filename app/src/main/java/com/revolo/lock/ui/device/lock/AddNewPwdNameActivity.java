@@ -78,17 +78,12 @@ public class AddNewPwdNameActivity extends BaseActivity {
     @Override
     public void onDebouncingClick(@NonNull View view) {
         if(view.getId() == R.id.btnComplete) {
-            savePwdName();
-
+            sendPwdDataToServiceAndLocal();
             return;
         }
         if(view.getId() == R.id.tvAddNextTime) {
             finish();
         }
-    }
-
-    private void savePwdName() {
-        sendPwdDataToServiceAndLocal();
     }
 
     private void sendPwdDataToServiceAndLocal() {

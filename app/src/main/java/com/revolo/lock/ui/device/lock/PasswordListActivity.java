@@ -107,6 +107,7 @@ public class PasswordListActivity extends BaseActivity {
                 Intent intent = new Intent(PasswordListActivity.this, PasswordDetailActivity.class);
                 DevicePwd item  = (DevicePwd) adapter.getItem(position);
                 intent.putExtra(Constant.PWD_ID, item.getId());
+                intent.putExtra(Constant.LOCK_ESN, mESN);
                 startActivity(intent);
             }
         });
