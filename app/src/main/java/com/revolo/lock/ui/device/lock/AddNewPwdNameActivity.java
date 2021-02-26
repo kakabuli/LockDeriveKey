@@ -101,14 +101,17 @@ public class AddNewPwdNameActivity extends BaseActivity {
         }
         DevicePwd devicePwd = AppDatabase.getInstance(this).devicePwdDao().findDevicePwdFromId(mPwdId);
         if(devicePwd == null) {
+            showAddFail();
             return;
         }
         devicePwd.setPwdName(pwdName);
         if(App.getInstance().getUserBean() == null) {
+            showAddFail();
             return;
         }
         String uid = App.getInstance().getUserBean().getUid();
         if(TextUtils.isEmpty(uid)) {
+            showAddFail();
             return;
         }
 
@@ -137,10 +140,15 @@ public class AddNewPwdNameActivity extends BaseActivity {
             public void onNext(@NonNull ChangeKeyNickBeanRsp changeKeyNickBeanRsp) {
                 loadingDialog.dismiss();
                 if(TextUtils.isEmpty(changeKeyNickBeanRsp.getCode())) {
-                    Timber.e("");
+                    Timber.e("changeKeyNickBeanRsp.getCode() is Empty");
                     return;
                 }
                 if(!changeKeyNickBeanRsp.getCode().equals("200")) {
+                    String msg = changeKeyNickBeanRsp.getMsg();
+                    Timber.e("code: %1s, msg: %2s", changeKeyNickBeanRsp.getCode(), msg);
+                    if(!TextUtils.isEmpty(msg)) {
+                        ToastUtils.showShort(msg);
+                    }
                     return;
                 }
                 AppDatabase.getInstance(getApplicationContext()).devicePwdDao().update(devicePwd);
@@ -150,6 +158,8 @@ public class AddNewPwdNameActivity extends BaseActivity {
             @Override
             public void onError(@NonNull Throwable e) {
                 Timber.e(e);
+                loadingDialog.dismiss();
+                showAddFail();
             }
 
             @Override
@@ -162,6 +172,12 @@ public class AddNewPwdNameActivity extends BaseActivity {
 
     private void finishThisAct() {
         runOnUiThread(this::finish);
+    }
+
+    private void showAddFail() {
+        // TODO: 2021/2/26 文字后期要改
+        runOnUiThread(() -> ToastUtils.showShort("Setting failed"));
+
     }
 
 }
