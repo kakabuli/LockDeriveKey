@@ -50,6 +50,9 @@ public interface BleDeviceDao {
     @Query("SELECT * FROM BleDeviceLocal WHERE d_user_id=:id")
     List<BleDeviceLocal> findBleDevicesFromUserId(long id);
 
+    @Query("SELECT * FROM BleDeviceLocal WHERE d_user_id=:id ORDER BY d_create_time DESC")
+    List<BleDeviceLocal> findBleDevicesFromUserIdByCreateTimeDesc(long id);
+
     @Query("SELECT * FROM BleDeviceLocal WHERE d_id=:id ")
     BleDeviceLocal findBleDeviceFromId(long id);
 

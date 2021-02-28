@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,9 +19,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.a1anwang.okble.client.scan.BLEScanResult;
 import com.blankj.utilcode.util.ConvertUtils;
-import com.blankj.utilcode.util.GsonUtils;
 import com.blankj.utilcode.util.TimeUtils;
-import com.google.gson.reflect.TypeToken;
 import com.revolo.lock.App;
 import com.revolo.lock.Constant;
 import com.revolo.lock.R;
@@ -49,7 +46,6 @@ import com.revolo.lock.ui.device.lock.DeviceDetailActivity;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
@@ -66,7 +62,6 @@ public class DeviceFragment extends Fragment {
     private DeviceViewModel mDeviceViewModel;
     private HomeLockListAdapter mHomeLockListAdapter;
     private ConstraintLayout mClNoDevice, mClHadDevice;
-    private final String WIFI_SHOW_BEAN_LIST = "WifiShowBeanList";
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -118,7 +113,6 @@ public class DeviceFragment extends Fragment {
         initBaseData();
         initBleListener();
         initData(mBleDeviceLocals);
-        initDataFromCache();
         return root;
     }
 
@@ -149,10 +143,6 @@ public class DeviceFragment extends Fragment {
                 mClNoDevice.setVisibility(View.GONE);
                 mClHadDevice.setVisibility(View.VISIBLE);
             }
-            // TODO: 2021/2/21 需要后期通过数据库修复该bug， 存在登录其他用户账号时，会读取上个用户的缓存
-            String json = GsonUtils.toJson(locals);
-            Timber.d("updateData json: %1s", json);
-            App.getInstance().getCacheDiskUtils().put(WIFI_SHOW_BEAN_LIST, json);
             mHomeLockListAdapter.setList(locals);
         }
     }
@@ -347,21 +337,6 @@ public class DeviceFragment extends Fragment {
         });
     }
 
-    // TODO: 2021/2/10 后续需要修改,String数据量大会存在问题，后续替换成数据库缓存
-    private void initDataFromCache() {
-        String json = App.getInstance().getCacheDiskUtils().getString(WIFI_SHOW_BEAN_LIST);
-        if(TextUtils.isEmpty(json)) {
-            return;
-        }
-        Timber.d("initDataFromCache Json: %1s", json);
-        Type type = new TypeToken<List<BleDeviceLocal>>(){}.getType();
-        ArrayList<BleDeviceLocal> deviceLocals = GsonUtils.fromJson(json, type);
-        if(deviceLocals == null || deviceLocals.isEmpty()) {
-            return;
-        }
-        updateData(deviceLocals);
-    }
-
     private List<BleDeviceLocal> mBleDeviceLocals;
 
     private void initBaseData() {
@@ -369,7 +344,7 @@ public class DeviceFragment extends Fragment {
         if(user == null) {
             return;
         }
-        mBleDeviceLocals = AppDatabase.getInstance(App.getInstance()).bleDeviceDao().findBleDevicesFromUserId(user.getId());
+        mBleDeviceLocals = AppDatabase.getInstance(App.getInstance()).bleDeviceDao().findBleDevicesFromUserIdByCreateTimeDesc(user.getId());
         if(mBleDeviceLocals == null) {
             return;
         }
@@ -380,6 +355,7 @@ public class DeviceFragment extends Fragment {
         mEsn = mBleDeviceLocals.get(0).getEsn();
         mPwd1 = ConvertUtils.hexString2Bytes(mBleDeviceLocals.get(0).getPwd1());
         mPwd2 = ConvertUtils.hexString2Bytes(mBleDeviceLocals.get(0).getPwd2());
+        updateData(mBleDeviceLocals);
 
     }
 
