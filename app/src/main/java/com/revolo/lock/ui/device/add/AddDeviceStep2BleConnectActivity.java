@@ -15,7 +15,6 @@ import com.a1anwang.okble.client.scan.BLEScanResult;
 import com.a1anwang.okble.client.scan.DeviceScanCallBack;
 import com.a1anwang.okble.client.scan.OKBLEScanManager;
 import com.blankj.utilcode.util.ConvertUtils;
-import com.blankj.utilcode.util.GsonUtils;
 import com.blankj.utilcode.util.TimeUtils;
 import com.blankj.utilcode.util.ToastUtils;
 import com.revolo.lock.App;
@@ -113,6 +112,7 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
 
     @Override
     public void doBusiness() {
+        App.getInstance().setAppPair(true);
         if(mPreA == mQRPre || mPreA == mESNPre) {
             checkDeviceIsBind();
 //            getPwd1FromNet();
@@ -144,6 +144,7 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
 
     @Override
     protected void onDestroy() {
+        App.getInstance().setAppPair(false);
         if(mScanManager != null && mScanManager.isScanning()) {
             mScanManager.stopScan();
         }
@@ -320,6 +321,8 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
             bleDeviceLocal.setPwd1(pwd1);
             bleDeviceLocal.setPwd2(pwd2);
             bleDeviceLocal.setUserId(user.getId());
+            // TODO: 2021/3/1 后面改成enum，默认关
+            bleDeviceLocal.setLockState(2);
             bleDeviceLocal.setScanResultJson(ConvertUtils.parcelable2Bytes(scanResultJson));
             // 统一使用秒，所以毫秒要除以1000
             bleDeviceLocal.setCreateTime(TimeUtils.getNowMills()/1000);
@@ -375,7 +378,6 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
                 }
                 Timber.d("addDeviceToService 添加设备成功");
                 Timber.d("rsp: %1s", adminAddDeviceBeanRsp.toString());
-                App.getInstance().setAutoAuth(true);
                 Intent intent = new Intent(AddDeviceStep2BleConnectActivity.this, BleConnectSucActivity.class);
                 intent.putExtra(Constant.DEVICE_ID, mDeviceId);
                 startActivity(intent);
@@ -399,6 +401,7 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
         App.getInstance().setOnBleDeviceListener(new OnBleDeviceListener() {
             @Override
             public void onConnected() {
+                Timber.d("发送配网指令，并校验ESN");
                 App.getInstance().writeControlMsg(BleCommandFactory
                         .pairCommand(mPwd1, mEsn.getBytes(StandardCharsets.UTF_8)));
             }
@@ -429,6 +432,11 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
 
             @Override
             public void onWriteValue(String uuid, byte[] value, boolean success) {
+
+            }
+
+            @Override
+            public void onAuthSuc() {
 
             }
         });

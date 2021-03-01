@@ -159,6 +159,11 @@ public class DoorLockInformationActivity extends BaseActivity {
             public void onWriteValue(String uuid, byte[] value, boolean success) {
 
             }
+
+            @Override
+            public void onAuthSuc() {
+
+            }
         });
         new Handler(Looper.getMainLooper()).postDelayed(() -> App.getInstance().writeControlMsg(BleCommandFactory
                 .lockParameterCheckCommand((byte) 0x03,

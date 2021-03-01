@@ -2,8 +2,6 @@ package com.revolo.lock.ui.device;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,7 +22,6 @@ import com.revolo.lock.App;
 import com.revolo.lock.Constant;
 import com.revolo.lock.R;
 import com.revolo.lock.adapter.HomeLockListAdapter;
-import com.revolo.lock.bean.showBean.WifiShowBean;
 import com.revolo.lock.ble.BleByteUtil;
 import com.revolo.lock.ble.bean.BleBean;
 import com.revolo.lock.ble.BleCommandFactory;
@@ -85,11 +82,11 @@ public class DeviceFragment extends Fragment {
             rvLockList.setLayoutManager(new LinearLayoutManager(getContext()));
             mHomeLockListAdapter = new HomeLockListAdapter(R.layout.item_home_lock_list_rv);
             mHomeLockListAdapter.setOnItemClickListener((adapter, view, position) -> {
-                if(adapter.getItem(position) instanceof WifiShowBean) {
+                if(adapter.getItem(position) instanceof BleDeviceLocal) {
                     if(position < 0 || position >= adapter.getData().size()) return;
-                    WifiShowBean wifiShowBean = (WifiShowBean) adapter.getItem(position);
+                    BleDeviceLocal deviceLocal = (BleDeviceLocal) adapter.getItem(position);
                     Intent intent = new Intent(getContext(), DeviceDetailActivity.class);
-                    intent.putExtra(Constant.LOCK_DETAIL, wifiShowBean);
+                    intent.putExtra(Constant.LOCK_DETAIL, deviceLocal);
                     startActivity(intent);
                 }
             });
@@ -162,32 +159,12 @@ public class DeviceFragment extends Fragment {
     };
 
     private void processBleResult(BleResultBean bean) {
-        if(bean.getCMD() == BleProtocolState.CMD_ENCRYPT_KEY_UPLOAD) {
-            auth(bean);
-        } else if(bean.getCMD() == BleProtocolState.CMD_LOCK_INFO) {
+        if(bean.getCMD() == BleProtocolState.CMD_LOCK_INFO) {
             lockInfo(bean);
         } else if(bean.getCMD() == BleProtocolState.CMD_LOCK_CONTROL_ACK) {
             controlOpenOrCloseDoorAck(bean);
         } else if(bean.getCMD() == BleProtocolState.CMD_LOCK_UPLOAD) {
             lockUpdateInfo(bean);
-        }
-    }
-
-    private void auth(BleResultBean bean) {
-        byte[] data = bean.getPayload();
-        if(data[0] == 0x02) {
-            // 获取pwd3
-            mPwd3 = new byte[4];
-            System.arraycopy(data, 1, mPwd3, 0, mPwd3.length);
-            Timber.d("鉴权成功, pwd3: %1s\n", ConvertUtils.bytes2HexString(mPwd3));
-            // 内存存储
-            App.getInstance().getBleBean().setPwd3(mPwd3);
-            App.getInstance().writeControlMsg(BleCommandFactory.ackCommand(bean.getTSN(), (byte)0x00, bean.getCMD()));
-            // 鉴权成功后，同步当前时间
-            syNowTime();
-            isAuth = true;
-            App.getInstance().setAutoAuth(true);
-            // TODO: 2021/1/26 鉴权成功
         }
     }
 
@@ -287,29 +264,11 @@ public class DeviceFragment extends Fragment {
         });
     }
 
-    private void syNowTime() {
-        new Handler(Looper.getMainLooper()).postDelayed(() -> {
-            long nowTime = TimeUtils.getNowMills()/1000;
-            App.getInstance().writeControlMsg(BleCommandFactory
-                    .syLockTime(nowTime, mPwd1, mPwd3));
-        }, 20);
-    }
-
-    private boolean isAuth = false;
-
     private void initBleListener() {
         App.getInstance().setOnBleDeviceListener(new OnBleDeviceListener() {
             @Override
             public void onConnected() {
-                if(isAuth) {
-                    return;
-                }
-                Timber.d("initBleListener 连接成功 发送鉴权指令, pwd2: %1s\n", ConvertUtils.bytes2HexString(mPwd2));
-                mBleBean.setPwd1(mPwd1);
-                mBleBean.setPwd2(mPwd2);
-                mBleBean.setEsn(mEsn);
-                App.getInstance().writeControlMsg(BleCommandFactory
-                        .authCommand(mPwd1, mPwd2, mEsn.getBytes(StandardCharsets.UTF_8)));
+
             }
 
             @Override
@@ -322,7 +281,7 @@ public class DeviceFragment extends Fragment {
                 if(value == null) {
                     return;
                 }
-                if(!isAuth && mBleBean != null && mBleBean.getPwd3() != null) {
+                if(mBleBean != null && mBleBean.getPwd3() != null) {
                     mPwd3 = mBleBean.getPwd3();
                 }
                 BleResultProcess.setOnReceivedProcess(mOnReceivedProcess);
@@ -333,6 +292,12 @@ public class DeviceFragment extends Fragment {
             @Override
             public void onWriteValue(String uuid, byte[] value, boolean success) {
 
+            }
+
+            @Override
+            public void onAuthSuc() {
+                // TODO: 2021/3/1 通过了才给处理
+                mPwd3 = mBleBean.getPwd3();
             }
         });
     }

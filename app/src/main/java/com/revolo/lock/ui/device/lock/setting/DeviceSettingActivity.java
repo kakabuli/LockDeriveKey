@@ -333,6 +333,11 @@ public class DeviceSettingActivity extends BaseActivity {
             public void onWriteValue(String uuid, byte[] value, boolean success) {
 
             }
+
+            @Override
+            public void onAuthSuc() {
+
+            }
         });
         // TODO: 2021/2/8 查询一下当前设置
     }

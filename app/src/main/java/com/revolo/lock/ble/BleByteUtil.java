@@ -41,10 +41,13 @@ public class BleByteUtil {
         return a;
     }
 
-    public static short bytesToShort(byte[] bytes) {
+    public static short bytesToShortToLittleEndian(byte[] bytes) {
         return ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN).getShort();
     }
 
+    public static short bytesToShortToBigEndianFromLittleEndian(byte[] bytes) {
+        return ByteBuffer.wrap(bytes).order(ByteOrder.BIG_ENDIAN).getShort();
+    }
 
     //byte 与 int 的相互转换
     public static byte intToByte(int x) {

@@ -23,6 +23,8 @@ import com.revolo.lock.ble.bean.BleResultBean;
 
 import timber.log.Timber;
 
+import static com.revolo.lock.ble.BleProtocolState.CMD_DOOR_SENSOR_CALIBRATION;
+
 /**
  * author : Jack
  * time   : 2020/12/29
@@ -33,7 +35,7 @@ import timber.log.Timber;
 public class DoorSensorCheckActivity extends BaseActivity {
     // TODO: 2021/2/22 需要存储到本地数据库
     private ImageView mIvDoorState;
-    private TextView mTvTip, mTvSkip;
+    private TextView mTvTip, mTvSkip, mTvStep;
     private Button mBtnNext;
 
     @IntDef(value = {DOOR_OPEN, DOOR_CLOSE, DOOR_HALF, DOOR_SUC, DOOR_FAIL, DOOR_OPEN_AGAIN})
@@ -59,7 +61,7 @@ public class DoorSensorCheckActivity extends BaseActivity {
         if(intent.hasExtra(Constant.DEVICE_ID)) {
             mDeviceId = intent.getLongExtra(Constant.DEVICE_ID, -1L);
         }
-        if(mDeviceId == -1) {
+        if(mDeviceId == -1L) {
             // TODO: 2021/2/22 做处理
             finish();
         }
@@ -77,14 +79,14 @@ public class DoorSensorCheckActivity extends BaseActivity {
         mIvDoorState = findViewById(R.id.ivDoorState);
         mTvTip = findViewById(R.id.tvTip);
         mTvSkip = findViewById(R.id.tvSkip);
+        mTvStep = findViewById(R.id.tvStep);
         applyDebouncingClickListener(mBtnNext, mTvSkip);
     }
 
     @Override
     public void doBusiness() {
-        // TODO: 2021/2/23 先屏蔽门磁
-//        initBleListener();
-//        sendCommand(BleCommandState.DOOR_CALIBRATION_STATE_CLOSE_SE);
+        initBleListener();
+        sendCommand(BleCommandState.DOOR_CALIBRATION_STATE_CLOSE_SE);
         // 初始化默认第一步执行开门
         isOpenAgain = false;
         refreshOpenTheDoor();
@@ -158,14 +160,19 @@ public class DoorSensorCheckActivity extends BaseActivity {
         mIvDoorState.setImageResource(R.drawable.ic_equipment_img_magnetic_door_open);
         mTvTip.setText(getString(R.string.open_the_door));
         mBtnNext.setText(getString(R.string.next));
+        mTvStep.setText(getString(R.string.open_door_step_1_3_tip));
+        mTvStep.setVisibility(View.VISIBLE);
         mDoorState = isOpenAgain?DOOR_OPEN_AGAIN:DOOR_OPEN;
+        mTvSkip.setVisibility(isOpenAgain?View.GONE:View.VISIBLE);
     }
 
     private void refreshCloseTheDoor() {
         mIvDoorState.setImageResource(R.drawable.ic_equipment_img_magnetic_door_close);
         mTvTip.setText(getString(R.string.close_the_door));
         mBtnNext.setText(getString(R.string.next));
-        mTvSkip.setVisibility(View.VISIBLE);
+        mTvStep.setText(getString(R.string.close_door_step_2_tip));
+        mTvStep.setVisibility(View.VISIBLE);
+        mTvSkip.setVisibility(View.GONE);
         mDoorState = DOOR_CLOSE;
     }
 
@@ -173,6 +180,8 @@ public class DoorSensorCheckActivity extends BaseActivity {
         mIvDoorState.setImageResource(R.drawable.ic_equipment_img_magnetic_door_cover_up);
         mTvTip.setText(getString(R.string.half_close_the_door));
         mBtnNext.setText(getString(R.string.next));
+        mTvStep.setText(getString(R.string.half_door_step_4_tip));
+        mTvStep.setVisibility(View.VISIBLE);
         mTvSkip.setVisibility(View.GONE);
         mDoorState = DOOR_HALF;
     }
@@ -181,6 +190,9 @@ public class DoorSensorCheckActivity extends BaseActivity {
         mIvDoorState.setImageResource(R.drawable.ic_equipment_img_magnetic_door_success);
         mTvTip.setText(getString(R.string.door_check_suc_tip));
         mBtnNext.setText(getString(R.string.connect_wifi));
+        mTvSkip.setVisibility(View.GONE);
+        mTvStep.setText("");
+        mTvStep.setVisibility(View.INVISIBLE);
         mDoorState = DOOR_SUC;
     }
 
@@ -220,11 +232,16 @@ public class DoorSensorCheckActivity extends BaseActivity {
             public void onWriteValue(String uuid, byte[] value, boolean success) {
 
             }
+
+            @Override
+            public void onAuthSuc() {
+
+            }
         });
     }
     
     private void changedDoor(BleResultBean bleResultBean) {
-        if(bleResultBean.getCMD() == 0x1F) {
+        if(bleResultBean.getCMD() == CMD_DOOR_SENSOR_CALIBRATION) {
             if(bleResultBean.getPayload()[0] == 0x00) {
                 // 排除掉第一次发送禁用门磁指令的状态反馈
                 if(mCalibrationState == BleCommandState.DOOR_CALIBRATION_STATE_CLOSE_SE) {

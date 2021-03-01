@@ -264,6 +264,9 @@
     <string name="half_close_the_door">half close the door</string>
     <string name="door_check_suc_tip">WiFi connected,then you can acquire status of\nthe door lock remotely.\nPlease continue to connect WiFi.</string>
     <string name="connect_wifi">Connect WiFi</string>
+    <string name="open_door_step_1_3_tip">1. Please install the gate magnet on the door \n&#160;&#160;&#160;&#160;frame. \n2. Please install the gate magnet along the top \n&#160;&#160;&#160;&#160;of the lock. \n3. Please full open the door.</string>
+    <string name="close_door_step_2_tip">1. Please close the door.</string>
+    <string name="half_door_step_4_tip">1. Turn the thumb turn to reach the deadbolt \n&#160;&#160;&#160;&#160;out . \n2. Half close the door to make the deadbolt \n&#160;&#160;&#160;&#160;against the door frame.</string>
 
     <!-- DoorCheckFailActivity -->
     <string name="door_magnet_cant_be_detected">Door magnet can\'t be detected.</string>

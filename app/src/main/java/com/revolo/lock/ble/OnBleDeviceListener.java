@@ -12,5 +12,6 @@ public interface OnBleDeviceListener {
     void onDisconnected();
     void onReceivedValue(String uuid, byte[] value);
     void onWriteValue(String uuid, byte[] value, boolean success);
+    void onAuthSuc();
 
 }

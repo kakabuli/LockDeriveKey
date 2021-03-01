@@ -31,12 +31,8 @@ import com.revolo.lock.room.AppDatabase;
 import com.revolo.lock.room.entity.LockRecord;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 import timber.log.Timber;
@@ -138,6 +134,11 @@ public class OperationRecordsActivity extends BaseActivity {
         public void onWriteValue(String uuid, byte[] value, boolean success) {
 
         }
+
+        @Override
+        public void onAuthSuc() {
+
+        }
     };
 
     private final BleResultProcess.OnReceivedProcess mOnReceivedProcess = bleResultBean -> {
@@ -160,8 +161,9 @@ public class OperationRecordsActivity extends BaseActivity {
     private void searchRecordFromBle(short start, short end) {
         if(mBleBean.getOKBLEDeviceImp() != null) {
             if (mBleBean.getOKBLEDeviceImp().isConnected()) {
+                // 因为shortToBytes转出来就是小端模式，所以调用直接使用小端模式的方法
                 App.getInstance().writeControlMsg(BleCommandFactory
-                        .readAllRecord(BleByteUtil.shortToBytes(start), BleByteUtil.shortToBytes(end),
+                        .readAllRecordFromSmallEndian(BleByteUtil.shortToBytes(start), BleByteUtil.shortToBytes(end),
                                 mBleBean.getPwd1(), mBleBean.getPwd3()));
             } else {
                 // TODO: 2021/1/26 没有连接上，需要连接上才能发送指令
@@ -179,11 +181,11 @@ public class OperationRecordsActivity extends BaseActivity {
         }
         byte[] total = new byte[2];
         System.arraycopy(bean.getPayload(), 0, total, 0, total.length);
-        short totalShort = BleByteUtil.bytesToShort(total);
+        short totalShort = BleByteUtil.bytesToShortToBigEndianFromLittleEndian(total);
         mBleTotalRecord = totalShort;
         byte[] index = new byte[2];
         System.arraycopy(bean.getPayload(), 2, index, 0, index.length);
-        short indexShort = BleByteUtil.bytesToShort(index);
+        short indexShort = BleByteUtil.bytesToShortToBigEndianFromLittleEndian(index);
         int eventType = bean.getPayload()[4];
         int eventSource = bean.getPayload()[5];
         int eventCode = bean.getPayload()[6];

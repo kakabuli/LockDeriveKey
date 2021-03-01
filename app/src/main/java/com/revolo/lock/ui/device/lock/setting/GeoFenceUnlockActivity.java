@@ -206,14 +206,15 @@ public class GeoFenceUnlockActivity extends BaseActivity {
                 break;
             }
         }
-        if(isSendCommand) {
-            App.getInstance()
-                    .writeControlMsg(BleCommandFactory
-                            .setKnockDoorAndUnlockTime(1,
-                                    mTime,
-                                    App.getInstance().getBleBean().getPwd1(),
-                                    App.getInstance().getBleBean().getPwd3()));
-        }
+        // TODO: 2021/3/1 做这个操作意味着进行开门了
+//        if(isSendCommand) {
+//            App.getInstance()
+//                    .writeControlMsg(BleCommandFactory
+//                            .setKnockDoorAndUnlockTime(1,
+//                                    mTime,
+//                                    App.getInstance().getBleBean().getPwd1(),
+//                                    App.getInstance().getBleBean().getPwd3()));
+//        }
     }
 
     private void processChangeSensitivityFromSeekBar(int process) {
@@ -276,6 +277,11 @@ public class GeoFenceUnlockActivity extends BaseActivity {
             public void onWriteValue(String uuid, byte[] value, boolean success) {
 
             }
+
+            @Override
+            public void onAuthSuc() {
+
+            }
         });
         // TODO: 2021/2/8 查询一下当前设置
     }
@@ -291,9 +297,10 @@ public class GeoFenceUnlockActivity extends BaseActivity {
     private void processBleResult(BleResultBean bean) {
         if(bean.getCMD() == CMD_SET_SENSITIVITY) {
             processSetSensitivity(bean);
-        } else if(bean.getCMD() == CMD_KNOCK_DOOR_AND_UNLOCK_TIME) {
-            processKnockUnlockTime(bean);
         }
+//        else if(bean.getCMD() == CMD_KNOCK_DOOR_AND_UNLOCK_TIME) {
+//            processKnockUnlockTime(bean);
+//        }
     }
 
     private void processKnockUnlockTime(BleResultBean bean) {

@@ -894,13 +894,30 @@ public class BleCommandFactory {
      *                        一次最多读100条 如范围0-99    第一条记录的编号为0）
      *                        2个字节
      */
-    public static byte[] readAllRecord(byte[] logIndexStart, byte[] logIndexEnd,
-                                       byte[] pwd1, byte[] pwd3) {
+    public static byte[] readAllRecordFromBigEndian(byte[] logIndexStart, byte[] logIndexEnd,
+                                                    byte[] pwd1, byte[] pwd3) {
         byte[] data = new byte[4];
         data[0] = logIndexStart[1];
         data[1] = logIndexStart[0];
         data[2] = logIndexEnd[1];
         data[3] = logIndexEnd[0];
+        return commandPackage(true, (byte) CMD_GET_ALL_RECORD, commandTSN(), data, pwd1, pwd3);
+    }
+
+    /**
+     *  读取混合记录
+     * @param logIndexStart   查询的记录起始序号 2个字节
+     * @param logIndexEnd     结束编号（当start index =end index时 读取一条记录
+     *                        一次最多读100条 如范围0-99    第一条记录的编号为0）
+     *                        2个字节
+     */
+    public static byte[] readAllRecordFromSmallEndian(byte[] logIndexStart, byte[] logIndexEnd,
+                                                    byte[] pwd1, byte[] pwd3) {
+        byte[] data = new byte[4];
+        data[0] = logIndexStart[0];
+        data[1] = logIndexStart[1];
+        data[2] = logIndexEnd[0];
+        data[3] = logIndexEnd[1];
         return commandPackage(true, (byte) CMD_GET_ALL_RECORD, commandTSN(), data, pwd1, pwd3);
     }
 

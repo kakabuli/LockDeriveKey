@@ -319,6 +319,11 @@ public class PasswordListActivity extends BaseActivity {
             public void onWriteValue(String uuid, byte[] value, boolean success) {
 
             }
+
+            @Override
+            public void onAuthSuc() {
+
+            }
         });
 
     }
