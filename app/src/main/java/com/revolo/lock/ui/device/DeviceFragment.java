@@ -17,7 +17,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.a1anwang.okble.client.scan.BLEScanResult;
 import com.blankj.utilcode.util.ConvertUtils;
-import com.blankj.utilcode.util.TimeUtils;
 import com.revolo.lock.App;
 import com.revolo.lock.Constant;
 import com.revolo.lock.LocalState;
@@ -210,10 +209,10 @@ public class DeviceFragment extends Fragment {
             if(bean.getPayload()[0] == 0x00) {
                 // 上锁
                 @LocalState.LockState int state = mHomeLockListAdapter.getData().get(0).getLockState();
-                if(state == 1) {
-                    state = 2;
-                } else if(state == 2) {
-                    state = 1;
+                if(state == LocalState.LOCK_STATE_OPEN) {
+                    state = LocalState .LOCK_STATE_CLOSE;
+                } else if(state == LocalState.LOCK_STATE_CLOSE) {
+                    state = LocalState.LOCK_STATE_OPEN;
                 }
 
                 setLockState(0, state);
