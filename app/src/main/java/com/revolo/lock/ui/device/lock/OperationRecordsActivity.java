@@ -181,11 +181,11 @@ public class OperationRecordsActivity extends BaseActivity {
         }
         byte[] total = new byte[2];
         System.arraycopy(bean.getPayload(), 0, total, 0, total.length);
-        short totalShort = BleByteUtil.bytesToShortToBigEndianFromLittleEndian(total);
+        short totalShort = BleByteUtil.bytesToShortFromLittleEndian(total);
         mBleTotalRecord = totalShort;
         byte[] index = new byte[2];
         System.arraycopy(bean.getPayload(), 2, index, 0, index.length);
-        short indexShort = BleByteUtil.bytesToShortToBigEndianFromLittleEndian(index);
+        short indexShort = BleByteUtil.bytesToShortFromLittleEndian(index);
         int eventType = bean.getPayload()[4];
         int eventSource = bean.getPayload()[5];
         int eventCode = bean.getPayload()[6];

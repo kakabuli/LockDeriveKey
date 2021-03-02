@@ -338,7 +338,7 @@ public class DeviceDetailActivity extends BaseActivity {
         // TODO: 2021/2/6 发送开门或者关门的指令
         App.getInstance().getMqttService().mqttPublish(MqttConstant.getCallTopic(App.getInstance().getUserBean().getUid()),
                 MqttCommandFactory.setLock(wifiId,doorOpt,
-                        getPwd(App.getInstance().getBleBean().getPwd1(), App.getInstance().getBleBean().getPwd2())))
+                        getPwd(App.getInstance().getBleBean().getPwd1(), App.getInstance().getBleBean().getPwd2()), App.getInstance().getRandomCode()))
                 .subscribe(new Observer<MqttData>() {
             @Override
             public void onSubscribe(@NotNull Disposable d) {

@@ -98,7 +98,7 @@ public class DeviceFragment extends Fragment {
                         App.getInstance().writeControlMsg(BleCommandFactory
                                 .lockControlCommand((byte) (state==1?LOCK_SETTING_CLOSE:LOCK_SETTING_OPEN), (byte) 0x04, (byte) 0x01, mBleBean.getPwd1(), mBleBean.getPwd3()));
                     } else if(mBleDeviceLocals.get(0).getConnectedType() == 1) {
-                        publishOpenOrCloseDoor(mHomeLockListAdapter.getItem(position).getEsn(), state==1?1:0);
+                        publishOpenOrCloseDoor(mHomeLockListAdapter.getItem(position).getEsn(), state==1?1:0, App.getInstance().getRandomCode());
                     }
                 }
             });
@@ -128,6 +128,8 @@ public class DeviceFragment extends Fragment {
             Timber.e("updateDataFromNet locals.isEmpty()");
             return;
         }
+        // TODO: 2021/3/2 暂时使用第一个值，后续通过选择
+        App.getInstance().setRandomCode(wifiListBeans.get(0).getRandomCode());
         updateData(locals);
     }
 
@@ -375,10 +377,10 @@ public class DeviceFragment extends Fragment {
      * @param wifiId wifi的id
      * @param doorOpt 1:表示开门，0表示关门
      */
-    public void publishOpenOrCloseDoor(String wifiId, int doorOpt) {
+    public void publishOpenOrCloseDoor(String wifiId, int doorOpt, String randomCode) {
         // TODO: 2021/2/6 发送开门或者关门的指令
         App.getInstance().getMqttService().mqttPublish(MqttConstant.getCallTopic(App.getInstance().getUserBean().getUid()),
-                MqttCommandFactory.setLock(wifiId, doorOpt, getPwd(mPwd1, mPwd2))).subscribe(new Observer<MqttData>() {
+                MqttCommandFactory.setLock(wifiId, doorOpt, getPwd(mPwd1, mPwd2), randomCode)).subscribe(new Observer<MqttData>() {
             @Override
             public void onSubscribe(@NotNull Disposable d) {
 

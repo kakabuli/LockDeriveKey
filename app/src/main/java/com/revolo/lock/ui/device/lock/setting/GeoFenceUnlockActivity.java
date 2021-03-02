@@ -11,6 +11,12 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.blankj.utilcode.util.ConvertUtils;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.revolo.lock.App;
 import com.revolo.lock.Constant;
 import com.revolo.lock.R;
@@ -38,12 +44,14 @@ import static com.revolo.lock.ble.BleProtocolState.CMD_SET_SENSITIVITY;
  * E-mail : wengmaowei@kaadas.com
  * desc   : 地理围栏设置页面
  */
-public class GeoFenceUnlockActivity extends BaseActivity {
+public class GeoFenceUnlockActivity extends BaseActivity implements OnMapReadyCallback {
 
     private ImageView mIvGeoFenceUnlockEnable;
     private TextView mTvTime, mTvSensitivity;
     private BleDeviceLocal mBleDeviceLocal;
     private SeekBar mSeekBarTime, mSeekBarSensitivity;
+
+    private GoogleMap mMap;
 
     @Override
     public void initData(@Nullable Bundle bundle) {
@@ -110,6 +118,10 @@ public class GeoFenceUnlockActivity extends BaseActivity {
         mIvGeoFenceUnlockEnable.setImageResource(mBleDeviceLocal.isOpenElectricFence()?R.drawable.ic_icon_switch_open:R.drawable.ic_icon_switch_close);
 
         applyDebouncingClickListener(mIvGeoFenceUnlockEnable);
+        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
+        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.mapFragment);
+        mapFragment.getMapAsync(this);
     }
 
     @Override
@@ -190,7 +202,7 @@ public class GeoFenceUnlockActivity extends BaseActivity {
         mTvTime.setText(mTimeStr);
     }
 
-    private void processStopTimeFromSeekBar(SeekBar seekBar, boolean isSendCommand) {
+    private void processStopTimeFromSeekBar(SeekBar seekBar, boolean isNeedToSave) {
         mTvTime.setText(mTimeStr);
         for (int i=3; i<=30; i++) {
             if(mTime == i*60) {
@@ -205,6 +217,10 @@ public class GeoFenceUnlockActivity extends BaseActivity {
                 }
                 break;
             }
+        }
+        if(isNeedToSave) {
+            mBleDeviceLocal.setSetElectricFenceTime(mTime);
+            AppDatabase.getInstance(this).bleDeviceDao().update(mBleDeviceLocal);
         }
         // TODO: 2021/3/1 做这个操作意味着进行开门了
 //        if(isSendCommand) {
@@ -323,4 +339,26 @@ public class GeoFenceUnlockActivity extends BaseActivity {
         }
     }
 
+
+    /**
+     * Manipulates the map once available.
+     * This callback is triggered when the map is ready to be used.
+     * This is where we can add markers or lines, add listeners or move the camera. In this case,
+     * we just add a marker near Sydney, Australia.
+     *
+     * If Google Play services is not installed on the device, the user will be prompted to install`
+     * it inside the SupportMapFragment. This method will only be triggered once the user has
+     * installed Google Play services and returned to the app.
+     */
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
+        mMap = googleMap;
+
+        // Add a marker in Sydney and move the camera
+        LatLng sydney = new LatLng(-34, 151);
+        mMap.addMarker(new MarkerOptions()
+                .position(sydney)
+                .title("Marker in Sydney"));
+        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
+    }
 }

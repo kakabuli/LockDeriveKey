@@ -82,6 +82,15 @@ public class App extends Application {
 
     private User mUser;
     private String mMail;
+    private String mRandomCode;
+
+    public String getRandomCode() {
+        return mRandomCode;
+    }
+
+    public void setRandomCode(String randomCode) {
+        mRandomCode = randomCode;
+    }
 
     public User getUserFromLocal(String mail) {
         mMail = mail;

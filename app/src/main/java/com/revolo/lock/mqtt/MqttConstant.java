@@ -86,6 +86,7 @@ public class MqttConstant {
     //3获取网关状态
     public static final String GATEWAY_STATE = "gatewayState";
 
-
+    // 设置门锁属性
+    public static final String SET_LOCK_ATTR = "setLockAttr";
 
 }

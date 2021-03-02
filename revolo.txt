@@ -1,0 +1,14 @@
+revolo.jks
+密码：Rev0l0&Ka66as
+
+别名：revolo
+密码：Rev0l0&Ka66as
+
+
+有效期开始日期: Mon Mar 01 16:48:08 CST 2021, 截止日期: Fri Feb 23 16:48:08 CST 2046
+证书指纹:
+         MD5: FB:8D:25:89:E0:50:88:48:8B:D9:06:50:82:86:AB:EE
+         SHA1: F8:E0:AD:F3:9E:6B:89:BE:7B:0F:7D:28:77:EB:9B:77:4B:4A:7A:FB
+         SHA256: 55:1E:E9:B7:51:26:9B:1C:3F:C1:13:7C:A3:BA:53:44:0B:FF:87:4B:1C:28:0F:E0:2A:A2:D7:B8:B5:61:CD:9E
+         签名算法名称: SHA256withRSA
+         版本: 3

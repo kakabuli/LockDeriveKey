@@ -90,13 +90,14 @@
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <com.google.android.gms.maps.MapView
-        android:id="@+id/mapView"
+    <fragment
+        android:id="@+id/mapFragment"
         android:layout_width="0dp"
         android:layout_height="165pt"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/clDistanceRangeSetting" />
+        app:layout_constraintTop_toBottomOf="@+id/clDistanceRangeSetting"
+        android:name="com.google.android.gms.maps.SupportMapFragment"/>
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/clSetTime"
@@ -104,7 +105,7 @@
         android:layout_height="51pt"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/mapView">
+        app:layout_constraintTop_toBottomOf="@+id/mapFragment">
 
         <TextView
             android:id="@+id/textView1"

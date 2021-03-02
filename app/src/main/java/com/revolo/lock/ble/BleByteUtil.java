@@ -41,11 +41,11 @@ public class BleByteUtil {
         return a;
     }
 
-    public static short bytesToShortToLittleEndian(byte[] bytes) {
+    public static short bytesToShortFromLittleEndian(byte[] bytes) {
         return ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN).getShort();
     }
 
-    public static short bytesToShortToBigEndianFromLittleEndian(byte[] bytes) {
+    public static short bytesToShortFromBigEndian(byte[] bytes) {
         return ByteBuffer.wrap(bytes).order(ByteOrder.BIG_ENDIAN).getShort();
     }
 

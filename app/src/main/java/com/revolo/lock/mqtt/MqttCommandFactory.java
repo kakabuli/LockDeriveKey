@@ -1,7 +1,10 @@
 package com.revolo.lock.mqtt;
 
+import android.text.TextUtils;
+
 import com.blankj.utilcode.util.EncodeUtils;
 import com.blankj.utilcode.util.EncryptUtils;
+import com.blankj.utilcode.util.TimeUtils;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.revolo.lock.App;
@@ -12,8 +15,10 @@ import com.revolo.lock.mqtt.bean.publishbean.WifiLockDoorOptPublishBean;
 import com.revolo.lock.mqtt.bean.publishbean.WifiLockEncryptPublishBean;
 import com.revolo.lock.mqtt.bean.publishbean.WifiLockGetAllBindDevicePublishBean;
 import com.revolo.lock.mqtt.bean.publishbean.WifiLockRemovePasswordPublishBean;
+import com.revolo.lock.mqtt.bean.publishbean.WifiLockSetLockAttrPublishBean;
 import com.revolo.lock.mqtt.bean.publishbean.WifiLockSetMagneticPublishBean;
 import com.revolo.lock.mqtt.bean.publishbean.WifiLockUpdatePasswordPublishBean;
+import com.revolo.lock.mqtt.bean.publishbean.attrparams.BaseParamsBean;
 
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 
@@ -95,12 +100,12 @@ public class MqttCommandFactory {
     /**
      * 7.App 下发开门，关门指令
      */
-    public static MqttMessage setLock(String wifiID,int dooropt, byte[] pwd){
+    public static MqttMessage setLock(String wifiID,int dooropt, byte[] pwd, String randomCode){
         int messageId = getMessageId();
         WifiLockDoorOptPublishBean.ParamsBean setLock = new WifiLockDoorOptPublishBean.ParamsBean();
         setLock.setDooropt(dooropt);
         // TODO: 2021/2/6 临时放一个测试 后续需要修改randomCode从外部调进来
-        setLock.setRandomCode("123456");
+        setLock.setRandomCode(TextUtils.isEmpty(randomCode)?"":randomCode);
         WifiLockDoorOptPublishBean mWifiLockDoorOptPublishBean = new WifiLockDoorOptPublishBean(MqttConstant.MSG_TYPE_REQUEST,messageId,
                 App.getInstance().getUserBean().getUid(),wifiID,MqttConstant.SET_LOCK,setLock,System.currentTimeMillis() + "");
         String json = new Gson().toJson(mWifiLockDoorOptPublishBean);
@@ -143,6 +148,20 @@ public class MqttCommandFactory {
         WifiLockRemovePasswordPublishBean mWifiLockRemovePasswordPublishBean = new WifiLockRemovePasswordPublishBean(MqttConstant.MSG_TYPE_REQUEST,messageId,
                 App.getInstance().getUserBean().getUid(),wifiID,MqttConstant.REMOVE_PWD,paramsBean,System.currentTimeMillis() + "");
         return getMessage(mWifiLockRemovePasswordPublishBean, messageId);
+    }
+
+    /**
+     * 设置锁的属性
+     * @param wifiID
+     * @param bean
+     * @return
+     */
+    public static MqttMessage setLockAttr(String wifiID, BaseParamsBean bean) {
+        int messageId = getMessageId();
+        WifiLockSetLockAttrPublishBean wifiLockSetLockAttrPublishBean = new WifiLockSetLockAttrPublishBean(MqttConstant.MSG_TYPE_REQUEST, messageId,
+                App.getInstance().getUserBean().getUid(),wifiID, MqttConstant.SET_LOCK_ATTR, bean, TimeUtils.getNowMills() + "");
+        return getMessage(wifiLockSetLockAttrPublishBean, messageId);
+
     }
 
     /**

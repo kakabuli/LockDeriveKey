@@ -24,6 +24,16 @@ android {
                 arguments = ["room.schemaLocation": "$projectDir/schemas".toString()]
             }
         }
+
+        // Set the properties within `local.properties` into a `Properties` class so that values
+        // within `local.properties` (e.g. Maps API key) are accessible in this file.
+        Properties properties = new Properties()
+        if (rootProject.file("local.properties").exists()) {
+            properties.load(rootProject.file("local.properties").newDataInputStream())
+        }
+
+        // Inject the Maps API key into the manifest
+        manifestPlaceholders = [ mapsApiKey : properties.getProperty("MAPS_API_KEY", "") ]
     }
 
     buildTypes {
@@ -40,6 +50,34 @@ android {
     repositories {
         flatDir {
             dirs 'libs'
+        }
+    }
+
+    android.applicationVariants.all { variant ->
+        variant.outputs.all {
+            //def date = new Date().format("yyyyMMdd" , TimeZone.getTimeZone("Asia/Shanghai"))
+            def date = new Date().format("yyyyMMdd" , TimeZone.getDefault())
+            if(variant.buildType.name.equals('debug')){
+                outputFileName = "revolo_debug${date}_${versionName}.apk"
+            }
+            if(variant.buildType.name.equals('release')){
+                outputFileName = "revolo${date}_${versionCode}_${versionName}_release.apk"
+            }
+        }
+    }
+
+    signingConfigs {
+        debug {
+            keyAlias 'revolo'
+            keyPassword 'Rev0l0&Ka66as'
+            storeFile file('D:/code/20201116code/revoloLock/revolo.jks')
+            storePassword 'Rev0l0&Ka66as'
+        }
+        release {
+            keyAlias 'revolo'
+            keyPassword 'Rev0l0&Ka66as'
+            storeFile file('D:/code/20201116code/revoloLock/revolo.jks')
+            storePassword 'Rev0l0&Ka66as'
         }
     }
 
@@ -119,4 +157,7 @@ dependencies {
     // Declare the dependencies for the Crashlytics and Analytics libraries
     // When using the BoM, you don't specify versions in Firebase library dependencies
     implementation 'com.google.firebase:firebase-crashlytics'
+
+    // google map
+    implementation 'com.google.android.gms:play-services-maps:17.0.0'
 }
