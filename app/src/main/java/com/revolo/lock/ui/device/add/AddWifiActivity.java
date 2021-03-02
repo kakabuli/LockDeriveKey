@@ -17,9 +17,9 @@ import com.revolo.lock.App;
 import com.revolo.lock.Constant;
 import com.revolo.lock.R;
 import com.revolo.lock.base.BaseActivity;
+import com.revolo.lock.ble.BleByteUtil;
 import com.revolo.lock.ble.bean.BleBean;
 import com.revolo.lock.ble.BleCommandFactory;
-import com.revolo.lock.ble.BleProtocolState;
 import com.revolo.lock.ble.BleResultProcess;
 import com.revolo.lock.ble.OnBleDeviceListener;
 import com.revolo.lock.ble.bean.WifiSnBean;
@@ -34,13 +34,15 @@ import java.util.List;
 
 import timber.log.Timber;
 
+import static com.revolo.lock.ble.BleProtocolState.CMD_LOCK_INFO;
+import static com.revolo.lock.ble.BleProtocolState.CMD_WIFI_LIST_CHECK;
+
 /**
  * author : Jack
  * time   : 2020/12/29
  * E-mail : wengmaowei@kaadas.com
  * desc   : 添加Wifi
  */
-// TODO: 2021/2/6 wifi配网前记得查询电量
 public class AddWifiActivity extends BaseActivity {
 
     private BleBean mBleBean;
@@ -169,7 +171,7 @@ public class AddWifiActivity extends BaseActivity {
         if (mBleBean.getOKBLEDeviceImp() != null) {
             App.getInstance().openPairNotify();
             App.getInstance().setOnBleDeviceListener(mOnBleDeviceListener);
-            App.getInstance().writePairMsg(BleCommandFactory.wifiListSearchCommand());
+            checkBattery();
         }
     }
 
@@ -210,8 +212,32 @@ public class AddWifiActivity extends BaseActivity {
             Timber.e("mOnReceivedProcess bleResultBean == null");
             return;
         }
-        receiveWifiList(bleResultBean);
+        if(bleResultBean.getCMD() == CMD_LOCK_INFO) {
+            receiveLockBaseInfo(bleResultBean);
+        } else if(bleResultBean.getCMD() == CMD_WIFI_LIST_CHECK) {
+            receiveWifiList(bleResultBean);
+        }
     };
+
+    private void checkBattery() {
+        // wifi配网前记得查询电量
+        App.getInstance().writeControlMsg(BleCommandFactory.checkLockBaseInfoCommand(mBleBean.getPwd1(), mBleBean.getPwd3()));
+    }
+
+    private void receiveLockBaseInfo(BleResultBean bleResultBean) {
+        int power = BleByteUtil.byteToInt(bleResultBean.getPayload()[11]);
+        mBleDeviceLocal.setLockPower(power);
+        if(power > 20) {
+            getWifiList();
+        } else {
+            // TODO: 2021/3/2 不允许wifi配网
+            ToastUtils.showShort("Low Battery! Can't Pair Wifi!");
+        }
+    }
+
+    private void getWifiList() {
+        App.getInstance().writePairMsg(BleCommandFactory.wifiListSearchCommand());
+    }
 
     private int mWifiTotalNum = 0;
     private final HashMap<Integer, WifiSnBean> mWifiHashMap = new HashMap<>();
@@ -219,7 +245,7 @@ public class AddWifiActivity extends BaseActivity {
 
     private void receiveWifiList(BleResultBean bleResultBean) {
 //        Timber.d("receiveWifiList 接收信息：%1s", ConvertUtils.int2HexString(bleResultBean.getCMD()));
-        if(bleResultBean.getCMD() == BleProtocolState.CMD_WIFI_LIST_CHECK) {
+        if(bleResultBean.getCMD() == CMD_WIFI_LIST_CHECK) {
             byte[] payload = bleResultBean.getPayload();
             mWifiTotalNum = payload[0];
             int no = payload[1];

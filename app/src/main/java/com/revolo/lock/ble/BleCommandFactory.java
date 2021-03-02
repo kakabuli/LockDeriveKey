@@ -18,6 +18,7 @@ import static com.revolo.lock.ble.BleProtocolState.CMD_LOCK_OPEN_COUNT_CHECK;
 import static com.revolo.lock.ble.BleProtocolState.CMD_LOCK_PARAMETER_CHANGED;
 import static com.revolo.lock.ble.BleProtocolState.CMD_LOCK_PARAMETER_CHECK;
 import static com.revolo.lock.ble.BleProtocolState.CMD_SET_SENSITIVITY;
+import static com.revolo.lock.ble.BleProtocolState.CMD_WIFI_LIST_CHECK;
 import static com.revolo.lock.ble.BleProtocolState.CMD_WIFI_SWITCH;
 
 /**
@@ -1059,7 +1060,7 @@ public class BleCommandFactory {
      * wifi列表查询
      */
     public static byte[] wifiListSearchCommand() {
-        return commandPackage(false, (byte) 0x98, commandTSN(), null, null, null);
+        return commandPackage(false, (byte) CMD_WIFI_LIST_CHECK, commandTSN(), null, null, null);
     }
 
 }
