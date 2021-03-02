@@ -21,7 +21,6 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 
 import com.blankj.utilcode.util.AdaptScreenUtils;
 import com.blankj.utilcode.util.ConvertUtils;
-import com.blankj.utilcode.util.StringUtils;
 import com.blankj.utilcode.util.TimeUtils;
 import com.blankj.utilcode.util.ToastUtils;
 import com.revolo.lock.App;
@@ -524,7 +523,7 @@ public class AddNewPwdSelectActivity extends BaseActivity {
     private void dismissLoadingAndShowAddFail() {
         dismissLoading();
         runOnUiThread(() -> {
-            AddPwdFailDialog dialog = new AddPwdFailDialog(getApplicationContext());
+            AddPwdFailDialog dialog = new AddPwdFailDialog(this);
             dialog.show();
         });
     }
@@ -640,6 +639,7 @@ public class AddNewPwdSelectActivity extends BaseActivity {
             pwdListBean.setEndTime(devicePwd.getEndTime());
             pwdListBean.setItems(getWeekItems());
         }
+        pwdListBeans.add(pwdListBean);
         LockKeyAddBeanReq req = new LockKeyAddBeanReq();
         req.setPwdList(pwdListBeans);
         req.setSn(mBleDeviceLocal.getEsn());
