@@ -17,6 +17,7 @@ import com.blankj.utilcode.util.AdaptScreenUtils;
 import com.blankj.utilcode.util.ToastUtils;
 import com.revolo.lock.App;
 import com.revolo.lock.Constant;
+import com.revolo.lock.LocalState;
 import com.revolo.lock.R;
 import com.revolo.lock.base.BaseActivity;
 import com.revolo.lock.bean.request.DeviceUnbindBeanReq;
@@ -125,7 +126,7 @@ public class DeviceSettingActivity extends BaseActivity {
             return;
         }
         if(view.getId() == R.id.tvWifiName) {
-            if(mBleDeviceLocal.getConnectedType() == 2) {
+            if(mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_BLE) {
                 // 蓝牙连接，所以不需要进入去操作
                 return;
             }
@@ -240,7 +241,7 @@ public class DeviceSettingActivity extends BaseActivity {
                 // TODO: 2021/2/9 清除了本地所有数据
                 App.getInstance().getCacheDiskUtils().clear();
                 // 如果是蓝牙，断开蓝牙连接
-                if(mBleDeviceLocal.getConnectedType() == 2) {
+                if(mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_BLE) {
                     App.getInstance().getBleBean().getOKBLEDeviceImp().disConnect(false);
                 }
                 AppDatabase.getInstance(getApplicationContext()).bleDeviceDao().delete(mBleDeviceLocal);

@@ -20,6 +20,7 @@ import com.blankj.utilcode.util.ConvertUtils;
 import com.blankj.utilcode.util.TimeUtils;
 import com.revolo.lock.App;
 import com.revolo.lock.Constant;
+import com.revolo.lock.LocalState;
 import com.revolo.lock.R;
 import com.revolo.lock.adapter.HomeLockListAdapter;
 import com.revolo.lock.ble.BleByteUtil;
@@ -93,11 +94,11 @@ public class DeviceFragment extends Fragment {
             mHomeLockListAdapter.addChildClickViewIds(R.id.ivLockState);
             mHomeLockListAdapter.setOnItemChildClickListener((adapter, view, position) -> {
                 if(view.getId() == R.id.ivLockState) {
-                    int state = mHomeLockListAdapter.getItem(position).getLockState();
-                    if(mBleDeviceLocals.get(0).getConnectedType() == 2) {
+                    @LocalState.LockState int state = mHomeLockListAdapter.getItem(position).getLockState();
+                    if(mBleDeviceLocals.get(0).getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_BLE) {
                         App.getInstance().writeControlMsg(BleCommandFactory
                                 .lockControlCommand((byte) (state==1?LOCK_SETTING_CLOSE:LOCK_SETTING_OPEN), (byte) 0x04, (byte) 0x01, mBleBean.getPwd1(), mBleBean.getPwd3()));
-                    } else if(mBleDeviceLocals.get(0).getConnectedType() == 1) {
+                    } else if(mBleDeviceLocals.get(0).getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI) {
                         publishOpenOrCloseDoor(mHomeLockListAdapter.getItem(position).getEsn(), state==1?1:0, App.getInstance().getRandomCode());
                     }
                 }
@@ -208,7 +209,7 @@ public class DeviceFragment extends Fragment {
         getActivity().runOnUiThread(() -> {
             if(bean.getPayload()[0] == 0x00) {
                 // 上锁
-                int state = mHomeLockListAdapter.getData().get(0).getLockState();
+                @LocalState.LockState int state = mHomeLockListAdapter.getData().get(0).getLockState();
                 if(state == 1) {
                     state = 2;
                 } else if(state == 2) {
@@ -242,10 +243,10 @@ public class DeviceFragment extends Fragment {
             if(eventType == 0x01) {
                 if(eventSource == 0x01) {
                     // 上锁
-                    setLockState(0, 2);
+                    setLockState(0, LocalState.LOCK_STATE_CLOSE);
                 } else if(eventCode == 0x02) {
                     // 开锁
-                    setLockState(0, 1);
+                    setLockState(0, LocalState.LOCK_STATE_OPEN);
                 } else {
                     // TODO: 2021/2/10 其他处理
                 }
@@ -253,7 +254,7 @@ public class DeviceFragment extends Fragment {
         });
     }
 
-    private void setLockState(int index, int state) {
+    private void setLockState(int index, @LocalState.LockState int state) {
         if(getActivity() == null) {
             Timber.e("setLockState getActivity() == null");
             return;

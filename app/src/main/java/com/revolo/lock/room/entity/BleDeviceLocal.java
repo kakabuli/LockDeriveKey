@@ -7,6 +7,7 @@ import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
+import com.revolo.lock.LocalState;
 import com.revolo.lock.ble.BleCommandState;
 
 /**
@@ -65,10 +66,10 @@ public class BleDeviceLocal implements Parcelable {
     private String connectedWifiName;                       // 连接上的wifi名称
 
     @ColumnInfo(name = "d_connected_type", defaultValue = "2")
-    private int connectedType;                              // 连接的类型，wifi还是ble  1 wifi  2 ble, 默认为蓝牙
+    private @LocalState.DeviceConnectType int connectedType;                              // 连接的类型，wifi还是ble  1 wifi  2 ble, 默认为蓝牙
 
     @ColumnInfo(name = "d_lock_state")
-    private int lockState;                                  // 锁的开关状态（还有私密模式,存在分享用户） 1 开  2 关  3 私密模式
+    private @LocalState.LockState int lockState;                                  // 锁的开关状态（还有私密模式,存在分享用户） 1 开  2 关  3 私密模式
 
     @ColumnInfo(name = "d_lock_power")
     private int lockPower;                                  // 锁的剩余电量
@@ -224,19 +225,19 @@ public class BleDeviceLocal implements Parcelable {
         this.connectedWifiName = connectedWifiName;
     }
 
-    public int getConnectedType() {
+    public @LocalState.DeviceConnectType int getConnectedType() {
         return connectedType;
     }
 
-    public void setConnectedType(int connectedType) {
+    public void setConnectedType(@LocalState.DeviceConnectType int connectedType) {
         this.connectedType = connectedType;
     }
 
-    public int getLockState() {
+    public @LocalState.LockState int getLockState() {
         return lockState;
     }
 
-    public void setLockState(int lockState) {
+    public void setLockState(@LocalState.LockState int lockState) {
         this.lockState = lockState;
     }
 

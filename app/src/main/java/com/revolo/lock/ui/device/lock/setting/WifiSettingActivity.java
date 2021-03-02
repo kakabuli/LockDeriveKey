@@ -12,6 +12,7 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import com.blankj.utilcode.util.ConvertUtils;
 import com.revolo.lock.App;
 import com.revolo.lock.Constant;
+import com.revolo.lock.LocalState;
 import com.revolo.lock.R;
 import com.revolo.lock.base.BaseActivity;
 import com.revolo.lock.ble.BleByteUtil;
@@ -93,10 +94,10 @@ public class WifiSettingActivity extends BaseActivity {
 
 
     private void updateUI() {
-        if(mBleDeviceLocal.getConnectedType() == 1) {
+        if(mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI) {
             // Wifi
             updateWifiState();
-        } else if(mBleDeviceLocal.getConnectedType() == 2) {
+        } else if(mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_BLE) {
             // 蓝牙
             updateBleState();
         } else {
@@ -205,7 +206,7 @@ public class WifiSettingActivity extends BaseActivity {
         byte state = bean.getPayload()[0];
         if(state == 0x00) {
             isWifiConnected = !isWifiConnected;
-            mBleDeviceLocal.setConnectedType(isWifiConnected?1:2);
+            mBleDeviceLocal.setConnectedType(isWifiConnected?LocalState.DEVICE_CONNECT_TYPE_WIFI:LocalState.DEVICE_CONNECT_TYPE_BLE);
             AppDatabase.getInstance(this).bleDeviceDao().update(mBleDeviceLocal);
             updateUI();
         } else {

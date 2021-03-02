@@ -19,6 +19,7 @@ import com.blankj.utilcode.util.TimeUtils;
 import com.blankj.utilcode.util.ToastUtils;
 import com.revolo.lock.App;
 import com.revolo.lock.Constant;
+import com.revolo.lock.LocalState;
 import com.revolo.lock.R;
 import com.revolo.lock.base.BaseActivity;
 import com.revolo.lock.bean.request.AdminAddDeviceBeanReq;
@@ -321,8 +322,8 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
             bleDeviceLocal.setPwd1(pwd1);
             bleDeviceLocal.setPwd2(pwd2);
             bleDeviceLocal.setUserId(user.getId());
-            // TODO: 2021/3/1 后面改成enum，默认关
-            bleDeviceLocal.setLockState(2);
+            bleDeviceLocal.setConnectedType(LocalState.DEVICE_CONNECT_TYPE_BLE);
+            bleDeviceLocal.setLockState(LocalState.LOCK_STATE_CLOSE);
             bleDeviceLocal.setScanResultJson(ConvertUtils.parcelable2Bytes(scanResultJson));
             // 统一使用秒，所以毫秒要除以1000
             bleDeviceLocal.setCreateTime(TimeUtils.getNowMills()/1000);

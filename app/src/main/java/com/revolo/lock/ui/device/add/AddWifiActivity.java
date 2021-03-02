@@ -192,7 +192,7 @@ public class AddWifiActivity extends BaseActivity {
                 return;
             }
             BleResultProcess.setOnReceivedProcess(mOnReceivedProcess);
-            BleResultProcess.processReceivedData(value, mBleBean.getPwd1(), null,
+            BleResultProcess.processReceivedData(value, mBleBean.getPwd1(), mBleBean.getPwd3(),
                     mBleBean.getOKBLEDeviceImp().getBleScanResult());
         }
 
@@ -226,7 +226,9 @@ public class AddWifiActivity extends BaseActivity {
 
     private void receiveLockBaseInfo(BleResultBean bleResultBean) {
         int power = BleByteUtil.byteToInt(bleResultBean.getPayload()[11]);
+        Timber.d("receiveLockBaseInfo battery power: %1d", power);
         mBleDeviceLocal.setLockPower(power);
+        AppDatabase.getInstance(this).bleDeviceDao().update(mBleDeviceLocal);
         if(power > 20) {
             getWifiList();
         } else {

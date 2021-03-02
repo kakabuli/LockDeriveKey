@@ -14,6 +14,7 @@ import androidx.core.content.ContextCompat;
 import com.blankj.utilcode.util.ConvertUtils;
 import com.revolo.lock.App;
 import com.revolo.lock.Constant;
+import com.revolo.lock.LocalState;
 import com.revolo.lock.R;
 import com.revolo.lock.base.BaseActivity;
 import com.revolo.lock.bean.request.DeviceUnbindBeanReq;
@@ -211,11 +212,11 @@ public class DeviceDetailActivity extends BaseActivity {
         runOnUiThread(() -> {
             if(bean.getPayload()[0] == 0x00) {
                 // 上锁
-                int state = mBleDeviceLocal.getLockState();
-                if(state == 1) {
-                    state = 2;
-                } else if(state == 2) {
-                    state = 1;
+                @LocalState.LockState int state = mBleDeviceLocal.getLockState();
+                if(state == LocalState.LOCK_STATE_OPEN) {
+                    state = LocalState.LOCK_STATE_CLOSE;
+                } else if(state == LocalState.LOCK_STATE_CLOSE) {
+                    state = LocalState.LOCK_STATE_OPEN;
                 }
                 mBleDeviceLocal.setLockState(state);
                 initDevice();
@@ -242,11 +243,11 @@ public class DeviceDetailActivity extends BaseActivity {
             if(eventType == 0x01) {
                 if(eventSource == 0x01) {
                     // 上锁
-                    mBleDeviceLocal.setLockState(2);
+                    mBleDeviceLocal.setLockState(LocalState.LOCK_STATE_CLOSE);
                     initDevice();
                 } else if(eventCode == 0x02) {
                     // 开锁
-                    mBleDeviceLocal.setLockState(1);
+                    mBleDeviceLocal.setLockState(LocalState.LOCK_STATE_OPEN);
                     initDevice();
                 } else {
                     // TODO: 2021/2/10 其他处理
@@ -272,27 +273,31 @@ public class DeviceDetailActivity extends BaseActivity {
 
         applyDebouncingClickListener(llNotification, llPwd, llUser, llSetting, ivLockState);
 
-        if(mBleDeviceLocal.getLockState() == 3) {
+        if(mBleDeviceLocal.getLockState() == LocalState.LOCK_STATE_PRIVATE) {
             ivLockState.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_home_img_lock_privacymodel));
             tvPrivateMode.setVisibility(View.VISIBLE);
             llDoorState.setVisibility(View.GONE);
         } else {
             tvPrivateMode.setVisibility(View.GONE);
             llDoorState.setVisibility(View.VISIBLE);
-            if(mBleDeviceLocal.getLockState() == 1) {
+            if(mBleDeviceLocal.getLockState() == LocalState.LOCK_STATE_OPEN) {
                 ivLockState.setImageResource(R.drawable.ic_home_img_lock_open);
                 ivDoorState.setImageResource(R.drawable.ic_home_icon_door_open);
                 tvDoorState.setText(R.string.tip_opened);
-            } else {
+            } else if(mBleDeviceLocal.getLockState() == LocalState.LOCK_STATE_CLOSE) {
                 ivLockState.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_home_img_lock_close));
                 ivDoorState.setImageResource(R.drawable.ic_home_icon_door_closed);
                 tvDoorState.setText(R.string.tip_closed);
+            } else {
+
             }
         }
-        if(mBleDeviceLocal.getConnectedType() == 1) {
+        if(mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI) {
             ivNetState.setImageResource(R.drawable.ic_home_icon_wifi);
-        } else {
+        } else if(mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_BLE) {
             ivNetState.setImageResource(R.drawable.ic_home_icon_bluetooth);
+        } else {
+            // TODO: 2021/3/2 其他选择
         }
         tvNetState.setText(getString(R.string.tip_online));
 
@@ -312,7 +317,8 @@ public class DeviceDetailActivity extends BaseActivity {
             return;
         }
         App.getInstance().writeControlMsg(BleCommandFactory
-                .lockControlCommand((byte) (mBleDeviceLocal.getLockState()==1?LOCK_SETTING_CLOSE:LOCK_SETTING_OPEN), (byte) 0x04, (byte) 0x01, App.getInstance().getBleBean().getPwd1(), App.getInstance().getBleBean().getPwd3()));
+                .lockControlCommand((byte) (mBleDeviceLocal.getLockState()==LocalState.LOCK_STATE_OPEN?LOCK_SETTING_CLOSE:LOCK_SETTING_OPEN),
+                        (byte) 0x04, (byte) 0x01, App.getInstance().getBleBean().getPwd1(), App.getInstance().getBleBean().getPwd3()));
 //        publishOpenOrCloseDoor(mWifiShowBean.getWifiListBean().getWifiSN(), mWifiShowBean.getDoorState()==1?1:0);
     }
 

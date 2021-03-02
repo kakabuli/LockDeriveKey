@@ -13,6 +13,7 @@ import androidx.annotation.Nullable;
 import com.blankj.utilcode.util.ConvertUtils;
 import com.revolo.lock.App;
 import com.revolo.lock.Constant;
+import com.revolo.lock.LocalState;
 import com.revolo.lock.R;
 import com.revolo.lock.base.BaseActivity;
 import com.revolo.lock.ble.bean.BleBean;
@@ -153,8 +154,8 @@ public class WifiConnectActivity extends BaseActivity {
                 changeValue(100);
                 startActivity(new Intent(this, AddWifiSucActivity.class));
                 mBleBean.getOKBLEDeviceImp().disConnect(false);
-                // 改成1,设置为wifi模式
-                mBleDeviceLocal.setConnectedType(1);
+                // 设置为wifi模式
+                mBleDeviceLocal.setConnectedType(LocalState.DEVICE_CONNECT_TYPE_WIFI);
                 mBleDeviceLocal.setConnectedWifiName(mWifiName);
                 AppDatabase.getInstance(this).bleDeviceDao().update(mBleDeviceLocal);
                 runOnUiThread(() -> new Handler(Looper.getMainLooper()).postDelayed(this::finish, 50));
