@@ -272,7 +272,7 @@ public class DeviceDetailActivity extends BaseActivity {
 
         applyDebouncingClickListener(llNotification, llPwd, llUser, llSetting, ivLockState);
 
-        if(mBleDeviceLocal.getLockState() == 2) {
+        if(mBleDeviceLocal.getLockState() == 3) {
             ivLockState.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_home_img_lock_privacymodel));
             tvPrivateMode.setVisibility(View.VISIBLE);
             llDoorState.setVisibility(View.GONE);

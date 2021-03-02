@@ -324,30 +324,76 @@ public class OperationRecordsActivity extends BaseActivity {
                         message = "Locked the door by mechanical key";
                         state = RecordState.SOMEONE_LOCKED_THE_DOOR_BY_MECHANICAL_KEY;
                     } else if(lockRecord.getEventCode() == 2) {
-                        message = "Unlocked by mechanical key ";
+                        message = "Unlocked by mechanical key";
                         state = RecordState.SOMEONE_USE_MECHANICAL_KEY_TO_UNLOCK;
                     }
                 } else if(lockRecord.getEventSource() == -1) {
                     // 不确定，todo 有可能是MQTT，需要定义一个值
                     if(lockRecord.getEventCode() == 1) {
                         // TODO: 2021/2/25 后期改掉
-                        message = "locked the door by APP ";
+                        message = "locked the door by APP";
                         state = RecordState.SOMEONE_LOCKED_THE_DOOR_BY_APP;
                     } else if(lockRecord.getEventCode() == 2) {
                         message = "uses the APP to unlock";
                         state = RecordState.SOMEONE_USE_THE_APP_TO_UNLOCK;
                     }
                 }
+            } else if(lockRecord.getEventType() == 2) {
+                // 增删改记录
+                // TODO: 2021/3/2 后面替换文字信息
+                if(lockRecord.getEventCode() == 1) {
+                    // 修改
+                } else if(lockRecord.getEventCode() == 2) {
+                    // 添加
+                    message = "The user added a password";
+                    state = RecordState.THE_USER_ADDED_A_PWD;
+                } else if(lockRecord.getEventCode() == 3) {
+                    // 删除
+                    message = "The user deleted a password";
+                    state = RecordState.THE_USER_DELETED_A_PWD;
+                } else if(lockRecord.getEventCode() == 0x0f) {
+                    // 恢复出厂设置
+                }
+            } else if(lockRecord.getEventType() == 3) {
+                // 报警
+                // TODO: 2021/3/2 后面替换文字信息
+                if(lockRecord.getEventCode() == 1) {
+                    // 锁定报警（输入错误密码或指纹或卡片超过5次就会系统锁定报警）
+                    message = "lockdown alarm";
+                    state = RecordState.LOCK_DOWN_ALARM;
+                } else if(lockRecord.getEventCode() == 2) {
+                    // 劫持报警（输入防劫持密码或防劫持指纹开锁就报警）
+                    message = "Duress password unlock";
+                    state = RecordState.DURESS_PASSWORD_UNLOCK;
+                } else if(lockRecord.getEventCode() == 3) {
+                    // 三次错误，上报提醒
+                } else if(lockRecord.getEventCode() == 4) {
+                    // 撬锁报警（锁被撬开）
+                } else if(lockRecord.getEventCode() == 8) {
+                    // 机械钥匙报警（使用机械钥匙开锁）
+                } else if(lockRecord.getEventCode() == 0x10) {
+                    // 低电压报警（电池电量不足）
+                    message = "Low battery alarm";
+                    state = RecordState.LOW_BATTERY_ALARM;
+                } else if(lockRecord.getEventCode() == 0x20) {
+                    // 门锁异常报警
+                } else if(lockRecord.getEventCode() == 0x40) {
+                    // 门锁布防报警（门外布防后，从门内开锁了就会报警）
+                }
             }
             if(TextUtils.isEmpty(message)) {
                 Timber.e("本地记录 eventType: %3d, eventSource: %4d, eventCode: %5d, userId: %6d, appId: %7d, time: %8d",
                         lockRecord.getEventType(), lockRecord.getEventSource(), lockRecord.getEventCode(),
                         lockRecord.getUserId(), lockRecord.getAppId(), lockRecord.getCreateTime() * 1000);
-                break;
+                continue;
             }
             record = new TestOperationRecords.TestOperationRecord(lockRecord.getCreateTime()*1000, message, state, isAlarmRecord);
             records.add(record);
         }
+        processRightRecords(records);
+    }
+
+    private void processRightRecords(List<TestOperationRecords.TestOperationRecord> records) {
         // 日期分类筛选
         Map<String, List<TestOperationRecords.TestOperationRecord>> collect = records
                 .stream().collect(Collectors.groupingBy(TestOperationRecords.TestOperationRecord::getDate));

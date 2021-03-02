@@ -311,7 +311,7 @@ public class PasswordDetailActivity extends BaseActivity {
 
         List<DelKeyBeanReq.PwdListBean> listBeans = new ArrayList<>();
         DelKeyBeanReq.PwdListBean pwdListBean = new DelKeyBeanReq.PwdListBean();
-        pwdListBean.setNum(mDevicePwd.getPwdNum()+"");
+        pwdListBean.setNum(mDevicePwd.getPwdNum());
         pwdListBean.setPwdType(1);
         listBeans.add(pwdListBean);
 

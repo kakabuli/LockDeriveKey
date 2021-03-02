@@ -17,7 +17,7 @@ public class DelKeyBeanReq implements Parcelable {
     /**
      * uid : 5c70d9493c554639ea93cc90
      * sn : GI132231004
-     * pwdList : [{"pwdType":1,"num":"01"}]
+     * pwdList : [{"pwdType":1,"num":1}]
      */
 
     private String uid;
@@ -55,7 +55,7 @@ public class DelKeyBeanReq implements Parcelable {
          */
 
         private int pwdType;
-        private String num;
+        private int num;
 
         public int getPwdType() {
             return pwdType;
@@ -65,11 +65,11 @@ public class DelKeyBeanReq implements Parcelable {
             this.pwdType = pwdType;
         }
 
-        public String getNum() {
+        public int getNum() {
             return num;
         }
 
-        public void setNum(String num) {
+        public void setNum(int num) {
             this.num = num;
         }
 
@@ -82,7 +82,7 @@ public class DelKeyBeanReq implements Parcelable {
         @Override
         public void writeToParcel(Parcel dest, int flags) {
             dest.writeInt(this.pwdType);
-            dest.writeString(this.num);
+            dest.writeInt(this.num);
         }
 
         public PwdListBean() {
@@ -90,7 +90,7 @@ public class DelKeyBeanReq implements Parcelable {
 
         protected PwdListBean(Parcel in) {
             this.pwdType = in.readInt();
-            this.num = in.readString();
+            this.num = in.readInt();
         }
 
         public static final Parcelable.Creator<PwdListBean> CREATOR = new Parcelable.Creator<PwdListBean>() {
