@@ -31,8 +31,10 @@ import com.revolo.lock.room.AppDatabase;
 import com.revolo.lock.room.entity.LockRecord;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 import timber.log.Timber;
@@ -397,15 +399,44 @@ public class OperationRecordsActivity extends BaseActivity {
         // 日期分类筛选
         Map<String, List<TestOperationRecords.TestOperationRecord>> collect = records
                 .stream().collect(Collectors.groupingBy(TestOperationRecords.TestOperationRecord::getDate));
+        // 时间降序
+        Map<String, List<TestOperationRecords.TestOperationRecord>> sortCollect = sortMapByKey(collect);
         List<TestOperationRecords> recordsList = new ArrayList<>();
-        for (String key : collect.keySet()) {
+        for (String key : sortCollect.keySet()) {
             Timber.d("refreshUIFromFinalData key: %1s", key);
             TestOperationRecords operationRecords = new TestOperationRecords(TimeUtils.string2Millis(key, "yyyy-MM-dd"), collect.get(key));
             recordsList.add(operationRecords);
         }
-        // 时间降序排列
-        recordsList.sort((o1, o2) -> ((int) o2.getTitleOperationTime() - (int) o1.getTitleOperationTime()));
         runOnUiThread(() -> mRecordsAdapter.setList(recordsList));
+    }
+
+    /**
+     * 使用 Map按key进行排序
+     * @param map
+     * @return
+     */
+    public static Map<String, List<TestOperationRecords.TestOperationRecord>> sortMapByKey(Map<String, List<TestOperationRecords.TestOperationRecord>> map) {
+        if (map == null || map.isEmpty()) {
+            return null;
+        }
+
+        Map<String, List<TestOperationRecords.TestOperationRecord>> sortMap = new TreeMap<>(
+                new MapKeyComparator());
+
+        sortMap.putAll(map);
+
+        return sortMap;
+    }
+
+    private static class MapKeyComparator implements Comparator<String> {
+
+        @Override
+        public int compare(String str1, String str2) {
+            // 升序
+//            return str1.compareTo(str2);
+            // 降序
+            return str2.compareTo(str1);
+        }
     }
 
 }

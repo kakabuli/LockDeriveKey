@@ -2,6 +2,7 @@ package com.revolo.lock.ui.device;
 
 import android.os.Handler;
 import android.os.Looper;
+import android.text.TextUtils;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
@@ -61,6 +62,12 @@ public class DeviceViewModel extends ViewModel {
                         }
                         if(bean == null) {
                             Timber.e("WifiLockGetAllBindDeviceRspBean is null");
+                            return;
+                        }
+                        if(TextUtils.isEmpty(bean.getMsgtype())) {
+                            return;
+                        }
+                        if(!bean.getMsgtype().equals("response")) {
                             return;
                         }
                         if(bean.getData() == null) {
