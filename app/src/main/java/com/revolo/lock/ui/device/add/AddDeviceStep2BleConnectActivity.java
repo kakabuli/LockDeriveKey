@@ -352,6 +352,7 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
         AdminAddDeviceBeanReq req = new AdminAddDeviceBeanReq();
         req.setDevmac(mMac);
         req.setDeviceSN(mEsn);
+        req.setModel(getModeTypeFromBleManufacturerSpecificData(mScanResult));
         req.setUser_id(App.getInstance().getUserBean().getUid());
         // 正确的是12位pwd1,因为在内存里的pwd1是补0了，所以是16位，但是传输到服务器的需要移除0
         byte[] realPwd1 = new byte[12];
@@ -534,6 +535,25 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
         }
     }
 
+    private String getModeTypeFromBleManufacturerSpecificData(BLEScanResult result) {
+        String modeType = "";
+        //返回Manufacture ID之后的data
+        SparseArray<byte[]> hex16 = result.getManufacturerSpecificData();
+        if(hex16 != null && hex16.size() > 0) {
+            byte[] value = hex16.valueAt(0);
+            //过滤无用蓝牙广播数据
+            if (value.length < 16) return modeType;
+            //截取出mode
+            StringBuilder sb = new StringBuilder();
+            for (int j = 16; j < 21; j++) {
+                sb.append((char) value[j]);
+            }
+            modeType = sb.toString().trim();
+            return modeType;
+        }
+        return modeType;
+    }
+
     private boolean isDeviceEsnEqualsInputEsn(BLEScanResult device, String esn) {
         // TODO: 2021/2/8 判断长度
         //返回Manufacture ID之后的data
@@ -548,8 +568,8 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
                 sb.append((char) value[j]);
             }
             String sn = sb.toString().trim();
-            Timber.d("%1s, %2s, len: %3d", ConvertUtils.bytes2HexString(value), new String(value, StandardCharsets.UTF_8), value.length);
-            Timber.d("getAndCheckESN device esn: %1s, input esn: %2s, mac: %3s", sn, esn, device.getMacAddress());
+            Timber.d("isDeviceEsnEqualsInputEsn %1s, %2s, len: %3d", ConvertUtils.bytes2HexString(value), new String(value, StandardCharsets.UTF_8), value.length);
+            Timber.d("isDeviceEsnEqualsInputEsn device esn: %1s, input esn: %2s, mac: %3s", sn, esn, device.getMacAddress());
             return sn.equalsIgnoreCase(esn);
         }
         return false;

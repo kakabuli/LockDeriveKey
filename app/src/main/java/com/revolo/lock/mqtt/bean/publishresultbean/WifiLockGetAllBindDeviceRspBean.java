@@ -703,6 +703,37 @@ public class WifiLockGetAllBindDeviceRspBean {
             private int openStatusTime;
             @SerializedName("switch")
             private SwitchBean switchX;
+            /**
+             * adminnickname : wengmaowei@kaadas.com
+             * autoLock : 0
+             * bleMac : 80:D2:1D:F2:A1:9A
+             * bleVersionType :
+             * latitude : 0
+             * longitude : 0
+             * magneticStatus : 2
+             * model :
+             * password1 : A610A39CE007C4A53BE17590
+             * password2 : C8A19FD9
+             * peripheralId :
+             * systemID :
+             * userNickname : wengmaowei@kaadas.com
+             * wifiStatus : 1
+             */
+
+            private String adminnickname;
+            private String autoLock;
+            private String bleMac;
+            private String bleVersionType;
+            private String latitude;
+            private String longitude;
+            private int magneticStatus;
+            private String model;
+            private String password1;
+            private String password2;
+            private String peripheralId;
+            private String systemID;
+            private String userNickname;
+            private String wifiStatus;
 
             public String get_id() {
                 return _id;
@@ -992,6 +1023,118 @@ public class WifiLockGetAllBindDeviceRspBean {
                 this.switchX = switchX;
             }
 
+            public String getAdminnickname() {
+                return adminnickname;
+            }
+
+            public void setAdminnickname(String adminnickname) {
+                this.adminnickname = adminnickname;
+            }
+
+            public String getAutoLock() {
+                return autoLock;
+            }
+
+            public void setAutoLock(String autoLock) {
+                this.autoLock = autoLock;
+            }
+
+            public String getBleMac() {
+                return bleMac;
+            }
+
+            public void setBleMac(String bleMac) {
+                this.bleMac = bleMac;
+            }
+
+            public String getBleVersionType() {
+                return bleVersionType;
+            }
+
+            public void setBleVersionType(String bleVersionType) {
+                this.bleVersionType = bleVersionType;
+            }
+
+            public String getLatitude() {
+                return latitude;
+            }
+
+            public void setLatitude(String latitude) {
+                this.latitude = latitude;
+            }
+
+            public String getLongitude() {
+                return longitude;
+            }
+
+            public void setLongitude(String longitude) {
+                this.longitude = longitude;
+            }
+
+            public int getMagneticStatus() {
+                return magneticStatus;
+            }
+
+            public void setMagneticStatus(int magneticStatus) {
+                this.magneticStatus = magneticStatus;
+            }
+
+            public String getModel() {
+                return model;
+            }
+
+            public void setModel(String model) {
+                this.model = model;
+            }
+
+            public String getPassword1() {
+                return password1;
+            }
+
+            public void setPassword1(String password1) {
+                this.password1 = password1;
+            }
+
+            public String getPassword2() {
+                return password2;
+            }
+
+            public void setPassword2(String password2) {
+                this.password2 = password2;
+            }
+
+            public String getPeripheralId() {
+                return peripheralId;
+            }
+
+            public void setPeripheralId(String peripheralId) {
+                this.peripheralId = peripheralId;
+            }
+
+            public String getSystemID() {
+                return systemID;
+            }
+
+            public void setSystemID(String systemID) {
+                this.systemID = systemID;
+            }
+
+            public String getUserNickname() {
+                return userNickname;
+            }
+
+            public void setUserNickname(String userNickname) {
+                this.userNickname = userNickname;
+            }
+
+            public String getWifiStatus() {
+                return wifiStatus;
+            }
+
+            public void setWifiStatus(String wifiStatus) {
+                this.wifiStatus = wifiStatus;
+            }
+
             public static class SwitchBean implements Parcelable {
                 /**
                  * createTime : 154148973342
@@ -1140,7 +1283,7 @@ public class WifiLockGetAllBindDeviceRspBean {
                         this.nickname = in.readString();
                     }
 
-                    public static final Parcelable.Creator<SwitchArrayBean> CREATOR = new Parcelable.Creator<SwitchArrayBean>() {
+                    public static final Creator<SwitchArrayBean> CREATOR = new Creator<SwitchArrayBean>() {
                         @Override
                         public SwitchArrayBean createFromParcel(Parcel source) {
                             return new SwitchArrayBean(source);
@@ -1179,7 +1322,7 @@ public class WifiLockGetAllBindDeviceRspBean {
                     this.switchArray = in.createTypedArrayList(SwitchArrayBean.CREATOR);
                 }
 
-                public static final Parcelable.Creator<SwitchBean> CREATOR = new Parcelable.Creator<SwitchBean>() {
+                public static final Creator<SwitchBean> CREATOR = new Creator<SwitchBean>() {
                     @Override
                     public SwitchBean createFromParcel(Parcel source) {
                         return new SwitchBean(source);
@@ -1236,6 +1379,20 @@ public class WifiLockGetAllBindDeviceRspBean {
                 dest.writeInt(this.openStatus);
                 dest.writeInt(this.openStatusTime);
                 dest.writeParcelable(this.switchX, flags);
+                dest.writeString(this.adminnickname);
+                dest.writeString(this.autoLock);
+                dest.writeString(this.bleMac);
+                dest.writeString(this.bleVersionType);
+                dest.writeString(this.latitude);
+                dest.writeString(this.longitude);
+                dest.writeInt(this.magneticStatus);
+                dest.writeString(this.model);
+                dest.writeString(this.password1);
+                dest.writeString(this.password2);
+                dest.writeString(this.peripheralId);
+                dest.writeString(this.systemID);
+                dest.writeString(this.userNickname);
+                dest.writeString(this.wifiStatus);
             }
 
             public WifiListBean() {
@@ -1278,9 +1435,23 @@ public class WifiLockGetAllBindDeviceRspBean {
                 this.openStatus = in.readInt();
                 this.openStatusTime = in.readInt();
                 this.switchX = in.readParcelable(SwitchBean.class.getClassLoader());
+                this.adminnickname = in.readString();
+                this.autoLock = in.readString();
+                this.bleMac = in.readString();
+                this.bleVersionType = in.readString();
+                this.latitude = in.readString();
+                this.longitude = in.readString();
+                this.magneticStatus = in.readInt();
+                this.model = in.readString();
+                this.password1 = in.readString();
+                this.password2 = in.readString();
+                this.peripheralId = in.readString();
+                this.systemID = in.readString();
+                this.userNickname = in.readString();
+                this.wifiStatus = in.readString();
             }
 
-            public static final Parcelable.Creator<WifiListBean> CREATOR = new Parcelable.Creator<WifiListBean>() {
+            public static final Creator<WifiListBean> CREATOR = new Creator<WifiListBean>() {
                 @Override
                 public WifiListBean createFromParcel(Parcel source) {
                     return new WifiListBean(source);

@@ -21,88 +21,88 @@ public class BleDeviceLocal implements Parcelable {
 
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "d_id")
-    private long id;                                        // 自增长id
+    private long id;                                                // 自增长id
 
     @ColumnInfo(name = "d_user_id")
-    private long userId;                                    // 用户id
+    private long userId;                                            // 用户id
 
     @ColumnInfo(name = "d_pwd1")
-    private String pwd1;                                    // 密码1
+    private String pwd1;                                            // 密码1
 
     @ColumnInfo(name = "d_pwd2")
-    private String pwd2;                                    // 密码2
+    private String pwd2;                                            // 密码2
 
     @ColumnInfo(name = "d_esn")
-    private String esn;                                     // ESN
+    private String esn;                                             // ESN
 
     @ColumnInfo(name = "d_mac")
-    private String mac;                                     // 设备蓝牙MAC
+    private String mac;                                             // 设备蓝牙MAC
 
     @ColumnInfo(name = "d_name")
-    private String name;                                    // 锁自定义的名字
+    private String name;                                            // 锁自定义的名字
 
     @ColumnInfo(name = "d_function_set")
-    private String functionSet;                             // 功能集
+    private String functionSet;                                     // 功能集
 
     @ColumnInfo(name = "d_create_time")
-    private long createTime;                                // 创建时间
+    private long createTime;                                        // 创建时间
 
     @ColumnInfo(name = "d_scan_result_json")
-    private byte[] scanResultJson;                          // 检索到的蓝牙设备结果数据
+    private byte[] scanResultJson;                                  // 检索到的蓝牙设备结果数据
 
     @ColumnInfo(name = "d_type")
-    private String type;                                    // 设备的型号
+    private String type;                                            // 设备的型号
 
     @ColumnInfo(name = "d_wifi_ver")
-    private String wifiVer;                                 // Wifi的版本号
+    private String wifiVer;                                         // Wifi的版本号
 
     @ColumnInfo(name = "d_lock_ver")
-    private String lockVer;                                 // 锁端的版本号
+    private String lockVer;                                         // 锁端的版本号
 
     @ColumnInfo(name = "d_door_sensor")
-    private int doorSensor;                                 // 门磁的当前状态
+    private int doorSensor;                                         // 门磁的当前状态
 
     @ColumnInfo(name = "d_connected_wifi_name")
-    private String connectedWifiName;                       // 连接上的wifi名称
+    private String connectedWifiName;                               // 连接上的wifi名称
 
     @ColumnInfo(name = "d_connected_type", defaultValue = "2")
-    private @LocalState.DeviceConnectType int connectedType;                              // 连接的类型，wifi还是ble  1 wifi  2 ble, 默认为蓝牙
+    private @LocalState.DeviceConnectType int connectedType;        // 连接的类型，wifi还是ble  1 wifi  2 ble, 默认为蓝牙
 
     @ColumnInfo(name = "d_lock_state")
-    private @LocalState.LockState int lockState;                                  // 锁的开关状态（还有私密模式,存在分享用户） 1 开  2 关  3 私密模式
+    private @LocalState.LockState int lockState;                    // 锁的开关状态（还有私密模式,存在分享用户） 1 开  2 关  3 私密模式
 
     @ColumnInfo(name = "d_lock_power")
-    private int lockPower;                                  // 锁的剩余电量
+    private int lockPower;                                          // 锁的剩余电量
 
     @ColumnInfo(name = "d_set_auto_lock_time")
-    private int setAutoLockTime;                            // 设置自动上锁时间
+    private int setAutoLockTime;                                    // 设置自动上锁时间
 
     @ColumnInfo(name = "d_is_detection_lock", defaultValue = "false")
-    private boolean isDetectionLock;                        // 是否检测门锁
+    private boolean isDetectionLock;                                // 是否检测门锁
 
     @ColumnInfo(name = "d_set_electric_fence_time")
-    private int setElectricFenceTime;                       // 设置电子围栏时间
+    private int setElectricFenceTime;                               // 设置电子围栏时间
 
     @ColumnInfo(name = "d_set_electric_fence_sensitivity")
-    private int setElectricFenceSensitivity;                // 设置电子围栏敲门开门的灵敏度 1:灵敏度低  2：灵敏度中  3：灵敏度高
+    private int setElectricFenceSensitivity;                        // 设置电子围栏敲门开门的灵敏度 1:灵敏度低  2：灵敏度中  3：灵敏度高
 
     @ColumnInfo(name = "d_is_auto_lock", defaultValue = "false")
-    private boolean isAutoLock;                             // 是否开启自动上锁
+    private boolean isAutoLock;                                     // 是否开启自动上锁
 
     @ColumnInfo(name = "d_is_open_electric_fence", defaultValue = "false")
-    private boolean isOpenElectricFence;                    // 是否开启电子围栏
+    private boolean isOpenElectricFence;                            // 是否开启电子围栏
 
     @ColumnInfo(name = "d_is_open_door_sensor", defaultValue = "false")
-    private boolean isOpenDoorSensor;                       // 是否开启门磁
+    private boolean isOpenDoorSensor;                               // 是否开启门磁
 
     @ColumnInfo(name = "d_is_mute", defaultValue = "false")
-    private boolean isMute;                                 // 是否开启静音
+    private boolean isMute;                                         // 是否开启静音
 
     @ColumnInfo(name = "d_is_do_not_disturb_mode", defaultValue = "false")
-    private boolean isDoNotDisturbMode;                     // 是否开启勿扰模式
+    private boolean isDoNotDisturbMode;                             // 是否开启勿扰模式
 
     @ColumnInfo(name = "d_is_duress")
-    private boolean isDuress;                               // 是否开启胁迫密码
+    private boolean isDuress;                                       // 是否开启胁迫密码
 
 
     public long getId() {
