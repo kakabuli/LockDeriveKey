@@ -197,7 +197,7 @@ public class MqttCommandFactory {
     /**
      * 秘钥属性删除
      */
-    public static MqttMessage removePwdAttr(String wifiID,int keyType,int keyNum, byte[] pwd){
+    public static MqttMessage removePwd(String wifiID,int keyType,int keyNum, byte[] pwd){
         int messageId = getMessageId();
         WifiLockRemovePasswordPublishBean.ParamsBean paramsBean = new WifiLockRemovePasswordPublishBean.ParamsBean();
         paramsBean.setKeyNum(keyNum);

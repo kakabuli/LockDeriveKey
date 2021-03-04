@@ -11,9 +11,13 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.blankj.utilcode.util.ConvertUtils;
+import com.blankj.utilcode.util.GsonUtils;
 import com.blankj.utilcode.util.TimeUtils;
+import com.google.gson.JsonSyntaxException;
 import com.revolo.lock.App;
 import com.revolo.lock.Constant;
+import com.revolo.lock.LocalState;
 import com.revolo.lock.R;
 import com.revolo.lock.base.BaseActivity;
 import com.revolo.lock.bean.request.DelKeyBeanReq;
@@ -25,6 +29,10 @@ import com.revolo.lock.ble.OnBleDeviceListener;
 import com.revolo.lock.ble.bean.BleResultBean;
 import com.revolo.lock.dialog.MessageDialog;
 import com.revolo.lock.dialog.SelectDialog;
+import com.revolo.lock.mqtt.MqttCommandFactory;
+import com.revolo.lock.mqtt.MqttConstant;
+import com.revolo.lock.mqtt.bean.MqttData;
+import com.revolo.lock.mqtt.bean.publishresultbean.WifiLockRemovePasswordResponseBean;
 import com.revolo.lock.net.HttpRequest;
 import com.revolo.lock.net.ObservableDecorator;
 import com.revolo.lock.room.AppDatabase;
@@ -32,8 +40,11 @@ import com.revolo.lock.room.entity.BleDeviceLocal;
 import com.revolo.lock.room.entity.DevicePwd;
 import com.revolo.lock.dialog.iosloading.CustomerLoadingDialog;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import io.reactivex.Observable;
 import io.reactivex.Observer;
@@ -60,6 +71,7 @@ public class PasswordDetailActivity extends BaseActivity {
     private long mPwdId;
     private DevicePwd mDevicePwd;
     private String mESN;
+    private BleDeviceLocal mBleDeviceLocal;
 
     @Override
     public void initData(@Nullable Bundle bundle) {
@@ -80,6 +92,10 @@ public class PasswordDetailActivity extends BaseActivity {
         }
         if(TextUtils.isEmpty(mESN)) {
             // TODO: 2021/2/24 无法获取esn来处理问题
+            finish();
+        }
+        mBleDeviceLocal = AppDatabase.getInstance(this).bleDeviceDao().findBleDeviceFromId(mDevicePwd.getDeviceId());
+        if(mBleDeviceLocal == null) {
             finish();
         }
     }
@@ -108,7 +124,9 @@ public class PasswordDetailActivity extends BaseActivity {
     @Override
     public void doBusiness() {
         initDetail();
-        initBleListener();
+        if(mBleDeviceLocal.getConnectedType() != LocalState.DEVICE_CONNECT_TYPE_WIFI) {
+            initBleListener();
+        }
     }
 
     @Override
@@ -190,20 +208,88 @@ public class PasswordDetailActivity extends BaseActivity {
         dialog.show();
     }
 
+    private void publishDelPwd(String wifiId, int num) {
+        App.getInstance().getMqttService().mqttPublish(MqttConstant.getCallTopic(App.getInstance().getUserBean().getUid()),
+                MqttCommandFactory.removePwd(
+                        wifiId,
+                        1,
+                        num,
+                        BleCommandFactory.getPwd(ConvertUtils.hexString2Bytes(mBleDeviceLocal.getPwd1()), ConvertUtils.hexString2Bytes(mBleDeviceLocal.getPwd2()))))
+                .timeout(10, TimeUnit.SECONDS).safeSubscribe(new Observer<MqttData>() {
+            @Override
+            public void onSubscribe(@NotNull Disposable d) {
+
+            }
+
+            @Override
+            public void onNext(@NotNull MqttData mqttData) {
+                dismissLoading();
+                if(TextUtils.isEmpty(mqttData.getFunc())) {
+                    return;
+                }
+                if(mqttData.getFunc().equals(MqttConstant.REMOVE_PWD)) {
+                    Timber.d("删除密码信息: %1s", mqttData);
+                    WifiLockRemovePasswordResponseBean bean;
+                    try {
+                        bean = GsonUtils.fromJson(mqttData.getPayload(), WifiLockRemovePasswordResponseBean.class);
+                    } catch (JsonSyntaxException e) {
+                        Timber.e(e);
+                        return;
+                    }
+                    if(bean == null) {
+                        Timber.e("publishDelPwd bean == null");
+                        return;
+                    }
+                    if(bean.getParams() == null) {
+                        Timber.e("publishDelPwd bean.getParams() == null");
+                        return;
+                    }
+                    if(bean.getCode() != 200) {
+                        Timber.e("publishDelPwd code : %1d", bean.getCode());
+                        return;
+                    }
+                    delKeyFromService();
+                }
+                Timber.d("publishDelPwd %1s", mqttData.toString());
+            }
+
+            @Override
+            public void onError(@NotNull Throwable e) {
+                dismissLoading();
+                Timber.e(e);
+            }
+
+            @Override
+            public void onComplete() {
+
+            }
+        });
+    }
+
+    private void showLoading() {
+        runOnUiThread(() -> {
+            if(mLoadingDialog != null) {
+                mLoadingDialog.show();
+            }
+        });
+    }
+
     private void delPwd() {
-        if(mLoadingDialog != null) {
-            mLoadingDialog.show();
+        showLoading();
+        if(mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI) {
+            publishDelPwd(mBleDeviceLocal.getEsn(), mDevicePwd.getPwdNum());
+        } else {
+            App.getInstance().writeControlMsg(BleCommandFactory
+                    .keyAttributesSet(KEY_SET_KEY_OPTION_DEL,
+                            KEY_SET_KEY_TYPE_PWD,
+                            (byte)mDevicePwd.getPwdNum(),
+                            KEY_SET_ATTRIBUTE_WEEK_KEY,
+                            (byte)0x00,
+                            (byte)0x00,
+                            (byte)0x00,
+                            App.getInstance().getBleBean().getPwd1(),
+                            App.getInstance().getBleBean().getPwd3()));
         }
-        App.getInstance().writeControlMsg(BleCommandFactory
-                        .keyAttributesSet(KEY_SET_KEY_OPTION_DEL,
-                                KEY_SET_KEY_TYPE_PWD,
-                                (byte)mDevicePwd.getPwdNum(),
-                                KEY_SET_ATTRIBUTE_WEEK_KEY,
-                                (byte)0x00,
-                                (byte)0x00,
-                                (byte)0x00,
-                                App.getInstance().getBleBean().getPwd1(),
-                                App.getInstance().getBleBean().getPwd3()));
     }
 
     private final BleResultProcess.OnReceivedProcess mOnReceivedProcess = bleResultBean -> {
