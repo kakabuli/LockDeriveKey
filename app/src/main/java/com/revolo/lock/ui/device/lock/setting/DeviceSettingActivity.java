@@ -111,7 +111,9 @@ public class DeviceSettingActivity extends BaseActivity {
     @Override
     public void doBusiness() {
         initData();
-        initBleListener();
+        if(mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_BLE) {
+            initBleListener();
+        }
     }
 
     @Override
