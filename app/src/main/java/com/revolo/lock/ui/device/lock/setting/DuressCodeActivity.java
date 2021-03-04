@@ -94,7 +94,9 @@ public class DuressCodeActivity extends BaseActivity {
 
     @Override
     public void doBusiness() {
-        initBleListener();
+        if(mBleDeviceLocal.getConnectedType() != LocalState.DEVICE_CONNECT_TYPE_WIFI) {
+            initBleListener();
+        }
     }
 
     @Override
