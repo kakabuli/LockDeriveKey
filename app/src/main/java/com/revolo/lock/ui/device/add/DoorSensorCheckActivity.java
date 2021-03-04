@@ -24,6 +24,7 @@ import com.revolo.lock.ble.BleCommandState;
 import com.revolo.lock.ble.BleResultProcess;
 import com.revolo.lock.ble.OnBleDeviceListener;
 import com.revolo.lock.ble.bean.BleResultBean;
+import com.revolo.lock.dialog.iosloading.CustomerLoadingDialog;
 import com.revolo.lock.mqtt.MqttCommandFactory;
 import com.revolo.lock.mqtt.MqttConstant;
 import com.revolo.lock.mqtt.bean.MqttData;
@@ -32,6 +33,8 @@ import com.revolo.lock.room.AppDatabase;
 import com.revolo.lock.room.entity.BleDeviceLocal;
 
 import org.jetbrains.annotations.NotNull;
+
+import java.util.concurrent.TimeUnit;
 
 import io.reactivex.Observer;
 import io.reactivex.disposables.Disposable;
@@ -52,6 +55,7 @@ public class DoorSensorCheckActivity extends BaseActivity {
     private TextView mTvTip, mTvSkip, mTvStep;
     private Button mBtnNext;
     private BleDeviceLocal mBleDeviceLocal;
+    private CustomerLoadingDialog mLoadingDialog;
 
     @IntDef(value = {DOOR_OPEN, DOOR_CLOSE, DOOR_HALF, DOOR_SUC, DOOR_FAIL, DOOR_OPEN_AGAIN})
     private @interface DoorState{}
@@ -100,6 +104,12 @@ public class DoorSensorCheckActivity extends BaseActivity {
         mTvSkip = findViewById(R.id.tvSkip);
         mTvStep = findViewById(R.id.tvStep);
         applyDebouncingClickListener(mBtnNext, mTvSkip);
+        // TODO: 2021/2/25 抽离文字
+        mLoadingDialog = new CustomerLoadingDialog.Builder(this)
+                .setMessage("Loading...")
+                .setCancelable(true)
+                .setCancelOutside(false)
+                .create();
     }
 
     @Override
@@ -229,12 +239,55 @@ public class DoorSensorCheckActivity extends BaseActivity {
         mDoorState = DOOR_SUC;
     }
 
+    private void dismissLoading() {
+        runOnUiThread(() -> {
+            if(mLoadingDialog != null) {
+                mLoadingDialog.dismiss();
+            }
+        });
+    }
+
+    private void showLoading() {
+        runOnUiThread(() -> {
+            if(mLoadingDialog != null) {
+                mLoadingDialog.show();
+            }
+        });
+    }
+
+    private void refreshCurrentUI() {
+        runOnUiThread(() -> {
+            switch (mDoorState) {
+                case DOOR_OPEN:
+                    refreshCloseTheDoor();
+                    break;
+                case DOOR_CLOSE:
+                    isOpenAgain = true;
+                    refreshOpenTheDoor();
+                    break;
+                case DOOR_OPEN_AGAIN:
+                    refreshHalfTheDoor();
+                    break;
+                case DOOR_HALF:
+                    refreshDoorSuc();
+                    break;
+                case DOOR_SUC:
+                    gotoAddWifi();
+                    break;
+                case DOOR_FAIL:
+                    break;
+            }
+        });
+    }
+
     /*---------------------------------- MQTT ----------------------------------*/
 
-    // TODO: 2021/3/3 发送指令超时的操作
     public void publishSetMagnetic(String wifiID, @BleCommandState.DoorCalibrationState int mode) {
+        showLoading();
         App.getInstance().getMqttService().mqttPublish(MqttConstant.getCallTopic(App.getInstance().getUserBean().getUid()),
-                MqttCommandFactory.setMagnetic(wifiID, mode)).safeSubscribe(new Observer<MqttData>() {
+                MqttCommandFactory.setMagnetic(wifiID, mode))
+                .timeout(10, TimeUnit.SECONDS)
+                .safeSubscribe(new Observer<MqttData>() {
             @Override
             public void onSubscribe(@NotNull Disposable d) {
 
@@ -242,6 +295,7 @@ public class DoorSensorCheckActivity extends BaseActivity {
 
             @Override
             public void onNext(@NotNull MqttData mqttData) {
+                dismissLoading();
                 if(TextUtils.isEmpty(mqttData.getFunc())) {
                     Timber.e("publishSetMagnetic mqttData.getFunc() is empty");
                     return;
@@ -276,37 +330,14 @@ public class DoorSensorCheckActivity extends BaseActivity {
             @Override
             public void onError(@NotNull Throwable e) {
                 // TODO: 2021/3/3 错误处理
+                // 超时或者其他错误
+                dismissLoading();
                 Timber.e(e);
             }
 
             @Override
             public void onComplete() {
 
-            }
-        });
-    }
-
-    private void refreshCurrentUI() {
-        runOnUiThread(() -> {
-            switch (mDoorState) {
-                case DOOR_OPEN:
-                    refreshCloseTheDoor();
-                    break;
-                case DOOR_CLOSE:
-                    isOpenAgain = true;
-                    refreshOpenTheDoor();
-                    break;
-                case DOOR_OPEN_AGAIN:
-                    refreshHalfTheDoor();
-                    break;
-                case DOOR_HALF:
-                    refreshDoorSuc();
-                    break;
-                case DOOR_SUC:
-                    gotoAddWifi();
-                    break;
-                case DOOR_FAIL:
-                    break;
             }
         });
     }

@@ -30,6 +30,7 @@ import com.revolo.lock.ble.BleProtocolState;
 import com.revolo.lock.ble.BleResultProcess;
 import com.revolo.lock.ble.OnBleDeviceListener;
 import com.revolo.lock.ble.bean.BleResultBean;
+import com.revolo.lock.dialog.iosloading.CustomerLoadingDialog;
 import com.revolo.lock.mqtt.MqttCommandFactory;
 import com.revolo.lock.mqtt.MqttConstant;
 import com.revolo.lock.mqtt.bean.MqttData;
@@ -47,6 +48,7 @@ import org.jetbrains.annotations.NotNull;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import io.reactivex.Observer;
 import io.reactivex.disposables.Disposable;
@@ -60,6 +62,7 @@ public class DeviceFragment extends Fragment {
     private DeviceViewModel mDeviceViewModel;
     private HomeLockListAdapter mHomeLockListAdapter;
     private ConstraintLayout mClNoDevice, mClHadDevice;
+    private CustomerLoadingDialog mLoadingDialog;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -108,6 +111,7 @@ public class DeviceFragment extends Fragment {
                 ((MainActivity)getActivity()).setStatusBarColor(R.color.white);
             }
         }
+
         initBaseData();
         initBleListener();
         initData(mBleDeviceLocals);
@@ -373,6 +377,39 @@ public class DeviceFragment extends Fragment {
         return pwd;
     }
 
+    private void dismissLoading() {
+        if(getActivity() == null) {
+            Timber.e("dismissLoading getActivity() == null");
+            return;
+        }
+        getActivity().runOnUiThread(() -> {
+            if(mLoadingDialog != null) {
+                mLoadingDialog.dismiss();
+            }
+        });
+    }
+
+    private void showLoading(@NotNull String message) {
+        if(getActivity() == null) {
+            Timber.e("showLoading getActivity() == null");
+            return;
+        }
+        getActivity().runOnUiThread(() -> {
+            if(mLoadingDialog != null) {
+                if(mLoadingDialog.isShowing()) {
+                    mLoadingDialog.dismiss();
+                }
+            }
+            // TODO: 2021/2/25 抽离文字
+            mLoadingDialog = new CustomerLoadingDialog.Builder(getContext())
+                    .setMessage(message)
+                    .setCancelable(true)
+                    .setCancelOutside(false)
+                    .create();
+            mLoadingDialog.show();
+        });
+    }
+
     /**
      *  开关门
      * @param wifiId wifi的id
@@ -380,8 +417,14 @@ public class DeviceFragment extends Fragment {
      */
     public void publishOpenOrCloseDoor(String wifiId, int doorOpt, String randomCode) {
         // TODO: 2021/2/6 发送开门或者关门的指令
+        if(doorOpt == 1) {
+            showLoading("Lock Opening...");
+        } else if(doorOpt == 0) {
+            showLoading("Lock Closing...");
+        }
         App.getInstance().getMqttService().mqttPublish(MqttConstant.getCallTopic(App.getInstance().getUserBean().getUid()),
-                MqttCommandFactory.setLock(wifiId, doorOpt, getPwd(mPwd1, mPwd2), randomCode)).safeSubscribe(new Observer<MqttData>() {
+                MqttCommandFactory.setLock(wifiId, doorOpt, getPwd(mPwd1, mPwd2), randomCode))
+                .timeout(10, TimeUnit.SECONDS).safeSubscribe(new Observer<MqttData>() {
             @Override
             public void onSubscribe(@NotNull Disposable d) {
 
@@ -389,6 +432,7 @@ public class DeviceFragment extends Fragment {
 
             @Override
             public void onNext(@NotNull MqttData mqttData) {
+                dismissLoading();
                 if(TextUtils.isEmpty(mqttData.getFunc())) {
                     return;
                 }
@@ -401,6 +445,7 @@ public class DeviceFragment extends Fragment {
 
             @Override
             public void onError(@NotNull Throwable e) {
+                dismissLoading();
                 Timber.e(e);
             }
 
