@@ -6,7 +6,7 @@ package com.revolo.lock.mqtt.bean.publishbean.attrparams;
  * E-mail : wengmaowei@kaadas.com
  * desc   :
  */
-public class duressParams extends BaseParamsBean {
+public class DuressParams extends BaseParamsBean {
 
     private int duress;        // 0/1 胁迫密码开关
 

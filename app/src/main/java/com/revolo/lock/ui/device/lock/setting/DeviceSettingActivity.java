@@ -14,7 +14,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.blankj.utilcode.util.AdaptScreenUtils;
+import com.blankj.utilcode.util.GsonUtils;
 import com.blankj.utilcode.util.ToastUtils;
+import com.google.gson.JsonSyntaxException;
 import com.revolo.lock.App;
 import com.revolo.lock.Constant;
 import com.revolo.lock.LocalState;
@@ -29,11 +31,20 @@ import com.revolo.lock.ble.BleResultProcess;
 import com.revolo.lock.ble.OnBleDeviceListener;
 import com.revolo.lock.ble.bean.BleResultBean;
 import com.revolo.lock.dialog.UnbindLockDialog;
+import com.revolo.lock.mqtt.MqttCommandFactory;
+import com.revolo.lock.mqtt.MqttConstant;
+import com.revolo.lock.mqtt.bean.MqttData;
+import com.revolo.lock.mqtt.bean.publishbean.attrparams.VolumeParams;
+import com.revolo.lock.mqtt.bean.publishresultbean.WifiLockSetLockAttrVolumeRspBean;
 import com.revolo.lock.net.HttpRequest;
 import com.revolo.lock.net.ObservableDecorator;
 import com.revolo.lock.room.AppDatabase;
 import com.revolo.lock.room.entity.BleDeviceLocal;
 import com.revolo.lock.dialog.iosloading.CustomerLoadingDialog;
+
+import org.jetbrains.annotations.NotNull;
+
+import java.util.concurrent.TimeUnit;
 
 import io.reactivex.Observable;
 import io.reactivex.Observer;
@@ -92,12 +103,6 @@ public class DeviceSettingActivity extends BaseActivity {
                 findViewById(R.id.clDuressCode), findViewById(R.id.clDoorLockInformation),
                 findViewById(R.id.clGeoFenceLock), findViewById(R.id.clDoorMagneticSwitch),
                 findViewById(R.id.clUnbind), findViewById(R.id.clMute));
-        // TODO: 2021/1/29 抽离英文
-        mLoadingDialog = new CustomerLoadingDialog.Builder(this)
-                .setMessage("Unbinding...")
-                .setCancelable(true)
-                .setCancelOutside(false)
-                .create();
         mIvDoorMagneticSwitchEnable.setImageResource(mBleDeviceLocal.isOpenDoorSensor()?R.drawable.ic_icon_switch_open:R.drawable.ic_icon_switch_close);
         mIvDoNotDisturbModeEnable.setImageResource(mBleDeviceLocal.isDoNotDisturbMode()?R.drawable.ic_icon_switch_open:R.drawable.ic_icon_switch_close);
         mIvMuteEnable.setImageResource(mBleDeviceLocal.isMute()?R.drawable.ic_icon_switch_open:R.drawable.ic_icon_switch_close);
@@ -105,17 +110,13 @@ public class DeviceSettingActivity extends BaseActivity {
 
     @Override
     public void doBusiness() {
-        initTestData();
+        initData();
         initBleListener();
     }
 
     @Override
     protected void onDestroy() {
-        if(mLoadingDialog != null) {
-            if(mLoadingDialog.isShowing()) {
-                mLoadingDialog.dismiss();
-            }
-        }
+        dismissLoading();
         super.onDestroy();
     }
 
@@ -172,7 +173,14 @@ public class DeviceSettingActivity extends BaseActivity {
             return;
         }
         if(view.getId() == R.id.clMute) {
-            mute();
+            if(mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI) {
+                showLoading("Loading...");
+                publishSetVolume(mBleDeviceLocal.getEsn(),
+                        mBleDeviceLocal.isMute()?LocalState.VOLUME_STATE_OPEN:LocalState.VOLUME_STATE_MUTE);
+            } else {
+                mute();
+            }
+
         }
     }
 
@@ -182,7 +190,7 @@ public class DeviceSettingActivity extends BaseActivity {
         return AdaptScreenUtils.adaptHeight(super.getResources(), 703);
     }
 
-    private void initTestData() {
+    private void initData() {
         String name = mBleDeviceLocal.getName();
         name = TextUtils.isEmpty(name)?mBleDeviceLocal.getEsn():name;
         mTvName.setText(TextUtils.isEmpty(name)?"":name);
@@ -212,9 +220,7 @@ public class DeviceSettingActivity extends BaseActivity {
     }
 
     private void unbindDevice() {
-        if(mLoadingDialog != null) {
-            mLoadingDialog.show();
-        }
+        showLoading("Unbinding...");
         if(App.getInstance().getBleBean() != null && App.getInstance().getBleBean().getOKBLEDeviceImp() != null) {
             App.getInstance().getBleBean().getOKBLEDeviceImp().disConnect(false);
         }
@@ -228,9 +234,7 @@ public class DeviceSettingActivity extends BaseActivity {
 
             @Override
             public void onNext(@NonNull DeviceUnbindBeanRsp deviceUnbindBeanRsp) {
-                if(mLoadingDialog != null) {
-                    mLoadingDialog.dismiss();
-                }
+                dismissLoading();
                 if(deviceUnbindBeanRsp.getCode() == null) {
                     return;
                 }
@@ -251,6 +255,7 @@ public class DeviceSettingActivity extends BaseActivity {
 
             @Override
             public void onError(@NonNull Throwable e) {
+                dismissLoading();
                 Timber.e(e);
             }
 
@@ -281,8 +286,7 @@ public class DeviceSettingActivity extends BaseActivity {
     private void processMute(BleResultBean bean) {
         if(bean.getPayload()[0] == 0x00) {
             // TODO: 2021/2/8 处理数据
-            mBleDeviceLocal.setMute(!mBleDeviceLocal.isMute());
-            AppDatabase.getInstance(this).bleDeviceDao().update(mBleDeviceLocal);
+            saveMuteStateToLocal();
             runOnUiThread(() -> {
                 mIvMuteEnable.setImageResource(mBleDeviceLocal.isMute()?R.drawable.ic_icon_switch_open:R.drawable.ic_icon_switch_close);
             });
@@ -290,6 +294,11 @@ public class DeviceSettingActivity extends BaseActivity {
             // TODO: 2021/2/7 信息失败了的操作
             ToastUtils.showShort("Setting Mute Fail");
         }
+    }
+
+    private void saveMuteStateToLocal() {
+        mBleDeviceLocal.setMute(!mBleDeviceLocal.isMute());
+        AppDatabase.getInstance(this).bleDeviceDao().update(mBleDeviceLocal);
     }
 
     private void lockUpdateInfo(BleResultBean bean) {
@@ -341,6 +350,96 @@ public class DeviceSettingActivity extends BaseActivity {
             }
         });
         // TODO: 2021/2/8 查询一下当前设置
+    }
+
+    private void dismissLoading() {
+        runOnUiThread(() -> {
+            if(mLoadingDialog != null) {
+                mLoadingDialog.dismiss();
+            }
+        });
+    }
+
+    // TODO: 2021/3/4 修改抽离文字
+    private void showLoading(@NotNull String message) {
+        runOnUiThread(() -> {
+            if(mLoadingDialog != null) {
+                if(mLoadingDialog.isShowing()) {
+                    mLoadingDialog.dismiss();
+                }
+            }
+            // TODO: 2021/2/25 抽离文字
+            mLoadingDialog = new CustomerLoadingDialog.Builder(this)
+                    .setMessage(message)
+                    .setCancelable(true)
+                    .setCancelOutside(false)
+                    .create();
+            mLoadingDialog.show();
+        });
+    }
+
+    /**
+     * 设置是否静音
+     * @param mute 0语音模式 1静音模式
+     */
+    private void publishSetVolume(String wifiID, @LocalState.VolumeState int mute) {
+        VolumeParams volumeParams = new VolumeParams();
+        volumeParams.setVolume(mute);
+        App.getInstance().getMqttService().mqttPublish(MqttConstant.getCallTopic(App.getInstance().getUserBean().getUid()),
+                MqttCommandFactory.setLockAttr(wifiID, volumeParams))
+                .timeout(10, TimeUnit.SECONDS)
+                .safeSubscribe(new Observer<MqttData>() {
+                    @Override
+                    public void onSubscribe(@NotNull Disposable d) {
+
+                    }
+
+                    @Override
+                    public void onNext(@NotNull MqttData mqttData) {
+                        dismissLoading();
+                        if(TextUtils.isEmpty(mqttData.getFunc())) {
+                            Timber.e("publishSetVolume mqttData.getFunc() is empty");
+                            return;
+                        }
+                        if(mqttData.getFunc().equals(MqttConstant.SET_LOCK_ATTR)) {
+                            Timber.d("设置属性: %1s", mqttData);
+                            WifiLockSetLockAttrVolumeRspBean bean;
+                            try {
+                                bean = GsonUtils.fromJson(mqttData.getPayload(), WifiLockSetLockAttrVolumeRspBean.class);
+                            } catch (JsonSyntaxException e) {
+                                Timber.e(e);
+                                return;
+                            }
+                            if(bean == null) {
+                                Timber.e("publishSetVolume bean == null");
+                                return;
+                            }
+                            if(bean.getParams() == null) {
+                                Timber.e("publishSetVolume bean.getParams() == null");
+                                return;
+                            }
+                            if(bean.getCode() != 200) {
+                                Timber.e("publishSetVolume code : %1d", bean.getCode());
+                                return;
+                            }
+                            saveMuteStateToLocal();
+                        }
+                        Timber.d("publishSetVolume %1s", mqttData.toString());
+                    }
+
+                    @Override
+                    public void onError(@NotNull Throwable e) {
+                        // TODO: 2021/3/3 错误处理
+                        // 超时或者其他错误
+                        dismissLoading();
+                        Timber.e(e);
+                    }
+
+                    @Override
+                    public void onComplete() {
+
+                    }
+                });
     }
 
 }

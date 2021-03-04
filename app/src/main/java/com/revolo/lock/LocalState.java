@@ -21,5 +21,9 @@ public class LocalState {
     public static final int LOCK_STATE_CLOSE = 2;
     public static final int LOCK_STATE_PRIVATE = 3;             // 私密模式，不允许做任何操作
 
+    @IntDef(value = {VOLUME_STATE_OPEN, VOLUME_STATE_MUTE})
+    public @interface VolumeState{}
+    public static final int VOLUME_STATE_OPEN = 0;
+    public static final int VOLUME_STATE_MUTE = 1;
 
 }
