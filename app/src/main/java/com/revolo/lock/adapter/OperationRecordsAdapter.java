@@ -6,7 +6,7 @@ import com.blankj.utilcode.util.TimeUtils;
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.chad.library.adapter.base.viewholder.BaseViewHolder;
 import com.revolo.lock.R;
-import com.revolo.lock.bean.test.TestOperationRecords;
+import com.revolo.lock.bean.test.OperationRecords;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -19,9 +19,9 @@ import java.util.List;
  * E-mail : wengmaowei@kaadas.com
  * desc   : 操作记录汇总列表
  */
-public class OperationRecordsAdapter extends BaseQuickAdapter<TestOperationRecords, BaseViewHolder> {
+public class OperationRecordsAdapter extends BaseQuickAdapter<OperationRecords, BaseViewHolder> {
 
-    public OperationRecordsAdapter(int layoutResId, @Nullable List<TestOperationRecords> data) {
+    public OperationRecordsAdapter(int layoutResId, @Nullable List<OperationRecords> data) {
         super(layoutResId, data);
     }
 
@@ -30,9 +30,9 @@ public class OperationRecordsAdapter extends BaseQuickAdapter<TestOperationRecor
     }
 
     @Override
-    protected void convert(@NotNull BaseViewHolder baseViewHolder, TestOperationRecords testOperationRecords) {
-        if(testOperationRecords != null) {
-            long time = testOperationRecords.getTitleOperationTime();
+    protected void convert(@NotNull BaseViewHolder baseViewHolder, OperationRecords operationRecords) {
+        if(operationRecords != null) {
+            long time = operationRecords.getTitleOperationTime();
             if(TimeUtils.isToday(time)) {
                 baseViewHolder.setText(R.id.tvTimeTitle, "Today");
             } else {
@@ -48,7 +48,7 @@ public class OperationRecordsAdapter extends BaseQuickAdapter<TestOperationRecor
 //            linearLayoutManager.setAutoMeasureEnabled(false);
 //            rvRecords.setHasFixedSize(false);
             rvRecords.setLayoutManager(linearLayoutManager);
-            rvRecords.setAdapter(new OperationRecordAdapter(R.layout.item_operation_record_rv, testOperationRecords.getOperationRecords()));
+            rvRecords.setAdapter(new OperationRecordAdapter(R.layout.item_operation_record_rv, operationRecords.getOperationRecords()));
         }
     }
 }

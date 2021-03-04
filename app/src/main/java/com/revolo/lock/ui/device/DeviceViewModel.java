@@ -8,6 +8,7 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
+import com.blankj.utilcode.util.GsonUtils;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import com.revolo.lock.App;
@@ -51,10 +52,15 @@ public class DeviceViewModel extends ViewModel {
 
                     @Override
                     public void onNext(@NotNull MqttData mqttData) {
-                        Gson gson = new Gson();
+                        if(TextUtils.isEmpty(mqttData.getFunc())) {
+                            return;
+                        }
+                        if(!mqttData.getFunc().equals(MqttConstant.GET_ALL_BIND_DEVICE)) {
+                            return;
+                        }
                         WifiLockGetAllBindDeviceRspBean bean;
                         try {
-                            bean = gson.fromJson(mqttData.getPayload(), WifiLockGetAllBindDeviceRspBean.class);
+                            bean = GsonUtils.fromJson(mqttData.getPayload(), WifiLockGetAllBindDeviceRspBean.class);
                         } catch (JsonSyntaxException e) {
                             // TODO: 2021/2/6 解析失败的处理
                             Timber.e(e);

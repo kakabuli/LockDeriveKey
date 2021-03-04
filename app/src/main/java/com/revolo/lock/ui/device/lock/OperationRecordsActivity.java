@@ -19,7 +19,7 @@ import com.revolo.lock.adapter.AutoMeasureLinearLayoutManager;
 import com.revolo.lock.adapter.OperationRecordsAdapter;
 import com.revolo.lock.base.BaseActivity;
 import com.revolo.lock.bean.showBean.RecordState;
-import com.revolo.lock.bean.test.TestOperationRecords;
+import com.revolo.lock.bean.test.OperationRecords;
 import com.revolo.lock.ble.BleByteUtil;
 import com.revolo.lock.ble.bean.BleBean;
 import com.revolo.lock.ble.BleCommandFactory;
@@ -296,10 +296,10 @@ public class OperationRecordsActivity extends BaseActivity {
         if(mLockRecords.isEmpty()) {
             return;
         }
-        List<TestOperationRecords.TestOperationRecord> records = new ArrayList<>();
+        List<OperationRecords.TestOperationRecord> records = new ArrayList<>();
         for (LockRecord lockRecord : mLockRecords) {
             // eventCode 1:上锁 2:开锁
-            TestOperationRecords.TestOperationRecord record;
+            OperationRecords.TestOperationRecord record;
             @RecordState.OpRecordState int state = RecordState.NOTHING;
             boolean isAlarmRecord = false;
             String message = "";
@@ -389,22 +389,22 @@ public class OperationRecordsActivity extends BaseActivity {
                         lockRecord.getUserId(), lockRecord.getAppId(), lockRecord.getCreateTime() * 1000);
                 continue;
             }
-            record = new TestOperationRecords.TestOperationRecord(lockRecord.getCreateTime()*1000, message, state, isAlarmRecord);
+            record = new OperationRecords.TestOperationRecord(lockRecord.getCreateTime()*1000, message, state, isAlarmRecord);
             records.add(record);
         }
         processRightRecords(records);
     }
 
-    private void processRightRecords(List<TestOperationRecords.TestOperationRecord> records) {
+    private void processRightRecords(List<OperationRecords.TestOperationRecord> records) {
         // 日期分类筛选
-        Map<String, List<TestOperationRecords.TestOperationRecord>> collect = records
-                .stream().collect(Collectors.groupingBy(TestOperationRecords.TestOperationRecord::getDate));
+        Map<String, List<OperationRecords.TestOperationRecord>> collect = records
+                .stream().collect(Collectors.groupingBy(OperationRecords.TestOperationRecord::getDate));
         // 时间降序
-        Map<String, List<TestOperationRecords.TestOperationRecord>> sortCollect = sortMapByKey(collect);
-        List<TestOperationRecords> recordsList = new ArrayList<>();
+        Map<String, List<OperationRecords.TestOperationRecord>> sortCollect = sortMapByKey(collect);
+        List<OperationRecords> recordsList = new ArrayList<>();
         for (String key : sortCollect.keySet()) {
             Timber.d("refreshUIFromFinalData key: %1s", key);
-            TestOperationRecords operationRecords = new TestOperationRecords(TimeUtils.string2Millis(key, "yyyy-MM-dd"), collect.get(key));
+            OperationRecords operationRecords = new OperationRecords(TimeUtils.string2Millis(key, "yyyy-MM-dd"), collect.get(key));
             recordsList.add(operationRecords);
         }
         runOnUiThread(() -> mRecordsAdapter.setList(recordsList));
@@ -415,12 +415,12 @@ public class OperationRecordsActivity extends BaseActivity {
      * @param map
      * @return
      */
-    public static Map<String, List<TestOperationRecords.TestOperationRecord>> sortMapByKey(Map<String, List<TestOperationRecords.TestOperationRecord>> map) {
+    public static Map<String, List<OperationRecords.TestOperationRecord>> sortMapByKey(Map<String, List<OperationRecords.TestOperationRecord>> map) {
         if (map == null || map.isEmpty()) {
             return null;
         }
 
-        Map<String, List<TestOperationRecords.TestOperationRecord>> sortMap = new TreeMap<>(
+        Map<String, List<OperationRecords.TestOperationRecord>> sortMap = new TreeMap<>(
                 new MapKeyComparator());
 
         sortMap.putAll(map);

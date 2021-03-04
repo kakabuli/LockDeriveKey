@@ -2,6 +2,7 @@ package com.revolo.lock.ui.device.add;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -11,8 +12,11 @@ import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.blankj.utilcode.util.GsonUtils;
+import com.google.gson.JsonSyntaxException;
 import com.revolo.lock.App;
 import com.revolo.lock.Constant;
+import com.revolo.lock.LocalState;
 import com.revolo.lock.R;
 import com.revolo.lock.base.BaseActivity;
 import com.revolo.lock.ble.BleCommandFactory;
@@ -20,7 +24,17 @@ import com.revolo.lock.ble.BleCommandState;
 import com.revolo.lock.ble.BleResultProcess;
 import com.revolo.lock.ble.OnBleDeviceListener;
 import com.revolo.lock.ble.bean.BleResultBean;
+import com.revolo.lock.mqtt.MqttCommandFactory;
+import com.revolo.lock.mqtt.MqttConstant;
+import com.revolo.lock.mqtt.bean.MqttData;
+import com.revolo.lock.mqtt.bean.publishresultbean.WifiLockSetMagneticResponseBean;
+import com.revolo.lock.room.AppDatabase;
+import com.revolo.lock.room.entity.BleDeviceLocal;
 
+import org.jetbrains.annotations.NotNull;
+
+import io.reactivex.Observer;
+import io.reactivex.disposables.Disposable;
 import timber.log.Timber;
 
 import static com.revolo.lock.ble.BleProtocolState.CMD_DOOR_SENSOR_CALIBRATION;
@@ -33,10 +47,11 @@ import static com.revolo.lock.ble.BleProtocolState.CMD_DOOR_SENSOR_CALIBRATION;
  *          步骤：关闭门磁->开门->关门->开门->虚掩->开启门磁
  */
 public class DoorSensorCheckActivity extends BaseActivity {
-    // TODO: 2021/2/22 需要存储到本地数据库
+
     private ImageView mIvDoorState;
     private TextView mTvTip, mTvSkip, mTvStep;
     private Button mBtnNext;
+    private BleDeviceLocal mBleDeviceLocal;
 
     @IntDef(value = {DOOR_OPEN, DOOR_CLOSE, DOOR_HALF, DOOR_SUC, DOOR_FAIL, DOOR_OPEN_AGAIN})
     private @interface DoorState{}
@@ -65,6 +80,10 @@ public class DoorSensorCheckActivity extends BaseActivity {
             // TODO: 2021/2/22 做处理
             finish();
         }
+        mBleDeviceLocal = AppDatabase.getInstance(this).bleDeviceDao().findBleDeviceFromId(mDeviceId);
+        if(mBleDeviceLocal == null) {
+            finish();
+        }
     }
 
     @Override
@@ -85,8 +104,12 @@ public class DoorSensorCheckActivity extends BaseActivity {
 
     @Override
     public void doBusiness() {
-        initBleListener();
-        sendCommand(BleCommandState.DOOR_CALIBRATION_STATE_CLOSE_SE);
+        if(mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI) {
+            publishSetMagnetic(mBleDeviceLocal.getEsn(), BleCommandState.DOOR_CALIBRATION_STATE_CLOSE_SE);
+        } else {
+            initBleListener();
+            sendCommand(BleCommandState.DOOR_CALIBRATION_STATE_CLOSE_SE);
+        }
         // 初始化默认第一步执行开门
         isOpenAgain = false;
         refreshOpenTheDoor();
@@ -116,16 +139,32 @@ public class DoorSensorCheckActivity extends BaseActivity {
             switch (mDoorState) {
                 case DOOR_OPEN:
                 case DOOR_OPEN_AGAIN:
-                    sendCommand(BleCommandState.DOOR_CALIBRATION_STATE_OPEN);
+                    if(mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI) {
+                        publishSetMagnetic(mBleDeviceLocal.getEsn(), BleCommandState.DOOR_CALIBRATION_STATE_OPEN);
+                    } else {
+                        sendCommand(BleCommandState.DOOR_CALIBRATION_STATE_OPEN);
+                    }
                     break;
                 case DOOR_CLOSE:
-                    sendCommand(BleCommandState.DOOR_CALIBRATION_STATE_CLOSE);
+                    if(mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI) {
+                        publishSetMagnetic(mBleDeviceLocal.getEsn(), BleCommandState.DOOR_CALIBRATION_STATE_CLOSE);
+                    } else {
+                        sendCommand(BleCommandState.DOOR_CALIBRATION_STATE_CLOSE);
+                    }
                     break;
                 case DOOR_HALF:
-                    sendCommand(BleCommandState.DOOR_CALIBRATION_STATE_HALF);
+                    if(mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI) {
+                        publishSetMagnetic(mBleDeviceLocal.getEsn(), BleCommandState.DOOR_CALIBRATION_STATE_HALF);
+                    } else {
+                        sendCommand(BleCommandState.DOOR_CALIBRATION_STATE_HALF);
+                    }
                     break;
                 case DOOR_SUC:
-                    sendCommand(BleCommandState.DOOR_CALIBRATION_STATE_START_SE);
+                    if(mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI) {
+                        publishSetMagnetic(mBleDeviceLocal.getEsn(), BleCommandState.DOOR_CALIBRATION_STATE_START_SE);
+                    } else {
+                        sendCommand(BleCommandState.DOOR_CALIBRATION_STATE_START_SE);
+                    }
                     break;
                 case DOOR_FAIL:
                     break;
@@ -138,16 +177,10 @@ public class DoorSensorCheckActivity extends BaseActivity {
         }
     }
 
-    private void sendCommand(@BleCommandState.DoorCalibrationState int doorState) {
-        mCalibrationState = doorState;
-        App.getInstance()
-                .writeControlMsg(BleCommandFactory
-                        .doorCalibration(doorState,
-                                App.getInstance().getBleBean().getPwd1(),
-                                App.getInstance().getBleBean().getPwd3()));
-    }
+    /*------------------------------------ UI -----------------------------------*/
 
     private void gotoAddWifi() {
+        mBleDeviceLocal.setOpenDoorSensor(true);
         Intent intent = new Intent(this, AddWifiActivity.class);
         intent.putExtra(Constant.DEVICE_ID, mDeviceId);
         startActivity(intent);
@@ -194,6 +227,99 @@ public class DoorSensorCheckActivity extends BaseActivity {
         mTvStep.setText("");
         mTvStep.setVisibility(View.INVISIBLE);
         mDoorState = DOOR_SUC;
+    }
+
+    /*---------------------------------- MQTT ----------------------------------*/
+
+    // TODO: 2021/3/3 发送指令超时的操作
+    public void publishSetMagnetic(String wifiID, @BleCommandState.DoorCalibrationState int mode) {
+        App.getInstance().getMqttService().mqttPublish(MqttConstant.getCallTopic(App.getInstance().getUserBean().getUid()),
+                MqttCommandFactory.setMagnetic(wifiID, mode)).safeSubscribe(new Observer<MqttData>() {
+            @Override
+            public void onSubscribe(@NotNull Disposable d) {
+
+            }
+
+            @Override
+            public void onNext(@NotNull MqttData mqttData) {
+                if(TextUtils.isEmpty(mqttData.getFunc())) {
+                    Timber.e("publishSetMagnetic mqttData.getFunc() is empty");
+                    return;
+                }
+                if(mqttData.getFunc().equals(MqttConstant.SET_MAGNETIC)) {
+                    Timber.d("设置门磁: %1s", mqttData);
+                    WifiLockSetMagneticResponseBean bean;
+                    try {
+                        bean = GsonUtils.fromJson(mqttData.getPayload(), WifiLockSetMagneticResponseBean.class);
+                    } catch (JsonSyntaxException e) {
+                        Timber.e(e);
+                        return;
+                    }
+                    if(bean == null) {
+                        Timber.e("bean == null");
+                        return;
+                    }
+                    if(bean.getParams() == null) {
+                        Timber.e("bean.getParams() == null");
+                        return;
+                    }
+                    if(bean.getCode() != 200) {
+                        Timber.e("code : %1d", bean.getCode());
+                        return;
+                    }
+                    refreshCurrentUI();
+
+                }
+                Timber.d("%1s", mqttData.toString());
+            }
+
+            @Override
+            public void onError(@NotNull Throwable e) {
+                // TODO: 2021/3/3 错误处理
+                Timber.e(e);
+            }
+
+            @Override
+            public void onComplete() {
+
+            }
+        });
+    }
+
+    private void refreshCurrentUI() {
+        runOnUiThread(() -> {
+            switch (mDoorState) {
+                case DOOR_OPEN:
+                    refreshCloseTheDoor();
+                    break;
+                case DOOR_CLOSE:
+                    isOpenAgain = true;
+                    refreshOpenTheDoor();
+                    break;
+                case DOOR_OPEN_AGAIN:
+                    refreshHalfTheDoor();
+                    break;
+                case DOOR_HALF:
+                    refreshDoorSuc();
+                    break;
+                case DOOR_SUC:
+                    gotoAddWifi();
+                    break;
+                case DOOR_FAIL:
+                    break;
+            }
+        });
+    }
+
+    /*--------------------------------- 蓝牙 -----------------------------------*/
+
+    private void sendCommand(@BleCommandState.DoorCalibrationState int doorState) {
+        mCalibrationState = doorState;
+        App.getInstance()
+                .writeControlMsg(BleCommandFactory
+                        .doorCalibration(doorState,
+                                App.getInstance().getBleBean().getPwd1(),
+                                App.getInstance().getBleBean().getPwd3()));
     }
 
     private final BleResultProcess.OnReceivedProcess mOnReceivedProcess = bleResultBean -> {
@@ -247,37 +373,20 @@ public class DoorSensorCheckActivity extends BaseActivity {
                 if(mCalibrationState == BleCommandState.DOOR_CALIBRATION_STATE_CLOSE_SE) {
                     return;
                 }
-                runOnUiThread(() -> {
-                    switch (mDoorState) {
-                        case DOOR_OPEN:
-                            refreshCloseTheDoor();
-                            break;
-                        case DOOR_CLOSE:
-                            isOpenAgain = true;
-                            refreshOpenTheDoor();
-                            break;
-                        case DOOR_OPEN_AGAIN:
-                            refreshHalfTheDoor();
-                            break;
-                        case DOOR_HALF:
-                            refreshDoorSuc();
-                            break;
-                        case DOOR_SUC:
-                            gotoAddWifi();
-                            break;
-                        case DOOR_FAIL:
-                            break;
-                    }
-                });
+                refreshCurrentUI();
 
             } else {
-                mDoorState = DOOR_FAIL;
-                Intent intent = new Intent(this, DoorCheckFailActivity.class);
-                intent.putExtra(Constant.DEVICE_ID, mDeviceId);
-                startActivity(intent);
-                finish();
+                gotoFailAct();
             }
         }
+    }
+
+    private void gotoFailAct() {
+        mDoorState = DOOR_FAIL;
+        Intent intent = new Intent(this, DoorCheckFailActivity.class);
+        intent.putExtra(Constant.DEVICE_ID, mDeviceId);
+        startActivity(intent);
+        finish();
     }
 
 }

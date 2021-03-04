@@ -14,7 +14,7 @@ import java.util.List;
  * E-mail : wengmaowei@kaadas.com
  * desc   : 锁操作记录
  */
-public class TestOperationRecords implements Parcelable {
+public class OperationRecords implements Parcelable {
 
     private long titleOperationTime;
     private List<TestOperationRecord> operationRecords;
@@ -113,7 +113,7 @@ public class TestOperationRecords implements Parcelable {
         };
     }
 
-    public TestOperationRecords(long titleOperationTime, List<TestOperationRecord> operationRecords) {
+    public OperationRecords(long titleOperationTime, List<TestOperationRecord> operationRecords) {
         this.titleOperationTime = titleOperationTime;
         this.operationRecords = operationRecords;
     }
@@ -146,20 +146,20 @@ public class TestOperationRecords implements Parcelable {
         dest.writeTypedList(this.operationRecords);
     }
 
-    protected TestOperationRecords(Parcel in) {
+    protected OperationRecords(Parcel in) {
         this.titleOperationTime = in.readLong();
         this.operationRecords = in.createTypedArrayList(TestOperationRecord.CREATOR);
     }
 
-    public static final Parcelable.Creator<TestOperationRecords> CREATOR = new Parcelable.Creator<TestOperationRecords>() {
+    public static final Parcelable.Creator<OperationRecords> CREATOR = new Parcelable.Creator<OperationRecords>() {
         @Override
-        public TestOperationRecords createFromParcel(Parcel source) {
-            return new TestOperationRecords(source);
+        public OperationRecords createFromParcel(Parcel source) {
+            return new OperationRecords(source);
         }
 
         @Override
-        public TestOperationRecords[] newArray(int size) {
-            return new TestOperationRecords[size];
+        public OperationRecords[] newArray(int size) {
+            return new OperationRecords[size];
         }
     };
 }

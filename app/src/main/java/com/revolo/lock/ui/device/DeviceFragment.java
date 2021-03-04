@@ -2,6 +2,7 @@ package com.revolo.lock.ui.device;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -380,7 +381,7 @@ public class DeviceFragment extends Fragment {
     public void publishOpenOrCloseDoor(String wifiId, int doorOpt, String randomCode) {
         // TODO: 2021/2/6 发送开门或者关门的指令
         App.getInstance().getMqttService().mqttPublish(MqttConstant.getCallTopic(App.getInstance().getUserBean().getUid()),
-                MqttCommandFactory.setLock(wifiId, doorOpt, getPwd(mPwd1, mPwd2), randomCode)).subscribe(new Observer<MqttData>() {
+                MqttCommandFactory.setLock(wifiId, doorOpt, getPwd(mPwd1, mPwd2), randomCode)).safeSubscribe(new Observer<MqttData>() {
             @Override
             public void onSubscribe(@NotNull Disposable d) {
 
@@ -388,7 +389,11 @@ public class DeviceFragment extends Fragment {
 
             @Override
             public void onNext(@NotNull MqttData mqttData) {
-                if(mqttData.getFunc().equals("setLock")) {
+                if(TextUtils.isEmpty(mqttData.getFunc())) {
+                    return;
+                }
+                // TODO: 2021/3/3 处理开关门的回调信息
+                if(mqttData.getFunc().equals(MqttConstant.SET_LOCK)) {
                     Timber.d("开关门信息: %1s", mqttData);
                 }
                 Timber.d("%1s", mqttData.toString());

@@ -8,7 +8,7 @@ import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.chad.library.adapter.base.viewholder.BaseViewHolder;
 import com.revolo.lock.R;
 import com.revolo.lock.bean.showBean.RecordState;
-import com.revolo.lock.bean.test.TestOperationRecords;
+import com.revolo.lock.bean.test.OperationRecords;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -44,9 +44,9 @@ import static com.revolo.lock.bean.showBean.RecordState.USER_REMOVED_SOMEONE_FRO
  * E-mail : wengmaowei@kaadas.com
  * desc   : 当前日期的操作记录
  */
-public class OperationRecordAdapter extends BaseQuickAdapter<TestOperationRecords.TestOperationRecord, BaseViewHolder> {
+public class OperationRecordAdapter extends BaseQuickAdapter<OperationRecords.TestOperationRecord, BaseViewHolder> {
 
-    public OperationRecordAdapter(int layoutResId, @Nullable List<TestOperationRecords.TestOperationRecord> data) {
+    public OperationRecordAdapter(int layoutResId, @Nullable List<OperationRecords.TestOperationRecord> data) {
         super(layoutResId, data);
     }
 
@@ -55,7 +55,7 @@ public class OperationRecordAdapter extends BaseQuickAdapter<TestOperationRecord
     }
 
     @Override
-    protected void convert(@NotNull BaseViewHolder baseViewHolder, TestOperationRecords.TestOperationRecord testOperationRecord) {
+    protected void convert(@NotNull BaseViewHolder baseViewHolder, OperationRecords.TestOperationRecord testOperationRecord) {
         if(testOperationRecord != null) {
             baseViewHolder.setTextColor(R.id.tvMessage, ContextCompat.getColor(getContext(), R.color.c333333));
             @DrawableRes int imageResId = R.drawable.ic_home_log_icon__password;

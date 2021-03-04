@@ -62,28 +62,28 @@ public class MqttConstant {
 
     //==================================revolo============================
 
-    //设置门磁
+    // 设置门磁
     public static final String SET_MAGNETIC = "setMagnetic";
 
-    //无感开门
+    // 无感开门
     public static final String APP_ROACHOPEN = "approachOpen";
 
-    //关闭wifi
+    // 关闭wifi
     public static final String CLOSE_WIFI = "closeWifi";
 
-    //开关门指令
+    // 开关门指令
     public static final String SET_LOCK = "setLock";
 
-    //8.秘钥属性添加
+    // 秘钥属性添加
     public static final String ADD_PWD = "addPwd";
 
-    //秘钥属性修改
+    // 秘钥属性修改
     public static final String UPDATE_PWD = "updatePwd";
 
-    //10.秘钥属性删除
+    // 秘钥属性删除
     public static final String REMOVE_PWD = "removePwd";
 
-    //3获取网关状态
+    // 获取网关状态
     public static final String GATEWAY_STATE = "gatewayState";
 
     // 设置门锁属性

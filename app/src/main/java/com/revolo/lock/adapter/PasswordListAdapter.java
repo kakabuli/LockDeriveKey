@@ -9,17 +9,13 @@ import com.blankj.utilcode.util.TimeUtils;
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.chad.library.adapter.base.viewholder.BaseViewHolder;
 import com.revolo.lock.R;
-import com.revolo.lock.bean.test.TestPwdBean;
 import com.revolo.lock.ble.BleByteUtil;
-import com.revolo.lock.ble.BleCommandFactory;
 import com.revolo.lock.room.entity.DevicePwd;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
-
-import timber.log.Timber;
 
 import static com.revolo.lock.ble.BleCommandState.KEY_SET_ATTRIBUTE_ALWAYS;
 import static com.revolo.lock.ble.BleCommandState.KEY_SET_ATTRIBUTE_TIME_KEY;
