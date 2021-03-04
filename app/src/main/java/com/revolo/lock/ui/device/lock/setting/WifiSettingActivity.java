@@ -33,6 +33,7 @@ import com.revolo.lock.mqtt.bean.MqttData;
 import com.revolo.lock.mqtt.bean.publishresultbean.WifiLockCloseWifiResponseBean;
 import com.revolo.lock.room.AppDatabase;
 import com.revolo.lock.room.entity.BleDeviceLocal;
+import com.revolo.lock.ui.device.add.AddWifiActivity;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -94,7 +95,6 @@ public class WifiSettingActivity extends BaseActivity {
                 .setCancelable(true)
                 .setCancelOutside(false)
                 .create();
-
         updateUI();
         applyDebouncingClickListener(mIvWifiEnable, mTvSettingTitle, mTvWifiName);
     }
@@ -113,19 +113,25 @@ public class WifiSettingActivity extends BaseActivity {
             if(isWifiConnected) {
                 closeWifiFromMqtt();
             } else {
-                // TODO: 2021/2/26 跳转到连接wifi页面
-//                Intent intent = new Intent(this, AddWifiActivity.class);
-//                intent.putExtra(Constant.LOCK_DETAIL, mBleDeviceLocal);
-//                startActivity(intent);
-                openWifiFromBle();
+                String wifiName = mBleDeviceLocal.getConnectedWifiName();
+                if(TextUtils.isEmpty(wifiName)) {
+                    gotoAddWifiAct();
+                } else {
+                    openWifiFromBle();
+                }
             }
             return;
         }
         if(view.getId() == R.id.tvWifiName || view.getId() == R.id.tvSettingTitle) {
-            // TODO: 2021/3/4 跳转到WiFi页面
+            gotoAddWifiAct();
         }
     }
 
+    private void gotoAddWifiAct() {
+        Intent intent = new Intent(this, AddWifiActivity.class);
+        intent.putExtra(Constant.LOCK_DETAIL, mBleDeviceLocal);
+        startActivity(intent);
+    }
 
     private void updateUI() {
         if(mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI) {
@@ -153,7 +159,6 @@ public class WifiSettingActivity extends BaseActivity {
                 mLoadingDialog.dismiss();
             }
         });
-
     }
 
     private void closeWifiFromMqtt() {
@@ -201,6 +206,8 @@ public class WifiSettingActivity extends BaseActivity {
                         }
                         return;
                     }
+                    refreshWifiConnectState();
+                    updateUI();
                     // TODO: 2021/3/4 设置成功, 开启蓝牙连接
                 }
                 Timber.d("%1s", mqttData.toString());
@@ -257,6 +264,8 @@ public class WifiSettingActivity extends BaseActivity {
         runOnUiThread(() -> {
             mIvWifiEnable.setImageResource(R.drawable.ic_icon_switch_open);
             mClTip.setVisibility(View.GONE);
+            String wifiName = mBleDeviceLocal.getConnectedWifiName();
+            mTvWifiName.setText(TextUtils.isEmpty(wifiName)?"":wifiName);
             isWifiConnected = true;
         });
     }
@@ -323,13 +332,17 @@ public class WifiSettingActivity extends BaseActivity {
     private void processWifiSwitch(BleResultBean bean) {
         byte state = bean.getPayload()[0];
         if(state == 0x00) {
-            isWifiConnected = !isWifiConnected;
-            mBleDeviceLocal.setConnectedType(isWifiConnected?LocalState.DEVICE_CONNECT_TYPE_WIFI:LocalState.DEVICE_CONNECT_TYPE_BLE);
-            AppDatabase.getInstance(this).bleDeviceDao().update(mBleDeviceLocal);
+            refreshWifiConnectState();
             updateUI();
         } else {
             Timber.e("处理失败原因 state：%1s", ConvertUtils.int2HexString(BleByteUtil.byteToInt(state)));
         }
+    }
+
+    private void refreshWifiConnectState() {
+        isWifiConnected = !isWifiConnected;
+        mBleDeviceLocal.setConnectedType(isWifiConnected? LocalState.DEVICE_CONNECT_TYPE_WIFI:LocalState.DEVICE_CONNECT_TYPE_BLE);
+        AppDatabase.getInstance(this).bleDeviceDao().update(mBleDeviceLocal);
     }
 
 }

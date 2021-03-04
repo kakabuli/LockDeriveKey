@@ -18,6 +18,9 @@ public class Constant {
     public static final String INPUT_ESN_A = "inputESNA";
     public static final String QR_CODE_A = "QRCodeA";
     public static final String AUTH_USER_DETAIL_A = "AuthUserDetailA";
+    public static final String WIFI_SETTING_A = "WifiSettingA";
+    public static final String BLE_CONNECT_FAIL_A = "BleConnectFailA";
+    public static final String DOOR_SENSOR_CHECK_A = "DoorSensorCheckA";
 
     public static final String ESN = "ESN";
     public static final String QR_RESULT = "QRResult";
