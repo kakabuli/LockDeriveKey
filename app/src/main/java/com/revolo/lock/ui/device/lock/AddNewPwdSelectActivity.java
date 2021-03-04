@@ -54,7 +54,6 @@ import com.revolo.lock.net.ObservableDecorator;
 import com.revolo.lock.room.AppDatabase;
 import com.revolo.lock.room.entity.BleDeviceLocal;
 import com.revolo.lock.room.entity.DevicePwd;
-import com.revolo.lock.dialog.iosloading.CustomerLoadingDialog;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -87,7 +86,6 @@ public class AddNewPwdSelectActivity extends BaseActivity {
     private ConstraintLayout mClSchedule, mClTemporary;
     private Button mBtnNext;
     private BleBean mBleBean;
-    private CustomerLoadingDialog mLoadingDialog;
     private String mKey;
     private TextView mTvStartTime, mTvEndTime;
     private TextView mTvStartDate, mTvStartDateTime, mTvEndDate, mTvEndDateTime;
@@ -146,12 +144,7 @@ public class AddNewPwdSelectActivity extends BaseActivity {
         initGlobalView();
         initApplyClick();
 
-        // TODO: 2021/1/29 抽离英文
-        mLoadingDialog = new CustomerLoadingDialog.Builder(this)
-                .setMessage("password generating")
-                .setCancelable(true)
-                .setCancelOutside(false)
-                .create();
+        initLoading("password generating");
     }
 
     private void initApplyClick() {
@@ -285,40 +278,30 @@ public class AddNewPwdSelectActivity extends BaseActivity {
     }
 
     private void nextStep() {
-        if(mLoadingDialog != null) {
-            if(mKey == null) {
-                // TODO: 2021/1/29 处理密码为空的情况
-                return;
-            }
-            if(mBleBean == null) {
-                Timber.e("mBleBean == null");
-                return;
-            }
-            if(mBleBean.getPwd1() == null) {
-                Timber.e("mBleBean.getPwd1() == null");
-                return;
-            }
-            if(mBleBean.getPwd3() == null) {
-                Timber.e("mBleBean.getPwd3() == null");
-                return;
-            }
-            showLoading();
-            if(mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI) {
-                publishAddPwd(mBleDeviceLocal.getEsn(), mKey);
-            } else {
-                App.getInstance().writeControlMsg(BleCommandFactory.addKey(KEY_SET_KEY_TYPE_PWD,
-                        mKey.getBytes(StandardCharsets.UTF_8), mBleBean.getPwd1(), mBleBean.getPwd3()));
-                // TODO: 2021/1/29 需要做超时操作
-            }
+        if(mKey == null) {
+            // TODO: 2021/1/29 处理密码为空的情况
+            return;
         }
-    }
-
-    private void showLoading() {
-        runOnUiThread(() -> {
-            if(mLoadingDialog != null) {
-                mLoadingDialog.show();
-            }
-        });
+        if(mBleBean == null) {
+            Timber.e("mBleBean == null");
+            return;
+        }
+        if(mBleBean.getPwd1() == null) {
+            Timber.e("mBleBean.getPwd1() == null");
+            return;
+        }
+        if(mBleBean.getPwd3() == null) {
+            Timber.e("mBleBean.getPwd3() == null");
+            return;
+        }
+        showLoading();
+        if(mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI) {
+            publishAddPwd(mBleDeviceLocal.getEsn(), mKey);
+        } else {
+            App.getInstance().writeControlMsg(BleCommandFactory.addKey(KEY_SET_KEY_TYPE_PWD,
+                    mKey.getBytes(StandardCharsets.UTF_8), mBleBean.getPwd1(), mBleBean.getPwd3()));
+            // TODO: 2021/1/29 需要做超时操作
+        }
     }
 
     private void showPermanentState() {
@@ -535,15 +518,6 @@ public class AddNewPwdSelectActivity extends BaseActivity {
         } else if(mSelectedPwdState == TEMPORARY_STATE) {
             setTimePwd();
         }
-    }
-
-    private void dismissLoading() {
-        runOnUiThread(() -> {
-            if(mLoadingDialog != null) {
-                mLoadingDialog.dismiss();
-            }
-        });
-
     }
 
     private void dismissLoadingAndShowAddFail() {

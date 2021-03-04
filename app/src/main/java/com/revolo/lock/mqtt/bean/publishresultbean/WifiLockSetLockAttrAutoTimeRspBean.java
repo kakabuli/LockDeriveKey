@@ -1,6 +1,6 @@
 package com.revolo.lock.mqtt.bean.publishresultbean;
 
-import com.revolo.lock.mqtt.bean.publishbean.attrparams.DuressParams;
+import com.revolo.lock.mqtt.bean.publishbean.attrparams.AutoLockTimeParams;
 
 /**
  * author :
@@ -8,7 +8,7 @@ import com.revolo.lock.mqtt.bean.publishbean.attrparams.DuressParams;
  * E-mail : wengmaowei@kaadas.com
  * desc   :
  */
-public class WifiLockSetLockAttrDuressRspBean {
+public class WifiLockSetLockAttrAutoTimeRspBean {
 
 
     /**
@@ -28,7 +28,7 @@ public class WifiLockSetLockAttrDuressRspBean {
     private String wfId;
     private String func;
     private int code;
-    private DuressParams params;
+    private AutoLockTimeParams params;
     private String timestamp;
 
     public String getMsgtype() {
@@ -79,11 +79,11 @@ public class WifiLockSetLockAttrDuressRspBean {
         this.code = code;
     }
 
-    public DuressParams getParams() {
+    public AutoLockTimeParams getParams() {
         return params;
     }
 
-    public void setParams(DuressParams params) {
+    public void setParams(AutoLockTimeParams params) {
         this.params = params;
     }
 

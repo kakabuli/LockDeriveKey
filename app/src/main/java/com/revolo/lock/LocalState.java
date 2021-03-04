@@ -31,4 +31,9 @@ public class LocalState {
     public static final int DURESS_STATE_OPEN = 0x01;
     public static final int DURESS_STATE_CLOSE = 0x00;
 
+    @IntDef(value = {AUTO_STATE_OPEN, AUTO_STATE_CLOSE})
+    public @interface AutoState{}
+    public static final int AUTO_STATE_OPEN = 0x00;
+    public static final int AUTO_STATE_CLOSE = 0x01;
+
 }

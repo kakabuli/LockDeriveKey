@@ -26,7 +26,6 @@ import com.revolo.lock.ble.BleCommandState;
 import com.revolo.lock.ble.BleResultProcess;
 import com.revolo.lock.ble.OnBleDeviceListener;
 import com.revolo.lock.ble.bean.BleResultBean;
-import com.revolo.lock.dialog.iosloading.CustomerLoadingDialog;
 import com.revolo.lock.mqtt.MqttCommandFactory;
 import com.revolo.lock.mqtt.MqttConstant;
 import com.revolo.lock.mqtt.bean.MqttData;
@@ -58,7 +57,6 @@ public class WifiSettingActivity extends BaseActivity {
     private BleDeviceLocal mBleDeviceLocal;
     private ConstraintLayout mClTip;
     private ImageView mIvWifiEnable;
-    private CustomerLoadingDialog mLoadingDialog;
     private boolean isWifiConnected = false;
     private TextView mTvSettingTitle, mTvWifiName, mTvSettingTip;
 
@@ -89,12 +87,7 @@ public class WifiSettingActivity extends BaseActivity {
         mTvSettingTip = findViewById(R.id.tvSettingTip);
         mTvSettingTitle = findViewById(R.id.tvSettingTitle);
         mTvWifiName = findViewById(R.id.tvWifiName);
-        // TODO: 2021/1/29 抽离英文
-        mLoadingDialog = new CustomerLoadingDialog.Builder(this)
-                .setMessage("Setting...")
-                .setCancelable(true)
-                .setCancelOutside(false)
-                .create();
+        initLoading("Setting...");
         updateUI();
         applyDebouncingClickListener(mIvWifiEnable, mTvSettingTitle, mTvWifiName);
     }
@@ -143,22 +136,6 @@ public class WifiSettingActivity extends BaseActivity {
         } else {
             // TODO: 2021/2/26 do something
         }
-    }
-
-    private void showLoading() {
-        runOnUiThread(() -> {
-            if(mLoadingDialog != null) {
-                mLoadingDialog.show();
-            }
-        });
-    }
-
-    private void dismissLoading() {
-        runOnUiThread(() -> {
-            if(mLoadingDialog != null) {
-                mLoadingDialog.dismiss();
-            }
-        });
     }
 
     private void closeWifiFromMqtt() {

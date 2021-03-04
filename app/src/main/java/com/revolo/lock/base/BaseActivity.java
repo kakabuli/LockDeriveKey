@@ -16,6 +16,7 @@ import com.blankj.utilcode.util.AdaptScreenUtils;
 import com.blankj.utilcode.util.ClickUtils;
 import com.revolo.lock.App;
 import com.revolo.lock.R;
+import com.revolo.lock.dialog.iosloading.CustomerLoadingDialog;
 import com.revolo.lock.ui.TitleBar;
 
 /**
@@ -33,6 +34,7 @@ public abstract class BaseActivity extends AppCompatActivity
 
     public View     mContentView;
     public Activity mActivity;
+    private CustomerLoadingDialog mLoadingDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,4 +81,30 @@ public abstract class BaseActivity extends AppCompatActivity
         window.setStatusBarColor(ContextCompat.getColor(this, id));
         window.getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
     }
+
+    public void initLoading(String message) {
+        // TODO: 2021/2/25 抽离文字
+        mLoadingDialog = new CustomerLoadingDialog.Builder(this)
+                .setMessage(message)
+                .setCancelable(true)
+                .setCancelOutside(false)
+                .create();
+    }
+
+    public void showLoading() {
+        runOnUiThread(() -> {
+            if(mLoadingDialog != null) {
+                mLoadingDialog.show();
+            }
+        });
+    }
+
+    public void dismissLoading() {
+        runOnUiThread(() -> {
+            if(mLoadingDialog != null) {
+                mLoadingDialog.dismiss();
+            }
+        });
+    }
+
 }

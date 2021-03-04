@@ -24,7 +24,6 @@ import com.revolo.lock.ble.BleCommandState;
 import com.revolo.lock.ble.BleResultProcess;
 import com.revolo.lock.ble.OnBleDeviceListener;
 import com.revolo.lock.ble.bean.BleResultBean;
-import com.revolo.lock.dialog.iosloading.CustomerLoadingDialog;
 import com.revolo.lock.mqtt.MqttCommandFactory;
 import com.revolo.lock.mqtt.MqttConstant;
 import com.revolo.lock.mqtt.bean.MqttData;
@@ -56,7 +55,6 @@ public class DuressCodeActivity extends BaseActivity {
     private ConstraintLayout mClInputEmail;
     private ImageView mIvDuressCodeEnable;
     private BleDeviceLocal mBleDeviceLocal;
-    private CustomerLoadingDialog mLoadingDialog;
 
     @Override
     public void initData(@Nullable Bundle bundle) {
@@ -82,12 +80,7 @@ public class DuressCodeActivity extends BaseActivity {
         useCommonTitleBar(getString(R.string.title_duress_code));
         mClInputEmail = findViewById(R.id.clInputEmail);
         mIvDuressCodeEnable = findViewById(R.id.ivDuressCodeEnable);
-        // TODO: 2021/1/29 抽离英文
-        mLoadingDialog = new CustomerLoadingDialog.Builder(this)
-                .setMessage("Setting...")
-                .setCancelable(true)
-                .setCancelOutside(false)
-                .create();
+        initLoading("Setting...");
         initUI();
         applyDebouncingClickListener(findViewById(R.id.ivDuressCodeEnable));
     }
@@ -174,22 +167,6 @@ public class DuressCodeActivity extends BaseActivity {
 
                     }
                 });
-    }
-
-    private void showLoading() {
-        runOnUiThread(() -> {
-            if(mLoadingDialog != null) {
-                mLoadingDialog.show();
-            }
-        });
-    }
-
-    private void dismissLoading() {
-        runOnUiThread(() -> {
-            if(mLoadingDialog != null) {
-                mLoadingDialog.dismiss();
-            }
-        });
     }
 
     private void initUI() {

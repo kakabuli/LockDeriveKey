@@ -25,7 +25,6 @@ import com.revolo.lock.ble.BleCommandState;
 import com.revolo.lock.ble.BleResultProcess;
 import com.revolo.lock.ble.OnBleDeviceListener;
 import com.revolo.lock.ble.bean.BleResultBean;
-import com.revolo.lock.dialog.iosloading.CustomerLoadingDialog;
 import com.revolo.lock.mqtt.MqttCommandFactory;
 import com.revolo.lock.mqtt.MqttConstant;
 import com.revolo.lock.mqtt.bean.MqttData;
@@ -57,7 +56,6 @@ public class DoorSensorCheckActivity extends BaseActivity {
     private TextView mTvTip, mTvSkip, mTvStep;
     private Button mBtnNext;
     private BleDeviceLocal mBleDeviceLocal;
-    private CustomerLoadingDialog mLoadingDialog;
 
     @IntDef(value = {DOOR_OPEN, DOOR_CLOSE, DOOR_HALF, DOOR_SUC, DOOR_FAIL, DOOR_OPEN_AGAIN})
     private @interface DoorState{}
@@ -106,12 +104,7 @@ public class DoorSensorCheckActivity extends BaseActivity {
         mTvSkip = findViewById(R.id.tvSkip);
         mTvStep = findViewById(R.id.tvStep);
         applyDebouncingClickListener(mBtnNext, mTvSkip);
-        // TODO: 2021/2/25 抽离文字
-        mLoadingDialog = new CustomerLoadingDialog.Builder(this)
-                .setMessage("Loading...")
-                .setCancelable(true)
-                .setCancelOutside(false)
-                .create();
+        initLoading("Loading...");
     }
 
     @Override
@@ -239,22 +232,6 @@ public class DoorSensorCheckActivity extends BaseActivity {
         mTvStep.setText("");
         mTvStep.setVisibility(View.INVISIBLE);
         mDoorState = DOOR_SUC;
-    }
-
-    private void dismissLoading() {
-        runOnUiThread(() -> {
-            if(mLoadingDialog != null) {
-                mLoadingDialog.dismiss();
-            }
-        });
-    }
-
-    private void showLoading() {
-        runOnUiThread(() -> {
-            if(mLoadingDialog != null) {
-                mLoadingDialog.show();
-            }
-        });
     }
 
     private void refreshCurrentUI() {

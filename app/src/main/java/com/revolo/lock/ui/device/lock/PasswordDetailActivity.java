@@ -38,7 +38,6 @@ import com.revolo.lock.net.ObservableDecorator;
 import com.revolo.lock.room.AppDatabase;
 import com.revolo.lock.room.entity.BleDeviceLocal;
 import com.revolo.lock.room.entity.DevicePwd;
-import com.revolo.lock.dialog.iosloading.CustomerLoadingDialog;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -68,7 +67,6 @@ import static com.revolo.lock.ble.BleProtocolState.CMD_KEY_ATTRIBUTES_SET;
 public class PasswordDetailActivity extends BaseActivity {
 
     private TextView mTvPwdName, mTvPwd, mTvPwdCharacteristic, mTvCreationDate;
-    private CustomerLoadingDialog mLoadingDialog;
     private long mPwdId;
     private DevicePwd mDevicePwd;
     private String mESN;
@@ -114,12 +112,7 @@ public class PasswordDetailActivity extends BaseActivity {
         mTvPwd = findViewById(R.id.tvPwd);
         mTvCreationDate = findViewById(R.id.tvCreationDate);
         mTvPwdCharacteristic  = findViewById(R.id.tvPwdCharacteristic);
-        // TODO: 2021/1/29 抽离英文
-        mLoadingDialog = new CustomerLoadingDialog.Builder(this)
-                .setMessage("Deleting...")
-                .setCancelable(true)
-                .setCancelOutside(false)
-                .create();
+        initLoading("Deleting...");
     }
 
     @Override
@@ -267,14 +260,6 @@ public class PasswordDetailActivity extends BaseActivity {
         });
     }
 
-    private void showLoading() {
-        runOnUiThread(() -> {
-            if(mLoadingDialog != null) {
-                mLoadingDialog.show();
-            }
-        });
-    }
-
     private void delPwd() {
         showLoading();
         if(mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI) {
@@ -345,15 +330,6 @@ public class PasswordDetailActivity extends BaseActivity {
             messageDialog.setMessage(getString(R.string.dialog_tip_deletion_failed_door_lock_bluetooth_is_not_found));
             messageDialog.setOnListener(v -> messageDialog.dismiss());
             messageDialog.show();
-        });
-
-    }
-
-    private void dismissLoading() {
-        runOnUiThread(() -> {
-            if(mLoadingDialog != null) {
-                mLoadingDialog.dismiss();
-            }
         });
 
     }

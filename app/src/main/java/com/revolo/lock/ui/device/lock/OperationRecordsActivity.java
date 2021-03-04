@@ -26,7 +26,6 @@ import com.revolo.lock.ble.BleCommandFactory;
 import com.revolo.lock.ble.BleResultProcess;
 import com.revolo.lock.ble.OnBleDeviceListener;
 import com.revolo.lock.ble.bean.BleResultBean;
-import com.revolo.lock.dialog.iosloading.CustomerLoadingDialog;
 import com.revolo.lock.room.AppDatabase;
 import com.revolo.lock.room.entity.LockRecord;
 
@@ -54,7 +53,6 @@ public class OperationRecordsActivity extends BaseActivity {
     private OperationRecordsAdapter mRecordsAdapter;
     private BleBean mBleBean;
     private long mDeviceId;
-    private CustomerLoadingDialog mLoadingDialog;
 
     @Override
     public void initData(@Nullable Bundle bundle) {
@@ -86,12 +84,7 @@ public class OperationRecordsActivity extends BaseActivity {
         rvRecords.setLayoutManager(linearLayoutManager);
         mRecordsAdapter = new OperationRecordsAdapter(R.layout.item_operation_record_list_rv);
         rvRecords.setAdapter(mRecordsAdapter);
-        // TODO: 2021/2/25 抽离文字
-        mLoadingDialog = new CustomerLoadingDialog.Builder(this)
-                .setMessage("Loading...")
-                .setCancelable(true)
-                .setCancelOutside(false)
-                .create();
+        initLoading("Loading...");
     }
 
     @Override
@@ -272,22 +265,6 @@ public class OperationRecordsActivity extends BaseActivity {
         }
         mLockRecords.addAll(lockRecords);
         refreshUIFromFinalData();
-    }
-
-    private void showLoading() {
-        runOnUiThread(() -> {
-            if(mLoadingDialog != null) {
-                mLoadingDialog.show();
-            }
-        });
-    }
-
-    private void dismissLoading() {
-        runOnUiThread(() -> {
-            if(mLoadingDialog != null) {
-                mLoadingDialog.dismiss();
-            }
-        });
     }
 
     private void refreshUIFromFinalData() {
