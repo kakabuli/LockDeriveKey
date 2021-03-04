@@ -71,6 +71,18 @@ public class BleCommandFactory {
         }
     }
 
+    public static byte[] getPwd(byte[] pwd1, byte[] pwd2) {
+        byte[] pwd = new byte[16];
+        for (int i=0; i < pwd.length; i++) {
+            if(i <= 11) {
+                pwd[i]=pwd1[i];
+            } else {
+                pwd[i]=pwd2[i-12];
+            }
+        }
+        return pwd;
+    }
+
     public static byte[] littleMode(byte[] bytes) {
         for (int i=0; i<bytes.length/2; i++) {
             byte tmp = bytes[i];

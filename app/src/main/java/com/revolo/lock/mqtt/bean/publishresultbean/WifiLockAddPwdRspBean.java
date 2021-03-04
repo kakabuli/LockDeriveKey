@@ -1,14 +1,22 @@
 package com.revolo.lock.mqtt.bean.publishresultbean;
 
-public class WifiLockAddPasswordResponseBean {
+/**
+ * author :
+ * time   : 2021/3/4
+ * E-mail : wengmaowei@kaadas.com
+ * desc   :
+ */
+public class WifiLockAddPwdRspBean {
+
+
     /**
      * msgtype : respone
      * msgId : 4
      * userId : 5cad4509dc938989e2f542c8
      * wfId : WF123456789
-     * func : addPwd
+     * func : createPwd
      * code : 200
-     * params : {}
+     * params : {"keyNum":1}
      * timestamp : 13433333333
      */
 
@@ -86,19 +94,18 @@ public class WifiLockAddPasswordResponseBean {
     }
 
     public static class ParamsBean {
-    }
+        /**
+         * keyNum : 1
+         */
 
-    @Override
-    public String toString() {
-        return "WifiLockAddPasswordResponseBean{" +
-                "msgtype='" + msgtype + '\'' +
-                ", msgId=" + msgId +
-                ", userId='" + userId + '\'' +
-                ", wfId='" + wfId + '\'' +
-                ", func='" + func + '\'' +
-                ", code=" + code +
-                ", params=" + params +
-                ", timestamp='" + timestamp + '\'' +
-                '}';
+        private int keyNum;
+
+        public int getKeyNum() {
+            return keyNum;
+        }
+
+        public void setKeyNum(int keyNum) {
+            this.keyNum = keyNum;
+        }
     }
 }

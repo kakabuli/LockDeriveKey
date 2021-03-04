@@ -364,19 +364,6 @@ public class DeviceFragment extends Fragment {
         }
     }
 
-    // TODO: 2021/2/6 后面想办法写的更好
-    private byte[] getPwd(byte[] pwd1, byte[] pwd2) {
-        byte[] pwd = new byte[16];
-        for (int i=0; i < pwd.length; i++) {
-            if(i <= 11) {
-                pwd[i]=pwd1[i];
-            } else {
-                pwd[i]=pwd2[i-12];
-            }
-        }
-        return pwd;
-    }
-
     private void dismissLoading() {
         if(getActivity() == null) {
             Timber.e("dismissLoading getActivity() == null");
@@ -423,7 +410,7 @@ public class DeviceFragment extends Fragment {
             showLoading("Lock Closing...");
         }
         App.getInstance().getMqttService().mqttPublish(MqttConstant.getCallTopic(App.getInstance().getUserBean().getUid()),
-                MqttCommandFactory.setLock(wifiId, doorOpt, getPwd(mPwd1, mPwd2), randomCode))
+                MqttCommandFactory.setLock(wifiId, doorOpt, BleCommandFactory.getPwd(mPwd1, mPwd2), randomCode))
                 .timeout(10, TimeUnit.SECONDS).safeSubscribe(new Observer<MqttData>() {
             @Override
             public void onSubscribe(@NotNull Disposable d) {

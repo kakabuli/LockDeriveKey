@@ -74,6 +74,8 @@ public class MqttConstant {
     // 开关门指令
     public static final String SET_LOCK = "setLock";
 
+    public static final String CREATE_PWD = "createPwd";
+
     // 秘钥属性添加
     public static final String ADD_PWD = "addPwd";
 

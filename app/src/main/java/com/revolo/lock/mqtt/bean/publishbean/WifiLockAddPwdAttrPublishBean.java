@@ -1,6 +1,6 @@
 package com.revolo.lock.mqtt.bean.publishbean;
 
-public class WifiLockAddPasswordPublishBean {
+public class WifiLockAddPwdAttrPublishBean {
 
     /**
      * msgtype : request
@@ -20,7 +20,7 @@ public class WifiLockAddPasswordPublishBean {
     private ParamsBean params;
     private String timestamp;
 
-    public WifiLockAddPasswordPublishBean(String msgtype, int msgId, String userId, String wfId, String func, ParamsBean params, String timestamp) {
+    public WifiLockAddPwdAttrPublishBean(String msgtype, int msgId, String userId, String wfId, String func, ParamsBean params, String timestamp) {
         this.msgtype = msgtype;
         this.msgId = msgId;
         this.userId = userId;

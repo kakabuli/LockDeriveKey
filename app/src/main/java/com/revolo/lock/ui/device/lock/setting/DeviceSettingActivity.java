@@ -14,6 +14,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.blankj.utilcode.util.AdaptScreenUtils;
+import com.blankj.utilcode.util.ConvertUtils;
 import com.blankj.utilcode.util.GsonUtils;
 import com.blankj.utilcode.util.ToastUtils;
 import com.google.gson.JsonSyntaxException;
@@ -388,7 +389,10 @@ public class DeviceSettingActivity extends BaseActivity {
         VolumeParams volumeParams = new VolumeParams();
         volumeParams.setVolume(mute);
         App.getInstance().getMqttService().mqttPublish(MqttConstant.getCallTopic(App.getInstance().getUserBean().getUid()),
-                MqttCommandFactory.setLockAttr(wifiID, volumeParams))
+                MqttCommandFactory.setLockAttr(wifiID, volumeParams,
+                        BleCommandFactory.getPwd(
+                                ConvertUtils.hexString2Bytes(mBleDeviceLocal.getPwd1()),
+                                ConvertUtils.hexString2Bytes(mBleDeviceLocal.getPwd2()))))
                 .timeout(10, TimeUnit.SECONDS)
                 .safeSubscribe(new Observer<MqttData>() {
                     @Override

@@ -21,10 +21,13 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 
 import com.blankj.utilcode.util.AdaptScreenUtils;
 import com.blankj.utilcode.util.ConvertUtils;
+import com.blankj.utilcode.util.GsonUtils;
 import com.blankj.utilcode.util.TimeUtils;
 import com.blankj.utilcode.util.ToastUtils;
+import com.google.gson.JsonSyntaxException;
 import com.revolo.lock.App;
 import com.revolo.lock.Constant;
+import com.revolo.lock.LocalState;
 import com.revolo.lock.R;
 import com.revolo.lock.base.BaseActivity;
 import com.revolo.lock.bean.request.LockKeyAddBeanReq;
@@ -39,6 +42,13 @@ import com.revolo.lock.ble.bean.BleBean;
 import com.revolo.lock.ble.bean.BleResultBean;
 import com.revolo.lock.dialog.AddPwdFailDialog;
 import com.revolo.lock.dialog.MessageDialog;
+import com.revolo.lock.mqtt.MqttCommandFactory;
+import com.revolo.lock.mqtt.MqttConstant;
+import com.revolo.lock.mqtt.bean.MqttData;
+import com.revolo.lock.mqtt.bean.publishbean.WifiLockAddPwdAttrPublishBean;
+import com.revolo.lock.mqtt.bean.publishbean.WifiLockAddPwdPublishBean;
+import com.revolo.lock.mqtt.bean.publishresultbean.WifiLockAddPwdAttrResponseBean;
+import com.revolo.lock.mqtt.bean.publishresultbean.WifiLockAddPwdRspBean;
 import com.revolo.lock.net.HttpRequest;
 import com.revolo.lock.net.ObservableDecorator;
 import com.revolo.lock.room.AppDatabase;
@@ -51,6 +61,7 @@ import org.jetbrains.annotations.NotNull;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import io.reactivex.Observable;
 import io.reactivex.Observer;
@@ -186,7 +197,9 @@ public class AddNewPwdSelectActivity extends BaseActivity {
         initScheduleEndTimeMill();
         initTemStartDateTimeMill();
         initTemEndDateTimeMill();
-        initDevice();
+        if(mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_BLE) {
+            initBleListener();
+        }
     }
 
     @Override
@@ -288,11 +301,23 @@ public class AddNewPwdSelectActivity extends BaseActivity {
                 Timber.e("mBleBean.getPwd3() == null");
                 return;
             }
-            mLoadingDialog.show();
-            App.getInstance().writeControlMsg(BleCommandFactory.addKey(KEY_SET_KEY_TYPE_PWD,
-                    mKey.getBytes(StandardCharsets.UTF_8), mBleBean.getPwd1(), mBleBean.getPwd3()));
-            // TODO: 2021/1/29 需要做超时操作
+            showLoading();
+            if(mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI) {
+                publishAddPwd(mBleDeviceLocal.getEsn(), mKey);
+            } else {
+                App.getInstance().writeControlMsg(BleCommandFactory.addKey(KEY_SET_KEY_TYPE_PWD,
+                        mKey.getBytes(StandardCharsets.UTF_8), mBleBean.getPwd1(), mBleBean.getPwd3()));
+                // TODO: 2021/1/29 需要做超时操作
+            }
         }
+    }
+
+    private void showLoading() {
+        runOnUiThread(() -> {
+            if(mLoadingDialog != null) {
+                mLoadingDialog.show();
+            }
+        });
     }
 
     private void showPermanentState() {
@@ -429,7 +454,7 @@ public class AddNewPwdSelectActivity extends BaseActivity {
     }
 
     /**                  蓝牙指令与处理               **/
-    private byte mNum;
+    private int mNum;
     private DevicePwd mDevicePwd = new DevicePwd();
 
     private final OnBleDeviceListener mOnBleDeviceListener = new OnBleDeviceListener() {
@@ -534,17 +559,27 @@ public class AddNewPwdSelectActivity extends BaseActivity {
         mDevicePwd.setStartTime(mTemStartDateTimeMill/1000);
         mDevicePwd.setEndTime(mTemEndDateTimeMill/1000);
         mDevicePwd.setAttribute(KEY_SET_ATTRIBUTE_TIME_KEY);
-        App.getInstance()
-                .writeControlMsg(BleCommandFactory
-                        .keyAttributesSet(KEY_SET_KEY_OPTION_ADD_OR_CHANGE,
-                                KEY_SET_KEY_TYPE_PWD,
-                                mNum,
-                                KEY_SET_ATTRIBUTE_TIME_KEY,
-                                (byte) 0x00,
-                                mTemStartDateTimeMill/1000,
-                                mTemEndDateTimeMill/1000,
-                                mBleBean.getPwd1(),
-                                mBleBean.getPwd3()));
+        if(mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI) {
+            publishAddPwdAttr(mBleDeviceLocal.getEsn(),
+                    KEY_SET_ATTRIBUTE_TIME_KEY,
+                    mNum,
+                    mTemStartDateTimeMill/1000,
+                    mTemEndDateTimeMill/1000,
+                    0);
+        } else {
+            App.getInstance()
+                    .writeControlMsg(BleCommandFactory
+                            .keyAttributesSet(KEY_SET_KEY_OPTION_ADD_OR_CHANGE,
+                                    KEY_SET_KEY_TYPE_PWD,
+                                    (byte)mNum,
+                                    KEY_SET_ATTRIBUTE_TIME_KEY,
+                                    (byte) 0x00,
+                                    mTemStartDateTimeMill/1000,
+                                    mTemEndDateTimeMill/1000,
+                                    mBleBean.getPwd1(),
+                                    mBleBean.getPwd3()));
+        }
+
     }
 
     private void setSchedulePwd() {
@@ -569,17 +604,27 @@ public class AddNewPwdSelectActivity extends BaseActivity {
         mDevicePwd.setStartTime(mScheduleStartTimeMill/1000);
         mDevicePwd.setEndTime(mScheduleEndTimeMill/1000);
         mDevicePwd.setAttribute(KEY_SET_ATTRIBUTE_WEEK_KEY);
-        App.getInstance()
-                .writeControlMsg(BleCommandFactory
-                        .keyAttributesSet(KEY_SET_KEY_OPTION_ADD_OR_CHANGE,
-                                KEY_SET_KEY_TYPE_PWD,
-                                mNum,
-                                KEY_SET_ATTRIBUTE_WEEK_KEY,
-                                week,
-                                mScheduleStartTimeMill/1000,
-                                mScheduleEndTimeMill/1000,
-                                mBleBean.getPwd1(),
-                                mBleBean.getPwd3()));
+        if(mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI) {
+            publishAddPwdAttr(mBleDeviceLocal.getEsn(),
+                    KEY_SET_ATTRIBUTE_WEEK_KEY,
+                    mNum,
+                    mScheduleStartTimeMill/1000,
+                    mScheduleEndTimeMill/1000,
+                    week);
+        } else {
+            App.getInstance()
+                    .writeControlMsg(BleCommandFactory
+                            .keyAttributesSet(KEY_SET_KEY_OPTION_ADD_OR_CHANGE,
+                                    KEY_SET_KEY_TYPE_PWD,
+                                    (byte)mNum,
+                                    KEY_SET_ATTRIBUTE_WEEK_KEY,
+                                    week,
+                                    mScheduleStartTimeMill/1000,
+                                    mScheduleEndTimeMill/1000,
+                                    mBleBean.getPwd1(),
+                                    mBleBean.getPwd3()));
+        }
+
     }
 
     private void showSucAndGotoAnotherPage() {
@@ -608,7 +653,7 @@ public class AddNewPwdSelectActivity extends BaseActivity {
         });
     }
 
-    private void initDevice() {
+    private void initBleListener() {
         if(mBleBean == null || mBleBean.getOKBLEDeviceImp() == null) {
             // TODO: 2021/1/30 做对应的处理
             Timber.e("initDevice mBleBean == null || mBleBean.getOKBLEDeviceImp() == null");
@@ -616,6 +661,150 @@ public class AddNewPwdSelectActivity extends BaseActivity {
         }
         App.getInstance().openPairNotify();
         App.getInstance().setOnBleDeviceListener(mOnBleDeviceListener);
+    }
+
+    private void publishAddPwd(String wifiId, String key) {
+        WifiLockAddPwdPublishBean.ParamsBean paramsBean = new WifiLockAddPwdPublishBean.ParamsBean();
+        paramsBean.setKey(key);
+        paramsBean.setKeyType(1);
+        App.getInstance().getMqttService().mqttPublish(MqttConstant.getCallTopic(App.getInstance().getUserBean().getUid()),
+                MqttCommandFactory.addPwd(
+                        wifiId,
+                        paramsBean,
+                        BleCommandFactory.getPwd(
+                                ConvertUtils.hexString2Bytes(mBleDeviceLocal.getPwd1()),
+                                ConvertUtils.hexString2Bytes(mBleDeviceLocal.getPwd2())
+                        )))
+                .timeout(10, TimeUnit.SECONDS).safeSubscribe(new Observer<MqttData>() {
+            @Override
+            public void onSubscribe(@NotNull Disposable d) {
+
+            }
+
+            @Override
+            public void onNext(@NotNull MqttData mqttData) {
+                if(TextUtils.isEmpty(mqttData.getFunc())) {
+                    dismissLoading();
+                    return;
+                }
+                // TODO: 2021/3/3 处理开关门的回调信息
+                if(mqttData.getFunc().equals(MqttConstant.CREATE_PWD)) {
+                    Timber.d("创建密码: %1s", mqttData);
+                    WifiLockAddPwdRspBean bean;
+                    try {
+                        bean = GsonUtils.fromJson(mqttData.getPayload(), WifiLockAddPwdRspBean.class);
+                    } catch (JsonSyntaxException e) {
+                        Timber.e(e);
+                        return;
+                    }
+                    if(bean == null) {
+                        Timber.e("publishAddPwd bean == null");
+                        return;
+                    }
+                    if(bean.getCode() != 200) {
+                        Timber.e("publishAddPwd code : %1d", bean.getCode());
+                        return;
+                    }
+                    if(bean.getParams() == null) {
+                        Timber.e("publishAddPwd bean.getParams() == null");
+                        return;
+                    }
+                    mNum = bean.getParams().getKeyNum();
+                    mDevicePwd.setPwdNum(mNum);
+                    // 使用秒存储，所以除以1000
+                    mDevicePwd.setCreateTime(TimeUtils.getNowMills()/1000);
+                    mDevicePwd.setDeviceId(mDeviceId);
+                    mDevicePwd.setAttribute(BleCommandState.KEY_SET_ATTRIBUTE_ALWAYS);
+                    if(mSelectedPwdState == PERMANENT_STATE) {
+                        savePwdToService(mDevicePwd);
+                    } else if(mSelectedPwdState == SCHEDULE_STATE) {
+                        setSchedulePwd();
+                    } else if(mSelectedPwdState == TEMPORARY_STATE) {
+                        setTimePwd();
+                    }
+                }
+                Timber.d("%1s", mqttData.toString());
+            }
+
+            @Override
+            public void onError(@NotNull Throwable e) {
+                dismissLoading();
+                Timber.e(e);
+            }
+
+            @Override
+            public void onComplete() {
+
+            }
+        });
+    }
+
+    private void publishAddPwdAttr(String wifiId, int attribute, int keyNum, long startTime, long endTime, int week) {
+        WifiLockAddPwdAttrPublishBean.ParamsBean paramsBean = new WifiLockAddPwdAttrPublishBean.ParamsBean();
+        paramsBean.setAttribute(attribute);
+        paramsBean.setEndTime(endTime);
+        paramsBean.setKeyNum(keyNum);
+        paramsBean.setStartTime(startTime);
+        paramsBean.setWeek(week);
+        paramsBean.setKeyType(1);
+        App.getInstance().getMqttService().mqttPublish(MqttConstant.getCallTopic(App.getInstance().getUserBean().getUid()),
+                MqttCommandFactory.addPwdAttr(
+                        wifiId,
+                        paramsBean,
+                        BleCommandFactory.getPwd(
+                                ConvertUtils.hexString2Bytes(mBleDeviceLocal.getPwd1()),
+                                ConvertUtils.hexString2Bytes(mBleDeviceLocal.getPwd2())
+                        )))
+                .timeout(10, TimeUnit.SECONDS).safeSubscribe(new Observer<MqttData>() {
+            @Override
+            public void onSubscribe(@NotNull Disposable d) {
+
+            }
+
+            @Override
+            public void onNext(@NotNull MqttData mqttData) {
+                if(TextUtils.isEmpty(mqttData.getFunc())) {
+                    dismissLoading();
+                    return;
+                }
+                // TODO: 2021/3/3 处理开关门的回调信息
+                if(mqttData.getFunc().equals(MqttConstant.ADD_PWD)) {
+                    Timber.d("publishAddPwdAttr 添加密码属性: %1s", mqttData);
+                    WifiLockAddPwdAttrResponseBean bean;
+                    try {
+                        bean = GsonUtils.fromJson(mqttData.getPayload(), WifiLockAddPwdAttrResponseBean.class);
+                    } catch (JsonSyntaxException e) {
+                        Timber.e(e);
+                        return;
+                    }
+                    if(bean == null) {
+                        Timber.e("publishAddPwdAttr bean == null");
+                        return;
+                    }
+                    if(bean.getCode() != 200) {
+                        Timber.e("publishAddPwdAttr code : %1d", bean.getCode());
+                        return;
+                    }
+                    if(bean.getParams() == null) {
+                        Timber.e("publishAddPwdAttr bean.getParams() == null");
+                        return;
+                    }
+                    savePwdToService(mDevicePwd);
+                }
+                Timber.d("%1s", mqttData.toString());
+            }
+
+            @Override
+            public void onError(@NotNull Throwable e) {
+                dismissLoading();
+                Timber.e(e);
+            }
+
+            @Override
+            public void onComplete() {
+
+            }
+        });
     }
 
     // TODO: 2021/2/4 要做后面时间不能超过前面时间的判断和逻辑处理

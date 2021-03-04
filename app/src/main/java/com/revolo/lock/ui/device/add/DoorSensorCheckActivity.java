@@ -12,6 +12,7 @@ import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.blankj.utilcode.util.ConvertUtils;
 import com.blankj.utilcode.util.GsonUtils;
 import com.google.gson.JsonSyntaxException;
 import com.revolo.lock.App;
@@ -285,7 +286,9 @@ public class DoorSensorCheckActivity extends BaseActivity {
     public void publishSetMagnetic(String wifiID, @BleCommandState.DoorCalibrationState int mode) {
         showLoading();
         App.getInstance().getMqttService().mqttPublish(MqttConstant.getCallTopic(App.getInstance().getUserBean().getUid()),
-                MqttCommandFactory.setMagnetic(wifiID, mode))
+                MqttCommandFactory.setMagnetic(wifiID, mode, BleCommandFactory.getPwd(
+                        ConvertUtils.hexString2Bytes(mBleDeviceLocal.getPwd1()),
+                        ConvertUtils.hexString2Bytes(mBleDeviceLocal.getPwd2()))))
                 .timeout(10, TimeUnit.SECONDS)
                 .safeSubscribe(new Observer<MqttData>() {
             @Override
