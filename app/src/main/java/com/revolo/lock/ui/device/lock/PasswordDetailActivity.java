@@ -51,6 +51,7 @@ import io.reactivex.Observer;
 import io.reactivex.disposables.Disposable;
 import timber.log.Timber;
 
+import static com.revolo.lock.Constant.DEFAULT_TIMEOUT_SEC_VALUE;
 import static com.revolo.lock.ble.BleCommandState.KEY_SET_ATTRIBUTE_ALWAYS;
 import static com.revolo.lock.ble.BleCommandState.KEY_SET_ATTRIBUTE_TIME_KEY;
 import static com.revolo.lock.ble.BleCommandState.KEY_SET_ATTRIBUTE_WEEK_KEY;
@@ -115,7 +116,7 @@ public class PasswordDetailActivity extends BaseActivity {
         mTvPwdCharacteristic  = findViewById(R.id.tvPwdCharacteristic);
         // TODO: 2021/1/29 抽离英文
         mLoadingDialog = new CustomerLoadingDialog.Builder(this)
-                .setMessage("Deleting")
+                .setMessage("Deleting...")
                 .setCancelable(true)
                 .setCancelOutside(false)
                 .create();
@@ -215,7 +216,7 @@ public class PasswordDetailActivity extends BaseActivity {
                         1,
                         num,
                         BleCommandFactory.getPwd(ConvertUtils.hexString2Bytes(mBleDeviceLocal.getPwd1()), ConvertUtils.hexString2Bytes(mBleDeviceLocal.getPwd2()))))
-                .timeout(10, TimeUnit.SECONDS).safeSubscribe(new Observer<MqttData>() {
+                .timeout(DEFAULT_TIMEOUT_SEC_VALUE, TimeUnit.SECONDS).safeSubscribe(new Observer<MqttData>() {
             @Override
             public void onSubscribe(@NotNull Disposable d) {
 

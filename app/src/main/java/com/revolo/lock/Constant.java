@@ -9,6 +9,7 @@ package com.revolo.lock;
 public class Constant {
 
     public static final long WILL_ADD_TIME = 946656000L;
+    public static final int DEFAULT_TIMEOUT_SEC_VALUE = 10;
 
     public static final String REVOLO_SP = "RevoloSP";
 

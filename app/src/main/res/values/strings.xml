@@ -147,8 +147,10 @@
     <string name="title_wifi_setting">WiFi setting</string>
 
     <!-- WifiSettingActivity -->
-    <string name="please_approach_the_door_lock">Please approach the door lock</string>
-    <string name="to_connect_wifi_again">To connect WiFi again</string>
+    <string name="setting_add_wifi">Add WiFi</string>
+    <string name="setting_connected_wifi">Connected WiFi</string>
+    <string name="setting_tip_to_connect_wifi_to_door_lock">To connect WiFi to door lock</string>
+    <string name="setting_tip_change_a_new_wifi_to_reconnect_network">Change a new WiFi to reconnect network</string>
 
     <!-- AutoLockActivity -->
     <string name="title_auto_lock">Auto lock</string>
