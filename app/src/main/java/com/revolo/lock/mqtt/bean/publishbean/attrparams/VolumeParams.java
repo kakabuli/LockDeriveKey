@@ -6,7 +6,7 @@ package com.revolo.lock.mqtt.bean.publishbean.attrparams;
  * E-mail : wengmaowei@kaadas.com
  * desc   :
  */
-public class VolumeParams extends BaseParamsBean {
+public class VolumeParams {
 
     private int volume;
 

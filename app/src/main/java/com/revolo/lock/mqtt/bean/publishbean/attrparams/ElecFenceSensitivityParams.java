@@ -6,7 +6,7 @@ package com.revolo.lock.mqtt.bean.publishbean.attrparams;
  * E-mail : wengmaowei@kaadas.com
  * desc   :
  */
-public class ElecFenceSensitivityParams extends BaseParamsBean {
+public class ElecFenceSensitivityParams {
 
     private int elecFenceSensitivity;       // 电子围栏灵敏度  1:灵敏度低  2：灵敏度中  3：灵敏度高
 

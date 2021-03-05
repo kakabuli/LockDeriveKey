@@ -6,7 +6,7 @@ package com.revolo.lock.mqtt.bean.publishbean.attrparams;
  * E-mail : wengmaowei@kaadas.com
  * desc   :
  */
-public class AutoLockTimeParams extends BaseParamsBean {
+public class AutoLockTimeParams {
 
     private int autoLockTime;         // 自动上锁时间，默认30s
 

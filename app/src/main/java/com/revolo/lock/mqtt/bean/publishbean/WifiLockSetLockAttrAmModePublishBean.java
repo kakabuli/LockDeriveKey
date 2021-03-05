@@ -1,6 +1,6 @@
 package com.revolo.lock.mqtt.bean.publishbean;
 
-import com.revolo.lock.mqtt.bean.publishbean.attrparams.BaseParamsBean;
+import com.revolo.lock.mqtt.bean.publishbean.attrparams.AmModeParams;
 
 /**
  * author :
@@ -8,7 +8,7 @@ import com.revolo.lock.mqtt.bean.publishbean.attrparams.BaseParamsBean;
  * E-mail : wengmaowei@kaadas.com
  * desc   :
  */
-public class WifiLockSetLockAttrPublishBean {
+public class WifiLockSetLockAttrAmModePublishBean {
 
 
     /**
@@ -25,16 +25,16 @@ public class WifiLockSetLockAttrPublishBean {
     private String userId;
     private String wfId;
     private String func;
-    private BaseParamsBean mBaseParamsBean;
+    private AmModeParams amMode;
     private String timestamp;
 
-    public WifiLockSetLockAttrPublishBean(String msgtype, int msgId, String userId, String wfId, String func, BaseParamsBean baseParamsBean, String timestamp) {
+    public WifiLockSetLockAttrAmModePublishBean(String msgtype, int msgId, String userId, String wfId, String func, AmModeParams amModeParams, String timestamp) {
         this.msgtype = msgtype;
         this.msgId = msgId;
         this.userId = userId;
         this.wfId = wfId;
         this.func = func;
-        mBaseParamsBean = baseParamsBean;
+        amMode = amModeParams;
         this.timestamp = timestamp;
     }
 
@@ -78,12 +78,12 @@ public class WifiLockSetLockAttrPublishBean {
         this.func = func;
     }
 
-    public BaseParamsBean getBaseParamsBean() {
-        return mBaseParamsBean;
+    public AmModeParams getAmMode() {
+        return amMode;
     }
 
-    public void setBaseParamsBean(BaseParamsBean baseParamsBean) {
-        mBaseParamsBean = baseParamsBean;
+    public void setAmMode(AmModeParams amMode) {
+        this.amMode = amMode;
     }
 
     public String getTimestamp() {

@@ -15,10 +15,18 @@ import com.revolo.lock.mqtt.bean.publishbean.WifiLockDoorOptPublishBean;
 import com.revolo.lock.mqtt.bean.publishbean.WifiLockEncryptPublishBean;
 import com.revolo.lock.mqtt.bean.publishbean.WifiLockGetAllBindDevicePublishBean;
 import com.revolo.lock.mqtt.bean.publishbean.WifiLockRemovePasswordPublishBean;
-import com.revolo.lock.mqtt.bean.publishbean.WifiLockSetLockAttrPublishBean;
+import com.revolo.lock.mqtt.bean.publishbean.WifiLockSetLockAttrAmModePublishBean;
+import com.revolo.lock.mqtt.bean.publishbean.WifiLockSetLockAttrAutoLockTimePublishBean;
+import com.revolo.lock.mqtt.bean.publishbean.WifiLockSetLockAttrDuressPublishBean;
+import com.revolo.lock.mqtt.bean.publishbean.WifiLockSetLockAttrSensitivityPublishBean;
+import com.revolo.lock.mqtt.bean.publishbean.WifiLockSetLockAttrVolumePublishBean;
 import com.revolo.lock.mqtt.bean.publishbean.WifiLockSetMagneticPublishBean;
 import com.revolo.lock.mqtt.bean.publishbean.WifiLockUpdatePasswordPublishBean;
-import com.revolo.lock.mqtt.bean.publishbean.attrparams.BaseParamsBean;
+import com.revolo.lock.mqtt.bean.publishbean.attrparams.AmModeParams;
+import com.revolo.lock.mqtt.bean.publishbean.attrparams.AutoLockTimeParams;
+import com.revolo.lock.mqtt.bean.publishbean.attrparams.DuressParams;
+import com.revolo.lock.mqtt.bean.publishbean.attrparams.ElecFenceSensitivityParams;
+import com.revolo.lock.mqtt.bean.publishbean.attrparams.VolumeParams;
 
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 
@@ -214,13 +222,82 @@ public class MqttCommandFactory {
 
     /**
      * 设置锁的属性
-     * @param wifiID
-     * @param bean
-     * @return
      */
-    public static MqttMessage setLockAttr(String wifiID, BaseParamsBean bean, byte[] pwd) {
+    public static MqttMessage setLockAttr(String wifiID, AmModeParams bean, byte[] pwd) {
         int messageId = getMessageId();
-        WifiLockSetLockAttrPublishBean wifiLockSetLockAttrPublishBean = new WifiLockSetLockAttrPublishBean(
+        WifiLockSetLockAttrAmModePublishBean wifiLockSetLockAttrPublishBean = new WifiLockSetLockAttrAmModePublishBean(
+                MqttConstant.MSG_TYPE_REQUEST,
+                messageId,
+                App.getInstance().getUserBean().getUid(),
+                wifiID,
+                MqttConstant.SET_LOCK_ATTR,
+                bean,
+                (System.currentTimeMillis()/1000) + "");
+        String base64Json = getEncryptString(pwd, wifiLockSetLockAttrPublishBean);
+        return sendEncryptData(messageId, wifiID, base64Json);
+
+    }
+
+    /**
+     * 设置锁的属性
+     */
+    public static MqttMessage setLockAttr(String wifiID, AutoLockTimeParams bean, byte[] pwd) {
+        int messageId = getMessageId();
+        WifiLockSetLockAttrAutoLockTimePublishBean wifiLockSetLockAttrPublishBean = new WifiLockSetLockAttrAutoLockTimePublishBean(
+                MqttConstant.MSG_TYPE_REQUEST,
+                messageId,
+                App.getInstance().getUserBean().getUid(),
+                wifiID,
+                MqttConstant.SET_LOCK_ATTR,
+                bean,
+                (System.currentTimeMillis()/1000) + "");
+        String base64Json = getEncryptString(pwd, wifiLockSetLockAttrPublishBean);
+        return sendEncryptData(messageId, wifiID, base64Json);
+
+    }
+
+    /**
+     * 设置锁的属性
+     */
+    public static MqttMessage setLockAttr(String wifiID, DuressParams bean, byte[] pwd) {
+        int messageId = getMessageId();
+        WifiLockSetLockAttrDuressPublishBean wifiLockSetLockAttrPublishBean = new WifiLockSetLockAttrDuressPublishBean(
+                MqttConstant.MSG_TYPE_REQUEST,
+                messageId,
+                App.getInstance().getUserBean().getUid(),
+                wifiID,
+                MqttConstant.SET_LOCK_ATTR,
+                bean,
+                (System.currentTimeMillis()/1000) + "");
+        String base64Json = getEncryptString(pwd, wifiLockSetLockAttrPublishBean);
+        return sendEncryptData(messageId, wifiID, base64Json);
+
+    }
+
+    /**
+     * 设置锁的属性
+     */
+    public static MqttMessage setLockAttr(String wifiID, ElecFenceSensitivityParams bean, byte[] pwd) {
+        int messageId = getMessageId();
+        WifiLockSetLockAttrSensitivityPublishBean wifiLockSetLockAttrPublishBean = new WifiLockSetLockAttrSensitivityPublishBean(
+                MqttConstant.MSG_TYPE_REQUEST,
+                messageId,
+                App.getInstance().getUserBean().getUid(),
+                wifiID,
+                MqttConstant.SET_LOCK_ATTR,
+                bean,
+                (System.currentTimeMillis()/1000) + "");
+        String base64Json = getEncryptString(pwd, wifiLockSetLockAttrPublishBean);
+        return sendEncryptData(messageId, wifiID, base64Json);
+
+    }
+
+    /**
+     * 设置锁的属性
+     */
+    public static MqttMessage setLockAttr(String wifiID, VolumeParams bean, byte[] pwd) {
+        int messageId = getMessageId();
+        WifiLockSetLockAttrVolumePublishBean wifiLockSetLockAttrPublishBean = new WifiLockSetLockAttrVolumePublishBean(
                 MqttConstant.MSG_TYPE_REQUEST,
                 messageId,
                 App.getInstance().getUserBean().getUid(),

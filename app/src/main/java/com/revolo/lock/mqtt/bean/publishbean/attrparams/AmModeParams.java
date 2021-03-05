@@ -6,7 +6,7 @@ package com.revolo.lock.mqtt.bean.publishbean.attrparams;
  * E-mail : wengmaowei@kaadas.com
  * desc   :
  */
-public class AmModeParams extends BaseParamsBean {
+public class AmModeParams {
 
     private int amMode;          // 0自动模式 1手动模式
 

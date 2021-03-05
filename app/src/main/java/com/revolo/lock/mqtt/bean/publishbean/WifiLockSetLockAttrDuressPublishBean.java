@@ -1,24 +1,22 @@
-package com.revolo.lock.mqtt.bean.publishresultbean;
+package com.revolo.lock.mqtt.bean.publishbean;
 
-import com.revolo.lock.mqtt.bean.publishbean.attrparams.VolumeParams;
+import com.revolo.lock.mqtt.bean.publishbean.attrparams.DuressParams;
 
 /**
  * author :
- * time   : 2021/3/4
+ * time   : 2021/3/2
  * E-mail : wengmaowei@kaadas.com
  * desc   :
  */
-public class WifiLockSetLockAttrVolumeRspBean {
+public class WifiLockSetLockAttrDuressPublishBean {
 
 
     /**
-     * msgtype : respone
+     * msgtype : request
      * msgId : 4
      * userId : 5cad4509dc938989e2f542c8
      * wfId : WF123456789
      * func : setLockAttr
-     * code : 200
-     * params : {}
      * timestamp : 13433333333
      */
 
@@ -27,9 +25,18 @@ public class WifiLockSetLockAttrVolumeRspBean {
     private String userId;
     private String wfId;
     private String func;
-    private int code;
-    private VolumeParams params;
+    private DuressParams duress;
     private String timestamp;
+
+    public WifiLockSetLockAttrDuressPublishBean(String msgtype, int msgId, String userId, String wfId, String func, DuressParams duressParams, String timestamp) {
+        this.msgtype = msgtype;
+        this.msgId = msgId;
+        this.userId = userId;
+        this.wfId = wfId;
+        this.func = func;
+        duress = duressParams;
+        this.timestamp = timestamp;
+    }
 
     public String getMsgtype() {
         return msgtype;
@@ -71,20 +78,12 @@ public class WifiLockSetLockAttrVolumeRspBean {
         this.func = func;
     }
 
-    public int getCode() {
-        return code;
+    public DuressParams getDuress() {
+        return duress;
     }
 
-    public void setCode(int code) {
-        this.code = code;
-    }
-
-    public VolumeParams getParams() {
-        return params;
-    }
-
-    public void setParams(VolumeParams params) {
-        this.params = params;
+    public void setDuress(DuressParams duress) {
+        this.duress = duress;
     }
 
     public String getTimestamp() {
@@ -93,8 +92,5 @@ public class WifiLockSetLockAttrVolumeRspBean {
 
     public void setTimestamp(String timestamp) {
         this.timestamp = timestamp;
-    }
-
-    public static class ParamsBean {
     }
 }
