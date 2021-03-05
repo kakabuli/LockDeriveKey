@@ -41,7 +41,6 @@ import com.revolo.lock.net.HttpRequest;
 import com.revolo.lock.net.ObservableDecorator;
 import com.revolo.lock.room.AppDatabase;
 import com.revolo.lock.room.entity.BleDeviceLocal;
-import com.revolo.lock.dialog.iosloading.CustomerLoadingDialog;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -65,7 +64,6 @@ public class DeviceSettingActivity extends BaseActivity {
 
     private TextView mTvName, mTvWifiName;
     private DeviceUnbindBeanReq mReq;
-    private CustomerLoadingDialog mLoadingDialog;
     private ImageView mIvMuteEnable, mIvDoorMagneticSwitchEnable, mIvDoNotDisturbModeEnable;
     private BleDeviceLocal mBleDeviceLocal;
 
@@ -356,31 +354,6 @@ public class DeviceSettingActivity extends BaseActivity {
         // TODO: 2021/2/8 查询一下当前设置
     }
 
-    private void dismissLoading() {
-        runOnUiThread(() -> {
-            if(mLoadingDialog != null) {
-                mLoadingDialog.dismiss();
-            }
-        });
-    }
-
-    // TODO: 2021/3/4 修改抽离文字
-    private void showLoading(@NotNull String message) {
-        runOnUiThread(() -> {
-            if(mLoadingDialog != null) {
-                if(mLoadingDialog.isShowing()) {
-                    mLoadingDialog.dismiss();
-                }
-            }
-            // TODO: 2021/2/25 抽离文字
-            mLoadingDialog = new CustomerLoadingDialog.Builder(this)
-                    .setMessage(message)
-                    .setCancelable(true)
-                    .setCancelOutside(false)
-                    .create();
-            mLoadingDialog.show();
-        });
-    }
 
     /**
      * 设置是否静音

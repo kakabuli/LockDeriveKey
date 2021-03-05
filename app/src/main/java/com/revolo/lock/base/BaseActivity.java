@@ -19,6 +19,8 @@ import com.revolo.lock.R;
 import com.revolo.lock.dialog.iosloading.CustomerLoadingDialog;
 import com.revolo.lock.ui.TitleBar;
 
+import org.jetbrains.annotations.NotNull;
+
 /**
  * <pre>
  *     author: Blankj
@@ -89,6 +91,24 @@ public abstract class BaseActivity extends AppCompatActivity
                 .setCancelable(true)
                 .setCancelOutside(false)
                 .create();
+    }
+
+    // TODO: 2021/3/4 修改抽离文字
+    public void showLoading(@NotNull String message) {
+        runOnUiThread(() -> {
+            if(mLoadingDialog != null) {
+                if(mLoadingDialog.isShowing()) {
+                    mLoadingDialog.dismiss();
+                }
+            }
+            // TODO: 2021/2/25 抽离文字
+            mLoadingDialog = new CustomerLoadingDialog.Builder(this)
+                    .setMessage(message)
+                    .setCancelable(true)
+                    .setCancelOutside(false)
+                    .create();
+            mLoadingDialog.show();
+        });
     }
 
     public void showLoading() {

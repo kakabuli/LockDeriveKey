@@ -115,9 +115,14 @@ public class DeviceFragment extends Fragment {
 
         initBaseData();
         // TODO: 2021/3/4 按列表来处理
-        if(mBleDeviceLocals.get(0).getConnectedType() != LocalState.DEVICE_CONNECT_TYPE_WIFI) {
+        if(mBleDeviceLocals == null || mBleDeviceLocals.isEmpty()) {
             initBleListener();
             initData(mBleDeviceLocals);
+        } else {
+            if(mBleDeviceLocals.get(0).getConnectedType() != LocalState.DEVICE_CONNECT_TYPE_WIFI) {
+                initBleListener();
+                initData(mBleDeviceLocals);
+            }
         }
         return root;
     }

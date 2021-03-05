@@ -212,6 +212,11 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
             @Override
             public void onNext(@NonNull GetPwd1BeanRsp getPwd1BeanRsp) {
                 // TODO: 2021/1/26 添加错误操作
+                if(!getPwd1BeanRsp.getCode().equals("200")) {
+                    Timber.e("getPwd1FromNet code: %1s, msg: %2s", getPwd1BeanRsp.getCode(), getPwd1BeanRsp.getMsg());
+                    gotoBleConnectFail();
+                    return;
+                }
                 if(getPwd1BeanRsp.getData() == null) {
                     Timber.e("getPwd1FromNet getPwd1BeanRsp.getData() == null");
                     gotoBleConnectFail();
