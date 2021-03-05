@@ -2,6 +2,7 @@ package com.revolo.lock.ui.device.lock.setting;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.SeekBar;
@@ -12,8 +13,11 @@ import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
 
 import com.blankj.utilcode.util.ConvertUtils;
+import com.blankj.utilcode.util.GsonUtils;
+import com.google.gson.JsonSyntaxException;
 import com.revolo.lock.App;
 import com.revolo.lock.Constant;
+import com.revolo.lock.LocalState;
 import com.revolo.lock.R;
 import com.revolo.lock.base.BaseActivity;
 import com.revolo.lock.ble.BleByteUtil;
@@ -21,12 +25,27 @@ import com.revolo.lock.ble.BleCommandFactory;
 import com.revolo.lock.ble.BleResultProcess;
 import com.revolo.lock.ble.OnBleDeviceListener;
 import com.revolo.lock.ble.bean.BleResultBean;
+import com.revolo.lock.mqtt.MqttCommandFactory;
+import com.revolo.lock.mqtt.MqttConstant;
+import com.revolo.lock.mqtt.bean.MqttData;
+import com.revolo.lock.mqtt.bean.publishbean.attrparams.AmModeParams;
+import com.revolo.lock.mqtt.bean.publishbean.attrparams.AutoLockTimeParams;
+import com.revolo.lock.mqtt.bean.publishresultbean.WifiLockSetLockAttrAutoRspBean;
+import com.revolo.lock.mqtt.bean.publishresultbean.WifiLockSetLockAttrAutoTimeRspBean;
 import com.revolo.lock.room.AppDatabase;
 import com.revolo.lock.room.entity.BleDeviceLocal;
 
+import org.jetbrains.annotations.NotNull;
+
+import java.util.concurrent.TimeUnit;
+
+import io.reactivex.Observer;
+import io.reactivex.disposables.Disposable;
 import timber.log.Timber;
 
+import static com.revolo.lock.Constant.DEFAULT_TIMEOUT_SEC_VALUE;
 import static com.revolo.lock.ble.BleProtocolState.CMD_LOCK_PARAMETER_CHANGED;
+import static com.revolo.lock.ble.BleProtocolState.CMD_SET_AUTO_LOCK_TIME;
 
 /**
  * author : Jack
@@ -42,7 +61,6 @@ public class AutoLockActivity extends BaseActivity {
     private ImageView mIvDetectionLockEnable, mIvAutoLockEnable;
     private ConstraintLayout mClSetLockTime;
     private BleDeviceLocal mBleDeviceLocal;
-
 
     @Override
     public void initData(@Nullable Bundle bundle) {
@@ -73,6 +91,7 @@ public class AutoLockActivity extends BaseActivity {
         mIvAutoLockEnable = findViewById(R.id.ivAutoLockEnable);
         mIvDetectionLockEnable = findViewById(R.id.ivDetectionLockEnable);
         applyDebouncingClickListener(mIvAutoLockEnable, mIvDetectionLockEnable);
+        initLoading("Setting...");
         mSeekBar.setMax(140);
         mSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
@@ -90,19 +109,25 @@ public class AutoLockActivity extends BaseActivity {
                 stopTrackingTouch(seekBar);
             }
         });
-
+        mTime = mBleDeviceLocal.getSetAutoLockTime();
         initUI();
     }
 
     @Override
     public void doBusiness() {
-        initBleListener();
+        if(mBleDeviceLocal.getConnectedType() != LocalState.DEVICE_CONNECT_TYPE_WIFI) {
+            initBleListener();
+        }
     }
 
     @Override
     public void onDebouncingClick(@NonNull View view) {
         if(view.getId() == R.id.ivAutoLockEnable) {
-            openOrCloseAutoLock();
+            if(mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI) {
+                publishOpenOrCloseAutoLock(mBleDeviceLocal.getEsn());
+            } else {
+                openOrCloseAutoLock();
+            }
             return;
         }
         if(view.getId() == R.id.ivDetectionLockEnable) {
@@ -118,8 +143,140 @@ public class AutoLockActivity extends BaseActivity {
             mClSetLockTime.setVisibility(mBleDeviceLocal.isAutoLock()?View.VISIBLE:View.GONE);
             mIvDetectionLockEnable
                     .setImageResource(mBleDeviceLocal.isDetectionLock()?R.drawable.ic_icon_switch_open:R.drawable.ic_icon_switch_close);
+            mSeekBar.setProgress(getProgressFromTime(mBleDeviceLocal.getSetAutoLockTime()));
         });
 
+    }
+
+    private void publishOpenOrCloseAutoLock(String wifiID) {
+        @LocalState.AutoState int auto = mBleDeviceLocal.isAutoLock()?LocalState.AUTO_STATE_CLOSE:LocalState.AUTO_STATE_OPEN;
+        showLoading();
+        AmModeParams amModeParams = new AmModeParams();
+        amModeParams.setAmMode(auto);
+        App.getInstance().getMqttService().mqttPublish(MqttConstant.getCallTopic(App.getInstance().getUserBean().getUid()),
+                MqttCommandFactory.setLockAttr(wifiID, amModeParams,
+                        BleCommandFactory.getPwd(
+                                ConvertUtils.hexString2Bytes(mBleDeviceLocal.getPwd1()),
+                                ConvertUtils.hexString2Bytes(mBleDeviceLocal.getPwd2()))))
+                .timeout(DEFAULT_TIMEOUT_SEC_VALUE, TimeUnit.SECONDS)
+                .safeSubscribe(new Observer<MqttData>() {
+                    @Override
+                    public void onSubscribe(@NotNull Disposable d) {
+
+                    }
+
+                    @Override
+                    public void onNext(@NotNull MqttData mqttData) {
+                        dismissLoading();
+                        if(TextUtils.isEmpty(mqttData.getFunc())) {
+                            Timber.e("publishOpenOrCloseAutoLock mqttData.getFunc() is empty");
+                            return;
+                        }
+                        if(mqttData.getFunc().equals(MqttConstant.SET_LOCK_ATTR)) {
+                            Timber.d("publishOpenOrCloseAutoLock 设置属性: %1s", mqttData);
+                            WifiLockSetLockAttrAutoRspBean bean;
+                            try {
+                                bean = GsonUtils.fromJson(mqttData.getPayload(), WifiLockSetLockAttrAutoRspBean.class);
+                            } catch (JsonSyntaxException e) {
+                                Timber.e(e);
+                                return;
+                            }
+                            if(bean == null) {
+                                Timber.e("publishOpenOrCloseAutoLock bean == null");
+                                return;
+                            }
+                            if(bean.getParams() == null) {
+                                Timber.e("publishOpenOrCloseAutoLock bean.getParams() == null");
+                                return;
+                            }
+                            if(bean.getCode() != 200) {
+                                Timber.e("publishOpenOrCloseAutoLock code : %1d", bean.getCode());
+                                return;
+                            }
+                            saveAutoLockStateToLocal();
+                            initUI();
+                        }
+                        Timber.d("publishOpenOrCloseAutoLock %1s", mqttData.toString());
+                    }
+
+                    @Override
+                    public void onError(@NotNull Throwable e) {
+                        // TODO: 2021/3/3 错误处理
+                        // 超时或者其他错误
+                        dismissLoading();
+                        Timber.e(e);
+                    }
+
+                    @Override
+                    public void onComplete() {
+
+                    }
+                });
+    }
+
+    private void publishAutoLockTime(String wifiID, int time) {
+        showLoading();
+        AutoLockTimeParams autoLockTimeParams = new AutoLockTimeParams();
+        autoLockTimeParams.setAutoLockTime(time);
+        App.getInstance().getMqttService().mqttPublish(MqttConstant.getCallTopic(App.getInstance().getUserBean().getUid()),
+                MqttCommandFactory.setLockAttr(wifiID, autoLockTimeParams,
+                        BleCommandFactory.getPwd(
+                                ConvertUtils.hexString2Bytes(mBleDeviceLocal.getPwd1()),
+                                ConvertUtils.hexString2Bytes(mBleDeviceLocal.getPwd2()))))
+                .timeout(DEFAULT_TIMEOUT_SEC_VALUE, TimeUnit.SECONDS)
+                .safeSubscribe(new Observer<MqttData>() {
+                    @Override
+                    public void onSubscribe(@NotNull Disposable d) {
+
+                    }
+
+                    @Override
+                    public void onNext(@NotNull MqttData mqttData) {
+                        dismissLoading();
+                        if(TextUtils.isEmpty(mqttData.getFunc())) {
+                            Timber.e("publishAutoLockTime mqttData.getFunc() is empty");
+                            return;
+                        }
+                        if(mqttData.getFunc().equals(MqttConstant.SET_LOCK_ATTR)) {
+                            Timber.d("publishAutoLockTime 设置属性: %1s", mqttData);
+                            WifiLockSetLockAttrAutoTimeRspBean bean;
+                            try {
+                                bean = GsonUtils.fromJson(mqttData.getPayload(), WifiLockSetLockAttrAutoTimeRspBean.class);
+                            } catch (JsonSyntaxException e) {
+                                Timber.e(e);
+                                return;
+                            }
+                            if(bean == null) {
+                                Timber.e("publishAutoLockTime bean == null");
+                                return;
+                            }
+                            if(bean.getParams() == null) {
+                                Timber.e("publishAutoLockTime bean.getParams() == null");
+                                return;
+                            }
+                            if(bean.getCode() != 200) {
+                                Timber.e("publishAutoLockTime code : %1d", bean.getCode());
+                                return;
+                            }
+                            saveAutoLockTimeToLocal();
+                            initUI();
+                        }
+                        Timber.d("publishAutoLockTime %1s", mqttData.toString());
+                    }
+
+                    @Override
+                    public void onError(@NotNull Throwable e) {
+                        // TODO: 2021/3/3 错误处理
+                        // 超时或者其他错误
+                        dismissLoading();
+                        Timber.e(e);
+                    }
+
+                    @Override
+                    public void onComplete() {
+
+                    }
+                });
     }
 
     private void openOrCloseDetectionLock() {
@@ -142,66 +299,91 @@ public class AutoLockActivity extends BaseActivity {
     private void stopTrackingTouch(SeekBar seekBar) {
         int progress = seekBar.getProgress();
         if(progress >= 0 && progress < 10) {
-            mSeekBar.setProgress(0);
             mTvTime.setText("0s");
             mTime = 0;
         } else if(progress >= 10 && progress < 20) {
-            mSeekBar.setProgress(10);
             mTvTime.setText("5s");
             mTime = 5;
         } else if(progress >= 20 && progress < 30) {
-            mSeekBar.setProgress(20);
             mTvTime.setText("10s");
             mTime = 10;
         } else if(progress >= 30 && progress < 40) {
-            mSeekBar.setProgress(30);
             mTvTime.setText("15s");
             mTime = 15;
         } else if(progress >= 40 && progress < 50) {
-            mSeekBar.setProgress(40);
             mTvTime.setText("20s");
             mTime = 20;
         } else if(progress >= 50 && progress < 60) {
-            mSeekBar.setProgress(50);
             mTvTime.setText("25s");
             mTime = 25;
         } else if(progress >= 60 && progress < 70) {
-            mSeekBar.setProgress(60);
             mTvTime.setText("30s");
             mTime = 30;
         } else if(progress >= 70 && progress < 80) {
-            mSeekBar.setProgress(70);
             mTvTime.setText("1min");
             mTime = 60;
         } else if(progress >= 80 && progress < 90) {
-            mSeekBar.setProgress(80);
             mTvTime.setText("2min");
-            mTime = 120;
+            mTime = 2*60;
         } else if(progress >= 90 && progress < 100) {
-            mSeekBar.setProgress(90);
             mTvTime.setText("5min");
-            mTime = 300;
+            mTime = 5*60;
         } else if(progress >= 100 && progress < 110) {
-            mSeekBar.setProgress(100);
             mTvTime.setText("10min");
-            mTime = 600;
+            mTime = 10*60;
         } else if(progress >= 110 && progress < 120) {
-            mSeekBar.setProgress(110);
             mTvTime.setText("15min");
-            mTime = 900;
+            mTime = 15*60;
         } else if(progress >= 120 && progress < 130) {
-            mSeekBar.setProgress(130);
             mTvTime.setText("20min");
-            mTime = 1200;
+            mTime = 20*60;
         } else if(progress >= 130 && progress < 140) {
-            mSeekBar.setProgress(130);
             mTvTime.setText("30min");
-            mTime = 1800;
+            mTime = 30*60;
         }
-        App.getInstance().writeControlMsg(BleCommandFactory
-                .setAutoLockTime(mTime,
-                        App.getInstance().getBleBean().getPwd1(),
-                        App.getInstance().getBleBean().getPwd3()));
+        if(mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI) {
+            publishAutoLockTime(mBleDeviceLocal.getEsn(), mTime);
+        } else {
+            App.getInstance().writeControlMsg(BleCommandFactory
+                    .setAutoLockTime(mTime,
+                            App.getInstance().getBleBean().getPwd1(),
+                            App.getInstance().getBleBean().getPwd3()));
+        }
+    }
+
+    private int getProgressFromTime(int time) {
+        switch (time) {
+            case 0:
+                return 1;
+            case 5:
+                return 15;
+            case 10:
+                return 25;
+            case 15:
+                return 35;
+            case 20:
+                return 45;
+            case 25:
+                return 55;
+            case 30:
+                return 65;
+            case 60:
+                return 75;
+            case 2*60:
+                return 85;
+            case 5*60:
+                return 95;
+            case 10*60:
+                return 105;
+            case 15*60:
+                return 115;
+            case 20*60:
+                return 125;
+            case 30*60:
+                return 140;
+            default:
+                return 0;
+        }
     }
 
     private void progressChange(int progress) {
@@ -284,18 +466,39 @@ public class AutoLockActivity extends BaseActivity {
     private void processBleResult(BleResultBean bean) {
         if(bean.getCMD() == CMD_LOCK_PARAMETER_CHANGED) {
             processAutoLock(bean);
+        } else if(bean.getCMD() == CMD_SET_AUTO_LOCK_TIME) {
+            processAutoLockTime(bean);
         }
     }
 
     private void processAutoLock(BleResultBean bean) {
         byte state = bean.getPayload()[0];
         if(state == 0x00) {
-            mBleDeviceLocal.setAutoLock(!mBleDeviceLocal.isAutoLock());
-            AppDatabase.getInstance(this).bleDeviceDao().update(mBleDeviceLocal);
+            saveAutoLockStateToLocal();
             initUI();
         } else {
             Timber.e("处理失败原因 state：%1s", ConvertUtils.int2HexString(BleByteUtil.byteToInt(state)));
         }
+    }
+
+    private void saveAutoLockStateToLocal() {
+        mBleDeviceLocal.setAutoLock(!mBleDeviceLocal.isAutoLock());
+        AppDatabase.getInstance(this).bleDeviceDao().update(mBleDeviceLocal);
+    }
+
+    private void processAutoLockTime(BleResultBean bean) {
+        byte state = bean.getPayload()[0];
+        if(state == 0x00) {
+            saveAutoLockTimeToLocal();
+            initUI();
+        } else {
+            Timber.e("处理失败原因 state：%1s", ConvertUtils.int2HexString(BleByteUtil.byteToInt(state)));
+        }
+    }
+
+    private void saveAutoLockTimeToLocal() {
+        mBleDeviceLocal.setSetAutoLockTime(mTime);
+        AppDatabase.getInstance(this).bleDeviceDao().update(mBleDeviceLocal);
     }
 
 }
