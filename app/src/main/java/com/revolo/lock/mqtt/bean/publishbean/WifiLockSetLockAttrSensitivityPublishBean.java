@@ -25,7 +25,7 @@ public class WifiLockSetLockAttrSensitivityPublishBean {
     private String userId;
     private String wfId;
     private String func;
-    private ElecFenceSensitivityParams elecFenceSensitivity;
+    private ElecFenceSensitivityParams params;
     private String timestamp;
 
     public WifiLockSetLockAttrSensitivityPublishBean(String msgtype, int msgId, String userId, String wfId, String func, ElecFenceSensitivityParams elecFenceSensitivityParams, String timestamp) {
@@ -34,7 +34,7 @@ public class WifiLockSetLockAttrSensitivityPublishBean {
         this.userId = userId;
         this.wfId = wfId;
         this.func = func;
-        elecFenceSensitivity = elecFenceSensitivityParams;
+        params = elecFenceSensitivityParams;
         this.timestamp = timestamp;
     }
 
@@ -78,12 +78,12 @@ public class WifiLockSetLockAttrSensitivityPublishBean {
         this.func = func;
     }
 
-    public ElecFenceSensitivityParams getElecFenceSensitivity() {
-        return elecFenceSensitivity;
+    public ElecFenceSensitivityParams getParams() {
+        return params;
     }
 
-    public void setElecFenceSensitivity(ElecFenceSensitivityParams elecFenceSensitivity) {
-        this.elecFenceSensitivity = elecFenceSensitivity;
+    public void setParams(ElecFenceSensitivityParams params) {
+        this.params = params;
     }
 
     public String getTimestamp() {

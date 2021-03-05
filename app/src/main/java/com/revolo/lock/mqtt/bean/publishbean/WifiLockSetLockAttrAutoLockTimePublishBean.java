@@ -25,7 +25,7 @@ public class WifiLockSetLockAttrAutoLockTimePublishBean {
     private String userId;
     private String wfId;
     private String func;
-    private AutoLockTimeParams autoLockTime;
+    private AutoLockTimeParams params;
     private String timestamp;
 
     public WifiLockSetLockAttrAutoLockTimePublishBean(String msgtype, int msgId, String userId, String wfId, String func, AutoLockTimeParams baseParamsBean, String timestamp) {
@@ -34,7 +34,7 @@ public class WifiLockSetLockAttrAutoLockTimePublishBean {
         this.userId = userId;
         this.wfId = wfId;
         this.func = func;
-        autoLockTime = baseParamsBean;
+        params = baseParamsBean;
         this.timestamp = timestamp;
     }
 
@@ -78,12 +78,12 @@ public class WifiLockSetLockAttrAutoLockTimePublishBean {
         this.func = func;
     }
 
-    public AutoLockTimeParams getAutoLockTime() {
-        return autoLockTime;
+    public AutoLockTimeParams getParams() {
+        return params;
     }
 
-    public void setAutoLockTime(AutoLockTimeParams autoLockTime) {
-        this.autoLockTime = autoLockTime;
+    public void setParams(AutoLockTimeParams params) {
+        this.params = params;
     }
 
     public String getTimestamp() {

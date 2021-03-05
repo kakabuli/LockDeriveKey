@@ -25,7 +25,7 @@ public class WifiLockSetLockAttrAmModePublishBean {
     private String userId;
     private String wfId;
     private String func;
-    private AmModeParams amMode;
+    private AmModeParams params;
     private String timestamp;
 
     public WifiLockSetLockAttrAmModePublishBean(String msgtype, int msgId, String userId, String wfId, String func, AmModeParams amModeParams, String timestamp) {
@@ -34,7 +34,7 @@ public class WifiLockSetLockAttrAmModePublishBean {
         this.userId = userId;
         this.wfId = wfId;
         this.func = func;
-        amMode = amModeParams;
+        params = amModeParams;
         this.timestamp = timestamp;
     }
 
@@ -78,12 +78,12 @@ public class WifiLockSetLockAttrAmModePublishBean {
         this.func = func;
     }
 
-    public AmModeParams getAmMode() {
-        return amMode;
+    public AmModeParams getParams() {
+        return params;
     }
 
-    public void setAmMode(AmModeParams amMode) {
-        this.amMode = amMode;
+    public void setParams(AmModeParams params) {
+        this.params = params;
     }
 
     public String getTimestamp() {

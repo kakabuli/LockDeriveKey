@@ -25,7 +25,7 @@ public class WifiLockSetLockAttrDuressPublishBean {
     private String userId;
     private String wfId;
     private String func;
-    private DuressParams duress;
+    private DuressParams params;
     private String timestamp;
 
     public WifiLockSetLockAttrDuressPublishBean(String msgtype, int msgId, String userId, String wfId, String func, DuressParams duressParams, String timestamp) {
@@ -34,7 +34,7 @@ public class WifiLockSetLockAttrDuressPublishBean {
         this.userId = userId;
         this.wfId = wfId;
         this.func = func;
-        duress = duressParams;
+        params = duressParams;
         this.timestamp = timestamp;
     }
 
@@ -78,12 +78,12 @@ public class WifiLockSetLockAttrDuressPublishBean {
         this.func = func;
     }
 
-    public DuressParams getDuress() {
-        return duress;
+    public DuressParams getParams() {
+        return params;
     }
 
-    public void setDuress(DuressParams duress) {
-        this.duress = duress;
+    public void setParams(DuressParams params) {
+        this.params = params;
     }
 
     public String getTimestamp() {

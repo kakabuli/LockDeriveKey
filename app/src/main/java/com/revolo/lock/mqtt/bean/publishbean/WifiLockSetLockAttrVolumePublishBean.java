@@ -25,7 +25,7 @@ public class WifiLockSetLockAttrVolumePublishBean {
     private String userId;
     private String wfId;
     private String func;
-    private VolumeParams volume;
+    private VolumeParams params;
     private String timestamp;
 
     public WifiLockSetLockAttrVolumePublishBean(String msgtype, int msgId, String userId, String wfId, String func, VolumeParams volumeParams, String timestamp) {
@@ -34,7 +34,7 @@ public class WifiLockSetLockAttrVolumePublishBean {
         this.userId = userId;
         this.wfId = wfId;
         this.func = func;
-        volume = volumeParams;
+        params = volumeParams;
         this.timestamp = timestamp;
     }
 
@@ -78,12 +78,12 @@ public class WifiLockSetLockAttrVolumePublishBean {
         this.func = func;
     }
 
-    public VolumeParams getVolume() {
-        return volume;
+    public VolumeParams getParams() {
+        return params;
     }
 
-    public void setVolume(VolumeParams volume) {
-        this.volume = volume;
+    public void setParams(VolumeParams params) {
+        this.params = params;
     }
 
     public String getTimestamp() {
