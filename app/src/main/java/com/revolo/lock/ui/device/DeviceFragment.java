@@ -18,6 +18,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.a1anwang.okble.client.scan.BLEScanResult;
 import com.blankj.utilcode.util.ConvertUtils;
+import com.blankj.utilcode.util.GsonUtils;
+import com.google.gson.JsonSyntaxException;
 import com.revolo.lock.App;
 import com.revolo.lock.Constant;
 import com.revolo.lock.LocalState;
@@ -34,6 +36,7 @@ import com.revolo.lock.dialog.iosloading.CustomerLoadingDialog;
 import com.revolo.lock.mqtt.MqttCommandFactory;
 import com.revolo.lock.mqtt.MqttConstant;
 import com.revolo.lock.mqtt.bean.MqttData;
+import com.revolo.lock.mqtt.bean.publishresultbean.WifiLockDoorOptResponseBean;
 import com.revolo.lock.mqtt.bean.publishresultbean.WifiLockGetAllBindDeviceRspBean;
 import com.revolo.lock.room.AppDatabase;
 import com.revolo.lock.room.entity.BleDeviceLocal;
@@ -103,7 +106,10 @@ public class DeviceFragment extends Fragment {
                         App.getInstance().writeControlMsg(BleCommandFactory
                                 .lockControlCommand((byte) (state==1?LOCK_SETTING_CLOSE:LOCK_SETTING_OPEN), (byte) 0x04, (byte) 0x01, mBleBean.getPwd1(), mBleBean.getPwd3()));
                     } else if(mBleDeviceLocals.get(0).getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI) {
-                        publishOpenOrCloseDoor(mHomeLockListAdapter.getItem(position).getEsn(), state==1?1:0, App.getInstance().getRandomCode());
+                        publishOpenOrCloseDoor(
+                                mHomeLockListAdapter.getItem(position).getEsn(),
+                                state==LocalState.LOCK_STATE_OPEN?LocalState.DOOR_STATE_CLOSE:LocalState.DOOR_STATE_OPEN,
+                                App.getInstance().getRandomCode());
                     }
                 }
             });
@@ -221,18 +227,20 @@ public class DeviceFragment extends Fragment {
         }
         getActivity().runOnUiThread(() -> {
             if(bean.getPayload()[0] == 0x00) {
-                // 上锁
-                @LocalState.LockState int state = mHomeLockListAdapter.getData().get(0).getLockState();
-                if(state == LocalState.LOCK_STATE_OPEN) {
-                    state = LocalState .LOCK_STATE_CLOSE;
-                } else if(state == LocalState.LOCK_STATE_CLOSE) {
-                    state = LocalState.LOCK_STATE_OPEN;
-                }
-
-                setLockState(0, state);
+                refreshLockState();
             }
         });
 
+    }
+
+    private void refreshLockState() {
+        @LocalState.LockState int state = mHomeLockListAdapter.getData().get(0).getLockState();
+        if(state == LocalState.LOCK_STATE_OPEN) {
+            state = LocalState .LOCK_STATE_CLOSE;
+        } else if(state == LocalState.LOCK_STATE_CLOSE) {
+            state = LocalState.LOCK_STATE_OPEN;
+        }
+        setLockState(0, state);
     }
 
     private void lockUpdateInfo(BleResultBean bean) {
@@ -411,11 +419,10 @@ public class DeviceFragment extends Fragment {
      * @param wifiId wifi的id
      * @param doorOpt 1:表示开门，0表示关门
      */
-    public void publishOpenOrCloseDoor(String wifiId, int doorOpt, String randomCode) {
-        // TODO: 2021/2/6 发送开门或者关门的指令
-        if(doorOpt == 1) {
+    public void publishOpenOrCloseDoor(String wifiId, @LocalState.DoorState int doorOpt, String randomCode) {
+        if(doorOpt == LocalState.DOOR_STATE_OPEN) {
             showLoading("Lock Opening...");
-        } else if(doorOpt == 0) {
+        } else if(doorOpt == LocalState.DOOR_STATE_CLOSE) {
             showLoading("Lock Closing...");
         }
         App.getInstance().getMqttService().mqttPublish(MqttConstant.getCallTopic(App.getInstance().getUserBean().getUid()),
@@ -434,9 +441,29 @@ public class DeviceFragment extends Fragment {
                 }
                 // TODO: 2021/3/3 处理开关门的回调信息
                 if(mqttData.getFunc().equals(MqttConstant.SET_LOCK)) {
-                    Timber.d("开关门信息: %1s", mqttData);
+                    Timber.d("publishOpenOrCloseDoor 开关门信息: %1s", mqttData);
+                    WifiLockDoorOptResponseBean bean;
+                    try {
+                        bean = GsonUtils.fromJson(mqttData.getPayload(), WifiLockDoorOptResponseBean.class);
+                    } catch (JsonSyntaxException e) {
+                        Timber.e(e);
+                        return;
+                    }
+                    if(bean == null) {
+                        Timber.e("publishOpenOrCloseDoor bean == null");
+                        return;
+                    }
+                    if(bean.getParams() == null) {
+                        Timber.e("publishOpenOrCloseDoor bean.getParams() == null");
+                        return;
+                    }
+                    if(bean.getCode() != 200) {
+                        Timber.e("publishOpenOrCloseDoor code : %1d", bean.getCode());
+                        return;
+                    }
+                    refreshLockState();
                 }
-                Timber.d("%1s", mqttData.toString());
+                Timber.d("publishOpenOrCloseDoor %1s", mqttData.toString());
             }
 
             @Override

@@ -2,6 +2,7 @@ package com.revolo.lock.ui.device.lock;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -12,6 +13,8 @@ import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 
 import com.blankj.utilcode.util.ConvertUtils;
+import com.blankj.utilcode.util.GsonUtils;
+import com.google.gson.JsonSyntaxException;
 import com.revolo.lock.App;
 import com.revolo.lock.Constant;
 import com.revolo.lock.LocalState;
@@ -27,17 +30,21 @@ import com.revolo.lock.ble.bean.BleResultBean;
 import com.revolo.lock.mqtt.MqttCommandFactory;
 import com.revolo.lock.mqtt.MqttConstant;
 import com.revolo.lock.mqtt.bean.MqttData;
+import com.revolo.lock.mqtt.bean.publishresultbean.WifiLockDoorOptResponseBean;
+import com.revolo.lock.room.AppDatabase;
 import com.revolo.lock.room.entity.BleDeviceLocal;
 import com.revolo.lock.ui.device.lock.setting.DeviceSettingActivity;
 
 import org.jetbrains.annotations.NotNull;
 
 import java.nio.charset.StandardCharsets;
+import java.util.concurrent.TimeUnit;
 
 import io.reactivex.Observer;
 import io.reactivex.disposables.Disposable;
 import timber.log.Timber;
 
+import static com.revolo.lock.Constant.DEFAULT_TIMEOUT_SEC_VALUE;
 import static com.revolo.lock.ble.BleCommandState.LOCK_SETTING_CLOSE;
 import static com.revolo.lock.ble.BleCommandState.LOCK_SETTING_OPEN;
 
@@ -72,7 +79,9 @@ public class DeviceDetailActivity extends BaseActivity {
     public void initView(@Nullable Bundle savedInstanceState, @Nullable View contentView) {
         useCommonTitleBar("Homepage");
         initDevice();
-        initBleListener();
+        if(mBleDeviceLocal.getConnectedType() != LocalState.DEVICE_CONNECT_TYPE_WIFI) {
+            initBleListener();
+        }
     }
 
     @Override
@@ -212,17 +221,27 @@ public class DeviceDetailActivity extends BaseActivity {
         runOnUiThread(() -> {
             if(bean.getPayload()[0] == 0x00) {
                 // 上锁
-                @LocalState.LockState int state = mBleDeviceLocal.getLockState();
-                if(state == LocalState.LOCK_STATE_OPEN) {
-                    state = LocalState.LOCK_STATE_CLOSE;
-                } else if(state == LocalState.LOCK_STATE_CLOSE) {
-                    state = LocalState.LOCK_STATE_OPEN;
-                }
-                mBleDeviceLocal.setLockState(state);
+                refreshLockState();
                 initDevice();
             }
         });
 
+    }
+
+    private void refreshLockState() {
+        @LocalState.LockState int state = mBleDeviceLocal.getLockState();
+        if(state == LocalState.LOCK_STATE_OPEN) {
+            state = LocalState.LOCK_STATE_CLOSE;
+        } else if(state == LocalState.LOCK_STATE_CLOSE) {
+            state = LocalState.LOCK_STATE_OPEN;
+        }
+        mBleDeviceLocal.setLockState(state);
+        AppDatabase.getInstance(this).bleDeviceDao().update(mBleDeviceLocal);
+    }
+
+    private void setLockState(@LocalState.LockState int state) {
+        mBleDeviceLocal.setLockState(state);
+        AppDatabase.getInstance(this).bleDeviceDao().update(mBleDeviceLocal);
     }
 
     private void lockUpdateInfo(BleResultBean bean) {
@@ -243,11 +262,11 @@ public class DeviceDetailActivity extends BaseActivity {
             if(eventType == 0x01) {
                 if(eventSource == 0x01) {
                     // 上锁
-                    mBleDeviceLocal.setLockState(LocalState.LOCK_STATE_CLOSE);
+                    setLockState(LocalState.LOCK_STATE_CLOSE);
                     initDevice();
                 } else if(eventCode == 0x02) {
                     // 开锁
-                    mBleDeviceLocal.setLockState(LocalState.LOCK_STATE_OPEN);
+                    setLockState(LocalState.LOCK_STATE_OPEN);
                     initDevice();
                 } else {
                     // TODO: 2021/2/10 其他处理
@@ -304,35 +323,29 @@ public class DeviceDetailActivity extends BaseActivity {
     }
 
     private void openDoor() {
-        if(App.getInstance().getBleBean() == null) {
-            return;
-        }
-        if(App.getInstance().getBleBean().getPwd1() == null) {
-            return;
-        }
-        if(App.getInstance().getBleBean().getPwd2() == null) {
-            return;
-        }
-        if(App.getInstance().getBleBean().getPwd3() == null) {
-            return;
-        }
-        App.getInstance().writeControlMsg(BleCommandFactory
-                .lockControlCommand((byte) (mBleDeviceLocal.getLockState()==LocalState.LOCK_STATE_OPEN?LOCK_SETTING_CLOSE:LOCK_SETTING_OPEN),
-                        (byte) 0x04, (byte) 0x01, App.getInstance().getBleBean().getPwd1(), App.getInstance().getBleBean().getPwd3()));
-//        publishOpenOrCloseDoor(mWifiShowBean.getWifiListBean().getWifiSN(), mWifiShowBean.getDoorState()==1?1:0);
-    }
-
-    // TODO: 2021/2/6 后面想办法写的更好
-    private byte[] getPwd(byte[] pwd1, byte[] pwd2) {
-        byte[] pwd = new byte[16];
-        for (int i=0; i < pwd.length; i++) {
-            if(i <= 11) {
-                pwd[i]=pwd1[i];
-            } else {
-                pwd[i]=pwd2[i-12];
+        @LocalState.LockState int state = mBleDeviceLocal.getLockState();
+        if(mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI) {
+            publishOpenOrCloseDoor(
+                    mBleDeviceLocal.getEsn(),
+                    state==LocalState.LOCK_STATE_OPEN?LocalState.DOOR_STATE_CLOSE:LocalState.DOOR_STATE_OPEN,
+                    App.getInstance().getRandomCode());
+        } else {
+            if(App.getInstance().getBleBean() == null) {
+                return;
             }
+            if(App.getInstance().getBleBean().getPwd1() == null) {
+                return;
+            }
+            if(App.getInstance().getBleBean().getPwd2() == null) {
+                return;
+            }
+            if(App.getInstance().getBleBean().getPwd3() == null) {
+                return;
+            }
+            App.getInstance().writeControlMsg(BleCommandFactory
+                    .lockControlCommand((byte) (mBleDeviceLocal.getLockState()==LocalState.LOCK_STATE_OPEN?LOCK_SETTING_CLOSE:LOCK_SETTING_OPEN),
+                            (byte) 0x04, (byte) 0x01, App.getInstance().getBleBean().getPwd1(), App.getInstance().getBleBean().getPwd3()));
         }
-        return pwd;
     }
 
     /**
@@ -340,12 +353,18 @@ public class DeviceDetailActivity extends BaseActivity {
      * @param wifiId wifi的id
      * @param doorOpt 1:表示开门，0表示关门
      */
-    public void publishOpenOrCloseDoor(String wifiId, int doorOpt) {
-        // TODO: 2021/2/6 发送开门或者关门的指令
+    public void publishOpenOrCloseDoor(String wifiId, @LocalState.DoorState int doorOpt, String randomCode) {
+        if(doorOpt == LocalState.DOOR_STATE_OPEN) {
+            showLoading("Lock Opening...");
+        } else if(doorOpt == LocalState.DOOR_STATE_CLOSE) {
+            showLoading("Lock Closing...");
+        }
         App.getInstance().getMqttService().mqttPublish(MqttConstant.getCallTopic(App.getInstance().getUserBean().getUid()),
-                MqttCommandFactory.setLock(wifiId,doorOpt,
-                        getPwd(App.getInstance().getBleBean().getPwd1(), App.getInstance().getBleBean().getPwd2()), App.getInstance().getRandomCode()))
-                .subscribe(new Observer<MqttData>() {
+                MqttCommandFactory.setLock(wifiId,
+                        doorOpt,
+                        BleCommandFactory.getPwd(ConvertUtils.hexString2Bytes(mBleDeviceLocal.getPwd1()), ConvertUtils.hexString2Bytes(mBleDeviceLocal.getPwd2())),
+                        randomCode))
+                .timeout(DEFAULT_TIMEOUT_SEC_VALUE, TimeUnit.SECONDS).safeSubscribe(new Observer<MqttData>() {
             @Override
             public void onSubscribe(@NotNull Disposable d) {
 
@@ -353,14 +372,40 @@ public class DeviceDetailActivity extends BaseActivity {
 
             @Override
             public void onNext(@NotNull MqttData mqttData) {
-                if(mqttData.getFunc().equals("setLock")) {
-                    Timber.d("开关门信息: %1s", mqttData);
+                dismissLoading();
+                if(TextUtils.isEmpty(mqttData.getFunc())) {
+                    return;
                 }
-                Timber.d("%1s", mqttData.toString());
+                // TODO: 2021/3/3 处理开关门的回调信息
+                if(mqttData.getFunc().equals(MqttConstant.SET_LOCK)) {
+                    Timber.d("publishOpenOrCloseDoor 开关门信息: %1s", mqttData);
+                    WifiLockDoorOptResponseBean bean;
+                    try {
+                        bean = GsonUtils.fromJson(mqttData.getPayload(), WifiLockDoorOptResponseBean.class);
+                    } catch (JsonSyntaxException e) {
+                        Timber.e(e);
+                        return;
+                    }
+                    if(bean == null) {
+                        Timber.e("publishOpenOrCloseDoor bean == null");
+                        return;
+                    }
+                    if(bean.getParams() == null) {
+                        Timber.e("publishOpenOrCloseDoor bean.getParams() == null");
+                        return;
+                    }
+                    if(bean.getCode() != 200) {
+                        Timber.e("publishOpenOrCloseDoor code : %1d", bean.getCode());
+                        return;
+                    }
+                    refreshLockState();
+                }
+                Timber.d("publishOpenOrCloseDoor %1s", mqttData.toString());
             }
 
             @Override
             public void onError(@NotNull Throwable e) {
+                dismissLoading();
                 Timber.e(e);
             }
 

@@ -36,4 +36,9 @@ public class LocalState {
     public static final int AUTO_STATE_OPEN = 0x00;
     public static final int AUTO_STATE_CLOSE = 0x01;
 
+    @IntDef(value = {DOOR_STATE_OPEN, DOOR_STATE_CLOSE})
+    public @interface DoorState{}
+    public static final int DOOR_STATE_OPEN = 1;
+    public static final int DOOR_STATE_CLOSE = 0;
+
 }
