@@ -35,6 +35,7 @@ import com.revolo.lock.mqtt.MqttCommandFactory;
 import com.revolo.lock.mqtt.MqttConstant;
 import com.revolo.lock.mqtt.bean.MqttData;
 import com.revolo.lock.mqtt.bean.publishbean.attrparams.ElecFenceSensitivityParams;
+import com.revolo.lock.mqtt.bean.publishresultbean.WifiLockApproachOpenResponseBean;
 import com.revolo.lock.mqtt.bean.publishresultbean.WifiLockSetLockAttrSensitivityRspBean;
 import com.revolo.lock.room.AppDatabase;
 import com.revolo.lock.room.entity.BleDeviceLocal;
@@ -153,7 +154,8 @@ public class GeoFenceUnlockActivity extends BaseActivity implements OnMapReadyCa
     @Override
     public void onDebouncingClick(@NonNull View view) {
         if(view.getId() == R.id.ivGeoFenceUnlockEnable) {
-            // TODO: 2021/2/23 开关电子围栏
+            // TODO: 2021/2/23 开关电子围栏 TEST使用开启地理围栏开门
+            publishApproachOpen(mBleDeviceLocal.getEsn(), mBleDeviceLocal.getSetElectricFenceTime());
         }
     }
 
@@ -243,10 +245,10 @@ public class GeoFenceUnlockActivity extends BaseActivity implements OnMapReadyCa
         }
         // TODO: 2021/3/1 做这个操作意味着进行开门了
 //        if(isSendCommand) {
+//            // 固定3分钟
 //            App.getInstance()
 //                    .writeControlMsg(BleCommandFactory
 //                            .setKnockDoorAndUnlockTime(1,
-//                                    mTime,
 //                                    App.getInstance().getBleBean().getPwd1(),
 //                                    App.getInstance().getBleBean().getPwd3()));
 //        }
@@ -430,6 +432,67 @@ public class GeoFenceUnlockActivity extends BaseActivity implements OnMapReadyCa
                 });
     }
 
+    private void publishApproachOpen(String wifiID, int broadcastTime) {
+        showLoading();
+        App.getInstance().getMqttService().mqttPublish(MqttConstant.getCallTopic(App.getInstance().getUserBean().getUid()),
+                MqttCommandFactory.approachOpen(wifiID, broadcastTime,
+                        BleCommandFactory.getPwd(
+                                ConvertUtils.hexString2Bytes(mBleDeviceLocal.getPwd1()),
+                                ConvertUtils.hexString2Bytes(mBleDeviceLocal.getPwd2()))))
+                .timeout(DEFAULT_TIMEOUT_SEC_VALUE, TimeUnit.SECONDS)
+                .safeSubscribe(new Observer<MqttData>() {
+                    @Override
+                    public void onSubscribe(@NotNull Disposable d) {
+
+                    }
+
+                    @Override
+                    public void onNext(@NotNull MqttData mqttData) {
+                        dismissLoading();
+                        if(TextUtils.isEmpty(mqttData.getFunc())) {
+                            Timber.e("publishApproachOpen mqttData.getFunc() is empty");
+                            return;
+                        }
+                        if(mqttData.getFunc().equals(MqttConstant.APP_ROACHOPEN)) {
+                            Timber.d("publishApproachOpen 无感开门: %1s", mqttData);
+                            WifiLockApproachOpenResponseBean bean;
+                            try {
+                                bean = GsonUtils.fromJson(mqttData.getPayload(), WifiLockApproachOpenResponseBean.class);
+                            } catch (JsonSyntaxException e) {
+                                Timber.e(e);
+                                return;
+                            }
+                            if(bean == null) {
+                                Timber.e("publishApproachOpen bean == null");
+                                return;
+                            }
+                            if(bean.getParams() == null) {
+                                Timber.e("publishApproachOpen bean.getParams() == null");
+                                return;
+                            }
+                            if(bean.getCode() != 200) {
+                                Timber.e("publishApproachOpen code : %1d", bean.getCode());
+                                return;
+                            }
+                            // TODO: 2021/3/5 开启成功，然后开启蓝牙并不断搜索设备
+                        }
+                        Timber.d("publishApproachOpen %1s", mqttData.toString());
+                    }
+
+                    @Override
+                    public void onError(@NotNull Throwable e) {
+                        // TODO: 2021/3/3 错误处理
+                        // 超时或者其他错误
+                        dismissLoading();
+                        Timber.e(e);
+                    }
+
+                    @Override
+                    public void onComplete() {
+
+                    }
+                });
+    }
 
     /**
      * Manipulates the map once available.

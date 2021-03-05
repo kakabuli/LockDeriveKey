@@ -63,12 +63,12 @@ public class MqttCommandFactory {
     }
 
     /**
-     * 4.无感开门
+     * 无感开门
      */
-    public static MqttMessage approachOpen(String wifiID,int mode, byte[] pwd){
+    public static MqttMessage approachOpen(String wifiID,int broadcastTime, byte[] pwd){
         int messageId = getMessageId();
         WifiLockApproachOpenPublishBean.ParamsBean approachOpenPublishBean = new WifiLockApproachOpenPublishBean.ParamsBean();
-        approachOpenPublishBean.setBroadcast(mode);
+        approachOpenPublishBean.setBroadcast(broadcastTime);
         WifiLockApproachOpenPublishBean wifiLockApproachOpenPublishBean = new WifiLockApproachOpenPublishBean(
                 MqttConstant.MSG_TYPE_REQUEST,
                 messageId,

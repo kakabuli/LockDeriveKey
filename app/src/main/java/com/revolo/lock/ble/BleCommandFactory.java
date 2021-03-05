@@ -880,6 +880,19 @@ public class BleCommandFactory {
     /**
      *   敲门开锁指令
      * @param option   1：敲门开锁
+     */
+    public static byte[] setKnockDoorAndUnlockTime(int option, byte[] pwd1, byte[] pwd3) {
+        byte[] data = new byte[5];
+        data[0] = (byte) option;
+        // 固定3分钟
+        byte[] timeBytes = littleMode(BleByteUtil.longToUnsigned32Bytes(180));
+        System.arraycopy(timeBytes, 0, data, 1, 4);
+        return commandPackage(true, (byte) CMD_KNOCK_DOOR_AND_UNLOCK_TIME, commandTSN(), data, pwd1, pwd3);
+    }
+
+    /**
+     *   敲门开锁指令
+     * @param option   1：敲门开锁
      * @param time    格林威治时间 秒，不要毫秒
      */
     public static byte[] setKnockDoorAndUnlockTime(int option, long time, byte[] pwd1, byte[] pwd3) {
