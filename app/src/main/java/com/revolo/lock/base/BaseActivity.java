@@ -48,6 +48,11 @@ public abstract class BaseActivity extends AppCompatActivity
             App.getInstance().getMqttService().mqttConnection();
         }
         initView(savedInstanceState, mContentView);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
         doBusiness();
     }
 
