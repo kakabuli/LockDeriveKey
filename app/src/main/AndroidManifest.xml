@@ -111,12 +111,6 @@
             android:screenOrientation="portrait"/>
         <activity android:name=".ui.device.add.InputESNActivity"
             android:screenOrientation="portrait"/>
-        <activity android:name=".ui.test.TestWifiActivity"
-            android:screenOrientation="portrait"/>
-        <activity android:name=".ui.test.TestSelectActivity"
-            android:screenOrientation="portrait"/>
-        <activity android:name=".ui.test.TestCommandActivity"
-            android:screenOrientation="portrait"/>
         <activity android:name=".ui.device.lock.DeviceDetailActivity"
             android:screenOrientation="portrait"/>
         <activity android:name=".ui.device.lock.OperationRecordsActivity"
@@ -187,9 +181,8 @@
             android:screenOrientation="portrait"/>
         <activity android:name=".ui.device.lock.setting.DoorMagnetAlignmentActivity"
             android:screenOrientation="portrait"/>
-        <activity android:name=".ui.test.TestAddWifiActivity"
+        <activity android:name=".ui.device.lock.setting.SetGeofenceActivity"
             android:screenOrientation="portrait"/>
-        <activity android:name=".ui.device.lock.setting.SetGeofenceActivity" />
 
         <service android:name=".mqtt.MqttService" />
     </application>
