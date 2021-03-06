@@ -40,9 +40,10 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/etEmail"
-        android:inputType="textPassword" />
+        android:inputType="numberDecimal" />
 
     <TextView
+        android:id="@+id/tvGetCode"
         android:layout_width="64pt"
         android:layout_height="25pt"
         android:background="@drawable/shape_btn_bg"

@@ -13,6 +13,7 @@ import com.revolo.lock.bean.request.CheckOTABeanReq;
 import com.revolo.lock.bean.request.DelDeviceBeanReq;
 import com.revolo.lock.bean.request.DelKeyBeanReq;
 import com.revolo.lock.bean.request.DeviceUnbindBeanReq;
+import com.revolo.lock.bean.request.ForgotPwdBeanReq;
 import com.revolo.lock.bean.request.GetCodeBeanReq;
 import com.revolo.lock.bean.request.GetLockKeyNickBeanReq;
 import com.revolo.lock.bean.request.GetPwd1BeanReq;
@@ -40,6 +41,7 @@ import com.revolo.lock.bean.respone.CheckOTABeanRsp;
 import com.revolo.lock.bean.respone.DelDeviceBeanRsp;
 import com.revolo.lock.bean.respone.DelKeyBeanRsp;
 import com.revolo.lock.bean.respone.DeviceUnbindBeanRsp;
+import com.revolo.lock.bean.respone.ForgotPwdRsp;
 import com.revolo.lock.bean.respone.GetCodeBeanRsp;
 import com.revolo.lock.bean.respone.GetLockKeyNickBeanRsp;
 import com.revolo.lock.bean.respone.GetPwd1BeanRsp;
@@ -172,5 +174,8 @@ public interface ApiService {
     @POST("/wifi/device/ota")
     Observable<StartOTAUpdateBeanRsp> startOtaUpdate(@Header("token") String token, @Body StartOTAUpdateBeanReq req, @Header("url_name") String  urlName);
 
+    @Headers({"Content-Type: application/json"})
+    @POST("/user/edit/forgetPwd")
+    Observable<ForgotPwdRsp> forgotPwd(@Header("token") String token, @Body ForgotPwdBeanReq req, @Header("url_name") String  urlName);
 
 }

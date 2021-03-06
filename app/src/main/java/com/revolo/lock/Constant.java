@@ -44,8 +44,11 @@ public class Constant {
     public static final String UNBIND_REQ = "UnbindReq";
 
     public static final String DEVICE_ID = "DeviceId";
-    public static final String USER_MAIL = "UserMail";
     public static final String PWD_ID = "PwdId";
+
+    // SP
+    public static final String USER_MAIL = "UserMail";
+    public static final String USER_TOKEN = "UserToken";
 
     /**
      * 在login界面，是否显示提示对话框key

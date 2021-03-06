@@ -14,6 +14,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.blankj.utilcode.util.RegexUtils;
+import com.blankj.utilcode.util.SPUtils;
 import com.blankj.utilcode.util.ThreadUtils;
 import com.blankj.utilcode.util.ToastUtils;
 import com.revolo.lock.App;
@@ -33,6 +34,10 @@ import io.reactivex.Observable;
 import io.reactivex.Observer;
 import io.reactivex.disposables.Disposable;
 import timber.log.Timber;
+
+import static com.revolo.lock.Constant.REVOLO_SP;
+import static com.revolo.lock.Constant.USER_MAIL;
+import static com.revolo.lock.Constant.USER_TOKEN;
 
 /**
  * author : Jack
@@ -66,6 +71,10 @@ public class LoginActivity extends BaseActivity {
         if(getIntent().getBooleanExtra(Constant.IS_SHOW_DIALOG,false)){
             //TODO:是否弹出token失效弹窗
             tokenDialog();
+        }
+        String mail = SPUtils.getInstance(REVOLO_SP).getString(USER_MAIL);
+        if(!TextUtils.isEmpty(mail)) {
+            mEtEmail.setText(mail);
         }
     }
 
@@ -163,19 +172,20 @@ public class LoginActivity extends BaseActivity {
     private void processLoginRsp(@NonNull MailLoginBeanRsp mailLoginBeanRsp, String mail) {
         if(!mailLoginBeanRsp.getCode().equals("200")) {
             // TODO: 2021/1/26 获取弹出错误的信息
-            Timber.e("登录请求错误了！ code : %1s, msg: %2s",
+            Timber.e("processLoginRsp 登录请求错误了！ code : %1s, msg: %2s",
                     mailLoginBeanRsp.getCode(), mailLoginBeanRsp.getMsg());
             ToastUtils.showShort(mailLoginBeanRsp.getMsg());
             return;
         }
         if(mailLoginBeanRsp.getData() == null) {
-            Timber.e("mailLoginBeanRsp.getData() == null");
+            Timber.e("processLoginRsp mailLoginBeanRsp.getData() == null");
             return;
         }
         ThreadUtils.getSinglePool().execute(() -> {
             updateUser(mail, mailLoginBeanRsp.getData().getMeUsername());
-            Timber.d("登录成功，token: %1s\n userId: %2s",
+            Timber.d("processLoginRsp 登录成功，token: %1s\n userId: %2s",
                     mailLoginBeanRsp.getData().getToken(), mailLoginBeanRsp.getData().getUid());
+            SPUtils.getInstance(REVOLO_SP).put(USER_TOKEN, mailLoginBeanRsp.getData().getToken());
             App.getInstance().setUserBean(mailLoginBeanRsp.getData());
             runOnUiThread(() -> new Handler(Looper.getMainLooper()).postDelayed(() -> {
                 App.getInstance().finishPreActivities();

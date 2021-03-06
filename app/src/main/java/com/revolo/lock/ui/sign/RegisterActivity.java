@@ -222,12 +222,12 @@ public class RegisterActivity extends BaseActivity {
                     loadingDialog.dismiss();
                 }
                 if(TextUtils.isEmpty(mailRegisterBeanRsp.getCode())) {
-                    Timber.e("mailRegisterBeanRsp.getCode() is null");
+                    Timber.e("register mailRegisterBeanRsp.getCode() is null");
                     return;
                 }
                 // TODO: 2021/2/2 204,405,435,445 对应的提示语
                 if(!mailRegisterBeanRsp.getCode().equals("200")) {
-                    Timber.e("code: %1s, msg: %2s", 
+                    Timber.e("register code: %1s, msg: %2s",
                             mailRegisterBeanRsp.getCode(),
                             mailRegisterBeanRsp.getMsg());
                     if(mailRegisterBeanRsp.getMsg() != null) {
