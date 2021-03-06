@@ -1,13 +1,34 @@
 package com.revolo.lock.ui.device.lock.setting;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.text.TextUtils;
 import android.view.View;
+import android.widget.EditText;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.blankj.utilcode.util.ToastUtils;
+import com.revolo.lock.App;
+import com.revolo.lock.Constant;
 import com.revolo.lock.R;
 import com.revolo.lock.base.BaseActivity;
+import com.revolo.lock.bean.request.ChangeDeviceNameBeanReq;
+import com.revolo.lock.bean.respone.ChangeDeviceNameBeanRsp;
+import com.revolo.lock.net.HttpRequest;
+import com.revolo.lock.net.ObservableDecorator;
+import com.revolo.lock.room.AppDatabase;
+import com.revolo.lock.room.entity.BleDeviceLocal;
+
+import org.jetbrains.annotations.NotNull;
+
+import io.reactivex.Observable;
+import io.reactivex.Observer;
+import io.reactivex.disposables.Disposable;
+import timber.log.Timber;
 
 /**
  * author : Jack
@@ -16,9 +37,21 @@ import com.revolo.lock.base.BaseActivity;
  * desc   : 修改锁名称
  */
 public class ChangeLockNameActivity extends BaseActivity {
+
+    private BleDeviceLocal mBleDeviceLocal;
+
     @Override
     public void initData(@Nullable Bundle bundle) {
-
+        Intent intent = getIntent();
+        if(!intent.hasExtra(Constant.BLE_DEVICE)) {
+            // TODO: 2021/2/22 处理
+            finish();
+            return;
+        }
+        mBleDeviceLocal = intent.getParcelableExtra(Constant.BLE_DEVICE);
+        if(mBleDeviceLocal == null) {
+            finish();
+        }
     }
 
     @Override
@@ -29,6 +62,8 @@ public class ChangeLockNameActivity extends BaseActivity {
     @Override
     public void initView(@Nullable Bundle savedInstanceState, @Nullable View contentView) {
         useCommonTitleBar(getString(R.string.title_change_the_name));
+        applyDebouncingClickListener(findViewById(R.id.btnComplete));
+        initLoading("Setting...");
     }
 
     @Override
@@ -38,6 +73,83 @@ public class ChangeLockNameActivity extends BaseActivity {
 
     @Override
     public void onDebouncingClick(@NonNull View view) {
-
+        if(view.getId() == R.id.btnComplete) {
+            changeDeviceName();
+        }
     }
+
+    private void changeDeviceName() {
+        EditText etLockName = findViewById(R.id.etLockName);
+        String name = etLockName.getText().toString().trim();
+        if(TextUtils.isEmpty(name)) {
+            ToastUtils.showShort("Please input name");
+            return;
+        }
+        if(App.getInstance().getUserBean() == null) {
+            return;
+        }
+        String uid = App.getInstance().getUserBean().getUid();
+        if(TextUtils.isEmpty(uid)) {
+            return;
+        }
+        String token = App.getInstance().getUserBean().getToken();
+
+        if(TextUtils.isEmpty(token)) {
+            return;
+        }
+        showLoading();
+        ChangeDeviceNameBeanReq req = new ChangeDeviceNameBeanReq();
+        req.setLockNickName(name);
+        req.setSn(mBleDeviceLocal.getEsn());
+        req.setUid(uid);
+        Observable<ChangeDeviceNameBeanRsp> observable = HttpRequest.getInstance().changeDeviceNickName(token, req);
+        ObservableDecorator.decorate(observable).safeSubscribe(new Observer<ChangeDeviceNameBeanRsp>() {
+            @Override
+            public void onSubscribe(@NonNull Disposable d) {
+
+            }
+
+            @Override
+            public void onNext(@NonNull ChangeDeviceNameBeanRsp changeDeviceNameBeanRsp) {
+                dismissLoading();
+                if(TextUtils.isEmpty(changeDeviceNameBeanRsp.getCode())) {
+                    Timber.e("changeDeviceNameBeanRsp.getCode() is Empty");
+                    return;
+                }
+                if(!changeDeviceNameBeanRsp.getCode().equals("200")) {
+                    String msg = changeDeviceNameBeanRsp.getMsg();
+                    Timber.e("code: %1s, msg: %2s", changeDeviceNameBeanRsp.getCode(), msg);
+                    if(!TextUtils.isEmpty(msg)) {
+                        ToastUtils.showShort(msg);
+                    }
+                    return;
+                }
+                updateNameToLocal(name);
+                // TODO: 2021/3/6 修改提示语
+                ToastUtils.showShort("Success");
+                new Handler(Looper.getMainLooper()).postDelayed(() -> finishThisAct(), 50);
+            }
+
+            @Override
+            public void onError(@NonNull Throwable e) {
+                dismissLoading();
+                Timber.e(e);
+            }
+
+            @Override
+            public void onComplete() {
+
+            }
+        });
+    }
+
+    private void updateNameToLocal(@NotNull String name) {
+        mBleDeviceLocal.setName(name);
+        AppDatabase.getInstance(this).bleDeviceDao().update(mBleDeviceLocal);
+    }
+
+    private void finishThisAct() {
+        runOnUiThread(this::finish);
+    }
+
 }

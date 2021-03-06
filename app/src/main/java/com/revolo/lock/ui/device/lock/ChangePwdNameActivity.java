@@ -18,7 +18,6 @@ import com.revolo.lock.R;
 import com.revolo.lock.base.BaseActivity;
 import com.revolo.lock.bean.request.ChangeKeyNickBeanReq;
 import com.revolo.lock.bean.respone.ChangeKeyNickBeanRsp;
-import com.revolo.lock.dialog.iosloading.CustomerLoadingDialog;
 import com.revolo.lock.net.HttpRequest;
 import com.revolo.lock.net.ObservableDecorator;
 import com.revolo.lock.room.AppDatabase;
@@ -68,6 +67,7 @@ public class ChangePwdNameActivity extends BaseActivity {
     public void initView(@Nullable Bundle savedInstanceState, @Nullable View contentView) {
         useCommonTitleBar(getString(R.string.title_change_the_name));
         applyDebouncingClickListener(findViewById(R.id.btnComplete));
+        initLoading("Loading...");
     }
 
     @Override
@@ -106,13 +106,7 @@ public class ChangePwdNameActivity extends BaseActivity {
             return;
         }
 
-        // TODO: 2021/2/24 抽离文字
-        CustomerLoadingDialog loadingDialog = new CustomerLoadingDialog.Builder(this)
-                .setMessage("loading...")
-                .setCancelable(true)
-                .setCancelOutside(false)
-                .create();
-        loadingDialog.show();
+        showLoading();
         ChangeKeyNickBeanReq req = new ChangeKeyNickBeanReq();
         req.setNickName(pwdName);
         req.setNum(devicePwd.getPwdNum());
@@ -129,7 +123,7 @@ public class ChangePwdNameActivity extends BaseActivity {
 
             @Override
             public void onNext(@NonNull ChangeKeyNickBeanRsp changeKeyNickBeanRsp) {
-                loadingDialog.dismiss();
+                dismissLoading();
                 if(TextUtils.isEmpty(changeKeyNickBeanRsp.getCode())) {
                     Timber.e("changeKeyNickBeanRsp.getCode() is Empty");
                     return;
@@ -143,13 +137,15 @@ public class ChangePwdNameActivity extends BaseActivity {
                     return;
                 }
                 AppDatabase.getInstance(getApplicationContext()).devicePwdDao().update(devicePwd);
+                // TODO: 2021/3/6 修改提示语
+                ToastUtils.showShort("Success");
                 new Handler(Looper.getMainLooper()).postDelayed(() -> finishThisAct(), 50);
             }
 
             @Override
             public void onError(@NonNull Throwable e) {
                 Timber.e(e);
-                loadingDialog.dismiss();
+                dismissLoading();
                 showAddFail();
             }
 

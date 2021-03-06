@@ -125,7 +125,9 @@ public class DeviceSettingActivity extends BaseActivity {
     @Override
     public void onDebouncingClick(@NonNull View view) {
         if(view.getId() == R.id.tvName) {
-            startActivity(new Intent(this, ChangeLockNameActivity.class));
+            Intent intent = new Intent(this, ChangeLockNameActivity.class);
+            intent.putExtra(Constant.BLE_DEVICE, mBleDeviceLocal);
+            startActivity(intent);
             return;
         }
         if(view.getId() == R.id.tvWifiName) {
