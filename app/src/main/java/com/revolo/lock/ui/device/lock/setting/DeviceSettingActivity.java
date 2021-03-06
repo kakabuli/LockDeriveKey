@@ -100,7 +100,7 @@ public class DeviceSettingActivity extends BaseActivity {
         applyDebouncingClickListener(mTvName, findViewById(R.id.clAutoLock), findViewById(R.id.clPrivateMode),
                 findViewById(R.id.clDuressCode), findViewById(R.id.clDoorLockInformation),
                 findViewById(R.id.clGeoFenceLock), findViewById(R.id.clDoorMagneticSwitch),
-                findViewById(R.id.clUnbind), findViewById(R.id.clMute), findViewById(R.id.clWifi));
+                findViewById(R.id.clUnbind), findViewById(R.id.clMute), findViewById(R.id.clWifi), mIvDoNotDisturbModeEnable);
         mIvDoNotDisturbModeEnable.setImageResource(mBleDeviceLocal.isDoNotDisturbMode()?R.drawable.ic_icon_switch_open:R.drawable.ic_icon_switch_close);
         mIvMuteEnable.setImageResource(mBleDeviceLocal.isMute()?R.drawable.ic_icon_switch_open:R.drawable.ic_icon_switch_close);
     }
@@ -179,7 +179,11 @@ public class DeviceSettingActivity extends BaseActivity {
             } else {
                 mute();
             }
-
+            return;
+        }
+        if(view.getId() == R.id.ivDoNotDisturbModeEnable) {
+            // TODO: 2021/3/7 后期要全局实现这个通知功能
+            openOrCloseNotification();
         }
     }
 
@@ -187,6 +191,12 @@ public class DeviceSettingActivity extends BaseActivity {
     public Resources getResources() {
         // 更改布局适应
         return AdaptScreenUtils.adaptHeight(super.getResources(), 703);
+    }
+
+    private void openOrCloseNotification() {
+        mBleDeviceLocal.setDoNotDisturbMode(!mBleDeviceLocal.isDoNotDisturbMode());
+        AppDatabase.getInstance(this).bleDeviceDao().update(mBleDeviceLocal);
+        mIvDoNotDisturbModeEnable.setImageResource(mBleDeviceLocal.isDoNotDisturbMode()?R.drawable.ic_icon_switch_open:R.drawable.ic_icon_switch_close);
     }
 
     private void initData() {
