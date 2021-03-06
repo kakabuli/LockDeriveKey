@@ -109,18 +109,26 @@ public class DeviceDetailActivity extends BaseActivity {
             return;
         }
         if(view.getId() == R.id.llSetting) {
-            Intent intent = new Intent(this, DeviceSettingActivity.class);
-            DeviceUnbindBeanReq req = new DeviceUnbindBeanReq();
-            req.setUid(App.getInstance().getUserBean().getUid());
-            req.setWifiSN(mBleDeviceLocal.getEsn());
-            intent.putExtra(Constant.UNBIND_REQ, req);
-            intent.putExtra(Constant.LOCK_DETAIL, mBleDeviceLocal);
-            startActivity(intent);
+            gotoDeviceSettingAct();
             return;
         }
         if(view.getId() == R.id.ivLockState) {
             openDoor();
         }
+    }
+
+    private void gotoDeviceSettingAct() {
+        if(App.getInstance().getUserBean() == null) {
+            Timber.e("gotoDeviceSettingAct App.getInstance().getUserBean() == null");
+            return;
+        }
+        Intent intent = new Intent(this, DeviceSettingActivity.class);
+        DeviceUnbindBeanReq req = new DeviceUnbindBeanReq();
+        req.setUid(App.getInstance().getUserBean().getUid());
+        req.setWifiSN(mBleDeviceLocal.getEsn());
+        intent.putExtra(Constant.UNBIND_REQ, req);
+        intent.putExtra(Constant.LOCK_DETAIL, mBleDeviceLocal);
+        startActivity(intent);
     }
 
     private void initBleListener() {
@@ -354,6 +362,10 @@ public class DeviceDetailActivity extends BaseActivity {
      * @param doorOpt 1:表示开门，0表示关门
      */
     public void publishOpenOrCloseDoor(String wifiId, @LocalState.DoorState int doorOpt, String randomCode) {
+        if(App.getInstance().getUserBean() == null) {
+            Timber.e("publishOpenOrCloseDoor App.getInstance().getUserBean() == null");
+            return;
+        }
         if(doorOpt == LocalState.DOOR_STATE_OPEN) {
             showLoading("Lock Opening...");
         } else if(doorOpt == LocalState.DOOR_STATE_CLOSE) {

@@ -54,6 +54,9 @@ public interface LockRecordDao {
     @Query("SELECT * FROM LockRecord WHERE lr_id in(:ids)")
     List<LockRecord> findLockRecordsFromIds(long... ids);
 
+    @Query("SELECT * FROM LockRecord WHERE lr_device_id=:id AND lr_create_time>=:startTime AND lr_create_time<=:endTime")
+    List<LockRecord> findLockRecordsFromDeviceIdAndDay(long id, long startTime, long endTime);
+
     /**
      * 查询对应设备的消息记录
      * @param id     设备ID

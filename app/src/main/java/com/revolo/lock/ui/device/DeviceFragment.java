@@ -104,7 +104,7 @@ public class DeviceFragment extends Fragment {
                     @LocalState.LockState int state = mHomeLockListAdapter.getItem(position).getLockState();
                     if(mBleDeviceLocals.get(0).getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_BLE) {
                         App.getInstance().writeControlMsg(BleCommandFactory
-                                .lockControlCommand((byte) (state==1?LOCK_SETTING_CLOSE:LOCK_SETTING_OPEN), (byte) 0x04, (byte) 0x01, mBleBean.getPwd1(), mBleBean.getPwd3()));
+                                .lockControlCommand((byte) (state==LocalState.LOCK_STATE_OPEN?LOCK_SETTING_CLOSE:LOCK_SETTING_OPEN), (byte) 0x04, (byte) 0x01, mBleBean.getPwd1(), mBleBean.getPwd3()));
                     } else if(mBleDeviceLocals.get(0).getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI) {
                         publishOpenOrCloseDoor(
                                 mHomeLockListAdapter.getItem(position).getEsn(),
@@ -420,6 +420,10 @@ public class DeviceFragment extends Fragment {
      * @param doorOpt 1:表示开门，0表示关门
      */
     public void publishOpenOrCloseDoor(String wifiId, @LocalState.DoorState int doorOpt, String randomCode) {
+        if(App.getInstance().getUserBean() == null) {
+            Timber.e("publishOpenOrCloseDoor App.getInstance().getUserBean() == null");
+            return;
+        }
         if(doorOpt == LocalState.DOOR_STATE_OPEN) {
             showLoading("Lock Opening...");
         } else if(doorOpt == LocalState.DOOR_STATE_CLOSE) {

@@ -1,9 +1,11 @@
 package com.revolo.lock.ui.device.lock;
 
+import android.app.DatePickerDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
+import android.widget.LinearLayout;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -46,6 +48,7 @@ import static com.revolo.lock.ble.BleProtocolState.CMD_GET_ALL_RECORD;
  * E-mail : wengmaowei@kaadas.com
  * desc   : 操作记录
  */
+// TODO: 2021/3/6 数据存在日期筛选后无法滑动的bug
 public class OperationRecordsActivity extends BaseActivity {
 
     // TODO: 2021/2/25 后续添加超时操作
@@ -53,6 +56,8 @@ public class OperationRecordsActivity extends BaseActivity {
     private OperationRecordsAdapter mRecordsAdapter;
     private BleBean mBleBean;
     private long mDeviceId;
+    private LinearLayout mllNoRecord;
+    private RecyclerView mRvOperationRecords;
 
     @Override
     public void initData(@Nullable Bundle bundle) {
@@ -77,13 +82,14 @@ public class OperationRecordsActivity extends BaseActivity {
     public void initView(@Nullable Bundle savedInstanceState, @Nullable View contentView) {
         useCommonTitleBar(getString(R.string.title_operation_records))
                 .setRight(ContextCompat.getDrawable(this, R.drawable.ic_icon_date), v -> {
-                    // TODO: 2021/1/13 打开日历筛选
+                    showDatePicker();
                 });
-        RecyclerView rvRecords = findViewById(R.id.rvOperationRecords);
+        mRvOperationRecords = findViewById(R.id.rvOperationRecords);
         AutoMeasureLinearLayoutManager linearLayoutManager = new AutoMeasureLinearLayoutManager(this);
-        rvRecords.setLayoutManager(linearLayoutManager);
+        mRvOperationRecords.setLayoutManager(linearLayoutManager);
+        mllNoRecord = findViewById(R.id.llNoRecord);
         mRecordsAdapter = new OperationRecordsAdapter(R.layout.item_operation_record_list_rv);
-        rvRecords.setAdapter(mRecordsAdapter);
+        mRvOperationRecords.setAdapter(mRecordsAdapter);
         initLoading("Loading...");
     }
 
@@ -147,6 +153,10 @@ public class OperationRecordsActivity extends BaseActivity {
     };
 
     private void initDevice() {
+        if(mBleBean == null) {
+            Timber.e("initDevice mBleBean == null");
+            return;
+        }
         if (mBleBean.getOKBLEDeviceImp() != null) {
             App.getInstance().openPairNotify();
             App.getInstance().setOnBleDeviceListener(mOnBleDeviceListener);
@@ -267,16 +277,40 @@ public class OperationRecordsActivity extends BaseActivity {
         refreshUIFromFinalData();
     }
 
+    private void showOrDismissNoRecord(boolean isShow) {
+        runOnUiThread(() -> {
+            if(isShow) {
+                mllNoRecord.setVisibility(View.VISIBLE);
+            } else {
+                mllNoRecord.setVisibility(View.GONE);
+            }
+        });
+    }
+
+    private void showOrDismissRecords(boolean isShow) {
+        runOnUiThread(() -> {
+            if(isShow) {
+                mRvOperationRecords.setVisibility(View.VISIBLE);
+            } else {
+                mRvOperationRecords.setVisibility(View.GONE);
+            }
+        });
+    }
+
     private void refreshUIFromFinalData() {
-        dismissLoading();
         // TODO: 2021/2/25 后面要做的是要代理处理的数据 
         if(mLockRecords.isEmpty()) {
+            showOrDismissNoRecord(true);
+            showOrDismissRecords(false);
             return;
+        } else {
+            showOrDismissNoRecord(false);
+            showOrDismissRecords(true);
         }
-        List<OperationRecords.TestOperationRecord> records = new ArrayList<>();
+        List<OperationRecords.OperationRecord> records = new ArrayList<>();
         for (LockRecord lockRecord : mLockRecords) {
             // eventCode 1:上锁 2:开锁
-            OperationRecords.TestOperationRecord record;
+            OperationRecords.OperationRecord record;
             @RecordState.OpRecordState int state = RecordState.NOTHING;
             boolean isAlarmRecord = false;
             String message = "";
@@ -332,6 +366,8 @@ public class OperationRecordsActivity extends BaseActivity {
                     state = RecordState.THE_USER_DELETED_A_PWD;
                 } else if(lockRecord.getEventCode() == 0x0f) {
                     // 恢复出厂设置
+                    message = "The door lock has been restored to factory Settings";
+                    state = RecordState.LOCK_RESTORE;
                 }
             } else if(lockRecord.getEventType() == 3) {
                 // 报警
@@ -366,21 +402,22 @@ public class OperationRecordsActivity extends BaseActivity {
                         lockRecord.getUserId(), lockRecord.getAppId(), lockRecord.getCreateTime() * 1000);
                 continue;
             }
-            record = new OperationRecords.TestOperationRecord(lockRecord.getCreateTime()*1000, message, state, isAlarmRecord);
+            record = new OperationRecords.OperationRecord(lockRecord.getCreateTime()*1000, message, state, isAlarmRecord);
             records.add(record);
         }
+        dismissLoading();
         processRightRecords(records);
     }
 
-    private void processRightRecords(List<OperationRecords.TestOperationRecord> records) {
+    private void processRightRecords(List<OperationRecords.OperationRecord> records) {
         // 日期分类筛选
-        Map<String, List<OperationRecords.TestOperationRecord>> collect = records
-                .stream().collect(Collectors.groupingBy(OperationRecords.TestOperationRecord::getDate));
+        Map<String, List<OperationRecords.OperationRecord>> collect = records
+                .stream().collect(Collectors.groupingBy(OperationRecords.OperationRecord::getDate));
         // 时间降序
-        Map<String, List<OperationRecords.TestOperationRecord>> sortCollect = sortMapByKey(collect);
+        Map<String, List<OperationRecords.OperationRecord>> sortCollect = sortMapByKey(collect);
         List<OperationRecords> recordsList = new ArrayList<>();
         for (String key : sortCollect.keySet()) {
-            Timber.d("refreshUIFromFinalData key: %1s", key);
+            Timber.d("processRightRecords key: %1s", key);
             OperationRecords operationRecords = new OperationRecords(TimeUtils.string2Millis(key, "yyyy-MM-dd"), collect.get(key));
             recordsList.add(operationRecords);
         }
@@ -392,12 +429,12 @@ public class OperationRecordsActivity extends BaseActivity {
      * @param map
      * @return
      */
-    public static Map<String, List<OperationRecords.TestOperationRecord>> sortMapByKey(Map<String, List<OperationRecords.TestOperationRecord>> map) {
+    public static Map<String, List<OperationRecords.OperationRecord>> sortMapByKey(Map<String, List<OperationRecords.OperationRecord>> map) {
         if (map == null || map.isEmpty()) {
             return null;
         }
 
-        Map<String, List<OperationRecords.TestOperationRecord>> sortMap = new TreeMap<>(
+        Map<String, List<OperationRecords.OperationRecord>> sortMap = new TreeMap<>(
                 new MapKeyComparator());
 
         sortMap.putAll(map);
@@ -414,6 +451,40 @@ public class OperationRecordsActivity extends BaseActivity {
             // 降序
             return str2.compareTo(str1);
         }
+    }
+
+    private void showDatePicker() {
+        DatePickerDialog datePickerDialog = new DatePickerDialog(this, R.style.MyTimePickerDialogTheme);
+        datePickerDialog.setOnDateSetListener((view, year, month, dayOfMonth) -> {
+            // TODO: 2021/2/4 date
+            showLoading();
+            month+=1;
+            String date = year+"-"+(month<10?"0"+month:month)+"-"+(dayOfMonth<10?"0"+dayOfMonth:dayOfMonth);
+            long startTime = TimeUtils.string2Millis(date+" 00:00:00");
+            long endTime = TimeUtils.string2Millis(date+" 23:59:59");
+            ThreadUtils.getSinglePool().execute(() -> {
+                searchRecordsFromDate(date, startTime, endTime);
+            });
+
+        });
+        datePickerDialog.setCancelable(true);
+        datePickerDialog.show();
+    }
+
+    private void searchRecordsFromDate(String date, long startTime, long endTime) {
+        List<LockRecord> lockRecords = AppDatabase
+                .getInstance(OperationRecordsActivity.this)
+                .lockRecordDao()
+                .findLockRecordsFromDeviceIdAndDay(mDeviceId, startTime/1000, endTime/1000);
+        Timber.d("showDatePicker startDate 选择的日期%1s, startTime：%2d, endTime: %3d",date, startTime, endTime);
+        mLockRecords.clear();
+        if(lockRecords == null || lockRecords.isEmpty()) {
+            dismissLoading();
+            Timber.e("showDatePicker lockRecords is empty");
+        } else {
+            mLockRecords.addAll(lockRecords);
+        }
+        refreshUIFromFinalData();
     }
 
 }

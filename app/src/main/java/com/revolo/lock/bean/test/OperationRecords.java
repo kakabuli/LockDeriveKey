@@ -17,9 +17,9 @@ import java.util.List;
 public class OperationRecords implements Parcelable {
 
     private long titleOperationTime;
-    private List<TestOperationRecord> operationRecords;
+    private List<OperationRecord> operationRecords;
 
-    public static class TestOperationRecord implements Parcelable {
+    public static class OperationRecord implements Parcelable {
         private long operationTime;
         private String message;
         // TODO: 2021/2/25 后面修改字段用于显示哪张图片
@@ -28,7 +28,7 @@ public class OperationRecords implements Parcelable {
         private boolean isAlarmRecord;
         private String date;
 
-        public TestOperationRecord(long operationTime, String message, @RecordState.OpRecordState int state, boolean isAlarmRecord) {
+        public OperationRecord(long operationTime, String message, @RecordState.OpRecordState int state, boolean isAlarmRecord) {
             this.operationTime = operationTime;
             this.message = message;
             this.state = state;
@@ -92,7 +92,7 @@ public class OperationRecords implements Parcelable {
             dest.writeString(this.date);
         }
 
-        protected TestOperationRecord(Parcel in) {
+        protected OperationRecord(Parcel in) {
             this.operationTime = in.readLong();
             this.message = in.readString();
             this.state = in.readInt();
@@ -100,20 +100,20 @@ public class OperationRecords implements Parcelable {
             this.date = in.readString();
         }
 
-        public static final Creator<TestOperationRecord> CREATOR = new Creator<TestOperationRecord>() {
+        public static final Creator<OperationRecord> CREATOR = new Creator<OperationRecord>() {
             @Override
-            public TestOperationRecord createFromParcel(Parcel source) {
-                return new TestOperationRecord(source);
+            public OperationRecord createFromParcel(Parcel source) {
+                return new OperationRecord(source);
             }
 
             @Override
-            public TestOperationRecord[] newArray(int size) {
-                return new TestOperationRecord[size];
+            public OperationRecord[] newArray(int size) {
+                return new OperationRecord[size];
             }
         };
     }
 
-    public OperationRecords(long titleOperationTime, List<TestOperationRecord> operationRecords) {
+    public OperationRecords(long titleOperationTime, List<OperationRecord> operationRecords) {
         this.titleOperationTime = titleOperationTime;
         this.operationRecords = operationRecords;
     }
@@ -126,11 +126,11 @@ public class OperationRecords implements Parcelable {
         this.titleOperationTime = titleOperationTime;
     }
 
-    public List<TestOperationRecord> getOperationRecords() {
+    public List<OperationRecord> getOperationRecords() {
         return operationRecords;
     }
 
-    public void setOperationRecords(List<TestOperationRecord> operationRecords) {
+    public void setOperationRecords(List<OperationRecord> operationRecords) {
         this.operationRecords = operationRecords;
     }
 
@@ -148,7 +148,7 @@ public class OperationRecords implements Parcelable {
 
     protected OperationRecords(Parcel in) {
         this.titleOperationTime = in.readLong();
-        this.operationRecords = in.createTypedArrayList(TestOperationRecord.CREATOR);
+        this.operationRecords = in.createTypedArrayList(OperationRecord.CREATOR);
     }
 
     public static final Parcelable.Creator<OperationRecords> CREATOR = new Parcelable.Creator<OperationRecords>() {

@@ -22,6 +22,7 @@ import static com.revolo.lock.bean.showBean.RecordState.DURESS_PASSWORD_UNLOCK;
 import static com.revolo.lock.bean.showBean.RecordState.JAM_ALARM;
 import static com.revolo.lock.bean.showBean.RecordState.LOCKING_INSIDE_THE_DOOR;
 import static com.revolo.lock.bean.showBean.RecordState.LOCK_DOWN_ALARM;
+import static com.revolo.lock.bean.showBean.RecordState.LOCK_RESTORE;
 import static com.revolo.lock.bean.showBean.RecordState.LOW_BATTERY_ALARM;
 import static com.revolo.lock.bean.showBean.RecordState.MULTI_FUNCTIONAL_BUTTON_LOCKING;
 import static com.revolo.lock.bean.showBean.RecordState.ONE_TOUCH_LOCK_OUTSIDE_THE_DOOR;
@@ -44,9 +45,9 @@ import static com.revolo.lock.bean.showBean.RecordState.USER_REMOVED_SOMEONE_FRO
  * E-mail : wengmaowei@kaadas.com
  * desc   : 当前日期的操作记录
  */
-public class OperationRecordAdapter extends BaseQuickAdapter<OperationRecords.TestOperationRecord, BaseViewHolder> {
+public class OperationRecordAdapter extends BaseQuickAdapter<OperationRecords.OperationRecord, BaseViewHolder> {
 
-    public OperationRecordAdapter(int layoutResId, @Nullable List<OperationRecords.TestOperationRecord> data) {
+    public OperationRecordAdapter(int layoutResId, @Nullable List<OperationRecords.OperationRecord> data) {
         super(layoutResId, data);
     }
 
@@ -55,11 +56,11 @@ public class OperationRecordAdapter extends BaseQuickAdapter<OperationRecords.Te
     }
 
     @Override
-    protected void convert(@NotNull BaseViewHolder baseViewHolder, OperationRecords.TestOperationRecord testOperationRecord) {
-        if(testOperationRecord != null) {
+    protected void convert(@NotNull BaseViewHolder baseViewHolder, OperationRecords.OperationRecord operationRecord) {
+        if(operationRecord != null) {
             baseViewHolder.setTextColor(R.id.tvMessage, ContextCompat.getColor(getContext(), R.color.c333333));
             @DrawableRes int imageResId = R.drawable.ic_home_log_icon__password;
-            @RecordState.OpRecordState int state = testOperationRecord.getState();
+            @RecordState.OpRecordState int state = operationRecord.getState();
             switch (state) {
                 case SOMEONE_USE_A_PWD_TO_UNLOCK:
                 case THE_USER_ADDED_A_PWD:
@@ -107,10 +108,13 @@ public class OperationRecordAdapter extends BaseQuickAdapter<OperationRecords.Te
                 case USER_REMOVED_SOMEONE_FROM_GUEST_USER:
                     imageResId = R.drawable.ic_home_log_icon__del;
                     break;
+                case LOCK_RESTORE:
+                    imageResId = R.drawable.ic_home_log_icon__restore;
+                    break;
             }
             baseViewHolder.setImageResource(R.id.ivLogState, imageResId);
-            baseViewHolder.setText(R.id.tvMessage, testOperationRecord.getMessage());
-            baseViewHolder.setText(R.id.tvTime, TimeUtils.millis2String(testOperationRecord.getOperationTime(), "HH:mm"));
+            baseViewHolder.setText(R.id.tvMessage, operationRecord.getMessage());
+            baseViewHolder.setText(R.id.tvTime, TimeUtils.millis2String(operationRecord.getOperationTime(), "HH:mm"));
         }
     }
 }
