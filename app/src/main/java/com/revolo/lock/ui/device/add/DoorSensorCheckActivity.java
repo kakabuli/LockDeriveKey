@@ -276,12 +276,12 @@ public class DoorSensorCheckActivity extends BaseActivity {
 
             @Override
             public void onNext(@NotNull MqttData mqttData) {
-                dismissLoading();
                 if(TextUtils.isEmpty(mqttData.getFunc())) {
                     Timber.e("publishSetMagnetic mqttData.getFunc() is empty");
                     return;
                 }
                 if(mqttData.getFunc().equals(MqttConstant.SET_MAGNETIC)) {
+                    dismissLoading();
                     Timber.d("设置门磁: %1s", mqttData);
                     WifiLockSetMagneticResponseBean bean;
                     try {

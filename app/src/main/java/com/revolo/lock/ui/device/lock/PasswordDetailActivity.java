@@ -217,11 +217,11 @@ public class PasswordDetailActivity extends BaseActivity {
 
             @Override
             public void onNext(@NotNull MqttData mqttData) {
-                dismissLoading();
                 if(TextUtils.isEmpty(mqttData.getFunc())) {
                     return;
                 }
                 if(mqttData.getFunc().equals(MqttConstant.REMOVE_PWD)) {
+                    dismissLoading();
                     Timber.d("删除密码信息: %1s", mqttData);
                     WifiLockRemovePasswordResponseBean bean;
                     try {

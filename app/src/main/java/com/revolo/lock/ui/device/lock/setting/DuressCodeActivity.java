@@ -122,12 +122,12 @@ public class DuressCodeActivity extends BaseActivity {
 
                     @Override
                     public void onNext(@NotNull MqttData mqttData) {
-                        dismissLoading();
                         if(TextUtils.isEmpty(mqttData.getFunc())) {
                             Timber.e("publishOpenOrCloseDuressPwd mqttData.getFunc() is empty");
                             return;
                         }
                         if(mqttData.getFunc().equals(MqttConstant.SET_LOCK_ATTR)) {
+                            dismissLoading();
                             Timber.d("publishOpenOrCloseDuressPwd 设置属性: %1s", mqttData);
                             WifiLockSetLockAttrDuressRspBean bean;
                             try {

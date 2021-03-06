@@ -372,12 +372,12 @@ public class DeviceDetailActivity extends BaseActivity {
 
             @Override
             public void onNext(@NotNull MqttData mqttData) {
-                dismissLoading();
                 if(TextUtils.isEmpty(mqttData.getFunc())) {
                     return;
                 }
                 // TODO: 2021/3/3 处理开关门的回调信息
                 if(mqttData.getFunc().equals(MqttConstant.SET_LOCK)) {
+                    dismissLoading();
                     Timber.d("publishOpenOrCloseDoor 开关门信息: %1s", mqttData);
                     WifiLockDoorOptResponseBean bean;
                     try {

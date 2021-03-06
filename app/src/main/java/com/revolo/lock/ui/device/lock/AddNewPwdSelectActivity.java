@@ -659,11 +659,11 @@ public class AddNewPwdSelectActivity extends BaseActivity {
             @Override
             public void onNext(@NotNull MqttData mqttData) {
                 if(TextUtils.isEmpty(mqttData.getFunc())) {
-                    dismissLoading();
                     return;
                 }
                 // TODO: 2021/3/3 处理开关门的回调信息
                 if(mqttData.getFunc().equals(MqttConstant.CREATE_PWD)) {
+                    dismissLoading();
                     Timber.d("创建密码: %1s", mqttData);
                     WifiLockAddPwdRspBean bean;
                     try {
@@ -739,11 +739,11 @@ public class AddNewPwdSelectActivity extends BaseActivity {
             @Override
             public void onNext(@NotNull MqttData mqttData) {
                 if(TextUtils.isEmpty(mqttData.getFunc())) {
-                    dismissLoading();
                     return;
                 }
                 // TODO: 2021/3/3 处理开关门的回调信息
                 if(mqttData.getFunc().equals(MqttConstant.ADD_PWD)) {
+                    dismissLoading();
                     Timber.d("publishAddPwdAttr 添加密码属性: %1s", mqttData);
                     WifiLockAddPwdAttrResponseBean bean;
                     try {

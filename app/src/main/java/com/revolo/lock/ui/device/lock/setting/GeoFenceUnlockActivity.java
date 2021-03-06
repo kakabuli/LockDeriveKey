@@ -386,12 +386,12 @@ public class GeoFenceUnlockActivity extends BaseActivity implements OnMapReadyCa
 
                     @Override
                     public void onNext(@NotNull MqttData mqttData) {
-                        dismissLoading();
                         if(TextUtils.isEmpty(mqttData.getFunc())) {
                             Timber.e("publishSensitivity mqttData.getFunc() is empty");
                             return;
                         }
                         if(mqttData.getFunc().equals(MqttConstant.SET_LOCK_ATTR)) {
+                            dismissLoading();
                             Timber.d("publishSensitivity 设置属性: %1s", mqttData);
                             WifiLockSetLockAttrSensitivityRspBean bean;
                             try {
@@ -448,12 +448,12 @@ public class GeoFenceUnlockActivity extends BaseActivity implements OnMapReadyCa
 
                     @Override
                     public void onNext(@NotNull MqttData mqttData) {
-                        dismissLoading();
                         if(TextUtils.isEmpty(mqttData.getFunc())) {
                             Timber.e("publishApproachOpen mqttData.getFunc() is empty");
                             return;
                         }
                         if(mqttData.getFunc().equals(MqttConstant.APP_ROACHOPEN)) {
+                            dismissLoading();
                             Timber.d("publishApproachOpen 无感开门: %1s", mqttData);
                             WifiLockApproachOpenResponseBean bean;
                             try {

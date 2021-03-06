@@ -247,7 +247,10 @@ public class DeviceSettingActivity extends BaseActivity {
                 // TODO: 2021/2/9 清除了本地所有数据
                 App.getInstance().getCacheDiskUtils().clear();
                 // 如果是蓝牙，断开蓝牙连接
-                if(mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_BLE) {
+                if(mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_BLE
+                        && App.getInstance().getBleBean() != null
+                        && App.getInstance().getBleBean().getOKBLEDeviceImp() != null
+                        && App.getInstance().getBleBean().getOKBLEDeviceImp().isConnected()) {
                     App.getInstance().getBleBean().getOKBLEDeviceImp().disConnect(false);
                 }
                 AppDatabase.getInstance(getApplicationContext()).bleDeviceDao().delete(mBleDeviceLocal);
@@ -376,12 +379,12 @@ public class DeviceSettingActivity extends BaseActivity {
 
                     @Override
                     public void onNext(@NotNull MqttData mqttData) {
-                        dismissLoading();
                         if(TextUtils.isEmpty(mqttData.getFunc())) {
                             Timber.e("publishSetVolume mqttData.getFunc() is empty");
                             return;
                         }
                         if(mqttData.getFunc().equals(MqttConstant.SET_LOCK_ATTR)) {
+                            dismissLoading();
                             Timber.d("设置属性: %1s", mqttData);
                             WifiLockSetLockAttrVolumeRspBean bean;
                             try {

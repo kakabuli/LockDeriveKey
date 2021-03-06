@@ -167,12 +167,12 @@ public class AutoLockActivity extends BaseActivity {
 
                     @Override
                     public void onNext(@NotNull MqttData mqttData) {
-                        dismissLoading();
                         if(TextUtils.isEmpty(mqttData.getFunc())) {
                             Timber.e("publishOpenOrCloseAutoLock mqttData.getFunc() is empty");
                             return;
                         }
                         if(mqttData.getFunc().equals(MqttConstant.SET_LOCK_ATTR)) {
+                            dismissLoading();
                             Timber.d("publishOpenOrCloseAutoLock 设置属性: %1s", mqttData);
                             WifiLockSetLockAttrAutoRspBean bean;
                             try {
@@ -232,12 +232,12 @@ public class AutoLockActivity extends BaseActivity {
 
                     @Override
                     public void onNext(@NotNull MqttData mqttData) {
-                        dismissLoading();
                         if(TextUtils.isEmpty(mqttData.getFunc())) {
                             Timber.e("publishAutoLockTime mqttData.getFunc() is empty");
                             return;
                         }
                         if(mqttData.getFunc().equals(MqttConstant.SET_LOCK_ATTR)) {
+                            dismissLoading();
                             Timber.d("publishAutoLockTime 设置属性: %1s", mqttData);
                             WifiLockSetLockAttrAutoTimeRspBean bean;
                             try {

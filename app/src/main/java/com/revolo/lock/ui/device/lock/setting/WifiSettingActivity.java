@@ -154,11 +154,11 @@ public class WifiSettingActivity extends BaseActivity {
 
             @Override
             public void onNext(@NotNull MqttData mqttData) {
-                dismissLoading();
                 if(TextUtils.isEmpty(mqttData.getFunc())) {
                     return;
                 }
                 if(mqttData.getFunc().equals(MqttConstant.CLOSE_WIFI)) {
+                    dismissLoading();
                     Timber.d("closeWifiFromMqtt 关闭信息: %1s", mqttData);
                     WifiLockCloseWifiResponseBean bean;
                     try {
