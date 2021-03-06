@@ -64,7 +64,7 @@ public class DeviceSettingActivity extends BaseActivity {
 
     private TextView mTvName, mTvWifiName;
     private DeviceUnbindBeanReq mReq;
-    private ImageView mIvMuteEnable, mIvDoorMagneticSwitchEnable, mIvDoNotDisturbModeEnable;
+    private ImageView mIvMuteEnable, mIvDoNotDisturbModeEnable;
     private BleDeviceLocal mBleDeviceLocal;
 
     @Override
@@ -96,14 +96,11 @@ public class DeviceSettingActivity extends BaseActivity {
         mTvName = findViewById(R.id.tvName);
         mTvWifiName = findViewById(R.id.tvWifiName);
         mIvMuteEnable = findViewById(R.id.ivMuteEnable);
-        mIvDoorMagneticSwitchEnable = findViewById(R.id.ivDoorMagneticSwitchEnable);
         mIvDoNotDisturbModeEnable = findViewById(R.id.ivDoNotDisturbModeEnable);
-        applyDebouncingClickListener(mTvName, mTvWifiName,
-                findViewById(R.id.clAutoLock), findViewById(R.id.clPrivateMode),
+        applyDebouncingClickListener(mTvName, findViewById(R.id.clAutoLock), findViewById(R.id.clPrivateMode),
                 findViewById(R.id.clDuressCode), findViewById(R.id.clDoorLockInformation),
                 findViewById(R.id.clGeoFenceLock), findViewById(R.id.clDoorMagneticSwitch),
-                findViewById(R.id.clUnbind), findViewById(R.id.clMute));
-        mIvDoorMagneticSwitchEnable.setImageResource(mBleDeviceLocal.isOpenDoorSensor()?R.drawable.ic_icon_switch_open:R.drawable.ic_icon_switch_close);
+                findViewById(R.id.clUnbind), findViewById(R.id.clMute), findViewById(R.id.clWifi));
         mIvDoNotDisturbModeEnable.setImageResource(mBleDeviceLocal.isDoNotDisturbMode()?R.drawable.ic_icon_switch_open:R.drawable.ic_icon_switch_close);
         mIvMuteEnable.setImageResource(mBleDeviceLocal.isMute()?R.drawable.ic_icon_switch_open:R.drawable.ic_icon_switch_close);
     }
@@ -130,11 +127,7 @@ public class DeviceSettingActivity extends BaseActivity {
             startActivity(intent);
             return;
         }
-        if(view.getId() == R.id.tvWifiName) {
-            if(mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_BLE) {
-                // 蓝牙连接，所以不需要进入去操作
-                return;
-            }
+        if(view.getId() == R.id.clWifi) {
             Intent intent = new Intent(this, WifiSettingActivity.class);
             intent.putExtra(Constant.BLE_DEVICE, mBleDeviceLocal);
             startActivity(intent);
@@ -169,7 +162,9 @@ public class DeviceSettingActivity extends BaseActivity {
             return;
         }
         if(view.getId() == R.id.clDoorMagneticSwitch) {
-            // TODO: 2021/2/22 提示并进入门磁校验流程
+            Intent intent = new Intent(this, DoorMagnetAlignmentActivity.class);
+            intent.putExtra(Constant.BLE_DEVICE, mBleDeviceLocal);
+            startActivity(intent);
             return;
         }
         if(view.getId() == R.id.clUnbind) {
