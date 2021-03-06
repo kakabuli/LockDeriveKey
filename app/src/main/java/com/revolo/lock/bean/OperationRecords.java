@@ -1,4 +1,4 @@
-package com.revolo.lock.bean.test;
+package com.revolo.lock.bean;
 
 import android.os.Parcel;
 import android.os.Parcelable;

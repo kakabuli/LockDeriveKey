@@ -21,7 +21,7 @@ import com.revolo.lock.adapter.AutoMeasureLinearLayoutManager;
 import com.revolo.lock.adapter.OperationRecordsAdapter;
 import com.revolo.lock.base.BaseActivity;
 import com.revolo.lock.bean.showBean.RecordState;
-import com.revolo.lock.bean.test.OperationRecords;
+import com.revolo.lock.bean.OperationRecords;
 import com.revolo.lock.ble.BleByteUtil;
 import com.revolo.lock.ble.bean.BleBean;
 import com.revolo.lock.ble.BleCommandFactory;

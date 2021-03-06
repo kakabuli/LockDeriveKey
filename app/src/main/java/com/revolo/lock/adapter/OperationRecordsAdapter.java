@@ -6,7 +6,7 @@ import com.blankj.utilcode.util.TimeUtils;
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.chad.library.adapter.base.viewholder.BaseViewHolder;
 import com.revolo.lock.R;
-import com.revolo.lock.bean.test.OperationRecords;
+import com.revolo.lock.bean.OperationRecords;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
