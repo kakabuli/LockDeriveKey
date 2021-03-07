@@ -4,35 +4,27 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
-import com.revolo.lock.bean.test.TestUserManagementBean;
+import com.revolo.lock.bean.respone.GetAllSharedUserFromAdminUserBeanRsp;
 
-import java.util.ArrayList;
 import java.util.List;
+
 
 public class UserViewModel extends ViewModel {
 
-    private MutableLiveData<List<TestUserManagementBean>> mUsers;
+    private MutableLiveData<List<GetAllSharedUserFromAdminUserBeanRsp.DataBean>> mUsers;
 
     public UserViewModel() {
         mUsers = new MutableLiveData<>();
-        initTestData(mUsers);
+        refreshData(mUsers);
     }
 
-    public LiveData<List<TestUserManagementBean>> getUsers() {
+    public LiveData<List<GetAllSharedUserFromAdminUserBeanRsp.DataBean>> getUsers() {
         return mUsers;
     }
 
-    private void initTestData(MutableLiveData<List<TestUserManagementBean>> users) {
-        List<TestUserManagementBean> beanList = new ArrayList<>();
-        TestUserManagementBean bean1 = new TestUserManagementBean("Jack", 1, 1);
-        beanList.add(bean1);
-        TestUserManagementBean bean2 = new TestUserManagementBean("Marry", 2, 2);
-        beanList.add(bean2);
-        TestUserManagementBean bean3 = new TestUserManagementBean("Jim", 1, 3);
-        beanList.add(bean3);
-        TestUserManagementBean bean4 = new TestUserManagementBean("Tick", 2, 3);
-        beanList.add(bean4);
-        users.setValue(beanList);
+    private void refreshData(MutableLiveData<List<GetAllSharedUserFromAdminUserBeanRsp.DataBean>> users) {
+
     }
+
 
 }

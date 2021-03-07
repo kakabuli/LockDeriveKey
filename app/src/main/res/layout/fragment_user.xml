@@ -11,12 +11,12 @@
         android:id="@+id/rlTitle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="@color/white"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        android:background="@color/white">
+        app:layout_constraintTop_toTopOf="parent">
 
-        <include layout="@layout/layout_title_bar"/>
+        <include layout="@layout/layout_title_bar" />
 
     </RelativeLayout>
 
@@ -28,6 +28,30 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/rlTitle" />
+
+    <LinearLayout
+        android:id="@+id/llNoUser"
+        android:layout_width="match_parent"
+        android:layout_height="0pt"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:gravity="center_horizontal"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/rlTitle">
+
+        <ImageView
+            android:layout_width="250pt"
+            android:layout_height="250pt"
+            android:layout_marginTop="33pt"
+            app:srcCompat="@drawable/equiment_img_no_users"  />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="No users"/>
+
+    </LinearLayout>
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
