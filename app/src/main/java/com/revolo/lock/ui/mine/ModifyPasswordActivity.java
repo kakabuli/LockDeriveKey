@@ -37,8 +37,8 @@ import timber.log.Timber;
  */
 public class ModifyPasswordActivity extends BaseActivity {
 
-    private EditText etOldPwd, etPwd, etVerification;
-    private ImageView ivOldPwdEye, ivEye;
+    private EditText mEtOldPwd, mEtPwd, mEtVerification;
+    private ImageView mIvOldPwdEye, mIvEye;
     private TextView mTvGetCode;
 
     private boolean isShowOldPwd = false;
@@ -58,13 +58,13 @@ public class ModifyPasswordActivity extends BaseActivity {
     @Override
     public void initView(@Nullable Bundle savedInstanceState, @Nullable View contentView) {
         useCommonTitleBar(getString(R.string.title_modify_pwd));
-        etOldPwd = findViewById(R.id.etOldPwd);
-        etPwd = findViewById(R.id.etPwd);
-        ivOldPwdEye = findViewById(R.id.ivOldPwdEye);
-        ivEye = findViewById(R.id.ivEye);
-        etVerification = findViewById(R.id.etVerification);
+        mEtOldPwd = findViewById(R.id.etOldPwd);
+        mEtPwd = findViewById(R.id.etPwd);
+        mIvOldPwdEye = findViewById(R.id.ivOldPwdEye);
+        mIvEye = findViewById(R.id.ivEye);
+        mEtVerification = findViewById(R.id.etVerification);
         mTvGetCode = findViewById(R.id.tvGetCode);
-        applyDebouncingClickListener(ivOldPwdEye, ivEye, mTvGetCode, findViewById(R.id.btnComplete));
+        applyDebouncingClickListener(mIvOldPwdEye, mIvEye, mTvGetCode, findViewById(R.id.btnComplete));
         initLoading("Updating...");
     }
 
@@ -76,16 +76,16 @@ public class ModifyPasswordActivity extends BaseActivity {
     @Override
     public void onDebouncingClick(@NonNull View view) {
         if(view.getId() == R.id.ivEye) {
-            ivEye.setImageResource(isShowPwd?R.drawable.ic_login_icon_display:R.drawable.ic_login_icon_hide);
-            etPwd.setInputType(isShowPwd?
+            mIvEye.setImageResource(isShowPwd?R.drawable.ic_login_icon_display:R.drawable.ic_login_icon_hide);
+            mEtPwd.setInputType(isShowPwd?
                     InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
                     :(InputType.TYPE_CLASS_TEXT|InputType.TYPE_TEXT_VARIATION_PASSWORD));
             isShowPwd = !isShowPwd;
             return;
         }
         if(view.getId() == R.id.ivOldPwdEye) {
-            ivOldPwdEye.setImageResource(isShowPwd?R.drawable.ic_login_icon_display:R.drawable.ic_login_icon_hide);
-            etOldPwd.setInputType(isShowOldPwd?
+            mIvOldPwdEye.setImageResource(isShowPwd?R.drawable.ic_login_icon_display:R.drawable.ic_login_icon_hide);
+            mEtOldPwd.setInputType(isShowOldPwd?
                     InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
                     :(InputType.TYPE_CLASS_TEXT|InputType.TYPE_TEXT_VARIATION_PASSWORD));
             isShowOldPwd = !isShowOldPwd;
@@ -103,7 +103,7 @@ public class ModifyPasswordActivity extends BaseActivity {
     }
 
     private void changeUserPwd() {
-        String oldPwd = etOldPwd.getText().toString().trim();
+        String oldPwd = mEtOldPwd.getText().toString().trim();
         if(TextUtils.isEmpty(oldPwd)) {
             ToastUtils.showShort("Please input old password");
             return;
@@ -112,7 +112,7 @@ public class ModifyPasswordActivity extends BaseActivity {
             ToastUtils.showShort("Please input right old password");
             return;
         }
-        String pwd = etPwd.getText().toString().trim();
+        String pwd = mEtPwd.getText().toString().trim();
         if(TextUtils.isEmpty(pwd)) {
             ToastUtils.showShort("Please input new password");
             return;

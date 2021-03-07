@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
@@ -12,12 +13,16 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 
 import com.blankj.utilcode.util.ConvertUtils;
 import com.blankj.utilcode.util.GsonUtils;
+import com.blankj.utilcode.util.RegexUtils;
+import com.blankj.utilcode.util.ToastUtils;
 import com.google.gson.JsonSyntaxException;
 import com.revolo.lock.App;
 import com.revolo.lock.Constant;
 import com.revolo.lock.LocalState;
 import com.revolo.lock.R;
 import com.revolo.lock.base.BaseActivity;
+import com.revolo.lock.bean.request.SettingDuressPwdReceiveEMailBeanReq;
+import com.revolo.lock.bean.respone.SettingDuressPwdReceiveEMailBeanRsp;
 import com.revolo.lock.ble.BleByteUtil;
 import com.revolo.lock.ble.BleCommandFactory;
 import com.revolo.lock.ble.BleCommandState;
@@ -30,6 +35,8 @@ import com.revolo.lock.mqtt.MqttConstant;
 import com.revolo.lock.mqtt.bean.MqttData;
 import com.revolo.lock.mqtt.bean.publishbean.attrparams.DuressParams;
 import com.revolo.lock.mqtt.bean.publishresultbean.WifiLockSetLockAttrDuressRspBean;
+import com.revolo.lock.net.HttpRequest;
+import com.revolo.lock.net.ObservableDecorator;
 import com.revolo.lock.room.AppDatabase;
 import com.revolo.lock.room.entity.BleDeviceLocal;
 
@@ -37,6 +44,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.concurrent.TimeUnit;
 
+import io.reactivex.Observable;
 import io.reactivex.Observer;
 import io.reactivex.disposables.Disposable;
 import timber.log.Timber;
@@ -56,6 +64,8 @@ public class DuressCodeActivity extends BaseActivity {
     private ConstraintLayout mClInputEmail;
     private ImageView mIvDuressCodeEnable;
     private BleDeviceLocal mBleDeviceLocal;
+
+    private EditText mEtEmail;
 
     @Override
     public void initData(@Nullable Bundle bundle) {
@@ -81,9 +91,10 @@ public class DuressCodeActivity extends BaseActivity {
         useCommonTitleBar(getString(R.string.title_duress_code));
         mClInputEmail = findViewById(R.id.clInputEmail);
         mIvDuressCodeEnable = findViewById(R.id.ivDuressCodeEnable);
+        mEtEmail = findViewById(R.id.etEmail);
         initLoading("Setting...");
         initUI();
-        applyDebouncingClickListener(findViewById(R.id.ivDuressCodeEnable));
+        applyDebouncingClickListener(findViewById(R.id.ivDuressCodeEnable), findViewById(R.id.btnSave));
     }
 
     @Override
@@ -101,7 +112,69 @@ public class DuressCodeActivity extends BaseActivity {
             } else {
                 openOrCloseDuressPwd();
             }
+            return;
         }
+        if(view.getId() == R.id.btnSave) {
+            settingDuressReceiveMail();
+        }
+    }
+
+    private void settingDuressReceiveMail() {
+        String mail = mEtEmail.getText().toString().trim();
+        if(TextUtils.isEmpty(mail)) {
+            ToastUtils.showShort("Please input mail");
+            return;
+        }
+        if(!RegexUtils.isEmail(mail)) {
+            ToastUtils.showShort("Please input right mail address");
+            return;
+        }
+        String token = App.getInstance().getUserBean().getToken();
+        if(TextUtils.isEmpty(token)) {
+            Timber.e("token is empty");
+            return;
+        }
+        SettingDuressPwdReceiveEMailBeanReq req = new SettingDuressPwdReceiveEMailBeanReq();
+        req.setDuressEmail(mail);
+//        req.setName();
+        // 1手机 2邮箱
+        req.setType(2);
+        Observable<SettingDuressPwdReceiveEMailBeanRsp> observable = HttpRequest.getInstance().settingDuressPwdReceiveEMail(token, req);
+        showLoading();
+        ObservableDecorator.decorate(observable).safeSubscribe(new Observer<SettingDuressPwdReceiveEMailBeanRsp>() {
+            @Override
+            public void onSubscribe(@NonNull Disposable d) {
+
+            }
+
+            @Override
+            public void onNext(@NonNull SettingDuressPwdReceiveEMailBeanRsp settingDuressPwdReceiveEMailBeanRsp) {
+                dismissLoading();
+                String code = settingDuressPwdReceiveEMailBeanRsp.getCode();
+                if(TextUtils.isEmpty(code)) {
+                    Timber.e("code is empty");
+                    return;
+                }
+                if(!code.equals("200")) {
+                    Timber.e("code: %1s, msg: %2s", code, settingDuressPwdReceiveEMailBeanRsp.getMsg());
+                    return;
+                }
+                // TODO: 2021/3/8 修改文字
+                ToastUtils.showShort("Setting Email success");
+                finish();
+            }
+
+            @Override
+            public void onError(@NonNull Throwable e) {
+                dismissLoading();
+                Timber.e(e);
+            }
+
+            @Override
+            public void onComplete() {
+
+            }
+        });
     }
 
     private void publishOpenOrCloseDuressPwd(String wifiID) {
