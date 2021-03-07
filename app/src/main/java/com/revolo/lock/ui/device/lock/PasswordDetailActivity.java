@@ -26,6 +26,7 @@ import com.revolo.lock.ble.BleByteUtil;
 import com.revolo.lock.ble.BleCommandFactory;
 import com.revolo.lock.ble.BleResultProcess;
 import com.revolo.lock.ble.OnBleDeviceListener;
+import com.revolo.lock.ble.bean.BleBean;
 import com.revolo.lock.ble.bean.BleResultBean;
 import com.revolo.lock.dialog.MessageDialog;
 import com.revolo.lock.dialog.SelectDialog;
@@ -119,7 +120,10 @@ public class PasswordDetailActivity extends BaseActivity {
     public void doBusiness() {
         initDetail();
         if(mBleDeviceLocal.getConnectedType() != LocalState.DEVICE_CONNECT_TYPE_WIFI) {
-            initBleListener();
+            BleBean bleBean = App.getInstance().getBleBeanFromMac(mBleDeviceLocal.getMac());
+            if(bleBean != null) {
+                bleBean.setOnBleDeviceListener(mOnBleDeviceListener);
+            }
         }
     }
 
@@ -265,6 +269,23 @@ public class PasswordDetailActivity extends BaseActivity {
         if(mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI) {
             publishDelPwd(mBleDeviceLocal.getEsn(), mDevicePwd.getPwdNum());
         } else {
+            BleBean bleBean = App.getInstance().getBleBeanFromMac(mBleDeviceLocal.getMac());
+            if(bleBean == null) {
+                Timber.e("delPwd bleBean == null");
+                return;
+            }
+            if(bleBean.getOKBLEDeviceImp() == null) {
+                Timber.e("delPwd bleBean.getOKBLEDeviceImp() == null");
+                return;
+            }
+            if(bleBean.getPwd1() == null) {
+                Timber.e("delPwd bleBean.getPwd1() == null");
+                return;
+            }
+            if(bleBean.getPwd3() == null) {
+                Timber.e("delPwd bleBean.getPwd3() == null");
+                return;
+            }
             App.getInstance().writeControlMsg(BleCommandFactory
                     .keyAttributesSet(KEY_SET_KEY_OPTION_DEL,
                             KEY_SET_KEY_TYPE_PWD,
@@ -273,8 +294,8 @@ public class PasswordDetailActivity extends BaseActivity {
                             (byte)0x00,
                             (byte)0x00,
                             (byte)0x00,
-                            App.getInstance().getBleBean().getPwd1(),
-                            App.getInstance().getBleBean().getPwd3()));
+                            bleBean.getPwd1(),
+                            bleBean.getPwd3()), bleBean.getOKBLEDeviceImp());
         }
     }
 
@@ -334,41 +355,48 @@ public class PasswordDetailActivity extends BaseActivity {
 
     }
 
-    private void initBleListener() {
-        App.getInstance().setOnBleDeviceListener(new OnBleDeviceListener() {
-            @Override
-            public void onConnected() {
+    private OnBleDeviceListener mOnBleDeviceListener = new OnBleDeviceListener() {
+        @Override
+        public void onConnected(@NotNull String mac) {
 
+        }
+
+        @Override
+        public void onDisconnected(@NotNull String mac) {
+
+        }
+
+        @Override
+        public void onReceivedValue(@NotNull String mac, String uuid, byte[] value) {
+            if(value == null) {
+                return;
             }
-
-            @Override
-            public void onDisconnected() {
-
+            BleBean bleBean = App.getInstance().getBleBeanFromMac(mac);
+            if(bleBean == null) {
+                Timber.e("initBleListener bleBean == null");
+                return;
             }
-
-            @Override
-            public void onReceivedValue(String uuid, byte[] value) {
-                if(value == null) {
-                    return;
-                }
-                BleResultProcess.setOnReceivedProcess(mOnReceivedProcess);
-                BleResultProcess.processReceivedData(value,
-                        App.getInstance().getBleBean().getPwd1(),
-                        App.getInstance().getBleBean().getPwd3(),
-                        App.getInstance().getBleBean().getOKBLEDeviceImp().getBleScanResult());
+            if(bleBean.getOKBLEDeviceImp() == null) {
+                Timber.e("initBleListener bleBean.getOKBLEDeviceImp() == null");
+                return;
             }
+            BleResultProcess.setOnReceivedProcess(mOnReceivedProcess);
+            BleResultProcess.processReceivedData(value,
+                    bleBean.getPwd1(),
+                    bleBean.getPwd3(),
+                    bleBean.getOKBLEDeviceImp().getBleScanResult());
+        }
 
-            @Override
-            public void onWriteValue(String uuid, byte[] value, boolean success) {
+        @Override
+        public void onWriteValue(@NotNull String mac, String uuid, byte[] value, boolean success) {
 
-            }
+        }
 
-            @Override
-            public void onAuthSuc() {
+        @Override
+        public void onAuthSuc(@NotNull String mac) {
 
-            }
-        });
-    }
+        }
+    };
 
     private void delKeyFromService() {
 

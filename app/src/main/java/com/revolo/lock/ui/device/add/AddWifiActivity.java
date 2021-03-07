@@ -28,6 +28,8 @@ import com.revolo.lock.popup.WifiListPopup;
 import com.revolo.lock.room.AppDatabase;
 import com.revolo.lock.room.entity.BleDeviceLocal;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -174,28 +176,51 @@ public class AddWifiActivity extends BaseActivity {
     }
 
     private void initDevice() {
-        mBleBean = App.getInstance().getBleBean();
+        mBleBean = App.getInstance().getBleBeanFromMac(mBleDeviceLocal.getMac());
+        // TODO: 2021/3/7 初始化有问题做处理
+        if(mBleBean == null) {
+            Timber.e("initDevice mBleBean == null");
+            return;
+        }
         if (mBleBean.getOKBLEDeviceImp() != null) {
-            App.getInstance().openPairNotify();
-            App.getInstance().setOnBleDeviceListener(mOnBleDeviceListener);
+            App.getInstance().openPairNotify(mBleBean.getOKBLEDeviceImp());
+            mBleBean.setOnBleDeviceListener(mOnBleDeviceListener);
             checkBattery();
         }
     }
 
     private final OnBleDeviceListener mOnBleDeviceListener = new OnBleDeviceListener() {
         @Override
-        public void onConnected() {
+        public void onConnected(@NotNull String mac) {
 
         }
 
         @Override
-        public void onDisconnected() {
+        public void onDisconnected(@NotNull String mac) {
 
         }
 
         @Override
-        public void onReceivedValue(String uuid, byte[] value) {
+        public void onReceivedValue(@NotNull String mac, String uuid, byte[] value) {
             if(value == null) {
+                Timber.e("initBleListener value == null");
+                return;
+            }
+            BleBean bleBean = App.getInstance().getBleBeanFromMac(mBleDeviceLocal.getMac());
+            if(bleBean == null) {
+                Timber.e("initBleListener bleBean == null");
+                return;
+            }
+            if(bleBean.getOKBLEDeviceImp() == null) {
+                Timber.e("initBleListener bleBean.getOKBLEDeviceImp() == null");
+                return;
+            }
+            if(bleBean.getPwd1() == null) {
+                Timber.e("initBleListener bleBean.getPwd1() == null");
+                return;
+            }
+            if(bleBean.getPwd3() == null) {
+                Timber.e("initBleListener bleBean.getPwd3() == null");
                 return;
             }
             BleResultProcess.setOnReceivedProcess(mOnReceivedProcess);
@@ -204,14 +229,15 @@ public class AddWifiActivity extends BaseActivity {
         }
 
         @Override
-        public void onWriteValue(String uuid, byte[] value, boolean success) {
+        public void onWriteValue(@NotNull String mac, String uuid, byte[] value, boolean success) {
 
         }
 
         @Override
-        public void onAuthSuc() {
+        public void onAuthSuc(@NotNull String mac) {
 
         }
+
     };
 
     private final BleResultProcess.OnReceivedProcess mOnReceivedProcess = bleResultBean -> {
@@ -228,8 +254,14 @@ public class AddWifiActivity extends BaseActivity {
     };
 
     private void checkBattery() {
+        if(mBleBean == null) {
+            Timber.e("checkBattery mBleBean == null");
+            return;
+        }
         // wifi配网前记得查询电量
-        App.getInstance().writeControlMsg(BleCommandFactory.checkLockBaseInfoCommand(mBleBean.getPwd1(), mBleBean.getPwd3()));
+        App.getInstance().writeControlMsg(BleCommandFactory
+                        .checkLockBaseInfoCommand(mBleBean.getPwd1(), mBleBean.getPwd3()),
+                mBleBean.getOKBLEDeviceImp());
     }
 
     private void receiveLockBaseInfo(BleResultBean bleResultBean) {
@@ -244,7 +276,15 @@ public class AddWifiActivity extends BaseActivity {
     }
 
     private void getWifiList() {
-        App.getInstance().writePairMsg(BleCommandFactory.wifiListSearchCommand());
+        if(mBleBean == null) {
+            Timber.e("getWifiList mBleBean == null");
+            return;
+        }
+        if(mBleBean.getOKBLEDeviceImp() == null) {
+            Timber.e("getWifiList mBleBean.getOKBLEDeviceImp() == null");
+            return;
+        }
+        App.getInstance().writePairMsg(BleCommandFactory.wifiListSearchCommand(), mBleBean.getOKBLEDeviceImp());
     }
 
     private int mWifiTotalNum = 0;

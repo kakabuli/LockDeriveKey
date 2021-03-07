@@ -23,6 +23,7 @@ import com.revolo.lock.ble.BleCommandFactory;
 import com.revolo.lock.ble.BleCommandState;
 import com.revolo.lock.ble.BleResultProcess;
 import com.revolo.lock.ble.OnBleDeviceListener;
+import com.revolo.lock.ble.bean.BleBean;
 import com.revolo.lock.ble.bean.BleResultBean;
 import com.revolo.lock.mqtt.MqttCommandFactory;
 import com.revolo.lock.mqtt.MqttConstant;
@@ -177,56 +178,84 @@ public class DuressCodeActivity extends BaseActivity {
     }
 
     private void openOrCloseDuressPwd() {
-        if(App.getInstance().getBleBean() == null) {
+        BleBean bleBean = App.getInstance().getBleBeanFromMac(mBleDeviceLocal.getMac());
+        if(bleBean == null) {
+            Timber.e("openOrCloseDuressPwd bleBean == null");
             return;
         }
-        byte[] pwd1 = App.getInstance().getBleBean().getPwd1();
-        byte[] pwd3 = App.getInstance().getBleBean().getPwd3();
+        if(bleBean.getOKBLEDeviceImp() == null) {
+            Timber.e("openOrCloseDuressPwd bleBean.getOKBLEDeviceImp() == null");
+            return;
+        }
+        byte[] pwd1 = bleBean.getPwd1();
+        byte[] pwd3 = bleBean.getPwd3();
         if(pwd1 == null) {
+            Timber.e("openOrCloseDuressPwd pwd1 == null");
             return;
         }
         if(pwd3 == null) {
+            Timber.e("openOrCloseDuressPwd pwd3 == null");
             return;
         }
         int control = mBleDeviceLocal.isDuress()? BleCommandState.DURESS_PWD_CLOSE:BleCommandState.DURESS_PWD_OPEN;
-        App.getInstance().writeControlMsg(BleCommandFactory.duressPwdSwitch(control, pwd1, pwd3));
+        App.getInstance().writeControlMsg(BleCommandFactory.duressPwdSwitch(control, pwd1, pwd3), bleBean.getOKBLEDeviceImp());
     }
 
     private void initBleListener() {
-        App.getInstance().setOnBleDeviceListener(new OnBleDeviceListener() {
-            @Override
-            public void onConnected() {
+        BleBean bleBean = App.getInstance().getBleBeanFromMac(mBleDeviceLocal.getMac());
+        if(bleBean != null) {
+            bleBean.setOnBleDeviceListener(new OnBleDeviceListener() {
+                @Override
+                public void onConnected(@NotNull String mac) {
 
-            }
-
-            @Override
-            public void onDisconnected() {
-
-            }
-
-            @Override
-            public void onReceivedValue(String uuid, byte[] value) {
-                if(value == null) {
-                    return;
                 }
-                BleResultProcess.setOnReceivedProcess(mOnReceivedProcess);
-                BleResultProcess.processReceivedData(value,
-                        App.getInstance().getBleBean().getPwd1(),
-                        App.getInstance().getBleBean().getPwd3(),
-                        App.getInstance().getBleBean().getOKBLEDeviceImp().getBleScanResult());
-            }
 
-            @Override
-            public void onWriteValue(String uuid, byte[] value, boolean success) {
+                @Override
+                public void onDisconnected(@NotNull String mac) {
 
-            }
+                }
 
-            @Override
-            public void onAuthSuc() {
+                @Override
+                public void onReceivedValue(@NotNull String mac, String uuid, byte[] value) {
+                    if(value == null) {
+                        Timber.e("initBleListener value == null");
+                        return;
+                    }
+                    BleBean bleBean = App.getInstance().getBleBeanFromMac(mBleDeviceLocal.getMac());
+                    if(bleBean == null) {
+                        Timber.e("initBleListener bleBean == null");
+                        return;
+                    }
+                    if(bleBean.getOKBLEDeviceImp() == null) {
+                        Timber.e("initBleListener bleBean.getOKBLEDeviceImp() == null");
+                        return;
+                    }
+                    if(bleBean.getPwd1() == null) {
+                        Timber.e("initBleListener bleBean.getPwd1() == null");
+                        return;
+                    }
+                    if(bleBean.getPwd3() == null) {
+                        Timber.e("initBleListener bleBean.getPwd3() == null");
+                        return;
+                    }
+                    BleResultProcess.setOnReceivedProcess(mOnReceivedProcess);
+                    BleResultProcess.processReceivedData(value, bleBean.getPwd1(), bleBean.getPwd3(),
+                            bleBean.getOKBLEDeviceImp().getBleScanResult());
+                }
 
-            }
-        });
-        // TODO: 2021/2/8 查询一下当前设置
+                @Override
+                public void onWriteValue(@NotNull String mac, String uuid, byte[] value, boolean success) {
+
+                }
+
+                @Override
+                public void onAuthSuc(@NotNull String mac) {
+
+                }
+
+            });
+            // TODO: 2021/2/8 查询一下当前设置
+        }
     }
 
     private final BleResultProcess.OnReceivedProcess mOnReceivedProcess = bleResultBean -> {

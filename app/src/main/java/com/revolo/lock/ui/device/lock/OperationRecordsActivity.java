@@ -29,7 +29,10 @@ import com.revolo.lock.ble.BleResultProcess;
 import com.revolo.lock.ble.OnBleDeviceListener;
 import com.revolo.lock.ble.bean.BleResultBean;
 import com.revolo.lock.room.AppDatabase;
+import com.revolo.lock.room.entity.BleDeviceLocal;
 import com.revolo.lock.room.entity.LockRecord;
+
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -58,10 +61,10 @@ public class OperationRecordsActivity extends BaseActivity {
     private long mDeviceId;
     private LinearLayout mllNoRecord;
     private RecyclerView mRvOperationRecords;
+    private BleDeviceLocal mBleDeviceLocal;
 
     @Override
     public void initData(@Nullable Bundle bundle) {
-        mBleBean = App.getInstance().getBleBean();
         Intent intent = getIntent();
         if(intent.hasExtra(Constant.DEVICE_ID)) {
             mDeviceId = intent.getLongExtra(Constant.DEVICE_ID, -1L);
@@ -69,6 +72,14 @@ public class OperationRecordsActivity extends BaseActivity {
         }
         if(mDeviceId == -1L) {
             // TODO: 2021/2/24 处理异常情况
+            finish();
+        }
+        mBleDeviceLocal = AppDatabase.getInstance(this).bleDeviceDao().findBleDeviceFromId(mDeviceId);
+        if(mBleDeviceLocal == null) {
+            finish();
+        }
+        mBleBean = App.getInstance().getBleBeanFromMac(mBleDeviceLocal.getMac());
+        if(mBleBean == null) {
             finish();
         }
     }
@@ -112,18 +123,31 @@ public class OperationRecordsActivity extends BaseActivity {
 
     private final OnBleDeviceListener mOnBleDeviceListener = new OnBleDeviceListener() {
         @Override
-        public void onConnected() {
+        public void onConnected(@NotNull String mac) {
 
         }
 
         @Override
-        public void onDisconnected() {
+        public void onDisconnected(@NotNull String mac) {
 
         }
 
         @Override
-        public void onReceivedValue(String uuid, byte[] value) {
+        public void onReceivedValue(@NotNull String mac, String uuid, byte[] value) {
             if(value == null) {
+                Timber.e("mOnBleDeviceListener value == null");
+                return;
+            }
+            if(mBleBean == null) {
+                Timber.e("mOnBleDeviceListener mBleBean == null");
+                return;
+            }
+            if(mBleBean.getOKBLEDeviceImp() == null) {
+                Timber.e("mOnBleDeviceListener mBleBean.getOKBLEDeviceImp() == null");
+                return;
+            }
+            if(!mBleDeviceLocal.getMac().equals(mac)) {
+                Timber.e("mOnBleDeviceListener 蓝牙设备不匹配， mac: %1s, local mac: %2s", mac, mBleDeviceLocal.getMac());
                 return;
             }
             BleResultProcess.setOnReceivedProcess(mOnReceivedProcess);
@@ -132,12 +156,12 @@ public class OperationRecordsActivity extends BaseActivity {
         }
 
         @Override
-        public void onWriteValue(String uuid, byte[] value, boolean success) {
+        public void onWriteValue(@NotNull String mac, String uuid, byte[] value, boolean success) {
 
         }
 
         @Override
-        public void onAuthSuc() {
+        public void onAuthSuc(@NotNull String mac) {
 
         }
     };
@@ -158,8 +182,8 @@ public class OperationRecordsActivity extends BaseActivity {
             return;
         }
         if (mBleBean.getOKBLEDeviceImp() != null) {
-            App.getInstance().openPairNotify();
-            App.getInstance().setOnBleDeviceListener(mOnBleDeviceListener);
+            App.getInstance().openPairNotify(mBleBean.getOKBLEDeviceImp());
+            mBleBean.setOnBleDeviceListener(mOnBleDeviceListener);
         }
     }
 
@@ -169,7 +193,7 @@ public class OperationRecordsActivity extends BaseActivity {
                 // 因为shortToBytes转出来就是小端模式，所以调用直接使用小端模式的方法
                 App.getInstance().writeControlMsg(BleCommandFactory
                         .readAllRecordFromSmallEndian(BleByteUtil.shortToBytes(start), BleByteUtil.shortToBytes(end),
-                                mBleBean.getPwd1(), mBleBean.getPwd3()));
+                                mBleBean.getPwd1(), mBleBean.getPwd3()), mBleBean.getOKBLEDeviceImp());
             } else {
                 // TODO: 2021/1/26 没有连接上，需要连接上才能发送指令
             }

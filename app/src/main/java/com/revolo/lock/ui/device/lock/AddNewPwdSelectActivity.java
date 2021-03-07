@@ -114,7 +114,6 @@ public class AddNewPwdSelectActivity extends BaseActivity {
 
     @Override
     public void initData(@Nullable Bundle bundle) {
-        mBleBean = App.getInstance().getBleBean();
         Intent intent = getIntent();
         if(intent.hasExtra(Constant.USER_PWD)) {
             mKey = intent.getStringExtra(Constant.USER_PWD);
@@ -129,6 +128,10 @@ public class AddNewPwdSelectActivity extends BaseActivity {
         mBleDeviceLocal = AppDatabase.getInstance(this).bleDeviceDao().findBleDeviceFromId(mDeviceId);
         if(mBleDeviceLocal == null) {
             // TODO: 2021/2/21 或者有其他方法
+            finish();
+        }
+        mBleBean = App.getInstance().getBleBeanFromMac(mBleDeviceLocal.getMac());
+        if(mBleBean == null) {
             finish();
         }
     }
@@ -299,7 +302,8 @@ public class AddNewPwdSelectActivity extends BaseActivity {
             publishAddPwd(mBleDeviceLocal.getEsn(), mKey);
         } else {
             App.getInstance().writeControlMsg(BleCommandFactory.addKey(KEY_SET_KEY_TYPE_PWD,
-                    mKey.getBytes(StandardCharsets.UTF_8), mBleBean.getPwd1(), mBleBean.getPwd3()));
+                    mKey.getBytes(StandardCharsets.UTF_8), mBleBean.getPwd1(), mBleBean.getPwd3()),
+                    mBleBean.getOKBLEDeviceImp());
             // TODO: 2021/1/29 需要做超时操作
         }
     }
@@ -443,17 +447,17 @@ public class AddNewPwdSelectActivity extends BaseActivity {
 
     private final OnBleDeviceListener mOnBleDeviceListener = new OnBleDeviceListener() {
         @Override
-        public void onConnected() {
+        public void onConnected(@NotNull String mac) {
 
         }
 
         @Override
-        public void onDisconnected() {
+        public void onDisconnected(@NotNull String mac) {
 
         }
 
         @Override
-        public void onReceivedValue(String uuid, byte[] value) {
+        public void onReceivedValue(@NotNull String mac, String uuid, byte[] value) {
             if(value == null) {
                 return;
             }
@@ -463,14 +467,15 @@ public class AddNewPwdSelectActivity extends BaseActivity {
         }
 
         @Override
-        public void onWriteValue(String uuid, byte[] value, boolean success) {
+        public void onWriteValue(@NotNull String mac, String uuid, byte[] value, boolean success) {
 
         }
 
         @Override
-        public void onAuthSuc() {
+        public void onAuthSuc(@NotNull String mac) {
 
         }
+
     };
 
     private final BleResultProcess.OnReceivedProcess mOnReceivedProcess = bleResultBean -> {
@@ -552,7 +557,7 @@ public class AddNewPwdSelectActivity extends BaseActivity {
                                     mTemStartDateTimeMill/1000,
                                     mTemEndDateTimeMill/1000,
                                     mBleBean.getPwd1(),
-                                    mBleBean.getPwd3()));
+                                    mBleBean.getPwd3()), mBleBean.getOKBLEDeviceImp());
         }
 
     }
@@ -597,7 +602,7 @@ public class AddNewPwdSelectActivity extends BaseActivity {
                                     mScheduleStartTimeMill/1000,
                                     mScheduleEndTimeMill/1000,
                                     mBleBean.getPwd1(),
-                                    mBleBean.getPwd3()));
+                                    mBleBean.getPwd3()), mBleBean.getOKBLEDeviceImp());
         }
 
     }
@@ -634,8 +639,8 @@ public class AddNewPwdSelectActivity extends BaseActivity {
             Timber.e("initDevice mBleBean == null || mBleBean.getOKBLEDeviceImp() == null");
             return;
         }
-        App.getInstance().openPairNotify();
-        App.getInstance().setOnBleDeviceListener(mOnBleDeviceListener);
+        App.getInstance().openPairNotify(mBleBean.getOKBLEDeviceImp());
+        mBleBean.setOnBleDeviceListener(mOnBleDeviceListener);
     }
 
     private void publishAddPwd(String wifiId, String key) {

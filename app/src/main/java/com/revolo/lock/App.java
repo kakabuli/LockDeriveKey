@@ -28,6 +28,8 @@ import com.revolo.lock.room.AppDatabase;
 import com.revolo.lock.room.entity.User;
 import com.revolo.lock.ui.sign.LoginActivity;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -52,8 +54,6 @@ public class App extends Application {
 
     private MailLoginBeanRsp.DataBean mUserBean;
     private static App instance;
-    private OKBLEDeviceImp mDevice;
-    private BleBean mBleBean;
     private final String mFilePath = File.pathSeparator + "Ble" + File.pathSeparator;
     private CacheDiskUtils mCacheDiskUtils;
     private final List<Activity> mWillFinishActivities = new ArrayList<>();
@@ -109,61 +109,63 @@ public class App extends Application {
         return mUser;
     }
 
-    // TODO: 2021/1/28 后面监听需要修改 适应多设备
-    private OnBleDeviceListener mOnBleDeviceListener;
-    public void setOnBleDeviceListener(OnBleDeviceListener onBleDeviceListener) {
-        mOnBleDeviceListener = onBleDeviceListener;
-    }
-    public void clearBleDeviceListener() {
-        Timber.d("clearBleDeviceListener");
-        mOnBleDeviceListener = null;
-    }
+    private final ArrayList<BleBean> mConnectedBleBeanList = new ArrayList<>();
+    private static final int DEFAULT_CONNECTED_CAPACITY = 3;
 
-    private boolean isAppPair = false;
-    private boolean isAuth = false;
-
-    /**
-     * 是否进行APP与蓝牙的配对
-     * @param appPair 是否进行配对
-     */
-    public void setAppPair(boolean appPair) {
-        isAppPair = appPair;
+    private void addConnectedBleBean(BleBean bleBean) {
+        if(mConnectedBleBeanList.size() > DEFAULT_CONNECTED_CAPACITY) {
+            BleBean willRemoveBleBean = mConnectedBleBeanList.get(0);
+            willRemoveBleBean.getOKBLEDeviceImp().disConnect(false);
+            mConnectedBleBeanList.remove(0);
+        }
+        mConnectedBleBeanList.add(bleBean);
     }
 
+    public BleBean getBleBeanFromMac(@NotNull String mac) {
+        for (BleBean bleBean : mConnectedBleBeanList) {
+            if(bleBean.getOKBLEDeviceImp().getMacAddress().equals(mac)) {
+                return bleBean;
+            }
+        }
+        return null;
+    }
 
     // TODO: 2021/2/8 存在bug, 后续要下沉自动鉴权的完整流程
-    public void connectDevice(BLEScanResult bleScanResult) {
-        if(mDevice != null) {
-            // 如果之前存在设备，需要先断开之前的连接
-            mDevice.disConnect(false);
-        }
-        mDevice = new OKBLEDeviceImp(getApplicationContext(), bleScanResult);
-        mBleBean = new BleBean(mDevice);
+    public BleBean connectDevice(BLEScanResult bleScanResult,  byte[] pwd1, byte[] pwd2, OnBleDeviceListener onBleDeviceListener, boolean isAppPair) {
+        OKBLEDeviceImp deviceImp = new OKBLEDeviceImp(getApplicationContext(), bleScanResult);
+        BleBean bleBean = new BleBean(deviceImp);
+        bleBean.setPwd1(pwd1);
+        bleBean.setPwd2(pwd2);
+        bleBean.setOnBleDeviceListener(onBleDeviceListener);
+        bleBean.setAppPair(isAppPair);
+        bleBean.setAuth(false);
+        addConnectedBleBean(bleBean);
         OKBLEDeviceListener okbleDeviceListener = new OKBLEDeviceListener() {
             @Override
             public void onConnected(String deviceTAG) {
                 Timber.d("onConnected deviceTAG: %1s", deviceTAG);
-                openControlNotify();
-                if(isAppPair) {
+                openControlNotify(deviceImp);
+                if(bleBean.isAppPair()) {
                     // 正在蓝牙本地配网，所以不走自动鉴权
-                    bleConnectedCallback();
+                    bleConnectedCallback(bleBean, deviceImp.getMacAddress());
                     return;
                 }
                 // 连接后都走自动鉴权流程
-                isAuth = true;
+                bleBean.setAppPair(true);
                 App.getInstance().writeControlMsg(BleCommandFactory
-                        .authCommand(mBleBean.getPwd1(), mBleBean.getPwd2(), mBleBean.getEsn().getBytes(StandardCharsets.UTF_8)));
-                bleConnectedCallback();
+                        .authCommand(bleBean.getPwd1(), bleBean.getPwd2(), bleBean.getEsn().getBytes(StandardCharsets.UTF_8)),
+                        deviceImp);
+                bleConnectedCallback(bleBean, deviceImp.getMacAddress());
             }
 
             @Override
             public void onDisconnected(String deviceTAG) {
                 Timber.d("onDisconnected deviceTAG: %1s", deviceTAG);
-                if(mOnBleDeviceListener == null) {
-                    Timber.e("mOnBleDeviceListener == null");
+                if(bleBean.getOnBleDeviceListener() == null) {
+                    Timber.e("onDisconnected bleBean.getOnBleDeviceListener() == null");
                     return;
                 }
-                mOnBleDeviceListener.onDisconnected();
+                bleBean.getOnBleDeviceListener().onDisconnected(deviceImp.getMacAddress());
             }
 
             @Override
@@ -175,24 +177,24 @@ public class App extends Application {
                 Timber.d("onReceivedValue value: %1s", ConvertUtils.bytes2HexString(value));
                 int cmd = BleByteUtil.byteToInt(value[3]);
                 if(cmd == CMD_ENCRYPT_KEY_UPLOAD) {
-                    authProcess(value, mBleBean.getPwd1(), isAuth?mBleBean.getPwd2():mBleBean.getPwd3());
+                    authProcess(value, bleBean, deviceImp.getMacAddress());
                 }
-                if(mOnBleDeviceListener == null) {
+                if(bleBean.getOnBleDeviceListener() == null) {
                     Timber.e("mOnBleDeviceListener == null");
                     return;
                 }
-                mOnBleDeviceListener.onReceivedValue(uuid, value);
+                bleBean.getOnBleDeviceListener().onReceivedValue(deviceImp.getMacAddress(), uuid, value);
             }
 
             @Override
             public void onWriteValue(String deviceTAG, String uuid, byte[] value, boolean success) {
                 Timber.d("onWriteValue uuid: %1s, value: %2s, success: %3b",
                         uuid, ConvertUtils.bytes2HexString(value), success);
-                if(mOnBleDeviceListener == null) {
+                if(bleBean.getOnBleDeviceListener() == null) {
                     Timber.e("mOnBleDeviceListener == null");
                     return;
                 }
-                mOnBleDeviceListener.onWriteValue(uuid, value, success);
+                bleBean.getOnBleDeviceListener().onWriteValue(deviceImp.getMacAddress(), uuid, value, success);
 
             }
 
@@ -204,21 +206,23 @@ public class App extends Application {
             public void onNotifyOrIndicateComplete(String deviceTAG, String uuid, boolean enable, boolean success) {
             }
         };
-        mDevice.addDeviceListener(okbleDeviceListener);
+        deviceImp.addDeviceListener(okbleDeviceListener);
         // 自动重连
-        mDevice.connect(true);
-
+        deviceImp.connect(true);
+        return bleBean;
     }
 
-    private void bleConnectedCallback() {
-        if (mOnBleDeviceListener == null) {
+    private void bleConnectedCallback(@NotNull BleBean bleBean, @NotNull String mac) {
+        if (bleBean.getOnBleDeviceListener() == null) {
             Timber.e("mOnBleDeviceListener == null");
             return;
         }
-        mOnBleDeviceListener.onConnected();
+        bleBean.getOnBleDeviceListener().onConnected(mac);
     }
 
-    private void authProcess(byte[] value, byte[] pwd1, byte[] pwd2Or3) {
+    private void authProcess(byte[] value, @NotNull BleBean bleBean, @NotNull String mac) {
+        byte[] pwd1 = bleBean.getPwd1();
+        byte[] pwd2Or3 = bleBean.isAuth()?bleBean.getPwd2():bleBean.getPwd3();
         boolean isEncrypt = (value[0]==CONTROL_ENCRYPTION);
         byte[] payload = new byte[16];
         System.arraycopy(value,  4, payload, 0, payload.length);
@@ -231,31 +235,31 @@ public class App extends Application {
         }
         int cmd = BleByteUtil.byteToInt(value[3]);
         if(decryptPayload[0] == 0x02) {
-            if(mOnBleDeviceListener != null) {
-                mOnBleDeviceListener.onAuthSuc();
+            if(bleBean.getOnBleDeviceListener() != null) {
+                bleBean.getOnBleDeviceListener().onAuthSuc(mac);
             }
             // 获取pwd3
-            getPwd3(BleCommandFactory.ackCommand(BleByteUtil.byteToInt(value[1]), (byte) 0x00, cmd), decryptPayload);
-            isAuth = false;
+            getPwd3(BleCommandFactory.ackCommand(BleByteUtil.byteToInt(value[1]), (byte) 0x00, cmd), decryptPayload, bleBean);
+            bleBean.setAuth(false);
             // 鉴权成功后，同步当前时间
-            syNowTime();
+            syNowTime(bleBean);
         }
     }
 
-    private void getPwd3(byte[] bytes, byte[] decryptPayload) {
+    private void getPwd3(byte[] bytes, byte[] decryptPayload, @NotNull BleBean bleBean) {
         byte[] pwd3 = new byte[4];
         System.arraycopy(decryptPayload, 1, pwd3, 0, pwd3.length);
         Timber.d("鉴权成功, pwd3: %1s\n", ConvertUtils.bytes2HexString(pwd3));
         // 内存存储
-        mBleBean.setPwd3(pwd3);
-        App.getInstance().writeControlMsg(bytes);
+        bleBean.setPwd3(pwd3);
+        App.getInstance().writeControlMsg(bytes, bleBean.getOKBLEDeviceImp());
     }
 
-    private void syNowTime() {
+    private void syNowTime(@NotNull BleBean bleBean) {
         new Handler(Looper.getMainLooper()).postDelayed(() -> {
             long nowTime = TimeUtils.getNowMills()/1000;
             App.getInstance().writeControlMsg(BleCommandFactory
-                    .syLockTime(nowTime, mBleBean.getPwd1(), mBleBean.getPwd3()));
+                    .syLockTime(nowTime, bleBean.getPwd1(), bleBean.getPwd3()), bleBean.getOKBLEDeviceImp());
         }, 20);
     }
 
@@ -281,21 +285,21 @@ public class App extends Application {
         }
     };
 
-    public void writeControlMsg(byte[] bytes) {
-        if(mDevice != null) {
-            mDevice.addWriteOperation(sControlWriteCharacteristicUUID, bytes, mWriteOperationListener);
+    public void writeControlMsg(byte[] bytes, OKBLEDeviceImp deviceImp) {
+        if(deviceImp != null) {
+            deviceImp.addWriteOperation(sControlWriteCharacteristicUUID, bytes, mWriteOperationListener);
         }
     }
 
-    public void writePairMsg(byte[] bytes) {
-        if(mDevice != null) {
-            mDevice.addWriteOperation(sPairWriteCharacteristicUUID, bytes, mWriteOperationListener);
+    public void writePairMsg(byte[] bytes, OKBLEDeviceImp deviceImp) {
+        if(deviceImp != null) {
+            deviceImp.addWriteOperation(sPairWriteCharacteristicUUID, bytes, mWriteOperationListener);
         }
     }
 
-    private void openControlNotify() {
-        if(mDevice != null) {
-            mDevice.addNotifyOrIndicateOperation(sControlNotifyCharacteristicUUID,
+    private void openControlNotify(OKBLEDeviceImp deviceImp) {
+        if(deviceImp != null) {
+            deviceImp.addNotifyOrIndicateOperation(sControlNotifyCharacteristicUUID,
                     true, new OKBLEOperation.NotifyOrIndicateOperationListener() {
                         @Override
                         public void onNotifyOrIndicateComplete() {
@@ -315,9 +319,9 @@ public class App extends Application {
         }
     }
 
-    public void openPairNotify() {
-        if(mDevice != null) {
-            mDevice.addNotifyOrIndicateOperation(sPairNotifyCharacteristicUUID,
+    public void openPairNotify(OKBLEDeviceImp deviceImp) {
+        if(deviceImp != null) {
+            deviceImp.addNotifyOrIndicateOperation(sPairNotifyCharacteristicUUID,
                     true, new OKBLEOperation.NotifyOrIndicateOperationListener() {
                         @Override
                         public void onNotifyOrIndicateComplete() {
@@ -335,10 +339,6 @@ public class App extends Application {
                         }
                     });
         }
-    }
-
-    public BleBean getBleBean() {
-        return mBleBean;
     }
 
     public CacheDiskUtils getCacheDiskUtils() {
@@ -396,11 +396,12 @@ public class App extends Application {
         finishPreActivities();
         Timber.d("token过期   ");
 
+        // TODO: 2021/3/7 断开所有蓝牙连接
         //清除内存中缓存的数据
-        if(mDevice != null) {
-            // 如果之前存在设备，需要先断开之前的连接
-            mDevice.disConnect(false);
-        }
+//        if(mDevice != null) {
+//            // 如果之前存在设备，需要先断开之前的连接
+//            mDevice.disConnect(false);
+//        }
 
         //清除数据库数据
         for (Activity activity : mWillFinishActivities) {

@@ -1,6 +1,7 @@
 package com.revolo.lock.ble.bean;
 
 import com.a1anwang.okble.client.core.OKBLEDeviceImp;
+import com.revolo.lock.ble.OnBleDeviceListener;
 
 import java.io.Serializable;
 
@@ -16,7 +17,10 @@ public class BleBean implements Serializable {
     private byte[] pwd2;
     private byte[] pwd3;
     private String esn;
+    private boolean isAppPair;
+    private boolean isAuth;
     private OKBLEDeviceImp mOKBLEDeviceImp;
+    private OnBleDeviceListener mOnBleDeviceListener;
 
     public byte[] getPwd1() {
         return pwd1;
@@ -56,6 +60,34 @@ public class BleBean implements Serializable {
 
     public void setEsn(String esn) {
         this.esn = esn;
+    }
+
+    public boolean isAppPair() {
+        return isAppPair;
+    }
+
+    /**
+     * 是否进行APP与蓝牙的配对
+     * @param appPair 是否进行配对
+     */
+    public void setAppPair(boolean appPair) {
+        isAppPair = appPair;
+    }
+
+    public boolean isAuth() {
+        return isAuth;
+    }
+
+    public void setAuth(boolean auth) {
+        isAuth = auth;
+    }
+
+    public OnBleDeviceListener getOnBleDeviceListener() {
+        return mOnBleDeviceListener;
+    }
+
+    public void setOnBleDeviceListener(OnBleDeviceListener onBleDeviceListener) {
+        mOnBleDeviceListener = onBleDeviceListener;
     }
 
     public BleBean(OKBLEDeviceImp OKBLEDeviceImp) {

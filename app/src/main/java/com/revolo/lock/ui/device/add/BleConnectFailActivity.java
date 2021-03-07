@@ -7,7 +7,6 @@ import android.view.View;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.revolo.lock.App;
 import com.revolo.lock.Constant;
 import com.revolo.lock.R;
 import com.revolo.lock.base.BaseActivity;
@@ -20,14 +19,9 @@ import com.revolo.lock.base.BaseActivity;
  */
 public class BleConnectFailActivity extends BaseActivity {
 
-    private long mDeviceId = -1L;
-
     @Override
     public void initData(@Nullable Bundle bundle) {
-        Intent intent = getIntent();
-        if(intent.hasExtra(Constant.DEVICE_ID)) {
-            mDeviceId = intent.getLongExtra(Constant.DEVICE_ID, -1L);
-        }
+
     }
 
     @Override
@@ -43,10 +37,7 @@ public class BleConnectFailActivity extends BaseActivity {
 
     @Override
     public void doBusiness() {
-        if(App.getInstance().getBleBean() != null
-                && App.getInstance().getBleBean().getOKBLEDeviceImp() != null) {
-            App.getInstance().getBleBean().getOKBLEDeviceImp().disConnect(false);
-        }
+
     }
 
     @Override
@@ -61,9 +52,6 @@ public class BleConnectFailActivity extends BaseActivity {
     }
 
     private void gotoAddWifi() {
-        Intent intent = new Intent(this, AddWifiActivity.class);
-        intent.putExtra(Constant.DEVICE_ID, mDeviceId);
-        startActivity(intent);
         finish();
     }
 

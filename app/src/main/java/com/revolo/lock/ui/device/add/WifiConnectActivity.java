@@ -25,6 +25,8 @@ import com.revolo.lock.room.AppDatabase;
 import com.revolo.lock.room.entity.BleDeviceLocal;
 import com.revolo.lock.widget.WifiCircleProgress;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
@@ -96,28 +98,41 @@ public class WifiConnectActivity extends BaseActivity {
     }
 
     private void initDevice() {
-        mBleBean = App.getInstance().getBleBean();
+        mBleBean = App.getInstance().getBleBeanFromMac(mBleDeviceLocal.getMac());
+        if(mBleBean == null) {
+            Timber.e("initDevice mBleBean == null");
+            return;
+        }
         if (mBleBean.getOKBLEDeviceImp() != null) {
-            App.getInstance().openPairNotify();
-            App.getInstance().setOnBleDeviceListener(mOnBleDeviceListener);
+            App.getInstance().openPairNotify(mBleBean.getOKBLEDeviceImp());
+            mBleBean.setOnBleDeviceListener(mOnBleDeviceListener);
             startSendWifiInfo();
         }
     }
 
     private final OnBleDeviceListener mOnBleDeviceListener = new OnBleDeviceListener() {
         @Override
-        public void onConnected() {
+        public void onConnected(@NotNull String mac) {
 
         }
 
         @Override
-        public void onDisconnected() {
+        public void onDisconnected(@NotNull String mac) {
 
         }
 
         @Override
-        public void onReceivedValue(String uuid, byte[] value) {
+        public void onReceivedValue(@NotNull String mac, String uuid, byte[] value) {
             if(value == null) {
+                Timber.e("mOnBleDeviceListener value == null");
+                return;
+            }
+            if(mBleBean == null) {
+                Timber.e("mOnBleDeviceListener mBleBean == null");
+                return;
+            }
+            if(mBleBean.getOKBLEDeviceImp() == null) {
+                Timber.e("mOnBleDeviceListener mBleBean.getOKBLEDeviceImp() == null");
                 return;
             }
             Timber.d("数据来了 %1s", ConvertUtils.bytes2HexString(value));
@@ -127,14 +142,15 @@ public class WifiConnectActivity extends BaseActivity {
         }
 
         @Override
-        public void onWriteValue(String uuid, byte[] value, boolean success) {
+        public void onWriteValue(@NotNull String mac, String uuid, byte[] value, boolean success) {
 
         }
 
         @Override
-        public void onAuthSuc() {
+        public void onAuthSuc(@NotNull String mac) {
 
         }
+
     };
 
     private final BleResultProcess.OnReceivedProcess mOnReceivedProcess = bleResultBean -> {
@@ -238,17 +254,33 @@ public class WifiConnectActivity extends BaseActivity {
     }
 
     private final Runnable mWriteWifiSnRunnable = () -> {
+        if(mBleBean == null) {
+            Timber.e("mWriteWifiSnRunnable mBleBean == null");
+            return;
+        }
+        if(mBleBean.getOKBLEDeviceImp() == null) {
+            Timber.e("mWriteWifiSnRunnable mBleBean.getOKBLEDeviceImp() == null");
+            return;
+        }
         byte[] data = mWifiSnDataList.get(0);
         Timber.d("mWriteWifiSnRunnable data %1s", ConvertUtils.bytes2HexString(data));
-        App.getInstance().writePairMsg(BleCommandFactory.sendSSIDCommand((byte) mWifiSnLen, (byte) mWifiSnCount, data));
+        App.getInstance().writePairMsg(BleCommandFactory.sendSSIDCommand((byte) mWifiSnLen, (byte) mWifiSnCount, data), mBleBean.getOKBLEDeviceImp());
         mWifiSnCount++;
         mWifiSnDataList.remove(0);
     };
 
     private final Runnable mWriteWifiPwdRunnable = () -> {
+        if(mBleBean == null) {
+            Timber.e("mWriteWifiPwdRunnable mBleBean == null");
+            return;
+        }
+        if(mBleBean.getOKBLEDeviceImp() == null) {
+            Timber.e("mWriteWifiPwdRunnable mBleBean.getOKBLEDeviceImp() == null");
+            return;
+        }
         byte[] data = mWifiPwdDataList.get(0);
         Timber.d("mWriteWifiPwdRunnable data %1s", ConvertUtils.bytes2HexString(data));
-        App.getInstance().writePairMsg(BleCommandFactory.sendSSIDPwdCommand((byte) mWifiPwdLen, (byte) mWifiPwdCount, data));
+        App.getInstance().writePairMsg(BleCommandFactory.sendSSIDPwdCommand((byte) mWifiPwdLen, (byte) mWifiPwdCount, data), mBleBean.getOKBLEDeviceImp());
         mWifiPwdCount++;
         mWifiPwdDataList.remove(0);
     };

@@ -23,6 +23,7 @@ import com.revolo.lock.ble.BleCommandFactory;
 import com.revolo.lock.ble.BleCommandState;
 import com.revolo.lock.ble.BleResultProcess;
 import com.revolo.lock.ble.OnBleDeviceListener;
+import com.revolo.lock.ble.bean.BleBean;
 import com.revolo.lock.ble.bean.BleResultBean;
 import com.revolo.lock.mqtt.MqttCommandFactory;
 import com.revolo.lock.mqtt.MqttConstant;
@@ -128,39 +129,59 @@ public class DoorMagnetAlignmentActivity extends BaseActivity {
     };
 
     private void initBleListener() {
-        App.getInstance().setOnBleDeviceListener(new OnBleDeviceListener() {
-            @Override
-            public void onConnected() {
+        BleBean bleBean = App.getInstance().getBleBeanFromMac(mBleDeviceLocal.getMac());
+        if(bleBean != null) {
+            bleBean.setOnBleDeviceListener(new OnBleDeviceListener() {
+                @Override
+                public void onConnected(@NotNull String mac) {
 
-            }
-
-            @Override
-            public void onDisconnected() {
-
-            }
-
-            @Override
-            public void onReceivedValue(String uuid, byte[] value) {
-                if(value == null) {
-                    return;
                 }
-                BleResultProcess.setOnReceivedProcess(mOnReceivedProcess);
-                BleResultProcess.processReceivedData(value,
-                        App.getInstance().getBleBean().getPwd1(),
-                        App.getInstance().getBleBean().getPwd3(),
-                        App.getInstance().getBleBean().getOKBLEDeviceImp().getBleScanResult());
-            }
 
-            @Override
-            public void onWriteValue(String uuid, byte[] value, boolean success) {
+                @Override
+                public void onDisconnected(@NotNull String mac) {
 
-            }
+                }
 
-            @Override
-            public void onAuthSuc() {
+                @Override
+                public void onReceivedValue(@NotNull String mac, String uuid, byte[] value) {
+                    if(value == null) {
+                        Timber.e("initBleListener value == null");
+                        return;
+                    }
+                    BleBean bleBean = App.getInstance().getBleBeanFromMac(mBleDeviceLocal.getMac());
+                    if(bleBean == null) {
+                        Timber.e("initBleListener bleBean == null");
+                        return;
+                    }
+                    if(bleBean.getOKBLEDeviceImp() == null) {
+                        Timber.e("initBleListener bleBean.getOKBLEDeviceImp() == null");
+                        return;
+                    }
+                    if(bleBean.getPwd1() == null) {
+                        Timber.e("initBleListener bleBean.getPwd1() == null");
+                        return;
+                    }
+                    if(bleBean.getPwd3() == null) {
+                        Timber.e("initBleListener bleBean.getPwd3() == null");
+                        return;
+                    }
+                    BleResultProcess.setOnReceivedProcess(mOnReceivedProcess);
+                    BleResultProcess.processReceivedData(value, bleBean.getPwd1(), bleBean.getPwd3(),
+                            bleBean.getOKBLEDeviceImp().getBleScanResult());
+                }
 
-            }
-        });
+                @Override
+                public void onWriteValue(@NotNull String mac, String uuid, byte[] value, boolean success) {
+
+                }
+
+                @Override
+                public void onAuthSuc(@NotNull String mac) {
+
+                }
+
+            });
+        }
     }
 
     private void changedDoorSensorState(BleResultBean bleResultBean) {
@@ -188,39 +209,49 @@ public class DoorMagnetAlignmentActivity extends BaseActivity {
     }
 
     private void sendCommand(@BleCommandState.DoorCalibrationState int doorState) {
-        if(App.getInstance().getBleBean() == null) {
-            Timber.e("sendCommand App.getInstance().getBleBean() == null");
+        BleBean bleBean = App.getInstance().getBleBeanFromMac(mBleDeviceLocal.getMac());
+        if(bleBean == null) {
+            Timber.e("sendCommand bleBean == null");
             return;
         }
-        byte[] pwd1 = App.getInstance().getBleBean().getPwd1();
+        if(bleBean.getOKBLEDeviceImp() == null) {
+            Timber.e("sendCommand bleBean.getOKBLEDeviceImp() == null");
+            return;
+        }
+        byte[] pwd1 = bleBean.getPwd1();
         if(pwd1 == null) {
-            Timber.e("sendCommand wd1 == null");
+            Timber.e("sendCommand pwd1 == null");
             return;
         }
-        byte[] pwd3 = App.getInstance().getBleBean().getPwd3();
+        byte[] pwd3 = bleBean.getPwd3();
         if(pwd3 == null) {
             Timber.e("sendCommand pwd3 == null");
             return;
         }
-        App.getInstance().writeControlMsg(BleCommandFactory.doorCalibration(doorState, pwd1, pwd3));
+        App.getInstance().writeControlMsg(BleCommandFactory.doorCalibration(doorState, pwd1, pwd3), bleBean.getOKBLEDeviceImp());
     }
 
     private void checkDoorSensorState() {
-        if(App.getInstance().getBleBean() == null) {
-            Timber.e("checkDoorSensorState App.getInstance().getBleBean() == null");
+        BleBean bleBean = App.getInstance().getBleBeanFromMac(mBleDeviceLocal.getMac());
+        if(bleBean == null) {
+            Timber.e("checkDoorSensorState bleBean == null");
             return;
         }
-        byte[] pwd1 = App.getInstance().getBleBean().getPwd1();
+        if(bleBean.getOKBLEDeviceImp() == null) {
+            Timber.e("checkDoorSensorState bleBean.getOKBLEDeviceImp() == null");
+            return;
+        }
+        byte[] pwd1 = bleBean.getPwd1();
         if(pwd1 == null) {
-            Timber.e("checkDoorSensorState wd1 == null");
+            Timber.e("checkDoorSensorState pwd1 == null");
             return;
         }
-        byte[] pwd3 = App.getInstance().getBleBean().getPwd3();
+        byte[] pwd3 = bleBean.getPwd3();
         if(pwd3 == null) {
             Timber.e("checkDoorSensorState pwd3 == null");
             return;
         }
-        App.getInstance().writeControlMsg(BleCommandFactory.checkLockBaseInfoCommand(pwd1, pwd3));
+        App.getInstance().writeControlMsg(BleCommandFactory.checkLockBaseInfoCommand(pwd1, pwd3), bleBean.getOKBLEDeviceImp());
     }
 
     public void publishSetMagnetic(String wifiID, @BleCommandState.DoorCalibrationState int mode) {

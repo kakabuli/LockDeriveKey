@@ -24,10 +24,14 @@ import com.revolo.lock.bean.respone.StartOTAUpdateBeanRsp;
 import com.revolo.lock.ble.BleCommandFactory;
 import com.revolo.lock.ble.BleResultProcess;
 import com.revolo.lock.ble.OnBleDeviceListener;
+import com.revolo.lock.ble.bean.BleBean;
 import com.revolo.lock.ble.bean.BleResultBean;
 import com.revolo.lock.dialog.SelectDialog;
 import com.revolo.lock.net.HttpRequest;
 import com.revolo.lock.net.ObservableDecorator;
+import com.revolo.lock.room.entity.BleDeviceLocal;
+
+import org.jetbrains.annotations.NotNull;
 
 import java.nio.charset.StandardCharsets;
 
@@ -50,6 +54,7 @@ public class DoorLockInformationActivity extends BaseActivity {
     private TextView mTvFirmwareVersion;
     private View mVVersion, vFirmwareVersion;
     private DeviceUnbindBeanReq mReq;
+    private BleDeviceLocal mBleDeviceLocal;
 
     private CheckOTABeanRsp mCheckOTABeanRsp;
 
@@ -60,6 +65,15 @@ public class DoorLockInformationActivity extends BaseActivity {
             mReq = intent.getParcelableExtra(Constant.UNBIND_REQ);
         } else {
             // TODO: 2021/2/6 提示没从上一个页面传递数据过来
+            finish();
+        }
+        if(!intent.hasExtra(Constant.BLE_DEVICE)) {
+            // TODO: 2021/2/22 处理
+            finish();
+            return;
+        }
+        mBleDeviceLocal = intent.getParcelableExtra(Constant.BLE_DEVICE);
+        if(mBleDeviceLocal == null) {
             finish();
         }
     }
@@ -132,50 +146,64 @@ public class DoorLockInformationActivity extends BaseActivity {
     }
 
     private void initBleListener() {
-        App.getInstance().setOnBleDeviceListener(new OnBleDeviceListener() {
+        BleBean bleBean = App.getInstance().getBleBeanFromMac(mBleDeviceLocal.getMac());
+        if(bleBean == null) {
+            Timber.e("initBleListener bleBean == null");
+            return;
+        }
+        if(bleBean.getOKBLEDeviceImp() == null) {
+            Timber.e("initBleListener bleBean.getOKBLEDeviceImp() == null");
+            return;
+        }
+        if(bleBean.getPwd1() == null) {
+            Timber.e("initBleListener bleBean.getPwd1() == null");
+            return;
+        }
+        if(bleBean.getPwd3() == null) {
+            Timber.e("initBleListener bleBean.getPwd3() == null");
+            return;
+        }
+        bleBean.setOnBleDeviceListener(new OnBleDeviceListener() {
             @Override
-            public void onConnected() {
+            public void onConnected(@NotNull String mac) {
 
             }
 
             @Override
-            public void onDisconnected() {
+            public void onDisconnected(@NotNull String mac) {
 
             }
 
             @Override
-            public void onReceivedValue(String uuid, byte[] value) {
+            public void onReceivedValue(@NotNull String mac, String uuid, byte[] value) {
                 if(value == null) {
                     return;
                 }
                 BleResultProcess.setOnReceivedProcess(mOnReceivedProcess);
-                BleResultProcess.processReceivedData(value,
-                        App.getInstance().getBleBean().getPwd1(),
-                        App.getInstance().getBleBean().getPwd3(),
-                        App.getInstance().getBleBean().getOKBLEDeviceImp().getBleScanResult());
+                BleResultProcess.processReceivedData(value, bleBean.getPwd1(), bleBean.getPwd3(), bleBean.getOKBLEDeviceImp().getBleScanResult());
             }
 
             @Override
-            public void onWriteValue(String uuid, byte[] value, boolean success) {
+            public void onWriteValue(@NotNull String mac, String uuid, byte[] value, boolean success) {
 
             }
 
             @Override
-            public void onAuthSuc() {
+            public void onAuthSuc(@NotNull String mac) {
 
             }
+
         });
         new Handler(Looper.getMainLooper()).postDelayed(() -> App.getInstance().writeControlMsg(BleCommandFactory
                 .lockParameterCheckCommand((byte) 0x03,
-                        App.getInstance().getBleBean().getPwd1(),
-                        App.getInstance().getBleBean().getPwd3())), 50);
+                        bleBean.getPwd1(), bleBean.getPwd3()), bleBean.getOKBLEDeviceImp()), 50);
     }
 
     private void checkOTAVer(String ver) {
         CheckOTABeanReq req = new CheckOTABeanReq();
         // TODO: 2021/2/9 先暂时使用16，后面制定好规范
         req.setCustomer(16);
-        req.setDeviceName(App.getInstance().getBleBean().getEsn());
+        req.setDeviceName(mBleDeviceLocal.getEsn());
         // 1为WIFI模块，2为WIFI锁，3为人脸模组，4为视频模组，5为视频模组微控制器。
         req.setDevNum(2);
         req.setVersion(ver);

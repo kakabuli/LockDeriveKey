@@ -24,6 +24,7 @@ import com.revolo.lock.ble.BleCommandFactory;
 import com.revolo.lock.ble.BleCommandState;
 import com.revolo.lock.ble.BleResultProcess;
 import com.revolo.lock.ble.OnBleDeviceListener;
+import com.revolo.lock.ble.bean.BleBean;
 import com.revolo.lock.ble.bean.BleResultBean;
 import com.revolo.lock.mqtt.MqttCommandFactory;
 import com.revolo.lock.mqtt.MqttConstant;
@@ -112,7 +113,10 @@ public class DoorSensorCheckActivity extends BaseActivity {
         if(mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI) {
             publishSetMagnetic(mBleDeviceLocal.getEsn(), BleCommandState.DOOR_CALIBRATION_STATE_CLOSE_SE);
         } else {
-            initBleListener();
+            BleBean bleBean = App.getInstance().getBleBeanFromMac(mBleDeviceLocal.getMac());
+            if(bleBean != null) {
+                bleBean.setOnBleDeviceListener(mOnBleDeviceListener);
+            }
             sendCommand(BleCommandState.DOOR_CALIBRATION_STATE_CLOSE_SE);
         }
         // 初始化默认第一步执行开门
@@ -326,12 +330,27 @@ public class DoorSensorCheckActivity extends BaseActivity {
     /*--------------------------------- 蓝牙 -----------------------------------*/
 
     private void sendCommand(@BleCommandState.DoorCalibrationState int doorState) {
+        BleBean bleBean = App.getInstance().getBleBeanFromMac(mBleDeviceLocal.getMac());
+        if(bleBean == null) {
+            Timber.e("sendCommand bleBean == null");
+            return;
+        }
+        if(bleBean.getOKBLEDeviceImp() == null) {
+            Timber.e("sendCommand bleBean.getOKBLEDeviceImp() == null");
+            return;
+        }
+        if(bleBean.getPwd1() == null) {
+            Timber.e("sendCommand bleBean.getPwd1() == null");
+            return;
+        }
+        if(bleBean.getPwd3() == null) {
+            Timber.e("sendCommand bleBean.getPwd3() == null");
+            return;
+        }
         mCalibrationState = doorState;
         App.getInstance()
                 .writeControlMsg(BleCommandFactory
-                        .doorCalibration(doorState,
-                                App.getInstance().getBleBean().getPwd1(),
-                                App.getInstance().getBleBean().getPwd3()));
+                        .doorCalibration(doorState, bleBean.getPwd1(), bleBean.getPwd3()), bleBean.getOKBLEDeviceImp());
     }
 
     private final BleResultProcess.OnReceivedProcess mOnReceivedProcess = bleResultBean -> {
@@ -342,41 +361,63 @@ public class DoorSensorCheckActivity extends BaseActivity {
         changedDoor(bleResultBean);
     };
 
-    private void initBleListener() {
-        App.getInstance().setOnBleDeviceListener(new OnBleDeviceListener() {
-            @Override
-            public void onConnected() {
+    private OnBleDeviceListener mOnBleDeviceListener = new OnBleDeviceListener() {
+        @Override
+        public void onConnected(@NotNull String mac) {
 
+        }
+
+        @Override
+        public void onDisconnected(@NotNull String mac) {
+
+        }
+
+        @Override
+        public void onReceivedValue(@NotNull String mac, String uuid, byte[] value) {
+            if(value == null) {
+                Timber.e("initBleListener value == null");
+                return;
             }
-
-            @Override
-            public void onDisconnected() {
-
+            if(!mac.equals(mBleDeviceLocal.getMac())) {
+                Timber.e("initBleListener 传输过来的蓝牙mac地址与当前的不匹配，mac: %1s, local mac: %2s",
+                        mac, mBleDeviceLocal.getMac());
+                return;
             }
-
-            @Override
-            public void onReceivedValue(String uuid, byte[] value) {
-                if(value == null) {
-                    return;
-                }
-                BleResultProcess.setOnReceivedProcess(mOnReceivedProcess);
-                BleResultProcess.processReceivedData(value,
-                        App.getInstance().getBleBean().getPwd1(),
-                        App.getInstance().getBleBean().getPwd3(),
-                        App.getInstance().getBleBean().getOKBLEDeviceImp().getBleScanResult());
+            BleBean bleBean = App.getInstance().getBleBeanFromMac(mac);
+            if(bleBean == null) {
+                Timber.e("initBleListener bleBean == null");
+                return;
             }
-
-            @Override
-            public void onWriteValue(String uuid, byte[] value, boolean success) {
-
+            if(bleBean.getOKBLEDeviceImp() == null) {
+                Timber.e("initBleListener bleBean.getOKBLEDeviceImp() == null");
+                return;
             }
-
-            @Override
-            public void onAuthSuc() {
-
+            if(bleBean.getPwd1() == null) {
+                Timber.e("initBleListener bleBean.getPwd1() == null");
+                return;
             }
-        });
-    }
+            if(bleBean.getPwd3() == null) {
+                Timber.e("initBleListener bleBean.getPwd3() == null");
+                return;
+            }
+            BleResultProcess.setOnReceivedProcess(mOnReceivedProcess);
+            BleResultProcess.processReceivedData(value,
+                    bleBean.getPwd1(),
+                    bleBean.getPwd3(),
+                    bleBean.getOKBLEDeviceImp().getBleScanResult());
+        }
+
+        @Override
+        public void onWriteValue(@NotNull String mac, String uuid, byte[] value, boolean success) {
+
+        }
+
+        @Override
+        public void onAuthSuc(@NotNull String mac) {
+
+        }
+
+    };
     
     private void changedDoor(BleResultBean bleResultBean) {
         if(bleResultBean.getCMD() == CMD_DOOR_SENSOR_CALIBRATION) {

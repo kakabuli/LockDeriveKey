@@ -102,14 +102,13 @@ public class DeviceFragment extends Fragment {
             mHomeLockListAdapter.setOnItemChildClickListener((adapter, view, position) -> {
                 if(view.getId() == R.id.ivLockState) {
                     @LocalState.LockState int state = mHomeLockListAdapter.getItem(position).getLockState();
-                    if(mBleDeviceLocals.get(0).getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_BLE) {
-                        App.getInstance().writeControlMsg(BleCommandFactory
-                                .lockControlCommand((byte) (state==LocalState.LOCK_STATE_OPEN?LOCK_SETTING_CLOSE:LOCK_SETTING_OPEN), (byte) 0x04, (byte) 0x01, mBleBean.getPwd1(), mBleBean.getPwd3()));
-                    } else if(mBleDeviceLocals.get(0).getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI) {
+                    if(mBleDeviceLocals.get(position).getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_BLE) {
+                        openOrCloseDoorFromBle(position, state);
+                    } else if(mBleDeviceLocals.get(position).getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI) {
                         publishOpenOrCloseDoor(
                                 mHomeLockListAdapter.getItem(position).getEsn(),
                                 state==LocalState.LOCK_STATE_OPEN?LocalState.DOOR_STATE_CLOSE:LocalState.DOOR_STATE_OPEN,
-                                App.getInstance().getRandomCode());
+                                App.getInstance().getRandomCode(), mBleDeviceLocals.get(position));
                     }
                 }
             });
@@ -122,15 +121,41 @@ public class DeviceFragment extends Fragment {
         initBaseData();
         // TODO: 2021/3/4 按列表来处理
         if(mBleDeviceLocals == null || mBleDeviceLocals.isEmpty()) {
-            initBleListener();
             initData(mBleDeviceLocals);
         } else {
             if(mBleDeviceLocals.get(0).getConnectedType() != LocalState.DEVICE_CONNECT_TYPE_WIFI) {
-                initBleListener();
                 initData(mBleDeviceLocals);
             }
         }
         return root;
+    }
+
+    private void openOrCloseDoorFromBle(int position, @LocalState.LockState int state) {
+        BleBean bleBean = App.getInstance().getBleBeanFromMac(mBleDeviceLocals.get(position).getMac());
+        if(bleBean == null) {
+            Timber.e("openOrCloseDoorFromBle bleBean == null");
+            return;
+        }
+        if(bleBean.getOKBLEDeviceImp() == null) {
+            Timber.e("openOrCloseDoorFromBle bleBean.getOKBLEDeviceImp() == null");
+            return;
+        }
+        if(bleBean.getPwd1() == null) {
+            Timber.e("openOrCloseDoorFromBle bleBean.getPwd1() == null");
+            return;
+        }
+        if(bleBean.getPwd3() == null) {
+            Timber.e("openOrCloseDoorFromBle bleBean.getPwd3() == null");
+            return;
+        }
+        App.getInstance().writeControlMsg(
+                BleCommandFactory.lockControlCommand(
+                        (byte) (state== LocalState.LOCK_STATE_OPEN?LOCK_SETTING_CLOSE:LOCK_SETTING_OPEN),
+                        (byte) 0x04,
+                        (byte) 0x01,
+                        bleBean.getPwd1(),
+                        bleBean.getPwd3()),
+                bleBean.getOKBLEDeviceImp());
     }
 
     private void updateDataFromNet(List<WifiLockGetAllBindDeviceRspBean.DataBean.WifiListBean> wifiListBeans) {
@@ -166,12 +191,6 @@ public class DeviceFragment extends Fragment {
         }
     }
 
-    private BleBean mBleBean;
-    private byte[] mPwd1;
-    private byte[] mPwd2;
-
-    private byte[] mPwd3;
-    private String mEsn;
     private final BleResultProcess.OnReceivedProcess mOnReceivedProcess = bleResultBean -> {
         if(bleResultBean == null) {
             Timber.e("mOnReceivedProcess bleResultBean == null");
@@ -288,44 +307,6 @@ public class DeviceFragment extends Fragment {
         });
     }
 
-    private void initBleListener() {
-        App.getInstance().setOnBleDeviceListener(new OnBleDeviceListener() {
-            @Override
-            public void onConnected() {
-
-            }
-
-            @Override
-            public void onDisconnected() {
-
-            }
-
-            @Override
-            public void onReceivedValue(String uuid, byte[] value) {
-                if(value == null) {
-                    return;
-                }
-                if(mBleBean != null && mBleBean.getPwd3() != null) {
-                    mPwd3 = mBleBean.getPwd3();
-                }
-                BleResultProcess.setOnReceivedProcess(mOnReceivedProcess);
-                BleResultProcess.processReceivedData(value, mPwd1, (mPwd3 == null)?mPwd2:mPwd3,
-                        mBleBean.getOKBLEDeviceImp().getBleScanResult());
-            }
-
-            @Override
-            public void onWriteValue(String uuid, byte[] value, boolean success) {
-
-            }
-
-            @Override
-            public void onAuthSuc() {
-                // TODO: 2021/3/1 通过了才给处理
-                mPwd3 = mBleBean.getPwd3();
-            }
-        });
-    }
-
     private List<BleDeviceLocal> mBleDeviceLocals;
 
     private void initBaseData() {
@@ -340,10 +321,6 @@ public class DeviceFragment extends Fragment {
         if(mBleDeviceLocals.isEmpty()) {
             return;
         }
-        // TODO: 2021/2/21 暂时选择第一个，后续整合成列表，然后做选择
-        mEsn = mBleDeviceLocals.get(0).getEsn();
-        mPwd1 = ConvertUtils.hexString2Bytes(mBleDeviceLocals.get(0).getPwd1());
-        mPwd2 = ConvertUtils.hexString2Bytes(mBleDeviceLocals.get(0).getPwd2());
         updateData(mBleDeviceLocals);
 
     }
@@ -355,30 +332,88 @@ public class DeviceFragment extends Fragment {
         if(bleDeviceLocals.isEmpty()) {
             return;
         }
-        if(App.getInstance().getBleBean() == null) {
-            BLEScanResult bleScanResult = ConvertUtils.bytes2Parcelable(bleDeviceLocals.get(0).getScanResultJson(), BLEScanResult.CREATOR);
-            if(bleScanResult != null) {
-                App.getInstance().connectDevice(bleScanResult);
-                mBleBean = App.getInstance().getBleBean();
-                mBleBean.setPwd1(mPwd1);
-                mBleBean.setPwd2(mPwd2);
-                mBleBean.setEsn(mEsn);
-            } else {
-                // TODO: 2021/1/26 处理为空的情况
-            }
-        } else {
-            mBleBean = App.getInstance().getBleBean();
-            if(mBleBean.getOKBLEDeviceImp() != null) {
-                if(!mBleBean.getOKBLEDeviceImp().isConnected()) {
-                    mBleBean.getOKBLEDeviceImp().connect(true);
+        // TODO: 2021/3/7 暂时所有设备都连接上，后续得考虑如何优化，因为暂时只有很少设备测试，大规模设备需要另一套机制处理
+        for (BleDeviceLocal local : bleDeviceLocals) {
+            if(local.getConnectedType() != LocalState.DEVICE_CONNECT_TYPE_WIFI) {
+                BleBean bleBean = App.getInstance().getBleBeanFromMac(local.getMac());
+                if(bleBean == null) {
+                    BLEScanResult bleScanResult = ConvertUtils.bytes2Parcelable(local.getScanResultJson(), BLEScanResult.CREATOR);
+                    if(bleScanResult != null) {
+                        OnBleDeviceListener onBleDeviceListener = new OnBleDeviceListener() {
+                            @Override
+                            public void onConnected(@NotNull String mac) {
+
+                            }
+
+                            @Override
+                            public void onDisconnected(@NotNull String mac) {
+
+                            }
+
+                            @Override
+                            public void onReceivedValue(@NotNull String mac, String uuid, byte[] value) {
+                                if(value == null) {
+                                    return;
+                                }
+                                if(!local.getMac().equals(mac)) {
+                                    return;
+                                }
+                                BleBean bleBean = App.getInstance().getBleBeanFromMac(local.getMac());
+                                if(bleBean == null) {
+                                    return;
+                                }
+                                if(bleBean.getOKBLEDeviceImp() == null) {
+                                    return;
+                                }
+                                if(bleBean.getPwd1() == null) {
+                                    return;
+                                }
+                                if(bleBean.getPwd2() == null) {
+                                    return;
+                                }
+                                BleResultProcess.setOnReceivedProcess(mOnReceivedProcess);
+                                BleResultProcess.processReceivedData(
+                                        value,
+                                        bleBean.getPwd1(),
+                                        (bleBean.getPwd3() == null)?bleBean.getPwd2():bleBean.getPwd3(),
+                                        bleBean.getOKBLEDeviceImp().getBleScanResult());
+                            }
+
+                            @Override
+                            public void onWriteValue(@NotNull String mac, String uuid, byte[] value, boolean success) {
+
+                            }
+
+                            @Override
+                            public void onAuthSuc(@NotNull String mac) {
+
+                            }
+
+                        };
+                        bleBean = App.getInstance().connectDevice(
+                                bleScanResult,
+                                ConvertUtils.hexString2Bytes(local.getPwd1()),
+                                ConvertUtils.hexString2Bytes(local.getPwd2()),
+                                onBleDeviceListener,false);
+                        bleBean.setEsn(local.getEsn());
+                    } else {
+                        // TODO: 2021/1/26 处理为空的情况
+                    }
+                } else {
+                    if(bleBean.getOKBLEDeviceImp() != null) {
+                        if(!bleBean.getOKBLEDeviceImp().isConnected()) {
+                            bleBean.getOKBLEDeviceImp().connect(true);
+                        }
+                        bleBean.setPwd1(ConvertUtils.hexString2Bytes(local.getPwd1()));
+                        bleBean.setPwd2(ConvertUtils.hexString2Bytes(local.getPwd2()));
+                        bleBean.setEsn(local.getEsn());
+                    } else {
+                        // TODO: 2021/1/26 为空的处理
+                    }
                 }
-                mBleBean.setPwd1(mPwd1);
-                mBleBean.setPwd2(mPwd2);
-                mBleBean.setEsn(mEsn);
-            } else {
-                // TODO: 2021/1/26 为空的处理
             }
         }
+
     }
 
     private void dismissLoading() {
@@ -419,9 +454,13 @@ public class DeviceFragment extends Fragment {
      * @param wifiId wifi的id
      * @param doorOpt 1:表示开门，0表示关门
      */
-    public void publishOpenOrCloseDoor(String wifiId, @LocalState.DoorState int doorOpt, String randomCode) {
+    public void publishOpenOrCloseDoor(String wifiId, @LocalState.DoorState int doorOpt, String randomCode, BleDeviceLocal bleDeviceLocal) {
         if(App.getInstance().getUserBean() == null) {
             Timber.e("publishOpenOrCloseDoor App.getInstance().getUserBean() == null");
+            return;
+        }
+        if(bleDeviceLocal == null) {
+            Timber.e("publishOpenOrCloseDoor bleDeviceLocal == null");
             return;
         }
         if(doorOpt == LocalState.DOOR_STATE_OPEN) {
@@ -429,8 +468,15 @@ public class DeviceFragment extends Fragment {
         } else if(doorOpt == LocalState.DOOR_STATE_CLOSE) {
             showLoading("Lock Closing...");
         }
-        App.getInstance().getMqttService().mqttPublish(MqttConstant.getCallTopic(App.getInstance().getUserBean().getUid()),
-                MqttCommandFactory.setLock(wifiId, doorOpt, BleCommandFactory.getPwd(mPwd1, mPwd2), randomCode))
+        App.getInstance().getMqttService().mqttPublish(
+                MqttConstant.getCallTopic(App.getInstance().getUserBean().getUid()),
+                MqttCommandFactory.setLock(
+                        wifiId,
+                        doorOpt,
+                        BleCommandFactory.getPwd(
+                                ConvertUtils.hexString2Bytes(bleDeviceLocal.getPwd1()),
+                                ConvertUtils.hexString2Bytes(bleDeviceLocal.getPwd2())),
+                        randomCode))
                 .timeout(DEFAULT_TIMEOUT_SEC_VALUE, TimeUnit.SECONDS).safeSubscribe(new Observer<MqttData>() {
             @Override
             public void onSubscribe(@NotNull Disposable d) {
