@@ -2,6 +2,7 @@ package com.revolo.lock.net;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.revolo.lock.bean.request.AcceptShareBeanReq;
 import com.revolo.lock.bean.request.AdminAddDeviceBeanReq;
 import com.revolo.lock.bean.request.ChangeBleVerBeanReq;
 import com.revolo.lock.bean.request.ChangeDeviceHardVerBeanReq;
@@ -9,13 +10,20 @@ import com.revolo.lock.bean.request.ChangeDeviceNameBeanReq;
 import com.revolo.lock.bean.request.ChangeFeaturesBeanReq;
 import com.revolo.lock.bean.request.ChangeKeyNickBeanReq;
 import com.revolo.lock.bean.request.ChangeOpenLockParameterBeanReq;
+import com.revolo.lock.bean.request.ChangeUserPwdBeanReq;
 import com.revolo.lock.bean.request.CheckDoorSensorStateBeanReq;
 import com.revolo.lock.bean.request.CheckOTABeanReq;
 import com.revolo.lock.bean.request.DelDeviceBeanReq;
+import com.revolo.lock.bean.request.DelInvalidShareBeanReq;
 import com.revolo.lock.bean.request.DelKeyBeanReq;
+import com.revolo.lock.bean.request.DelSharedUserBeanReq;
 import com.revolo.lock.bean.request.DeviceUnbindBeanReq;
+import com.revolo.lock.bean.request.EnableSharedUserBeanReq;
 import com.revolo.lock.bean.request.ForgotPwdBeanReq;
+import com.revolo.lock.bean.request.GainKeyBeanReq;
+import com.revolo.lock.bean.request.GetAllSharedUserFromAdminUserBeanReq;
 import com.revolo.lock.bean.request.GetCodeBeanReq;
+import com.revolo.lock.bean.request.GetAllSharedUserFromLockBeanReq;
 import com.revolo.lock.bean.request.GetLockKeyNickBeanReq;
 import com.revolo.lock.bean.request.GetPwd1BeanReq;
 import com.revolo.lock.bean.request.LockIsBindBeanReq;
@@ -26,10 +34,14 @@ import com.revolo.lock.bean.request.OpenDoorRecordSearchBeanReq;
 import com.revolo.lock.bean.request.SearchAlarmRecordBeanReq;
 import com.revolo.lock.bean.request.SearchKeyListBeanReq;
 import com.revolo.lock.bean.request.SearchProductNoBeanReq;
+import com.revolo.lock.bean.request.SettingDuressPwdReceiveEMailBeanReq;
 import com.revolo.lock.bean.request.StartOTAUpdateBeanReq;
 import com.revolo.lock.bean.request.UpdateDoorSensorStateBeanReq;
+import com.revolo.lock.bean.request.UpdateSharedUserNickNameBeanReq;
+import com.revolo.lock.bean.request.UpdateUserAuthorityTypeBeanReq;
 import com.revolo.lock.bean.request.UploadAlarmRecordBeanReq;
 import com.revolo.lock.bean.request.UploadOpenDoorRecordBeanReq;
+import com.revolo.lock.bean.respone.AcceptShareBeanRsp;
 import com.revolo.lock.bean.respone.AdminAddDeviceBeanRsp;
 import com.revolo.lock.bean.respone.ChangeBleVerBeanRsp;
 import com.revolo.lock.bean.respone.ChangeDeviceHardVerBeanRsp;
@@ -37,13 +49,20 @@ import com.revolo.lock.bean.respone.ChangeDeviceNameBeanRsp;
 import com.revolo.lock.bean.respone.ChangeFeaturesBeanRsp;
 import com.revolo.lock.bean.respone.ChangeKeyNickBeanRsp;
 import com.revolo.lock.bean.respone.ChangeOpenLockParameterBeanRsp;
+import com.revolo.lock.bean.respone.ChangeUserPwdBeanRsp;
 import com.revolo.lock.bean.respone.CheckDoorSensorStateBeanRsp;
 import com.revolo.lock.bean.respone.CheckOTABeanRsp;
 import com.revolo.lock.bean.respone.DelDeviceBeanRsp;
+import com.revolo.lock.bean.respone.DelInvalidShareBeanRsp;
 import com.revolo.lock.bean.respone.DelKeyBeanRsp;
+import com.revolo.lock.bean.respone.DelSharedUserBeanRsp;
 import com.revolo.lock.bean.respone.DeviceUnbindBeanRsp;
+import com.revolo.lock.bean.respone.EnableSharedUserBeanRsp;
 import com.revolo.lock.bean.respone.ForgotPwdRsp;
+import com.revolo.lock.bean.respone.GainKeyBeanRsp;
+import com.revolo.lock.bean.respone.GetAllSharedUserFromAdminUserBeanRsp;
 import com.revolo.lock.bean.respone.GetCodeBeanRsp;
+import com.revolo.lock.bean.respone.GetAllSharedUserFromLockBeanRsp;
 import com.revolo.lock.bean.respone.GetLockKeyNickBeanRsp;
 import com.revolo.lock.bean.respone.GetPwd1BeanRsp;
 import com.revolo.lock.bean.respone.LockIsBindBeanRsp;
@@ -54,8 +73,11 @@ import com.revolo.lock.bean.respone.OpenDoorRecordSearchBeanRsp;
 import com.revolo.lock.bean.respone.SearchAlarmRecordBeanRsp;
 import com.revolo.lock.bean.respone.SearchKeyListBeanRsp;
 import com.revolo.lock.bean.respone.SearchProductNoBeanRsp;
+import com.revolo.lock.bean.respone.SettingDuressPwdReceiveEMailBeanRsp;
 import com.revolo.lock.bean.respone.StartOTAUpdateBeanRsp;
 import com.revolo.lock.bean.respone.UpdateDoorSensorStateBeanRsp;
+import com.revolo.lock.bean.respone.UpdateSharedUserNickNameBeanRsp;
+import com.revolo.lock.bean.respone.UpdateUserAuthorityTypeBeanRsp;
 import com.revolo.lock.bean.respone.UploadAlarmRecordBeanRsp;
 import com.revolo.lock.bean.respone.UploadOpenDoorRecordBeanRsp;
 
@@ -71,6 +93,10 @@ import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
+import retrofit2.http.Body;
+import retrofit2.http.Header;
+import retrofit2.http.Headers;
+import retrofit2.http.POST;
 
 public class HttpRequest {
 
@@ -257,5 +283,49 @@ public class HttpRequest {
     public Observable<ForgotPwdRsp> forgotPwd(String token, ForgotPwdBeanReq req) {
         return service.forgotPwd(token, req, NORMAL);
     }
+
+    public Observable<ChangeUserPwdBeanRsp> changeUserPwd(String token, ChangeUserPwdBeanReq req) {
+        return service.changeUserPwd(token, req, NORMAL);
+    }
+
+    public Observable<GainKeyBeanRsp> gainKey(String token, GainKeyBeanReq req) {
+        return service.gainKey(token, req, NORMAL);
+    }
+
+    public Observable<GetAllSharedUserFromLockBeanRsp> getAllSharedUserFromLock(String token, GetAllSharedUserFromLockBeanReq req) {
+        return service.getAllSharedUserFromLock(token, req, NORMAL);
+    }
+
+    public Observable<UpdateSharedUserNickNameBeanRsp> updateSharedUserNickName(String token, UpdateSharedUserNickNameBeanReq req) {
+        return service.updateSharedUserNickName(token, req, NORMAL);
+    };
+
+    public Observable<DelInvalidShareBeanRsp> delInvalidShare(String token, DelInvalidShareBeanReq req) {
+        return service.delInvalidShare(token, req, NORMAL);
+    };
+
+    public Observable<EnableSharedUserBeanRsp> enableSharedUser(String token, EnableSharedUserBeanReq req) {
+        return service.enableSharedUser(token, req, NORMAL);
+    };
+
+    public Observable<DelSharedUserBeanRsp> delSharedUser(String token, DelSharedUserBeanReq req) {
+        return service.delSharedUser(token, req, NORMAL);
+    };
+
+    public Observable<UpdateUserAuthorityTypeBeanRsp> updateUserAuthorityType(String token, UpdateUserAuthorityTypeBeanReq req) {
+        return service.updateUserAuthorityType(token, req, NORMAL);
+    };
+
+    public Observable<GetAllSharedUserFromAdminUserBeanRsp> getAllSharedUserFromAdminUser(String token, GetAllSharedUserFromAdminUserBeanReq req) {
+        return service.getAllSharedUserFromAdminUser(token, req, NORMAL);
+    };
+
+    public Observable<SettingDuressPwdReceiveEMailBeanRsp> settingDuressPwdReceiveEMail(String token, SettingDuressPwdReceiveEMailBeanReq req) {
+        return service.settingDuressPwdReceiveEMail(token, req, NORMAL);
+    };
+
+    public Observable<AcceptShareBeanRsp> acceptShare(String token, AcceptShareBeanReq req) {
+        return service.acceptShare(token, req, NORMAL);
+    };
 
 }
