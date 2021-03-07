@@ -9,10 +9,12 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.revolo.lock.App;
 import com.revolo.lock.Constant;
 import com.revolo.lock.R;
 import com.revolo.lock.base.BaseActivity;
 import com.revolo.lock.bean.test.TestUserBean;
+import com.revolo.lock.room.entity.User;
 
 /**
  * author : Jack
@@ -22,14 +24,11 @@ import com.revolo.lock.bean.test.TestUserBean;
  */
 public class UserPageActivity extends BaseActivity {
 
-    private TestUserBean mTestUserBean;
+    private User mUser;
 
     @Override
     public void initData(@Nullable Bundle bundle) {
-        Intent intent = getIntent();
-        if(intent.hasExtra(Constant.USER_INFO)) {
-            mTestUserBean = intent.getParcelableExtra(Constant.USER_INFO);
-        }
+
     }
 
     @Override
@@ -40,29 +39,33 @@ public class UserPageActivity extends BaseActivity {
     @Override
     public void initView(@Nullable Bundle savedInstanceState, @Nullable View contentView) {
         useCommonTitleBar(getString(R.string.title_user_page));
-        applyDebouncingClickListener(findViewById(R.id.clUserName),
-                findViewById(R.id.clEmail), findViewById(R.id.clChangePwd), findViewById(R.id.btnLogout));
-        if(mTestUserBean != null) {
-            TextView tvUserName = findViewById(R.id.tvUserName);
-            TextView tvEmailAddress = findViewById(R.id.tvEmailAddress);
-            tvUserName.setText(TextUtils.isEmpty(mTestUserBean.getUserName())?"":mTestUserBean.getUserName());
-            tvEmailAddress.setText(TextUtils.isEmpty(mTestUserBean.getEmail())?"":mTestUserBean.getEmail());
-        }
+        applyDebouncingClickListener(findViewById(R.id.clUserName), findViewById(R.id.clChangePwd), findViewById(R.id.btnLogout));
+        mUser = App.getInstance().getUser();
+    }
+
+    private void refreshUserUI() {
+        runOnUiThread(() -> {
+            if(mUser != null) {
+                TextView tvUserName = findViewById(R.id.tvUserName);
+                TextView tvEmailAddress = findViewById(R.id.tvEmailAddress);
+                String userName = mUser.getUserName();
+                // TODO: 2021/3/7 名字后面需要更改其他显示
+                tvUserName.setText(TextUtils.isEmpty(userName)?"John":userName);
+                String email = mUser.getMail();
+                tvEmailAddress.setText(TextUtils.isEmpty(email)?"":email);
+            }
+        });
     }
 
     @Override
     public void doBusiness() {
-
+        refreshUserUI();
     }
 
     @Override
     public void onDebouncingClick(@NonNull View view) {
         if(view.getId() == R.id.clUserName) {
             startActivity(new Intent(this, ModifyUserNameActivity.class));
-            return;
-        }
-        if(view.getId() == R.id.clEmail) {
-            startActivity(new Intent(this, ModifyEmailActivity.class));
             return;
         }
         if(view.getId() == R.id.clChangePwd) {

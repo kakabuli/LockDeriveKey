@@ -1,5 +1,8 @@
 package com.revolo.lock.room.entity;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
@@ -11,7 +14,7 @@ import androidx.room.PrimaryKey;
  * desc   :
  */
 @Entity
-public class User {
+public class User implements Parcelable {
 
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "u_id")
@@ -123,4 +126,52 @@ public class User {
     public void setUseTouchId(boolean useTouchId) {
         isUseTouchId = useTouchId;
     }
+
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeLong(this.id);
+        dest.writeString(this.mail);
+        dest.writeString(this.userName);
+        dest.writeLong(this.registerTime);
+        dest.writeString(this.firstName);
+        dest.writeString(this.lastName);
+        dest.writeString(this.avatarUrl);
+        dest.writeByte(this.isUseGesturePassword ? (byte) 1 : (byte) 0);
+        dest.writeByte(this.isUseFaceId ? (byte) 1 : (byte) 0);
+        dest.writeByte(this.isUseTouchId ? (byte) 1 : (byte) 0);
+    }
+
+    public User() {
+    }
+
+    protected User(Parcel in) {
+        this.id = in.readLong();
+        this.mail = in.readString();
+        this.userName = in.readString();
+        this.registerTime = in.readLong();
+        this.firstName = in.readString();
+        this.lastName = in.readString();
+        this.avatarUrl = in.readString();
+        this.isUseGesturePassword = in.readByte() != 0;
+        this.isUseFaceId = in.readByte() != 0;
+        this.isUseTouchId = in.readByte() != 0;
+    }
+
+    public static final Parcelable.Creator<User> CREATOR = new Parcelable.Creator<User>() {
+        @Override
+        public User createFromParcel(Parcel source) {
+            return new User(source);
+        }
+
+        @Override
+        public User[] newArray(int size) {
+            return new User[size];
+        }
+    };
 }

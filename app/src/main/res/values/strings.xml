@@ -217,6 +217,10 @@
     <string name="title_modify_email">Modify Email</string>
     <string name="title_modify_pwd">Modify password</string>
 
+    <!-- ModifyPasswordActivity -->
+    <string name="hint_old_password">Old Password</string>
+    <string name="hint_new_password">New Password</string>
+
     <!-- MessageListActivity -->
     <string name="title_message">Message</string>
     <string name="title_message_detail">Message details</string>

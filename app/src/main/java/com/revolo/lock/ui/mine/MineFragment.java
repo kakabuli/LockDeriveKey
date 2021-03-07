@@ -2,6 +2,7 @@ package com.revolo.lock.ui.mine;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,17 +16,11 @@ import androidx.lifecycle.ViewModelProvider;
 import com.revolo.lock.Constant;
 import com.revolo.lock.R;
 import com.revolo.lock.bean.test.TestUserBean;
+import com.revolo.lock.room.entity.User;
 
 public class MineFragment extends Fragment {
 
     private MineViewModel mMineViewModel;
-
-    public static MineFragment newInstance() {
-        Bundle bundle = new Bundle();
-        MineFragment mineFragment = new MineFragment();
-        mineFragment.setArguments(bundle);
-        return mineFragment;
-    }
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -33,17 +28,18 @@ public class MineFragment extends Fragment {
                 new ViewModelProvider(this).get(MineViewModel.class);
         View root = inflater.inflate(R.layout.fragment_mine, container, false);
         final TextView tvHiName = root.findViewById(R.id.tvHiName);
-        mMineViewModel.getUser().observe(getViewLifecycleOwner(), new Observer<TestUserBean>() {
+        mMineViewModel.getUser().observe(getViewLifecycleOwner(), new Observer<User>() {
             @Override
-            public void onChanged(TestUserBean testUserBean) {
-                tvHiName.setText(getString(R.string.hi_name, testUserBean.getUserName()));
+            public void onChanged(User user) {
+                String userName = user.getUserName();
+                // TODO: 2021/3/7 名字后面需要更改其他显示
+                tvHiName.setText(getString(R.string.hi_name, TextUtils.isEmpty(userName)?"John":userName));
             }
         });
         root.findViewById(R.id.clUserDetail).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(getContext(), UserPageActivity.class);
-                intent.putExtra(Constant.USER_INFO, mMineViewModel.getUser().getValue());
                 startActivity(intent);
             }
         });

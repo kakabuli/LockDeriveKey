@@ -4,18 +4,21 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
-import com.revolo.lock.bean.test.TestUserBean;
+import com.revolo.lock.App;
+import com.revolo.lock.room.entity.User;
 
 public class MineViewModel extends ViewModel {
 
-    private MutableLiveData<TestUserBean> mUser;
+    private MutableLiveData<User> mUser;
 
     public MineViewModel() {
         mUser = new MutableLiveData<>();
-        TestUserBean userBean = new TestUserBean("John", "JohnXXX@gmail.com");
-        mUser.setValue(userBean);
+        User user = App.getInstance().getUser();
+        if(user != null) {
+            mUser.setValue(user);
+        }
     }
 
-    public LiveData<TestUserBean> getUser() { return mUser; }
+    public LiveData<User> getUser() { return mUser; }
 
 }

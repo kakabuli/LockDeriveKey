@@ -161,8 +161,6 @@
             android:screenOrientation="portrait"/>
         <activity android:name=".ui.mine.ModifyUserNameActivity"
             android:screenOrientation="portrait"/>
-        <activity android:name=".ui.mine.ModifyEmailActivity"
-            android:screenOrientation="portrait"/>
         <activity android:name=".ui.mine.ModifyPasswordActivity"
             android:screenOrientation="portrait"/>
         <activity android:name=".ui.mine.MessageListActivity"
