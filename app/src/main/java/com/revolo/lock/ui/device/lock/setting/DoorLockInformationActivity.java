@@ -101,6 +101,7 @@ public class DoorLockInformationActivity extends BaseActivity {
     @Override
     public void doBusiness() {
         initBleListener();
+        refreshUI();
     }
 
     @Override
@@ -112,6 +113,15 @@ public class DoorLockInformationActivity extends BaseActivity {
         if(view.getId() == R.id.tvWifiVersion) {
             // TODO: 2021/2/7 检查固件版本，并可能升级
         }
+    }
+
+    private void refreshUI() {
+        runOnUiThread(() -> {
+            String lockVer = mBleDeviceLocal.getLockVer();
+            mTvFirmwareVersion.setText(TextUtils.isEmpty(lockVer)?"":lockVer.trim());
+            String wifiVer = mBleDeviceLocal.getWifiVer();
+            mTvWifiVersion.setText(TextUtils.isEmpty(wifiVer)?"":wifiVer.trim());
+        });
     }
 
     private final BleResultProcess.OnReceivedProcess mOnReceivedProcess = bleResultBean -> {

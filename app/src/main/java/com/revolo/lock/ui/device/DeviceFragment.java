@@ -108,7 +108,7 @@ public class DeviceFragment extends Fragment {
                         publishOpenOrCloseDoor(
                                 mHomeLockListAdapter.getItem(position).getEsn(),
                                 state==LocalState.LOCK_STATE_OPEN?LocalState.DOOR_STATE_CLOSE:LocalState.DOOR_STATE_OPEN,
-                                App.getInstance().getRandomCode(), mBleDeviceLocals.get(position));
+                                mBleDeviceLocals.get(position));
                     }
                 }
             });
@@ -162,19 +162,24 @@ public class DeviceFragment extends Fragment {
         List<BleDeviceLocal> locals = new ArrayList<>();
         for (WifiLockGetAllBindDeviceRspBean.DataBean.WifiListBean wifiListBean : wifiListBeans) {
             // TODO: 2021/2/26 后期再考虑是否需要多条件合并查询
-            BleDeviceLocal bleDeviceLocal = AppDatabase.getInstance(getContext()).bleDeviceDao().findBleDeviceFromEsn(wifiListBean.getWifiSN());
+            BleDeviceLocal bleDeviceLocal = AppDatabase
+                    .getInstance(getContext()).bleDeviceDao().findBleDeviceFromEsnAndUserId(
+                            wifiListBean.getWifiSN(),
+                            App.getInstance().getUser().getId());
             if(bleDeviceLocal == null) {
                 Timber.e("updateDataFromNet bleDeviceLocal == null");
                 continue;
             }
+            bleDeviceLocal.setName(wifiListBean.getWifiName());
+            bleDeviceLocal.setLockVer(wifiListBean.getLockFirmwareVersion());
+            bleDeviceLocal.setWifiVer(wifiListBean.getWifiVersion());
+            bleDeviceLocal.setRandomCode(wifiListBean.getRandomCode());
             locals.add(bleDeviceLocal);
         }
         if(locals.isEmpty()) {
             Timber.e("updateDataFromNet locals.isEmpty()");
             return;
         }
-        // TODO: 2021/3/2 暂时使用第一个值，后续通过选择
-        App.getInstance().setRandomCode(wifiListBeans.get(0).getRandomCode());
         updateData(locals);
     }
 
@@ -468,7 +473,7 @@ public class DeviceFragment extends Fragment {
      * @param wifiId wifi的id
      * @param doorOpt 1:表示开门，0表示关门
      */
-    public void publishOpenOrCloseDoor(String wifiId, @LocalState.DoorState int doorOpt, String randomCode, BleDeviceLocal bleDeviceLocal) {
+    public void publishOpenOrCloseDoor(String wifiId, @LocalState.DoorState int doorOpt, BleDeviceLocal bleDeviceLocal) {
         if(App.getInstance().getUserBean() == null) {
             Timber.e("publishOpenOrCloseDoor App.getInstance().getUserBean() == null");
             return;
@@ -490,7 +495,7 @@ public class DeviceFragment extends Fragment {
                         BleCommandFactory.getPwd(
                                 ConvertUtils.hexString2Bytes(bleDeviceLocal.getPwd1()),
                                 ConvertUtils.hexString2Bytes(bleDeviceLocal.getPwd2())),
-                        randomCode))
+                        bleDeviceLocal.getRandomCode()))
                 .timeout(DEFAULT_TIMEOUT_SEC_VALUE, TimeUnit.SECONDS).safeSubscribe(new Observer<MqttData>() {
             @Override
             public void onSubscribe(@NotNull Disposable d) {

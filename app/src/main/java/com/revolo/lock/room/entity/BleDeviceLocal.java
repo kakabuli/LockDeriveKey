@@ -104,6 +104,9 @@ public class BleDeviceLocal implements Parcelable {
     @ColumnInfo(name = "d_is_duress")
     private boolean isDuress;                                       // 是否开启胁迫密码
 
+    @ColumnInfo(name = "d_random_code")
+    private String randomCode;                                      // randomCode 用于开关门
+
 
     public long getId() {
         return id;
@@ -329,6 +332,13 @@ public class BleDeviceLocal implements Parcelable {
         isAutoLock = autoLock;
     }
 
+    public String getRandomCode() {
+        return randomCode;
+    }
+
+    public void setRandomCode(String randomCode) {
+        this.randomCode = randomCode;
+    }
 
     @Override
     public int describeContents() {
@@ -365,6 +375,7 @@ public class BleDeviceLocal implements Parcelable {
         dest.writeByte(this.isMute ? (byte) 1 : (byte) 0);
         dest.writeByte(this.isDoNotDisturbMode ? (byte) 1 : (byte) 0);
         dest.writeByte(this.isDuress ? (byte) 1 : (byte) 0);
+        dest.writeString(this.randomCode);
     }
 
     public BleDeviceLocal() {
@@ -399,6 +410,7 @@ public class BleDeviceLocal implements Parcelable {
         this.isMute = in.readByte() != 0;
         this.isDoNotDisturbMode = in.readByte() != 0;
         this.isDuress = in.readByte() != 0;
+        this.randomCode = in.readString();
     }
 
     public static final Parcelable.Creator<BleDeviceLocal> CREATOR = new Parcelable.Creator<BleDeviceLocal>() {

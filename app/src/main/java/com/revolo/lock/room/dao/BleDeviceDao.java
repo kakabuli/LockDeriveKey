@@ -41,8 +41,8 @@ public interface BleDeviceDao {
     @Update
     void update(BleDeviceLocal bleDeviceLocal);
 
-    @Query("SELECT * FROM BleDeviceLocal WHERE d_esn=:esn")
-    BleDeviceLocal findBleDeviceFromEsn(String esn);
+    @Query("SELECT * FROM BleDeviceLocal WHERE d_esn=:esn AND d_user_id=:userId")
+    BleDeviceLocal findBleDeviceFromEsnAndUserId(String esn, long userId);
 
     @Query("SELECT * FROM BleDeviceLocal")
     List<BleDeviceLocal> findAllBleDevice();

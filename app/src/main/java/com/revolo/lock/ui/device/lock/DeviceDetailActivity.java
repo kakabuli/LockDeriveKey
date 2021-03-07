@@ -346,7 +346,7 @@ public class DeviceDetailActivity extends BaseActivity {
             publishOpenOrCloseDoor(
                     mBleDeviceLocal.getEsn(),
                     state==LocalState.LOCK_STATE_OPEN?LocalState.DOOR_STATE_CLOSE:LocalState.DOOR_STATE_OPEN,
-                    App.getInstance().getRandomCode());
+                    mBleDeviceLocal.getRandomCode());
         } else {
             BleBean bleBean = App.getInstance().getBleBeanFromMac(mBleDeviceLocal.getMac());
             if(bleBean == null) {
