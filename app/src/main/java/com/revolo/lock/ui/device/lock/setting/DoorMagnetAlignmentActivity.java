@@ -87,9 +87,9 @@ public class DoorMagnetAlignmentActivity extends BaseActivity {
     }
 
     private void refreshDoorMagneticEnableState() {
-        mIvDoorMagneticEnable
+        runOnUiThread(() -> mIvDoorMagneticEnable
                 .setImageResource(mBleDeviceLocal.isOpenDoorSensor()
-                        ?R.drawable.ic_icon_switch_open:R.drawable.ic_icon_switch_close);
+                        ?R.drawable.ic_icon_switch_open:R.drawable.ic_icon_switch_close));
     }
 
     @Override
@@ -196,6 +196,7 @@ public class DoorMagnetAlignmentActivity extends BaseActivity {
             // TODO: 2021/3/7 获取门磁状态
             byte[] state = BleByteUtil.byteToBit(bleResultBean.getPayload()[7]);
             byte doorSensorState = state[3];
+            Timber.d("LockState 7~0: %1s", ConvertUtils.bytes2HexString(state));
             // 更新最新的门磁状态
             mBleDeviceLocal.setOpenDoorSensor(doorSensorState == 0x01);
             AppDatabase.getInstance(this).bleDeviceDao().update(mBleDeviceLocal);

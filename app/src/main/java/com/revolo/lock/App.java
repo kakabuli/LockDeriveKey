@@ -151,10 +151,11 @@ public class App extends Application {
                     return;
                 }
                 // 连接后都走自动鉴权流程
-                bleBean.setAppPair(true);
-                App.getInstance().writeControlMsg(BleCommandFactory
-                        .authCommand(bleBean.getPwd1(), bleBean.getPwd2(), bleBean.getEsn().getBytes(StandardCharsets.UTF_8)),
-                        deviceImp);
+                bleBean.setAuth(true);
+                new Handler(Looper.getMainLooper()).postDelayed(() -> App.getInstance().writeControlMsg(BleCommandFactory
+                                .authCommand(bleBean.getPwd1(), bleBean.getPwd2(), bleBean.getEsn().getBytes(StandardCharsets.UTF_8)),
+                        deviceImp), 50);
+
                 bleConnectedCallback(bleBean, deviceImp.getMacAddress());
             }
 

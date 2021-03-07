@@ -306,8 +306,8 @@ public class DoorSensorCheckActivity extends BaseActivity {
                         Timber.e("code : %1d", bean.getCode());
                         return;
                     }
+                    saveDoorSensorStateToLocal(mode);
                     refreshCurrentUI();
-
                 }
                 Timber.d("%1s", mqttData.toString());
             }
@@ -361,7 +361,7 @@ public class DoorSensorCheckActivity extends BaseActivity {
         changedDoor(bleResultBean);
     };
 
-    private OnBleDeviceListener mOnBleDeviceListener = new OnBleDeviceListener() {
+    private final OnBleDeviceListener mOnBleDeviceListener = new OnBleDeviceListener() {
         @Override
         public void onConnected(@NotNull String mac) {
 
@@ -426,11 +426,21 @@ public class DoorSensorCheckActivity extends BaseActivity {
                 if(mCalibrationState == BleCommandState.DOOR_CALIBRATION_STATE_CLOSE_SE) {
                     return;
                 }
+                saveDoorSensorStateToLocal(mCalibrationState);
                 refreshCurrentUI();
-
             } else {
                 gotoFailAct();
             }
+        }
+    }
+
+    private void saveDoorSensorStateToLocal(@BleCommandState.DoorCalibrationState int state) {
+        if(state == BleCommandState.DOOR_CALIBRATION_STATE_CLOSE_SE) {
+            mBleDeviceLocal.setOpenDoorSensor(false);
+            AppDatabase.getInstance(this).bleDeviceDao().update(mBleDeviceLocal);
+        } else if(state == BleCommandState.DOOR_CALIBRATION_STATE_START_SE) {
+            mBleDeviceLocal.setOpenDoorSensor(true);
+            AppDatabase.getInstance(this).bleDeviceDao().update(mBleDeviceLocal);
         }
     }
 

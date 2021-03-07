@@ -424,7 +424,7 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
 
     }
 
-    private OnBleDeviceListener mOnBleDeviceListener = new OnBleDeviceListener() {
+    private final OnBleDeviceListener mOnBleDeviceListener = new OnBleDeviceListener() {
         @Override
         public void onConnected(@NotNull String mac) {
             BleBean bleBean = App.getInstance().getBleBeanFromMac(mac);
@@ -436,9 +436,12 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
                 Timber.e("initBleListener bleBean.getOKBLEDeviceImp() == null");
                 return;
             }
-            Timber.d("%1s 发送配网指令，并校验ESN", mac);
-            App.getInstance().writeControlMsg(BleCommandFactory
-                    .pairCommand(mPwd1, mEsn.getBytes(StandardCharsets.UTF_8)), bleBean.getOKBLEDeviceImp());
+            new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                Timber.d("%1s 发送配网指令，并校验ESN", mac);
+                App.getInstance().writeControlMsg(BleCommandFactory
+                        .pairCommand(mPwd1, mEsn.getBytes(StandardCharsets.UTF_8)), bleBean.getOKBLEDeviceImp());
+            }, 100);
+
         }
 
         @Override

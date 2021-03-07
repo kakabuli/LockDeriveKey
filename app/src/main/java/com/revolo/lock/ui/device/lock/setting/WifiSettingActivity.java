@@ -257,7 +257,7 @@ public class WifiSettingActivity extends BaseActivity {
     private void updateWifiState() {
         runOnUiThread(() -> {
             mIvWifiEnable.setImageResource(R.drawable.ic_icon_switch_open);
-            mClTip.setVisibility(View.GONE);
+            mClTip.setVisibility(View.VISIBLE);
             String wifiName = mBleDeviceLocal.getConnectedWifiName();
             mTvWifiName.setText(TextUtils.isEmpty(wifiName)?"":wifiName);
             isWifiConnected = true;
@@ -267,7 +267,7 @@ public class WifiSettingActivity extends BaseActivity {
     private void updateBleState() {
         runOnUiThread(() -> {
             mIvWifiEnable.setImageResource(R.drawable.ic_icon_switch_close);
-            mClTip.setVisibility(View.VISIBLE);
+            mClTip.setVisibility(View.GONE);
             isWifiConnected = false;
         });
     }

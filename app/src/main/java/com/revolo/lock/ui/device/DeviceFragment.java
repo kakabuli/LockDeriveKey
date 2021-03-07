@@ -191,25 +191,17 @@ public class DeviceFragment extends Fragment {
         }
     }
 
-    private final BleResultProcess.OnReceivedProcess mOnReceivedProcess = bleResultBean -> {
-        if(bleResultBean == null) {
-            Timber.e("mOnReceivedProcess bleResultBean == null");
-            return;
-        }
-        processBleResult(bleResultBean);
-    };
-
-    private void processBleResult(BleResultBean bean) {
+    private void processBleResult(@NotNull String mac, BleResultBean bean) {
         if(bean.getCMD() == BleProtocolState.CMD_LOCK_INFO) {
-            lockInfo(bean);
+            lockInfo(mac, bean);
         } else if(bean.getCMD() == BleProtocolState.CMD_LOCK_CONTROL_ACK) {
-            controlOpenOrCloseDoorAck(bean);
+            controlOpenOrCloseDoorAck(mac, bean);
         } else if(bean.getCMD() == BleProtocolState.CMD_LOCK_UPLOAD) {
-            lockUpdateInfo(bean);
+            lockUpdateInfo(mac, bean);
         }
     }
 
-    private void lockInfo(BleResultBean bean) {
+    private void lockInfo(@NotNull String mac, BleResultBean bean) {
         // TODO: 2021/2/8 锁基本信息处理
         byte[] lockFunBytes = new byte[4];
         System.arraycopy(bean.getPayload(), 0, lockFunBytes, 0, lockFunBytes.length);
@@ -239,30 +231,42 @@ public class DeviceFragment extends Fragment {
 
     }
 
-    private void controlOpenOrCloseDoorAck(BleResultBean bean) {
+    private void controlOpenOrCloseDoorAck(@NotNull String mac, BleResultBean bean) {
         // TODO: 2021/2/7 处理控制开关锁确认帧
         if(getActivity() == null) {
             return;
         }
         getActivity().runOnUiThread(() -> {
             if(bean.getPayload()[0] == 0x00) {
-                refreshLockState();
+                refreshLockState(getPositionFromMac(mac));
             }
         });
 
     }
 
-    private void refreshLockState() {
-        @LocalState.LockState int state = mHomeLockListAdapter.getData().get(0).getLockState();
+    private int getPositionFromMac(@NotNull String mac) {
+        if(mBleDeviceLocals.isEmpty()) {
+            return -1;
+        }
+        for (int i=0; i<mBleDeviceLocals.size(); i++) {
+            if(mac.equals(mBleDeviceLocals.get(i).getMac())) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    private void refreshLockState(int position) {
+        @LocalState.LockState int state = mHomeLockListAdapter.getData().get(position).getLockState();
         if(state == LocalState.LOCK_STATE_OPEN) {
             state = LocalState .LOCK_STATE_CLOSE;
         } else if(state == LocalState.LOCK_STATE_CLOSE) {
             state = LocalState.LOCK_STATE_OPEN;
         }
-        setLockState(0, state);
+        setLockState(position, state);
     }
 
-    private void lockUpdateInfo(BleResultBean bean) {
+    private void lockUpdateInfo(@NotNull String mac, BleResultBean bean) {
         // TODO: 2021/2/7 锁操作上报
         int eventType = bean.getPayload()[0];
         int eventSource = bean.getPayload()[1];
@@ -283,10 +287,10 @@ public class DeviceFragment extends Fragment {
             if(eventType == 0x01) {
                 if(eventSource == 0x01) {
                     // 上锁
-                    setLockState(0, LocalState.LOCK_STATE_CLOSE);
+                    setLockState(getPositionFromMac(mac), LocalState.LOCK_STATE_CLOSE);
                 } else if(eventCode == 0x02) {
                     // 开锁
-                    setLockState(0, LocalState.LOCK_STATE_OPEN);
+                    setLockState(getPositionFromMac(mac), LocalState.LOCK_STATE_OPEN);
                 } else {
                     // TODO: 2021/2/10 其他处理
                 }
@@ -297,6 +301,10 @@ public class DeviceFragment extends Fragment {
     private void setLockState(int index, @LocalState.LockState int state) {
         if(getActivity() == null) {
             Timber.e("setLockState getActivity() == null");
+            return;
+        }
+        if(index == -1) {
+            Timber.e("setLockState index == -1");
             return;
         }
         getActivity().runOnUiThread(() -> {
@@ -371,7 +379,13 @@ public class DeviceFragment extends Fragment {
                                 if(bleBean.getPwd2() == null) {
                                     return;
                                 }
-                                BleResultProcess.setOnReceivedProcess(mOnReceivedProcess);
+                                BleResultProcess.setOnReceivedProcess(bleResultBean -> {
+                                    if(bleResultBean == null) {
+                                        Timber.e("%1s mOnReceivedProcess bleResultBean == null", local.getMac());
+                                        return;
+                                    }
+                                    processBleResult(local.getMac(), bleResultBean);
+                                });
                                 BleResultProcess.processReceivedData(
                                         value,
                                         bleBean.getPwd1(),
@@ -511,7 +525,7 @@ public class DeviceFragment extends Fragment {
                         Timber.e("publishOpenOrCloseDoor code : %1d", bean.getCode());
                         return;
                     }
-                    refreshLockState();
+                    refreshLockState(getPositionFromMac(bleDeviceLocal.getMac()));
                 }
                 Timber.d("publishOpenOrCloseDoor %1s", mqttData.toString());
             }

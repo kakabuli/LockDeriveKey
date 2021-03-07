@@ -118,12 +118,7 @@ public class AddWifiActivity extends BaseActivity {
             return;
         }
         if(view.getId() == R.id.ivDropdown) {
-            if(mBleDeviceLocal.getLockPower() < 20) {
-                ToastUtils.showShort("Low Battery! Can't Pair Wifi!");
-                return;
-            }
-            showLoading();
-            getWifiList();
+            showOrDismissWifiList();
             return;
         }
         if(view.getId() == R.id.ivEye) {
@@ -154,16 +149,18 @@ public class AddWifiActivity extends BaseActivity {
     }
 
     private void showOrDismissWifiList() {
-        dismissLoading();
-        if(mWifiListPopup == null) {
-            return;
-        }
-        if(mWifiListPopup.isShowing()) {
-            mWifiListPopup.dismiss();
-        } else {
-            mWifiListPopup.setPopupGravity(Gravity.BOTTOM);
-            mWifiListPopup.showPopupWindow(findViewById(R.id.ivDropdown));
-        }
+        runOnUiThread(() -> {
+            if(mWifiListPopup == null) {
+                return;
+            }
+            if(mWifiListPopup.isShowing()) {
+                mWifiListPopup.dismiss();
+            } else {
+                mWifiListPopup.setPopupGravity(Gravity.BOTTOM);
+                mWifiListPopup.showPopupWindow(findViewById(R.id.ivDropdown));
+            }
+        });
+
     }
 
     private void openOrClosePwdEye() {
@@ -249,7 +246,6 @@ public class AddWifiActivity extends BaseActivity {
             receiveLockBaseInfo(bleResultBean);
         } else if(bleResultBean.getCMD() == CMD_WIFI_LIST_CHECK) {
             receiveWifiList(bleResultBean);
-            showOrDismissWifiList();
         }
     };
 
@@ -258,6 +254,7 @@ public class AddWifiActivity extends BaseActivity {
             Timber.e("checkBattery mBleBean == null");
             return;
         }
+        showLoading();
         // wifi配网前记得查询电量
         App.getInstance().writeControlMsg(BleCommandFactory
                         .checkLockBaseInfoCommand(mBleBean.getPwd1(), mBleBean.getPwd3()),
@@ -269,7 +266,10 @@ public class AddWifiActivity extends BaseActivity {
         Timber.d("receiveLockBaseInfo battery power: %1d", power);
         mBleDeviceLocal.setLockPower(power);
         AppDatabase.getInstance(this).bleDeviceDao().update(mBleDeviceLocal);
-        if(power <= 20) {
+        if(power > 20) {
+            getWifiList();
+        } else {
+            dismissLoading();
             // TODO: 2021/3/2 不允许wifi配网
             ToastUtils.showShort("Low Battery! Can't Pair Wifi!");
         }
@@ -277,10 +277,12 @@ public class AddWifiActivity extends BaseActivity {
 
     private void getWifiList() {
         if(mBleBean == null) {
+            dismissLoading();
             Timber.e("getWifiList mBleBean == null");
             return;
         }
         if(mBleBean.getOKBLEDeviceImp() == null) {
+            dismissLoading();
             Timber.e("getWifiList mBleBean.getOKBLEDeviceImp() == null");
             return;
         }
@@ -331,6 +333,7 @@ public class AddWifiActivity extends BaseActivity {
                 }
             }
         }
+        dismissLoading();
     }
 
     private final List<Integer> mLackNoList = new ArrayList<>();
@@ -361,9 +364,12 @@ public class AddWifiActivity extends BaseActivity {
                 Timber.d("WifiSn: %1s", name);
             }
         }
-        if(mWifiListPopup != null) {
-            mWifiListPopup.updateWifiList(mWifiSnList);
-        }
+        runOnUiThread(() -> {
+            if(mWifiListPopup != null) {
+                mWifiListPopup.updateWifiList(mWifiSnList);
+            }
+        });
+
         // TODO: 2021/1/21 记得清空
     }
 
