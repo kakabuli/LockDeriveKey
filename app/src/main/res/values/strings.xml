@@ -119,7 +119,7 @@
 
     <!-- AuthorizationManagementActivity -->
     <string name="title_authorization_management">Authorization management</string>
-    <string name="tip_invite_user">You are going to invite %1$s\n Users to use this door lock</string>
+    <string name="tip_invite_user">You are going to invite users to use this door lock</string>
     <string name="share">Share</string>
     <string name="family">Family</string>
     <string name="guest">Guest</string>

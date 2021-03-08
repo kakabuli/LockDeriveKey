@@ -131,12 +131,17 @@ public class DuressCodeActivity extends BaseActivity {
         }
         String token = App.getInstance().getUserBean().getToken();
         if(TextUtils.isEmpty(token)) {
-            Timber.e("token is empty");
+            Timber.e("settingDuressReceiveMail token is empty");
+            return;
+        }
+        String uid = App.getInstance().getUserBean().getUid();
+        if(TextUtils.isEmpty(uid)) {
+            Timber.e("settingDuressReceiveMail uid is empty");
             return;
         }
         SettingDuressPwdReceiveEMailBeanReq req = new SettingDuressPwdReceiveEMailBeanReq();
         req.setDuressEmail(mail);
-//        req.setName();
+        req.setUid(uid);
         // 1手机 2邮箱
         req.setType(2);
         Observable<SettingDuressPwdReceiveEMailBeanRsp> observable = HttpRequest.getInstance().settingDuressPwdReceiveEMail(token, req);
@@ -152,11 +157,11 @@ public class DuressCodeActivity extends BaseActivity {
                 dismissLoading();
                 String code = settingDuressPwdReceiveEMailBeanRsp.getCode();
                 if(TextUtils.isEmpty(code)) {
-                    Timber.e("code is empty");
+                    Timber.e("settingDuressReceiveMail code is empty");
                     return;
                 }
                 if(!code.equals("200")) {
-                    Timber.e("code: %1s, msg: %2s", code, settingDuressPwdReceiveEMailBeanRsp.getMsg());
+                    Timber.e("settingDuressReceiveMail code: %1s, msg: %2s", code, settingDuressPwdReceiveEMailBeanRsp.getMsg());
                     return;
                 }
                 // TODO: 2021/3/8 修改文字

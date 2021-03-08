@@ -68,7 +68,9 @@ public class UserManagementActivity extends BaseActivity {
         useCommonTitleBar(getString(R.string.title_user_management))
                 .setRight(ContextCompat.getDrawable(this, R.drawable.ic_home_icon_add),
                         v -> {
-                            startActivity(new Intent(this, AddNewShareUserInputNameActivity.class));
+                            Intent intent = new Intent(this, AuthorizationManagementActivity.class);
+                            intent.putExtra(Constant.LOCK_DETAIL, mBleDeviceLocal);
+                            startActivity(intent);
                         });
         mRvSharedUser = findViewById(R.id.rvSharedUser);
         mSharedUserListAdapter = new SharedUserListAdapter(R.layout.item_shared_user_rv);

@@ -83,7 +83,7 @@
             app:layout_constraintTop_toBottomOf="@+id/textView23" />
 
         <ImageView
-            android:id="@+id/imageView12"
+            android:id="@+id/ivFamily"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="15pt"
@@ -137,7 +137,7 @@
             app:layout_constraintTop_toBottomOf="@+id/textView25" />
 
         <ImageView
-            android:id="@+id/imageView13"
+            android:id="@+id/ivGuest"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="15pt"

@@ -10,21 +10,21 @@ public class SettingDuressPwdReceiveEMailBeanReq {
 
 
     /**
-     * name : chason666@163.com
+     * uid : 5dd79ca14089fb3d74b31fb9
      * type : 1
      * duressEmail : chason888@163.com
      */
 
-    private String name;
+    private String uid;
     private int type;
     private String duressEmail;
 
-    public String getName() {
-        return name;
+    public String getUid() {
+        return uid;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setUid(String uid) {
+        this.uid = uid;
     }
 
     public int getType() {
@@ -42,4 +42,5 @@ public class SettingDuressPwdReceiveEMailBeanReq {
     public void setDuressEmail(String duressEmail) {
         this.duressEmail = duressEmail;
     }
+
 }
