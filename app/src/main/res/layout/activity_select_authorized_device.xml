@@ -52,7 +52,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="13pt"
         android:gravity="center"
-        android:text="@string/you_will_invite_mary_users_to_use_the_lock"
+        android:text="@string/you_will_invite_users_to_use_the_lock"
         android:textColor="@color/c333333"
         android:textSize="16pt"
         app:layout_constraintEnd_toEndOf="parent"
@@ -116,7 +116,7 @@
             app:layout_constraintTop_toBottomOf="@+id/textView23" />
 
         <ImageView
-            android:id="@+id/imageView12"
+            android:id="@+id/ivFamily"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="15pt"
@@ -170,7 +170,7 @@
             app:layout_constraintTop_toBottomOf="@+id/textView25" />
 
         <ImageView
-            android:id="@+id/imageView13"
+            android:id="@+id/ivGuest"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="15pt"

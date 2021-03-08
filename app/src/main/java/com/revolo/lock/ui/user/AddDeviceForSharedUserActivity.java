@@ -59,7 +59,7 @@ public class AddDeviceForSharedUserActivity extends BaseActivity {
                     return;
                 }
                 Intent intent = new Intent(AddDeviceForSharedUserActivity.this, SelectAuthorizedDeviceActivity.class);
-                intent.putExtra(Constant.LOCK_ESN, mAuthUserDeviceAdapter.getItem(position).getEsn());
+                intent.putExtra(Constant.LOCK_DETAIL, mAuthUserDeviceAdapter.getItem(position));
                 startActivity(intent);
             }
         });

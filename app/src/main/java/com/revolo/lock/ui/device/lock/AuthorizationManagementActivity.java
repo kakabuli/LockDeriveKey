@@ -93,11 +93,6 @@ public class AuthorizationManagementActivity extends BaseActivity {
         }
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-    }
-
     private void share() {
         if(App.getInstance().getUserBean() == null) {
             Timber.e("share App.getInstance().getUserBean() == null");

@@ -81,6 +81,10 @@ public class UserManagementActivity extends BaseActivity {
                     Timber.e("position: %1d", position);
                     return;
                 }
+                int shareType = mSharedUserListAdapter.getItem(position).getShareType();
+                if(shareType == 3||shareType == 4||shareType == 5) {
+                    return;
+                }
                 Intent intent = new Intent(UserManagementActivity.this, SharedUserDetailActivity.class);
                 intent.putExtra(Constant.PRE_A, Constant.USER_MANAGEMENT_A);
                 intent.putExtra(Constant.LOCK_DETAIL, mBleDeviceLocal);
