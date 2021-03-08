@@ -8,6 +8,7 @@ import android.widget.TextView;
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.chad.library.adapter.base.viewholder.BaseViewHolder;
 import com.revolo.lock.R;
+import com.revolo.lock.bean.respone.GetAllSharedUserFromLockBeanRsp;
 import com.revolo.lock.bean.test.TestUserManagementBean;
 
 import org.jetbrains.annotations.NotNull;
@@ -21,8 +22,8 @@ import java.util.List;
  * E-mail : wengmaowei@kaadas.com
  * desc   :
  */
-public class SharedUserListAdapter extends BaseQuickAdapter<TestUserManagementBean, BaseViewHolder> {
-    public SharedUserListAdapter(int layoutResId, @Nullable List<TestUserManagementBean> data) {
+public class SharedUserListAdapter extends BaseQuickAdapter<GetAllSharedUserFromLockBeanRsp.DataBean, BaseViewHolder> {
+    public SharedUserListAdapter(int layoutResId, @Nullable List<GetAllSharedUserFromLockBeanRsp.DataBean> data) {
         super(layoutResId, data);
     }
 
@@ -31,16 +32,16 @@ public class SharedUserListAdapter extends BaseQuickAdapter<TestUserManagementBe
     }
 
     @Override
-    protected void convert(@NotNull BaseViewHolder baseViewHolder, TestUserManagementBean testUserManagementBean) {
-        if(testUserManagementBean != null) {
-            baseViewHolder.setText(R.id.tvUserName, TextUtils.isEmpty(testUserManagementBean.getUserName())?"":testUserManagementBean.getUserName());
+    protected void convert(@NotNull BaseViewHolder baseViewHolder, GetAllSharedUserFromLockBeanRsp.DataBean bean) {
+        if(bean != null) {
+            baseViewHolder.setText(R.id.tvUserName, TextUtils.isEmpty(bean.getUserNickname())?"":bean.getUserNickname());
             TextView tvPermission = baseViewHolder.getView(R.id.tvPermission);
             TextView tvUnableAddUser = baseViewHolder.getView(R.id.tvUnableAddUser);
             TextView tvUnableAddPwd = baseViewHolder.getView(R.id.tvUnableAddPwd);
             TextView tvUnlockOnly = baseViewHolder.getView(R.id.tvUnlockOnly);
             ImageView ivState = baseViewHolder.getView(R.id.ivState);
             ImageView ivMore = baseViewHolder.getView(R.id.ivMore);
-            if(testUserManagementBean.getPermission() == 1) {
+            if(bean.getShareUserType() == 1) {
                 tvPermission.setText(getContext().getString(R.string.permission_family));
                 tvUnableAddUser.setVisibility(View.VISIBLE);
                 tvUnableAddPwd.setVisibility(View.VISIBLE);
@@ -51,11 +52,11 @@ public class SharedUserListAdapter extends BaseQuickAdapter<TestUserManagementBe
                 tvUnableAddPwd.setVisibility(View.GONE);
                 tvUnlockOnly.setVisibility(View.VISIBLE);
             }
-            if(testUserManagementBean.getState() == 1) {
+            if(bean.getShareType() == 1) {
                 ivMore.setVisibility(View.GONE);
                 ivState.setImageResource(R.drawable.ic_icon_wait);
                 ivState.setVisibility(View.VISIBLE);
-            } else if(testUserManagementBean.getState() == 2) {
+            } else if(bean.getShareType() == 3||bean.getShareType() == 4||bean.getShareType() == 5) {
                 ivMore.setVisibility(View.GONE);
                 ivState.setImageResource(R.drawable.ic_icon_invalid);
                 ivState.setVisibility(View.VISIBLE);

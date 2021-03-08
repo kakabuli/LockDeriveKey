@@ -2,6 +2,7 @@ package com.revolo.lock.ui.device.lock;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.TextView;
 
@@ -13,13 +14,25 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.chad.library.adapter.base.listener.OnItemClickListener;
+import com.revolo.lock.App;
+import com.revolo.lock.Constant;
 import com.revolo.lock.R;
 import com.revolo.lock.adapter.SharedUserListAdapter;
 import com.revolo.lock.base.BaseActivity;
+import com.revolo.lock.bean.request.GetAllSharedUserFromLockBeanReq;
+import com.revolo.lock.bean.respone.GetAllSharedUserFromLockBeanRsp;
 import com.revolo.lock.bean.test.TestUserManagementBean;
+import com.revolo.lock.net.HttpRequest;
+import com.revolo.lock.net.ObservableDecorator;
+import com.revolo.lock.room.entity.BleDeviceLocal;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import io.reactivex.Observable;
+import io.reactivex.Observer;
+import io.reactivex.disposables.Disposable;
+import timber.log.Timber;
 
 /**
  * author : Jack
@@ -30,10 +43,19 @@ import java.util.List;
 public class UserManagementActivity extends BaseActivity {
 
     private SharedUserListAdapter mSharedUserListAdapter;
+    private BleDeviceLocal mBleDeviceLocal;
+    private RecyclerView mRvSharedUser;
 
     @Override
     public void initData(@Nullable Bundle bundle) {
-
+        Intent intent = getIntent();
+        if(intent.hasExtra(Constant.LOCK_DETAIL)) {
+            mBleDeviceLocal = intent.getParcelableExtra(Constant.LOCK_DETAIL);
+        }
+        // TODO: 2021/3/8 处理
+        if(mBleDeviceLocal == null) {
+            finish();
+        }
     }
 
     @Override
@@ -48,7 +70,7 @@ public class UserManagementActivity extends BaseActivity {
                         v -> {
                             startActivity(new Intent(this, AddNewShareUserInputNameActivity.class));
                         });
-        RecyclerView rvSharedUser = findViewById(R.id.rvSharedUser);
+        mRvSharedUser = findViewById(R.id.rvSharedUser);
         mSharedUserListAdapter = new SharedUserListAdapter(R.layout.item_shared_user_rv);
         mSharedUserListAdapter.setOnItemClickListener(new OnItemClickListener() {
             @Override
@@ -56,14 +78,16 @@ public class UserManagementActivity extends BaseActivity {
                 startActivity(new Intent(UserManagementActivity.this, SharedUserDetailActivity.class));
             }
         });
-        rvSharedUser.setLayoutManager(new LinearLayoutManager(this));
-        rvSharedUser.setAdapter(mSharedUserListAdapter);
-
+        mRvSharedUser.setLayoutManager(new LinearLayoutManager(this));
+        mRvSharedUser.setAdapter(mSharedUserListAdapter);
+        initLoading("Loading...");
     }
 
     @Override
     public void doBusiness() {
-        initTestUserData();
+        String firstName = App.getInstance().getUser().getFirstName();
+        ((TextView) findViewById(R.id.tvUserShared)).setText((TextUtils.isEmpty(firstName)?"":firstName)+"'s Shared");
+        getAllSharedUserFromLock();
     }
 
     @Override
@@ -71,21 +95,67 @@ public class UserManagementActivity extends BaseActivity {
 
     }
 
-    private void initTestUserData() {
+    private void getAllSharedUserFromLock() {
+        if(App.getInstance().getUserBean() == null) {
+            Timber.e("getAllSharedUserFromLock App.getInstance().getUserBean() == null");
+            return;
+        }
+        String uid = App.getInstance().getUserBean().getUid();
+        if(TextUtils.isEmpty(uid)) {
+            Timber.e("getAllSharedUserFromLock uid is empty");
+            return;
+        }
+        String token = App.getInstance().getUserBean().getToken();
+        if(TextUtils.isEmpty(token)) {
+            Timber.e("getAllSharedUserFromLock token is empty");
+            return;
+        }
+        GetAllSharedUserFromLockBeanReq req = new GetAllSharedUserFromLockBeanReq();
+        req.setUid(uid);
+        req.setDeviceSN(mBleDeviceLocal.getEsn());
+        showLoading();
+        Observable<GetAllSharedUserFromLockBeanRsp> observable = HttpRequest.getInstance().getAllSharedUserFromLock(token, req);
+        ObservableDecorator.decorate(observable).safeSubscribe(new Observer<GetAllSharedUserFromLockBeanRsp>() {
+            @Override
+            public void onSubscribe(@NonNull Disposable d) {
 
-        ((TextView) findViewById(R.id.tvUserShared)).setText("users Harry's Shared");
+            }
 
-        List<TestUserManagementBean> beanList = new ArrayList<>();
-        TestUserManagementBean bean1 = new TestUserManagementBean("Jack", 1, 1);
-        beanList.add(bean1);
-        TestUserManagementBean bean2 = new TestUserManagementBean("Marry", 2, 2);
-        beanList.add(bean2);
-        TestUserManagementBean bean3 = new TestUserManagementBean("Jim", 1, 3);
-        beanList.add(bean3);
-        TestUserManagementBean bean4 = new TestUserManagementBean("Tick", 2, 3);
-        beanList.add(bean4);
+            @Override
+            public void onNext(@NonNull GetAllSharedUserFromLockBeanRsp rsp) {
+                dismissLoading();
+                String code = rsp.getCode();
+                if(TextUtils.isEmpty(code)) {
+                    Timber.e("getAllSharedUserFromLock code is empty");
+                    return;
+                }
+                if(!code.equals("200")) {
+                    Timber.e("getAllSharedUserFromLock code: %1s, msg: %2s", code, rsp.getMsg());
+                    return;
+                }
+                if(rsp.getData() == null) {
+                    mRvSharedUser.setVisibility(View.GONE);
+                    return;
+                }
+                if(rsp.getData().isEmpty()) {
+                    mRvSharedUser.setVisibility(View.GONE);
+                } else {
+                    mRvSharedUser.setVisibility(View.VISIBLE);
+                }
+                mSharedUserListAdapter.setList(rsp.getData());
+            }
 
-        mSharedUserListAdapter.setList(beanList);
+            @Override
+            public void onError(@NonNull Throwable e) {
+                dismissLoading();
+                Timber.e(e);
+            }
+
+            @Override
+            public void onComplete() {
+
+            }
+        });
     }
 
 }

@@ -109,7 +109,9 @@ public class DeviceDetailActivity extends BaseActivity {
             return;
         }
         if(view.getId() == R.id.llUser) {
-            startActivity(new Intent(this, UserManagementActivity.class));
+            Intent intent = new Intent(this, UserManagementActivity.class);
+            intent.putExtra(Constant.LOCK_DETAIL, mBleDeviceLocal);
+            startActivity(intent);
             return;
         }
         if(view.getId() == R.id.llSetting) {

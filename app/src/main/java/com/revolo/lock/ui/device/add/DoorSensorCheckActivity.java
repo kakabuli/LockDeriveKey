@@ -267,6 +267,7 @@ public class DoorSensorCheckActivity extends BaseActivity {
 
     public void publishSetMagnetic(String wifiID, @BleCommandState.DoorCalibrationState int mode) {
         showLoading();
+        mCalibrationState = mode;
         App.getInstance().getMqttService().mqttPublish(MqttConstant.getCallTopic(App.getInstance().getUserBean().getUid()),
                 MqttCommandFactory.setMagnetic(wifiID, mode, BleCommandFactory.getPwd(
                         ConvertUtils.hexString2Bytes(mBleDeviceLocal.getPwd1()),
@@ -304,6 +305,10 @@ public class DoorSensorCheckActivity extends BaseActivity {
                     }
                     if(bean.getCode() != 200) {
                         Timber.e("code : %1d", bean.getCode());
+                        return;
+                    }
+                    // 排除掉第一次发送禁用门磁指令的状态反馈
+                    if(mCalibrationState == BleCommandState.DOOR_CALIBRATION_STATE_CLOSE_SE) {
                         return;
                     }
                     saveDoorSensorStateToLocal(mode);

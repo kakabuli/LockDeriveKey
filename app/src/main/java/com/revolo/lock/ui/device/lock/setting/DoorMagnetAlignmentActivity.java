@@ -103,21 +103,32 @@ public class DoorMagnetAlignmentActivity extends BaseActivity {
     @Override
     public void onDebouncingClick(@NonNull View view) {
         if(view.getId() == R.id.clTip) {
-            Intent intent = new Intent(this, DoorSensorCheckActivity.class);
-            intent.putExtra(Constant.DEVICE_ID, mBleDeviceLocal.getId());
-            startActivity(intent);
-            finish();
+            gotoDoorSensorCheckAct();
             return;
         }
         if(view.getId() == R.id.ivDoorMagneticEnable) {
             if(mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI) {
-                publishSetMagnetic(mBleDeviceLocal.getEsn(), mBleDeviceLocal.isOpenDoorSensor()?
-                        BleCommandState.DOOR_CALIBRATION_STATE_CLOSE_SE:BleCommandState.DOOR_CALIBRATION_STATE_START_SE);
+                if(mBleDeviceLocal.isOpenDoorSensor()) {
+                    publishSetMagnetic(mBleDeviceLocal.getEsn(), BleCommandState.DOOR_CALIBRATION_STATE_CLOSE_SE);
+                } else {
+                    gotoDoorSensorCheckAct();
+                }
+
             } else {
-                sendCommand(mBleDeviceLocal.isOpenDoorSensor()?
-                        BleCommandState.DOOR_CALIBRATION_STATE_CLOSE_SE:BleCommandState.DOOR_CALIBRATION_STATE_START_SE);
+                if(mBleDeviceLocal.isOpenDoorSensor()) {
+                    sendCommand(BleCommandState.DOOR_CALIBRATION_STATE_CLOSE_SE);
+                } else {
+                    gotoDoorSensorCheckAct();
+                }
             }
         }
+    }
+
+    private void gotoDoorSensorCheckAct() {
+        Intent intent = new Intent(this, DoorSensorCheckActivity.class);
+        intent.putExtra(Constant.DEVICE_ID, mBleDeviceLocal.getId());
+        startActivity(intent);
+        finish();
     }
 
     private final BleResultProcess.OnReceivedProcess mOnReceivedProcess = bleResultBean -> {
@@ -276,7 +287,7 @@ public class DoorMagnetAlignmentActivity extends BaseActivity {
                         }
                         if(mqttData.getFunc().equals(MqttConstant.SET_MAGNETIC)) {
                             dismissLoading();
-                            Timber.d("设置门磁: %1s", mqttData);
+                            Timber.d("publishSetMagnetic 设置门磁: %1s", mqttData);
                             WifiLockSetMagneticResponseBean bean;
                             try {
                                 bean = GsonUtils.fromJson(mqttData.getPayload(), WifiLockSetMagneticResponseBean.class);
@@ -285,15 +296,15 @@ public class DoorMagnetAlignmentActivity extends BaseActivity {
                                 return;
                             }
                             if(bean == null) {
-                                Timber.e("bean == null");
+                                Timber.e("publishSetMagnetic bean == null");
                                 return;
                             }
                             if(bean.getParams() == null) {
-                                Timber.e("bean.getParams() == null");
+                                Timber.e("publishSetMagnetic bean.getParams() == null");
                                 return;
                             }
                             if(bean.getCode() != 200) {
-                                Timber.e("code : %1d", bean.getCode());
+                                Timber.e("publishSetMagnetic code : %1d", bean.getCode());
                                 return;
                             }
                             saveDoorSensorStateToLocal();
