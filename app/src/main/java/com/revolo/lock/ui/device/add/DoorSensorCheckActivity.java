@@ -127,7 +127,7 @@ public class DoorSensorCheckActivity extends BaseActivity {
     @Override
     public void onBackPressed() {
         // 步骤：关闭门磁->开门->关门->开门->虚掩->开启门磁
-        if(mDoorState == DOOR_OPEN) {
+        if(mDoorState == DOOR_OPEN || mDoorState == DOOR_SUC) {
             super.onBackPressed();
         } else {
             if(mDoorState == DOOR_CLOSE) {
