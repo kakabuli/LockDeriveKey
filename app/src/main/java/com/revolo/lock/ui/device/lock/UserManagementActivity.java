@@ -77,7 +77,15 @@ public class UserManagementActivity extends BaseActivity {
         mSharedUserListAdapter.setOnItemClickListener(new OnItemClickListener() {
             @Override
             public void onItemClick(@NonNull BaseQuickAdapter<?, ?> adapter, @NonNull View view, int position) {
-                startActivity(new Intent(UserManagementActivity.this, SharedUserDetailActivity.class));
+                if(position < 0) {
+                    Timber.e("position: %1d", position);
+                    return;
+                }
+                Intent intent = new Intent(UserManagementActivity.this, SharedUserDetailActivity.class);
+                intent.putExtra(Constant.PRE_A, Constant.USER_MANAGEMENT_A);
+                intent.putExtra(Constant.LOCK_DETAIL, mBleDeviceLocal);
+                intent.putExtra(Constant.SHARED_USER_DATA, mSharedUserListAdapter.getItem(position));
+                startActivity(intent);
             }
         });
         mRvSharedUser.setLayoutManager(new LinearLayoutManager(this));

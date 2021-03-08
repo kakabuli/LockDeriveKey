@@ -336,7 +336,9 @@
     <string name="dialog_btn_determine">Determine</string>
     <string name="dialog_tip_are_you_sure_to_remove_this_user">Are you sure to remove\nthis user.</string>
     <string name="dialog_tip_operation_authorization_of_revolo_device_is_disabled"> Operation authorization of Revolo\ndevice is disabled.</string>
+    <string name="dialog_tip_operation_authorization_of_revolo_device_is_eabled"> Operation authorization of Revolo\ndevice is enabled.</string>
     <string name="dialog_tip_you_are_authorized_to_be_the_family_user_of_the_revolo_device">You are authorized to be the family\nuser of the Revolo device.</string>
+    <string name="dialog_tip_you_are_authorized_to_be_the_guest_user_of_the_revolo_device">You are authorized to be the guest\nuser of the Revolo device.</string>
     <string name="dialog_tip_wifi_disconnected_reboot_the_wifi_will_reallocate_the_network">WiFi disconnected. Reboot the\n WiFi will reallocate the network.  </string>
     <string name="dialog_tip_whether_to_turn_on_mobile_location">Whether to turn on mobile\n location ?</string>
     <string name="dialog_tip_device_offline_and_cannot_set_geo_fence_unlock">Device offline,\nand cannot set Geo-fence unlock</string>

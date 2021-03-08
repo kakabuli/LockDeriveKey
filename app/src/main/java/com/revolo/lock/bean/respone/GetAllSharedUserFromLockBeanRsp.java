@@ -1,5 +1,8 @@
 package com.revolo.lock.bean.respone;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import java.util.List;
 
 /**
@@ -55,7 +58,7 @@ public class GetAllSharedUserFromLockBeanRsp {
         this.data = data;
     }
 
-    public static class DataBean {
+    public static class DataBean implements Parcelable {
         /**
          * _id : 5def586f4d3ee1156842868c
          * adminUid : 5d0c9aa322916bfd695cb123
@@ -139,5 +142,49 @@ public class GetAllSharedUserFromLockBeanRsp {
         public void setCreateTime(int createTime) {
             this.createTime = createTime;
         }
+
+
+        @Override
+        public int describeContents() {
+            return 0;
+        }
+
+        @Override
+        public void writeToParcel(Parcel dest, int flags) {
+            dest.writeString(this._id);
+            dest.writeString(this.adminUid);
+            dest.writeString(this.uid);
+            dest.writeString(this.userNickname);
+            dest.writeInt(this.shareUserType);
+            dest.writeInt(this.shareType);
+            dest.writeInt(this.isEnable);
+            dest.writeInt(this.createTime);
+        }
+
+        public DataBean() {
+        }
+
+        protected DataBean(Parcel in) {
+            this._id = in.readString();
+            this.adminUid = in.readString();
+            this.uid = in.readString();
+            this.userNickname = in.readString();
+            this.shareUserType = in.readInt();
+            this.shareType = in.readInt();
+            this.isEnable = in.readInt();
+            this.createTime = in.readInt();
+        }
+
+        public static final Parcelable.Creator<DataBean> CREATOR = new Parcelable.Creator<DataBean>() {
+            @Override
+            public DataBean createFromParcel(Parcel source) {
+                return new DataBean(source);
+            }
+
+            @Override
+            public DataBean[] newArray(int size) {
+                return new DataBean[size];
+            }
+        };
     }
 }

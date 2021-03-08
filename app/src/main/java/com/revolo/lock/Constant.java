@@ -18,6 +18,7 @@ public class Constant {
     public static final String INPUT_ESN_A = "inputESNA";
     public static final String QR_CODE_A = "QRCodeA";
     public static final String AUTH_USER_DETAIL_A = "AuthUserDetailA";
+    public static final String USER_MANAGEMENT_A = "UserManagementA";
     public static final String WIFI_SETTING_A = "WifiSettingA";
     public static final String BLE_CONNECT_FAIL_A = "BleConnectFailA";
     public static final String DOOR_SENSOR_CHECK_A = "DoorSensorCheckA";
@@ -45,6 +46,7 @@ public class Constant {
 
     public static final String DEVICE_ID = "DeviceId";
     public static final String PWD_ID = "PwdId";
+    public static final String SHARED_USER_DATA = "SharedUserData";
 
     // SP
     public static final String USER_MAIL = "UserMail";
