@@ -2,10 +2,12 @@ package com.revolo.lock.ui.mine;
 
 import android.os.Bundle;
 import android.view.View;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.blankj.utilcode.util.AppUtils;
 import com.revolo.lock.R;
 import com.revolo.lock.base.BaseActivity;
 
@@ -33,7 +35,11 @@ public class AboutActivity extends BaseActivity {
 
     @Override
     public void doBusiness() {
-
+        TextView tvVersion = findViewById(R.id.tvVersion);
+        tvVersion.setText(AppUtils.getAppVersionName());
+        TextView tvContact = findViewById(R.id.tvContact);
+        // TODO: 2021/3/8 后期从服务器获取
+        tvContact.setText("revolodeveloper@gmail.com");
     }
 
     @Override

@@ -14,7 +14,9 @@ import com.revolo.lock.Constant;
 import com.revolo.lock.R;
 import com.revolo.lock.base.BaseActivity;
 import com.revolo.lock.bean.test.TestUserBean;
+import com.revolo.lock.dialog.SelectDialog;
 import com.revolo.lock.room.entity.User;
+import com.revolo.lock.ui.sign.LoginActivity;
 
 /**
  * author : Jack
@@ -73,7 +75,18 @@ public class UserPageActivity extends BaseActivity {
             return;
         }
         if(view.getId() == R.id.btnLogout) {
-            // TODO: 2021/1/19 退出登录
+            SelectDialog dialog = new SelectDialog(this);
+            dialog.setMessage(getString(R.string.dialog_tip_log_out));
+            dialog.setOnCancelClickListener(v -> dialog.dismiss());
+            dialog.setOnConfirmListener(v -> {
+                dialog.dismiss();
+                if(App.getInstance().getMainActivity() != null) {
+                    App.getInstance().getMainActivity().finish();
+                }
+                finish();
+                startActivity(new Intent(this, LoginActivity.class));
+            });
+            dialog.show();
         }
     }
 }

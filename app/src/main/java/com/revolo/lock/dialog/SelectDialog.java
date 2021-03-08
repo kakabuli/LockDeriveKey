@@ -29,7 +29,7 @@ public class SelectDialog extends Dialog {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.dialog_message);
+        setContentView(R.layout.dialog_select);
         setCanceledOnTouchOutside(false);
         mTvContent = findViewById(R.id.tvContent);
         mTvConfirm = findViewById(R.id.tvConfirm);

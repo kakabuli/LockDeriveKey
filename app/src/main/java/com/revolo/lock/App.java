@@ -18,6 +18,7 @@ import com.blankj.utilcode.util.CacheDiskUtils;
 import com.blankj.utilcode.util.ConvertUtils;
 import com.blankj.utilcode.util.SPUtils;
 import com.blankj.utilcode.util.TimeUtils;
+import com.revolo.lock.base.BaseActivity;
 import com.revolo.lock.bean.respone.MailLoginBeanRsp;
 import com.revolo.lock.ble.BleByteUtil;
 import com.revolo.lock.ble.BleCommandFactory;
@@ -26,6 +27,7 @@ import com.revolo.lock.ble.OnBleDeviceListener;
 import com.revolo.lock.mqtt.MqttService;
 import com.revolo.lock.room.AppDatabase;
 import com.revolo.lock.room.entity.User;
+import com.revolo.lock.ui.MainActivity;
 import com.revolo.lock.ui.sign.LoginActivity;
 
 import org.jetbrains.annotations.NotNull;
@@ -73,6 +75,17 @@ public class App extends Application {
         }
         initCacheDisk();
         initMqttService();
+    }
+
+    // TODO: 2021/3/8 临时存个MainActivity 后期删除
+    private MainActivity mMainActivity;
+
+    public MainActivity getMainActivity() {
+        return mMainActivity;
+    }
+
+    public void setMainActivity(MainActivity mainActivity) {
+        mMainActivity = mainActivity;
     }
 
     private void initCacheDisk() {
