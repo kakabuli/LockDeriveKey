@@ -21,13 +21,9 @@ import com.revolo.lock.adapter.SharedUserListAdapter;
 import com.revolo.lock.base.BaseActivity;
 import com.revolo.lock.bean.request.GetAllSharedUserFromLockBeanReq;
 import com.revolo.lock.bean.respone.GetAllSharedUserFromLockBeanRsp;
-import com.revolo.lock.bean.test.TestUserManagementBean;
 import com.revolo.lock.net.HttpRequest;
 import com.revolo.lock.net.ObservableDecorator;
 import com.revolo.lock.room.entity.BleDeviceLocal;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import io.reactivex.Observable;
 import io.reactivex.Observer;

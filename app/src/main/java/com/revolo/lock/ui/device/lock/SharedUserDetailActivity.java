@@ -6,6 +6,7 @@ import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -46,6 +47,7 @@ public class SharedUserDetailActivity extends BaseActivity {
     private String mPreA;
     private BleDeviceLocal mBleDeviceLocal;
     private GetAllSharedUserFromLockBeanRsp.DataBean mSharedUserData;
+    private TextView mTvEsn, mTvUserName;
 
     @Override
     public void initData(@Nullable Bundle bundle) {
@@ -85,6 +87,8 @@ public class SharedUserDetailActivity extends BaseActivity {
         ivEnable = findViewById(R.id.ivEnable);
         ivFamily = findViewById(R.id.ivFamily);
         ivGuest = findViewById(R.id.ivGuest);
+        mTvEsn = findViewById(R.id.tvEsn);
+        mTvUserName = findViewById(R.id.tvUserName);
         ConstraintLayout clFamily = findViewById(R.id.clFamily);
         ConstraintLayout clGuest = findViewById(R.id.clGuest);
         Button btnDelete = findViewById(R.id.btnDelete);
@@ -134,6 +138,9 @@ public class SharedUserDetailActivity extends BaseActivity {
             ivFamily.setImageResource(R.drawable.ic_home_password_icon_default);
             ivGuest.setImageResource(R.drawable.ic_home_password_icon_selected);
         }
+        mTvEsn.setText(mBleDeviceLocal.getEsn());
+        String name = mSharedUserData.getUserNickname();
+        mTvUserName.setText(TextUtils.isEmpty(name)?"":name);
     }
 
     private void showRemoveUserDialog() {

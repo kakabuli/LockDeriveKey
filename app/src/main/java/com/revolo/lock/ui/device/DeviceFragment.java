@@ -61,6 +61,7 @@ import static com.revolo.lock.Constant.DEFAULT_TIMEOUT_SEC_VALUE;
 import static com.revolo.lock.ble.BleCommandState.LOCK_SETTING_CLOSE;
 import static com.revolo.lock.ble.BleCommandState.LOCK_SETTING_OPEN;
 
+// TODO: 2021/3/8 状态混乱，需要整理
 public class DeviceFragment extends Fragment {
 
     private DeviceViewModel mDeviceViewModel;
