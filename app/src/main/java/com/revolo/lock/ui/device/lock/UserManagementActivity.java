@@ -69,7 +69,7 @@ public class UserManagementActivity extends BaseActivity {
                 .setRight(ContextCompat.getDrawable(this, R.drawable.ic_home_icon_add),
                         v -> {
                             Intent intent = new Intent(this, AuthorizationManagementActivity.class);
-                            intent.putExtra(Constant.LOCK_DETAIL, mBleDeviceLocal);
+                            intent.putExtra(Constant.LOCK_ESN, mBleDeviceLocal.getEsn());
                             startActivity(intent);
                         });
         mRvSharedUser = findViewById(R.id.rvSharedUser);

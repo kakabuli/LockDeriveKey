@@ -10,7 +10,6 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.blankj.utilcode.util.ToastUtils;
 import com.revolo.lock.App;
 import com.revolo.lock.Constant;
 import com.revolo.lock.R;
@@ -19,7 +18,6 @@ import com.revolo.lock.bean.request.GainKeyBeanReq;
 import com.revolo.lock.bean.respone.GainKeyBeanRsp;
 import com.revolo.lock.net.HttpRequest;
 import com.revolo.lock.net.ObservableDecorator;
-import com.revolo.lock.room.entity.BleDeviceLocal;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -41,16 +39,16 @@ public class AuthorizationManagementActivity extends BaseActivity {
     // TODO: 2021/3/8 后续写成enum
     private int mCurrentUserType = 1;                // 1 Family  2 Guest
 
-    private BleDeviceLocal mBleDeviceLocal;
+    private String mEsn;
 
     @Override
     public void initData(@Nullable Bundle bundle) {
         Intent intent = getIntent();
-        if(intent.hasExtra(Constant.LOCK_DETAIL)) {
-            mBleDeviceLocal = intent.getParcelableExtra(Constant.LOCK_DETAIL);
+        if(intent.hasExtra(Constant.LOCK_ESN)) {
+            mEsn = intent.getStringExtra(Constant.LOCK_ESN);
         }
         // TODO: 2021/3/8 处理
-        if(mBleDeviceLocal == null) {
+        if(TextUtils.isEmpty(mEsn)) {
             finish();
         }
     }
@@ -116,7 +114,7 @@ public class AuthorizationManagementActivity extends BaseActivity {
             return;
         }
         GainKeyBeanReq req = new GainKeyBeanReq();
-        req.setDeviceSN(mBleDeviceLocal.getEsn());
+        req.setDeviceSN(mEsn);
         req.setShareUserType(mCurrentUserType);
         req.setUid(uid);
         showLoading();
@@ -143,7 +141,7 @@ public class AuthorizationManagementActivity extends BaseActivity {
                     Timber.e("share gainKeyBeanRsp.getData() == null");
                     return;
                 }
-                String url = gainKeyBeanRsp.getData().getShareUrl();
+                String url = gainKeyBeanRsp.getData().getUrl();
                 if(TextUtils.isEmpty(url)) {
                     Timber.e("share url is empty");
                     return;

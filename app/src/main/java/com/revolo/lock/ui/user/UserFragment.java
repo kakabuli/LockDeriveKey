@@ -18,6 +18,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.chad.library.adapter.base.listener.OnItemClickListener;
 import com.revolo.lock.App;
+import com.revolo.lock.Constant;
 import com.revolo.lock.R;
 import com.revolo.lock.adapter.UserListAdapter;
 import com.revolo.lock.bean.request.GetAllSharedUserFromAdminUserBeanReq;
@@ -50,7 +51,8 @@ public class UserFragment extends Fragment {
         if(getContext() != null) {
             new TitleBar(root).setTitle(getString(R.string.title_user))
                     .setRight(ContextCompat.getDrawable(getContext(), R.drawable.ic_home_icon_add), v -> {
-                        // TODO: 2021/1/15 添加用户
+                        Intent intent = new Intent(getContext(), AddDeviceForSharedUserActivity.class);
+                        startActivity(intent);
                     });
             mLlNoUser = root.findViewById(R.id.llNoUser);
             mRvLockList = root.findViewById(R.id.rvLockList);
@@ -59,7 +61,9 @@ public class UserFragment extends Fragment {
             mUserListAdapter.setOnItemClickListener(new OnItemClickListener() {
                 @Override
                 public void onItemClick(@NonNull BaseQuickAdapter<?, ?> adapter, @NonNull View view, int position) {
-                    startActivity(new Intent(getActivity(), AuthUserDetailActivity.class));
+                    Intent intent = new Intent(getActivity(), AuthUserDetailActivity.class);
+                    intent.putExtra(Constant.SHARED_USER_DATA, mUserListAdapter.getItem(position));
+                    startActivity(intent);
                 }
             });
             mRvLockList.setAdapter(mUserListAdapter);
@@ -108,30 +112,30 @@ public class UserFragment extends Fragment {
             }
 
             @Override
-            public void onNext(@NonNull GetAllSharedUserFromAdminUserBeanRsp getAllSharedUserFromAdminUserBeanRsp) {
+            public void onNext(@NonNull GetAllSharedUserFromAdminUserBeanRsp userBeanRsp) {
                 dismissLoading();
-                String code = getAllSharedUserFromAdminUserBeanRsp.getCode();
+                String code = userBeanRsp.getCode();
                 if(TextUtils.isEmpty(code)) {
                     Timber.e("getAllSharedUserFromAdminUser code is empty");
                     return;
                 }
                 if(!code.equals("200")) {
-                    Timber.e("getAllSharedUserFromAdminUser code: %1s, msg: %2s", code, getAllSharedUserFromAdminUserBeanRsp.getMsg());
+                    Timber.e("getAllSharedUserFromAdminUser code: %1s, msg: %2s", code, userBeanRsp.getMsg());
                     return;
                 }
-                if(getAllSharedUserFromAdminUserBeanRsp.getData() == null) {
+                if(userBeanRsp.getData() == null) {
                     mLlNoUser.setVisibility(View.VISIBLE);
                     mRvLockList.setVisibility(View.GONE);
                     return;
                 }
-                if(getAllSharedUserFromAdminUserBeanRsp.getData().isEmpty()) {
+                if(userBeanRsp.getData().isEmpty()) {
                     mLlNoUser.setVisibility(View.VISIBLE);
                     mRvLockList.setVisibility(View.GONE);
                 } else {
                     mLlNoUser.setVisibility(View.GONE);
                     mRvLockList.setVisibility(View.VISIBLE);
                 }
-                mUserListAdapter.setList(getAllSharedUserFromAdminUserBeanRsp.getData());
+                mUserListAdapter.setList(userBeanRsp.getData());
             }
 
             @Override

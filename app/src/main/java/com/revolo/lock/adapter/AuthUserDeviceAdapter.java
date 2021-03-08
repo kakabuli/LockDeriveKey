@@ -1,9 +1,12 @@
 package com.revolo.lock.adapter;
 
+import android.text.TextUtils;
+
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.chad.library.adapter.base.viewholder.BaseViewHolder;
 import com.revolo.lock.R;
 import com.revolo.lock.bean.test.TestAuthDeviceBean;
+import com.revolo.lock.room.entity.BleDeviceLocal;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -16,8 +19,8 @@ import java.util.List;
  * E-mail : wengmaowei@kaadas.com
  * desc   : 用户管理-授权用户-添加设备-选择设备
  */
-public class AuthUserDeviceAdapter extends BaseQuickAdapter<TestAuthDeviceBean, BaseViewHolder> {
-    public AuthUserDeviceAdapter(int layoutResId, @Nullable List<TestAuthDeviceBean> data) {
+public class AuthUserDeviceAdapter extends BaseQuickAdapter<BleDeviceLocal, BaseViewHolder> {
+    public AuthUserDeviceAdapter(int layoutResId, @Nullable List<BleDeviceLocal> data) {
         super(layoutResId, data);
     }
 
@@ -26,10 +29,13 @@ public class AuthUserDeviceAdapter extends BaseQuickAdapter<TestAuthDeviceBean, 
     }
 
     @Override
-    protected void convert(@NotNull BaseViewHolder holder, TestAuthDeviceBean testAuthDeviceBean) {
-        if(testAuthDeviceBean != null) {
-            holder.setText(R.id.tvDeviceName, testAuthDeviceBean.getDeviceName());
-            holder.setText(R.id.tvSn, testAuthDeviceBean.getDeviceSN());
+    protected void convert(@NotNull BaseViewHolder holder, BleDeviceLocal local) {
+        if(local != null) {
+            String name = local.getName();
+            String esn = local.getEsn();
+            holder.setText(R.id.tvDeviceName, TextUtils.isEmpty(name)?esn:name);
+            // TODO: 2021/3/8 抽离文字
+            holder.setText(R.id.tvSn, TextUtils.isEmpty(esn)?"":"equipment "+esn);
         }
     }
 }

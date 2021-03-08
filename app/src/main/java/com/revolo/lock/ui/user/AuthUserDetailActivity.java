@@ -11,18 +11,15 @@ import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.blankj.utilcode.util.StringUtils;
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.chad.library.adapter.base.listener.OnItemClickListener;
 import com.revolo.lock.Constant;
 import com.revolo.lock.R;
 import com.revolo.lock.adapter.AuthUserDetailDevicesAdapter;
 import com.revolo.lock.base.BaseActivity;
+import com.revolo.lock.bean.respone.GetAllSharedUserFromAdminUserBeanRsp;
 import com.revolo.lock.bean.test.TestAuthUserBean;
 import com.revolo.lock.ui.device.lock.SharedUserDetailActivity;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * author : Jack
@@ -33,10 +30,18 @@ import java.util.List;
 public class AuthUserDetailActivity extends BaseActivity {
 
     private AuthUserDetailDevicesAdapter mDevicesAdapter;
+    private TextView mTvDeviceNum, mTvAccount, mTvUserName;
+    private GetAllSharedUserFromAdminUserBeanRsp.DataBean mSharedUserData;
 
     @Override
     public void initData(@Nullable Bundle bundle) {
-
+        Intent intent = getIntent();
+        if(intent.hasExtra(Constant.SHARED_USER_DATA)) {
+            mSharedUserData = intent.getParcelableExtra(Constant.SHARED_USER_DATA);
+        }
+        if(mSharedUserData == null) {
+            finish();
+        }
     }
 
     @Override
@@ -50,10 +55,14 @@ public class AuthUserDetailActivity extends BaseActivity {
                 .setRight(ContextCompat.getDrawable(this, R.drawable.ic_home_icon_add), new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(AuthUserDetailActivity.this, AddDeviceForSharedUserActivity.class));
+                Intent intent = new Intent(AuthUserDetailActivity.this, AddDeviceForSharedUserActivity.class);
+                startActivity(intent);
             }
         });
         RecyclerView rvLockList = findViewById(R.id.rvLockList);
+        mTvDeviceNum = findViewById(R.id.tvDeviceNum);
+        mTvUserName = findViewById(R.id.tvUserName);
+        mTvAccount = findViewById(R.id.tvAccount);
         mDevicesAdapter = new AuthUserDetailDevicesAdapter(R.layout.item_user_devices_rv);
         mDevicesAdapter.setOnItemClickListener(new OnItemClickListener() {
             @Override
@@ -79,7 +88,7 @@ public class AuthUserDetailActivity extends BaseActivity {
 
     @Override
     public void doBusiness() {
-        initTestData();
+
     }
 
     @Override
@@ -89,24 +98,14 @@ public class AuthUserDetailActivity extends BaseActivity {
         }
     }
 
-    private void initTestData() {
-        if(mDevicesAdapter != null) {
-            List<TestAuthUserBean.TestDeviceBean> data = new ArrayList<>();
-            TestAuthUserBean.TestDeviceBean bean1 = new TestAuthUserBean.TestDeviceBean("wahh", 1, 1);
-            data.add(bean1);
-            TestAuthUserBean.TestDeviceBean bean2 = new TestAuthUserBean.TestDeviceBean("wahh", 2, 2);
-            data.add(bean2);
-            TestAuthUserBean.TestDeviceBean bean3 = new TestAuthUserBean.TestDeviceBean("wahh", 3, 1);
-            data.add(bean3);
-            TestAuthUserBean.TestDeviceBean bean4 = new TestAuthUserBean.TestDeviceBean("wahh", 3, 3);
-            data.add(bean4);
-            TestAuthUserBean.TestDeviceBean bean5 = new TestAuthUserBean.TestDeviceBean("wahh", 3, 2);
-            data.add(bean5);
-            TestAuthUserBean bean = new TestAuthUserBean("xxxx@gmial.com", data);
-            ((TextView) findViewById(R.id.tvAccount)).setText(bean.getMailAddress());
-            ((TextView) findViewById(R.id.tvUserName)).setText(bean.getMailAddress());
-            ((TextView) findViewById(R.id.tvDeviceNum)).setText(StringUtils.format("%1d",data.size()));
-            mDevicesAdapter.setList(data);
-        }
+    private void refreshUI() {
+        // TODO: 2021/3/8 后面用邮箱
+        mTvAccount.setText(mSharedUserData.getUserNickname());
+        mTvUserName.setText(mSharedUserData.getUserNickname());
     }
+
+    private void searchUserDevice() {
+        // TODO: 2021/3/8 服务器查询数据
+    }
+
 }

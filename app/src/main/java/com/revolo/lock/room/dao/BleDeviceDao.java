@@ -59,4 +59,7 @@ public interface BleDeviceDao {
     @Query("SELECT * FROM BleDeviceLocal WHERE d_id in(:ids)")
     List<BleDeviceLocal> findBleDeviceFromIds(long... ids);
 
+    @Query("SELECT * FROM BleDeviceLocal WHERE d_id=:id AND d_connected_type=:connectedType")
+    List<BleDeviceLocal> findBleDeviceFromUserIdAndConnectedType(long id, int connectedType);
+
 }

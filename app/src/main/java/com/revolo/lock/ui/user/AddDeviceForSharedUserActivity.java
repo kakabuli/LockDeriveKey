@@ -11,13 +11,20 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.chad.library.adapter.base.listener.OnItemClickListener;
+import com.revolo.lock.App;
+import com.revolo.lock.Constant;
+import com.revolo.lock.LocalState;
 import com.revolo.lock.R;
 import com.revolo.lock.adapter.AuthUserDeviceAdapter;
 import com.revolo.lock.base.BaseActivity;
 import com.revolo.lock.bean.test.TestAuthDeviceBean;
+import com.revolo.lock.room.AppDatabase;
+import com.revolo.lock.room.entity.BleDeviceLocal;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import timber.log.Timber;
 
 /**
  * author : Jack
@@ -48,7 +55,12 @@ public class AddDeviceForSharedUserActivity extends BaseActivity {
         mAuthUserDeviceAdapter.setOnItemClickListener(new OnItemClickListener() {
             @Override
             public void onItemClick(@NonNull BaseQuickAdapter<?, ?> adapter, @NonNull View view, int position) {
-                startActivity(new Intent(AddDeviceForSharedUserActivity.this, SelectAuthorizedDeviceActivity.class));
+                if(position < 0) {
+                    return;
+                }
+                Intent intent = new Intent(AddDeviceForSharedUserActivity.this, SelectAuthorizedDeviceActivity.class);
+                intent.putExtra(Constant.LOCK_ESN, mAuthUserDeviceAdapter.getItem(position).getEsn());
+                startActivity(intent);
             }
         });
         rvDevice.setAdapter(mAuthUserDeviceAdapter);
@@ -56,7 +68,7 @@ public class AddDeviceForSharedUserActivity extends BaseActivity {
 
     @Override
     public void doBusiness() {
-        initTestData();
+        initData();
     }
 
     @Override
@@ -64,25 +76,20 @@ public class AddDeviceForSharedUserActivity extends BaseActivity {
 
     }
 
-    private void initTestData() {
-        List<TestAuthDeviceBean> beanList = new ArrayList<>();
-        TestAuthDeviceBean bean1 = new TestAuthDeviceBean("fly dream", "SN156123454");
-        beanList.add(bean1);
-        TestAuthDeviceBean bean2 = new TestAuthDeviceBean("Hello world", "SN156123484");
-        beanList.add(bean2);
-        TestAuthDeviceBean bean3 = new TestAuthDeviceBean("say something", "SN156122534");
-        beanList.add(bean3);
-        TestAuthDeviceBean bean4 = new TestAuthDeviceBean("Goodbye", "SN156145354");
-        beanList.add(bean4);
-        TestAuthDeviceBean bean5 = new TestAuthDeviceBean("Thinking", "SN156127531");
-        beanList.add(bean5);
-        TestAuthDeviceBean bean6 = new TestAuthDeviceBean("Hallo", "SN156123858");
-        beanList.add(bean6);
-        TestAuthDeviceBean bean7 = new TestAuthDeviceBean("Hey", "SN156123492");
-        beanList.add(bean7);
-        TestAuthDeviceBean bean8 = new TestAuthDeviceBean("Hours", "SN156123442");
-        beanList.add(bean8);
-        mAuthUserDeviceAdapter.setList(beanList);
+    private void initData() {
+        List<BleDeviceLocal> list = AppDatabase
+                .getInstance(this)
+                .bleDeviceDao()
+                .findBleDevicesFromUserId(App.getInstance().getUser().getId());
+        if(list == null) {
+            Timber.e("initData list == null");
+            return;
+        }
+        if(list.isEmpty()) {
+            Timber.e("initData list is empty");
+            return;
+        }
+        mAuthUserDeviceAdapter.setList(list);
 
     }
 
