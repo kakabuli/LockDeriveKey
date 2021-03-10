@@ -18,7 +18,6 @@ import com.blankj.utilcode.util.CacheDiskUtils;
 import com.blankj.utilcode.util.ConvertUtils;
 import com.blankj.utilcode.util.SPUtils;
 import com.blankj.utilcode.util.TimeUtils;
-import com.revolo.lock.base.BaseActivity;
 import com.revolo.lock.bean.respone.MailLoginBeanRsp;
 import com.revolo.lock.ble.BleByteUtil;
 import com.revolo.lock.ble.BleCommandFactory;

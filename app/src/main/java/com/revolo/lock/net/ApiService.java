@@ -66,6 +66,7 @@ import com.revolo.lock.bean.respone.GetLockKeyNickBeanRsp;
 import com.revolo.lock.bean.respone.GetPwd1BeanRsp;
 import com.revolo.lock.bean.respone.LockIsBindBeanRsp;
 import com.revolo.lock.bean.respone.LockKeyAddBeanRsp;
+import com.revolo.lock.bean.respone.LogoutBeanRsp;
 import com.revolo.lock.bean.respone.MailLoginBeanRsp;
 import com.revolo.lock.bean.respone.MailRegisterBeanRsp;
 import com.revolo.lock.bean.respone.OpenDoorRecordSearchBeanRsp;
@@ -243,4 +244,8 @@ public interface ApiService {
     @Headers({"Content-Type: application/json"})
     @POST("/wpflock/share/add")
     Observable<AcceptShareBeanRsp> acceptShare(@Header("token") String token, @Body AcceptShareBeanReq req, @Header("url_name") String  urlName);
+
+    @Headers({"Content-Type: application/json"})
+    @POST("/user/logout")
+    Observable<LogoutBeanRsp> logout(@Header("token") String token, @Header("url_name") String  urlName);
 }

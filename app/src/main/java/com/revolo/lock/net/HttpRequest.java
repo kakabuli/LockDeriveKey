@@ -67,6 +67,7 @@ import com.revolo.lock.bean.respone.GetLockKeyNickBeanRsp;
 import com.revolo.lock.bean.respone.GetPwd1BeanRsp;
 import com.revolo.lock.bean.respone.LockIsBindBeanRsp;
 import com.revolo.lock.bean.respone.LockKeyAddBeanRsp;
+import com.revolo.lock.bean.respone.LogoutBeanRsp;
 import com.revolo.lock.bean.respone.MailLoginBeanRsp;
 import com.revolo.lock.bean.respone.MailRegisterBeanRsp;
 import com.revolo.lock.bean.respone.OpenDoorRecordSearchBeanRsp;
@@ -327,5 +328,9 @@ public class HttpRequest {
     public Observable<AcceptShareBeanRsp> acceptShare(String token, AcceptShareBeanReq req) {
         return service.acceptShare(token, req, NORMAL);
     };
+
+    public Observable<LogoutBeanRsp> logout(String token) {
+        return service.logout(token, NORMAL);
+    }
 
 }
