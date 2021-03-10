@@ -48,6 +48,10 @@ public class Constant {
     public static final String PWD_ID = "PwdId";
     public static final String SHARED_USER_DATA = "SharedUserData";
 
+    public static final String TERM_TYPE = "TermType";
+    public static final String TERM_TYPE_USER = "TermTypeUser";
+    public static final String TERM_TYPE_PRIVACY = "TermTypePrivacy";
+
     // SP
     public static final String USER_MAIL = "UserMail";
     public static final String USER_TOKEN = "UserToken";

@@ -198,7 +198,7 @@ public interface ApiService {
 
     @Headers({"Content-Type: application/json"})
     @POST("/user/edit/forgetPwd")
-    Observable<ForgotPwdRsp> forgotPwd(@Header("token") String token, @Body ForgotPwdBeanReq req, @Header("url_name") String  urlName);
+    Observable<ForgotPwdRsp> forgotPwd(@Body ForgotPwdBeanReq req, @Header("url_name") String  urlName);
 
     @Headers({"Content-Type: application/json"})
     @POST("/user/edit/postUserPwd")

@@ -21,7 +21,6 @@ import com.revolo.lock.bean.request.ForgotPwdBeanReq;
 import com.revolo.lock.bean.request.GetCodeBeanReq;
 import com.revolo.lock.bean.respone.ForgotPwdRsp;
 import com.revolo.lock.bean.respone.GetCodeBeanRsp;
-import com.revolo.lock.dialog.iosloading.CustomerLoadingDialog;
 import com.revolo.lock.net.HttpRequest;
 import com.revolo.lock.net.ObservableDecorator;
 
@@ -32,7 +31,6 @@ import timber.log.Timber;
 
 import static com.revolo.lock.Constant.REVOLO_SP;
 import static com.revolo.lock.Constant.USER_MAIL;
-import static com.revolo.lock.Constant.USER_TOKEN;
 
 /**
  * author : Jack
@@ -193,12 +191,7 @@ public class ForgetThePwdActivity extends BaseActivity {
         req.setPwd(pwd);
         req.setTokens(tokens);
         req.setType(2);
-        String userToken = SPUtils.getInstance(REVOLO_SP).getString(USER_TOKEN);
-        if(TextUtils.isEmpty(userToken)) {
-            Timber.e("userToken is empty");
-            return;
-        }
-        Observable<ForgotPwdRsp> observable = HttpRequest.getInstance().forgotPwd(userToken, req);
+        Observable<ForgotPwdRsp> observable = HttpRequest.getInstance().forgotPwd(req);
         ObservableDecorator.decorate(observable).safeSubscribe(new Observer<ForgotPwdRsp>() {
             @Override
             public void onSubscribe(@NonNull Disposable d) {

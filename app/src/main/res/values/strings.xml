@@ -237,6 +237,7 @@
     <string name="contact">Contact</string>
     <string name="privacy_agreement">Privacy agreement</string>
     <string name="user_agreement">User agreement</string>
+    <string name="about_ver">v%1$s</string>
 
     <!-- FeedbackActivity -->
     <string name="title_feedback">Feedback</string>
@@ -293,6 +294,10 @@
     <string name="start_door_magnetic_alignment_n_please_follow_the_instructions_to_n_operate_the_door_lock">Start door magnetic alignment,\n Please follow the instructions to\n operate the door lock .</string>
     <string name="door_magnet_setting_title">Realign</string>
     <string name="door_magnet_setting_tip">Please follow the instruction on the page to align door magnet </string>
+
+    <!-- TermActivity -->
+    <string name="title_user_term">User Term</string>
+    <string name="title_privacy_term">Privacy Term</string>
 
     <!-- Record -->
     <string name="log_uses_a_password_to_unlock">%1$s uses a password to unlock</string>

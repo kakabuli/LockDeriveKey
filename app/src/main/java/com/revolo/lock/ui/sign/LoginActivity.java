@@ -37,7 +37,6 @@ import timber.log.Timber;
 
 import static com.revolo.lock.Constant.REVOLO_SP;
 import static com.revolo.lock.Constant.USER_MAIL;
-import static com.revolo.lock.Constant.USER_TOKEN;
 
 /**
  * author : Jack
@@ -185,7 +184,6 @@ public class LoginActivity extends BaseActivity {
             updateUser(mail, mailLoginBeanRsp.getData().getMeUsername());
             Timber.d("processLoginRsp 登录成功，token: %1s\n userId: %2s",
                     mailLoginBeanRsp.getData().getToken(), mailLoginBeanRsp.getData().getUid());
-            SPUtils.getInstance(REVOLO_SP).put(USER_TOKEN, mailLoginBeanRsp.getData().getToken());
             App.getInstance().setUserBean(mailLoginBeanRsp.getData());
             runOnUiThread(() -> new Handler(Looper.getMainLooper()).postDelayed(() -> {
                 App.getInstance().finishPreActivities();

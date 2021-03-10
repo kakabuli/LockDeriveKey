@@ -1,5 +1,6 @@
 package com.revolo.lock.ui.sign;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
@@ -18,6 +19,7 @@ import androidx.annotation.Nullable;
 
 import com.blankj.utilcode.util.RegexUtils;
 import com.blankj.utilcode.util.ToastUtils;
+import com.revolo.lock.Constant;
 import com.revolo.lock.R;
 import com.revolo.lock.base.BaseActivity;
 import com.revolo.lock.bean.request.GetCodeBeanReq;
@@ -73,7 +75,12 @@ public class RegisterActivity extends BaseActivity {
         String agreementStr = getString(R.string.terms_of_use);
         SpannableString spannableString = new SpannableString(agreementStr);
         LinkClickableSpan span = new LinkClickableSpan() {
-            // TODO: 2021/1/11 跳转到协议界面
+            @Override
+            public void onClick(@NonNull View widget) {
+                Intent intent =  new Intent(RegisterActivity.this, TermActivity.class);
+                intent.putExtra(Constant.TERM_TYPE, Constant.TERM_TYPE_USER);
+                startActivity(intent);
+            }
         };
         spannableString.setSpan(span, 0, agreementStr.length(), Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
         tvAgreement.append(getString(R.string.i_agree_to));

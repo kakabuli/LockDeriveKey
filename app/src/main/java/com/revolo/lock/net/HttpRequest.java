@@ -280,8 +280,8 @@ public class HttpRequest {
         return service.startOtaUpdate(toke, req, NORMAL);
     }
 
-    public Observable<ForgotPwdRsp> forgotPwd(String token, ForgotPwdBeanReq req) {
-        return service.forgotPwd(token, req, NORMAL);
+    public Observable<ForgotPwdRsp> forgotPwd(ForgotPwdBeanReq req) {
+        return service.forgotPwd(req, NORMAL);
     }
 
     public Observable<ChangeUserPwdBeanRsp> changeUserPwd(String token, ChangeUserPwdBeanReq req) {

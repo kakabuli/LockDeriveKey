@@ -181,6 +181,7 @@
             android:screenOrientation="portrait"/>
         <activity android:name=".ui.device.lock.setting.SetGeofenceActivity"
             android:screenOrientation="portrait"/>
+        <activity android:name=".ui.sign.TermActivity" />
 
         <service android:name=".mqtt.MqttService" />
     </application>
