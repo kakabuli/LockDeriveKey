@@ -376,4 +376,10 @@
     <string name="low">Low</string>
     <string name="high">High</string>
 
+    <!-- ShareDeviceActivity -->
+    <string name="share_device">Share device</string>
+    <string name="accept">Accept</string>
+    <string name="shared_by_user">Shared by %1$s</string>
+    <string name="join_tip">%1$s is inviting you to use %2$s lock, would you accept?</string>
+
 </resources>

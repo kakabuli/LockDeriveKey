@@ -4,13 +4,13 @@
 
     <!-- 打开手电筒需要的权限 -->
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
-    <uses-permission android:name="android.permission.FLASHLIGHT"/>
+    <uses-permission android:name="android.permission.FLASHLIGHT" />
     <!-- 扫描QR Code -->
-    <uses-permission android:name="android.permission.CAMERA"/>
-    <uses-permission android:name="android.permission.FLASHLIGHT"/>
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.FLASHLIGHT" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
-    <uses-permission android:name="android.permission.VIBRATE"/>
+    <uses-permission android:name="android.permission.VIBRATE" />
 
     <!-- MQTT用到的权限 -->
     <uses-permission android:name="android.permission.WAKE_LOCK" />
@@ -22,7 +22,7 @@
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <!-- To request foreground location access, declare one of these permissions. -->
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <!-- Required only when requesting background location access on
        Android 10 (API level 29) and higher. -->
     <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
@@ -37,25 +37,25 @@
         android:name=".App">
 
         <!-- Mqtt Service -->
-        <service android:name="org.eclipse.paho.android.service.MqttService"/>
+        <service android:name="org.eclipse.paho.android.service.MqttService" />
 
         <!-- Recommended for Android 9 (API level 28) and lower. -->
         <!-- Required for Android 10 (API level 29) and higher. -->
-<!--        <service-->
-<!--            android:name="MyNavigationService"-->
-<!--            android:foregroundServiceType="location" >-->
-<!--        &lt;!&ndash; Any inner elements would go here. &ndash;&gt;-->
-<!--    </service>-->
+        <!--        <service-->
+        <!--            android:name="MyNavigationService"-->
+        <!--            android:foregroundServiceType="location" >-->
+        <!--        &lt;!&ndash; Any inner elements would go here. &ndash;&gt;-->
+        <!--    </service>-->
 
-<!--        <receiver-->
-<!--            android:name=".map.geofencing.GeofenceBroadcastReceiver"-->
-<!--            android:enabled="true"-->
-<!--            android:exported="true" />-->
+        <!--        <receiver-->
+        <!--            android:name=".map.geofencing.GeofenceBroadcastReceiver"-->
+        <!--            android:enabled="true"-->
+        <!--            android:exported="true" />-->
 
-<!--        <service-->
-<!--            android:name=".map.geofencing.GeofenceTransitionsJobIntentService"-->
-<!--            android:exported="true"-->
-<!--            android:permission="android.permission.BIND_JOB_SERVICE" />-->
+        <!--        <service-->
+        <!--            android:name=".map.geofencing.GeofenceTransitionsJobIntentService"-->
+        <!--            android:exported="true"-->
+        <!--            android:permission="android.permission.BIND_JOB_SERVICE" />-->
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"
@@ -71,117 +71,203 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".ui.device.add.WifiConnectActivity"
+        <activity
+            android:name=".ui.device.add.WifiConnectActivity"
             android:hardwareAccelerated="false"
-            android:screenOrientation="portrait"/>
-        <activity android:name=".ui.device.add.AddWifiActivity"
-            android:screenOrientation="portrait"/>
-        <activity android:name=".ui.MainActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.device.add.AddWifiActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.MainActivity"
             android:screenOrientation="portrait"
-            android:configChanges="orientation|keyboardHidden"/>
-        <activity android:name=".ui.sign.RegisterActivity"
-            android:screenOrientation="portrait"/>
-        <activity android:name=".ui.sign.RegisterInputNameActivity"
-            android:screenOrientation="portrait"/>
-        <activity android:name=".ui.sign.RegisterAddAvatarActivity"
-            android:screenOrientation="portrait"/>
-        <activity android:name=".ui.sign.RegisterAddAvatarNextActivity"
-            android:screenOrientation="portrait"/>
-        <activity android:name=".ui.device.add.AddDeviceStep1Activity"
-            android:screenOrientation="portrait"/>
-        <activity android:name=".ui.sign.ForgetThePwdActivity"
-            android:screenOrientation="portrait"/>
-        <activity android:name=".ui.device.add.AddDeviceActivity"
-            android:screenOrientation="portrait"/>
-        <activity android:name=".ui.device.add.AddDeviceQRCodeStep2Activity"
-            android:screenOrientation="portrait"/>
-        <activity android:name=".ui.sign.LoginActivity"
-            android:screenOrientation="portrait"/>
-        <activity android:name=".ui.device.add.AddDeviceStep2BleConnectActivity"
-            android:screenOrientation="portrait"/>
-        <activity android:name=".ui.device.add.BleConnectFailActivity"
-            android:screenOrientation="portrait"/>
-        <activity android:name=".ui.device.add.BleConnectSucActivity"
-            android:screenOrientation="portrait"/>
-        <activity android:name=".ui.device.add.AddWifiSucActivity"
-            android:screenOrientation="portrait"/>
-        <activity android:name=".ui.device.add.AddWifiFailActivity"
-            android:screenOrientation="portrait"/>
-        <activity android:name=".ui.device.add.DoorSensorCheckActivity"
-            android:screenOrientation="portrait"/>
-        <activity android:name=".ui.device.add.InputESNActivity"
-            android:screenOrientation="portrait"/>
-        <activity android:name=".ui.device.lock.DeviceDetailActivity"
-            android:screenOrientation="portrait"/>
-        <activity android:name=".ui.device.lock.OperationRecordsActivity"
-            android:screenOrientation="portrait"/>
-        <activity android:name=".ui.device.lock.PasswordListActivity"
-            android:screenOrientation="portrait"/>
-        <activity android:name=".ui.device.lock.AddInputNewPwdActivity"
-            android:screenOrientation="portrait"/>
-        <activity android:name=".ui.device.lock.AddNewPwdSelectActivity"
-            android:screenOrientation="portrait"/>
-        <activity android:name=".ui.device.lock.AddNewPwdNameActivity"
-            android:screenOrientation="portrait"/>
-        <activity android:name=".ui.device.lock.PasswordDetailActivity"
-            android:screenOrientation="portrait"/>
-        <activity android:name=".ui.device.lock.ChangePwdNameActivity"
-            android:screenOrientation="portrait"/>
-        <activity android:name=".ui.device.lock.UserManagementActivity"
-            android:screenOrientation="portrait"/>
-        <activity android:name=".ui.device.lock.AddNewShareUserInputNameActivity"
-            android:screenOrientation="portrait"/>
-        <activity android:name=".ui.device.lock.AuthorizationManagementActivity"
-            android:screenOrientation="portrait"/>
-        <activity android:name=".ui.device.lock.SharedUserDetailActivity"
-            android:screenOrientation="portrait"/>
-        <activity android:name=".ui.device.lock.setting.DeviceSettingActivity"
-            android:screenOrientation="portrait"/>
-        <activity android:name=".ui.device.lock.setting.ChangeLockNameActivity"
-            android:screenOrientation="portrait"/>
-        <activity android:name=".ui.device.lock.setting.WifiSettingActivity"
-            android:screenOrientation="portrait"/>
-        <activity android:name=".ui.device.lock.setting.AutoLockActivity"
-            android:screenOrientation="portrait"/>
-        <activity android:name=".ui.device.lock.setting.PrivateModeActivity"
-            android:screenOrientation="portrait"/>
-        <activity android:name=".ui.device.lock.setting.DuressCodeActivity"
-            android:screenOrientation="portrait"/>
-        <activity android:name=".ui.device.lock.setting.DoorLockInformationActivity"
-            android:screenOrientation="portrait"/>
-        <activity android:name=".ui.user.AuthUserDetailActivity"
-            android:screenOrientation="portrait"/>
-        <activity android:name=".ui.user.ChangeSharedUserNameActivity"
-            android:screenOrientation="portrait"/>
-        <activity android:name=".ui.user.AddDeviceForSharedUserActivity"
-            android:screenOrientation="portrait"/>
-        <activity android:name=".ui.user.SelectAuthorizedDeviceActivity"
-            android:screenOrientation="portrait"/>
-        <activity android:name=".ui.mine.UserPageActivity"
-            android:screenOrientation="portrait"/>
-        <activity android:name=".ui.mine.ModifyUserNameActivity"
-            android:screenOrientation="portrait"/>
-        <activity android:name=".ui.mine.ModifyPasswordActivity"
-            android:screenOrientation="portrait"/>
-        <activity android:name=".ui.mine.MessageListActivity"
-            android:screenOrientation="portrait"/>
-        <activity android:name=".ui.mine.MessageDetailActivity"
-            android:screenOrientation="portrait"/>
-        <activity android:name=".ui.mine.SettingActivity"
-            android:screenOrientation="portrait"/>
-        <activity android:name=".ui.mine.AboutActivity"
-            android:screenOrientation="portrait"/>
-        <activity android:name=".ui.mine.FeedbackActivity"
-            android:screenOrientation="portrait"/>
-        <activity android:name=".ui.device.add.DoorCheckFailActivity"
-            android:screenOrientation="portrait"/>
-        <activity android:name=".ui.device.lock.setting.GeoFenceUnlockActivity"
-            android:screenOrientation="portrait"/>
-        <activity android:name=".ui.device.lock.setting.DoorMagnetAlignmentActivity"
-            android:screenOrientation="portrait"/>
-        <activity android:name=".ui.device.lock.setting.SetGeofenceActivity"
-            android:screenOrientation="portrait"/>
-        <activity android:name=".ui.sign.TermActivity" />
+            android:configChanges="orientation|keyboardHidden" />
+        <activity
+            android:name=".ui.sign.RegisterActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.sign.RegisterInputNameActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.sign.RegisterAddAvatarActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.sign.RegisterAddAvatarNextActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.device.add.AddDeviceStep1Activity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.sign.ForgetThePwdActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.device.add.AddDeviceActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.device.add.AddDeviceQRCodeStep2Activity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.sign.LoginActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.device.add.AddDeviceStep2BleConnectActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.device.add.BleConnectFailActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.device.add.BleConnectSucActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.device.add.AddWifiSucActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.device.add.AddWifiFailActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.device.add.DoorSensorCheckActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.device.add.InputESNActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.device.lock.DeviceDetailActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.device.lock.OperationRecordsActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.device.lock.PasswordListActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.device.lock.AddInputNewPwdActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.device.lock.AddNewPwdSelectActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.device.lock.AddNewPwdNameActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.device.lock.PasswordDetailActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.device.lock.ChangePwdNameActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.device.lock.UserManagementActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.device.lock.AddNewShareUserInputNameActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.device.lock.AuthorizationManagementActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.device.lock.SharedUserDetailActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.device.lock.setting.DeviceSettingActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.device.lock.setting.ChangeLockNameActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.device.lock.setting.WifiSettingActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.device.lock.setting.AutoLockActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.device.lock.setting.PrivateModeActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.device.lock.setting.DuressCodeActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.device.lock.setting.DoorLockInformationActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.user.AuthUserDetailActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.user.ChangeSharedUserNameActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.user.AddDeviceForSharedUserActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.user.SelectAuthorizedDeviceActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.mine.UserPageActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.mine.ModifyUserNameActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.mine.ModifyPasswordActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.mine.MessageListActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.mine.MessageDetailActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.mine.SettingActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.mine.AboutActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.mine.FeedbackActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.device.add.DoorCheckFailActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.device.lock.setting.GeoFenceUnlockActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.device.lock.setting.DoorMagnetAlignmentActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.device.lock.setting.SetGeofenceActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.sign.TermActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.ShareDeviceActivity"
+            android:screenOrientation="portrait">
+            <!--注册scheme-->
+            <intent-filter>
+                <!--必有项-->
+                <action android:name="android.intent.action.VIEW" />
+                <!--表示该页面可以被隐式调用，必须加上该项-->
+                <category android:name="android.intent.category.DEFAULT" />
+                <!--BROWSABLE指定该Activity能被浏览器安全调用-->
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <!--协议部分-->
+                <!--声明自定义scheme，类似于http, https-->
+                <data
+                    android:host="com.revolo.lock"
+                    android:scheme="revolo_share" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data
+                    android:scheme="https"
+                    android:host="test"
+                    android:pathPattern="/?shareKey=sdjflkasdgjsdj?userName=John?lockName=WPF01" />
+            </intent-filter>
+        </activity>
 
         <service android:name=".mqtt.MqttService" />
     </application>

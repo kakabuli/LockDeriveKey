@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <include
+        android:id="@+id/titleBar"
+        layout="@layout/layout_title_bar"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/tvShareUser"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        tools:text="shared by John"
+        android:layout_marginTop="39pt"
+        android:textSize="16pt"
+        android:textColor="@color/c333333"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/titleBar" />
+
+    <TextView
+        android:id="@+id/tvJoinTip"
+        android:layout_width="266pt"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:textSize="14pt"
+        android:textColor="@color/c333333"
+        android:layout_marginTop="21pt"
+        tools:text="John is inviting you to use WFP01 lock,  would you accept?"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tvShareUser" />
+
+    <android.widget.Button
+        android:id="@+id/btnAccept"
+        style="@style/ButtonStyle"
+        android:layout_width="223pt"
+        android:layout_height="44pt"
+        android:layout_marginBottom="128pt"
+        android:text="@string/accept"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
