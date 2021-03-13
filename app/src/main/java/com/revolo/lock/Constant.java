@@ -34,6 +34,7 @@ public class Constant {
     public static final String WIFI_NAME = "WifiName";
     public static final String WIFI_PWD = "WifiPwd";
     public static final String USER_PWD = "UserPwd";
+    public static final String REGISTER_DETAIL = "RegisterDetail";
 
 
     public static final String KEY_PWD1 = "KeyPwd1";

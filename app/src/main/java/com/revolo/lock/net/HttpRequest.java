@@ -39,6 +39,7 @@ import com.revolo.lock.bean.request.StartOTAUpdateBeanReq;
 import com.revolo.lock.bean.request.UpdateDoorSensorStateBeanReq;
 import com.revolo.lock.bean.request.UpdateSharedUserNickNameBeanReq;
 import com.revolo.lock.bean.request.UpdateUserAuthorityTypeBeanReq;
+import com.revolo.lock.bean.request.UpdateUserFirstLastNameBeanReq;
 import com.revolo.lock.bean.request.UploadAlarmRecordBeanReq;
 import com.revolo.lock.bean.request.UploadOpenDoorRecordBeanReq;
 import com.revolo.lock.bean.respone.AcceptShareBeanRsp;
@@ -79,6 +80,7 @@ import com.revolo.lock.bean.respone.StartOTAUpdateBeanRsp;
 import com.revolo.lock.bean.respone.UpdateDoorSensorStateBeanRsp;
 import com.revolo.lock.bean.respone.UpdateSharedUserNickNameBeanRsp;
 import com.revolo.lock.bean.respone.UpdateUserAuthorityTypeBeanRsp;
+import com.revolo.lock.bean.respone.UpdateUserFirstLastNameBeanRsp;
 import com.revolo.lock.bean.respone.UploadAlarmRecordBeanRsp;
 import com.revolo.lock.bean.respone.UploadOpenDoorRecordBeanRsp;
 
@@ -331,6 +333,10 @@ public class HttpRequest {
 
     public Observable<LogoutBeanRsp> logout(String token) {
         return service.logout(token, NORMAL);
+    }
+
+    public Observable<UpdateUserFirstLastNameBeanRsp> updateUserFirstLastName(String token, UpdateUserFirstLastNameBeanReq req) {
+        return service.updateUserFirstLastName(token, req, NORMAL);
     }
 
 }

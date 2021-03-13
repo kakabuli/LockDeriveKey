@@ -237,8 +237,11 @@ public class RegisterActivity extends BaseActivity {
                 addUserToLocal(mail);
                 // TODO: 2021/2/8 注册成功
                 ToastUtils.showShort("Register Success!");
-//                startActivity(new Intent(RegisterActivity.this, RegisterInputNameActivity.class));
-                new Handler(Looper.getMainLooper()).postDelayed(() -> finish(), 50);
+                new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                    Intent intent = new Intent(RegisterActivity.this, RegisterInputNameActivity.class);
+                    intent.putExtra(Constant.REGISTER_DETAIL, mailRegisterBeanRsp.getData());
+                    startActivity(intent);
+                }, 50);
             }
 
             @Override

@@ -38,6 +38,7 @@ import com.revolo.lock.bean.request.StartOTAUpdateBeanReq;
 import com.revolo.lock.bean.request.UpdateDoorSensorStateBeanReq;
 import com.revolo.lock.bean.request.UpdateSharedUserNickNameBeanReq;
 import com.revolo.lock.bean.request.UpdateUserAuthorityTypeBeanReq;
+import com.revolo.lock.bean.request.UpdateUserFirstLastNameBeanReq;
 import com.revolo.lock.bean.request.UploadAlarmRecordBeanReq;
 import com.revolo.lock.bean.request.UploadOpenDoorRecordBeanReq;
 import com.revolo.lock.bean.respone.AcceptShareBeanRsp;
@@ -78,14 +79,20 @@ import com.revolo.lock.bean.respone.StartOTAUpdateBeanRsp;
 import com.revolo.lock.bean.respone.UpdateDoorSensorStateBeanRsp;
 import com.revolo.lock.bean.respone.UpdateSharedUserNickNameBeanRsp;
 import com.revolo.lock.bean.respone.UpdateUserAuthorityTypeBeanRsp;
+import com.revolo.lock.bean.respone.UpdateUserFirstLastNameBeanRsp;
 import com.revolo.lock.bean.respone.UploadAlarmRecordBeanRsp;
 import com.revolo.lock.bean.respone.UploadOpenDoorRecordBeanRsp;
 
+import java.util.Map;
+
 import io.reactivex.Observable;
+import okhttp3.RequestBody;
 import retrofit2.http.Body;
 import retrofit2.http.Header;
 import retrofit2.http.Headers;
+import retrofit2.http.Multipart;
 import retrofit2.http.POST;
+import retrofit2.http.PartMap;
 
 public interface ApiService {
 
@@ -248,4 +255,10 @@ public interface ApiService {
     @Headers({"Content-Type: application/json"})
     @POST("/user/logout")
     Observable<LogoutBeanRsp> logout(@Header("token") String token, @Header("url_name") String  urlName);
+
+    @Headers({"Content-Type: application/json"})
+    @POST("/user/edit/postUserName")
+    Observable<UpdateUserFirstLastNameBeanRsp> updateUserFirstLastName(@Header("token") String token, @Body UpdateUserFirstLastNameBeanReq req, @Header("url_name") String  urlName);
+
+
 }

@@ -155,9 +155,22 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
     }
 
     private void checkDeviceIsBind() {
+        if(App.getInstance()  == null) {
+            Timber.e("App.getInstance()  == null");
+            return;
+        }
+        if(App.getInstance().getUserBean() == null) {
+            Timber.e("App.getInstance().getUserBean() == null");
+            return;
+        }
+        String uid = App.getInstance().getUserBean().getUid();
+        if(TextUtils.isEmpty(uid)) {
+            Timber.e("uid is empty");
+            return;
+        }
         LockIsBindBeanReq req = new LockIsBindBeanReq();
         req.setDeviceSN(mEsn);
-        req.setUser_id(App.getInstance().getUserBean().getUid());
+        req.setUser_id(uid);
         Observable<LockIsBindBeanRsp> observable = HttpRequest.getInstance()
                 .lockIsBind(App.getInstance().getUserBean().getToken(), req);
         ObservableDecorator.decorate(observable).safeSubscribe(new Observer<LockIsBindBeanRsp>() {
