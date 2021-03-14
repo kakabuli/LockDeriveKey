@@ -68,6 +68,7 @@
 
     <!-- DeviceDetailActivity -->
     <string name="tip_notification">Notification</string>
+    <string name="tip_activities">Activities</string>
     <string name="tip_user">User</string>
     <string name="tip_setting">Setting</string>
     <string name="tip_low_battery">Low battery</string>

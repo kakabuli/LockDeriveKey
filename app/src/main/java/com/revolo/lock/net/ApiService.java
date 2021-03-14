@@ -82,6 +82,7 @@ import com.revolo.lock.bean.respone.UpdateUserAuthorityTypeBeanRsp;
 import com.revolo.lock.bean.respone.UpdateUserFirstLastNameBeanRsp;
 import com.revolo.lock.bean.respone.UploadAlarmRecordBeanRsp;
 import com.revolo.lock.bean.respone.UploadOpenDoorRecordBeanRsp;
+import com.revolo.lock.bean.respone.UploadUserAvatarBeanRsp;
 
 import java.util.Map;
 
@@ -260,5 +261,9 @@ public interface ApiService {
     @POST("/user/edit/postUserName")
     Observable<UpdateUserFirstLastNameBeanRsp> updateUserFirstLastName(@Header("token") String token, @Body UpdateUserFirstLastNameBeanReq req, @Header("url_name") String  urlName);
 
+    @Multipart
+    @Headers({"Content-Type: application/json"})
+    @POST("/user/edit/uploaduserhead")
+    Observable<UploadUserAvatarBeanRsp> uploadUserAvatar(@Header("token") String token, @PartMap Map<String, RequestBody> params, @Header("url_name") String  urlName);
 
 }

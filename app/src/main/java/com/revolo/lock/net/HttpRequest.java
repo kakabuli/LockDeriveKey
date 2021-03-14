@@ -86,12 +86,16 @@ import com.revolo.lock.bean.respone.UploadOpenDoorRecordBeanRsp;
 
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import javax.net.ssl.X509TrustManager;
 
 import io.reactivex.Observable;
+import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
+import okhttp3.RequestBody;
 import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
@@ -100,6 +104,7 @@ import retrofit2.http.Body;
 import retrofit2.http.Header;
 import retrofit2.http.Headers;
 import retrofit2.http.POST;
+import retrofit2.http.PartMap;
 
 public class HttpRequest {
 
@@ -337,6 +342,14 @@ public class HttpRequest {
 
     public Observable<UpdateUserFirstLastNameBeanRsp> updateUserFirstLastName(String token, UpdateUserFirstLastNameBeanReq req) {
         return service.updateUserFirstLastName(token, req, NORMAL);
+    }
+
+    public Observable<UpdateUserFirstLastNameBeanRsp> uploadUserAvatar(String token, byte[] bytes) {
+        MediaType mediaType = MediaType.parse("image/jpeg");
+        RequestBody requestBody = RequestBody.create(mediaType, bytes);
+        Map<String, RequestBody> params = new HashMap<>();
+        params.put("AttachmentKey\"; name=\"image\"; filename=\"", requestBody);
+        return service.uploadUserAvatar(token, params, NORMAL);
     }
 
 }

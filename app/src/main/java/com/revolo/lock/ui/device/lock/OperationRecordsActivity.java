@@ -91,7 +91,7 @@ public class OperationRecordsActivity extends BaseActivity {
 
     @Override
     public void initView(@Nullable Bundle savedInstanceState, @Nullable View contentView) {
-        useCommonTitleBar(getString(R.string.title_operation_records))
+        useCommonTitleBar(getString(R.string.tip_activities))
                 .setRight(ContextCompat.getDrawable(this, R.drawable.ic_icon_date), v -> {
                     showDatePicker();
                 });
