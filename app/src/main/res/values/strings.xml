@@ -382,5 +382,6 @@
     <string name="accept">Accept</string>
     <string name="shared_by_user">Shared by %1$s</string>
     <string name="join_tip">%1$s is inviting you to use %2$s lock, would you accept?</string>
+    <string name="title_authorization_users">Authorization users</string>
 
 </resources>

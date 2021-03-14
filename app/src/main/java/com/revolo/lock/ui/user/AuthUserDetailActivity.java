@@ -2,6 +2,7 @@ package com.revolo.lock.ui.user;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.TextView;
 
@@ -11,15 +12,29 @@ import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.blankj.utilcode.util.StringUtils;
+import com.blankj.utilcode.util.ToastUtils;
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.chad.library.adapter.base.listener.OnItemClickListener;
+import com.revolo.lock.App;
 import com.revolo.lock.Constant;
 import com.revolo.lock.R;
 import com.revolo.lock.adapter.AuthUserDetailDevicesAdapter;
 import com.revolo.lock.base.BaseActivity;
+import com.revolo.lock.bean.request.GetDevicesFromUidAndSharedUidBeanReq;
 import com.revolo.lock.bean.respone.GetAllSharedUserFromAdminUserBeanRsp;
+import com.revolo.lock.bean.respone.GetDevicesFromUidAndSharedUidBeanRsp;
 import com.revolo.lock.bean.test.TestAuthUserBean;
+import com.revolo.lock.net.HttpRequest;
+import com.revolo.lock.net.ObservableDecorator;
 import com.revolo.lock.ui.device.lock.SharedUserDetailActivity;
+
+import java.util.List;
+
+import io.reactivex.Observable;
+import io.reactivex.Observer;
+import io.reactivex.disposables.Disposable;
+import timber.log.Timber;
 
 /**
  * author : Jack
@@ -51,7 +66,7 @@ public class AuthUserDetailActivity extends BaseActivity {
 
     @Override
     public void initView(@Nullable Bundle savedInstanceState, @Nullable View contentView) {
-        useCommonTitleBar("Authorization users")
+        useCommonTitleBar(getString(R.string.title_authorization_users))
                 .setRight(ContextCompat.getDrawable(this, R.drawable.ic_home_icon_add), new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -83,18 +98,22 @@ public class AuthUserDetailActivity extends BaseActivity {
         rvLockList.setLayoutManager(new LinearLayoutManager(this));
         rvLockList.setAdapter(mDevicesAdapter);
         applyDebouncingClickListener(findViewById(R.id.clUserName));
+        initLoading("Loading...");
 
     }
 
     @Override
     public void doBusiness() {
-
+        refreshUI();
+        searchUserDevice();
     }
 
     @Override
     public void onDebouncingClick(@NonNull View view) {
         if(view.getId() == R.id.clUserName) {
-            startActivity(new Intent(this, ChangeSharedUserNameActivity.class));
+            Intent intent = new Intent(this, ChangeSharedUserNameActivity.class);
+            intent.putExtra(Constant.SHARED_USER_DATA, mSharedUserData);
+            startActivity(intent);
         }
     }
 
@@ -102,10 +121,70 @@ public class AuthUserDetailActivity extends BaseActivity {
         // TODO: 2021/3/8 后面用邮箱
         mTvAccount.setText(mSharedUserData.getUserNickname());
         mTvUserName.setText(mSharedUserData.getUserNickname());
+        int num = mDevicesAdapter.getData().size();
+        mTvDeviceNum.setText(StringUtils.format("%1d", num));
     }
 
     private void searchUserDevice() {
-        // TODO: 2021/3/8 服务器查询数据
+        if(App.getInstance().getUserBean() == null) {
+            Timber.e("searchUserDevice App.getInstance().getUserBean() == null");
+            return;
+        }
+        String token = App.getInstance().getUserBean().getToken();
+        if(TextUtils.isEmpty(token)) {
+            Timber.e("searchUserDevice token is empty");
+            return;
+        }
+        String uid = App.getInstance().getUserBean().getUid();
+        if(TextUtils.isEmpty(uid)) {
+            Timber.e("searchUserDevice uid is empty");
+            return;
+        }
+
+        GetDevicesFromUidAndSharedUidBeanReq req = new GetDevicesFromUidAndSharedUidBeanReq();
+        req.setUid(uid);
+        req.setShareId(mSharedUserData.getUid());
+        showLoading();
+        Observable<GetDevicesFromUidAndSharedUidBeanRsp> observable = HttpRequest.getInstance().getDevicesFromUidAndSharedUid(token, req);
+        ObservableDecorator.decorate(observable).safeSubscribe(new Observer<GetDevicesFromUidAndSharedUidBeanRsp>() {
+            @Override
+            public void onSubscribe(@NonNull Disposable d) {
+
+            }
+
+            @Override
+            public void onNext(@NonNull GetDevicesFromUidAndSharedUidBeanRsp getDevicesFromUidAndSharedUidBeanRsp) {
+                String code = getDevicesFromUidAndSharedUidBeanRsp.getCode();
+                if(TextUtils.isEmpty(code)) {
+                    Timber.e("searchUserDevice code is empty");
+                    return;
+                }
+                if(!code.equals("200")) {
+                    String msg = getDevicesFromUidAndSharedUidBeanRsp.getMsg();
+                    Timber.e("searchUserDevice code: %1s, msg: %2s", code, msg);
+                    if(!TextUtils.isEmpty(msg)) {
+                        ToastUtils.showShort(msg);
+                    }
+                    return;
+                }
+                List<GetDevicesFromUidAndSharedUidBeanRsp.DataBean> dataBeans = getDevicesFromUidAndSharedUidBeanRsp.getData();
+                if(dataBeans == null) {
+                    return;
+                }
+                runOnUiThread(() -> mDevicesAdapter.setList(dataBeans));
+            }
+
+            @Override
+            public void onError(@NonNull Throwable e) {
+                dismissLoading();
+                Timber.e(e);
+            }
+
+            @Override
+            public void onComplete() {
+
+            }
+        });
     }
 
 }

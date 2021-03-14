@@ -23,6 +23,7 @@ import com.revolo.lock.bean.request.GainKeyBeanReq;
 import com.revolo.lock.bean.request.GetAllSharedUserFromAdminUserBeanReq;
 import com.revolo.lock.bean.request.GetCodeBeanReq;
 import com.revolo.lock.bean.request.GetAllSharedUserFromLockBeanReq;
+import com.revolo.lock.bean.request.GetDevicesFromUidAndSharedUidBeanReq;
 import com.revolo.lock.bean.request.GetLockKeyNickBeanReq;
 import com.revolo.lock.bean.request.GetPwd1BeanReq;
 import com.revolo.lock.bean.request.LockIsBindBeanReq;
@@ -63,6 +64,7 @@ import com.revolo.lock.bean.respone.GainKeyBeanRsp;
 import com.revolo.lock.bean.respone.GetAllSharedUserFromAdminUserBeanRsp;
 import com.revolo.lock.bean.respone.GetCodeBeanRsp;
 import com.revolo.lock.bean.respone.GetAllSharedUserFromLockBeanRsp;
+import com.revolo.lock.bean.respone.GetDevicesFromUidAndSharedUidBeanRsp;
 import com.revolo.lock.bean.respone.GetLockKeyNickBeanRsp;
 import com.revolo.lock.bean.respone.GetPwd1BeanRsp;
 import com.revolo.lock.bean.respone.LockIsBindBeanRsp;
@@ -265,5 +267,9 @@ public interface ApiService {
     @Headers({"Content-Type: application/json"})
     @POST("/user/edit/uploaduserhead")
     Observable<UploadUserAvatarBeanRsp> uploadUserAvatar(@Header("token") String token, @PartMap Map<String, RequestBody> params, @Header("url_name") String  urlName);
+
+    @Headers({"Content-Type: application/json"})
+    @POST("/wpflock/user/devList")
+    Observable<GetDevicesFromUidAndSharedUidBeanRsp> getDevicesFromUidAndSharedUid(@Header("token") String token, @Body GetDevicesFromUidAndSharedUidBeanReq req, @Header("url_name") String  urlName);
 
 }

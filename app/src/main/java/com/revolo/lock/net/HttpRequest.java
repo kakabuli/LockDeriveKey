@@ -24,6 +24,7 @@ import com.revolo.lock.bean.request.GainKeyBeanReq;
 import com.revolo.lock.bean.request.GetAllSharedUserFromAdminUserBeanReq;
 import com.revolo.lock.bean.request.GetCodeBeanReq;
 import com.revolo.lock.bean.request.GetAllSharedUserFromLockBeanReq;
+import com.revolo.lock.bean.request.GetDevicesFromUidAndSharedUidBeanReq;
 import com.revolo.lock.bean.request.GetLockKeyNickBeanReq;
 import com.revolo.lock.bean.request.GetPwd1BeanReq;
 import com.revolo.lock.bean.request.LockIsBindBeanReq;
@@ -64,6 +65,7 @@ import com.revolo.lock.bean.respone.GainKeyBeanRsp;
 import com.revolo.lock.bean.respone.GetAllSharedUserFromAdminUserBeanRsp;
 import com.revolo.lock.bean.respone.GetCodeBeanRsp;
 import com.revolo.lock.bean.respone.GetAllSharedUserFromLockBeanRsp;
+import com.revolo.lock.bean.respone.GetDevicesFromUidAndSharedUidBeanRsp;
 import com.revolo.lock.bean.respone.GetLockKeyNickBeanRsp;
 import com.revolo.lock.bean.respone.GetPwd1BeanRsp;
 import com.revolo.lock.bean.respone.LockIsBindBeanRsp;
@@ -346,6 +348,10 @@ public class HttpRequest {
         Map<String, RequestBody> params = new HashMap<>();
         params.put("AttachmentKey\"; name=\"image\"; filename=\"", requestBody);
         return service.uploadUserAvatar(token, params, NORMAL);
+    }
+
+    public Observable<GetDevicesFromUidAndSharedUidBeanRsp> getDevicesFromUidAndSharedUid(String token, GetDevicesFromUidAndSharedUidBeanReq req) {
+        return service.getDevicesFromUidAndSharedUid(token, req, NORMAL);
     }
 
 }
