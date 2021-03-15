@@ -2,6 +2,7 @@
 <androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -12,31 +13,33 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <TextView
-        android:id="@+id/tvTipName"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="41pt"
-        android:layout_marginTop="31pt"
-        android:text="@string/name"
-        android:textSize="15pt"
-        android:textColor="@color/c333333"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/include14" />
 
     <EditText
-        android:id="@+id/etEmail"
+        android:id="@+id/etFirstName"
         style="@style/InputEditTextStyle"
         android:layout_width="300pt"
         android:layout_height="44pt"
-        android:layout_marginTop="6pt"
-        android:hint="@string/hint_please_enter_the_user_name"
-        android:inputType="textEmailAddress"
+        android:layout_marginTop="45pt"
+        android:hint="@string/hint_first_name"
+        android:inputType="textPersonName"
         android:textColorHint="@color/cA5A4DA"
         android:theme="@style/InputEditTextTheme"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tvTipName" />
+        app:layout_constraintTop_toBottomOf="@+id/include14" />
+
+    <EditText
+        android:id="@+id/etLastName"
+        android:layout_width="300pt"
+        android:layout_height="44pt"
+        style="@style/InputEditTextStyle"
+        android:theme="@style/InputEditTextTheme"
+        android:layout_marginTop="10pt"
+        android:hint="@string/hint_last_name"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/etFirstName"
+        android:inputType="textPersonName"/>
 
 
     <android.widget.Button

@@ -3,6 +3,10 @@
     package="com.revolo.lock">
 
     <!-- 打开手电筒需要的权限 -->
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.FLASHLIGHT" />
     <!-- 扫描QR Code -->
@@ -47,15 +51,15 @@
         <!--        &lt;!&ndash; Any inner elements would go here. &ndash;&gt;-->
         <!--    </service>-->
 
-        <!--        <receiver-->
-        <!--            android:name=".map.geofencing.GeofenceBroadcastReceiver"-->
-        <!--            android:enabled="true"-->
-        <!--            android:exported="true" />-->
-
         <!--        <service-->
         <!--            android:name=".map.geofencing.GeofenceTransitionsJobIntentService"-->
         <!--            android:exported="true"-->
         <!--            android:permission="android.permission.BIND_JOB_SERVICE" />-->
+
+        <receiver
+            android:name=".ui.device.lock.setting.geofence.GeofenceBroadcastReceiver"
+            android:enabled="true"
+            android:exported="true"/>
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"
@@ -256,18 +260,8 @@
                     android:host="com.revolo.lock"
                     android:scheme="revolo_share" />
             </intent-filter>
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
-
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
-
-                <data
-                    android:scheme="https"
-                    android:host="test"
-                    android:pathPattern="/?shareKey=sdjflkasdgjsdj?userName=John?lockName=WPF01" />
-            </intent-filter>
         </activity>
+        <activity android:name=".ui.device.lock.setting.geofence.MapActivity" />
 
         <service android:name=".mqtt.MqttService" />
     </application>

@@ -42,7 +42,7 @@
 
         <TextView
             android:id="@+id/tvDayDetail"
-            android:layout_width="217pt"
+            android:layout_width="194pt"
             android:layout_height="wrap_content"
             android:layout_marginStart="15pt"
             android:layout_marginTop="12pt"

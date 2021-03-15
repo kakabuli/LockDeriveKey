@@ -75,6 +75,7 @@ public class LoginActivity extends BaseActivity {
         if(!TextUtils.isEmpty(mail)) {
             mEtEmail.setText(mail);
         }
+        initLoading("Loading...");
     }
 
     /**
@@ -130,13 +131,7 @@ public class LoginActivity extends BaseActivity {
             ToastUtils.showShort("Please input your password!");
             return;
         }
-        // TODO: 2021/2/21 抽离文字
-        CustomerLoadingDialog loadingDialog = new CustomerLoadingDialog.Builder(this)
-                .setMessage("loading...")
-                .setCancelable(true)
-                .setCancelOutside(false)
-                .create();
-        loadingDialog.show();
+        showLoading();
         MailLoginBeanReq req = new MailLoginBeanReq();
         req.setMail(mail);
         req.setPassword(pwd);
@@ -150,15 +145,14 @@ public class LoginActivity extends BaseActivity {
 
             @Override
             public void onNext(@NonNull MailLoginBeanRsp mailLoginBeanRsp) {
-                if(loadingDialog != null) {
-                    loadingDialog.dismiss();
-                }
+                dismissLoading();
                 processLoginRsp(mailLoginBeanRsp, mail);
             }
 
             @Override
             public void onError(@NonNull Throwable e) {
-
+                dismissLoading();
+                Timber.e(e);
             }
 
             @Override
@@ -181,6 +175,7 @@ public class LoginActivity extends BaseActivity {
             return;
         }
         ThreadUtils.getSinglePool().execute(() -> {
+            // TODO: 2021/3/15 存储注册时间
             updateUser(mail, mailLoginBeanRsp.getData().getMeUsername());
             Timber.d("processLoginRsp 登录成功，token: %1s\n userId: %2s",
                     mailLoginBeanRsp.getData().getToken(), mailLoginBeanRsp.getData().getUid());

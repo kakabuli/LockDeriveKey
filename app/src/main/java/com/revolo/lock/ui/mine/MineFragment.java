@@ -13,6 +13,7 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.blankj.utilcode.util.TimeUtils;
 import com.revolo.lock.Constant;
 import com.revolo.lock.R;
 import com.revolo.lock.bean.test.TestUserBean;
@@ -28,12 +29,16 @@ public class MineFragment extends Fragment {
                 new ViewModelProvider(this).get(MineViewModel.class);
         View root = inflater.inflate(R.layout.fragment_mine, container, false);
         final TextView tvHiName = root.findViewById(R.id.tvHiName);
+        final TextView tvDayDetail = root.findViewById(R.id.tvDayDetail);
         mMineViewModel.getUser().observe(getViewLifecycleOwner(), new Observer<User>() {
             @Override
             public void onChanged(User user) {
-                String userName = user.getUserName();
+                String userName = user.getFirstName();
                 // TODO: 2021/3/7 名字后面需要更改其他显示
-                tvHiName.setText(getString(R.string.hi_name, TextUtils.isEmpty(userName)?"John":userName));
+                tvHiName.setText(getString(R.string.hi_name, TextUtils.isEmpty(userName)?"":userName));
+//                long registerTime = user.getRegisterTime();
+                long registerTime = 1615789278L;
+                tvDayDetail.setText(getString(R.string.day_detail, daysBetween(TimeUtils.getNowMills()/1000, registerTime)));
             }
         });
         root.findViewById(R.id.clUserDetail).setOnClickListener(new View.OnClickListener() {
@@ -69,4 +74,11 @@ public class MineFragment extends Fragment {
         });
         return root;
     }
+
+    //计算间隔日，比较两个时间是否同一天，如果两个时间都是同一天的话，返回0。
+    // 两个比较的时间都不是同一天的话，根据传参位置 可返回正数/负数。两个比较的时间都是同一天的话，返回0。
+    private static int daysBetween(long now, long createTime) {
+        return (int) ((now - createTime)/(3600*24));
+    }
+
 }

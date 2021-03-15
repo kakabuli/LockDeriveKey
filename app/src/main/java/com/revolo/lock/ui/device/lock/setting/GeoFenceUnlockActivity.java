@@ -40,6 +40,7 @@ import com.revolo.lock.mqtt.bean.publishresultbean.WifiLockApproachOpenResponseB
 import com.revolo.lock.mqtt.bean.publishresultbean.WifiLockSetLockAttrSensitivityRspBean;
 import com.revolo.lock.room.AppDatabase;
 import com.revolo.lock.room.entity.BleDeviceLocal;
+import com.revolo.lock.ui.device.lock.setting.geofence.MapActivity;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -136,7 +137,7 @@ public class GeoFenceUnlockActivity extends BaseActivity implements OnMapReadyCa
 
         mIvGeoFenceUnlockEnable.setImageResource(mBleDeviceLocal.isOpenElectricFence()?R.drawable.ic_icon_switch_open:R.drawable.ic_icon_switch_close);
 
-        applyDebouncingClickListener(mIvGeoFenceUnlockEnable);
+        applyDebouncingClickListener(mIvGeoFenceUnlockEnable, findViewById(R.id.clDistanceRangeSetting));
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.mapFragment);
@@ -157,6 +158,11 @@ public class GeoFenceUnlockActivity extends BaseActivity implements OnMapReadyCa
         if(view.getId() == R.id.ivGeoFenceUnlockEnable) {
             // TODO: 2021/2/23 开关电子围栏 TEST使用开启地理围栏开门
             publishApproachOpen(mBleDeviceLocal.getEsn(), mBleDeviceLocal.getSetElectricFenceTime());
+            return;
+        }
+        if(view.getId() == R.id.clDistanceRangeSetting) {
+            Intent intent = new Intent(this, MapActivity.class);
+            startActivity(intent);
         }
     }
 

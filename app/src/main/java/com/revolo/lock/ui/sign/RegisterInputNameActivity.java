@@ -89,12 +89,12 @@ public class RegisterInputNameActivity extends BaseActivity {
 
         String token = mDataBean.getToken();
         if(TextUtils.isEmpty(token)) {
-            Timber.e("token is empty");
+            Timber.e("updateFirstLastName token is empty");
             return;
         }
         String uid = mDataBean.getUid();
         if(TextUtils.isEmpty(uid)) {
-            Timber.e("uid is empty");
+            Timber.e("updateFirstLastName uid is empty");
             return;
         }
         UpdateUserFirstLastNameBeanReq req = new UpdateUserFirstLastNameBeanReq();
@@ -118,7 +118,7 @@ public class RegisterInputNameActivity extends BaseActivity {
                 }
                 if(!code.equals("200")) {
                     String msg = updateUserFirstLastNameBeanRsp.getMsg();
-                    Timber.e("code: %1s, msg: %2s", code, msg);
+                    Timber.e("updateFirstLastName code: %1s, msg: %2s", code, msg);
                     if(!TextUtils.isEmpty(msg)) {
                         ToastUtils.showShort(msg);
                     }

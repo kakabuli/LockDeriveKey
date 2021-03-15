@@ -58,9 +58,9 @@ public class UserPageActivity extends BaseActivity {
             if(mUser != null) {
                 TextView tvUserName = findViewById(R.id.tvUserName);
                 TextView tvEmailAddress = findViewById(R.id.tvEmailAddress);
-                String userName = mUser.getUserName();
+                String userName = mUser.getFirstName();
                 // TODO: 2021/3/7 名字后面需要更改其他显示
-                tvUserName.setText(TextUtils.isEmpty(userName)?"John":userName);
+                tvUserName.setText(TextUtils.isEmpty(userName)?"":userName);
                 String email = mUser.getMail();
                 tvEmailAddress.setText(TextUtils.isEmpty(email)?"":email);
             }
@@ -75,7 +75,8 @@ public class UserPageActivity extends BaseActivity {
     @Override
     public void onDebouncingClick(@NonNull View view) {
         if(view.getId() == R.id.clUserName) {
-            startActivity(new Intent(this, ModifyUserNameActivity.class));
+            Intent intent = new Intent(this, ModifyUserNameActivity.class);
+            startActivity(intent);
             return;
         }
         if(view.getId() == R.id.clChangePwd) {
