@@ -14,6 +14,7 @@ import androidx.annotation.Nullable;
 import com.blankj.utilcode.util.ToastUtils;
 import com.revolo.lock.App;
 import com.revolo.lock.Constant;
+import com.revolo.lock.LocalState;
 import com.revolo.lock.R;
 import com.revolo.lock.base.BaseActivity;
 import com.revolo.lock.bean.request.CheckOTABeanReq;
@@ -58,6 +59,8 @@ public class DoorLockInformationActivity extends BaseActivity {
 
     private CheckOTABeanRsp mCheckOTABeanRsp;
 
+    private boolean isCanUpdateFirmwareVer = false;
+
     @Override
     public void initData(@Nullable Bundle bundle) {
         Intent intent = getIntent();
@@ -100,14 +103,23 @@ public class DoorLockInformationActivity extends BaseActivity {
 
     @Override
     public void doBusiness() {
-        initBleListener();
+        if(mBleDeviceLocal.getConnectedType() != LocalState.DEVICE_CONNECT_TYPE_WIFI) {
+            initBleListener();
+        } else {
+            String fireVer = mBleDeviceLocal.getLockVer();
+            if(!TextUtils.isEmpty(fireVer)) {
+                checkOTAVer(fireVer);
+            }
+        }
         refreshUI();
     }
 
     @Override
     public void onDebouncingClick(@NonNull View view) {
         if(view.getId() == R.id.tvFirmwareVersion) {
-            showUpdateVerDialog();
+            if(isCanUpdateFirmwareVer) {
+                showUpdateVerDialog();
+            }
             return;
         }
         if(view.getId() == R.id.tvWifiVersion) {
@@ -242,12 +254,14 @@ public class DoorLockInformationActivity extends BaseActivity {
                     return;
                 }
                 mCheckOTABeanRsp = checkOTABeanRsp;
-                vFirmwareVersion.setVisibility(mCheckOTABeanRsp.getData().getFileVersion().equalsIgnoreCase(ver)?View.GONE:View.VISIBLE);
+                isCanUpdateFirmwareVer = !mCheckOTABeanRsp.getData().getFileVersion().equalsIgnoreCase(ver);
+                vFirmwareVersion.setVisibility(isCanUpdateFirmwareVer?View.VISIBLE:View.GONE);
             }
 
             @Override
             public void onError(@NonNull Throwable e) {
                 // TODO: 2021/2/9 请求失败的处理方式
+
                 Timber.e(e);
             }
 

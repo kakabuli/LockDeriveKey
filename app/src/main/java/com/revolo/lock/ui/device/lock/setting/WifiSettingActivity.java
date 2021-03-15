@@ -11,6 +11,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
 
+import com.a1anwang.okble.client.scan.BLEScanResult;
 import com.blankj.utilcode.util.ConvertUtils;
 import com.blankj.utilcode.util.GsonUtils;
 import com.blankj.utilcode.util.ToastUtils;
@@ -187,6 +188,7 @@ public class WifiSettingActivity extends BaseActivity {
                     refreshWifiConnectState();
                     updateUI();
                     // TODO: 2021/3/4 设置成功, 开启蓝牙连接
+                    connectBle();
                 }
                 Timber.d("%1s", mqttData.toString());
             }
@@ -202,6 +204,92 @@ public class WifiSettingActivity extends BaseActivity {
 
             }
         });
+    }
+
+    private void connectBle() {
+        BleBean bleBean = App.getInstance().getBleBeanFromMac(mBleDeviceLocal.getMac());
+        if(bleBean == null) {
+            BLEScanResult bleScanResult = ConvertUtils.bytes2Parcelable(mBleDeviceLocal.getScanResultJson(), BLEScanResult.CREATOR);
+            if(bleScanResult != null) {
+                OnBleDeviceListener onBleDeviceListener = new OnBleDeviceListener() {
+                    @Override
+                    public void onConnected(@NotNull String mac) {
+
+                    }
+
+                    @Override
+                    public void onDisconnected(@NotNull String mac) {
+
+                    }
+
+                    @Override
+                    public void onReceivedValue(@NotNull String mac, String uuid, byte[] value) {
+                        if(value == null) {
+                            return;
+                        }
+                        if(!mBleDeviceLocal.getMac().equals(mac)) {
+                            return;
+                        }
+                        BleBean bleBean = App.getInstance().getBleBeanFromMac(mBleDeviceLocal.getMac());
+                        if(bleBean == null) {
+                            return;
+                        }
+                        if(bleBean.getOKBLEDeviceImp() == null) {
+                            return;
+                        }
+                        if(bleBean.getPwd1() == null) {
+                            return;
+                        }
+                        if(bleBean.getPwd2() == null) {
+                            return;
+                        }
+                        BleResultProcess.setOnReceivedProcess(bleResultBean -> {
+                            if(bleResultBean == null) {
+                                Timber.e("%1s mOnReceivedProcess bleResultBean == null", mBleDeviceLocal.getMac());
+                                return;
+                            }
+                            processBleResult(bleResultBean);
+                        });
+                        BleResultProcess.processReceivedData(
+                                value,
+                                bleBean.getPwd1(),
+                                (bleBean.getPwd3() == null)?bleBean.getPwd2():bleBean.getPwd3(),
+                                bleBean.getOKBLEDeviceImp().getBleScanResult());
+                    }
+
+                    @Override
+                    public void onWriteValue(@NotNull String mac, String uuid, byte[] value, boolean success) {
+
+                    }
+
+                    @Override
+                    public void onAuthSuc(@NotNull String mac) {
+
+                    }
+
+                };
+                bleBean = App.getInstance().connectDevice(
+                        bleScanResult,
+                        ConvertUtils.hexString2Bytes(mBleDeviceLocal.getPwd1()),
+                        ConvertUtils.hexString2Bytes(mBleDeviceLocal.getPwd2()),
+                        onBleDeviceListener,false);
+                bleBean.setEsn(mBleDeviceLocal.getEsn());
+            } else {
+                // TODO: 2021/1/26 处理为空的情况
+            }
+        } else {
+            if(bleBean.getOKBLEDeviceImp() != null) {
+                if(!bleBean.getOKBLEDeviceImp().isConnected()) {
+                    bleBean.getOKBLEDeviceImp().connect(true);
+                }
+                bleBean.setPwd1(ConvertUtils.hexString2Bytes(mBleDeviceLocal.getPwd1()));
+                bleBean.setPwd2(ConvertUtils.hexString2Bytes(mBleDeviceLocal.getPwd2()));
+                bleBean.setEsn(mBleDeviceLocal.getEsn());
+            } else {
+                // TODO: 2021/1/26 为空的处理
+            }
+        }
+
     }
 
     private void openWifiFromMqtt() {

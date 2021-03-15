@@ -16,6 +16,7 @@ import androidx.annotation.Nullable;
 import com.blankj.utilcode.util.RegexUtils;
 import com.blankj.utilcode.util.SPUtils;
 import com.blankj.utilcode.util.ThreadUtils;
+import com.blankj.utilcode.util.TimeUtils;
 import com.blankj.utilcode.util.ToastUtils;
 import com.revolo.lock.App;
 import com.revolo.lock.Constant;
@@ -28,7 +29,8 @@ import com.revolo.lock.room.entity.User;
 import com.revolo.lock.ui.MainActivity;
 import com.revolo.lock.R;
 import com.revolo.lock.base.BaseActivity;
-import com.revolo.lock.dialog.iosloading.CustomerLoadingDialog;
+
+import org.jetbrains.annotations.NotNull;
 
 import io.reactivex.Observable;
 import io.reactivex.Observer;
@@ -175,8 +177,11 @@ public class LoginActivity extends BaseActivity {
             return;
         }
         ThreadUtils.getSinglePool().execute(() -> {
-            // TODO: 2021/3/15 存储注册时间
-            updateUser(mail, mailLoginBeanRsp.getData().getMeUsername());
+            if(mailLoginBeanRsp.getData() == null) {
+                Timber.e("processLoginRsp mailLoginBeanRsp.getData() == null");
+                return;
+            }
+            updateUser(mail, mailLoginBeanRsp.getData());
             Timber.d("processLoginRsp 登录成功，token: %1s\n userId: %2s",
                     mailLoginBeanRsp.getData().getToken(), mailLoginBeanRsp.getData().getUid());
             App.getInstance().setUserBean(mailLoginBeanRsp.getData());
@@ -189,15 +194,18 @@ public class LoginActivity extends BaseActivity {
 
     }
 
-    private void updateUser(String mail, String name) {
+    private void updateUser(String mail, @NotNull MailLoginBeanRsp.DataBean rsp) {
         User user = App.getInstance().getUserFromLocal(mail);
         if(user == null) {
             user = new User();
             user.setMail(mail);
-            user.setUserName(name);
+            user.setFirstName(rsp.getFirstName());
+            user.setLastName(rsp.getLastName());
+            user.setRegisterTime(TimeUtils.string2Millis(rsp.getInsertTime()));
             AppDatabase.getInstance(this).userDao().insert(user);
         } else {
-            user.setUserName(name);
+            user.setFirstName(rsp.getFirstName());
+            user.setLastName(rsp.getLastName());
             AppDatabase.getInstance(this).userDao().update(user);
         }
     }

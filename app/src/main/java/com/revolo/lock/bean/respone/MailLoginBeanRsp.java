@@ -57,9 +57,18 @@ public class MailLoginBeanRsp implements Parcelable {
 
         private String uid;
         private String token;
-        private String meUsername;
-        private String mePwd;
-        private String storeToken;
+        /**
+         * insertTime : 2021-03-08 03:30:17
+         * firstName : 666
+         * lastName : 888
+         * userHead :
+         */
+
+        private String insertTime;
+        private String firstName;
+        private String lastName;
+        private String userHead;
+
 
         public String getUid() {
             return uid;
@@ -77,28 +86,36 @@ public class MailLoginBeanRsp implements Parcelable {
             this.token = token;
         }
 
-        public String getMeUsername() {
-            return meUsername;
+        public String getInsertTime() {
+            return insertTime;
         }
 
-        public void setMeUsername(String meUsername) {
-            this.meUsername = meUsername;
+        public void setInsertTime(String insertTime) {
+            this.insertTime = insertTime;
         }
 
-        public String getMePwd() {
-            return mePwd;
+        public String getFirstName() {
+            return firstName;
         }
 
-        public void setMePwd(String mePwd) {
-            this.mePwd = mePwd;
+        public void setFirstName(String firstName) {
+            this.firstName = firstName;
         }
 
-        public String getStoreToken() {
-            return storeToken;
+        public String getLastName() {
+            return lastName;
         }
 
-        public void setStoreToken(String storeToken) {
-            this.storeToken = storeToken;
+        public void setLastName(String lastName) {
+            this.lastName = lastName;
+        }
+
+        public String getUserHead() {
+            return userHead;
+        }
+
+        public void setUserHead(String userHead) {
+            this.userHead = userHead;
         }
 
 
@@ -111,9 +128,10 @@ public class MailLoginBeanRsp implements Parcelable {
         public void writeToParcel(Parcel dest, int flags) {
             dest.writeString(this.uid);
             dest.writeString(this.token);
-            dest.writeString(this.meUsername);
-            dest.writeString(this.mePwd);
-            dest.writeString(this.storeToken);
+            dest.writeString(this.insertTime);
+            dest.writeString(this.firstName);
+            dest.writeString(this.lastName);
+            dest.writeString(this.userHead);
         }
 
         public DataBean() {
@@ -122,12 +140,13 @@ public class MailLoginBeanRsp implements Parcelable {
         protected DataBean(Parcel in) {
             this.uid = in.readString();
             this.token = in.readString();
-            this.meUsername = in.readString();
-            this.mePwd = in.readString();
-            this.storeToken = in.readString();
+            this.insertTime = in.readString();
+            this.firstName = in.readString();
+            this.lastName = in.readString();
+            this.userHead = in.readString();
         }
 
-        public static final Parcelable.Creator<DataBean> CREATOR = new Parcelable.Creator<DataBean>() {
+        public static final Creator<DataBean> CREATOR = new Creator<DataBean>() {
             @Override
             public DataBean createFromParcel(Parcel source) {
                 return new DataBean(source);

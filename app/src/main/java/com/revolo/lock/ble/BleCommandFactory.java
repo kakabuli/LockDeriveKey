@@ -635,10 +635,10 @@ public class BleCommandFactory {
      *                 0x03：RFID卡片
      *                 0x04：保留（管理员密码）
      */
-    public static byte[] synchronizeLockKeyStatusCommand(byte codeType, byte[] pwd1, byte[] pwd2) {
+    public static byte[] synchronizeLockKeyStatusCommand(byte codeType, byte[] pwd1, byte[] pwd3) {
         byte[] data = new byte[1];
         data[0] = codeType;
-        return commandPackage(true, (byte) 0x11, commandTSN(), data, pwd1, pwd2);
+        return commandPackage(true, (byte) 0x11, commandTSN(), data, pwd1, pwd3);
     }
 
     /**
