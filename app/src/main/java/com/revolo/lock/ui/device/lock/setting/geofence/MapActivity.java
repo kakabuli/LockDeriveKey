@@ -7,6 +7,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.location.Location;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -20,6 +21,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import com.blankj.utilcode.util.ToastUtils;
+import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.Geofence;
 import com.google.android.gms.location.GeofencingClient;
 import com.google.android.gms.location.GeofencingRequest;
@@ -44,15 +46,17 @@ import timber.log.Timber;
  * E-mail : wengmaowei@kaadas.com
  * desc   :
  */
-public class MapActivity extends BaseActivity  implements OnMapReadyCallback, GoogleMap.OnMapLongClickListener {
+public class MapActivity extends BaseActivity implements OnMapReadyCallback, GoogleMap.OnMapLongClickListener {
 
     private static final int FINE_LOCATION_ACCESS_REQUEST_CODE = 1001;
     private int BACKGROUND_LOCATION_ACCESS_REQUEST_CODE = 10002;
-    private String GEOFENCE_ID = "SOME_GEOFENCE_ID";
+    private String GEO_FENCE_ID = "SOME_GEO_FENCE_ID";
     private GoogleMap mMap;
-    private GeofencingClient geofencingClient;
-    private GeofenceHelper geofenceHelper;
-    public float GEOFENCE_RADIUS = 200;
+    private GeofencingClient mGeoFencingClient;
+    private GeofenceHelper mGeoFenceHelper;
+    public float GEO_FENCE_RADIUS = 200;
+
+    private FusedLocationProviderClient fusedLocationClient;
 
     @Override
     public void initData(@Nullable Bundle bundle) {
@@ -69,10 +73,40 @@ public class MapActivity extends BaseActivity  implements OnMapReadyCallback, Go
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
-        mapFragment.getMapAsync(this);
+        if (mapFragment != null) {
+            mapFragment.getMapAsync(this);
+        }
 
-        geofencingClient = LocationServices.getGeofencingClient(this);
-        geofenceHelper = new GeofenceHelper(this);
+        mGeoFencingClient = LocationServices.getGeofencingClient(this);
+        mGeoFenceHelper = new GeofenceHelper(this);
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return;
+        }
+        fusedLocationClient.getLastLocation()
+                .addOnSuccessListener(this, new OnSuccessListener<Location>() {
+                    @Override
+                    public void onSuccess(Location location) {
+                        // Got last known location. In some rare situations this can be null.
+                        if (location != null) {
+                            // Logic to handle location object
+                            if(mMap != null) {
+                                // Add a marker in Sydney and move the camera 23.795158587414274, 90.39920794033618
+                                LatLng dhaka = new LatLng(location.getLatitude(), location.getLongitude());
+                                // mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
+                                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(dhaka, 16));
+
+                            }
+                        }
+                    }
+                });
     }
 
     @Override
@@ -118,10 +152,10 @@ public class MapActivity extends BaseActivity  implements OnMapReadyCallback, Go
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
 
-        // Add a marker in Sydney and move the camera 23.795158587414274, 90.39920794033618
-        LatLng dhaka = new LatLng(23.795158587414274, 90.39920794033618);
-        // mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(dhaka, 16));
+//        // Add a marker in Sydney and move the camera 23.795158587414274, 90.39920794033618
+//        LatLng dhaka = new LatLng(23.795158587414274, 90.39920794033618);
+//        // mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
+//        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(dhaka, 16));
 
         enableUserLocation();
 
@@ -195,38 +229,38 @@ public class MapActivity extends BaseActivity  implements OnMapReadyCallback, Go
     private void handleMapLongClick(LatLng latLng) {
         mMap.clear();
         addMarker(latLng);
-        addCircle(latLng, GEOFENCE_RADIUS);
-        addGeofence(latLng, GEOFENCE_RADIUS);
+        addCircle(latLng, GEO_FENCE_RADIUS);
+        addGeoFence(latLng, GEO_FENCE_RADIUS);
     }
 
 
     @SuppressLint("MissingPermission")
-    private void addGeofence(LatLng latLng, float radius) {
-        Timber.d("addGeofence: started");
+    private void addGeoFence(LatLng latLng, float radius) {
+        Timber.d("addGeoFence: started");
 
-        Geofence geofence = geofenceHelper.getGeofence(
-                GEOFENCE_ID,
+        Geofence geofence = mGeoFenceHelper.getGeofence(
+                GEO_FENCE_ID,
                 latLng,
                 radius,
                 Geofence.GEOFENCE_TRANSITION_ENTER | Geofence.GEOFENCE_TRANSITION_DWELL | Geofence.GEOFENCE_TRANSITION_EXIT
         );
 
-        GeofencingRequest geofencingRequest = geofenceHelper.getGeofencingRequest(geofence);
+        GeofencingRequest geofencingRequest = mGeoFenceHelper.getGeofencingRequest(geofence);
 
-        PendingIntent pendingIntent = geofenceHelper.getPendingIntent();
-        geofencingClient.addGeofences(geofencingRequest, pendingIntent)
+        PendingIntent pendingIntent = mGeoFenceHelper.getPendingIntent();
+        mGeoFencingClient.addGeofences(geofencingRequest, pendingIntent)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
-                        Timber.d("onSuccess: Geofence Added........");
+                        Timber.d("onSuccess: GeoFence Added........");
 
                     }
                 }).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
 
-                String errorMessage = geofenceHelper.getErrorString(e);
-                Timber.d("Geofence onFailure: " + errorMessage);
+                String errorMessage = mGeoFenceHelper.getErrorString(e);
+                Timber.d("GeoFence onFailure: %1s", errorMessage);
             }
         });
     }

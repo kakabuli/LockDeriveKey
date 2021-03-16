@@ -57,9 +57,10 @@ public class DoorLockInformationActivity extends BaseActivity {
     private DeviceUnbindBeanReq mReq;
     private BleDeviceLocal mBleDeviceLocal;
 
-    private CheckOTABeanRsp mCheckOTABeanRsp;
+    private CheckOTABeanRsp mCheckFirmwareOTABeanRsp, mCheckWifiOTABeanRsp;
 
     private boolean isCanUpdateFirmwareVer = false;
+    private boolean isCanUpdateWifiVer = false;
 
     @Override
     public void initData(@Nullable Bundle bundle) {
@@ -108,7 +109,7 @@ public class DoorLockInformationActivity extends BaseActivity {
         } else {
             String fireVer = mBleDeviceLocal.getLockVer();
             if(!TextUtils.isEmpty(fireVer)) {
-                checkOTAVer(fireVer);
+                checkFirmwareOTAVer(fireVer);
             }
         }
         refreshUI();
@@ -118,12 +119,14 @@ public class DoorLockInformationActivity extends BaseActivity {
     public void onDebouncingClick(@NonNull View view) {
         if(view.getId() == R.id.tvFirmwareVersion) {
             if(isCanUpdateFirmwareVer) {
-                showUpdateVerDialog();
+                showFirmwareUpdateVerDialog();
             }
             return;
         }
         if(view.getId() == R.id.tvWifiVersion) {
-            // TODO: 2021/2/7 检查固件版本，并可能升级
+            if(isCanUpdateWifiVer) {
+                showWifiUpdateVerDialog();
+            }
         }
     }
 
@@ -155,7 +158,7 @@ public class DoorLockInformationActivity extends BaseActivity {
                         System.arraycopy(bean.getPayload(), 2, verBytes, 0, verBytes.length);
                         String verStr = new String(verBytes, StandardCharsets.UTF_8);
                         mTvFirmwareVersion.setText(verStr);
-                        checkOTAVer(verStr);
+                        checkFirmwareOTAVer(verStr);
                     });
 
                 } else {
@@ -221,12 +224,137 @@ public class DoorLockInformationActivity extends BaseActivity {
                         bleBean.getPwd1(), bleBean.getPwd3()), bleBean.getOKBLEDeviceImp()), 50);
     }
 
-    private void checkOTAVer(String ver) {
+    private void checkFirmwareOTAVer(String ver) {
         CheckOTABeanReq req = new CheckOTABeanReq();
         // TODO: 2021/2/9 先暂时使用16，后面制定好规范
         req.setCustomer(16);
         req.setDeviceName(mBleDeviceLocal.getEsn());
-        // 1为WIFI模块，2为WIFI锁，3为人脸模组，4为视频模组，5为视频模组微控制器。
+        // 暂时使用 2为WIFI锁，6为前面板（1为WIFI模块，2为WIFI锁，3为人脸模组，4为视频模组，5为视频模组微控制器，6为前面板，7为后面板）
+        req.setDevNum(6);
+        req.setVersion(ver);
+        showLoading();
+        Observable<CheckOTABeanRsp> observable = HttpRequest.getInstance()
+                .checkOtaVer(App.getInstance().getUserBean().getToken(), req);
+        ObservableDecorator.decorate(observable).safeSubscribe(new Observer<CheckOTABeanRsp>() {
+            @Override
+            public void onSubscribe(@NonNull Disposable d) {
+
+            }
+
+            @Override
+            public void onNext(@NonNull CheckOTABeanRsp checkOTABeanRsp) {
+                // TODO: 2021/2/9 所有的都要判断处理
+                dismissLoading();
+                if(TextUtils.isEmpty(checkOTABeanRsp.getCode())) {
+                    Timber.e("checkOTABeanRsp.getCode() is empty");
+                    return;
+                }
+                if(!checkOTABeanRsp.getCode().equals("200")) {
+                    Timber.e("checkOTAVer code: %1s  msg: %2s",
+                            checkOTABeanRsp.getCode(), checkOTABeanRsp.getMsg());
+                    return;
+                }
+                if(checkOTABeanRsp.getData() == null) {
+                    Timber.e("mCheckOTABeanRsp.getData() == null");
+                    return;
+                }
+                mCheckFirmwareOTABeanRsp = checkOTABeanRsp;
+                isCanUpdateFirmwareVer = !mCheckFirmwareOTABeanRsp.getData().getFileVersion().equalsIgnoreCase(ver);
+                vFirmwareVersion.setVisibility(isCanUpdateFirmwareVer?View.VISIBLE:View.GONE);
+                checkWifiOTAVer();
+            }
+
+            @Override
+            public void onError(@NonNull Throwable e) {
+                // TODO: 2021/2/9 请求失败的处理方式
+                dismissLoading();
+                Timber.e(e);
+                checkWifiOTAVer();
+            }
+
+            @Override
+            public void onComplete() {
+
+            }
+        });
+    }
+
+    private void showFirmwareUpdateVerDialog() {
+        SelectDialog selectDialog = new SelectDialog(this);
+        selectDialog.setMessage(getString(R.string.dialog_tip_there_is_a_new_version_available_do_you_want_to_update));
+        selectDialog.setOnConfirmListener(v -> {
+            selectDialog.dismiss();
+            checkOrUseFirmwareOTAUpdateVer();
+        });
+        selectDialog.setOnCancelClickListener(v -> selectDialog.dismiss());
+        selectDialog.show();
+    }
+
+    private void checkOrUseFirmwareOTAUpdateVer() {
+        if(mCheckFirmwareOTABeanRsp == null) {
+            return;
+        }
+        if(mCheckFirmwareOTABeanRsp.getData() == null) {
+            return;
+        }
+        StartOTAUpdateBeanReq req = new StartOTAUpdateBeanReq();
+        req.setDevNum(mCheckFirmwareOTABeanRsp.getData().getDevNum());
+        req.setFileLen(mCheckFirmwareOTABeanRsp.getData().getFileLen());
+        req.setFileMd5(mCheckFirmwareOTABeanRsp.getData().getFileMd5());
+        req.setFileUrl(mCheckFirmwareOTABeanRsp.getData().getFileUrl());
+        req.setFileVersion(mCheckFirmwareOTABeanRsp.getData().getFileVersion());
+        req.setWifiSN(mReq.getWifiSN());
+        Observable<StartOTAUpdateBeanRsp> observable = HttpRequest
+                .getInstance()
+                .startOtaUpdate(App.getInstance().getUserBean().getToken(), req);
+        ObservableDecorator.decorate(observable).safeSubscribe(new Observer<StartOTAUpdateBeanRsp>() {
+            @Override
+            public void onSubscribe(@NonNull Disposable d) {
+                
+            }
+
+            @Override
+            public void onNext(@NonNull StartOTAUpdateBeanRsp startOTAUpdateBeanRsp) {
+                if(TextUtils.isEmpty(startOTAUpdateBeanRsp.getCode())) {
+                    Timber.e("startOTAUpdateBeanRsp.getCode() is empty");
+                    return;
+                }
+                if(!startOTAUpdateBeanRsp.getCode().equals("200")) {
+                    Timber.e("checkOrUseOTAUpdateVer code: %1s,  msg: %2s",
+                            startOTAUpdateBeanRsp.getCode(), startOTAUpdateBeanRsp.getMsg());
+                    return;
+                }
+                // TODO: 2021/2/9 完成OTA升级推送 后面提示语需要修改
+                ToastUtils.showShort("OTA update success");
+            }
+
+            @Override
+            public void onError(@NonNull Throwable e) {
+                Timber.e(e);
+            }
+
+            @Override
+            public void onComplete() {
+
+            }
+        });
+    }
+
+
+    private void checkWifiOTAVer() {
+        String wifiVer = mBleDeviceLocal.getWifiVer();
+        if(TextUtils.isEmpty(wifiVer)) {
+            return;
+        }
+        checkWifiOTAVer(wifiVer);
+    }
+
+    private void checkWifiOTAVer(String ver) {
+        CheckOTABeanReq req = new CheckOTABeanReq();
+        // TODO: 2021/2/9 先暂时使用16，后面制定好规范
+        req.setCustomer(16);
+        req.setDeviceName(mBleDeviceLocal.getEsn());
+        // 暂时使用 2为WIFI锁，6为前面板（1为WIFI模块，2为WIFI锁，3为人脸模组，4为视频模组，5为视频模组微控制器，6为前面板，7为后面板）
         req.setDevNum(2);
         req.setVersion(ver);
         showLoading();
@@ -255,9 +383,9 @@ public class DoorLockInformationActivity extends BaseActivity {
                     Timber.e("mCheckOTABeanRsp.getData() == null");
                     return;
                 }
-                mCheckOTABeanRsp = checkOTABeanRsp;
-                isCanUpdateFirmwareVer = !mCheckOTABeanRsp.getData().getFileVersion().equalsIgnoreCase(ver);
-                vFirmwareVersion.setVisibility(isCanUpdateFirmwareVer?View.VISIBLE:View.GONE);
+                mCheckWifiOTABeanRsp = checkOTABeanRsp;
+                isCanUpdateWifiVer = !mCheckWifiOTABeanRsp.getData().getFileVersion().equalsIgnoreCase(ver);
+                mVVersion.setVisibility(isCanUpdateWifiVer?View.VISIBLE:View.GONE);
             }
 
             @Override
@@ -274,30 +402,30 @@ public class DoorLockInformationActivity extends BaseActivity {
         });
     }
 
-    private void showUpdateVerDialog() {
+    private void showWifiUpdateVerDialog() {
         SelectDialog selectDialog = new SelectDialog(this);
         selectDialog.setMessage(getString(R.string.dialog_tip_there_is_a_new_version_available_do_you_want_to_update));
         selectDialog.setOnConfirmListener(v -> {
             selectDialog.dismiss();
-            checkOrUseOTAUpdateVer();
+            checkOrUseWifiOTAUpdateVer();
         });
         selectDialog.setOnCancelClickListener(v -> selectDialog.dismiss());
         selectDialog.show();
     }
 
-    private void checkOrUseOTAUpdateVer() {
-        if(mCheckOTABeanRsp == null) {
+    private void checkOrUseWifiOTAUpdateVer() {
+        if(mCheckWifiOTABeanRsp == null) {
             return;
         }
-        if(mCheckOTABeanRsp.getData() == null) {
+        if(mCheckWifiOTABeanRsp.getData() == null) {
             return;
         }
         StartOTAUpdateBeanReq req = new StartOTAUpdateBeanReq();
-        req.setDevNum(mCheckOTABeanRsp.getData().getDevNum());
-        req.setFileLen(mCheckOTABeanRsp.getData().getFileLen());
-        req.setFileMd5(mCheckOTABeanRsp.getData().getFileMd5());
-        req.setFileUrl(mCheckOTABeanRsp.getData().getFileUrl());
-        req.setFileVersion(mCheckOTABeanRsp.getData().getFileVersion());
+        req.setDevNum(mCheckWifiOTABeanRsp.getData().getDevNum());
+        req.setFileLen(mCheckWifiOTABeanRsp.getData().getFileLen());
+        req.setFileMd5(mCheckWifiOTABeanRsp.getData().getFileMd5());
+        req.setFileUrl(mCheckWifiOTABeanRsp.getData().getFileUrl());
+        req.setFileVersion(mCheckWifiOTABeanRsp.getData().getFileVersion());
         req.setWifiSN(mReq.getWifiSN());
         Observable<StartOTAUpdateBeanRsp> observable = HttpRequest
                 .getInstance()
@@ -305,17 +433,17 @@ public class DoorLockInformationActivity extends BaseActivity {
         ObservableDecorator.decorate(observable).safeSubscribe(new Observer<StartOTAUpdateBeanRsp>() {
             @Override
             public void onSubscribe(@NonNull Disposable d) {
-                
+
             }
 
             @Override
             public void onNext(@NonNull StartOTAUpdateBeanRsp startOTAUpdateBeanRsp) {
                 if(TextUtils.isEmpty(startOTAUpdateBeanRsp.getCode())) {
-                    Timber.e("startOTAUpdateBeanRsp.getCode() is empty");
+                    Timber.e(" checkOrUseWifiOTAUpdateVer startOTAUpdateBeanRsp.getCode() is empty");
                     return;
                 }
                 if(!startOTAUpdateBeanRsp.getCode().equals("200")) {
-                    Timber.e("checkOrUseOTAUpdateVer code: %1s,  msg: %2s",
+                    Timber.e("checkOrUseWifiOTAUpdateVer code: %1s,  msg: %2s",
                             startOTAUpdateBeanRsp.getCode(), startOTAUpdateBeanRsp.getMsg());
                     return;
                 }
