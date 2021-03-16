@@ -213,6 +213,7 @@ public class LoginActivity extends BaseActivity {
         } else {
             user.setFirstName(rsp.getFirstName());
             user.setLastName(rsp.getLastName());
+            user.setRegisterTime(TimeUtils.string2Millis(rsp.getInsertTime())/1000);
             AppDatabase.getInstance(this).userDao().update(user);
         }
     }

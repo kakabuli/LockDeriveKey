@@ -19,6 +19,8 @@ import com.revolo.lock.R;
 import com.revolo.lock.bean.test.TestUserBean;
 import com.revolo.lock.room.entity.User;
 
+import timber.log.Timber;
+
 public class MineFragment extends Fragment {
 
     private MineViewModel mMineViewModel;
@@ -77,6 +79,7 @@ public class MineFragment extends Fragment {
     //计算间隔日，比较两个时间是否同一天，如果两个时间都是同一天的话，返回0。
     // 两个比较的时间都不是同一天的话，根据传参位置 可返回正数/负数。两个比较的时间都是同一天的话，返回0。
     private static int daysBetween(long now, long createTime) {
+        Timber.d("daysBetween nowTime: %1d, createTime: %2d", now, createTime);
         return (int) ((now - createTime)/(3600*24));
     }
 
