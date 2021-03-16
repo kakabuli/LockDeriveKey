@@ -2,6 +2,8 @@ package com.revolo.lock.ui.sign;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.text.TextUtils;
 import android.view.View;
 
@@ -34,7 +36,6 @@ public class SignSelectActivity extends BaseActivity {
     @Override
     public void initView(@Nullable Bundle savedInstanceState, @Nullable View contentView) {
         applyDebouncingClickListener(findViewById(R.id.btnRegister), findViewById(R.id.btnSignIn));
-        App.getInstance().addWillFinishAct(this);
         setStatusBarColor(R.color.white);
     }
 
@@ -68,8 +69,10 @@ public class SignSelectActivity extends BaseActivity {
         if(user == null) {
             return;
         }
-        Intent intent = new Intent(this, MainActivity.class);
-        startActivity(intent);
-        finish();
+        new Handler(Looper.getMainLooper()).postDelayed(() -> {
+            Intent intent = new Intent(SignSelectActivity.this, MainActivity.class);
+            startActivity(intent);
+            finish();
+        }, 500);
     }
 }

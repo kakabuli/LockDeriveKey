@@ -46,7 +46,7 @@ public class OpenDrawHandPwdActivity extends BaseActivity {
 
     @Override
     public void initView(@Nullable Bundle savedInstanceState, @Nullable View contentView) {
-        useCommonTitleBar("Change gesture password");
+        useCommonTitleBar(getString(R.string.title_change_gesture_password));
 
         tvDrawTip = findViewById(R.id.tvDrawTip);
         FrameLayout gestureContainer = findViewById(R.id.gesture_container);
