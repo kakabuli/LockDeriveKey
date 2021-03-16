@@ -1,5 +1,6 @@
 package com.revolo.lock.ui.mine;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageView;
@@ -22,8 +23,8 @@ import com.revolo.lock.room.entity.User;
 public class SettingActivity extends BaseActivity {
 
     private ImageView ivGestureCodeEnable, ivEnableTouchIDEnable, ivEnableFaceIDEnable;
-
     private User mUser;
+    private static final int REQUEST_CODE_OPEN_GESTURE_CODE = 1999;
 
     @Override
     public void initData(@Nullable Bundle bundle) {
@@ -60,7 +61,8 @@ public class SettingActivity extends BaseActivity {
                 AppDatabase.getInstance(this).userDao().update(mUser);
                 refreshUI();
             } else {
-
+                Intent intent = new Intent(this, OpenDrawHandPwdActivity.class);
+                startActivityForResult(intent, REQUEST_CODE_OPEN_GESTURE_CODE);
             }
             return;
         }
@@ -69,6 +71,18 @@ public class SettingActivity extends BaseActivity {
         }
         if(view.getId() == R.id.ivEnableFaceIDEnable) {
 
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(requestCode == REQUEST_CODE_OPEN_GESTURE_CODE) {
+            if(resultCode == RESULT_OK) {
+                mUser.setUseGesturePassword(true);
+                AppDatabase.getInstance(this).userDao().update(mUser);
+                refreshUI();
+            }
         }
     }
 

@@ -47,6 +47,9 @@ public class User implements Parcelable {
     @ColumnInfo(name = "u_is_use_touch_id", defaultValue = "false")
     private boolean isUseTouchId;                   // 是否使用指纹
 
+    @ColumnInfo(name = "u_gesture_code")
+    private String gestureCode;                     // 手势密码
+
     public long getId() {
         return id;
     }
@@ -127,6 +130,13 @@ public class User implements Parcelable {
         isUseTouchId = useTouchId;
     }
 
+    public String getGestureCode() {
+        return gestureCode;
+    }
+
+    public void setGestureCode(String gestureCode) {
+        this.gestureCode = gestureCode;
+    }
 
     @Override
     public int describeContents() {
@@ -145,6 +155,7 @@ public class User implements Parcelable {
         dest.writeByte(this.isUseGesturePassword ? (byte) 1 : (byte) 0);
         dest.writeByte(this.isUseFaceId ? (byte) 1 : (byte) 0);
         dest.writeByte(this.isUseTouchId ? (byte) 1 : (byte) 0);
+        dest.writeString(this.gestureCode);
     }
 
     public User() {
@@ -161,6 +172,7 @@ public class User implements Parcelable {
         this.isUseGesturePassword = in.readByte() != 0;
         this.isUseFaceId = in.readByte() != 0;
         this.isUseTouchId = in.readByte() != 0;
+        this.gestureCode = in.readString();
     }
 
     public static final Parcelable.Creator<User> CREATOR = new Parcelable.Creator<User>() {

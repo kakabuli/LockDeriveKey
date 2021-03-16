@@ -13,6 +13,7 @@ import android.widget.ImageView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.blankj.utilcode.util.GsonUtils;
 import com.blankj.utilcode.util.RegexUtils;
 import com.blankj.utilcode.util.SPUtils;
 import com.blankj.utilcode.util.ThreadUtils;
@@ -185,6 +186,7 @@ public class LoginActivity extends BaseActivity {
             Timber.d("processLoginRsp 登录成功，token: %1s\n userId: %2s",
                     mailLoginBeanRsp.getData().getToken(), mailLoginBeanRsp.getData().getUid());
             App.getInstance().setUserBean(mailLoginBeanRsp.getData());
+            saveLoginBeanToLocal(mailLoginBeanRsp);
             runOnUiThread(() -> new Handler(Looper.getMainLooper()).postDelayed(() -> {
                 App.getInstance().finishPreActivities();
                 startActivity(new Intent(LoginActivity.this, MainActivity.class));
@@ -194,6 +196,11 @@ public class LoginActivity extends BaseActivity {
 
     }
 
+    private void saveLoginBeanToLocal(@NonNull MailLoginBeanRsp mailLoginBeanRsp) {
+        String loginJson = GsonUtils.toJson(mailLoginBeanRsp.getData());
+        SPUtils.getInstance(REVOLO_SP).put(Constant.USER_LOGIN_INFO, loginJson);
+    }
+
     private void updateUser(String mail, @NotNull MailLoginBeanRsp.DataBean rsp) {
         User user = App.getInstance().getUserFromLocal(mail);
         if(user == null) {
@@ -201,7 +208,7 @@ public class LoginActivity extends BaseActivity {
             user.setMail(mail);
             user.setFirstName(rsp.getFirstName());
             user.setLastName(rsp.getLastName());
-            user.setRegisterTime(TimeUtils.string2Millis(rsp.getInsertTime()));
+            user.setRegisterTime(TimeUtils.string2Millis(rsp.getInsertTime())/1000);
             AppDatabase.getInstance(this).userDao().insert(user);
         } else {
             user.setFirstName(rsp.getFirstName());

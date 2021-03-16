@@ -200,7 +200,7 @@ public interface ApiService {
     Observable<MailRegisterBeanRsp> register(@Body MailRegisterBeanReq req, @Header("url_name") String  urlName);
 
     @Headers({"Content-Type: application/json"})
-    @POST("/api/otaUpgrade/check")
+    @POST("/ota/checkUpgrade")
     Observable<CheckOTABeanRsp> checkOtaVer(@Header("token") String token, @Body CheckOTABeanReq req, @Header("url_name") String  urlName);
 
     @Headers({"Content-Type: application/json"})

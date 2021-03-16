@@ -98,7 +98,7 @@ public class DoorLockInformationActivity extends BaseActivity {
 
         String esn = mReq.getWifiSN();
         tvLockSn.setText(TextUtils.isEmpty(esn)?"":esn);
-
+        initLoading("Loading...");
     }
 
     @Override
@@ -229,6 +229,7 @@ public class DoorLockInformationActivity extends BaseActivity {
         // 1为WIFI模块，2为WIFI锁，3为人脸模组，4为视频模组，5为视频模组微控制器。
         req.setDevNum(2);
         req.setVersion(ver);
+        showLoading();
         Observable<CheckOTABeanRsp> observable = HttpRequest.getInstance()
                 .checkOtaVer(App.getInstance().getUserBean().getToken(), req);
         ObservableDecorator.decorate(observable).safeSubscribe(new Observer<CheckOTABeanRsp>() {
@@ -240,6 +241,7 @@ public class DoorLockInformationActivity extends BaseActivity {
             @Override
             public void onNext(@NonNull CheckOTABeanRsp checkOTABeanRsp) {
                 // TODO: 2021/2/9 所有的都要判断处理
+                dismissLoading();
                 if(TextUtils.isEmpty(checkOTABeanRsp.getCode())) {
                     Timber.e("checkOTABeanRsp.getCode() is empty");
                     return;
@@ -249,7 +251,7 @@ public class DoorLockInformationActivity extends BaseActivity {
                             checkOTABeanRsp.getCode(), checkOTABeanRsp.getMsg());
                     return;
                 }
-                if(mCheckOTABeanRsp.getData() == null) {
+                if(checkOTABeanRsp.getData() == null) {
                     Timber.e("mCheckOTABeanRsp.getData() == null");
                     return;
                 }
@@ -261,7 +263,7 @@ public class DoorLockInformationActivity extends BaseActivity {
             @Override
             public void onError(@NonNull Throwable e) {
                 // TODO: 2021/2/9 请求失败的处理方式
-
+                dismissLoading();
                 Timber.e(e);
             }
 

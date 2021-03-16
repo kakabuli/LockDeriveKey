@@ -1,0 +1,438 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 4,
+    "identityHash": "043ca426b702aae87686fee6a7376e85",
+    "entities": [
+      {
+        "tableName": "BleDeviceLocal",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`d_id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `d_user_id` INTEGER NOT NULL, `d_pwd1` TEXT, `d_pwd2` TEXT, `d_esn` TEXT, `d_mac` TEXT, `d_name` TEXT, `d_function_set` TEXT, `d_create_time` INTEGER NOT NULL, `d_scan_result_json` BLOB, `d_type` TEXT, `d_wifi_ver` TEXT, `d_lock_ver` TEXT, `d_door_sensor` INTEGER NOT NULL, `d_connected_wifi_name` TEXT, `d_connected_type` INTEGER NOT NULL DEFAULT 2, `d_lock_state` INTEGER NOT NULL, `d_lock_power` INTEGER NOT NULL, `d_set_auto_lock_time` INTEGER NOT NULL, `d_is_detection_lock` INTEGER NOT NULL DEFAULT false, `d_set_electric_fence_time` INTEGER NOT NULL, `d_set_electric_fence_sensitivity` INTEGER NOT NULL, `d_is_auto_lock` INTEGER NOT NULL DEFAULT false, `d_is_open_electric_fence` INTEGER NOT NULL DEFAULT false, `d_is_open_door_sensor` INTEGER NOT NULL DEFAULT false, `d_is_mute` INTEGER NOT NULL DEFAULT false, `d_is_do_not_disturb_mode` INTEGER NOT NULL DEFAULT false, `d_is_duress` INTEGER NOT NULL, `d_random_code` TEXT)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "d_id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "userId",
+            "columnName": "d_user_id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "pwd1",
+            "columnName": "d_pwd1",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "pwd2",
+            "columnName": "d_pwd2",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "esn",
+            "columnName": "d_esn",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "mac",
+            "columnName": "d_mac",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "d_name",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "functionSet",
+            "columnName": "d_function_set",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "createTime",
+            "columnName": "d_create_time",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "scanResultJson",
+            "columnName": "d_scan_result_json",
+            "affinity": "BLOB",
+            "notNull": false
+          },
+          {
+            "fieldPath": "type",
+            "columnName": "d_type",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "wifiVer",
+            "columnName": "d_wifi_ver",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "lockVer",
+            "columnName": "d_lock_ver",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "doorSensor",
+            "columnName": "d_door_sensor",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "connectedWifiName",
+            "columnName": "d_connected_wifi_name",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "connectedType",
+            "columnName": "d_connected_type",
+            "affinity": "INTEGER",
+            "notNull": true,
+            "defaultValue": "2"
+          },
+          {
+            "fieldPath": "lockState",
+            "columnName": "d_lock_state",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "lockPower",
+            "columnName": "d_lock_power",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "setAutoLockTime",
+            "columnName": "d_set_auto_lock_time",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "isDetectionLock",
+            "columnName": "d_is_detection_lock",
+            "affinity": "INTEGER",
+            "notNull": true,
+            "defaultValue": "false"
+          },
+          {
+            "fieldPath": "setElectricFenceTime",
+            "columnName": "d_set_electric_fence_time",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "setElectricFenceSensitivity",
+            "columnName": "d_set_electric_fence_sensitivity",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "isAutoLock",
+            "columnName": "d_is_auto_lock",
+            "affinity": "INTEGER",
+            "notNull": true,
+            "defaultValue": "false"
+          },
+          {
+            "fieldPath": "isOpenElectricFence",
+            "columnName": "d_is_open_electric_fence",
+            "affinity": "INTEGER",
+            "notNull": true,
+            "defaultValue": "false"
+          },
+          {
+            "fieldPath": "isOpenDoorSensor",
+            "columnName": "d_is_open_door_sensor",
+            "affinity": "INTEGER",
+            "notNull": true,
+            "defaultValue": "false"
+          },
+          {
+            "fieldPath": "isMute",
+            "columnName": "d_is_mute",
+            "affinity": "INTEGER",
+            "notNull": true,
+            "defaultValue": "false"
+          },
+          {
+            "fieldPath": "isDoNotDisturbMode",
+            "columnName": "d_is_do_not_disturb_mode",
+            "affinity": "INTEGER",
+            "notNull": true,
+            "defaultValue": "false"
+          },
+          {
+            "fieldPath": "isDuress",
+            "columnName": "d_is_duress",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "randomCode",
+            "columnName": "d_random_code",
+            "affinity": "TEXT",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "d_id"
+          ],
+          "autoGenerate": true
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "User",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`u_id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `u_mail` TEXT, `u_user_name` TEXT, `u_register_time` INTEGER NOT NULL, `u_first_name` TEXT, `u_last_name` TEXT, `u_avatar_url` TEXT, `u_is_use_gesture_password` INTEGER NOT NULL DEFAULT false, `u_is_use_face_id` INTEGER NOT NULL DEFAULT false, `u_is_use_touch_id` INTEGER NOT NULL DEFAULT false, `u_gesture_code` TEXT)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "u_id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "mail",
+            "columnName": "u_mail",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "userName",
+            "columnName": "u_user_name",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "registerTime",
+            "columnName": "u_register_time",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "firstName",
+            "columnName": "u_first_name",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "lastName",
+            "columnName": "u_last_name",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "avatarUrl",
+            "columnName": "u_avatar_url",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "isUseGesturePassword",
+            "columnName": "u_is_use_gesture_password",
+            "affinity": "INTEGER",
+            "notNull": true,
+            "defaultValue": "false"
+          },
+          {
+            "fieldPath": "isUseFaceId",
+            "columnName": "u_is_use_face_id",
+            "affinity": "INTEGER",
+            "notNull": true,
+            "defaultValue": "false"
+          },
+          {
+            "fieldPath": "isUseTouchId",
+            "columnName": "u_is_use_touch_id",
+            "affinity": "INTEGER",
+            "notNull": true,
+            "defaultValue": "false"
+          },
+          {
+            "fieldPath": "gestureCode",
+            "columnName": "u_gesture_code",
+            "affinity": "TEXT",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "u_id"
+          ],
+          "autoGenerate": true
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "DevicePwd",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`dp_id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `dp_device_id` INTEGER NOT NULL, `dp_create_time` INTEGER NOT NULL, `dp_pwd_num` INTEGER NOT NULL, `dp_start_time` INTEGER NOT NULL, `dp_end_time` INTEGER NOT NULL, `dp_attribute` INTEGER NOT NULL, `dp_weekly` INTEGER NOT NULL, `dp_pwd_name` TEXT, `dp_pwd_state` INTEGER NOT NULL DEFAULT 1)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "dp_id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "deviceId",
+            "columnName": "dp_device_id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "createTime",
+            "columnName": "dp_create_time",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "pwdNum",
+            "columnName": "dp_pwd_num",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "startTime",
+            "columnName": "dp_start_time",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "endTime",
+            "columnName": "dp_end_time",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "attribute",
+            "columnName": "dp_attribute",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "weekly",
+            "columnName": "dp_weekly",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "pwdName",
+            "columnName": "dp_pwd_name",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "pwdState",
+            "columnName": "dp_pwd_state",
+            "affinity": "INTEGER",
+            "notNull": true,
+            "defaultValue": "1"
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "dp_id"
+          ],
+          "autoGenerate": true
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "LockRecord",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`lr_id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `lr_event_type` INTEGER NOT NULL, `lr_event_source` INTEGER NOT NULL, `lr_event_code` INTEGER NOT NULL, `lr_user_id` INTEGER NOT NULL, `lr_app_id` INTEGER NOT NULL, `lr_device_id` INTEGER NOT NULL, `lr_create_time` INTEGER NOT NULL)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "lr_id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "eventType",
+            "columnName": "lr_event_type",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "eventSource",
+            "columnName": "lr_event_source",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "eventCode",
+            "columnName": "lr_event_code",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "userId",
+            "columnName": "lr_user_id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "appId",
+            "columnName": "lr_app_id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "deviceId",
+            "columnName": "lr_device_id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "createTime",
+            "columnName": "lr_create_time",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "lr_id"
+          ],
+          "autoGenerate": true
+        },
+        "indices": [
+          {
+            "name": "index_LockRecord_lr_device_id",
+            "unique": false,
+            "columnNames": [
+              "lr_device_id"
+            ],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_LockRecord_lr_device_id` ON `${TABLE_NAME}` (`lr_device_id`)"
+          }
+        ],
+        "foreignKeys": []
+      }
+    ],
+    "views": [],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '043ca426b702aae87686fee6a7376e85')"
+    ]
+  }
+}

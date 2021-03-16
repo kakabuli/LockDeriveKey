@@ -56,6 +56,7 @@ public class Constant {
     // SP
     public static final String USER_MAIL = "UserMail";
     public static final String USER_TOKEN = "UserToken";
+    public static final String USER_LOGIN_INFO = "UserLoginInfo";
 
     /**
      * 在login界面，是否显示提示对话框key

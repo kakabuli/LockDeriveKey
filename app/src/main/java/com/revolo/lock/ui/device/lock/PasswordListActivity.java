@@ -205,10 +205,12 @@ public class PasswordListActivity extends BaseActivity {
         }
         if(searchKeyListBeanRsp.getData().getPwdList() == null) {
             Timber.e("processKeyListFromNet searchKeyListBeanRsp.getData().getPwdList() == null");
+            inCasePwdEmptyThanUseBleCheck();
             return;
         }
         if(searchKeyListBeanRsp.getData().getPwdList().isEmpty()) {
             Timber.e("processKeyListFromNet searchKeyListBeanRsp.getData().getPwdList().isEmpty()");
+            inCasePwdEmptyThanUseBleCheck();
             return;
         }
         List<DevicePwd> pwdList = new ArrayList<>();
@@ -360,6 +362,11 @@ public class PasswordListActivity extends BaseActivity {
 
     };
 
+    private void inCasePwdEmptyThanUseBleCheck() {
+        if(mBleDeviceLocal.getConnectedType() != LocalState.DEVICE_CONNECT_TYPE_WIFI) {
+            checkHadPwdFromBle();
+        }
+    }
 
     private void checkHadPwdFromBle() {
         new Handler(Looper.getMainLooper()).postDelayed(() -> {

@@ -182,6 +182,7 @@ public class DeviceFragment extends Fragment {
                 bleDeviceLocal.setWifiVer(wifiVer);
             }
             bleDeviceLocal.setRandomCode(wifiListBean.getRandomCode());
+            AppDatabase.getInstance(getContext()).bleDeviceDao().update(bleDeviceLocal);
             locals.add(bleDeviceLocal);
         }
         if(locals.isEmpty()) {

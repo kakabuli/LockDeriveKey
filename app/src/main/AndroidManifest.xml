@@ -262,6 +262,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".ui.device.lock.setting.geofence.MapActivity" />
+        <activity android:name=".ui.mine.OpenDrawHandPwdActivity" />
 
         <service android:name=".mqtt.MqttService" />
     </application>

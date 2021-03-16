@@ -112,7 +112,7 @@ public class HttpRequest {
     private static final String ABROAD_HOST = "https://test.irevolo.com:8090";        // 海外服务器测试接口
     public static final String HOST = ABROAD_HOST;
     private static final String CHECK_OTA_HOST_TEST = "https://test1.juziwulian.com:9111";
-    private static final String CHECK_OTA_HOST_ABROAD = "https://test.irevolo.com:9111";
+    private static final String CHECK_OTA_HOST_ABROAD = "https://ota-global.juziwulian.com:9111";
     public static final String CHECK_OTA_HOST =  CHECK_OTA_HOST_ABROAD;
     
 
@@ -279,7 +279,7 @@ public class HttpRequest {
      * 检测升级文件，该接口需要使用9111端口
      */
     public Observable<CheckOTABeanRsp> checkOtaVer(String token, CheckOTABeanReq req) {
-        return service.checkOtaVer(token, req, OTA_CHECK);
+        return service.checkOtaVer(token, req, NORMAL);
     }
 
     public Observable<StartOTAUpdateBeanRsp> startOtaUpdate(String toke, StartOTAUpdateBeanReq req) {
