@@ -648,7 +648,8 @@ public class AddNewPwdSelectActivity extends BaseActivity {
     private void publishAddPwd(String wifiId, String key) {
         WifiLockAddPwdPublishBean.ParamsBean paramsBean = new WifiLockAddPwdPublishBean.ParamsBean();
         paramsBean.setKey(key);
-        paramsBean.setKeyType(1);
+        // TODO: 2021/3/17 后期修改密钥属性
+        paramsBean.setKeyType(0);
         App.getInstance().getMqttService().mqttPublish(MqttConstant.getCallTopic(App.getInstance().getUserBean().getUid()),
                 MqttCommandFactory.addPwd(
                         wifiId,
@@ -728,7 +729,8 @@ public class AddNewPwdSelectActivity extends BaseActivity {
         paramsBean.setKeyNum(keyNum);
         paramsBean.setStartTime(startTime);
         paramsBean.setWeek(week);
-        paramsBean.setKeyType(1);
+        // TODO: 2021/3/17 后期修改密钥属性
+        paramsBean.setKeyType(0);
         App.getInstance().getMqttService().mqttPublish(MqttConstant.getCallTopic(App.getInstance().getUserBean().getUid()),
                 MqttCommandFactory.addPwdAttr(
                         wifiId,

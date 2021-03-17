@@ -11,6 +11,7 @@ import com.revolo.lock.bean.request.ChangeFeaturesBeanReq;
 import com.revolo.lock.bean.request.ChangeKeyNickBeanReq;
 import com.revolo.lock.bean.request.ChangeOpenLockParameterBeanReq;
 import com.revolo.lock.bean.request.ChangeUserPwdBeanReq;
+import com.revolo.lock.bean.request.CheckAllOTABeanReq;
 import com.revolo.lock.bean.request.CheckDoorSensorStateBeanReq;
 import com.revolo.lock.bean.request.CheckOTABeanReq;
 import com.revolo.lock.bean.request.DelDeviceBeanReq;
@@ -37,6 +38,7 @@ import com.revolo.lock.bean.request.SearchAlarmRecordBeanReq;
 import com.revolo.lock.bean.request.SearchKeyListBeanReq;
 import com.revolo.lock.bean.request.SearchProductNoBeanReq;
 import com.revolo.lock.bean.request.SettingDuressPwdReceiveEMailBeanReq;
+import com.revolo.lock.bean.request.StartAllOTAUpdateBeanReq;
 import com.revolo.lock.bean.request.StartOTAUpdateBeanReq;
 import com.revolo.lock.bean.request.UpdateDoorSensorStateBeanReq;
 import com.revolo.lock.bean.request.UpdateLockRecordBeanReq;
@@ -54,6 +56,7 @@ import com.revolo.lock.bean.respone.ChangeFeaturesBeanRsp;
 import com.revolo.lock.bean.respone.ChangeKeyNickBeanRsp;
 import com.revolo.lock.bean.respone.ChangeOpenLockParameterBeanRsp;
 import com.revolo.lock.bean.respone.ChangeUserPwdBeanRsp;
+import com.revolo.lock.bean.respone.CheckAllOTABeanRsp;
 import com.revolo.lock.bean.respone.CheckDoorSensorStateBeanRsp;
 import com.revolo.lock.bean.respone.CheckOTABeanRsp;
 import com.revolo.lock.bean.respone.DelDeviceBeanRsp;
@@ -81,6 +84,7 @@ import com.revolo.lock.bean.respone.SearchAlarmRecordBeanRsp;
 import com.revolo.lock.bean.respone.SearchKeyListBeanRsp;
 import com.revolo.lock.bean.respone.SearchProductNoBeanRsp;
 import com.revolo.lock.bean.respone.SettingDuressPwdReceiveEMailBeanRsp;
+import com.revolo.lock.bean.respone.StartAllOTAUpdateBeanRsp;
 import com.revolo.lock.bean.respone.StartOTAUpdateBeanRsp;
 import com.revolo.lock.bean.respone.UpdateDoorSensorStateBeanRsp;
 import com.revolo.lock.bean.respone.UpdateLockRecordBeanRsp;
@@ -279,15 +283,20 @@ public class HttpRequest {
         return service.register(req, NORMAL);
     }
 
-    /**
-     * 检测升级文件，该接口需要使用9111端口
-     */
     public Observable<CheckOTABeanRsp> checkOtaVer(String token, CheckOTABeanReq req) {
         return service.checkOtaVer(token, req, NORMAL);
     }
 
     public Observable<StartOTAUpdateBeanRsp> startOtaUpdate(String toke, StartOTAUpdateBeanReq req) {
         return service.startOtaUpdate(toke, req, NORMAL);
+    }
+
+    public Observable<CheckAllOTABeanRsp> checkAllOtaVer(String token, CheckAllOTABeanReq req) {
+        return service.checkAllOtaVer(token, req, NORMAL);
+    }
+
+    public Observable<StartAllOTAUpdateBeanRsp> startAllOtaUpdate(String toke, StartAllOTAUpdateBeanReq req) {
+        return service.startAllOtaUpdate(toke, req, NORMAL);
     }
 
     public Observable<ForgotPwdRsp> forgotPwd(ForgotPwdBeanReq req) {
