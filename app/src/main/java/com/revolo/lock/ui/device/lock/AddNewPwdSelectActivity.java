@@ -130,9 +130,11 @@ public class AddNewPwdSelectActivity extends BaseActivity {
             // TODO: 2021/2/21 或者有其他方法
             finish();
         }
-        mBleBean = App.getInstance().getBleBeanFromMac(mBleDeviceLocal.getMac());
-        if(mBleBean == null) {
-            finish();
+        if(mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_BLE) {
+            mBleBean = App.getInstance().getBleBeanFromMac(mBleDeviceLocal.getMac());
+            if(mBleBean == null) {
+                finish();
+            }
         }
     }
 
@@ -285,22 +287,22 @@ public class AddNewPwdSelectActivity extends BaseActivity {
             // TODO: 2021/1/29 处理密码为空的情况
             return;
         }
-        if(mBleBean == null) {
-            Timber.e("mBleBean == null");
-            return;
-        }
-        if(mBleBean.getPwd1() == null) {
-            Timber.e("mBleBean.getPwd1() == null");
-            return;
-        }
-        if(mBleBean.getPwd3() == null) {
-            Timber.e("mBleBean.getPwd3() == null");
-            return;
-        }
         showLoading();
         if(mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI) {
             publishAddPwd(mBleDeviceLocal.getEsn(), mKey);
         } else {
+            if(mBleBean == null) {
+                Timber.e("nextStep mBleBean == null");
+                return;
+            }
+            if(mBleBean.getPwd1() == null) {
+                Timber.e("nextStep mBleBean.getPwd1() == null");
+                return;
+            }
+            if(mBleBean.getPwd3() == null) {
+                Timber.e("nextStep mBleBean.getPwd3() == null");
+                return;
+            }
             App.getInstance().writeControlMsg(BleCommandFactory.addKey(KEY_SET_KEY_TYPE_PWD,
                     mKey.getBytes(StandardCharsets.UTF_8), mBleBean.getPwd1(), mBleBean.getPwd3()),
                     mBleBean.getOKBLEDeviceImp());

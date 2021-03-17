@@ -14,6 +14,8 @@ import com.revolo.lock.Constant;
 import com.revolo.lock.R;
 import com.revolo.lock.base.BaseActivity;
 
+import timber.log.Timber;
+
 /**
  * author : Jack
  * time   : 2021/1/13
@@ -57,7 +59,8 @@ public class AddInputNewPwdActivity extends BaseActivity {
             if(pwd.length() >= 4 && pwd.length() <= 12) {
                 App.getInstance().addWillFinishAct(this);
                 if(mDeviceId == -1) {
-                    // TODO: 2021/2/21 todo something 
+                    // TODO: 2021/2/21 todo something
+                    Timber.e("mDeviceId == -1");
                     return;
                 }
                 Intent intent = new Intent(this, AddNewPwdSelectActivity.class);

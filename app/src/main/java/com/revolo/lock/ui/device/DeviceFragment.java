@@ -323,7 +323,7 @@ public class DeviceFragment extends Fragment {
         byte[] time = new byte[4];
         System.arraycopy(bean.getPayload(), 4, time, 0, time.length);
         // TODO: 2021/2/8 要做时间都是ffffffff的处理判断
-        long realTime = (BleByteUtil.bytesToLong(BleCommandFactory.littleMode(time)) + Constant.WILL_ADD_TIME)*1000;
+        long realTime = (BleByteUtil.bytesToLong(BleCommandFactory.littleMode(time)))*1000;
         Timber.d("CMD: %1d, eventType: %2d, eventSource: %3d, eventCode: %4d, userID: %5d, time: %6d",
                 bean.getCMD(), eventType, eventSource, eventCode, userID, realTime);
 
