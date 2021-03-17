@@ -13,8 +13,8 @@ android {
         applicationId "com.revolo.lock"
         minSdkVersion 26
         targetSdkVersion 30
-        versionCode 202103121
-        versionName "1.0.9"
+        versionCode 202103171
+        versionName "1.0.10"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
@@ -55,7 +55,6 @@ android {
 
     android.applicationVariants.all { variant ->
         variant.outputs.all {
-            //def date = new Date().format("yyyyMMdd" , TimeZone.getTimeZone("Asia/Shanghai"))
             def date = new Date().format("yyyyMMdd" , TimeZone.getDefault())
             if(variant.buildType.name.equals('debug')){
                 outputFileName = "revolo_debug${date}_${versionName}.apk"
