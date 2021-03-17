@@ -7,7 +7,6 @@ import androidx.room.OnConflictStrategy;
 import androidx.room.Query;
 import androidx.room.Update;
 
-import com.revolo.lock.room.entity.BleDeviceLocal;
 import com.revolo.lock.room.entity.LockRecord;
 
 import java.util.List;
@@ -54,6 +53,12 @@ public interface LockRecordDao {
     @Query("SELECT * FROM LockRecord WHERE lr_id in(:ids)")
     List<LockRecord> findLockRecordsFromIds(long... ids);
 
+    /**
+     * 通过日期时间筛选消息记录
+     * @param id           设备id
+     * @param startTime    设备记录时间范围-开始时间
+     * @param endTime      设备记录时间范围-结束时间
+     */
     @Query("SELECT * FROM LockRecord WHERE lr_device_id=:id AND lr_create_time>=:startTime AND lr_create_time<=:endTime")
     List<LockRecord> findLockRecordsFromDeviceIdAndDay(long id, long startTime, long endTime);
 

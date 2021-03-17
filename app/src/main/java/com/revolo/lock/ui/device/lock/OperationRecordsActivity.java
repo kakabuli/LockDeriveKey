@@ -14,12 +14,17 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.blankj.utilcode.util.ThreadUtils;
 import com.blankj.utilcode.util.TimeUtils;
+import com.blankj.utilcode.util.ToastUtils;
 import com.revolo.lock.App;
 import com.revolo.lock.Constant;
 import com.revolo.lock.R;
 import com.revolo.lock.adapter.AutoMeasureLinearLayoutManager;
 import com.revolo.lock.adapter.OperationRecordsAdapter;
 import com.revolo.lock.base.BaseActivity;
+import com.revolo.lock.bean.request.LockRecordBeanReq;
+import com.revolo.lock.bean.request.UpdateLockRecordBeanReq;
+import com.revolo.lock.bean.respone.LockRecordBeanRsp;
+import com.revolo.lock.bean.respone.UpdateLockRecordBeanRsp;
 import com.revolo.lock.bean.showBean.RecordState;
 import com.revolo.lock.bean.OperationRecords;
 import com.revolo.lock.ble.BleByteUtil;
@@ -28,6 +33,8 @@ import com.revolo.lock.ble.BleCommandFactory;
 import com.revolo.lock.ble.BleResultProcess;
 import com.revolo.lock.ble.OnBleDeviceListener;
 import com.revolo.lock.ble.bean.BleResultBean;
+import com.revolo.lock.net.HttpRequest;
+import com.revolo.lock.net.ObservableDecorator;
 import com.revolo.lock.room.AppDatabase;
 import com.revolo.lock.room.entity.BleDeviceLocal;
 import com.revolo.lock.room.entity.LockRecord;
@@ -41,6 +48,9 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
+import io.reactivex.Observable;
+import io.reactivex.Observer;
+import io.reactivex.disposables.Disposable;
 import timber.log.Timber;
 
 import static com.revolo.lock.ble.BleProtocolState.CMD_GET_ALL_RECORD;
@@ -120,6 +130,9 @@ public class OperationRecordsActivity extends BaseActivity {
     protected void onDestroy() {
         super.onDestroy();
     }
+
+
+    /*------------------------------ 蓝牙 -----------------------------------*/
 
     private final OnBleDeviceListener mOnBleDeviceListener = new OnBleDeviceListener() {
         @Override
@@ -268,6 +281,8 @@ public class OperationRecordsActivity extends BaseActivity {
         searchRecordFromBle(mBleSearchStart, mBleSearchEnd);
     }
 
+    /*--------------------------------- 本地数据库 -------------------------------------*/
+
     private void searchRecordFromLocal(int num, int page) {
         List<LockRecord> lockRecords = AppDatabase
                 .getInstance(this)
@@ -301,6 +316,159 @@ public class OperationRecordsActivity extends BaseActivity {
         refreshUIFromFinalData();
     }
 
+    /*--------------------------------- 服务器 -------------------------------------*/
+
+    private void searchRecordFromNet(int page) {
+        if(App.getInstance().getUserBean()  == null) {
+            Timber.e("searchRecordFromNet App.getInstance().getUserBean()  == null");
+            return;
+        }
+        String token = App.getInstance().getUserBean().getToken();
+        if(TextUtils.isEmpty(token)) {
+            Timber.e("searchRecordFromNet token is empty");
+            return;
+        }
+        String uid = App.getInstance().getUserBean().getUid();
+        if(TextUtils.isEmpty(uid)) {
+            Timber.e("searchRecordFromNet uid is empty");
+            return;
+        }
+        String esn = mBleDeviceLocal.getEsn();
+        if(TextUtils.isEmpty(esn)) {
+            Timber.e("searchRecordFromNet esn is empty");
+            return;
+        }
+        LockRecordBeanReq req = new LockRecordBeanReq();
+        req.setPage(page);
+        req.setUid(uid);
+        req.setWifiSN(esn);
+        showLoading();
+        Observable<LockRecordBeanRsp> observable = HttpRequest.getInstance().getLockRecordList(token, req);
+        ObservableDecorator.decorate(observable).safeSubscribe(new Observer<LockRecordBeanRsp>() {
+            @Override
+            public void onSubscribe(@NonNull Disposable d) {
+
+            }
+
+            @Override
+            public void onNext(@NonNull LockRecordBeanRsp lockRecordBeanRsp) {
+                dismissLoading();
+                String code = lockRecordBeanRsp.getCode();
+                if(TextUtils.isEmpty(code)) {
+                    Timber.e("searchRecordFromNet code is empty");
+                    return;
+                }
+                if(!code.equals("200")) {
+                    String msg = lockRecordBeanRsp.getMsg();
+                    Timber.e("searchRecordFromNet code: %1s, msg: %2s", code,msg);
+                    if(!TextUtils.isEmpty(msg)) {
+                        ToastUtils.showShort(msg);
+                    }
+                    return;
+                }
+                List<LockRecordBeanRsp.DataBean> beans = lockRecordBeanRsp.getData();
+                if(beans == null) {
+                    Timber.e("searchRecordFromNet beans == null");
+                    return;
+                }
+                if(beans.isEmpty()) {
+                    Timber.e("searchRecordFromNet beans is empty");
+                    return;
+                }
+                // TODO: 2021/3/16  拿到数据需要处理或者校对
+            }
+
+            @Override
+            public void onError(@NonNull Throwable e) {
+                dismissLoading();
+                Timber.e(e);
+            }
+
+            @Override
+            public void onComplete() {
+
+            }
+        });
+
+    }
+
+    private void updateLockRecord(List<LockRecord> records) {
+        if(App.getInstance().getUserBean() == null) {
+            Timber.e("updateLockRecord App.getInstance().getUserBean() == null");
+            return;
+        }
+        String token = App.getInstance().getUserBean().getToken();
+        if(TextUtils.isEmpty(token)) {
+            Timber.e("updateLockRecord token is empty");
+            return;
+        }
+        String esn = mBleDeviceLocal.getEsn();
+        if(TextUtils.isEmpty(esn)) {
+            Timber.e("updateLockRecord esn is empty");
+            return;
+        }
+        String uid = App.getInstance().getUserBean().getUid();
+        if(TextUtils.isEmpty(uid)) {
+            Timber.e("updateLockRecord uid is empty");
+            return;
+        }
+        UpdateLockRecordBeanReq req = new UpdateLockRecordBeanReq();
+        List<UpdateLockRecordBeanReq.OperationListBean> beans = new ArrayList<>();
+        for (LockRecord record : records) {
+            UpdateLockRecordBeanReq.OperationListBean bean = new UpdateLockRecordBeanReq.OperationListBean();
+            bean.setAppId(record.getAppId());
+            bean.setEventCode(record.getEventCode());
+            bean.setEventSource(record.getEventSource());
+            bean.setEventType(record.getEventType());
+            bean.setTimesTamp(record.getCreateTime());
+            bean.setUserId(record.getUserId());
+            beans.add(bean);
+        }
+        req.setDeviceSN(esn);
+        req.setUid(uid);
+        req.setOperationList(beans);
+        showLoading();
+        Observable<UpdateLockRecordBeanRsp> observable = HttpRequest.getInstance().updateLockRecordList(token, req);
+        ObservableDecorator.decorate(observable).safeSubscribe(new Observer<UpdateLockRecordBeanRsp>() {
+            @Override
+            public void onSubscribe(@NonNull Disposable d) {
+
+            }
+
+            @Override
+            public void onNext(@NonNull UpdateLockRecordBeanRsp updateLockRecordBeanRsp) {
+                dismissLoading();
+                String code = updateLockRecordBeanRsp.getCode();
+                if(TextUtils.isEmpty(code)) {
+                    Timber.e("updateLockRecord code is empty");
+                    return;
+                }
+                if(!code.equals("200")) {
+                    String msg = updateLockRecordBeanRsp.getMsg();
+                    Timber.d("updateLockRecord code: %1s, msg: %2s", code, msg);
+                    if(!TextUtils.isEmpty(msg)) {
+                        ToastUtils.showShort(msg);
+                    }
+                    return;
+                }
+                // TODO: 2021/3/16 上传记录成功
+            }
+
+            @Override
+            public void onError(@NonNull Throwable e) {
+                dismissLoading();
+                Timber.e(e);
+            }
+
+            @Override
+            public void onComplete() {
+
+            }
+        });
+    }
+
+    /*--------------------------------- UI更新 -------------------------------------*/
+
     private void showOrDismissNoRecord(boolean isShow) {
         runOnUiThread(() -> {
             if(isShow) {
@@ -321,8 +489,10 @@ public class OperationRecordsActivity extends BaseActivity {
         });
     }
 
+    /*--------------------------------- 数据清洗 -------------------------------------*/
+
     private void refreshUIFromFinalData() {
-        // TODO: 2021/2/25 后面要做的是要代理处理的数据 
+        // TODO: 2021/2/25 后面要做的是要代理处理的数据
         if(mLockRecords.isEmpty()) {
             showOrDismissNoRecord(true);
             showOrDismissRecords(false);
@@ -433,27 +603,13 @@ public class OperationRecordsActivity extends BaseActivity {
         processRightRecords(records);
     }
 
-    private void processRightRecords(List<OperationRecords.OperationRecord> records) {
-        // 日期分类筛选
-        Map<String, List<OperationRecords.OperationRecord>> collect = records
-                .stream().collect(Collectors.groupingBy(OperationRecords.OperationRecord::getDate));
-        // 时间降序
-        Map<String, List<OperationRecords.OperationRecord>> sortCollect = sortMapByKey(collect);
-        List<OperationRecords> recordsList = new ArrayList<>();
-        for (String key : sortCollect.keySet()) {
-            Timber.d("processRightRecords key: %1s", key);
-            OperationRecords operationRecords = new OperationRecords(TimeUtils.string2Millis(key, "yyyy-MM-dd"), collect.get(key));
-            recordsList.add(operationRecords);
-        }
-        runOnUiThread(() -> mRecordsAdapter.setList(recordsList));
-    }
-
     /**
      * 使用 Map按key进行排序
      * @param map
      * @return
      */
-    public static Map<String, List<OperationRecords.OperationRecord>> sortMapByKey(Map<String, List<OperationRecords.OperationRecord>> map) {
+    public static Map<String, List<OperationRecords.OperationRecord>> sortMapByKey(Map<String,
+            List<OperationRecords.OperationRecord>> map) {
         if (map == null || map.isEmpty()) {
             return null;
         }
@@ -475,6 +631,25 @@ public class OperationRecordsActivity extends BaseActivity {
             // 降序
             return str2.compareTo(str1);
         }
+    }
+
+
+    /*--------------------------------- 日期筛选 -------------------------------------*/
+
+
+    private void processRightRecords(List<OperationRecords.OperationRecord> records) {
+        // 日期分类筛选
+        Map<String, List<OperationRecords.OperationRecord>> collect = records
+                .stream().collect(Collectors.groupingBy(OperationRecords.OperationRecord::getDate));
+        // 时间降序
+        Map<String, List<OperationRecords.OperationRecord>> sortCollect = sortMapByKey(collect);
+        List<OperationRecords> recordsList = new ArrayList<>();
+        for (String key : sortCollect.keySet()) {
+            Timber.d("processRightRecords key: %1s", key);
+            OperationRecords operationRecords = new OperationRecords(TimeUtils.string2Millis(key, "yyyy-MM-dd"), collect.get(key));
+            recordsList.add(operationRecords);
+        }
+        runOnUiThread(() -> mRecordsAdapter.setList(recordsList));
     }
 
     private void showDatePicker() {

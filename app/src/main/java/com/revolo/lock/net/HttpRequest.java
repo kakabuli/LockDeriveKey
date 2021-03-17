@@ -29,6 +29,7 @@ import com.revolo.lock.bean.request.GetLockKeyNickBeanReq;
 import com.revolo.lock.bean.request.GetPwd1BeanReq;
 import com.revolo.lock.bean.request.LockIsBindBeanReq;
 import com.revolo.lock.bean.request.LockKeyAddBeanReq;
+import com.revolo.lock.bean.request.LockRecordBeanReq;
 import com.revolo.lock.bean.request.MailLoginBeanReq;
 import com.revolo.lock.bean.request.MailRegisterBeanReq;
 import com.revolo.lock.bean.request.OpenDoorRecordSearchBeanReq;
@@ -38,6 +39,7 @@ import com.revolo.lock.bean.request.SearchProductNoBeanReq;
 import com.revolo.lock.bean.request.SettingDuressPwdReceiveEMailBeanReq;
 import com.revolo.lock.bean.request.StartOTAUpdateBeanReq;
 import com.revolo.lock.bean.request.UpdateDoorSensorStateBeanReq;
+import com.revolo.lock.bean.request.UpdateLockRecordBeanReq;
 import com.revolo.lock.bean.request.UpdateSharedUserNickNameBeanReq;
 import com.revolo.lock.bean.request.UpdateUserAuthorityTypeBeanReq;
 import com.revolo.lock.bean.request.UpdateUserFirstLastNameBeanReq;
@@ -70,6 +72,7 @@ import com.revolo.lock.bean.respone.GetLockKeyNickBeanRsp;
 import com.revolo.lock.bean.respone.GetPwd1BeanRsp;
 import com.revolo.lock.bean.respone.LockIsBindBeanRsp;
 import com.revolo.lock.bean.respone.LockKeyAddBeanRsp;
+import com.revolo.lock.bean.respone.LockRecordBeanRsp;
 import com.revolo.lock.bean.respone.LogoutBeanRsp;
 import com.revolo.lock.bean.respone.MailLoginBeanRsp;
 import com.revolo.lock.bean.respone.MailRegisterBeanRsp;
@@ -80,6 +83,7 @@ import com.revolo.lock.bean.respone.SearchProductNoBeanRsp;
 import com.revolo.lock.bean.respone.SettingDuressPwdReceiveEMailBeanRsp;
 import com.revolo.lock.bean.respone.StartOTAUpdateBeanRsp;
 import com.revolo.lock.bean.respone.UpdateDoorSensorStateBeanRsp;
+import com.revolo.lock.bean.respone.UpdateLockRecordBeanRsp;
 import com.revolo.lock.bean.respone.UpdateSharedUserNickNameBeanRsp;
 import com.revolo.lock.bean.respone.UpdateUserAuthorityTypeBeanRsp;
 import com.revolo.lock.bean.respone.UpdateUserFirstLastNameBeanRsp;
@@ -352,6 +356,14 @@ public class HttpRequest {
 
     public Observable<GetDevicesFromUidAndSharedUidBeanRsp> getDevicesFromUidAndSharedUid(String token, GetDevicesFromUidAndSharedUidBeanReq req) {
         return service.getDevicesFromUidAndSharedUid(token, req, NORMAL);
+    }
+
+    public Observable<LockRecordBeanRsp> getLockRecordList(String token, LockRecordBeanReq req) {
+        return service.getLockRecordList(token, req, NORMAL);
+    }
+
+    public Observable<UpdateLockRecordBeanRsp> updateLockRecordList(String token, UpdateLockRecordBeanReq req) {
+        return service.updateLockRecordList(token, req, NORMAL);
     }
 
 }
