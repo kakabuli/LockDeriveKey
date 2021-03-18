@@ -15,16 +15,16 @@ public class LockRecordBeanReq {
      * page : 1
      */
 
-    private String wifiSN;
+    private String deviceSN;
     private String uid;
     private int page;
 
-    public String getWifiSN() {
-        return wifiSN;
+    public String getDeviceSN() {
+        return deviceSN;
     }
 
-    public void setWifiSN(String wifiSN) {
-        this.wifiSN = wifiSN;
+    public void setDeviceSN(String deviceSN) {
+        this.deviceSN = deviceSN;
     }
 
     public String getUid() {

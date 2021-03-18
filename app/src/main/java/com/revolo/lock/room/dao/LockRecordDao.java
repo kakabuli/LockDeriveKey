@@ -23,10 +23,10 @@ public interface LockRecordDao {
     @Insert
     long insert(LockRecord lockRecord);
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
     void insert(List<LockRecord> lockRecords);
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
     void insert(LockRecord... lockRecords);
 
     @Delete
@@ -46,12 +46,6 @@ public interface LockRecordDao {
 
     @Query("SELECT * FROM LockRecord WHERE lr_device_id=:id ORDER BY lr_create_time DESC LIMIT :num")
     List<LockRecord> findLockRecordsFromDeviceId(long id, int num);
-
-    @Query("SELECT * FROM LockRecord WHERE lr_id=:id ")
-    LockRecord findLockRecordFromId(long id);
-
-    @Query("SELECT * FROM LockRecord WHERE lr_id in(:ids)")
-    List<LockRecord> findLockRecordsFromIds(long... ids);
 
     /**
      * 通过日期时间筛选消息记录

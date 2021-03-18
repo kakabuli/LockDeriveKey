@@ -11,12 +11,8 @@ import androidx.room.PrimaryKey;
  * E-mail : wengmaowei@kaadas.com
  * desc   :
  */
-@Entity(indices = {@Index(value = {"lr_device_id"})})
+@Entity(indices = {@Index(value = {"lr_device_id"})}, primaryKeys = {"lr_device_id", "lr_create_time"})
 public class LockRecord {
-
-    @PrimaryKey(autoGenerate = true)
-    @ColumnInfo(name = "lr_id")
-    private long id;
 
     @ColumnInfo(name = "lr_event_type")
     private int eventType;
@@ -38,14 +34,6 @@ public class LockRecord {
 
     @ColumnInfo(name = "lr_create_time")
     private long createTime;
-
-    public long getId() {
-        return id;
-    }
-
-    public void setId(long id) {
-        this.id = id;
-    }
 
     public int getEventType() {
         return eventType;

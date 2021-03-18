@@ -72,8 +72,8 @@ public class LockRecordBeanRsp {
         private String _id;
         private int timesTamp;
         private String wifiSN;
-        private String appId;
-        private int createTime;
+        private int appId;
+        private long createTime;
         private int eventCode;
         private int eventSource;
         private int eventType;
@@ -104,19 +104,19 @@ public class LockRecordBeanRsp {
             this.wifiSN = wifiSN;
         }
 
-        public String getAppId() {
+        public int getAppId() {
             return appId;
         }
 
-        public void setAppId(String appId) {
+        public void setAppId(int appId) {
             this.appId = appId;
         }
 
-        public int getCreateTime() {
+        public long getCreateTime() {
             return createTime;
         }
 
-        public void setCreateTime(int createTime) {
+        public void setCreateTime(long createTime) {
             this.createTime = createTime;
         }
 

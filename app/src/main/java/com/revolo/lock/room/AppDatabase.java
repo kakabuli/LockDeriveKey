@@ -30,7 +30,7 @@ import timber.log.Timber;
  * E-mail : wengmaowei@kaadas.com
  * desc   :
  */
-@Database(entities = {BleDeviceLocal.class, User.class, DevicePwd.class, LockRecord.class}, version = 4)
+@Database(entities = {BleDeviceLocal.class, User.class, DevicePwd.class, LockRecord.class}, version = 1)
 public abstract class AppDatabase extends RoomDatabase {
 
     public abstract BleDeviceDao bleDeviceDao();
@@ -49,7 +49,6 @@ public abstract class AppDatabase extends RoomDatabase {
             if (INSTANCE == null) {
                 INSTANCE =
                         Room.databaseBuilder(context.getApplicationContext(), AppDatabase.class, "rev.db")
-                                .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4)
                                 .allowMainThreadQueries() // TODO: 2021/2/3 后续需要把这些操作放到非UI线程里
                                 .openHelperFactory(FACTORY)
                                 .addCallback(new Callback() {
@@ -75,36 +74,5 @@ public abstract class AppDatabase extends RoomDatabase {
             return INSTANCE;
         }
     }
-
-    static final Migration MIGRATION_1_2 = new Migration(1, 2) {
-        @Override
-        public void migrate(SupportSQLiteDatabase database) {
-            // 创建了消息记录表
-            database.execSQL("CREATE TABLE IF NOT EXISTS LockRecord " +
-                    "(lr_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " +
-                    "lr_event_type INTEGER NOT NULL, lr_event_source INTEGER NOT NULL, " +
-                    "lr_event_code INTEGER NOT NULL, lr_user_id INTEGER NOT NULL, " +
-                    "lr_app_id INTEGER NOT NULL, lr_device_id INTEGER NOT NULL, " +
-                    "lr_create_time INTEGER NOT NULL)");
-            database.execSQL("CREATE INDEX IF NOT EXISTS index_LockRecord_lr_device_id ON LockRecord(lr_device_id)");
-        }
-    };
-
-    static final Migration MIGRATION_2_3 = new Migration(2, 3) {
-        @Override
-        public void migrate(@NonNull SupportSQLiteDatabase database) {
-            // BleDeviceLocal新增一个字段randomCode
-            database.execSQL("ALTER TABLE BleDeviceLocal ADD COLUMN d_random_code TEXT");
-        }
-    };
-
-    static final Migration MIGRATION_3_4 = new Migration(3, 4) {
-        @Override
-        public void migrate(@NonNull SupportSQLiteDatabase database) {
-            // User新增一个字段u_gesture_code
-            database.execSQL("ALTER TABLE User ADD COLUMN u_gesture_code TEXT");
-        }
-    };
-
 
 }

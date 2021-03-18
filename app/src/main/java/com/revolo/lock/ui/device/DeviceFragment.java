@@ -169,7 +169,7 @@ public class DeviceFragment extends Fragment {
                             App.getInstance().getUser().getId());
             if(bleDeviceLocal == null) {
                 Timber.e("updateDataFromNet bleDeviceLocal == null");
-                createDeviceToLocal(wifiListBean);
+                bleDeviceLocal = createDeviceToLocal(wifiListBean);
                 continue;
             }
             bleDeviceLocal.setName(wifiListBean.getWifiName());
@@ -192,38 +192,41 @@ public class DeviceFragment extends Fragment {
         updateData(locals);
     }
 
-    private void createDeviceToLocal(WifiLockGetAllBindDeviceRspBean.DataBean.WifiListBean wifiListBean) {
+    private BleDeviceLocal createDeviceToLocal(WifiLockGetAllBindDeviceRspBean.DataBean.WifiListBean wifiListBean) {
         // TODO: 2021/3/16 存储数据
-//        BleDeviceLocal bleDeviceLocal;
-//        bleDeviceLocal = new BleDeviceLocal();
-//        bleDeviceLocal.setRandomCode();
-//        bleDeviceLocal.setWifiVer();
-//        bleDeviceLocal.setLockVer();
-//        bleDeviceLocal.setName();
-//        bleDeviceLocal.setOpenDoorSensor();
+        BleDeviceLocal bleDeviceLocal;
+        bleDeviceLocal = new BleDeviceLocal();
+        bleDeviceLocal.setRandomCode(wifiListBean.getRandomCode());
+        bleDeviceLocal.setWifiVer(wifiListBean.getWifiVersion());
+        bleDeviceLocal.setLockVer(wifiListBean.getLockFirmwareVersion());
+        bleDeviceLocal.setName(wifiListBean.getLockNickname());
+//        bleDeviceLocal.setOpenDoorSensor(wifiListBean.get);
 //        bleDeviceLocal.setDoNotDisturbMode();
 //        bleDeviceLocal.setSetAutoLockTime();
 //        bleDeviceLocal.setMute();
-//        bleDeviceLocal.setConnectedType();
+        // TODO: 2021/3/18 修改为从服务器获取数据
+        bleDeviceLocal.setConnectedType(LocalState.DEVICE_CONNECT_TYPE_WIFI);
 //        bleDeviceLocal.setLockPower();
-//        bleDeviceLocal.setLockState();
+        bleDeviceLocal.setLockState(wifiListBean.getOpenStatus());
 //        bleDeviceLocal.setSetElectricFenceSensitivity();
 //        bleDeviceLocal.setSetElectricFenceTime();
 //        bleDeviceLocal.setDetectionLock();
 //        bleDeviceLocal.setAutoLock();
 //        bleDeviceLocal.setDuress();
-//        bleDeviceLocal.setConnectedWifiName();
-//        bleDeviceLocal.setCreateTime();
-//        bleDeviceLocal.setPwd2(wifiListBean.getPassword2());
-//        bleDeviceLocal.setPwd1(wifiListBean.getPassword1());
-//        bleDeviceLocal.setMac();
-//        bleDeviceLocal.setEsn();
+        bleDeviceLocal.setConnectedWifiName(wifiListBean.getWifiName());
+        bleDeviceLocal.setCreateTime(wifiListBean.getCreateTime());
+        bleDeviceLocal.setPwd2(wifiListBean.getPassword2());
+        bleDeviceLocal.setPwd1(wifiListBean.getPassword1());
+        bleDeviceLocal.setMac(wifiListBean.getBleMac());
+        bleDeviceLocal.setEsn(wifiListBean.getWifiSN());
 //        bleDeviceLocal.setDoorSensor();
 //        bleDeviceLocal.setFunctionSet();
 //        bleDeviceLocal.setOpenElectricFence();
-//        bleDeviceLocal.setType();
-//        bleDeviceLocal.setUserId();
-//        AppDatabase.getInstance(getContext()).bleDeviceDao().insert(bleDeviceLocal);
+        bleDeviceLocal.setType(wifiListBean.getModel());
+        bleDeviceLocal.setUserId(App.getInstance().getUser().getId());
+        long id = AppDatabase.getInstance(getContext()).bleDeviceDao().insert(bleDeviceLocal);
+        bleDeviceLocal.setId(id);
+        return bleDeviceLocal;
     }
 
     private void updateData(List<BleDeviceLocal> locals) {

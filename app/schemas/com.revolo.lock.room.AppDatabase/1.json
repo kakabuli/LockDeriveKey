@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "4df58d26f0a57d500d3cf39a9b8d0f10",
+    "identityHash": "ebdd58efe6e5e63e78de481b623e7c9d",
     "entities": [
       {
         "tableName": "BleDeviceLocal",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`d_id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `d_user_id` INTEGER NOT NULL, `d_pwd1` TEXT, `d_pwd2` TEXT, `d_esn` TEXT, `d_mac` TEXT, `d_name` TEXT, `d_function_set` TEXT, `d_create_time` INTEGER NOT NULL, `d_scan_result_json` BLOB, `d_type` TEXT, `d_wifi_ver` TEXT, `d_lock_ver` TEXT, `d_door_sensor` INTEGER NOT NULL, `d_connected_wifi_name` TEXT, `d_connected_type` INTEGER NOT NULL DEFAULT 2, `d_lock_state` INTEGER NOT NULL, `d_lock_power` INTEGER NOT NULL, `d_set_auto_lock_time` INTEGER NOT NULL, `d_is_detection_lock` INTEGER NOT NULL DEFAULT false, `d_set_electric_fence_time` INTEGER NOT NULL, `d_set_electric_fence_sensitivity` INTEGER NOT NULL, `d_is_auto_lock` INTEGER NOT NULL DEFAULT false, `d_is_open_electric_fence` INTEGER NOT NULL DEFAULT false, `d_is_open_door_sensor` INTEGER NOT NULL DEFAULT false, `d_is_mute` INTEGER NOT NULL DEFAULT false, `d_is_do_not_disturb_mode` INTEGER NOT NULL DEFAULT false, `d_is_duress` INTEGER NOT NULL)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`d_id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `d_user_id` INTEGER NOT NULL, `d_pwd1` TEXT, `d_pwd2` TEXT, `d_esn` TEXT, `d_mac` TEXT, `d_name` TEXT, `d_function_set` TEXT, `d_create_time` INTEGER NOT NULL, `d_scan_result_json` BLOB, `d_type` TEXT, `d_wifi_ver` TEXT, `d_lock_ver` TEXT, `d_door_sensor` INTEGER NOT NULL, `d_connected_wifi_name` TEXT, `d_connected_type` INTEGER NOT NULL DEFAULT 2, `d_lock_state` INTEGER NOT NULL, `d_lock_power` INTEGER NOT NULL, `d_set_auto_lock_time` INTEGER NOT NULL, `d_is_detection_lock` INTEGER NOT NULL DEFAULT false, `d_set_electric_fence_time` INTEGER NOT NULL, `d_set_electric_fence_sensitivity` INTEGER NOT NULL, `d_is_auto_lock` INTEGER NOT NULL DEFAULT false, `d_is_open_electric_fence` INTEGER NOT NULL DEFAULT false, `d_is_open_door_sensor` INTEGER NOT NULL DEFAULT false, `d_is_mute` INTEGER NOT NULL DEFAULT false, `d_is_do_not_disturb_mode` INTEGER NOT NULL DEFAULT false, `d_is_duress` INTEGER NOT NULL, `d_random_code` TEXT)",
         "fields": [
           {
             "fieldPath": "id",
@@ -182,6 +182,12 @@
             "columnName": "d_is_duress",
             "affinity": "INTEGER",
             "notNull": true
+          },
+          {
+            "fieldPath": "randomCode",
+            "columnName": "d_random_code",
+            "affinity": "TEXT",
+            "notNull": false
           }
         ],
         "primaryKey": {
@@ -195,7 +201,7 @@
       },
       {
         "tableName": "User",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`u_id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `u_mail` TEXT, `u_user_name` TEXT, `u_register_time` INTEGER NOT NULL, `u_first_name` TEXT, `u_last_name` TEXT, `u_avatar_url` TEXT, `u_is_use_gesture_password` INTEGER NOT NULL DEFAULT false, `u_is_use_face_id` INTEGER NOT NULL DEFAULT false, `u_is_use_touch_id` INTEGER NOT NULL DEFAULT false)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`u_id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `u_mail` TEXT, `u_user_name` TEXT, `u_register_time` INTEGER NOT NULL, `u_first_name` TEXT, `u_last_name` TEXT, `u_avatar_url` TEXT, `u_is_use_gesture_password` INTEGER NOT NULL DEFAULT false, `u_is_use_face_id` INTEGER NOT NULL DEFAULT false, `u_is_use_touch_id` INTEGER NOT NULL DEFAULT false, `u_gesture_code` TEXT)",
         "fields": [
           {
             "fieldPath": "id",
@@ -259,6 +265,12 @@
             "affinity": "INTEGER",
             "notNull": true,
             "defaultValue": "false"
+          },
+          {
+            "fieldPath": "gestureCode",
+            "columnName": "u_gesture_code",
+            "affinity": "TEXT",
+            "notNull": false
           }
         ],
         "primaryKey": {
@@ -344,12 +356,78 @@
         },
         "indices": [],
         "foreignKeys": []
+      },
+      {
+        "tableName": "LockRecord",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`lr_event_type` INTEGER NOT NULL, `lr_event_source` INTEGER NOT NULL, `lr_event_code` INTEGER NOT NULL, `lr_user_id` INTEGER NOT NULL, `lr_app_id` INTEGER NOT NULL, `lr_device_id` INTEGER NOT NULL, `lr_create_time` INTEGER NOT NULL, PRIMARY KEY(`lr_device_id`, `lr_create_time`))",
+        "fields": [
+          {
+            "fieldPath": "eventType",
+            "columnName": "lr_event_type",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "eventSource",
+            "columnName": "lr_event_source",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "eventCode",
+            "columnName": "lr_event_code",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "userId",
+            "columnName": "lr_user_id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "appId",
+            "columnName": "lr_app_id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "deviceId",
+            "columnName": "lr_device_id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "createTime",
+            "columnName": "lr_create_time",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "lr_device_id",
+            "lr_create_time"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [
+          {
+            "name": "index_LockRecord_lr_device_id",
+            "unique": false,
+            "columnNames": [
+              "lr_device_id"
+            ],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_LockRecord_lr_device_id` ON `${TABLE_NAME}` (`lr_device_id`)"
+          }
+        ],
+        "foreignKeys": []
       }
     ],
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '4df58d26f0a57d500d3cf39a9b8d0f10')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'ebdd58efe6e5e63e78de481b623e7c9d')"
     ]
   }
 }
