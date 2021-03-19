@@ -5,12 +5,12 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
+import android.widget.ExpandableListView;
 import android.widget.LinearLayout;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
-import androidx.recyclerview.widget.RecyclerView;
 
 import com.blankj.utilcode.util.ThreadUtils;
 import com.blankj.utilcode.util.TimeUtils;
@@ -19,8 +19,8 @@ import com.revolo.lock.App;
 import com.revolo.lock.Constant;
 import com.revolo.lock.LocalState;
 import com.revolo.lock.R;
-import com.revolo.lock.adapter.AutoMeasureLinearLayoutManager;
-import com.revolo.lock.adapter.OperationRecordsAdapter;
+
+import com.revolo.lock.adapter.OpRecordsAdapter;
 import com.revolo.lock.base.BaseActivity;
 import com.revolo.lock.bean.request.LockRecordBeanReq;
 import com.revolo.lock.bean.request.UpdateLockRecordBeanReq;
@@ -65,16 +65,15 @@ import static com.revolo.lock.ble.BleProtocolState.CMD_GET_ALL_RECORD;
  * E-mail : wengmaowei@kaadas.com
  * desc   : 操作记录
  */
-// TODO: 2021/3/6 数据存在日期筛选后无法滑动的bug
 public class OperationRecordsActivity extends BaseActivity {
 
     // TODO: 2021/2/25 后续添加超时操作
 
-    private OperationRecordsAdapter mRecordsAdapter;
+    private OpRecordsAdapter mOpRecordsAdapter;
     private BleBean mBleBean;
     private long mDeviceId;
     private LinearLayout mllNoRecord;
-    private RecyclerView mRvOperationRecords;
+    private ExpandableListView mElOperationRecords;
     private BleDeviceLocal mBleDeviceLocal;
 
     private RefreshLayout mRefreshLayout;
@@ -113,12 +112,11 @@ public class OperationRecordsActivity extends BaseActivity {
                 .setRight(ContextCompat.getDrawable(this, R.drawable.ic_icon_date), v -> {
                     showDatePicker();
                 });
-        mRvOperationRecords = findViewById(R.id.rvOperationRecords);
-        AutoMeasureLinearLayoutManager linearLayoutManager = new AutoMeasureLinearLayoutManager(this);
-        mRvOperationRecords.setLayoutManager(linearLayoutManager);
+        mElOperationRecords = findViewById(R.id.elOperationRecords);
+        mElOperationRecords.setGroupIndicator(null);
         mllNoRecord = findViewById(R.id.llNoRecord);
-        mRecordsAdapter = new OperationRecordsAdapter(R.layout.item_operation_record_list_rv);
-        mRvOperationRecords.setAdapter(mRecordsAdapter);
+        mOpRecordsAdapter = new OpRecordsAdapter(new ArrayList<>(), this);
+        mElOperationRecords.setAdapter(mOpRecordsAdapter);
         initLoading("Loading...");
 
         mRefreshLayout = findViewById(R.id.refreshLayout);
@@ -426,7 +424,7 @@ public class OperationRecordsActivity extends BaseActivity {
     private void processRecordFromNet(boolean isNeedBleGetRecords, int page, List<LockRecordBeanRsp.DataBean> beans) {
         if(isNeedBleGetRecords) {
             if(!beans.isEmpty()) {
-                mLatestCreateTime = beans.get(0).getCreateTime();
+                mLatestCreateTime = beans.get(0).getTimesTamp();
             }
             // 开始检索, 每次检索5条
             mBleSearchStart = 0;
@@ -554,9 +552,9 @@ public class OperationRecordsActivity extends BaseActivity {
     private void showOrDismissRecords(boolean isShow) {
         runOnUiThread(() -> {
             if(isShow) {
-                mRvOperationRecords.setVisibility(View.VISIBLE);
+                mElOperationRecords.setVisibility(View.VISIBLE);
             } else {
-                mRvOperationRecords.setVisibility(View.GONE);
+                mElOperationRecords.setVisibility(View.GONE);
             }
         });
     }
@@ -730,11 +728,11 @@ public class OperationRecordsActivity extends BaseActivity {
     }
 
     private void initAdapter(List<OperationRecords> recordsList) {
-//        AutoMeasureLinearLayoutManager linearLayoutManager = new AutoMeasureLinearLayoutManager(this);
-//        mRvOperationRecords.setLayoutManager(linearLayoutManager);
-        mRecordsAdapter = new OperationRecordsAdapter(R.layout.item_operation_record_list_rv);
-        mRvOperationRecords.setAdapter(mRecordsAdapter);
-        mRecordsAdapter.setList(recordsList);
+        mOpRecordsAdapter.setOperationRecords(recordsList);
+        int count = mOpRecordsAdapter.getGroupCount();
+        for(int i=0; i<count; i++) {
+            mElOperationRecords.expandGroup(i);
+        }
     }
 
     private void showDatePicker() {

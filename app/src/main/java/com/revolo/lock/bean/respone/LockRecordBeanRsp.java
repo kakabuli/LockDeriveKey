@@ -70,7 +70,7 @@ public class LockRecordBeanRsp {
          */
 
         private String _id;
-        private int timesTamp;
+        private long timesTamp;
         private String wifiSN;
         private int appId;
         private long createTime;
@@ -88,11 +88,11 @@ public class LockRecordBeanRsp {
             this._id = _id;
         }
 
-        public int getTimesTamp() {
+        public long getTimesTamp() {
             return timesTamp;
         }
 
-        public void setTimesTamp(int timesTamp) {
+        public void setTimesTamp(long timesTamp) {
             this.timesTamp = timesTamp;
         }
 
