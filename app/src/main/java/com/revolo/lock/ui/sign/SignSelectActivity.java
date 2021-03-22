@@ -1,6 +1,7 @@
 package com.revolo.lock.ui.sign;
 
 import android.content.Intent;
+import android.hardware.fingerprint.FingerprintManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -17,8 +18,11 @@ import com.revolo.lock.Constant;
 import com.revolo.lock.R;
 import com.revolo.lock.base.BaseActivity;
 import com.revolo.lock.bean.respone.MailLoginBeanRsp;
+import com.revolo.lock.room.AppDatabase;
 import com.revolo.lock.room.entity.User;
 import com.revolo.lock.ui.MainActivity;
+import com.revolo.lock.ui.mine.SettingActivity;
+import com.revolo.lock.util.FingerprintUtils;
 
 import static com.revolo.lock.Constant.REVOLO_SP;
 
@@ -41,7 +45,7 @@ public class SignSelectActivity extends BaseActivity {
 
     @Override
     public void doBusiness() {
-        autoLogin();
+        verification();
     }
 
     @Override
@@ -53,6 +57,47 @@ public class SignSelectActivity extends BaseActivity {
         if(view.getId() == R.id.btnSignIn) {
             startActivity(new Intent(this, LoginActivity.class));
         }
+    }
+
+    private void verification() {
+        User user = App.getInstance().getUser();
+        if(user == null) {
+            return;
+        }
+        boolean isUseTouchId = user.isUseTouchId();
+        if(isUseTouchId) {
+            FingerprintUtils fingerprintUtils = new FingerprintUtils(new FingerprintManager.AuthenticationCallback() {
+                @Override
+                public void onAuthenticationError(int errorCode, CharSequence errString) {
+                    //多次指纹密码验证错误后，进入此方法；并且，不可再验（短时间）
+                    //errorCode是失败的次数
+                    if(errorCode == 3) {
+                        // TODO: 2021/3/22 进入手势密码识别
+                        boolean isUseGestureCode = user.isUseGesturePassword();
+                    }
+                }
+
+                @Override
+                public void onAuthenticationHelp(int helpCode, CharSequence helpString) {
+                    //指纹验证失败，可再验，可能手指过脏，或者移动过快等原因。
+                }
+
+                @Override
+                public void onAuthenticationSucceeded(FingerprintManager.AuthenticationResult result) {
+                    //指纹密码验证成功
+                    autoLogin();
+                }
+
+                @Override
+                public void onAuthenticationFailed() {
+                    //指纹验证失败，指纹识别失败，可再验，错误原因为：该指纹不是系统录入的指纹。
+                }
+            });
+            fingerprintUtils.openFingerprintAuth();
+        } else {
+            boolean isUseGestureCode = user.isUseGesturePassword();
+        }
+
     }
 
     private void autoLogin() {
@@ -73,6 +118,6 @@ public class SignSelectActivity extends BaseActivity {
             Intent intent = new Intent(SignSelectActivity.this, MainActivity.class);
             startActivity(intent);
             finish();
-        }, 500);
+        }, 50);
     }
 }

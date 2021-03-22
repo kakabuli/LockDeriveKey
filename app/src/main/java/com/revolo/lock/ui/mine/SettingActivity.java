@@ -1,18 +1,21 @@
 package com.revolo.lock.ui.mine;
 
 import android.content.Intent;
+import android.hardware.fingerprint.FingerprintManager;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.constraintlayout.widget.ConstraintLayout;
 
 import com.revolo.lock.App;
 import com.revolo.lock.R;
 import com.revolo.lock.base.BaseActivity;
 import com.revolo.lock.room.AppDatabase;
 import com.revolo.lock.room.entity.User;
+import com.revolo.lock.util.FingerprintUtils;
 
 /**
  * author : Jack
@@ -25,6 +28,9 @@ public class SettingActivity extends BaseActivity {
     private ImageView ivGestureCodeEnable, ivEnableTouchIDEnable, ivEnableFaceIDEnable;
     private User mUser;
     private static final int REQUEST_CODE_OPEN_GESTURE_CODE = 1999;
+
+    private ConstraintLayout mClEnableTouchID, mClEnableFaceID;
+    private FingerprintUtils mFingerprintUtils;
 
     @Override
     public void initData(@Nullable Bundle bundle) {
@@ -45,7 +51,36 @@ public class SettingActivity extends BaseActivity {
         ivGestureCodeEnable = findViewById(R.id.ivGestureCodeEnable);
         ivEnableTouchIDEnable = findViewById(R.id.ivEnableTouchIDEnable);
         ivEnableFaceIDEnable = findViewById(R.id.ivEnableFaceIDEnable);
+        mClEnableFaceID = findViewById(R.id.clEnableFaceID);
+        mClEnableTouchID = findViewById(R.id.clEnableTouchID);
         applyDebouncingClickListener(ivGestureCodeEnable, ivEnableTouchIDEnable, ivEnableFaceIDEnable);
+        mFingerprintUtils = new FingerprintUtils(new FingerprintManager.AuthenticationCallback() {
+            @Override
+            public void onAuthenticationError(int errorCode, CharSequence errString) {
+                //多次指纹密码验证错误后，进入此方法；并且，不可再验（短时间）
+                //errorCode是失败的次数
+
+            }
+
+            @Override
+            public void onAuthenticationHelp(int helpCode, CharSequence helpString) {
+                //指纹验证失败，可再验，可能手指过脏，或者移动过快等原因。
+            }
+
+            @Override
+            public void onAuthenticationSucceeded(FingerprintManager.AuthenticationResult result) {
+                //指纹密码验证成功
+                boolean isUseFingerprint = mUser.isUseTouchId();
+                mUser.setUseTouchId(!isUseFingerprint);
+                AppDatabase.getInstance(SettingActivity.this).userDao().update(mUser);
+                refreshUI();
+            }
+
+            @Override
+            public void onAuthenticationFailed() {
+                //指纹验证失败，指纹识别失败，可再验，错误原因为：该指纹不是系统录入的指纹。
+            }
+        });
     }
 
     @Override
@@ -67,10 +102,11 @@ public class SettingActivity extends BaseActivity {
             return;
         }
         if(view.getId() == R.id.ivEnableTouchIDEnable) {
+            mFingerprintUtils.openFingerprintAuth();
             return;
         }
         if(view.getId() == R.id.ivEnableFaceIDEnable) {
-
+            // TODO: 2021/3/19 faceId
         }
     }
 
