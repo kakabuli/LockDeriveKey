@@ -18,15 +18,16 @@ import com.revolo.lock.Constant;
 import com.revolo.lock.R;
 import com.revolo.lock.base.BaseActivity;
 import com.revolo.lock.bean.respone.MailLoginBeanRsp;
-import com.revolo.lock.room.AppDatabase;
 import com.revolo.lock.room.entity.User;
 import com.revolo.lock.ui.MainActivity;
-import com.revolo.lock.ui.mine.SettingActivity;
 import com.revolo.lock.util.FingerprintUtils;
 
 import static com.revolo.lock.Constant.REVOLO_SP;
 
 public class SignSelectActivity extends BaseActivity {
+
+    private static final int REQUEST_CODE_DRAW_GESTURE_CODE = 1999;
+
     @Override
     public void initData(@Nullable Bundle bundle) {
 
@@ -41,11 +42,12 @@ public class SignSelectActivity extends BaseActivity {
     public void initView(@Nullable Bundle savedInstanceState, @Nullable View contentView) {
         applyDebouncingClickListener(findViewById(R.id.btnRegister), findViewById(R.id.btnSignIn));
         setStatusBarColor(R.color.white);
+        verification();
     }
 
     @Override
     public void doBusiness() {
-        verification();
+
     }
 
     @Override
@@ -59,12 +61,23 @@ public class SignSelectActivity extends BaseActivity {
         }
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(requestCode == REQUEST_CODE_DRAW_GESTURE_CODE) {
+            if(resultCode == RESULT_OK) {
+                autoLogin();
+            }
+        }
+    }
+
     private void verification() {
         User user = App.getInstance().getUser();
         if(user == null) {
             return;
         }
         boolean isUseTouchId = user.isUseTouchId();
+        boolean isUseGestureCode = user.isUseGesturePassword();
         if(isUseTouchId) {
             FingerprintUtils fingerprintUtils = new FingerprintUtils(new FingerprintManager.AuthenticationCallback() {
                 @Override
@@ -72,8 +85,7 @@ public class SignSelectActivity extends BaseActivity {
                     //多次指纹密码验证错误后，进入此方法；并且，不可再验（短时间）
                     //errorCode是失败的次数
                     if(errorCode == 3) {
-                        // TODO: 2021/3/22 进入手势密码识别
-                        boolean isUseGestureCode = user.isUseGesturePassword();
+                        gestureCode(isUseGestureCode);
                     }
                 }
 
@@ -95,9 +107,16 @@ public class SignSelectActivity extends BaseActivity {
             });
             fingerprintUtils.openFingerprintAuth();
         } else {
-            boolean isUseGestureCode = user.isUseGesturePassword();
+            gestureCode(isUseGestureCode);
         }
 
+    }
+
+    private void gestureCode(boolean isUseGestureCode) {
+        if(isUseGestureCode) {
+            Intent intent = new Intent(this, DrawHandPwdAutoLoginActivity.class);
+            startActivityForResult(intent, REQUEST_CODE_DRAW_GESTURE_CODE);
+        }
     }
 
     private void autoLogin() {

@@ -267,6 +267,8 @@
         </activity>
         <activity android:name=".ui.device.lock.setting.geofence.MapActivity" />
         <activity android:name=".ui.mine.OpenDrawHandPwdActivity" />
+        <activity android:name=".ui.sign.DrawHandPwdAutoLoginActivity" />
+        <activity android:name=".ui.mine.CloseDrawHandPwdActivity" />
 
         <service android:name=".mqtt.MqttService" />
     </application>

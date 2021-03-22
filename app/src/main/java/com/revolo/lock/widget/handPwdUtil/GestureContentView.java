@@ -36,7 +36,6 @@ public class GestureContentView extends ViewGroup {
     /**
      * 包含9个ImageView的容器，初始化
      *
-     * @param context
      * @param isVerify 是否为校验手势密码
      * @param passWord 用户传入密码
      * @param callBack 手势绘制完毕的回调
@@ -45,7 +44,7 @@ public class GestureContentView extends ViewGroup {
         super(context);
         screenDispaly = AppUtil.getScreenDispaly(context);
         blockWidth = screenDispaly[0] / 3;
-        this.list = new ArrayList<GesturePoint>();
+        this.list = new ArrayList<>();
         this.context = context;
         this.isVerify = isVerify;
         // 添加9个图标

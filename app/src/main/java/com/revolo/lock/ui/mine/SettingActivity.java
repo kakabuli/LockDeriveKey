@@ -28,6 +28,7 @@ public class SettingActivity extends BaseActivity {
     private ImageView ivGestureCodeEnable, ivEnableTouchIDEnable, ivEnableFaceIDEnable;
     private User mUser;
     private static final int REQUEST_CODE_OPEN_GESTURE_CODE = 1999;
+    private static final int REQUEST_CODE_CLOSE_GESTURE_CODE = 1888;
 
     private ConstraintLayout mClEnableTouchID, mClEnableFaceID;
     private FingerprintUtils mFingerprintUtils;
@@ -92,9 +93,8 @@ public class SettingActivity extends BaseActivity {
     public void onDebouncingClick(@NonNull View view) {
         if(view.getId() == R.id.ivGestureCodeEnable) {
             if(mUser.isUseGesturePassword()) {
-                mUser.setUseGesturePassword(false);
-                AppDatabase.getInstance(this).userDao().update(mUser);
-                refreshUI();
+                Intent intent = new Intent(this, CloseDrawHandPwdActivity.class);
+                startActivityForResult(intent, REQUEST_CODE_CLOSE_GESTURE_CODE);
             } else {
                 Intent intent = new Intent(this, OpenDrawHandPwdActivity.class);
                 startActivityForResult(intent, REQUEST_CODE_OPEN_GESTURE_CODE);
@@ -116,6 +116,12 @@ public class SettingActivity extends BaseActivity {
         if(requestCode == REQUEST_CODE_OPEN_GESTURE_CODE) {
             if(resultCode == RESULT_OK) {
                 mUser.setUseGesturePassword(true);
+                AppDatabase.getInstance(this).userDao().update(mUser);
+                refreshUI();
+            }
+        } else if(requestCode == REQUEST_CODE_CLOSE_GESTURE_CODE) {
+            if(resultCode == RESULT_OK) {
+                mUser.setUseGesturePassword(false);
                 AppDatabase.getInstance(this).userDao().update(mUser);
                 refreshUI();
             }

@@ -1,10 +1,12 @@
-package com.revolo.lock.ui.mine;
+package com.revolo.lock.ui.sign;
 
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.text.TextUtils;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 
@@ -14,6 +16,7 @@ import androidx.annotation.Nullable;
 import com.revolo.lock.App;
 import com.revolo.lock.R;
 import com.revolo.lock.base.BaseActivity;
+import com.revolo.lock.room.AppDatabase;
 import com.revolo.lock.room.entity.User;
 import com.revolo.lock.ui.TitleBar;
 import com.revolo.lock.widget.handPwdUtil.GestureContentView;
@@ -25,7 +28,7 @@ import com.revolo.lock.widget.handPwdUtil.GestureDrawline;
  * E-mail : wengmaowei@kaadas.com
  * desc   :
  */
-public class CloseDrawHandPwdActivity extends BaseActivity {
+public class DrawHandPwdAutoLoginActivity extends BaseActivity {
 
     private GestureContentView mGestureContentView;
     private TextView tvDrawTip;
@@ -39,7 +42,7 @@ public class CloseDrawHandPwdActivity extends BaseActivity {
 
     @Override
     public int bindLayout() {
-        return R.layout.activity_close_draw_hand_pwd;
+        return R.layout.activity_draw_hand_pwd_auto_login;
     }
 
     @Override
