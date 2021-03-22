@@ -256,6 +256,7 @@ public class DeviceSettingActivity extends BaseActivity {
         BleBean bleBean = App.getInstance().getBleBeanFromMac(mBleDeviceLocal.getMac());
         if(bleBean != null && bleBean.getOKBLEDeviceImp() != null) {
             bleBean.getOKBLEDeviceImp().disConnect(false);
+            App.getInstance().removeConnectedBleBean(mBleDeviceLocal.getEsn());
         }
         Observable<DeviceUnbindBeanRsp> observable = HttpRequest
                 .getInstance().unbindDevice(App.getInstance().getUserBean().getToken(), mReq);
@@ -284,6 +285,7 @@ public class DeviceSettingActivity extends BaseActivity {
                         && bleBean.getOKBLEDeviceImp() != null
                         && bleBean.getOKBLEDeviceImp().isConnected()) {
                     bleBean.getOKBLEDeviceImp().disConnect(false);
+                    App.getInstance().removeConnectedBleBean(mBleDeviceLocal.getEsn());
                 }
                 AppDatabase.getInstance(getApplicationContext()).bleDeviceDao().delete(mBleDeviceLocal);
                 ToastUtils.showShort("Unbind success");

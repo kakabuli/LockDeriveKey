@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <TextView
+        android:id="@+id/tvPicSelect"
+        android:layout_width="match_parent"
+        android:layout_height="48pt"
+        android:gravity="center"
+        android:text="Pic select"
+        android:background="@drawable/shape_pic_select_btn_bg"
+        android:layout_marginStart="20pt"
+        android:layout_marginEnd="20pt"
+        android:textColor="@color/c333333"
+        android:textSize="15pt"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/tvCamera"
+        android:layout_width="match_parent"
+        android:layout_height="48pt"
+        android:gravity="center"
+        android:text="Camera"
+        android:background="@drawable/shape_pic_select_btn_bg"
+        android:layout_marginStart="20pt"
+        android:layout_marginEnd="20pt"
+        android:textColor="@color/c333333"
+        android:textSize="15pt"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tvPicSelect" />
+
+    <TextView
+        android:id="@+id/tvCancel"
+        android:layout_width="match_parent"
+        android:layout_height="48pt"
+        android:gravity="center"
+        android:text="Cancel"
+        android:background="@drawable/shape_pic_select_btn_bg"
+        android:layout_marginStart="20pt"
+        android:layout_marginEnd="20pt"
+        android:textColor="@color/c333333"
+        android:textSize="15pt"
+        android:layout_marginTop="10pt"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tvCamera" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
