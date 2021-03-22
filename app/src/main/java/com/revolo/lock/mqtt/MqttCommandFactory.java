@@ -34,6 +34,8 @@ import java.nio.charset.StandardCharsets;
 
 public class MqttCommandFactory {
 
+    private MqttCommandFactory() {
+    }
 
     //MessageId
     public static int MESSAGE_ID = 0;

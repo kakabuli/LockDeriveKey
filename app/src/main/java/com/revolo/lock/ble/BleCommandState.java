@@ -10,6 +10,9 @@ import androidx.annotation.IntDef;
  */
 public class BleCommandState {
 
+    private BleCommandState() {
+    }
+
     @IntDef(value = {LOCK_CONTROL_ACTION_CONTROL_UNLOCK, LOCK_CONTROL_ACTION_LOCK, LOCK_CONTROL_ACTION_TOGGLE, LOCK_CONTROL_ACTION_APP})
     public @interface LockControlAction{}
 

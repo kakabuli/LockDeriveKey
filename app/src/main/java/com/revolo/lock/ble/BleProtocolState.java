@@ -10,6 +10,9 @@ import androidx.annotation.IntDef;
  */
 public class BleProtocolState {
 
+    private BleProtocolState() {
+    }
+
     @IntDef(value = {CMD_LOCK_OPEN_RECORD, CMD_LOCK_UPLOAD, CMD_LOCK_ALARM_UPLOAD,
             CMD_ENCRYPT_KEY_UPLOAD, CMD_USER_TYPE, CMD_WEEKLY_PLAN_CHECK, CMD_YEAR_MON_DAY_PLAN_CHECK,
             CMD_LOCK_ALARM_RECORD_CHECK, CMD_LOCK_NUM_CHECK, CMD_LOCK_OPEN_COUNT_CHECK,

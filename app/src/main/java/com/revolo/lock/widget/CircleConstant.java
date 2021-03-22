@@ -5,6 +5,9 @@ package com.revolo.lock.widget;
  */
 public class CircleConstant {
 
+    private CircleConstant() {
+    }
+
     public static final boolean ANTI_ALIAS = true;
 
     public static final int DEFAULT_SIZE = 150;

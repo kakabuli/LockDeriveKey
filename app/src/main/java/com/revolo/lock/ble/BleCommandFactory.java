@@ -30,6 +30,9 @@ import static com.revolo.lock.ble.BleProtocolState.CMD_WIFI_SWITCH;
 // TODO: 2021/2/5 记得超过2个字节的都改成小端模式， 除了esn是字符串
 public class BleCommandFactory {
 
+    private BleCommandFactory() {
+    }
+
     // Control(1byte)+TSN(1byte)+Check(1byte)+Cmd(1byte)+payload(16byte)
 
     // Control bit0：加密标志位

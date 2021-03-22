@@ -10,6 +10,10 @@ import org.eclipse.paho.client.mqttv3.MqttMessage;
 import timber.log.Timber;
 
 public class MqttExceptionHandle {
+
+	private MqttExceptionHandle() {
+	}
+
 	public static final int ConnectException = 1;
 	public static final int PublishException = 2;
 	public static final int SubscribeException = 3;

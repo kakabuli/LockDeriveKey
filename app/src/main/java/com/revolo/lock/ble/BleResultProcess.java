@@ -22,6 +22,9 @@ import timber.log.Timber;
  */
 public class BleResultProcess {
 
+    private BleResultProcess() {
+    }
+
     public static final byte CONTROL_ENCRYPTION = 0x01;
     public static final byte CONTROL_NORMAL = 0x00;
 

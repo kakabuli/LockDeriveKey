@@ -2,6 +2,9 @@ package com.revolo.lock.widget.handPwdUtil;
 
 public class HandPwdConstants {
 
+	private HandPwdConstants() {
+	}
+
 	//*/ 手势密码点的状态
 	public static final int POINT_STATE_NORMAL = 0; // 正常状态
 

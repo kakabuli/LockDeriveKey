@@ -18,6 +18,9 @@ import javax.net.ssl.X509TrustManager;
  */
 public class SSLSocketClient {
 
+    private SSLSocketClient() {
+    }
+
     //获取这个SSLSocketFactory
     public static SSLSocketFactory getSSLSocketFactory() {
         try {

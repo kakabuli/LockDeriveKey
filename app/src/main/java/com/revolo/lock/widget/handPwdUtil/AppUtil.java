@@ -5,6 +5,9 @@ import android.view.WindowManager;
 
 public class AppUtil {
 
+	private AppUtil() {
+	}
+
 	/**
 	 * 获取屏幕分辨率
 	 * @param context

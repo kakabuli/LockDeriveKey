@@ -6,6 +6,9 @@ import io.reactivex.schedulers.Schedulers;
 
 public class ObservableDecorator {
 
+    private ObservableDecorator() {
+    }
+
     public static <T> Observable<T> decorate(Observable<T> observable) {
         Observable<T> newObservable;
         newObservable = observable.subscribeOn(Schedulers.newThread())

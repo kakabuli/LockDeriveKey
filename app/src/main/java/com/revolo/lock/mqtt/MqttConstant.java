@@ -10,6 +10,9 @@ package com.revolo.lock.mqtt;
  */
 public class MqttConstant {
 
+    private MqttConstant() {
+    }
+
     public static final String MQTT_ABROAD_URL = "tcp://test.irevolo.com:1883";     // 海外服务器
     public static final String MQTT_TEST_URL = "tcp://test1.juziwulian.com:1883";   // 国内测试服务器
     public static final String MQTT_BASE_URL = MQTT_ABROAD_URL;

@@ -10,6 +10,9 @@ import androidx.annotation.IntDef;
  */
 public class LocalState {
 
+    private LocalState() {
+    }
+
     @IntDef(value = {DEVICE_CONNECT_TYPE_WIFI, DEVICE_CONNECT_TYPE_BLE})
     public @interface DeviceConnectType{}
     public static final int DEVICE_CONNECT_TYPE_WIFI = 1;

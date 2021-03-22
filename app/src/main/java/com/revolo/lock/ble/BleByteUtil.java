@@ -12,6 +12,9 @@ import java.util.Arrays;
  */
 public class BleByteUtil {
 
+    private BleByteUtil() {
+    }
+
     /**
      * 把int转换成byte数组
      *
