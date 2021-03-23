@@ -169,7 +169,7 @@ public class WifiConnectActivity extends BaseActivity {
                 // 配网成功
                 changeValue(100);
                 startActivity(new Intent(this, AddWifiSucActivity.class));
-                mBleBean.getOKBLEDeviceImp().disConnect(false);
+                App.getInstance().removeConnectedBleBeanAndDisconnect(mBleBean);
                 // 设置为wifi模式
                 mBleDeviceLocal.setConnectedType(LocalState.DEVICE_CONNECT_TYPE_WIFI);
                 mBleDeviceLocal.setConnectedWifiName(mWifiName);

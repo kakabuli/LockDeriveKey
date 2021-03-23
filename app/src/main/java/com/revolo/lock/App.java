@@ -144,7 +144,7 @@ public class App extends Application {
     private static final int DEFAULT_CONNECTED_CAPACITY = 3;
 
     private void addConnectedBleBean(BleBean bleBean) {
-        if(mConnectedBleBeanList.size() > DEFAULT_CONNECTED_CAPACITY) {
+        if(mConnectedBleBeanList.size() == DEFAULT_CONNECTED_CAPACITY) {
             Timber.d("连接的蓝牙设备数量： %1d", mConnectedBleBeanList.size());
             for (BleBean ble : mConnectedBleBeanList) {
                 Timber.d("已连接的蓝牙设备mac：%1s, esn: %2s",
@@ -157,12 +157,16 @@ public class App extends Application {
         mConnectedBleBeanList.add(bleBean);
     }
 
-    public void removeConnectedBleBean(String esn) {
+    public void removeConnectedBleBeanAndDisconnect(BleBean bean) {
         if(mConnectedBleBeanList.isEmpty()) {
             return;
         }
+        if(bean != null
+                && bean.getOKBLEDeviceImp() != null) {
+            bean.getOKBLEDeviceImp().disConnect(false);
+        }
         for (BleBean bleBean : mConnectedBleBeanList) {
-            if(bleBean.getEsn().equals(esn)) {
+            if(bleBean.getEsn().equals(bean.getEsn())) {
                 mConnectedBleBeanList.remove(bleBean);
             }
         }

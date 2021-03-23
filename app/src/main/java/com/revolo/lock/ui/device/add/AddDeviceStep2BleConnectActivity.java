@@ -540,10 +540,7 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
             preIntent.putExtra(Constant.QR_RESULT, intent.getStringExtra(Constant.QR_RESULT));
         }
         BleBean bleBean = App.getInstance().getBleBeanFromMac(mMac);
-        if(bleBean != null
-                && bleBean.getOKBLEDeviceImp() != null) {
-            bleBean.getOKBLEDeviceImp().disConnect(false);
-        }
+        App.getInstance().removeConnectedBleBeanAndDisconnect(bleBean);
         startActivity(intent);
         finish();
     }
