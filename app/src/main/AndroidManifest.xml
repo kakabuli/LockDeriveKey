@@ -45,7 +45,8 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.RevoloLock"
         android:hardwareAccelerated="false"
-        android:name=".App">
+        android:name=".App"
+        android:requestLegacyExternalStorage="true" >
 
         <!-- Mqtt Service -->
         <service android:name="org.eclipse.paho.android.service.MqttService" />
@@ -275,24 +276,6 @@
         <activity android:name=".ui.sign.DrawHandPwdAutoLoginActivity"
             android:screenOrientation="portrait"/>
         <activity android:name=".ui.mine.CloseDrawHandPwdActivity"
-            android:screenOrientation="portrait"/>
-
-        <!--图片选择Activity-->
-        <activity android:name="com.donkingliang.imageselector.ImageSelectorActivity"
-            android:theme="@style/Theme.AppCompat.Light.NoActionBar"
-            android:configChanges="orientation|keyboardHidden|screenSize"
-            android:screenOrientation="portrait"/>
-
-        <!--图片预览Activity-->
-        <activity android:name="com.donkingliang.imageselector.PreviewActivity"
-            android:theme="@style/Theme.AppCompat.Light.NoActionBar"
-            android:configChanges="orientation|keyboardHidden|screenSize"
-            android:screenOrientation="portrait"/>
-
-        <!--图片剪切Activity-->
-        <activity
-            android:name="com.donkingliang.imageselector.ClipImageActivity"
-            android:theme="@style/Theme.AppCompat.Light.NoActionBar"
             android:screenOrientation="portrait"/>
 
         <service android:name=".mqtt.MqttService" />

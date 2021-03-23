@@ -14,21 +14,29 @@ import androidx.annotation.Nullable;
 
 import com.blankj.utilcode.util.ToastUtils;
 import com.bumptech.glide.Glide;
-import com.donkingliang.imageselector.utils.ImageSelector;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.request.RequestOptions;
+import com.luck.picture.lib.PictureSelector;
+import com.luck.picture.lib.config.PictureConfig;
+import com.luck.picture.lib.config.PictureMimeType;
+import com.luck.picture.lib.entity.LocalMedia;
 import com.revolo.lock.App;
 import com.revolo.lock.R;
 import com.revolo.lock.base.BaseActivity;
 import com.revolo.lock.bean.respone.LogoutBeanRsp;
+import com.revolo.lock.bean.respone.UploadUserAvatarBeanRsp;
 import com.revolo.lock.dialog.SelectDialog;
 import com.revolo.lock.net.HttpRequest;
 import com.revolo.lock.net.ObservableDecorator;
 import com.revolo.lock.popup.PicSelectPopup;
+import com.revolo.lock.room.AppDatabase;
 import com.revolo.lock.room.entity.User;
 import com.revolo.lock.ui.sign.LoginActivity;
+import com.revolo.lock.util.GlideEngine;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
+import java.io.File;
 import java.util.List;
 
 import io.reactivex.Observable;
@@ -54,9 +62,6 @@ public class UserPageActivity extends BaseActivity implements EasyPermissions.Pe
     private final int RC_CAMERA_PERMISSIONS = 7777;
     private final int RC_WRITE_EXTERNAL_STORAGE_PERMISSIONS = 9999;
 
-    private final int REQUEST_CODE_TAKE_PIC = 1111;
-    private final int REQUEST_CODE_SELECT_PIC = 2222;
-
     @Override
     public void initData(@Nullable Bundle bundle) {
 
@@ -73,20 +78,25 @@ public class UserPageActivity extends BaseActivity implements EasyPermissions.Pe
         mIvAvatar = findViewById(R.id.ivAvatar);
         applyDebouncingClickListener(findViewById(R.id.clUserName), findViewById(R.id.clChangePwd), findViewById(R.id.btnLogout), mIvAvatar);
         mUser = App.getInstance().getUser();
-        initLoading("Logging out...");
         mPicSelectPopup = new PicSelectPopup(this);
         mPicSelectPopup.setPicSelectOnClickListener(v -> {
-            ImageSelector.builder()
-                    .useCamera(true) // 设置是否使用拍照
-                    .setSingle(true)  //设置是否单选
-                    .canPreview(true) //是否可以预览图片，默认为true
-                    .start(UserPageActivity.this, REQUEST_CODE_SELECT_PIC); // 打开相册
+            PictureSelector.create(this)
+                    .openGallery(PictureMimeType.ofImage())
+                    .loadImageEngine(GlideEngine.createGlideEngine()) // 请参考Demo GlideEngine.java
+                    .forResult(PictureConfig.CHOOSE_REQUEST);
         });
-        mPicSelectPopup.setCameraOnClickListener(v -> ImageSelector.builder()
+        mPicSelectPopup.setCameraOnClickListener(v ->
+                PictureSelector.create(this)
+                        .openCamera(PictureMimeType.ofImage())
+                        .maxSelectNum(1)
+                        .loadImageEngine(GlideEngine.createGlideEngine()) // 请参考Demo GlideEngine.java
+                        .forResult(PictureConfig.REQUEST_CAMERA)
+        );
+        mPicSelectPopup.setCancelOnClickListener(v -> dismissPicSelect());
+    }
 
-                .onlyTakePhoto(true)
-                .start(UserPageActivity.this, REQUEST_CODE_TAKE_PIC));
-        mPicSelectPopup.setCancelOnClickListener(v -> {
+    private void dismissPicSelect() {
+        runOnUiThread(() -> {
             if(mPicSelectPopup != null) {
                 mPicSelectPopup.dismiss();
             }
@@ -103,13 +113,39 @@ public class UserPageActivity extends BaseActivity implements EasyPermissions.Pe
                 tvUserName.setText(TextUtils.isEmpty(userName)?"":userName);
                 String email = mUser.getMail();
                 tvEmailAddress.setText(TextUtils.isEmpty(email)?"":email);
-                String avatarUrl = mUser.getAvatarUrl();
-                Glide.with(this)
-                        .load(avatarUrl)
-                        .placeholder(R.drawable.mine_personal_img_headportrait_default)
-                        .into(mIvAvatar);
+                refreshAvatar();
             }
         });
+    }
+
+    private void refreshAvatar() {
+        String avatarUrl = mUser.getAvatarUrl();
+        String avatarLocalPath = mUser.getAvatarLocalPath();
+        String url;
+        if(TextUtils.isEmpty(avatarLocalPath)) {
+            url = avatarUrl;
+        } else {
+            File file = new File(avatarLocalPath);
+            if(file == null) {
+                url = avatarUrl;
+            } else {
+                if(file.exists()) {
+                    url = avatarLocalPath;
+                } else {
+                    url = avatarUrl;
+                }
+            }
+        }
+        RequestOptions requestOptions = RequestOptions.circleCropTransform()
+                .diskCacheStrategy(DiskCacheStrategy.NONE)        //不做磁盘缓存
+                .skipMemoryCache(true)                            //不做内存缓存
+                .error(R.drawable.mine_personal_img_headportrait_default)          //错误图片
+                .placeholder(R.drawable.mine_personal_img_headportrait_default);   //预加载图片
+        Glide.with(this)
+                .load(url)
+                .placeholder(R.drawable.mine_personal_img_headportrait_default)
+                .apply(requestOptions)
+                .into(mIvAvatar);
     }
 
     @Override
@@ -147,17 +183,34 @@ public class UserPageActivity extends BaseActivity implements EasyPermissions.Pe
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == REQUEST_CODE_SELECT_PIC && data != null) {
-            //获取选择器返回的数据
-            ArrayList<String> images = data.getStringArrayListExtra(
-                    ImageSelector.SELECT_RESULT);
+        if (resultCode == RESULT_OK) {
+            switch (requestCode) {
+                case PictureConfig.CHOOSE_REQUEST:
+                case PictureConfig.REQUEST_CAMERA:
+                    // 结果回调
+                    List<LocalMedia> selectList = PictureSelector.obtainMultipleResult(data);
+                    if(selectList == null) {
+                        return;
+                    }
+                    if(selectList.isEmpty()) {
+                        return;
+                    }
+                    String path = selectList.get(0).getRealPath();
+                    if(TextUtils.isEmpty(path)) {
+                        return;
+                    }
+                    File avatarFile = new File(path);
+                    if(avatarFile == null) {
+                        return;
+                    }
+                    mUser.setAvatarLocalPath(path);
+                    uploadUserAvatar(avatarFile);
+                    dismissPicSelect();
 
-            /**
-             * 是否是来自于相机拍照的图片，
-             * 只有本次调用相机拍出来的照片，返回时才为true。
-             * 当为true时，图片返回的结果有且只有一张图片。
-             */
-            boolean isCameraImage = data.getBooleanExtra(ImageSelector.IS_CAMERA_IMAGE, false);
+                    break;
+                default:
+                    break;
+            }
         }
     }
 
@@ -208,6 +261,72 @@ public class UserPageActivity extends BaseActivity implements EasyPermissions.Pe
         } else if(perms.get(0).equals(Manifest.permission.CAMERA)) {
             Timber.e("onPermissionsDenied 拒绝了打开相机需要的相机权限, requestCode: %1d", requestCode);
         }
+    }
+
+    private void uploadUserAvatar(@NotNull File avatarFile) {
+
+        if(App.getInstance().getUserBean() == null) {
+            Timber.e("uploadUserAvatar App.getInstance().getUserBean() == null");
+            return;
+        }
+        String token = App.getInstance().getUserBean().getToken();
+        if(TextUtils.isEmpty(token)) {
+            Timber.e("uploadUserAvatar token is empty");
+            return;
+        }
+        String uid = App.getInstance().getUserBean().getUid();
+        if(TextUtils.isEmpty(uid)) {
+            Timber.e("uploadUserAvatar uid is empty");
+            return;
+        }
+
+        showLoading("Uploading...");
+        Observable<UploadUserAvatarBeanRsp> observable = HttpRequest.getInstance()
+                .uploadUserAvatar(token, uid, avatarFile);
+        ObservableDecorator.decorate(observable).safeSubscribe(new Observer<UploadUserAvatarBeanRsp>() {
+            @Override
+            public void onSubscribe(@NonNull Disposable d) {
+
+            }
+
+            @Override
+            public void onNext(@NonNull UploadUserAvatarBeanRsp uploadUserAvatarBeanRsp) {
+                dismissLoading();
+                String code = uploadUserAvatarBeanRsp.getCode();
+                if(TextUtils.isEmpty(code)) {
+                    Timber.e("uploadUserAvatar code is empty");
+                    return;
+                }
+                if(!code.equals("200")) {
+                    String msg = uploadUserAvatarBeanRsp.getMsg();
+                    Timber.e("uploadUserAvatar code: %1s, msg: %2s", code, msg);
+                    if(!TextUtils.isEmpty(msg)) {
+                        ToastUtils.showShort(msg);
+                    }
+                    return;
+                }
+                String avatarUrl = uploadUserAvatarBeanRsp.getData().getPath();
+                if(TextUtils.isEmpty(avatarUrl)) {
+                    Timber.e("avatarUrl is empty");
+                    return;
+                }
+                mUser.setAvatarUrl(avatarUrl);
+                AppDatabase.getInstance(UserPageActivity.this).userDao().update(mUser);
+                refreshUserUI();
+            }
+
+            @Override
+            public void onError(@NonNull Throwable e) {
+                dismissLoading();
+                Timber.e(e);
+            }
+
+            @Override
+            public void onComplete() {
+
+            }
+        });
+
     }
 
     @AfterPermissionGranted(RC_QR_CODE_PERMISSIONS)
@@ -267,7 +386,7 @@ public class UserPageActivity extends BaseActivity implements EasyPermissions.Pe
         if(TextUtils.isEmpty(token)) {
             return;
         }
-        showLoading();
+        showLoading("Logging out...");
         Observable<LogoutBeanRsp> observable = HttpRequest.getInstance().logout(token);
         ObservableDecorator.decorate(observable).safeSubscribe(new Observer<LogoutBeanRsp>() {
             @Override

@@ -38,6 +38,9 @@ public class User implements Parcelable {
     @ColumnInfo(name = "u_avatar_url")
     private String avatarUrl;                       // 头像地址
 
+    @ColumnInfo(name = "u_avatar_local_path")
+    private String avatarLocalPath;                 // 头像本地地址
+
     @ColumnInfo(name = "u_is_use_gesture_password", defaultValue = "false")
     private boolean isUseGesturePassword;           // 是否使用手势密码
 
@@ -106,6 +109,14 @@ public class User implements Parcelable {
         this.avatarUrl = avatarUrl;
     }
 
+    public String getAvatarLocalPath() {
+        return avatarLocalPath;
+    }
+
+    public void setAvatarLocalPath(String avatarLocalPath) {
+        this.avatarLocalPath = avatarLocalPath;
+    }
+
     public boolean isUseGesturePassword() {
         return isUseGesturePassword;
     }
@@ -138,6 +149,7 @@ public class User implements Parcelable {
         this.gestureCode = gestureCode;
     }
 
+
     @Override
     public int describeContents() {
         return 0;
@@ -152,10 +164,26 @@ public class User implements Parcelable {
         dest.writeString(this.firstName);
         dest.writeString(this.lastName);
         dest.writeString(this.avatarUrl);
+        dest.writeString(this.avatarLocalPath);
         dest.writeByte(this.isUseGesturePassword ? (byte) 1 : (byte) 0);
         dest.writeByte(this.isUseFaceId ? (byte) 1 : (byte) 0);
         dest.writeByte(this.isUseTouchId ? (byte) 1 : (byte) 0);
         dest.writeString(this.gestureCode);
+    }
+
+    public void readFromParcel(Parcel source) {
+        this.id = source.readLong();
+        this.mail = source.readString();
+        this.userName = source.readString();
+        this.registerTime = source.readLong();
+        this.firstName = source.readString();
+        this.lastName = source.readString();
+        this.avatarUrl = source.readString();
+        this.avatarLocalPath = source.readString();
+        this.isUseGesturePassword = source.readByte() != 0;
+        this.isUseFaceId = source.readByte() != 0;
+        this.isUseTouchId = source.readByte() != 0;
+        this.gestureCode = source.readString();
     }
 
     public User() {
@@ -169,13 +197,14 @@ public class User implements Parcelable {
         this.firstName = in.readString();
         this.lastName = in.readString();
         this.avatarUrl = in.readString();
+        this.avatarLocalPath = in.readString();
         this.isUseGesturePassword = in.readByte() != 0;
         this.isUseFaceId = in.readByte() != 0;
         this.isUseTouchId = in.readByte() != 0;
         this.gestureCode = in.readString();
     }
 
-    public static final Parcelable.Creator<User> CREATOR = new Parcelable.Creator<User>() {
+    public static final Creator<User> CREATOR = new Creator<User>() {
         @Override
         public User createFromParcel(Parcel source) {
             return new User(source);

@@ -95,9 +95,11 @@ import com.revolo.lock.bean.respone.UploadAlarmRecordBeanRsp;
 import com.revolo.lock.bean.respone.UploadOpenDoorRecordBeanRsp;
 import com.revolo.lock.bean.respone.UploadUserAvatarBeanRsp;
 
+import java.io.File;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -105,6 +107,7 @@ import javax.net.ssl.X509TrustManager;
 
 import io.reactivex.Observable;
 import okhttp3.MediaType;
+import okhttp3.MultipartBody;
 import okhttp3.OkHttpClient;
 import okhttp3.RequestBody;
 import okhttp3.logging.HttpLoggingInterceptor;
@@ -355,12 +358,21 @@ public class HttpRequest {
         return service.updateUserFirstLastName(token, req, NORMAL);
     }
 
-    public Observable<UploadUserAvatarBeanRsp> uploadUserAvatar(String token, byte[] bytes) {
-        MediaType mediaType = MediaType.parse("image/jpeg");
-        RequestBody requestBody = RequestBody.create(mediaType, bytes);
-        Map<String, RequestBody> params = new HashMap<>();
-        params.put("AttachmentKey\"; name=\"image\"; filename=\"", requestBody);
-        return service.uploadUserAvatar(token, params, NORMAL);
+    public Observable<UploadUserAvatarBeanRsp> uploadUserAvatar(String token, String uid, File file) {
+        //1.创建MultipartBody.Builder对象
+        MultipartBody.Builder builder = new MultipartBody.Builder()
+                .setType(MultipartBody.FORM); //表单类型
+        RequestBody body = RequestBody.create(MediaType.parse("multipart/form-data"),file);//表单类型
+
+        //3.调用MultipartBody.Builder的addFormDataPart()方法添加表单数据
+        builder.addFormDataPart("uid", uid);//传入服务器需要的key，和相应value值
+        builder.addFormDataPart("file",file.getName(),body); //添加图片数据，body创建的请求体
+
+        //4.创建List<MultipartBody.Part> 集合，
+        //  调用MultipartBody.Builder的build()方法会返回一个新创建的MultipartBody
+        //  再调用MultipartBody的parts()方法返回MultipartBody.Part集合
+        List<MultipartBody.Part> parts = builder.build().parts();
+        return service.uploadUserAvatar(token, parts, NORMAL);
     }
 
     public Observable<GetDevicesFromUidAndSharedUidBeanRsp> getDevicesFromUidAndSharedUid(String token, GetDevicesFromUidAndSharedUidBeanReq req) {

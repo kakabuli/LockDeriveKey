@@ -1,6 +1,5 @@
 package com.revolo.lock.net;
 
-
 import com.revolo.lock.bean.request.AcceptShareBeanReq;
 import com.revolo.lock.bean.request.AdminAddDeviceBeanReq;
 import com.revolo.lock.bean.request.ChangeBleVerBeanReq;
@@ -94,15 +93,18 @@ import com.revolo.lock.bean.respone.UploadAlarmRecordBeanRsp;
 import com.revolo.lock.bean.respone.UploadOpenDoorRecordBeanRsp;
 import com.revolo.lock.bean.respone.UploadUserAvatarBeanRsp;
 
+import java.util.List;
 import java.util.Map;
 
 import io.reactivex.Observable;
+import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
 import retrofit2.http.Body;
 import retrofit2.http.Header;
 import retrofit2.http.Headers;
 import retrofit2.http.Multipart;
 import retrofit2.http.POST;
+import retrofit2.http.Part;
 import retrofit2.http.PartMap;
 
 public interface ApiService {
@@ -279,10 +281,10 @@ public interface ApiService {
     @POST("/user/edit/postUserName")
     Observable<UpdateUserFirstLastNameBeanRsp> updateUserFirstLastName(@Header("token") String token, @Body UpdateUserFirstLastNameBeanReq req, @Header("url_name") String  urlName);
 
+//    @Headers({"Content-Type: multipart/form-data"})
     @Multipart
-    @Headers({"Content-Type: application/json"})
-    @POST("/user/edit/uploaduserhead")
-    Observable<UploadUserAvatarBeanRsp> uploadUserAvatar(@Header("token") String token, @PartMap Map<String, RequestBody> params, @Header("url_name") String  urlName);
+    @POST("/user/edit/uploadUserAvatar")
+    Observable<UploadUserAvatarBeanRsp> uploadUserAvatar(@Header("token") String token, @Part List<MultipartBody.Part> partLis, @Header("url_name") String  urlName);
 
     @Headers({"Content-Type: application/json"})
     @POST("/wpflock/user/devList")
