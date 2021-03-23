@@ -1,5 +1,6 @@
 package com.revolo.lock.ui.mine;
 
+import android.Manifest;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -25,11 +26,16 @@ import com.revolo.lock.popup.PicSelectPopup;
 import com.revolo.lock.room.entity.User;
 import com.revolo.lock.ui.sign.LoginActivity;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.ArrayList;
+import java.util.List;
 
 import io.reactivex.Observable;
 import io.reactivex.Observer;
 import io.reactivex.disposables.Disposable;
+import pub.devrel.easypermissions.AfterPermissionGranted;
+import pub.devrel.easypermissions.EasyPermissions;
 import timber.log.Timber;
 
 /**
@@ -38,14 +44,14 @@ import timber.log.Timber;
  * E-mail : wengmaowei@kaadas.com
  * desc   : 用户页面
  */
-public class UserPageActivity extends BaseActivity {
+public class UserPageActivity extends BaseActivity implements EasyPermissions.PermissionCallbacks {
 
     private User mUser;
     private ImageView mIvAvatar;
     private PicSelectPopup mPicSelectPopup;
 
+    private final int RC_QR_CODE_PERMISSIONS = 9999;
     private final int RC_CAMERA_PERMISSIONS = 7777;
-    private final int RC_READ_EXTERNAL_STORAGE_PERMISSIONS = 8888;
     private final int RC_WRITE_EXTERNAL_STORAGE_PERMISSIONS = 9999;
 
     private final int REQUEST_CODE_TAKE_PIC = 1111;
@@ -69,24 +75,17 @@ public class UserPageActivity extends BaseActivity {
         mUser = App.getInstance().getUser();
         initLoading("Logging out...");
         mPicSelectPopup = new PicSelectPopup(this);
-        mPicSelectPopup.setPicSelectOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                ImageSelector.builder()
-                        .useCamera(true) // 设置是否使用拍照
-                        .setSingle(true)  //设置是否单选
-                        .canPreview(true) //是否可以预览图片，默认为true
-                        .start(UserPageActivity.this, REQUEST_CODE_SELECT_PIC); // 打开相册
-            }
+        mPicSelectPopup.setPicSelectOnClickListener(v -> {
+            ImageSelector.builder()
+                    .useCamera(true) // 设置是否使用拍照
+                    .setSingle(true)  //设置是否单选
+                    .canPreview(true) //是否可以预览图片，默认为true
+                    .start(UserPageActivity.this, REQUEST_CODE_SELECT_PIC); // 打开相册
         });
-        mPicSelectPopup.setCameraOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                ImageSelector.builder()
-                        .onlyTakePhoto(true)
-                        .start(UserPageActivity.this, REQUEST_CODE_TAKE_PIC);
-            }
-        });
+        mPicSelectPopup.setCameraOnClickListener(v -> ImageSelector.builder()
+
+                .onlyTakePhoto(true)
+                .start(UserPageActivity.this, REQUEST_CODE_TAKE_PIC));
         mPicSelectPopup.setCancelOnClickListener(v -> {
             if(mPicSelectPopup != null) {
                 mPicSelectPopup.dismiss();
@@ -134,10 +133,14 @@ public class UserPageActivity extends BaseActivity {
             return;
         }
         if(view.getId() == R.id.ivAvatar) {
-            if(mPicSelectPopup != null) {
-                mPicSelectPopup.setPopupGravity(Gravity.BOTTOM);
-                mPicSelectPopup.showPopupWindow();
-            }
+            rcSelectPicPermissions();
+        }
+    }
+
+    private void showSelectPopup() {
+        if(mPicSelectPopup != null) {
+            mPicSelectPopup.setPopupGravity(Gravity.BOTTOM);
+            mPicSelectPopup.showPopupWindow();
         }
     }
 
@@ -156,6 +159,93 @@ public class UserPageActivity extends BaseActivity {
              */
             boolean isCameraImage = data.getBooleanExtra(ImageSelector.IS_CAMERA_IMAGE, false);
         }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           String @NotNull [] permissions,
+                                           int @NotNull [] grantResults) {
+        EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults, this);
+    }
+
+    @Override
+    public void onPermissionsGranted(int requestCode, @NonNull List<String> perms) {
+        if(perms.isEmpty()) {
+            Timber.e("onPermissionsGranted 返回的权限不存在数据 perms size: %1d", perms.size());
+            return;
+        }
+        if(requestCode == RC_QR_CODE_PERMISSIONS) {
+            if(perms.size() == 2) {
+                Timber.d("onPermissionsGranted 同时两条权限都请求成功");
+                showSelectPopup();
+            } else if(perms.get(0).equals(Manifest.permission.CAMERA)) {
+                Timber.d("onPermissionsGranted 只有相机权限成功");
+                if(hasWriteExternalStoragePermission()) {
+                    showSelectPopup();
+                } else {
+                    rcWriteStoragePermission();
+                }
+            } else if(perms.get(0).equals(Manifest.permission.READ_EXTERNAL_STORAGE)) {
+                Timber.d("onPermissionsGranted 只有存储权限成功");
+                if(hasCameraPermission()) {
+                    showSelectPopup();
+                } else {
+                    rcCameraPermission();
+                }
+            }
+        } else if(requestCode == RC_CAMERA_PERMISSIONS || requestCode == RC_WRITE_EXTERNAL_STORAGE_PERMISSIONS) {
+            Timber.d("onPermissionsGranted 请求剩下的权限成功");
+            showSelectPopup();
+        }
+    }
+
+    @Override
+    public void onPermissionsDenied(int requestCode, @NonNull List<String> perms) {
+        if(perms.get(0).equals(Manifest.permission.READ_EXTERNAL_STORAGE)) {
+            Timber.e("onPermissionsDenied 拒绝了打开图库需要的储存权限, requestCode: %1d", requestCode);
+        } else if(perms.get(0).equals(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+            Timber.e("onPermissionsDenied 拒绝了打开图库需要的写入权限, requestCode: %1d", requestCode);
+        } else if(perms.get(0).equals(Manifest.permission.CAMERA)) {
+            Timber.e("onPermissionsDenied 拒绝了打开相机需要的相机权限, requestCode: %1d", requestCode);
+        }
+    }
+
+    @AfterPermissionGranted(RC_QR_CODE_PERMISSIONS)
+    private void rcSelectPicPermissions() {
+        String[] perms = new String[] {Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE};
+        if (!EasyPermissions.hasPermissions(this, perms)) {
+            // TODO: 2021/1/3 use string
+            EasyPermissions.requestPermissions(this, "If you want to use the function needs camera permission and write storage permission",
+                    RC_QR_CODE_PERMISSIONS, perms);
+        } else {
+            showSelectPopup();
+        }
+    }
+
+    @AfterPermissionGranted(RC_CAMERA_PERMISSIONS)
+    private void rcCameraPermission() {
+        if(!hasCameraPermission()) {
+            // TODO: 2021/1/3 use string
+            EasyPermissions.requestPermissions(this, "If you want to use the camera needs camera permission",
+                    RC_CAMERA_PERMISSIONS, Manifest.permission.CAMERA);
+        }
+    }
+
+    @AfterPermissionGranted(RC_WRITE_EXTERNAL_STORAGE_PERMISSIONS)
+    private void rcWriteStoragePermission(){
+        if(!hasWriteExternalStoragePermission()) {
+            // TODO: 2021/1/3 use string
+            EasyPermissions.requestPermissions(this, "If you want to use photo album needs write storage permission",
+                    RC_WRITE_EXTERNAL_STORAGE_PERMISSIONS, Manifest.permission.READ_EXTERNAL_STORAGE);
+        }
+    }
+
+    private boolean hasCameraPermission() {
+        return EasyPermissions.hasPermissions(this, Manifest.permission.CAMERA);
+    }
+
+    private boolean hasWriteExternalStoragePermission() {
+        return EasyPermissions.hasPermissions(this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
     }
 
     private void showLogoutDialog() {
@@ -221,4 +311,5 @@ public class UserPageActivity extends BaseActivity {
         });
 
     }
+
 }
