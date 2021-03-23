@@ -393,5 +393,6 @@
     <string name="at_least_4_points_please_redraw">At least 4 points, please redraw</string>
     <string name="inconsistent_with_the_previous_drawing_please_redraw">Inconsistent with the previous drawing, please redraw</string>
     <string name="title_change_gesture_password">Change gesture password</string>
+    <string name="album">Album</string>
 
 </resources>

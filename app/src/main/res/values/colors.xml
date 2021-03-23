@@ -19,6 +19,8 @@
     <color name="cFF556D">#FF556D</color>
     <color name="cF2F2F2">#F2F2F2</color>
     <color name="c707070">#707070</color>
+    <color name="cf7f7f7">#F7F7F7</color>
+    <color name="cEDEDED">#EDEDED</color>
 
     <color name="transparent">#00FFFFFF</color>
 </resources>

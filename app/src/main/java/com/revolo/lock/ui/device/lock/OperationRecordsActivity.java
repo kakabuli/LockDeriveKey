@@ -444,7 +444,7 @@ public class OperationRecordsActivity extends BaseActivity {
                 lockRecord.setEventType(bean.getEventType());
                 lockRecord.setEventSource(bean.getEventSource());
                 lockRecord.setEventCode(bean.getEventCode());
-                lockRecord.setCreateTime(bean.getCreateTime());
+                lockRecord.setCreateTime(bean.getTimesTamp());
                 lockRecord.setAppId(bean.getAppId());
                 lockRecord.setDeviceId(mDeviceId);
                 list.add(lockRecord);
