@@ -234,9 +234,8 @@ public class DeviceSettingActivity extends BaseActivity {
         // 0x00：Silent Mode静音
         // 0x01：Low Volume低音量
         // 0x02：High Volume高音量
-        // TODO: 2021/2/8 后面需要动态修改
         byte[] value = new byte[1];
-        value[0] = (byte) (mBleDeviceLocal.isMute()?0x01:0x00);
+        value[0] = (byte) (mBleDeviceLocal.isMute()?LocalState.VOLUME_STATE_OPEN:LocalState.VOLUME_STATE_MUTE);
         App.getInstance().writeControlMsg(BleCommandFactory.lockParameterModificationCommand((byte) 0x02,
                 (byte) 0x01, value, bleBean.getPwd1(), bleBean.getPwd3()), bleBean.getOKBLEDeviceImp());
     }
@@ -253,8 +252,6 @@ public class DeviceSettingActivity extends BaseActivity {
 
     private void unbindDevice() {
         showLoading("Unbinding...");
-        BleBean bleBean = App.getInstance().getBleBeanFromMac(mBleDeviceLocal.getMac());
-        App.getInstance().removeConnectedBleBeanAndDisconnect(bleBean);
         Observable<DeviceUnbindBeanRsp> observable = HttpRequest
                 .getInstance().unbindDevice(App.getInstance().getUserBean().getToken(), mReq);
         ObservableDecorator.decorate(observable).safeSubscribe(new Observer<DeviceUnbindBeanRsp>() {
@@ -320,8 +317,7 @@ public class DeviceSettingActivity extends BaseActivity {
 
     private void processMute(BleResultBean bean) {
         if(bean.getPayload()[0] == 0x00) {
-            // TODO: 2021/2/8 处理数据
-            saveMuteStateToLocal();
+            saveMuteStateToLocal(mBleDeviceLocal.isMute()?LocalState.VOLUME_STATE_OPEN:LocalState.VOLUME_STATE_MUTE);
             runOnUiThread(() -> {
                 mIvMuteEnable.setImageResource(mBleDeviceLocal.isMute()?R.drawable.ic_icon_switch_open:R.drawable.ic_icon_switch_close);
             });
@@ -331,9 +327,14 @@ public class DeviceSettingActivity extends BaseActivity {
         }
     }
 
-    private void saveMuteStateToLocal() {
-        mBleDeviceLocal.setMute(!mBleDeviceLocal.isMute());
-        AppDatabase.getInstance(this).bleDeviceDao().update(mBleDeviceLocal);
+    private void saveMuteStateToLocal(@LocalState.VolumeState int mute) {
+        if(mute == LocalState.VOLUME_STATE_OPEN) {
+            mBleDeviceLocal.setMute(false);
+            AppDatabase.getInstance(this).bleDeviceDao().update(mBleDeviceLocal);
+        } else if(mute == LocalState.VOLUME_STATE_MUTE) {
+            mBleDeviceLocal.setMute(true);
+            AppDatabase.getInstance(this).bleDeviceDao().update(mBleDeviceLocal);
+        }
     }
 
     private void lockUpdateInfo(BleResultBean bean) {
@@ -450,7 +451,7 @@ public class DeviceSettingActivity extends BaseActivity {
                                 Timber.e("publishSetVolume code : %1d", bean.getCode());
                                 return;
                             }
-                            saveMuteStateToLocal();
+                            saveMuteStateToLocal(mute);
                         }
                         Timber.d("publishSetVolume %1s", mqttData.toString());
                     }
