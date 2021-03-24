@@ -65,7 +65,7 @@
         <!--            android:permission="android.permission.BIND_JOB_SERVICE" />-->
 
         <receiver
-            android:name=".ui.device.lock.setting.geofence.GeofenceBroadcastReceiver"
+            android:name=".ui.device.lock.setting.geofence.GeoFenceBroadcastReceiver"
             android:enabled="true"
             android:exported="true"/>
 

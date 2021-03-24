@@ -5,6 +5,7 @@ import com.blankj.utilcode.util.EncryptUtils;
 
 import timber.log.Timber;
 
+import static com.revolo.lock.ble.BleProtocolState.CMD_CHECK_HARD_VER;
 import static com.revolo.lock.ble.BleProtocolState.CMD_DURESS_PWD_SWITCH;
 import static com.revolo.lock.ble.BleProtocolState.CMD_GET_ALL_RECORD;
 import static com.revolo.lock.ble.BleProtocolState.CMD_KEY_ADD;
@@ -968,6 +969,23 @@ public class BleCommandFactory {
         byte[] data = new byte[1];
         data[0] = (byte) control;
         return commandPackage(true, (byte) CMD_WIFI_SWITCH, commandTSN(), data, pwd1, pwd3);
+    }
+
+    /**
+     * 查询硬件版本
+     * @param devNum
+     *           1为WIFI模块
+     *           2为WIFI锁
+     *           3为人脸模组
+     *           4为视频模组
+     *           5为视频模组微控制器
+     *           6为前面板
+     *           7为后面板
+     */
+    public static byte[] checkHardVer(@BleCommandState.HardType int devNum, byte[] pwd1, byte[] pwd3) {
+        byte[] data = new byte[1];
+        data[0] = (byte) devNum;
+        return commandPackage(true, (byte)CMD_CHECK_HARD_VER, commandTSN(), data, pwd1, pwd3);
     }
 
     /**

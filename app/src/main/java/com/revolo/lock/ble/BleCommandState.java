@@ -156,4 +156,15 @@ public class BleCommandState {
     public static final int WIFI_CONTROL_OPEN = 0x01;
     public static final int WIFI_CONTROL_CLOSE = 0x00;
 
+    @IntDef(value = {HARD_TYPE_WIFI_MODULE, HARD_TYPE_WIFI_LOCK, HARD_TYPE_FACE_MODULE,
+            HARD_TYPE_VIDEO_MODULE, HARD_TYPE_VIDEO_MODULE_TINY_CONTROL, HARD_TYPE_FRONT_PANEL, HARD_TYPE_BACK_PANEL})
+    public @interface HardType{}
+    public static final int HARD_TYPE_WIFI_MODULE = 1;
+    public static final int HARD_TYPE_WIFI_LOCK = 2;
+    public static final int HARD_TYPE_FACE_MODULE = 3;
+    public static final int HARD_TYPE_VIDEO_MODULE = 4;
+    public static final int HARD_TYPE_VIDEO_MODULE_TINY_CONTROL = 5;
+    public static final int HARD_TYPE_FRONT_PANEL = 6;
+    public static final int HARD_TYPE_BACK_PANEL = 7;
+
 }

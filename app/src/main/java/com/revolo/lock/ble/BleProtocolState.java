@@ -22,7 +22,7 @@ public class BleProtocolState {
             CMD_DURESS_PWD_SWITCH, CMD_AUTHENTICATION_ACK, CMD_LOCK_CONTROL_ACK, CMD_LOCK_KEY_MANAGER_ACK, CMD_SY_LOCK_TIME,
             CMD_LOCK_PARAMETER_CHANGED, CMD_USER_TYPE_SETTING_ACK, CMD_WEEKLY_PLAN_SETTING_ACK,
             CMD_WEEKLY_PLAN_DELETE_ACK, CMD_YEAR_MON_DAY_PLAN_SETTING_ACK,  CMD_YEAR_MON_DAY_PLAN_DELETE_ACK,
-            CMD_SY_KEY_STATE, CMD_LOCK_INFO, CMD_REQUEST_BIND_ACK, CMD_SS_ID_ACK, CMD_PWD_ACK,
+            CMD_SY_KEY_STATE, CMD_LOCK_INFO, CMD_REQUEST_BIND_ACK, CMD_CHECK_HARD_VER, CMD_SS_ID_ACK, CMD_PWD_ACK,
             CMD_UPLOAD_PAIR_NETWORK, CMD_UPLOAD_PAIR_NETWORK_STATE, CMD_KEY_VERIFY_RESULT_ACK,
             CMD_UPLOAD_REMAIN_COUNT, CMD_PAIR_NETWORK_ACK, CMD_BLE_UPLOAD_PAIR_NETWORK_STATE,
             CMD_WIFI_LIST_CHECK, CMD_NOTHING})
@@ -65,6 +65,7 @@ public class BleProtocolState {
     public static final int CMD_SY_KEY_STATE = 0x11;                    // 同步门锁密钥状态响应
     public static final int CMD_LOCK_INFO = 0x12;                       // 查询门锁基本信息
     public static final int CMD_REQUEST_BIND_ACK = 0x13;                // APP绑定请求帧
+    public static final int CMD_CHECK_HARD_VER = 0x27;                  // 查询硬件版本
 
     public static final int CMD_SS_ID_ACK = 0x90;                       // SS ID响应
     public static final int CMD_PWD_ACK = 0x91;                         // PWD响应

@@ -47,7 +47,9 @@ import io.reactivex.Observer;
 import io.reactivex.disposables.Disposable;
 import timber.log.Timber;
 
-import static com.revolo.lock.ble.BleProtocolState.CMD_LOCK_PARAMETER_CHECK;
+import static com.revolo.lock.ble.BleCommandState.HARD_TYPE_FRONT_PANEL;
+import static com.revolo.lock.ble.BleCommandState.HARD_TYPE_WIFI_LOCK;
+import static com.revolo.lock.ble.BleProtocolState.CMD_CHECK_HARD_VER;
 
 /**
  * author : Jack
@@ -157,19 +159,12 @@ public class DoorLockInformationActivity extends BaseActivity {
     };
 
     private void processBleResult(BleResultBean bean) {
-        // TODO: 2021/2/7 获取版本信息
-        if(bean.getCMD() == CMD_LOCK_PARAMETER_CHECK) {
+        if(bean.getCMD() == CMD_CHECK_HARD_VER) {
             if(bean.getPayload()[0] == 0x00) {
-                if(bean.getPayload()[1] == 0x03) {
-                    // 锁的软件版本
-                    runOnUiThread(() -> {
-                        byte[] verBytes = new byte[9];
-                        System.arraycopy(bean.getPayload(), 2, verBytes, 0, verBytes.length);
-                        String verStr = new String(verBytes, StandardCharsets.UTF_8);
-                        mTvFirmwareVersion.setText(verStr);
-//                        checkFirmwareOTAVer(verStr);
-                    });
-
+                if(bean.getPayload()[1] == HARD_TYPE_FRONT_PANEL) {
+                    refreshLockVerFromBle(bean);
+                } else if(bean.getPayload()[1] == HARD_TYPE_WIFI_LOCK) {
+                    refreshWifiVerFromBle(bean);
                 } else {
                     // TODO: 2021/2/7 其他的数据处理
                 }
@@ -177,6 +172,26 @@ public class DoorLockInformationActivity extends BaseActivity {
                 // TODO: 2021/2/7 信息失败了的操作
             }
         }
+    }
+
+    private void refreshLockVerFromBle(BleResultBean bean) {
+        // 锁的前板固件版本
+        runOnUiThread(() -> {
+            byte[] verBytes = new byte[9];
+            System.arraycopy(bean.getPayload(), 2, verBytes, 0, verBytes.length);
+            String verStr = new String(verBytes, StandardCharsets.UTF_8);
+            mTvFirmwareVersion.setText(verStr);
+        });
+    }
+
+    private void refreshWifiVerFromBle(BleResultBean bean) {
+        // 锁的wifi版本
+        runOnUiThread(() -> {
+            byte[] verBytes = new byte[9];
+            System.arraycopy(bean.getPayload(), 2, verBytes, 0, verBytes.length);
+            String verStr = new String(verBytes, StandardCharsets.UTF_8);
+            mTvWifiVersion.setText(verStr);
+        });
     }
 
     private void initBleListener() {
@@ -228,9 +243,23 @@ public class DoorLockInformationActivity extends BaseActivity {
             }
 
         });
+//        new Handler(Looper.getMainLooper()).postDelayed(() -> App.getInstance().writeControlMsg(BleCommandFactory
+//                .lockParameterCheckCommand((byte) 0x03,
+//                        bleBean.getPwd1(), bleBean.getPwd3()), bleBean.getOKBLEDeviceImp()), 50);
+        // 查询前板的版本信息
         new Handler(Looper.getMainLooper()).postDelayed(() -> App.getInstance().writeControlMsg(BleCommandFactory
-                .lockParameterCheckCommand((byte) 0x03,
-                        bleBean.getPwd1(), bleBean.getPwd3()), bleBean.getOKBLEDeviceImp()), 50);
+                .checkHardVer(HARD_TYPE_FRONT_PANEL,
+                        bleBean.getPwd1(),
+                        bleBean.getPwd3()),
+                bleBean.getOKBLEDeviceImp()),
+                50);
+        // 查询wifi的版本信息
+        new Handler(Looper.getMainLooper()).postDelayed(() -> App.getInstance().writeControlMsg(BleCommandFactory
+                        .checkHardVer(HARD_TYPE_WIFI_LOCK,
+                                bleBean.getPwd1(),
+                                bleBean.getPwd3()),
+                bleBean.getOKBLEDeviceImp()),
+                100);
     }
 
     /*------------------------- 前板 ------------------------------*/

@@ -18,7 +18,7 @@ import timber.log.Timber;
  * E-mail : wengmaowei@kaadas.com
  * desc   :
  */
-public class GeofenceBroadcastReceiver  extends BroadcastReceiver {
+public class GeoFenceBroadcastReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         // TODO: This method is called when the BroadcastReceiver is receiving
@@ -40,23 +40,23 @@ public class GeofenceBroadcastReceiver  extends BroadcastReceiver {
 
         List<Geofence> geofenceList = geofencingEvent.getTriggeringGeofences();
         for (Geofence geofence : geofenceList) {
-            Timber.d("onReceive: " + geofence.getRequestId());
+            Timber.d("onReceive: %1s", geofence.getRequestId());
         }
 //        Location location = geofencingEvent.getTriggeringLocation();
         int transitionType = geofencingEvent.getGeofenceTransition();
 
         switch (transitionType) {
             case Geofence.GEOFENCE_TRANSITION_ENTER:
-                ToastUtils.showShort("GEOFENCE_TRANSITION_ENTER");
+                ToastUtils.showShort("GEO_FENCE_TRANSITION_ENTER");
                 notificationHelper.sendHighPriorityNotification("GEOFENCE_TRANSITION_ENTER", "", MapActivity.class);
                 break;
             case Geofence.GEOFENCE_TRANSITION_DWELL:
-                ToastUtils.showShort("GEOFENCE_TRANSITION_DWELL");
+                ToastUtils.showShort("GEO_FENCE_TRANSITION_DWELL");
                 notificationHelper.sendHighPriorityNotification("GEOFENCE_TRANSITION_DWELL", "", MapActivity.class);
                 break;
             case Geofence.GEOFENCE_TRANSITION_EXIT:
-                ToastUtils.showShort("GEOFENCE_TRANSITION_EXIT");
-                notificationHelper.sendHighPriorityNotification("GEOFENCE_TRANSITION_EXIT", "", MapActivity.class);
+                ToastUtils.showShort("GEO_FENCE_TRANSITION_EXIT");
+                notificationHelper.sendHighPriorityNotification("GEO_FENCE_TRANSITION_EXIT", "", MapActivity.class);
                 break;
         }
     }
