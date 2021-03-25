@@ -17,14 +17,21 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.blankj.utilcode.util.GsonUtils;
 import com.blankj.utilcode.util.RegexUtils;
+import com.blankj.utilcode.util.SPUtils;
+import com.blankj.utilcode.util.ThreadUtils;
+import com.blankj.utilcode.util.TimeUtils;
 import com.blankj.utilcode.util.ToastUtils;
+import com.revolo.lock.App;
 import com.revolo.lock.Constant;
 import com.revolo.lock.R;
 import com.revolo.lock.base.BaseActivity;
 import com.revolo.lock.bean.request.GetCodeBeanReq;
+import com.revolo.lock.bean.request.MailLoginBeanReq;
 import com.revolo.lock.bean.request.MailRegisterBeanReq;
 import com.revolo.lock.bean.respone.GetCodeBeanRsp;
+import com.revolo.lock.bean.respone.MailLoginBeanRsp;
 import com.revolo.lock.bean.respone.MailRegisterBeanRsp;
 import com.revolo.lock.net.HttpRequest;
 import com.revolo.lock.net.ObservableDecorator;
@@ -32,10 +39,14 @@ import com.revolo.lock.room.AppDatabase;
 import com.revolo.lock.room.entity.User;
 import com.revolo.lock.util.LinkClickableSpan;
 
+import org.jetbrains.annotations.NotNull;
+
 import io.reactivex.Observable;
 import io.reactivex.Observer;
 import io.reactivex.disposables.Disposable;
 import timber.log.Timber;
+
+import static com.revolo.lock.Constant.REVOLO_SP;
 
 
 /**
@@ -235,13 +246,9 @@ public class RegisterActivity extends BaseActivity {
                     return;
                 }
                 addUserToLocal(mail);
-                // TODO: 2021/2/8 注册成功
                 ToastUtils.showShort("Register Success!");
-                new Handler(Looper.getMainLooper()).postDelayed(() -> {
-                    Intent intent = new Intent(RegisterActivity.this, RegisterInputNameActivity.class);
-                    intent.putExtra(Constant.REGISTER_DETAIL, mailRegisterBeanRsp.getData());
-                    startActivity(intent);
-                }, 50);
+                // 注册成功, 然后登录再跳转
+                login(mail, pwd);
             }
 
             @Override
@@ -275,6 +282,109 @@ public class RegisterActivity extends BaseActivity {
         User user = new User();
         user.setMail(mail);
         AppDatabase.getInstance(this).userDao().insert(user);
+    }
+
+    private int loginCount = 3;
+
+    private void login(@NotNull String mail, @NotNull String pwd) {
+        showLoading();
+        MailLoginBeanReq req = new MailLoginBeanReq();
+        req.setMail(mail);
+        req.setPassword(pwd);
+        Observable<MailLoginBeanRsp> observable = HttpRequest
+                .getInstance().login(req);
+        ObservableDecorator.decorate(observable).safeSubscribe(new Observer<MailLoginBeanRsp>() {
+            @Override
+            public void onSubscribe(@NonNull Disposable d) {
+
+            }
+
+            @Override
+            public void onNext(@NonNull MailLoginBeanRsp mailLoginBeanRsp) {
+                dismissLoading();
+                if(!mailLoginBeanRsp.getCode().equals("200")) {
+                    // TODO: 2021/1/26 获取弹出错误的信息
+                    Timber.e("processLoginRsp 登录请求错误了！ code : %1s, msg: %2s",
+                            mailLoginBeanRsp.getCode(), mailLoginBeanRsp.getMsg());
+                    tryLogin(mail, pwd);
+                    return;
+                }
+                if(mailLoginBeanRsp.getData() == null) {
+                    Timber.e("processLoginRsp mailLoginBeanRsp.getData() == null");
+                    tryLogin(mail, pwd);
+                    return;
+                }
+                ThreadUtils.getSinglePool().execute(() -> {
+                    updateUser(mail, mailLoginBeanRsp.getData());
+                    Timber.d("processLoginRsp 登录成功，token: %1s\n userId: %2s",
+                            mailLoginBeanRsp.getData().getToken(), mailLoginBeanRsp.getData().getUid());
+                    App.getInstance().setUserBean(mailLoginBeanRsp.getData());
+                    saveLoginBeanToLocal(mailLoginBeanRsp);
+                    gotoSetNameAct();
+                });
+            }
+
+            @Override
+            public void onError(@NonNull Throwable e) {
+                dismissLoading();
+                tryLogin(mail, pwd);
+                Timber.e(e);
+            }
+
+            @Override
+            public void onComplete() {
+
+            }
+        });
+    }
+
+    private void tryLogin(@NotNull String mail, @NotNull String pwd) {
+        if(loginCount <= 0) {
+            gotoLoginAct();
+        } else {
+            loginCount--;
+            login(mail, pwd);
+        }
+    }
+
+    private void gotoSetNameAct() {
+        runOnUiThread(() -> new Handler(Looper.getMainLooper()).postDelayed(() -> {
+            Intent intent = new Intent(RegisterActivity.this, RegisterInputNameActivity.class);
+            startActivity(intent);
+        }, 50));
+    }
+
+    private void gotoLoginAct() {
+        runOnUiThread(() -> new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
+                startActivity(intent);
+                finish();
+            }
+        }, 50));
+    }
+
+    private void saveLoginBeanToLocal(@NonNull MailLoginBeanRsp mailLoginBeanRsp) {
+        String loginJson = GsonUtils.toJson(mailLoginBeanRsp.getData());
+        SPUtils.getInstance(REVOLO_SP).put(Constant.USER_LOGIN_INFO, loginJson);
+    }
+
+    private void updateUser(String mail, @NotNull MailLoginBeanRsp.DataBean rsp) {
+        User user = App.getInstance().getUserFromLocal(mail);
+        if(user == null) {
+            user = new User();
+            user.setMail(mail);
+            user.setFirstName(rsp.getFirstName());
+            user.setLastName(rsp.getLastName());
+            user.setRegisterTime(TimeUtils.string2Millis(rsp.getInsertTime())/1000);
+            AppDatabase.getInstance(this).userDao().insert(user);
+        } else {
+            user.setFirstName(rsp.getFirstName());
+            user.setLastName(rsp.getLastName());
+            user.setRegisterTime(TimeUtils.string2Millis(rsp.getInsertTime())/1000);
+            AppDatabase.getInstance(this).userDao().update(user);
+        }
     }
 
 }

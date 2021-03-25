@@ -318,13 +318,17 @@ public class DeviceSettingActivity extends BaseActivity {
     private void processMute(BleResultBean bean) {
         if(bean.getPayload()[0] == 0x00) {
             saveMuteStateToLocal(mBleDeviceLocal.isMute()?LocalState.VOLUME_STATE_OPEN:LocalState.VOLUME_STATE_MUTE);
-            runOnUiThread(() -> {
-                mIvMuteEnable.setImageResource(mBleDeviceLocal.isMute()?R.drawable.ic_icon_switch_open:R.drawable.ic_icon_switch_close);
-            });
+            refreshMuteEnable();
         } else {
             // TODO: 2021/2/7 信息失败了的操作
             ToastUtils.showShort("Setting Mute Fail");
         }
+    }
+
+    private void refreshMuteEnable() {
+        runOnUiThread(() -> {
+            mIvMuteEnable.setImageResource(mBleDeviceLocal.isMute()?R.drawable.ic_icon_switch_open:R.drawable.ic_icon_switch_close);
+        });
     }
 
     private void saveMuteStateToLocal(@LocalState.VolumeState int mute) {
@@ -335,6 +339,7 @@ public class DeviceSettingActivity extends BaseActivity {
             mBleDeviceLocal.setMute(true);
             AppDatabase.getInstance(this).bleDeviceDao().update(mBleDeviceLocal);
         }
+        refreshMuteEnable();
     }
 
     private void lockUpdateInfo(BleResultBean bean) {

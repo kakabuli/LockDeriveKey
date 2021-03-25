@@ -13,9 +13,11 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.RequestOptions;
 import com.revolo.lock.App;
+import com.revolo.lock.Constant;
 import com.revolo.lock.R;
 import com.revolo.lock.base.BaseActivity;
 import com.revolo.lock.room.entity.User;
+import com.revolo.lock.ui.MainActivity;
 
 import java.io.File;
 
@@ -56,13 +58,15 @@ public class RegisterAddAvatarNextActivity extends BaseActivity {
     @Override
     public void onDebouncingClick(@NonNull View view) {
         if(view.getId() == R.id.btnAddNextTime) {
-            startActivity(new Intent(this, LoginActivity.class));
+            Intent intent = new Intent(this, MainActivity.class);
+            startActivity(intent);
             finish();
             return;
         }
         if(view.getId() == R.id.btnAddDevice) {
-            // TODO: 2021/3/23
-            startActivity(new Intent(this, LoginActivity.class));
+            Intent intent = new Intent(this, MainActivity.class);
+            intent.putExtra(Constant.COMMAND, Constant.ADD_DEVICE);
+            startActivity(intent);
             finish();
         }
     }

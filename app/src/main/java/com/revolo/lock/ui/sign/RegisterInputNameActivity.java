@@ -10,11 +10,10 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.blankj.utilcode.util.ToastUtils;
-import com.revolo.lock.Constant;
+import com.revolo.lock.App;
 import com.revolo.lock.R;
 import com.revolo.lock.base.BaseActivity;
 import com.revolo.lock.bean.request.UpdateUserFirstLastNameBeanReq;
-import com.revolo.lock.bean.respone.MailRegisterBeanRsp;
 import com.revolo.lock.bean.respone.UpdateUserFirstLastNameBeanRsp;
 import com.revolo.lock.net.HttpRequest;
 import com.revolo.lock.net.ObservableDecorator;
@@ -32,20 +31,11 @@ import timber.log.Timber;
  */
 public class RegisterInputNameActivity extends BaseActivity {
 
-    MailRegisterBeanRsp.DataBean mDataBean;
-
     private EditText etFirstName, etLastName;
 
     @Override
     public void initData(@Nullable Bundle bundle) {
-        Intent intent = getIntent();
-        if(intent.hasExtra(Constant.REGISTER_DETAIL)) {
-            mDataBean = intent.getParcelableExtra(Constant.REGISTER_DETAIL);
-        }
-        if(mDataBean == null) {
-            // TODO: 2021/3/12 做其他操作，比如跳转其他页面
-            finish();
-        }
+
     }
 
     @Override
@@ -87,12 +77,12 @@ public class RegisterInputNameActivity extends BaseActivity {
             return;
         }
 
-        String token = mDataBean.getToken();
+        String token = App.getInstance().getUserBean().getToken();
         if(TextUtils.isEmpty(token)) {
             Timber.e("updateFirstLastName token is empty");
             return;
         }
-        String uid = mDataBean.getUid();
+        String uid = App.getInstance().getUserBean().getUid();
         if(TextUtils.isEmpty(uid)) {
             Timber.e("updateFirstLastName uid is empty");
             return;
@@ -126,6 +116,7 @@ public class RegisterInputNameActivity extends BaseActivity {
                 }
                 Intent intent = new Intent(RegisterInputNameActivity.this, RegisterAddAvatarActivity.class);
                 startActivity(intent);
+                finish();
             }
 
             @Override

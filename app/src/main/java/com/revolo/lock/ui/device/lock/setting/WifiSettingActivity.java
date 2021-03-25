@@ -47,6 +47,7 @@ import timber.log.Timber;
 import static com.revolo.lock.Constant.DEFAULT_TIMEOUT_SEC_VALUE;
 import static com.revolo.lock.ble.BleCommandState.WIFI_CONTROL_OPEN;
 import static com.revolo.lock.ble.BleProtocolState.CMD_DURESS_PWD_SWITCH;
+import static com.revolo.lock.ble.BleProtocolState.CMD_WIFI_SWITCH;
 
 /**
  * author : Jack
@@ -431,7 +432,7 @@ public class WifiSettingActivity extends BaseActivity {
     };
 
     private void processBleResult(BleResultBean bean) {
-        if(bean.getCMD() == CMD_DURESS_PWD_SWITCH) {
+        if(bean.getCMD() == CMD_WIFI_SWITCH) {
             processWifiSwitch(bean);
         }
     }

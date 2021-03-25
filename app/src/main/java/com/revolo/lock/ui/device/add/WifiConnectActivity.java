@@ -166,29 +166,42 @@ public class WifiConnectActivity extends BaseActivity {
             writeWifiPwd();
         } else if(bleResultBean.getCMD() == BleProtocolState.CMD_UPLOAD_PAIR_NETWORK_STATE) {
             if(bleResultBean.getPayload()[0] == 0x00) {
-                // 配网成功
+                // 连接wifi成功
+                changeValue(80);
+            } else if(bleResultBean.getPayload()[0] == 0x01) {
+                // 配网失败
+                gotoWifiPairFail();
+            }
+        } else if(bleResultBean.getCMD() == BleProtocolState.CMD_BLE_UPLOAD_PAIR_NETWORK_STATE) {
+            // 连接MQTT成功
+            if(bleResultBean.getPayload()[0] == 0x00) {
+                // 连接wifi成功
                 changeValue(100);
-                startActivity(new Intent(this, AddWifiSucActivity.class));
                 App.getInstance().removeConnectedBleBeanAndDisconnect(mBleBean);
                 // 设置为wifi模式
                 mBleDeviceLocal.setConnectedType(LocalState.DEVICE_CONNECT_TYPE_WIFI);
                 mBleDeviceLocal.setConnectedWifiName(mWifiName);
                 AppDatabase.getInstance(this).bleDeviceDao().update(mBleDeviceLocal);
-                runOnUiThread(() -> new Handler(Looper.getMainLooper()).postDelayed(this::finish, 50));
+                runOnUiThread(() -> new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                    startActivity(new Intent(WifiConnectActivity.this, AddWifiSucActivity.class));
+                    finish();
+                }, 50));
             } else if(bleResultBean.getPayload()[0] == 0x01) {
                 // 配网失败
-                Intent intent = new Intent(this, AddWifiFailActivity.class);
-                intent.putExtra(Constant.WIFI_NAME, mWifiName);
-                intent.putExtra(Constant.WIFI_PWD, mWifiPwd);
-                startActivity(intent);
-                finish();
-            } else {
-                // TODO: 2021/1/22 其他流程
+                gotoWifiPairFail();
             }
         } else {
             // TODO: 2021/1/22 走其他流程
         }
     };
+
+    private void gotoWifiPairFail() {
+        Intent intent = new Intent(this, AddWifiFailActivity.class);
+        intent.putExtra(Constant.WIFI_NAME, mWifiName);
+        intent.putExtra(Constant.WIFI_PWD, mWifiPwd);
+        startActivity(intent);
+        finish();
+    }
 
     private void changeValue(int value) {
         runOnUiThread(() -> mWifiCircleProgress.setValue(value));
