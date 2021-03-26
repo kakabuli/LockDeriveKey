@@ -26,8 +26,8 @@ public class LocalState {
 
     @IntDef(value = {VOLUME_STATE_OPEN, VOLUME_STATE_MUTE})
     public @interface VolumeState{}
-    public static final int VOLUME_STATE_OPEN = 0;
-    public static final int VOLUME_STATE_MUTE = 1;
+    public static final int VOLUME_STATE_OPEN = 1;
+    public static final int VOLUME_STATE_MUTE = 0;
 
     @IntDef(value = {DURESS_STATE_OPEN, DURESS_STATE_CLOSE})
     public @interface DuressState{}

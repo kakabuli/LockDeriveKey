@@ -20,6 +20,7 @@ import com.revolo.lock.bean.request.DelKeyBeanReq;
 import com.revolo.lock.bean.request.DelSharedUserBeanReq;
 import com.revolo.lock.bean.request.DeviceUnbindBeanReq;
 import com.revolo.lock.bean.request.EnableSharedUserBeanReq;
+import com.revolo.lock.bean.request.FeedBackBeanReq;
 import com.revolo.lock.bean.request.ForgotPwdBeanReq;
 import com.revolo.lock.bean.request.GainKeyBeanReq;
 import com.revolo.lock.bean.request.GetAllSharedUserFromAdminUserBeanReq;
@@ -65,6 +66,7 @@ import com.revolo.lock.bean.respone.DelKeyBeanRsp;
 import com.revolo.lock.bean.respone.DelSharedUserBeanRsp;
 import com.revolo.lock.bean.respone.DeviceUnbindBeanRsp;
 import com.revolo.lock.bean.respone.EnableSharedUserBeanRsp;
+import com.revolo.lock.bean.respone.FeedBackBeanRsp;
 import com.revolo.lock.bean.respone.ForgotPwdRsp;
 import com.revolo.lock.bean.respone.GainKeyBeanRsp;
 import com.revolo.lock.bean.respone.GetAllSharedUserFromAdminUserBeanRsp;
@@ -114,17 +116,19 @@ import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
+import retrofit2.http.Body;
+import retrofit2.http.Header;
 
 public class HttpRequest {
 
     private final ApiService service;
 
-    private static final String HOST_TEST = "https://test1.juziwulian.com:8090";      // 国内服务器测试接口
-    private static final String ABROAD_HOST = "https://test.irevolo.com:8090";        // 海外服务器测试接口
+    private static final String HOST_TEST = "https://internal.irevolo.com:8090";                    // 国内服务器测试接口
+    private static final String ABROAD_HOST = "https://test.irevolo.com:8090";                      // 海外服务器测试接口
     public static final String HOST = ABROAD_HOST;
-    private static final String CHECK_OTA_HOST_TEST = "https://test1.juziwulian.com:9111";
-    private static final String CHECK_OTA_HOST_ABROAD = "https://ota-global.juziwulian.com:9111";
-    public static final String CHECK_OTA_HOST =  CHECK_OTA_HOST_ABROAD;
+    private static final String CHECK_OTA_HOST_TEST = "https://test1.juziwulian.com:9111";          // 国内服务器测试接口
+    private static final String CHECK_OTA_HOST_ABROAD = "https://ota-global.juziwulian.com:9111";   // 海外服务器接口
+    public static final String CHECK_OTA_HOST = CHECK_OTA_HOST_ABROAD;
     
 
   private static HttpRequest ourInstance;
@@ -386,5 +390,9 @@ public class HttpRequest {
     public Observable<UpdateLockRecordBeanRsp> updateLockRecordList(String token, UpdateLockRecordBeanReq req) {
         return service.updateLockRecordList(token, req, NORMAL);
     }
+
+    public Observable<FeedBackBeanRsp> feedback(String token, FeedBackBeanReq req) {
+        return service.feedback(token, req, NORMAL);
+    };
 
 }

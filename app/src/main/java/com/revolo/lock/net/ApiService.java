@@ -18,6 +18,7 @@ import com.revolo.lock.bean.request.DelKeyBeanReq;
 import com.revolo.lock.bean.request.DelSharedUserBeanReq;
 import com.revolo.lock.bean.request.DeviceUnbindBeanReq;
 import com.revolo.lock.bean.request.EnableSharedUserBeanReq;
+import com.revolo.lock.bean.request.FeedBackBeanReq;
 import com.revolo.lock.bean.request.ForgotPwdBeanReq;
 import com.revolo.lock.bean.request.GainKeyBeanReq;
 import com.revolo.lock.bean.request.GetAllSharedUserFromAdminUserBeanReq;
@@ -63,6 +64,7 @@ import com.revolo.lock.bean.respone.DelKeyBeanRsp;
 import com.revolo.lock.bean.respone.DelSharedUserBeanRsp;
 import com.revolo.lock.bean.respone.DeviceUnbindBeanRsp;
 import com.revolo.lock.bean.respone.EnableSharedUserBeanRsp;
+import com.revolo.lock.bean.respone.FeedBackBeanRsp;
 import com.revolo.lock.bean.respone.ForgotPwdRsp;
 import com.revolo.lock.bean.respone.GainKeyBeanRsp;
 import com.revolo.lock.bean.respone.GetAllSharedUserFromAdminUserBeanRsp;
@@ -98,14 +100,12 @@ import java.util.Map;
 
 import io.reactivex.Observable;
 import okhttp3.MultipartBody;
-import okhttp3.RequestBody;
 import retrofit2.http.Body;
 import retrofit2.http.Header;
 import retrofit2.http.Headers;
 import retrofit2.http.Multipart;
 import retrofit2.http.POST;
 import retrofit2.http.Part;
-import retrofit2.http.PartMap;
 
 public interface ApiService {
 
@@ -297,5 +297,9 @@ public interface ApiService {
     @Headers({"Content-Type: application/json"})
     @POST("/wpflock/device/uploadOperationList")
     Observable<UpdateLockRecordBeanRsp> updateLockRecordList(@Header("token") String token, @Body UpdateLockRecordBeanReq req, @Header("url_name") String  urlName);
+
+    @Headers({"Content-Type: application/json"})
+    @POST("/suggest/putmsg")
+    Observable<FeedBackBeanRsp> feedback(@Header("token") String token, @Body FeedBackBeanReq req, @Header("url_name") String  urlName);
 
 }

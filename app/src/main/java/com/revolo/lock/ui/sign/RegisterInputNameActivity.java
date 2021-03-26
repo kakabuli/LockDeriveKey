@@ -2,6 +2,8 @@ package com.revolo.lock.ui.sign;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.EditText;
@@ -17,6 +19,9 @@ import com.revolo.lock.bean.request.UpdateUserFirstLastNameBeanReq;
 import com.revolo.lock.bean.respone.UpdateUserFirstLastNameBeanRsp;
 import com.revolo.lock.net.HttpRequest;
 import com.revolo.lock.net.ObservableDecorator;
+import com.revolo.lock.room.AppDatabase;
+
+import org.jetbrains.annotations.NotNull;
 
 import io.reactivex.Observable;
 import io.reactivex.Observer;
@@ -114,9 +119,12 @@ public class RegisterInputNameActivity extends BaseActivity {
                     }
                     return;
                 }
-                Intent intent = new Intent(RegisterInputNameActivity.this, RegisterAddAvatarActivity.class);
-                startActivity(intent);
-                finish();
+                saveNameToLocal(firstName, lastName);
+                new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                    Intent intent = new Intent(RegisterInputNameActivity.this, RegisterAddAvatarActivity.class);
+                    startActivity(intent);
+                    finish();
+                }, 50);
             }
 
             @Override
@@ -130,6 +138,19 @@ public class RegisterInputNameActivity extends BaseActivity {
 
             }
         });
+    }
+
+    private void saveNameToLocal(@NotNull String firstName, @NotNull String lastName) {
+        if(App.getInstance().getUserBean() == null) {
+            return;
+        }
+        App.getInstance().getUserBean().setFirstName(firstName);
+        App.getInstance().getUserBean().setLastName(lastName);
+        if(App.getInstance().getUser() != null) {
+            App.getInstance().getUser().setFirstName(firstName);
+            App.getInstance().getUser().setLastName(lastName);
+            AppDatabase.getInstance(this).userDao().update(App.getInstance().getUser());
+        }
     }
 
 }

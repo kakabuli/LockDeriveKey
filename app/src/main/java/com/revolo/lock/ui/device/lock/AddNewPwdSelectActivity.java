@@ -624,14 +624,18 @@ public class AddNewPwdSelectActivity extends BaseActivity {
             dialog.setMessage(getString(R.string.dialog_tip_password_added));
             dialog.setOnListener(v -> {
                 // 不销毁会导致内存泄漏
-                dialog.dismiss();
+                if(dialog != null) {
+                    dialog.dismiss();
+                }
                 App.getInstance().addWillFinishAct(this);
                 Intent intent = new Intent(AddNewPwdSelectActivity.this, AddNewPwdNameActivity.class);
                 intent.putExtra(Constant.PWD_ID, id);
                 intent.putExtra(Constant.LOCK_ESN, mBleDeviceLocal.getEsn());
                 startActivity(intent);
             });
-            dialog.show();
+            if(dialog != null) {
+                dialog.show();
+            }
         });
     }
 
@@ -646,11 +650,16 @@ public class AddNewPwdSelectActivity extends BaseActivity {
     }
 
     private void publishAddPwd(String wifiId, String key) {
+        String uid = App.getInstance().getUserBean().getUid();
+        if(TextUtils.isEmpty(uid)) {
+            Timber.e("publishAddPwd uid is empty");
+            return;
+        }
         WifiLockAddPwdPublishBean.ParamsBean paramsBean = new WifiLockAddPwdPublishBean.ParamsBean();
         paramsBean.setKey(key);
         // TODO: 2021/3/17 后期修改密钥属性
         paramsBean.setKeyType(0);
-        App.getInstance().getMqttService().mqttPublish(MqttConstant.getCallTopic(App.getInstance().getUserBean().getUid()),
+        App.getInstance().getMqttService().mqttPublish(MqttConstant.getCallTopic(uid),
                 MqttCommandFactory.addPwd(
                         wifiId,
                         paramsBean,
