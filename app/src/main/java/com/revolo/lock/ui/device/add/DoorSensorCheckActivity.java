@@ -2,6 +2,8 @@ package com.revolo.lock.ui.device.add;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
@@ -16,6 +18,7 @@ import com.blankj.utilcode.util.ConvertUtils;
 import com.blankj.utilcode.util.GsonUtils;
 import com.google.gson.JsonSyntaxException;
 import com.revolo.lock.App;
+import com.revolo.lock.Constant;
 import com.revolo.lock.LocalState;
 import com.revolo.lock.R;
 import com.revolo.lock.base.BaseActivity;
@@ -56,6 +59,7 @@ public class DoorSensorCheckActivity extends BaseActivity {
     private TextView mTvTip, mTvSkip, mTvStep;
     private Button mBtnNext;
     private BleDeviceLocal mBleDeviceLocal;
+    private boolean isGoToAddWifi = true;
 
     @IntDef(value = {DOOR_OPEN, DOOR_CLOSE, DOOR_HALF, DOOR_SUC, DOOR_FAIL, DOOR_OPEN_AGAIN})
     private @interface DoorState{}
@@ -74,6 +78,10 @@ public class DoorSensorCheckActivity extends BaseActivity {
 
     @Override
     public void initData(@Nullable Bundle bundle) {
+        Intent intent = getIntent();
+        if(intent.hasExtra(Constant.IS_GO_TO_ADD_WIFI)) {
+            isGoToAddWifi = intent.getBooleanExtra(Constant.IS_GO_TO_ADD_WIFI, true);
+        }
         mBleDeviceLocal = App.getInstance().getBleDeviceLocal();
         if(mBleDeviceLocal == null) {
             finish();
@@ -179,9 +187,12 @@ public class DoorSensorCheckActivity extends BaseActivity {
 
     private void gotoAddWifi() {
         mBleDeviceLocal.setOpenDoorSensor(true);
-        Intent intent = new Intent(this, AddWifiActivity.class);
-        startActivity(intent);
-        finish();
+        AppDatabase.getInstance(this).bleDeviceDao().update(mBleDeviceLocal);
+        new Handler(Looper.getMainLooper()).postDelayed(() -> {
+            Intent intent = new Intent(DoorSensorCheckActivity.this, AddWifiActivity.class);
+            startActivity(intent);
+            finish();
+        }, 50);
     }
 
     private boolean isOpenAgain = false;
@@ -241,6 +252,11 @@ public class DoorSensorCheckActivity extends BaseActivity {
                     break;
                 case DOOR_HALF:
                     refreshDoorSuc();
+                    if(!isGoToAddWifi) {
+                        mBleDeviceLocal.setOpenDoorSensor(true);
+                        AppDatabase.getInstance(this).bleDeviceDao().update(mBleDeviceLocal);
+                        new Handler(Looper.getMainLooper()).postDelayed(this::finish, 50);
+                    }
                     break;
                 case DOOR_SUC:
                     gotoAddWifi();
@@ -252,6 +268,8 @@ public class DoorSensorCheckActivity extends BaseActivity {
     }
 
     /*---------------------------------- MQTT ----------------------------------*/
+
+    private int mLastMsgId = -1;
 
     public void publishSetMagnetic(String wifiID, @BleCommandState.DoorCalibrationState int mode) {
         showLoading();
@@ -287,6 +305,11 @@ public class DoorSensorCheckActivity extends BaseActivity {
                         Timber.e("bean == null");
                         return;
                     }
+                    if(bean.getMsgId() == mLastMsgId) {
+                        Timber.e("过滤重复数据ID， msgId: %1d, lastMsgId: %2d", bean.getMsgId(), mLastMsgId);
+                        return;
+                    }
+                    mLastMsgId = bean.getMsgId();
                     if(bean.getParams() == null) {
                         Timber.e("bean.getParams() == null");
                         return;
@@ -296,7 +319,7 @@ public class DoorSensorCheckActivity extends BaseActivity {
                         return;
                     }
                     // 排除掉第一次发送禁用门磁指令的状态反馈
-                    if(mCalibrationState == BleCommandState.DOOR_CALIBRATION_STATE_CLOSE_SE) {
+                    if(bean.getParams().getMode() == BleCommandState.DOOR_CALIBRATION_STATE_CLOSE_SE) {
                         return;
                     }
                     saveDoorSensorStateToLocal(mode);

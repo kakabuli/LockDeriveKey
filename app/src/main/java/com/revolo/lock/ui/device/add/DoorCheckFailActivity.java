@@ -7,6 +7,7 @@ import android.view.View;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.revolo.lock.Constant;
 import com.revolo.lock.R;
 import com.revolo.lock.base.BaseActivity;
 
@@ -42,12 +43,12 @@ public class DoorCheckFailActivity extends BaseActivity {
     @Override
     public void onDebouncingClick(@NonNull View view) {
         if(view.getId() == R.id.btnCancel) {
-            startActivity(new Intent(this, DoorSensorCheckActivity.class));
             finish();
             return;
         }
         if(view.getId() == R.id.btnTryAgain) {
             Intent intent = new Intent(this, DoorSensorCheckActivity.class);
+            intent.putExtra(Constant.IS_GO_TO_ADD_WIFI, true);
             startActivity(intent);
             finish();
         }

@@ -81,9 +81,11 @@ public class DoorMagnetAlignmentActivity extends BaseActivity {
     }
 
     private void refreshDoorMagneticEnableState() {
-        runOnUiThread(() -> mIvDoorMagneticEnable
-                .setImageResource(mBleDeviceLocal.isOpenDoorSensor()
-                        ?R.drawable.ic_icon_switch_open:R.drawable.ic_icon_switch_close));
+        runOnUiThread(() -> {
+            mIvDoorMagneticEnable.setImageResource(
+                    mBleDeviceLocal.isOpenDoorSensor()?R.drawable.ic_icon_switch_open:R.drawable.ic_icon_switch_close);
+            mClTip.setVisibility(mBleDeviceLocal.isOpenDoorSensor()?View.VISIBLE:View.GONE);
+        });
     }
 
     @Override
@@ -120,7 +122,7 @@ public class DoorMagnetAlignmentActivity extends BaseActivity {
 
     private void gotoDoorSensorCheckAct() {
         Intent intent = new Intent(this, DoorSensorCheckActivity.class);
-        intent.putExtra(Constant.DEVICE_ID, mBleDeviceLocal.getId());
+        intent.putExtra(Constant.IS_GO_TO_ADD_WIFI, false);
         startActivity(intent);
         finish();
     }

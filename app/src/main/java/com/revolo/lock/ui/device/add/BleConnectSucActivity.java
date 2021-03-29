@@ -9,6 +9,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.blankj.utilcode.util.ActivityUtils;
+import com.revolo.lock.Constant;
 import com.revolo.lock.R;
 import com.revolo.lock.base.BaseActivity;
 
@@ -47,6 +48,7 @@ public class BleConnectSucActivity extends BaseActivity {
     public void onDebouncingClick(@NonNull View view) {
         if(view.getId() == R.id.btnAddWifi) {
             Intent intent = new Intent(this, DoorSensorCheckActivity.class);
+            intent.putExtra(Constant.IS_GO_TO_ADD_WIFI, true);
             startActivity(intent);
             finish();
         }
