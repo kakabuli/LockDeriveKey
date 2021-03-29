@@ -60,13 +60,7 @@ public class DoorMagnetAlignmentActivity extends BaseActivity {
 
     @Override
     public void initData(@Nullable Bundle bundle) {
-        Intent intent = getIntent();
-        if(!intent.hasExtra(Constant.BLE_DEVICE)) {
-            // TODO: 2021/2/22 处理
-            finish();
-            return;
-        }
-        mBleDeviceLocal = intent.getParcelableExtra(Constant.BLE_DEVICE);
+        mBleDeviceLocal = App.getInstance().getBleDeviceLocal();
         if(mBleDeviceLocal == null) {
             finish();
         }

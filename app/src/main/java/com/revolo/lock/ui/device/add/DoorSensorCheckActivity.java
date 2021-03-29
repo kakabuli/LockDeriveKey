@@ -16,7 +16,6 @@ import com.blankj.utilcode.util.ConvertUtils;
 import com.blankj.utilcode.util.GsonUtils;
 import com.google.gson.JsonSyntaxException;
 import com.revolo.lock.App;
-import com.revolo.lock.Constant;
 import com.revolo.lock.LocalState;
 import com.revolo.lock.R;
 import com.revolo.lock.base.BaseActivity;
@@ -73,19 +72,9 @@ public class DoorSensorCheckActivity extends BaseActivity {
     @DoorState
     private int mDoorState = DOOR_OPEN;
 
-    private long mDeviceId = -1L;
-
     @Override
     public void initData(@Nullable Bundle bundle) {
-        Intent intent = getIntent();
-        if(intent.hasExtra(Constant.DEVICE_ID)) {
-            mDeviceId = intent.getLongExtra(Constant.DEVICE_ID, -1L);
-        }
-        if(mDeviceId == -1L) {
-            // TODO: 2021/2/22 做处理
-            finish();
-        }
-        mBleDeviceLocal = AppDatabase.getInstance(this).bleDeviceDao().findBleDeviceFromId(mDeviceId);
+        mBleDeviceLocal = App.getInstance().getBleDeviceLocal();
         if(mBleDeviceLocal == null) {
             finish();
         }
@@ -191,7 +180,6 @@ public class DoorSensorCheckActivity extends BaseActivity {
     private void gotoAddWifi() {
         mBleDeviceLocal.setOpenDoorSensor(true);
         Intent intent = new Intent(this, AddWifiActivity.class);
-        intent.putExtra(Constant.DEVICE_ID, mDeviceId);
         startActivity(intent);
         finish();
     }
@@ -452,7 +440,6 @@ public class DoorSensorCheckActivity extends BaseActivity {
     private void gotoFailAct() {
         mDoorState = DOOR_FAIL;
         Intent intent = new Intent(this, DoorCheckFailActivity.class);
-        intent.putExtra(Constant.DEVICE_ID, mDeviceId);
         startActivity(intent);
         finish();
     }

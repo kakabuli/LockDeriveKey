@@ -57,6 +57,16 @@ public abstract class BaseActivity extends AppCompatActivity
     }
 
     @Override
+    protected void onDestroy() {
+        if(mLoadingDialog != null) {
+            if(mLoadingDialog.isShowing()) {
+                dismissLoading();
+            }
+        }
+        super.onDestroy();
+    }
+
+    @Override
     public void setContentView() {
         if (bindLayout() <= 0) return;
         mContentView = LayoutInflater.from(this).inflate(bindLayout(), null);

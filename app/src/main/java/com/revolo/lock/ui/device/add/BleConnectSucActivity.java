@@ -9,7 +9,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.blankj.utilcode.util.ActivityUtils;
-import com.revolo.lock.Constant;
 import com.revolo.lock.R;
 import com.revolo.lock.base.BaseActivity;
 
@@ -23,18 +22,9 @@ import java.util.List;
  */
 public class BleConnectSucActivity extends BaseActivity {
 
-    private long mDeviceId;
-
     @Override
     public void initData(@Nullable Bundle bundle) {
-        Intent intent = getIntent();
-        if(intent.hasExtra(Constant.DEVICE_ID)) {
-            mDeviceId = intent.getLongExtra(Constant.DEVICE_ID, -1L);
-        }
-        if(mDeviceId == -1) {
-            // TODO: 2021/2/22 做处理
-            finish();
-        }
+
     }
 
     @Override
@@ -57,7 +47,6 @@ public class BleConnectSucActivity extends BaseActivity {
     public void onDebouncingClick(@NonNull View view) {
         if(view.getId() == R.id.btnAddWifi) {
             Intent intent = new Intent(this, DoorSensorCheckActivity.class);
-            intent.putExtra(Constant.DEVICE_ID, mDeviceId);
             startActivity(intent);
             finish();
         }

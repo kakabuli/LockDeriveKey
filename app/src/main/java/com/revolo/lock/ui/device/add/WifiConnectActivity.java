@@ -61,11 +61,7 @@ public class WifiConnectActivity extends BaseActivity {
             finish();
             return;
         }
-        if(!intent.hasExtra(Constant.BLE_DEVICE)) {
-            finish();
-            return;
-        }
-        mBleDeviceLocal = intent.getParcelableExtra(Constant.BLE_DEVICE);
+        mBleDeviceLocal = App.getInstance().getBleDeviceLocal();
         if(mBleDeviceLocal == null) {
             finish();
             return;

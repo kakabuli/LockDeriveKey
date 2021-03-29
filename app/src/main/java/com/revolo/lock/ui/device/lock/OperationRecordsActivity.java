@@ -1,7 +1,6 @@
 package com.revolo.lock.ui.device.lock;
 
 import android.app.DatePickerDialog;
-import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
@@ -16,7 +15,6 @@ import com.blankj.utilcode.util.ThreadUtils;
 import com.blankj.utilcode.util.TimeUtils;
 import com.blankj.utilcode.util.ToastUtils;
 import com.revolo.lock.App;
-import com.revolo.lock.Constant;
 import com.revolo.lock.LocalState;
 import com.revolo.lock.R;
 
@@ -71,7 +69,6 @@ public class OperationRecordsActivity extends BaseActivity {
 
     private OpRecordsAdapter mOpRecordsAdapter;
     private BleBean mBleBean;
-    private long mDeviceId;
     private LinearLayout mllNoRecord;
     private ExpandableListView mElOperationRecords;
     private BleDeviceLocal mBleDeviceLocal;
@@ -82,23 +79,14 @@ public class OperationRecordsActivity extends BaseActivity {
 
     @Override
     public void initData(@Nullable Bundle bundle) {
-        Intent intent = getIntent();
-        if(intent.hasExtra(Constant.DEVICE_ID)) {
-            mDeviceId = intent.getLongExtra(Constant.DEVICE_ID, -1L);
-            Timber.d("initData Device Id: %1d", mDeviceId);
-        }
-        if(mDeviceId == -1L) {
-            // TODO: 2021/2/24 处理异常情况
-            finish();
-        }
-        mBleDeviceLocal = AppDatabase.getInstance(this).bleDeviceDao().findBleDeviceFromId(mDeviceId);
+        mBleDeviceLocal = App.getInstance().getBleDeviceLocal();
         if(mBleDeviceLocal == null) {
             finish();
         }
         mBleBean = App.getInstance().getBleBeanFromMac(mBleDeviceLocal.getMac());
-        if(mBleBean == null) {
-            finish();
-        }
+//        if(mBleBean == null) {
+//            finish();
+//        }
     }
 
     @Override
@@ -277,7 +265,7 @@ public class OperationRecordsActivity extends BaseActivity {
             }
         }
         LockRecord lockRecord = new LockRecord();
-        lockRecord.setDeviceId(mDeviceId);
+        lockRecord.setDeviceId(mBleDeviceLocal.getId());
         lockRecord.setAppId(appId);
         lockRecord.setUserId(userId);
         lockRecord.setCreateTime(realTime);
@@ -319,7 +307,7 @@ public class OperationRecordsActivity extends BaseActivity {
         List<LockRecord> lockRecords = AppDatabase
                 .getInstance(this)
                 .lockRecordDao()
-                .findLockRecordsFromDeviceId(mDeviceId, num, page);
+                .findLockRecordsFromDeviceId(mBleDeviceLocal.getId(), num, page);
         if(lockRecords == null) {
             return;
         }
@@ -338,7 +326,7 @@ public class OperationRecordsActivity extends BaseActivity {
         List<LockRecord> lockRecords = AppDatabase
                 .getInstance(this)
                 .lockRecordDao()
-                .findLockRecordsFromDeviceId(mDeviceId);
+                .findLockRecordsFromDeviceId(mBleDeviceLocal.getId());
         if(lockRecords == null) {
             return;
         }
@@ -446,7 +434,7 @@ public class OperationRecordsActivity extends BaseActivity {
                 lockRecord.setEventCode(bean.getEventCode());
                 lockRecord.setCreateTime(bean.getTimesTamp());
                 lockRecord.setAppId(bean.getAppId());
-                lockRecord.setDeviceId(mDeviceId);
+                lockRecord.setDeviceId(mBleDeviceLocal.getId());
                 list.add(lockRecord);
             }
             AppDatabase.getInstance(this).lockRecordDao().insert(list);
@@ -757,7 +745,7 @@ public class OperationRecordsActivity extends BaseActivity {
         List<LockRecord> lockRecords = AppDatabase
                 .getInstance(OperationRecordsActivity.this)
                 .lockRecordDao()
-                .findLockRecordsFromDeviceIdAndDay(mDeviceId, startTime/1000, endTime/1000);
+                .findLockRecordsFromDeviceIdAndDay(mBleDeviceLocal.getId(), startTime/1000, endTime/1000);
         Timber.d("showDatePicker startDate 选择的日期%1s, startTime：%2d, endTime: %3d",date, startTime, endTime);
 //        mLockRecords.clear();
 //        if(lockRecords == null || lockRecords.isEmpty()) {

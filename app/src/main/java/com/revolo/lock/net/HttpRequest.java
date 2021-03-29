@@ -100,9 +100,7 @@ import com.revolo.lock.bean.respone.UploadUserAvatarBeanRsp;
 import java.io.File;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import javax.net.ssl.X509TrustManager;
@@ -116,8 +114,6 @@ import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
-import retrofit2.http.Body;
-import retrofit2.http.Header;
 
 public class HttpRequest {
 
@@ -125,10 +121,10 @@ public class HttpRequest {
 
     private static final String HOST_TEST = "https://internal.irevolo.com:8090";                    // 国内服务器测试接口
     private static final String ABROAD_HOST = "https://test.irevolo.com:8090";                      // 海外服务器测试接口
-    public static final String HOST = ABROAD_HOST;
+    public static final String HOST = HOST_TEST;
     private static final String CHECK_OTA_HOST_TEST = "https://test1.juziwulian.com:9111";          // 国内服务器测试接口
     private static final String CHECK_OTA_HOST_ABROAD = "https://ota-global.juziwulian.com:9111";   // 海外服务器接口
-    public static final String CHECK_OTA_HOST = CHECK_OTA_HOST_ABROAD;
+    public static final String CHECK_OTA_HOST = CHECK_OTA_HOST_TEST;
     
 
   private static HttpRequest ourInstance;

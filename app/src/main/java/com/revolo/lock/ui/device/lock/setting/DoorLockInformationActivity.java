@@ -81,12 +81,7 @@ public class DoorLockInformationActivity extends BaseActivity {
             // TODO: 2021/2/6 提示没从上一个页面传递数据过来
             finish();
         }
-        if(!intent.hasExtra(Constant.BLE_DEVICE)) {
-            // TODO: 2021/2/22 处理
-            finish();
-            return;
-        }
-        mBleDeviceLocal = intent.getParcelableExtra(Constant.BLE_DEVICE);
+        mBleDeviceLocal = App.getInstance().getBleDeviceLocal();
         if(mBleDeviceLocal == null) {
             finish();
         }

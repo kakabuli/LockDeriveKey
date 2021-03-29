@@ -59,9 +59,7 @@ public class SharedUserDetailActivity extends BaseActivity {
             finish();
             return;
         }
-        if(intent.hasExtra(Constant.LOCK_DETAIL)) {
-            mBleDeviceLocal = intent.getParcelableExtra(Constant.LOCK_DETAIL);
-        }
+        mBleDeviceLocal = App.getInstance().getBleDeviceLocal();
         // TODO: 2021/3/8 处理
         if(mBleDeviceLocal == null) {
             finish();

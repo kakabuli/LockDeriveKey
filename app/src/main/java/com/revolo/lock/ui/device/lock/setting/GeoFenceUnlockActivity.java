@@ -27,7 +27,6 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.gson.JsonSyntaxException;
 import com.revolo.lock.App;
-import com.revolo.lock.Constant;
 import com.revolo.lock.LocalState;
 import com.revolo.lock.R;
 import com.revolo.lock.base.BaseActivity;
@@ -81,13 +80,7 @@ public class GeoFenceUnlockActivity extends BaseActivity implements OnMapReadyCa
 
     @Override
     public void initData(@Nullable Bundle bundle) {
-        Intent intent = getIntent();
-        if(!intent.hasExtra(Constant.BLE_DEVICE)) {
-            // TODO: 2021/2/22 处理
-            finish();
-            return;
-        }
-        mBleDeviceLocal = intent.getParcelableExtra(Constant.BLE_DEVICE);
+        mBleDeviceLocal = App.getInstance().getBleDeviceLocal();
         if(mBleDeviceLocal == null) {
             finish();
         }

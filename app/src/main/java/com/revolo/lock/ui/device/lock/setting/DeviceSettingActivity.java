@@ -77,9 +77,7 @@ public class DeviceSettingActivity extends BaseActivity {
             // TODO: 2021/2/6 提示没从上一个页面传递数据过来
             finish();
         }
-        if(intent.hasExtra(Constant.LOCK_DETAIL)) {
-            mBleDeviceLocal = intent.getParcelableExtra(Constant.LOCK_DETAIL);
-        }
+        mBleDeviceLocal = App.getInstance().getBleDeviceLocal();
         if(mBleDeviceLocal == null) {
             // TODO: 2021/2/22 传递数据为空的处理
             finish();
@@ -128,19 +126,16 @@ public class DeviceSettingActivity extends BaseActivity {
     public void onDebouncingClick(@NonNull View view) {
         if(view.getId() == R.id.tvName) {
             Intent intent = new Intent(this, ChangeLockNameActivity.class);
-            intent.putExtra(Constant.BLE_DEVICE, mBleDeviceLocal);
             startActivity(intent);
             return;
         }
         if(view.getId() == R.id.clWifi) {
             Intent intent = new Intent(this, WifiSettingActivity.class);
-            intent.putExtra(Constant.BLE_DEVICE, mBleDeviceLocal);
             startActivity(intent);
             return;
         }
         if(view.getId() == R.id.clAutoLock) {
             Intent intent = new Intent(this, AutoLockActivity.class);
-            intent.putExtra(Constant.BLE_DEVICE, mBleDeviceLocal);
             startActivity(intent);
             return;
         }
@@ -150,26 +145,22 @@ public class DeviceSettingActivity extends BaseActivity {
         }
         if(view.getId() == R.id.clDuressCode) {
             Intent intent = new Intent(this, DuressCodeActivity.class);
-            intent.putExtra(Constant.BLE_DEVICE, mBleDeviceLocal);
             startActivity(intent);
             return;
         }
         if(view.getId() == R.id.clDoorLockInformation) {
             Intent intent = new Intent(this, DoorLockInformationActivity.class);
             intent.putExtra(Constant.UNBIND_REQ, mReq);
-            intent.putExtra(Constant.BLE_DEVICE, mBleDeviceLocal);
             startActivity(intent);
             return;
         }
         if(view.getId() == R.id.clGeoFenceLock) {
             Intent intent = new Intent(this, GeoFenceUnlockActivity.class);
-            intent.putExtra(Constant.BLE_DEVICE, mBleDeviceLocal);
             startActivity(intent);
             return;
         }
         if(view.getId() == R.id.clDoorMagneticSwitch) {
             Intent intent = new Intent(this, DoorMagnetAlignmentActivity.class);
-            intent.putExtra(Constant.BLE_DEVICE, mBleDeviceLocal);
             startActivity(intent);
             return;
         }

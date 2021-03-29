@@ -95,7 +95,7 @@ public class DeviceFragment extends Fragment {
                     if(position < 0 || position >= adapter.getData().size()) return;
                     BleDeviceLocal deviceLocal = (BleDeviceLocal) adapter.getItem(position);
                     Intent intent = new Intent(getContext(), DeviceDetailActivity.class);
-                    intent.putExtra(Constant.LOCK_DETAIL, deviceLocal);
+                    App.getInstance().setBleDeviceLocal(deviceLocal);
                     startActivity(intent);
                 }
             });
@@ -519,7 +519,9 @@ public class DeviceFragment extends Fragment {
      * @param wifiId wifi的id
      * @param doorOpt 1:表示开门，0表示关门
      */
-    public void publishOpenOrCloseDoor(String wifiId, @LocalState.DoorState int doorOpt, BleDeviceLocal bleDeviceLocal) {
+    public void publishOpenOrCloseDoor(String wifiId,
+                                       @LocalState.DoorState int doorOpt,
+                                       BleDeviceLocal bleDeviceLocal) {
         if(App.getInstance().getUserBean() == null) {
             Timber.e("publishOpenOrCloseDoor App.getInstance().getUserBean() == null");
             return;

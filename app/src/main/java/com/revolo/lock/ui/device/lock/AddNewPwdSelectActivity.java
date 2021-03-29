@@ -109,7 +109,6 @@ public class AddNewPwdSelectActivity extends BaseActivity {
     @AttributeState
     private int mSelectedPwdState = PERMANENT_STATE;
 
-    private long mDeviceId;
     private BleDeviceLocal mBleDeviceLocal;
 
     @Override
@@ -118,14 +117,7 @@ public class AddNewPwdSelectActivity extends BaseActivity {
         if(intent.hasExtra(Constant.USER_PWD)) {
             mKey = intent.getStringExtra(Constant.USER_PWD);
         }
-        if(intent.hasExtra(Constant.DEVICE_ID)) {
-            mDeviceId = intent.getLongExtra(Constant.DEVICE_ID, -1L);
-        }
-        if(mDeviceId == -1) {
-            // TODO: 2021/2/21 或者有其他方法
-            finish();
-        }
-        mBleDeviceLocal = AppDatabase.getInstance(this).bleDeviceDao().findBleDeviceFromId(mDeviceId);
+        mBleDeviceLocal = App.getInstance().getBleDeviceLocal();
         if(mBleDeviceLocal == null) {
             // TODO: 2021/2/21 或者有其他方法
             finish();
@@ -516,7 +508,7 @@ public class AddNewPwdSelectActivity extends BaseActivity {
         mDevicePwd.setPwdNum(mNum);
         // 使用秒存储，所以除以1000
         mDevicePwd.setCreateTime(TimeUtils.getNowMills()/1000);
-        mDevicePwd.setDeviceId(mDeviceId);
+        mDevicePwd.setDeviceId(mBleDeviceLocal.getId());
         mDevicePwd.setAttribute(BleCommandState.KEY_SET_ATTRIBUTE_ALWAYS);
         if(mSelectedPwdState == PERMANENT_STATE) {
             savePwdToService(mDevicePwd);
@@ -705,7 +697,7 @@ public class AddNewPwdSelectActivity extends BaseActivity {
                     mDevicePwd.setPwdNum(mNum);
                     // 使用秒存储，所以除以1000
                     mDevicePwd.setCreateTime(TimeUtils.getNowMills()/1000);
-                    mDevicePwd.setDeviceId(mDeviceId);
+                    mDevicePwd.setDeviceId(mBleDeviceLocal.getId());
                     mDevicePwd.setAttribute(BleCommandState.KEY_SET_ATTRIBUTE_ALWAYS);
                     if(mSelectedPwdState == PERMANENT_STATE) {
                         savePwdToService(mDevicePwd);

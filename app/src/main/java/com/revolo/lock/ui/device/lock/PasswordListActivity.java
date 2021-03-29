@@ -63,31 +63,12 @@ import static com.revolo.lock.ble.BleProtocolState.CMD_SY_KEY_STATE;
 public class PasswordListActivity extends BaseActivity {
 
     private PasswordListAdapter mPasswordListAdapter;
-    private long mDeviceId;
     private BleDeviceLocal mBleDeviceLocal;
-    private String mESN;
 
     @Override
     public void initData(@Nullable Bundle bundle) {
-        Intent intent = getIntent();
-        if(intent.hasExtra(Constant.DEVICE_ID)) {
-            mDeviceId = intent.getLongExtra(Constant.DEVICE_ID, -1L);
-            Timber.d("initData Device Id: %1d", mDeviceId);
-        }
-        if(mDeviceId == -1) {
-            // TODO: 2021/2/24 处理异常情况
-            finish();
-        }
-        mBleDeviceLocal = AppDatabase.getInstance(this).bleDeviceDao().findBleDeviceFromId(mDeviceId);
+        mBleDeviceLocal = App.getInstance().getBleDeviceLocal();
         if(mBleDeviceLocal == null) {
-            finish();
-        }
-        if(intent.hasExtra(Constant.LOCK_ESN)) {
-            mESN = intent.getStringExtra(Constant.LOCK_ESN);
-            Timber.d("initData Device Esn: %1s", mESN);
-        }
-        if(TextUtils.isEmpty(mESN)) {
-            // TODO: 2021/2/24 无法获取esn来处理问题
             finish();
         }
     }
@@ -102,11 +83,7 @@ public class PasswordListActivity extends BaseActivity {
         useCommonTitleBar(getString(R.string.password))
                 .setRight(ContextCompat.getDrawable(this, R.drawable.ic_home_icon_add),
                         v -> {
-                    if(mDeviceId == -1) {
-                        return;
-                    }
                     Intent intent = new Intent(this, AddInputNewPwdActivity.class);
-                    intent.putExtra(Constant.DEVICE_ID, mDeviceId);
                     startActivity(intent);
                 });
         RecyclerView rvPwdList = findViewById(R.id.rvPwdList);
@@ -117,7 +94,7 @@ public class PasswordListActivity extends BaseActivity {
                 Intent intent = new Intent(PasswordListActivity.this, PasswordDetailActivity.class);
                 DevicePwd item  = (DevicePwd) adapter.getItem(position);
                 intent.putExtra(Constant.PWD_ID, item.getId());
-                intent.putExtra(Constant.LOCK_ESN, mESN);
+                intent.putExtra(Constant.LOCK_ESN, mBleDeviceLocal.getEsn());
                 startActivity(intent);
             }
         });
@@ -161,7 +138,7 @@ public class PasswordListActivity extends BaseActivity {
         }
         SearchKeyListBeanReq req = new SearchKeyListBeanReq();
         req.setPwdType(1);
-        req.setSn(mESN);
+        req.setSn(mBleDeviceLocal.getEsn());
         req.setUid(uid);
         Observable<SearchKeyListBeanRsp> observable = HttpRequest.getInstance().searchLockKey(token, req);
         ObservableDecorator.decorate(observable).safeSubscribe(new Observer<SearchKeyListBeanRsp>() {
@@ -217,7 +194,7 @@ public class PasswordListActivity extends BaseActivity {
         for (SearchKeyListBeanRsp.DataBean.PwdListBean bean : searchKeyListBeanRsp.getData().getPwdList()) {
             DevicePwd devicePwd = new DevicePwd();
             devicePwd.setPwdNum(bean.getNum());
-            devicePwd.setDeviceId(mDeviceId);
+            devicePwd.setDeviceId(mBleDeviceLocal.getId());
             devicePwd.setCreateTime(bean.getCreateTime());
             devicePwd.setPwdName(bean.getNickName());
             devicePwd.setStartTime(bean.getStartTime());
@@ -280,11 +257,7 @@ public class PasswordListActivity extends BaseActivity {
     private List<DevicePwd> mDevicePwdList;
 
     private void searchPwdListFromLocal() {
-        if(mDeviceId == -1) {
-            // TODO: 2021/2/21 错误的数据如何处理
-            return;
-        }
-        mDevicePwdList = AppDatabase.getInstance(this).devicePwdDao().findDevicePwdListFromDeviceId(mDeviceId);
+        mDevicePwdList = AppDatabase.getInstance(this).devicePwdDao().findDevicePwdListFromDeviceId(mBleDeviceLocal.getId());
         // TODO: 2021/2/24 后续需要使用数据校验
         if(mDevicePwdList == null) {
             searchPwdListFromNET();
@@ -429,7 +402,7 @@ public class PasswordListActivity extends BaseActivity {
         // 使用秒存储，所以除以1000
         // TODO: 2021/2/24 后续需要改掉，存在问题，不可能使用这个创建时间
         devicePwd.setCreateTime(TimeUtils.getNowMills()/1000);
-        devicePwd.setDeviceId(mDeviceId);
+        devicePwd.setDeviceId(mBleDeviceLocal.getId());
         devicePwd.setAttribute(BleCommandState.KEY_SET_ATTRIBUTE_ALWAYS);
         devicePwd.setPwdName(name);
         AppDatabase.getInstance(this).devicePwdDao().insert(devicePwd);
@@ -444,7 +417,7 @@ public class PasswordListActivity extends BaseActivity {
         long startTimeMill = BleByteUtil.bytesToLong(BleCommandFactory.littleMode(startTimeBytes));
         long endTimeMill = BleByteUtil.bytesToLong(BleCommandFactory.littleMode(endTimeBytes));
         DevicePwd devicePwd = new DevicePwd();
-        devicePwd.setDeviceId(mDeviceId);
+        devicePwd.setDeviceId(mBleDeviceLocal.getId());
         devicePwd.setPwdName(name);
         devicePwd.setPwdNum(mCurrentSearchNum);
         devicePwd.setAttribute(KEY_SET_ATTRIBUTE_TIME_KEY);
@@ -464,7 +437,7 @@ public class PasswordListActivity extends BaseActivity {
         long startTimeMill = BleByteUtil.bytesToLong(BleCommandFactory.littleMode(startTimeBytes));
         long endTimeMill = BleByteUtil.bytesToLong(BleCommandFactory.littleMode(endTimeBytes));
         DevicePwd devicePwd = new DevicePwd();
-        devicePwd.setDeviceId(mDeviceId);
+        devicePwd.setDeviceId(mBleDeviceLocal.getId());
         devicePwd.setPwdNum(mCurrentSearchNum);
         devicePwd.setPwdName(name);
         devicePwd.setWeekly(bean.getPayload()[1]);

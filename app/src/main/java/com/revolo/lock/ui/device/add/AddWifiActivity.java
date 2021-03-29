@@ -52,29 +52,11 @@ public class AddWifiActivity extends BaseActivity {
     private EditText mEtWifiName, mEtPwd;
     private boolean isShowPwd = false;
 
-    private long mDeviceId = -1L;
     private BleDeviceLocal mBleDeviceLocal;
 
     @Override
     public void initData(@Nullable Bundle bundle) {
-        Intent intent = getIntent();
-        if(intent.hasExtra(Constant.DEVICE_ID)) {
-            mDeviceId = intent.getLongExtra(Constant.DEVICE_ID, -1L);
-        }
-        if(mDeviceId == -1) {
-            // TODO: 2021/2/22 做处理
-            if(intent.hasExtra(Constant.LOCK_DETAIL)) {
-                mBleDeviceLocal = intent.getParcelableExtra(Constant.LOCK_DETAIL);
-                if(mBleDeviceLocal == null) {
-                    finish();
-                }
-                mDeviceId = mBleDeviceLocal.getId();
-                return;
-            } else {
-                finish();
-            }
-        }
-        mBleDeviceLocal = AppDatabase.getInstance(this).bleDeviceDao().findBleDeviceFromId(mDeviceId);
+        mBleDeviceLocal = App.getInstance().getBleDeviceLocal();
         if(mBleDeviceLocal == null) {
             // TODO: 2021/2/22 做处理
             finish();
@@ -144,7 +126,6 @@ public class AddWifiActivity extends BaseActivity {
         Intent intent = new Intent(this, WifiConnectActivity.class);
         intent.putExtra(Constant.WIFI_NAME, wifiSn);
         intent.putExtra(Constant.WIFI_PWD, wifiPwd);
-        intent.putExtra(Constant.BLE_DEVICE, mBleDeviceLocal);
         startActivity(intent);
     }
 

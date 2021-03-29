@@ -46,7 +46,6 @@ import timber.log.Timber;
 
 import static com.revolo.lock.Constant.DEFAULT_TIMEOUT_SEC_VALUE;
 import static com.revolo.lock.ble.BleCommandState.WIFI_CONTROL_OPEN;
-import static com.revolo.lock.ble.BleProtocolState.CMD_DURESS_PWD_SWITCH;
 import static com.revolo.lock.ble.BleProtocolState.CMD_WIFI_SWITCH;
 
 /**
@@ -65,13 +64,7 @@ public class WifiSettingActivity extends BaseActivity {
 
     @Override
     public void initData(@Nullable Bundle bundle) {
-        Intent intent = getIntent();
-        if(!intent.hasExtra(Constant.BLE_DEVICE)) {
-            // TODO: 2021/2/22 处理
-            finish();
-            return;
-        }
-        mBleDeviceLocal = intent.getParcelableExtra(Constant.BLE_DEVICE);
+        mBleDeviceLocal = App.getInstance().getBleDeviceLocal();
         if(mBleDeviceLocal == null) {
             finish();
         }
@@ -91,12 +84,12 @@ public class WifiSettingActivity extends BaseActivity {
         mTvSettingTitle = findViewById(R.id.tvSettingTitle);
         mTvWifiName = findViewById(R.id.tvWifiName);
         initLoading("Setting...");
-        updateUI();
         applyDebouncingClickListener(mIvWifiEnable, mTvSettingTitle, mTvWifiName);
     }
 
     @Override
     public void doBusiness() {
+        updateUI();
         if(mBleDeviceLocal.getConnectedType() != LocalState.DEVICE_CONNECT_TYPE_WIFI) {
             initBleListener();
         }
@@ -125,7 +118,6 @@ public class WifiSettingActivity extends BaseActivity {
 
     private void gotoAddWifiAct() {
         Intent intent = new Intent(this, AddWifiActivity.class);
-        intent.putExtra(Constant.LOCK_DETAIL, mBleDeviceLocal);
         startActivity(intent);
     }
 

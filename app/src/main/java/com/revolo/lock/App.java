@@ -25,6 +25,7 @@ import com.revolo.lock.ble.bean.BleBean;
 import com.revolo.lock.ble.OnBleDeviceListener;
 import com.revolo.lock.mqtt.MqttService;
 import com.revolo.lock.room.AppDatabase;
+import com.revolo.lock.room.entity.BleDeviceLocal;
 import com.revolo.lock.room.entity.User;
 import com.revolo.lock.ui.MainActivity;
 import com.revolo.lock.ui.sign.LoginActivity;
@@ -122,6 +123,15 @@ public class App extends Application {
 
     private User mUser;
     private String mMail;
+    private BleDeviceLocal mBleDeviceLocal;
+
+    public BleDeviceLocal getBleDeviceLocal() {
+        return mBleDeviceLocal;
+    }
+
+    public void setBleDeviceLocal(BleDeviceLocal bleDeviceLocal) {
+        mBleDeviceLocal = bleDeviceLocal;
+    }
 
     public User getUserFromLocal(String mail) {
         mMail = mail;

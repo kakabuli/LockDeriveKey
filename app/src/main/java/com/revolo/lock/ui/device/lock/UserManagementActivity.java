@@ -44,10 +44,7 @@ public class UserManagementActivity extends BaseActivity {
 
     @Override
     public void initData(@Nullable Bundle bundle) {
-        Intent intent = getIntent();
-        if(intent.hasExtra(Constant.LOCK_DETAIL)) {
-            mBleDeviceLocal = intent.getParcelableExtra(Constant.LOCK_DETAIL);
-        }
+        mBleDeviceLocal = App.getInstance().getBleDeviceLocal();
         // TODO: 2021/3/8 处理
         if(mBleDeviceLocal == null) {
             finish();
@@ -83,7 +80,6 @@ public class UserManagementActivity extends BaseActivity {
                 }
                 Intent intent = new Intent(UserManagementActivity.this, SharedUserDetailActivity.class);
                 intent.putExtra(Constant.PRE_A, Constant.USER_MANAGEMENT_A);
-                intent.putExtra(Constant.LOCK_DETAIL, mBleDeviceLocal);
                 intent.putExtra(Constant.SHARED_USER_DATA, mSharedUserListAdapter.getItem(position));
                 startActivity(intent);
             }

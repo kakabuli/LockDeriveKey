@@ -1,6 +1,5 @@
 package com.revolo.lock.ui.device.lock.setting;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
@@ -17,7 +16,6 @@ import com.blankj.utilcode.util.RegexUtils;
 import com.blankj.utilcode.util.ToastUtils;
 import com.google.gson.JsonSyntaxException;
 import com.revolo.lock.App;
-import com.revolo.lock.Constant;
 import com.revolo.lock.LocalState;
 import com.revolo.lock.R;
 import com.revolo.lock.base.BaseActivity;
@@ -69,13 +67,7 @@ public class DuressCodeActivity extends BaseActivity {
 
     @Override
     public void initData(@Nullable Bundle bundle) {
-        Intent intent = getIntent();
-        if(!intent.hasExtra(Constant.BLE_DEVICE)) {
-            // TODO: 2021/2/22 处理
-            finish();
-            return;
-        }
-        mBleDeviceLocal = intent.getParcelableExtra(Constant.BLE_DEVICE);
+        mBleDeviceLocal = App.getInstance().getBleDeviceLocal();
         if(mBleDeviceLocal == null) {
             finish();
         }

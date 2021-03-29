@@ -61,10 +61,7 @@ public class DeviceDetailActivity extends BaseActivity {
 
     @Override
     public void initData(@Nullable Bundle bundle) {
-        Intent intent = getIntent();
-        if(intent.hasExtra(Constant.LOCK_DETAIL)) {
-            mBleDeviceLocal = intent.getParcelableExtra(Constant.LOCK_DETAIL);
-        }
+        mBleDeviceLocal = App.getInstance().getBleDeviceLocal();
         if(mBleDeviceLocal == null) {
             // TODO: 2021/3/1 处理
             finish();
@@ -97,20 +94,16 @@ public class DeviceDetailActivity extends BaseActivity {
     public void onDebouncingClick(@NonNull View view) {
         if(view.getId() == R.id.llNotification) {
             Intent intent = new Intent(this, OperationRecordsActivity.class);
-            intent.putExtra(Constant.DEVICE_ID, mBleDeviceLocal.getId());
             startActivity(intent);
             return;
         }
         if(view.getId() == R.id.llPwd) {
             Intent intent = new Intent(this, PasswordListActivity.class);
-            intent.putExtra(Constant.DEVICE_ID, mBleDeviceLocal.getId());
-            intent.putExtra(Constant.LOCK_ESN, mBleDeviceLocal.getEsn());
             startActivity(intent);
             return;
         }
         if(view.getId() == R.id.llUser) {
             Intent intent = new Intent(this, UserManagementActivity.class);
-            intent.putExtra(Constant.LOCK_DETAIL, mBleDeviceLocal);
             startActivity(intent);
             return;
         }
@@ -133,7 +126,6 @@ public class DeviceDetailActivity extends BaseActivity {
         req.setUid(App.getInstance().getUserBean().getUid());
         req.setWifiSN(mBleDeviceLocal.getEsn());
         intent.putExtra(Constant.UNBIND_REQ, req);
-        intent.putExtra(Constant.LOCK_DETAIL, mBleDeviceLocal);
         startActivity(intent);
     }
 

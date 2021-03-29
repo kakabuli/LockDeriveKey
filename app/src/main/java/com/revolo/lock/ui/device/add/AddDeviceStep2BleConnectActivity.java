@@ -340,8 +340,6 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
                 .ackCommand(bleResultBean.getTSN(), (byte)0x00, bleResultBean.getCMD()), bleBean.getOKBLEDeviceImp());
     }
 
-    private long mDeviceId = -1;
-
     private void addDeviceToLocal(@NotNull String esn,
                                   @NotNull String mac,
                                   @NotNull String pwd1,
@@ -360,7 +358,9 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
             bleDeviceLocal.setScanResultJson(ConvertUtils.parcelable2Bytes(scanResultJson));
             // 统一使用秒，所以毫秒要除以1000
             bleDeviceLocal.setCreateTime(TimeUtils.getNowMills()/1000);
-            mDeviceId = AppDatabase.getInstance(this).bleDeviceDao().insert(bleDeviceLocal);
+            long deviceId = AppDatabase.getInstance(this).bleDeviceDao().insert(bleDeviceLocal);
+            BleDeviceLocal deviceLocal = AppDatabase.getInstance(this).bleDeviceDao().findBleDeviceFromId(deviceId);
+            App.getInstance().setBleDeviceLocal(deviceLocal);
         }
     }
 
@@ -419,7 +419,6 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
                 Timber.d("addDeviceToService 添加设备成功");
                 Timber.d("rsp: %1s", adminAddDeviceBeanRsp.toString());
                 Intent intent = new Intent(AddDeviceStep2BleConnectActivity.this, BleConnectSucActivity.class);
-                intent.putExtra(Constant.DEVICE_ID, mDeviceId);
                 startActivity(intent);
                 finish();
             }
