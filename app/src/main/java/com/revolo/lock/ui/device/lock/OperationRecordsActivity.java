@@ -7,6 +7,7 @@ import android.view.View;
 import android.widget.ExpandableListView;
 import android.widget.LinearLayout;
 
+import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
@@ -24,7 +25,6 @@ import com.revolo.lock.bean.request.LockRecordBeanReq;
 import com.revolo.lock.bean.request.UpdateLockRecordBeanReq;
 import com.revolo.lock.bean.respone.LockRecordBeanRsp;
 import com.revolo.lock.bean.respone.UpdateLockRecordBeanRsp;
-import com.revolo.lock.bean.showBean.RecordState;
 import com.revolo.lock.bean.OperationRecords;
 import com.revolo.lock.ble.BleByteUtil;
 import com.revolo.lock.ble.bean.BleBean;
@@ -563,98 +563,176 @@ public class OperationRecordsActivity extends BaseActivity {
         for (LockRecord lockRecord : mWillShowRecords) {
             // eventCode 1:上锁 2:开锁
             OperationRecords.OperationRecord record;
-            @RecordState.OpRecordState int state = RecordState.NOTHING;
             boolean isAlarmRecord = false;
             String message = "";
+            @DrawableRes int drawableId = R.drawable.ic_home_log_icon__password;
             if(lockRecord.getEventType() == 1) {
-                if(lockRecord.getEventSource() == 0) {
-                    // 键盘
-                    if(lockRecord.getEventCode() == 2) {
-                        message = "Unlocked by password";
-                        state = RecordState.SOMEONE_USE_A_PWD_TO_UNLOCK;
-                    }
-                } else if(lockRecord.getEventSource() == 8) {
-                    // APP
-                    if(lockRecord.getEventCode() == 1) {
-                        // TODO: 2021/2/25 后期改掉
-                        message = "locked the door by APP ";
-                        state = RecordState.SOMEONE_LOCKED_THE_DOOR_BY_APP;
-                    } else if(lockRecord.getEventCode() == 2) {
-                        message = "uses the APP to unlock";
-                        state = RecordState.SOMEONE_USE_THE_APP_TO_UNLOCK;
-                    }
-                } else if(lockRecord.getEventSource() == 9) {
-                    // 机械钥匙
-                    if(lockRecord.getEventCode() == 1) {
-                        message = "Locked the door by mechanical key";
-                        state = RecordState.SOMEONE_LOCKED_THE_DOOR_BY_MECHANICAL_KEY;
-                    } else if(lockRecord.getEventCode() == 2) {
-                        message = "Unlocked by mechanical key";
-                        state = RecordState.SOMEONE_USE_MECHANICAL_KEY_TO_UNLOCK;
-                    }
-                } else if(lockRecord.getEventSource() == -1) {
-                    // 不确定，todo 有可能是MQTT，需要定义一个值
-                    if(lockRecord.getEventCode() == 1) {
-                        // TODO: 2021/2/25 后期改掉
-                        message = "locked the door by APP";
-                        state = RecordState.SOMEONE_LOCKED_THE_DOOR_BY_APP;
-                    } else if(lockRecord.getEventCode() == 2) {
-                        message = "uses the APP to unlock";
-                        state = RecordState.SOMEONE_USE_THE_APP_TO_UNLOCK;
-                    }
+                // 操作类
+                switch (lockRecord.getEventCode()) {
+                    case 0x07:
+                        // 一键上锁
+//                message = "";
+//                drawableId =
+                        break;
+                    case 0x0A:
+                        // 自动上锁
+                        message = "Automatically lock";
+                        drawableId = R.drawable.ic_home_log_icon_door_lock;
+                        break;
+                    case 0x10:
+                        // 敲击开锁
+                        // TODO: 2021/3/29 通过编号识别对应用户
+                        message = "Tester uses Geo-fence to unlock";
+                        drawableId = R.drawable.ic_home_log_icon__geofence;
+                        break;
+                    case 0x11:
+                        // 触摸开锁
+//                message = "";
+//                drawableId = R.drawable.ic_home_log_icon__password;
+                        break;
+                    case 0x12:
+                        // 反锁
+                        message = "Double lock inside the door";
+                        drawableId = R.drawable.ic_home_log_icon_door_lock;
+                        break;
+                    case 0x01:
+                        // 上锁
+                        switch (lockRecord.getEventSource()) {
+//                    case 0x00:
+//                        // 键盘
+//                        // TODO: 2021/3/29 通过编号识别对应用户
+//                        message = "Tester use password to lock";
+//                        drawableId = R.drawable.ic_home_log_icon_door_lock;
+//                        break;
+                            case 0x02:
+                                // 手动
+                                message = "Manual lock";
+                                drawableId = R.drawable.ic_home_log_icon_door_lock;
+                                break;
+                            case 0x08:
+                                // App
+                                // TODO: 2021/3/29 通过编号识别对应用户
+                                message = "Tester locked the door by APP ";
+                                drawableId = R.drawable.ic_home_log_icon_door_lock;
+                                break;
+                            default:
+                                Timber.e("event code: %1d, event source: %2d",
+                                        lockRecord.getEventCode(), lockRecord.getEventSource());
+                                break;
+                        }
+                        break;
+                    case 0x02:
+                        // 开锁
+                        switch (lockRecord.getEventSource()) {
+                            case 0x00:
+                                // 键盘
+                                message = "Unlocked by password";
+                                drawableId = R.drawable.ic_home_log_icon__door_open;
+                                break;
+                            case 0x02:
+                                // 手动
+                                message = "Unlocked by mechanical key";
+                                drawableId = R.drawable.ic_home_log_icon__password;
+                                break;
+                            case 0x08:
+                                // App
+                                message = "Tester uses the APP to unlock";
+                                drawableId = R.drawable.ic_home_log_icon__password;
+                                break;
+                            default:
+                                Timber.e("event code: %1d, event source: %2d",
+                                        lockRecord.getEventCode(), lockRecord.getEventSource());
+                                break;
+                        }
+                        break;
+                    default:
+                        Timber.e("event code: %1d", lockRecord.getEventCode());
+                        break;
                 }
             } else if(lockRecord.getEventType() == 2) {
-                // 增删改记录
-                // TODO: 2021/3/2 后面替换文字信息
-                if(lockRecord.getEventCode() == 1) {
-                    // 修改
-                } else if(lockRecord.getEventCode() == 2) {
-                    // 添加
-                    message = "The user added a password";
-                    state = RecordState.THE_USER_ADDED_A_PWD;
-                } else if(lockRecord.getEventCode() == 3) {
-                    // 删除
-                    message = "The user deleted a password";
-                    state = RecordState.THE_USER_DELETED_A_PWD;
-                } else if(lockRecord.getEventCode() == 0x0f) {
-                    // 恢复出厂设置
-                    message = "The door lock has been restored to factory Settings";
-                    state = RecordState.LOCK_RESTORE;
+                // 程序类
+                switch (lockRecord.getEventCode()) {
+                    case 0x02:
+                        // 密码添加
+                        message = "The user added a password";
+                        drawableId = R.drawable.ic_home_log_icon__password;
+                        break;
+                    case 0x03:
+                        // 密码删除
+                        message = "The user deleted a password";
+                        drawableId = R.drawable.ic_home_log_icon__password;
+                        break;
+                    case 0x0f:
+                        // 恢复出厂设置
+                        message = "The door lock has been restored to factory Settings";
+                        drawableId = R.drawable.ic_home_log_icon__restore;
+                        break;
+                    default:
+                        Timber.e("");
+                        break;
                 }
             } else if(lockRecord.getEventType() == 3) {
-                // 报警
-                // TODO: 2021/3/2 后面替换文字信息
-                if(lockRecord.getEventCode() == 1) {
-                    // 锁定报警（输入错误密码或指纹或卡片超过5次就会系统锁定报警）
-                    message = "lockdown alarm";
-                    state = RecordState.LOCK_DOWN_ALARM;
-                } else if(lockRecord.getEventCode() == 2) {
-                    // 劫持报警（输入防劫持密码或防劫持指纹开锁就报警）
-                    message = "Duress password unlock";
-                    state = RecordState.DURESS_PASSWORD_UNLOCK;
-                } else if(lockRecord.getEventCode() == 3) {
-                    // 三次错误，上报提醒
-                } else if(lockRecord.getEventCode() == 4) {
-                    // 撬锁报警（锁被撬开）
-                } else if(lockRecord.getEventCode() == 8) {
-                    // 机械钥匙报警（使用机械钥匙开锁）
-                } else if(lockRecord.getEventCode() == 0x10) {
-                    // 低电压报警（电池电量不足）
-                    message = "Low battery alarm";
-                    state = RecordState.LOW_BATTERY_ALARM;
-                } else if(lockRecord.getEventCode() == 0x20) {
-                    // 门锁异常报警
-                } else if(lockRecord.getEventCode() == 0x40) {
-                    // 门锁布防报警（门外布防后，从门内开锁了就会报警）
+                // 报警类
+                switch (lockRecord.getEventCode()) {
+                    case 0x01:
+                        // 锁定报警
+                        message = "lockdown alarm";
+                        drawableId = R.drawable.ic_home_log_icon__alert;
+                        break;
+                    case 0x02:
+                        // 胁迫密码报警
+                        message = "Duress password unlock";
+                        drawableId = R.drawable.ic_home_log_icon__alert;
+                        break;
+                    case 0x03:
+                        // 三次错误报警
+                        message = "The door lock has been restored to factory Settings";
+                        drawableId = R.drawable.ic_home_log_icon__alert;
+                        break;
+                    case 0x04:
+                        // 防撬报警(锁被撬开)
+                        message = "The lock was picked";
+                        drawableId = R.drawable.ic_home_log_icon__alert;
+                        break;
+//                    case 0x08:
+//                        // 机械钥匙报警
+//                        message = "The door lock has been restored to factory Settings";
+//                        drawableId = R.drawable.ic_home_log_icon__alert;
+//                        break;
+                    case 0x10:
+                        // 低电压报警
+                        message = "Low battery alarm";
+                        drawableId = R.drawable.ic_home_log_icon__alert;
+                        break;
+//                    case 0x20:
+//                        // 锁体异常报警
+//                        message = "The door lock has been restored to factory Settings";
+//                        drawableId = R.drawable.ic_home_log_icon__alert;
+//                        break;
+//                    case 0x40:
+//                        // 门锁布防报警
+//                        message = "The door lock has been restored to factory Settings";
+//                        drawableId = R.drawable.ic_home_log_icon__alert;
+//                        break;
+                    case 0x41:
+                        // 堵转报警
+                        message = "Jam alarm";
+                        drawableId = R.drawable.ic_home_log_icon__alert;
+                        break;
+                    default:
+                        break;
                 }
+            } else {
+                Timber.e("");
             }
+
             if(TextUtils.isEmpty(message)) {
                 Timber.e("本地记录 eventType: %3d, eventSource: %4d, eventCode: %5d, userId: %6d, appId: %7d, time: %8d",
                         lockRecord.getEventType(), lockRecord.getEventSource(), lockRecord.getEventCode(),
                         lockRecord.getUserId(), lockRecord.getAppId(), lockRecord.getCreateTime() * 1000);
                 continue;
             }
-            record = new OperationRecords.OperationRecord(lockRecord.getCreateTime()*1000, message, state, isAlarmRecord);
+            record = new OperationRecords.OperationRecord(lockRecord.getCreateTime()*1000, message, drawableId, isAlarmRecord);
             records.add(record);
         }
         dismissLoading();

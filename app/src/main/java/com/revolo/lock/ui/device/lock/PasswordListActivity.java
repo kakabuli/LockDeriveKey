@@ -99,6 +99,7 @@ public class PasswordListActivity extends BaseActivity {
             }
         });
         rvPwdList.setAdapter(mPasswordListAdapter);
+        initLoading("Loading...");
     }
 
     @Override
@@ -136,6 +137,7 @@ public class PasswordListActivity extends BaseActivity {
             Timber.e("searchPwdListFromNET App.getInstance().getUserBean().getToken()");
             return;
         }
+        showLoading();
         SearchKeyListBeanReq req = new SearchKeyListBeanReq();
         req.setPwdType(1);
         req.setSn(mBleDeviceLocal.getEsn());
@@ -154,6 +156,7 @@ public class PasswordListActivity extends BaseActivity {
 
             @Override
             public void onError(@NonNull Throwable e) {
+                dismissLoading();
                 Timber.e(e);
             }
 
@@ -167,25 +170,30 @@ public class PasswordListActivity extends BaseActivity {
     private void processKeyListFromNet(@NonNull SearchKeyListBeanRsp searchKeyListBeanRsp) {
         if(TextUtils.isEmpty(searchKeyListBeanRsp.getCode())) {
             Timber.e("processKeyListFromNet searchKeyListBeanRsp.getCode() is Empty");
+            dismissLoading();
             return;
         }
         if(!searchKeyListBeanRsp.getCode().equals("200")) {
             // TODO: 2021/2/24 还得做其他处理
+            dismissLoading();
             ToastUtils.showShort(searchKeyListBeanRsp.getMsg());
             Timber.e("processKeyListFromNet code: %1s, msg: %2s",
                     searchKeyListBeanRsp.getCode(), searchKeyListBeanRsp.getMsg());
             return;
         }
         if(searchKeyListBeanRsp.getData() == null) {
+            dismissLoading();
             Timber.e("processKeyListFromNet searchKeyListBeanRsp.getData() == null");
             return;
         }
         if(searchKeyListBeanRsp.getData().getPwdList() == null) {
+            dismissLoading();
             Timber.e("processKeyListFromNet searchKeyListBeanRsp.getData().getPwdList() == null");
             inCasePwdEmptyThanUseBleCheck();
             return;
         }
         if(searchKeyListBeanRsp.getData().getPwdList().isEmpty()) {
+            dismissLoading();
             Timber.e("processKeyListFromNet searchKeyListBeanRsp.getData().getPwdList().isEmpty()");
             inCasePwdEmptyThanUseBleCheck();
             return;
@@ -208,6 +216,10 @@ public class PasswordListActivity extends BaseActivity {
             pwdList.add(devicePwd);
         }
         AppDatabase.getInstance(getApplicationContext()).devicePwdDao().insert(pwdList);
+        new Handler(Looper.getMainLooper()).postDelayed(() -> {
+            dismissLoading();
+            searchPwdListFromLocal();
+        }, 200);
     }
 
     private void setWeeklyFromNetData(SearchKeyListBeanRsp.DataBean.PwdListBean bean, DevicePwd devicePwd, int attribute) {
@@ -267,7 +279,7 @@ public class PasswordListActivity extends BaseActivity {
             searchPwdListFromNET();
             return;
         }
-        // TODO: 2021/2/21 取得所有密码数据并进行显示
+        // 取得所有密码数据并进行显示
         runOnUiThread(() -> mPasswordListAdapter.setList(mDevicePwdList));
     }
 

@@ -3,8 +3,9 @@ package com.revolo.lock.bean;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import androidx.annotation.DrawableRes;
+
 import com.blankj.utilcode.util.TimeUtils;
-import com.revolo.lock.bean.showBean.RecordState;
 
 import java.util.List;
 
@@ -22,16 +23,15 @@ public class OperationRecords implements Parcelable {
     public static class OperationRecord implements Parcelable {
         private long operationTime;
         private String message;
-        // TODO: 2021/2/25 后面修改字段用于显示哪张图片
-        @RecordState.OpRecordState
-        private int state;
+
+        private int drawablePic;
         private boolean isAlarmRecord;
         private String date;
 
-        public OperationRecord(long operationTime, String message, @RecordState.OpRecordState int state, boolean isAlarmRecord) {
+        public OperationRecord(long operationTime, String message, @DrawableRes int drawablePic, boolean isAlarmRecord) {
             this.operationTime = operationTime;
             this.message = message;
-            this.state = state;
+            this.drawablePic = drawablePic;
             this.isAlarmRecord = isAlarmRecord;
             date = TimeUtils.millis2String(operationTime, "yyyy-MM-dd");
         }
@@ -53,12 +53,12 @@ public class OperationRecords implements Parcelable {
             this.message = message;
         }
 
-        public int getState() {
-            return state;
+        public int getDrawablePic() {
+            return drawablePic;
         }
 
-        public void setState(@RecordState.OpRecordState int state) {
-            this.state = state;
+        public void setDrawablePic(@DrawableRes int drawablePic) {
+            this.drawablePic = drawablePic;
         }
 
         public String getDate() {
@@ -87,7 +87,7 @@ public class OperationRecords implements Parcelable {
         public void writeToParcel(Parcel dest, int flags) {
             dest.writeLong(this.operationTime);
             dest.writeString(this.message);
-            dest.writeInt(this.state);
+            dest.writeInt(this.drawablePic);
             dest.writeByte(this.isAlarmRecord ? (byte) 1 : (byte) 0);
             dest.writeString(this.date);
         }
@@ -95,7 +95,7 @@ public class OperationRecords implements Parcelable {
         protected OperationRecord(Parcel in) {
             this.operationTime = in.readLong();
             this.message = in.readString();
-            this.state = in.readInt();
+            this.drawablePic = in.readInt();
             this.isAlarmRecord = in.readByte() != 0;
             this.date = in.readString();
         }
