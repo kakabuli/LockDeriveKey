@@ -155,8 +155,10 @@ public class DeviceSettingActivity extends BaseActivity {
             return;
         }
         if(view.getId() == R.id.clGeoFenceLock) {
-            Intent intent = new Intent(this, GeoFenceUnlockActivity.class);
-            startActivity(intent);
+            if(mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI) {
+                Intent intent = new Intent(this, GeoFenceUnlockActivity.class);
+                startActivity(intent);
+            }
             return;
         }
         if(view.getId() == R.id.clDoorMagneticSwitch) {
