@@ -18,7 +18,6 @@ import com.revolo.lock.R;
 import com.revolo.lock.base.BaseActivity;
 import com.revolo.lock.bean.request.ChangeKeyNickBeanReq;
 import com.revolo.lock.bean.respone.ChangeKeyNickBeanRsp;
-import com.revolo.lock.dialog.iosloading.CustomerLoadingDialog;
 import com.revolo.lock.net.HttpRequest;
 import com.revolo.lock.net.ObservableDecorator;
 import com.revolo.lock.room.AppDatabase;
@@ -68,6 +67,7 @@ public class AddNewPwdNameActivity extends BaseActivity {
     public void initView(@Nullable Bundle savedInstanceState, @Nullable View contentView) {
         useCommonTitleBar(getString(R.string.title_add_password));
         applyDebouncingClickListener(findViewById(R.id.btnComplete), findViewById(R.id.tvAddNextTime));
+        initLoading("Loading...");
     }
 
     @Override
@@ -110,13 +110,7 @@ public class AddNewPwdNameActivity extends BaseActivity {
             return;
         }
 
-        // TODO: 2021/2/24 抽离文字
-        CustomerLoadingDialog loadingDialog = new CustomerLoadingDialog.Builder(this)
-                .setMessage("loading...")
-                .setCancelable(true)
-                .setCancelOutside(false)
-                .create();
-        loadingDialog.show();
+        showLoading();
         ChangeKeyNickBeanReq req = new ChangeKeyNickBeanReq();
         req.setNickName(pwdName);
         req.setNum(devicePwd.getPwdNum());
@@ -133,7 +127,7 @@ public class AddNewPwdNameActivity extends BaseActivity {
 
             @Override
             public void onNext(@NonNull ChangeKeyNickBeanRsp changeKeyNickBeanRsp) {
-                loadingDialog.dismiss();
+                dismissLoading();
                 if(TextUtils.isEmpty(changeKeyNickBeanRsp.getCode())) {
                     Timber.e("changeKeyNickBeanRsp.getCode() is Empty");
                     return;
@@ -153,7 +147,7 @@ public class AddNewPwdNameActivity extends BaseActivity {
             @Override
             public void onError(@NonNull Throwable e) {
                 Timber.e(e);
-                loadingDialog.dismiss();
+                dismissLoading();
                 showAddFail();
             }
 

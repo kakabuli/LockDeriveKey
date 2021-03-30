@@ -1,6 +1,8 @@
 package com.revolo.lock.base;
 
 import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -14,12 +16,18 @@ import androidx.core.content.ContextCompat;
 
 import com.blankj.utilcode.util.AdaptScreenUtils;
 import com.blankj.utilcode.util.ClickUtils;
+import com.kaadas.lock.shulan.KeepAliveManager;
+import com.kaadas.lock.shulan.config.ForegroundNotification;
+import com.kaadas.lock.shulan.config.ForegroundNotificationClickListener;
+import com.kaadas.lock.shulan.config.RunMode;
 import com.revolo.lock.App;
 import com.revolo.lock.R;
 import com.revolo.lock.dialog.iosloading.CustomerLoadingDialog;
 import com.revolo.lock.ui.TitleBar;
 
 import org.jetbrains.annotations.NotNull;
+
+import timber.log.Timber;
 
 /**
  * <pre>
@@ -48,6 +56,8 @@ public abstract class BaseActivity extends AppCompatActivity
             App.getInstance().getMqttService().mqttConnection();
         }
         initView(savedInstanceState, mContentView);
+
+        startKeepAlive();
     }
 
     @Override
@@ -72,6 +82,37 @@ public abstract class BaseActivity extends AppCompatActivity
         mContentView = LayoutInflater.from(this).inflate(bindLayout(), null);
         setContentView(mContentView);
     }
+
+    /**
+     * 启动保活
+     */
+    private void startKeepAlive() {
+        //启动保活服务
+        // TODO: 2021/3/30 保活文字
+        KeepAliveManager.toKeepAlive(
+                getApplication()
+                , RunMode.HIGH_POWER_CONSUMPTION, getString(R.string.app_name_notification_title),
+                getString(R.string.app_name_notification_content),
+                R.mipmap.ic_launcher,
+                new ForegroundNotification(
+                        //定义前台服务的通知点击事件
+                        new ForegroundNotificationClickListener() {
+                            @Override
+                            public void foregroundNotificationClick(Context context, Intent intent) {
+                                Timber.e("JOB-->  foregroundNotificationClick");
+//                                stopKeepAlive();
+                            }
+                        })
+        );
+    }
+
+    /**
+     * 停止保活
+     */
+    public void stopKeepAlive() {
+        KeepAliveManager.stopWork(getApplication());
+    }
+
 
     public TitleBar useCommonTitleBar(String title) {
         setStatusBarColor(R.color.white);

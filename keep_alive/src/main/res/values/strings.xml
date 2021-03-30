@@ -1,0 +1,4 @@
+<resources>
+    <string name="sllocal_service_name">revolo Front desk push service</string>
+    <string name="slremote_service_name">revolo life services</string>
+</resources>

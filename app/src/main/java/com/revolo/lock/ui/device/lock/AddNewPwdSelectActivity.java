@@ -802,13 +802,13 @@ public class AddNewPwdSelectActivity extends BaseActivity {
         pwdListBean.setNickName(devicePwd.getPwdNum()+"");
         pwdListBean.setPwdType(1);
         if(devicePwd.getAttribute() == BleCommandState.KEY_SET_ATTRIBUTE_ALWAYS) {
-            pwdListBean.setType(1);
+            pwdListBean.setType(BleCommandState.KEY_SET_ATTRIBUTE_ALWAYS);
         } else if(devicePwd.getAttribute() == KEY_SET_ATTRIBUTE_TIME_KEY) {
-            pwdListBean.setType(2);
+            pwdListBean.setType(KEY_SET_ATTRIBUTE_TIME_KEY);
             pwdListBean.setStartTime(devicePwd.getStartTime());
             pwdListBean.setEndTime(devicePwd.getEndTime());
         } else if(devicePwd.getAttribute() == KEY_SET_ATTRIBUTE_WEEK_KEY) {
-            pwdListBean.setType(3);
+            pwdListBean.setType(KEY_SET_ATTRIBUTE_WEEK_KEY);
             pwdListBean.setStartTime(devicePwd.getStartTime());
             pwdListBean.setEndTime(devicePwd.getEndTime());
             pwdListBean.setItems(getWeekItems());

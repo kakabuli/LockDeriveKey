@@ -395,4 +395,9 @@
     <string name="title_change_gesture_password">Change gesture password</string>
     <string name="album">Album</string>
 
+
+    <!-- keepAlive Service -->
+    <string name="app_name_notification_title">revolo running</string>
+    <string name="app_name_notification_content">We will notify you when we have news</string>
+
 </resources>
