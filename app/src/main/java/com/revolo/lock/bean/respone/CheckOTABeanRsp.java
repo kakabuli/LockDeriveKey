@@ -16,7 +16,7 @@ public class CheckOTABeanRsp {
      */
 
     private String code;
-    private Object msg;
+    private String msg;
     private DataBean data;
 
     public String getCode() {
@@ -27,11 +27,11 @@ public class CheckOTABeanRsp {
         this.code = code;
     }
 
-    public Object getMsg() {
+    public String getMsg() {
         return msg;
     }
 
-    public void setMsg(Object msg) {
+    public void setMsg(String msg) {
         this.msg = msg;
     }
 

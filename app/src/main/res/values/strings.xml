@@ -398,6 +398,6 @@
 
     <!-- keepAlive Service -->
     <string name="app_name_notification_title">revolo running</string>
-    <string name="app_name_notification_content">We will notify you when we have news</string>
+    <string name="app_name_notification_content">We will notify you when you have news</string>
 
 </resources>

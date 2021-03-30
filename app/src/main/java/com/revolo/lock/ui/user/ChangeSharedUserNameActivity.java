@@ -110,6 +110,10 @@ public class ChangeSharedUserNameActivity extends BaseActivity {
                     return;
                 }
                 if(!code.equals("200")) {
+                    if(code.equals("444")) {
+                        App.getInstance().logout(true, ChangeSharedUserNameActivity.this);
+                        return;
+                    }
                     String msg = updateSharedUserNickNameBeanRsp.getMsg();
                     if(!TextUtils.isEmpty(msg)) {
                         ToastUtils.showShort(msg);

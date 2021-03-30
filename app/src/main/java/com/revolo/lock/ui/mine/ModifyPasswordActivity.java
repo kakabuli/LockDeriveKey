@@ -161,6 +161,14 @@ public class ModifyPasswordActivity extends BaseActivity {
                     return;
                 }
                 if(!code.equals("200")) {
+                    if(code.equals("444")) {
+                        App.getInstance().logout(true, ModifyPasswordActivity.this);
+                        return;
+                    }
+                    String msg = changeUserPwdBeanRsp.getMsg();
+                    if(!TextUtils.isEmpty(msg)) {
+                        ToastUtils.showShort(msg);
+                    }
                     Timber.e("changeUserPwd code: %1s, msg: %2s", code, changeUserPwdBeanRsp.getMsg());
                     return;
                 }
@@ -206,15 +214,22 @@ public class ModifyPasswordActivity extends BaseActivity {
 
             @Override
             public void onNext(@NonNull GetCodeBeanRsp getCodeBeanRsp) {
-                if(TextUtils.isEmpty(getCodeBeanRsp.getCode())) {
+                String code = getCodeBeanRsp.getCode();
+                if(TextUtils.isEmpty(code)) {
                     Timber.e("getCodeBeanRsp.getCode() is null");
                     return;
                 }
                 // TODO: 2021/2/2 对应的提示语
-                if(!getCodeBeanRsp.getCode().equals("200")) {
-                    Timber.e("code: %1s, msg: %2s",
-                            getCodeBeanRsp.getCode(),
-                            getCodeBeanRsp.getMsg());
+                if(!code.equals("200")) {
+                    if(code.equals("444")) {
+                        App.getInstance().logout(true, ModifyPasswordActivity.this);
+                        return;
+                    }
+                    String msg = getCodeBeanRsp.getMsg();
+                    if(!TextUtils.isEmpty(msg)) {
+                        ToastUtils.showShort(msg);
+                    }
+                    Timber.e("code: %1s, msg: %2s", code, msg);
                     return;
                 }
                 // TODO: 2021/2/2 对应的提示语

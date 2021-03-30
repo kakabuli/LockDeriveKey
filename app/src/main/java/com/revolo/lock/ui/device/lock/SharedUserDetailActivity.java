@@ -187,6 +187,10 @@ public class SharedUserDetailActivity extends BaseActivity {
                     return;
                 }
                 if(!code.equals("200")) {
+                    if(code.equals("444")) {
+                        App.getInstance().logout(true, SharedUserDetailActivity.this);
+                        return;
+                    }
                     String msg = delSharedUserBeanRsp.getMsg();
                     Timber.e("removeUser code: %1s, msg: %2s", code, msg);
                     if(!TextUtils.isEmpty(msg)) {
@@ -268,6 +272,10 @@ public class SharedUserDetailActivity extends BaseActivity {
                     return;
                 }
                 if(!code.equals("200")) {
+                    if(code.equals("444")) {
+                        App.getInstance().logout(true, SharedUserDetailActivity.this);
+                        return;
+                    }
                     String msg = enableSharedUserBeanRsp.getMsg();
                     Timber.e("switchUserEnable code: %1s, msg: %2s", code, msg);
                     if(!TextUtils.isEmpty(msg)) {
@@ -328,6 +336,10 @@ public class SharedUserDetailActivity extends BaseActivity {
                     return;
                 }
                 if(!code.equals("200")) {
+                    if(code.equals("444")) {
+                        App.getInstance().logout(true, SharedUserDetailActivity.this);
+                        return;
+                    }
                     String msg = updateUserAuthorityTypeBeanRsp.getMsg();
                     Timber.e("switchUserAuthority code: %1s, msg: %2s", code, msg);
                     if(!TextUtils.isEmpty(msg)) {

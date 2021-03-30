@@ -10,6 +10,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.blankj.utilcode.util.ToastUtils;
 import com.revolo.lock.App;
 import com.revolo.lock.Constant;
 import com.revolo.lock.R;
@@ -19,6 +20,7 @@ import com.revolo.lock.bean.respone.GainKeyBeanRsp;
 import com.revolo.lock.net.HttpRequest;
 import com.revolo.lock.net.ObservableDecorator;
 import com.revolo.lock.room.entity.BleDeviceLocal;
+import com.revolo.lock.ui.sign.ForgetThePwdActivity;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -137,6 +139,14 @@ public class SelectAuthorizedDeviceActivity extends BaseActivity {
                     return;
                 }
                 if(!code.equals("200")) {
+                    if(code.equals("444")) {
+                        App.getInstance().logout(true, SelectAuthorizedDeviceActivity.this);
+                        return;
+                    }
+                    String msg = gainKeyBeanRsp.getMsg();
+                    if(!TextUtils.isEmpty(msg)) {
+                        ToastUtils.showShort(msg);
+                    }
                     Timber.e("share code: %1s, msg: %2s", code, gainKeyBeanRsp.getMsg());
                     return;
                 }

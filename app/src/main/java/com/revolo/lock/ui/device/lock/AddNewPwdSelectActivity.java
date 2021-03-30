@@ -852,12 +852,17 @@ public class AddNewPwdSelectActivity extends BaseActivity {
             @Override
             public void onNext(@NonNull LockKeyAddBeanRsp lockKeyAddBeanRsp) {
                 // TODO: 2021/2/24 处理异常情况
-                if(TextUtils.isEmpty(lockKeyAddBeanRsp.getCode())) {
+                String code = lockKeyAddBeanRsp.getCode();
+                if(TextUtils.isEmpty(code)) {
                     Timber.e("savePwdToService lockKeyAddBeanRsp.getCode() is Empty");
                     dismissLoadingAndShowAddFail();
                     return;
                 }
-                if(!lockKeyAddBeanRsp.getCode().equals("200")) {
+                if(!code.equals("200")) {
+                    if(code.equals("444")) {
+                        App.getInstance().logout(true, AddNewPwdSelectActivity.this);
+                        return;
+                    }
                     if(!TextUtils.isEmpty(lockKeyAddBeanRsp.getMsg())) {
                         ToastUtils.showShort(lockKeyAddBeanRsp.getMsg());
                     }

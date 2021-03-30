@@ -113,6 +113,10 @@ public class ModifyUserNameActivity extends BaseActivity {
                     return;
                 }
                 if(!code.equals("200")) {
+                    if(code.equals("444")) {
+                        App.getInstance().logout(true, ModifyUserNameActivity.this);
+                        return;
+                    }
                     String msg = updateUserFirstLastNameBeanRsp.getMsg();
                     Timber.e("updateFirstLastName code: %1s, msg: %2s", code, msg);
                     if(!TextUtils.isEmpty(msg)) {

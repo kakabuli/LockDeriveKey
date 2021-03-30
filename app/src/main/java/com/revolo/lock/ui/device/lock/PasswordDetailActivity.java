@@ -14,6 +14,7 @@ import androidx.annotation.Nullable;
 import com.blankj.utilcode.util.ConvertUtils;
 import com.blankj.utilcode.util.GsonUtils;
 import com.blankj.utilcode.util.TimeUtils;
+import com.blankj.utilcode.util.ToastUtils;
 import com.google.gson.JsonSyntaxException;
 import com.revolo.lock.App;
 import com.revolo.lock.Constant;
@@ -450,16 +451,26 @@ public class PasswordDetailActivity extends BaseActivity {
 
             @Override
             public void onNext(@NonNull DelKeyBeanRsp delKeyBeanRsp) {
-                if(TextUtils.isEmpty(delKeyBeanRsp.getCode())) {
+                String code = delKeyBeanRsp.getCode();
+                if(TextUtils.isEmpty(code)) {
                     // TODO: 2021/2/24 服务器删除失败，需要检查如何通过服务器再删除
                     dismissLoadingAndShowFailMessage();
-                    Timber.e("delKeyBeanRsp.getCode() is Empty");
+                    Timber.e("delKeyFromService delKeyBeanRsp.getCode() is Empty");
                     return;
                 }
-                if(!delKeyBeanRsp.getCode().equals("200")) {
+                if(!code.equals("200")) {
                     // TODO: 2021/2/24 服务器删除失败，需要检查如何通过服务器再删除
+                    if(code.equals("444")) {
+                        dismissLoading();
+                        App.getInstance().logout(true, PasswordDetailActivity.this);
+                        return;
+                    }
                     dismissLoadingAndShowFailMessage();
-                    Timber.e("");
+                    String msg = delKeyBeanRsp.getMsg();
+                    Timber.e("delKeyFromService code: %1s msg: %2s", code, msg);
+                    if(!TextUtils.isEmpty(msg)) {
+                        ToastUtils.showShort(msg);
+                    }
                     return;
                 }
                 AppDatabase.getInstance(getApplicationContext()).devicePwdDao().delete(mDevicePwd);

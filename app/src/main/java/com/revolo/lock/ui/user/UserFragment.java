@@ -15,6 +15,7 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.blankj.utilcode.util.ToastUtils;
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.chad.library.adapter.base.listener.OnItemClickListener;
 import com.revolo.lock.App;
@@ -27,6 +28,7 @@ import com.revolo.lock.dialog.iosloading.CustomerLoadingDialog;
 import com.revolo.lock.net.HttpRequest;
 import com.revolo.lock.net.ObservableDecorator;
 import com.revolo.lock.ui.TitleBar;
+import com.revolo.lock.ui.sign.ForgetThePwdActivity;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -120,6 +122,14 @@ public class UserFragment extends Fragment {
                     return;
                 }
                 if(!code.equals("200")) {
+                    if(code.equals("444")) {
+                        App.getInstance().logout(true, getActivity());
+                        return;
+                    }
+                    String msg = userBeanRsp.getMsg();
+                    if(!TextUtils.isEmpty(msg)) {
+                        ToastUtils.showShort(msg);
+                    }
                     Timber.e("getAllSharedUserFromAdminUser code: %1s, msg: %2s", code, userBeanRsp.getMsg());
                     return;
                 }

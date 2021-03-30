@@ -137,7 +137,7 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        if(mScanManager != null && mScanManager.isScanning()) {
+        if(mScanManager != null) {
             mScanManager.stopScan();
         }
     }
@@ -148,7 +148,7 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
         if(bleBean != null) {
             bleBean.setAppPair(false);
         }
-        if(mScanManager != null && mScanManager.isScanning()) {
+        if(mScanManager != null) {
             mScanManager.stopScan();
         }
         super.onDestroy();
@@ -181,10 +181,15 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
 
             @Override
             public void onNext(@NonNull LockIsBindBeanRsp lockIsBindBeanRsp) {
-                if(lockIsBindBeanRsp.getCode() == null) {
+                String code = lockIsBindBeanRsp.getCode();
+                if(code == null) {
                     return;
                 }
-                if(lockIsBindBeanRsp.getCode().equals("202")) {
+                if(code.equals("444")) {
+                    App.getInstance().logout(true, AddDeviceStep2BleConnectActivity.this);
+                    return;
+                }
+                if(code.equals("202")) {
                     // 提示已绑定，并退出
                     // TODO: 2021/2/6 修改显示方式
                     ToastUtils.showLong("The device is already bound");
@@ -192,7 +197,7 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
                     finish();
                     return;
                 }
-                if(lockIsBindBeanRsp.getCode().equals("201")) {
+                if(code.equals("201")) {
                     getPwd1FromNet();
                     return;
                 }
@@ -227,7 +232,12 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
             @Override
             public void onNext(@NonNull GetPwd1BeanRsp getPwd1BeanRsp) {
                 // TODO: 2021/1/26 添加错误操作
-                if(!getPwd1BeanRsp.getCode().equals("200")) {
+                String code = getPwd1BeanRsp.getCode();
+                if(!code.equals("200")) {
+                    if(code.equals("444")) {
+                        App.getInstance().logout(true, AddDeviceStep2BleConnectActivity.this);
+                        return;
+                    }
                     Timber.e("getPwd1FromNet code: %1s, msg: %2s", getPwd1BeanRsp.getCode(), getPwd1BeanRsp.getMsg());
                     gotoBleConnectFail();
                     return;
@@ -408,11 +418,16 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
 
             @Override
             public void onNext(@NonNull AdminAddDeviceBeanRsp adminAddDeviceBeanRsp) {
-                if(adminAddDeviceBeanRsp.getCode() == null) {
+                String code = adminAddDeviceBeanRsp.getCode();
+                if(code == null) {
                     gotoBleConnectFail();
                     return;
                 }
-                if(!adminAddDeviceBeanRsp.getCode().equals("200")) {
+                if(!code.equals("200")) {
+                    if(code.equals("444")) {
+                        App.getInstance().logout(true, AddDeviceStep2BleConnectActivity.this);
+                        return;
+                    }
                     Timber.e("code: %1s, msg: %2s", adminAddDeviceBeanRsp.getCode(), adminAddDeviceBeanRsp.getMsg());
                     return;
                 }

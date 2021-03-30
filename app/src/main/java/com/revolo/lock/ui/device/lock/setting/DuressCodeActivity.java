@@ -153,6 +153,14 @@ public class DuressCodeActivity extends BaseActivity {
                     return;
                 }
                 if(!code.equals("200")) {
+                    if(code.equals("444")) {
+                        App.getInstance().logout(true, DuressCodeActivity.this);
+                        return;
+                    }
+                    String msg = settingDuressPwdReceiveEMailBeanRsp.getMsg();
+                    if(TextUtils.isEmpty(msg)) {
+                        ToastUtils.showShort(msg);
+                    }
                     Timber.e("settingDuressReceiveMail code: %1s, msg: %2s", code, settingDuressPwdReceiveEMailBeanRsp.getMsg());
                     return;
                 }

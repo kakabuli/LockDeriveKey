@@ -100,6 +100,10 @@ public class FeedbackActivity extends BaseActivity {
                     return;
                 }
                 if(!code.equals("200")) {
+                    if(code.equals("444")) {
+                        App.getInstance().logout(true, FeedbackActivity.this);
+                        return;
+                    }
                     String msg = feedBackBeanRsp.getMsg();
                     Timber.e("feedback code %1s, msg %2s", code, msg);
                     if(TextUtils.isEmpty(msg)) {

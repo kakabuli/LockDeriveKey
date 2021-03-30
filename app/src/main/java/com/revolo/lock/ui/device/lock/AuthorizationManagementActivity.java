@@ -129,6 +129,10 @@ public class AuthorizationManagementActivity extends BaseActivity {
                     return;
                 }
                 if(!code.equals("200")) {
+                    if(code.equals("444")) {
+                        App.getInstance().logout(true, AuthorizationManagementActivity.this);
+                        return;
+                    }
                     Timber.e("share code: %1s, msg: %2s", code, gainKeyBeanRsp.getMsg());
                     return;
                 }

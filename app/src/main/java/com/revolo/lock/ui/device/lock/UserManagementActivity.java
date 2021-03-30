@@ -136,6 +136,10 @@ public class UserManagementActivity extends BaseActivity {
                     return;
                 }
                 if(!code.equals("200")) {
+                    if(code.equals("444")) {
+                        App.getInstance().logout(true, UserManagementActivity.this);
+                        return;
+                    }
                     Timber.e("getAllSharedUserFromLock code: %1s, msg: %2s", code, rsp.getMsg());
                     return;
                 }

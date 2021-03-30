@@ -168,17 +168,24 @@ public class PasswordListActivity extends BaseActivity {
     }
 
     private void processKeyListFromNet(@NonNull SearchKeyListBeanRsp searchKeyListBeanRsp) {
-        if(TextUtils.isEmpty(searchKeyListBeanRsp.getCode())) {
+        String code = searchKeyListBeanRsp.getCode();
+        if(TextUtils.isEmpty(code)) {
             Timber.e("processKeyListFromNet searchKeyListBeanRsp.getCode() is Empty");
             dismissLoading();
             return;
         }
-        if(!searchKeyListBeanRsp.getCode().equals("200")) {
+        if(!code.equals("200")) {
             // TODO: 2021/2/24 还得做其他处理
             dismissLoading();
-            ToastUtils.showShort(searchKeyListBeanRsp.getMsg());
-            Timber.e("processKeyListFromNet code: %1s, msg: %2s",
-                    searchKeyListBeanRsp.getCode(), searchKeyListBeanRsp.getMsg());
+            if(code.equals("444")) {
+                App.getInstance().logout(true, PasswordListActivity.this);
+                return;
+            }
+            String msg = searchKeyListBeanRsp.getMsg();
+            if(!TextUtils.isEmpty(msg)) {
+                ToastUtils.showShort(msg);
+            }
+            Timber.e("processKeyListFromNet code: %1s, msg: %2s", code, msg);
             return;
         }
         if(searchKeyListBeanRsp.getData() == null) {

@@ -133,6 +133,10 @@ public class ShareDeviceActivity extends BaseActivity {
                     return;
                 }
                 if(!code.equals("200")) {
+                    if(code.equals("444")) {
+                        App.getInstance().logout(true, ShareDeviceActivity.this);
+                        return;
+                    }
                     String msg = acceptShareBeanRsp.getMsg();
                     Timber.e("code: %1s, msg: %2s", code, msg);
                     if(!TextUtils.isEmpty(msg)) {

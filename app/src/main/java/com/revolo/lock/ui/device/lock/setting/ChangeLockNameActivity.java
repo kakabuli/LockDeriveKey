@@ -104,11 +104,16 @@ public class ChangeLockNameActivity extends BaseActivity {
             @Override
             public void onNext(@NonNull ChangeDeviceNameBeanRsp changeDeviceNameBeanRsp) {
                 dismissLoading();
-                if(TextUtils.isEmpty(changeDeviceNameBeanRsp.getCode())) {
+                String code = changeDeviceNameBeanRsp.getCode();
+                if(TextUtils.isEmpty(code)) {
                     Timber.e("changeDeviceNameBeanRsp.getCode() is Empty");
                     return;
                 }
-                if(!changeDeviceNameBeanRsp.getCode().equals("200")) {
+                if(!code.equals("200")) {
+                    if(code.equals("444")) {
+                        App.getInstance().logout(true, ChangeLockNameActivity.this);
+                        return;
+                    }
                     String msg = changeDeviceNameBeanRsp.getMsg();
                     Timber.e("code: %1s, msg: %2s", changeDeviceNameBeanRsp.getCode(), msg);
                     if(!TextUtils.isEmpty(msg)) {

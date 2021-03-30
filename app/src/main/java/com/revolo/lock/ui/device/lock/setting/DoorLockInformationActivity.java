@@ -280,11 +280,16 @@ public class DoorLockInformationActivity extends BaseActivity {
             public void onNext(@NonNull CheckOTABeanRsp checkOTABeanRsp) {
                 // TODO: 2021/2/9 所有的都要判断处理
                 dismissLoading();
-                if(TextUtils.isEmpty(checkOTABeanRsp.getCode())) {
+                String code = checkOTABeanRsp.getCode();
+                if(TextUtils.isEmpty(code)) {
                     Timber.e("checkOTABeanRsp.getCode() is empty");
                     return;
                 }
-                if(!checkOTABeanRsp.getCode().equals("200")) {
+                if(!code.equals("200")) {
+                    if(code.equals("444")) {
+                        App.getInstance().logout(true, DoorLockInformationActivity.this);
+                        return;
+                    }
                     Timber.e("checkOTAVer code: %1s  msg: %2s",
                             checkOTABeanRsp.getCode(), checkOTABeanRsp.getMsg());
                     return;
@@ -350,13 +355,21 @@ public class DoorLockInformationActivity extends BaseActivity {
 
             @Override
             public void onNext(@NonNull StartOTAUpdateBeanRsp startOTAUpdateBeanRsp) {
-                if(TextUtils.isEmpty(startOTAUpdateBeanRsp.getCode())) {
+                String code = startOTAUpdateBeanRsp.getCode();
+                if(TextUtils.isEmpty(code)) {
                     Timber.e("startOTAUpdateBeanRsp.getCode() is empty");
                     return;
                 }
-                if(!startOTAUpdateBeanRsp.getCode().equals("200")) {
-                    Timber.e("checkOrUseOTAUpdateVer code: %1s,  msg: %2s",
-                            startOTAUpdateBeanRsp.getCode(), startOTAUpdateBeanRsp.getMsg());
+                if(!code.equals("200")) {
+                    if(code.equals("444")) {
+                        App.getInstance().logout(true, DoorLockInformationActivity.this);
+                        return;
+                    }
+                    String msg = startOTAUpdateBeanRsp.getMsg();
+                    if(!TextUtils.isEmpty(msg)) {
+                        ToastUtils.showShort(msg);
+                    }
+                    Timber.e("checkOrUseOTAUpdateVer code: %1s,  msg: %2s", code, msg);
                     return;
                 }
                 // TODO: 2021/2/9 完成OTA升级推送 后面提示语需要修改
@@ -407,13 +420,21 @@ public class DoorLockInformationActivity extends BaseActivity {
             public void onNext(@NonNull CheckOTABeanRsp checkOTABeanRsp) {
                 // TODO: 2021/2/9 所有的都要判断处理
                 dismissLoading();
-                if(TextUtils.isEmpty(checkOTABeanRsp.getCode())) {
+                String code = checkOTABeanRsp.getCode();
+                if(TextUtils.isEmpty(code)) {
                     Timber.e("checkOTABeanRsp.getCode() is empty");
                     return;
                 }
-                if(!checkOTABeanRsp.getCode().equals("200")) {
-                    Timber.e("checkOTAVer code: %1s  msg: %2s",
-                            checkOTABeanRsp.getCode(), checkOTABeanRsp.getMsg());
+                if(!code.equals("200")) {
+                    if(code.equals("444")) {
+                        App.getInstance().logout(true, DoorLockInformationActivity.this);
+                        return;
+                    }
+                    String msg = checkOTABeanRsp.getMsg();
+                    if(!TextUtils.isEmpty(msg)) {
+                        ToastUtils.showShort(msg);
+                    }
+                    Timber.e("checkOTAVer code: %1s  msg: %2s", code, msg);
                     return;
                 }
                 if(checkOTABeanRsp.getData() == null) {
@@ -475,13 +496,21 @@ public class DoorLockInformationActivity extends BaseActivity {
 
             @Override
             public void onNext(@NonNull StartOTAUpdateBeanRsp startOTAUpdateBeanRsp) {
-                if(TextUtils.isEmpty(startOTAUpdateBeanRsp.getCode())) {
+                String code = startOTAUpdateBeanRsp.getCode();
+                if(TextUtils.isEmpty(code)) {
                     Timber.e(" checkOrUseWifiOTAUpdateVer startOTAUpdateBeanRsp.getCode() is empty");
                     return;
                 }
-                if(!startOTAUpdateBeanRsp.getCode().equals("200")) {
-                    Timber.e("checkOrUseWifiOTAUpdateVer code: %1s,  msg: %2s",
-                            startOTAUpdateBeanRsp.getCode(), startOTAUpdateBeanRsp.getMsg());
+                if(!code.equals("200")) {
+                    if(code.equals("444")) {
+                        App.getInstance().logout(true, DoorLockInformationActivity.this);
+                        return;
+                    }
+                    String msg = startOTAUpdateBeanRsp.getMsg();
+                    if(!TextUtils.isEmpty(msg)) {
+                        ToastUtils.showShort(msg);
+                    }
+                    Timber.e("checkOrUseWifiOTAUpdateVer code: %1s,  msg: %2s", code, msg);
                     return;
                 }
                 // TODO: 2021/2/9 完成OTA升级推送 后面提示语需要修改
@@ -543,11 +572,16 @@ public class DoorLockInformationActivity extends BaseActivity {
             @Override
             public void onNext(@NonNull CheckAllOTABeanRsp checkAllOTABeanRsp) {
                 dismissLoading();
-                if(TextUtils.isEmpty(checkAllOTABeanRsp.getCode())) {
+                String code = checkAllOTABeanRsp.getCode();
+                if(TextUtils.isEmpty(code)) {
                     Timber.e("checkAllOTAVer checkAllOTABeanRsp.getCode() is empty");
                     return;
                 }
-                if(!checkAllOTABeanRsp.getCode().equals("200")) {
+                if(!code.equals("200")) {
+                    if(code.equals("444")) {
+                        App.getInstance().logout(true, DoorLockInformationActivity.this);
+                        return;
+                    }
                     String msg = checkAllOTABeanRsp.getMsg();
                     Timber.e("checkAllOTAVer code: %1s  msg: %2s",
                             checkAllOTABeanRsp.getCode(), msg);
@@ -646,11 +680,16 @@ public class DoorLockInformationActivity extends BaseActivity {
             @Override
             public void onNext(@NonNull StartAllOTAUpdateBeanRsp beanRsp) {
                 dismissLoading();
-                if(TextUtils.isEmpty(beanRsp.getCode())) {
+                String code = beanRsp.getCode();
+                if(TextUtils.isEmpty(code)) {
                     Timber.e(" checkOrUseAllOTAUpdateVer startOTAUpdateBeanRsp.getCode() is empty");
                     return;
                 }
-                if(!beanRsp.getCode().equals("200")) {
+                if(!code.equals("200")) {
+                    if(code.equals("444")) {
+                        App.getInstance().logout(true, DoorLockInformationActivity.this);
+                        return;
+                    }
                     String msg = beanRsp.getMsg();
                     Timber.e("checkOrUseAllOTAUpdateVer code: %1s,  msg: %2s",
                             beanRsp.getCode(), msg);

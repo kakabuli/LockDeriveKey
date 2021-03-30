@@ -160,6 +160,10 @@ public class AuthUserDetailActivity extends BaseActivity {
                     return;
                 }
                 if(!code.equals("200")) {
+                    if(code.equals("444")) {
+                        App.getInstance().logout(true, AuthUserDetailActivity.this);
+                        return;
+                    }
                     String msg = getDevicesFromUidAndSharedUidBeanRsp.getMsg();
                     Timber.e("searchUserDevice code: %1s, msg: %2s", code, msg);
                     if(!TextUtils.isEmpty(msg)) {

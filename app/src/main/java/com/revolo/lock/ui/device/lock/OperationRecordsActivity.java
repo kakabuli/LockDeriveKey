@@ -380,6 +380,10 @@ public class OperationRecordsActivity extends BaseActivity {
                     return;
                 }
                 if(!code.equals("200")) {
+                    if(code.equals("444")) {
+                        App.getInstance().logout(true, OperationRecordsActivity.this);
+                        return;
+                    }
                     String msg = lockRecordBeanRsp.getMsg();
                     Timber.e("searchRecordFromNet code: %1s, msg: %2s", code,msg);
                     if(!TextUtils.isEmpty(msg)) {
@@ -501,6 +505,10 @@ public class OperationRecordsActivity extends BaseActivity {
                     return;
                 }
                 if(!code.equals("200")) {
+                    if(code.equals("444")) {
+                        App.getInstance().logout(true, OperationRecordsActivity.this);
+                        return;
+                    }
                     String msg = updateLockRecordBeanRsp.getMsg();
                     Timber.d("updateLockRecord code: %1s, msg: %2s", code, msg);
                     if(!TextUtils.isEmpty(msg)) {
@@ -571,8 +579,18 @@ public class OperationRecordsActivity extends BaseActivity {
                 switch (lockRecord.getEventCode()) {
                     case 0x07:
                         // 一键上锁
-//                message = "";
-//                drawableId =
+                        message = "One touch lock";
+                        drawableId = R.drawable.ic_home_log_icon_door_lock;
+                        break;
+                    case 0x08:
+                        // 手动上锁
+                        message = "Manual lock";
+                        drawableId = R.drawable.ic_home_log_icon_door_lock;
+                        break;
+                    case 0x09:
+                        // 机械钥匙开锁
+                        message = "Unlocked by mechanical key";
+                        drawableId = R.drawable.ic_home_log_icon__password;
                         break;
                     case 0x0A:
                         // 自动上锁
@@ -587,28 +605,27 @@ public class OperationRecordsActivity extends BaseActivity {
                         break;
                     case 0x11:
                         // 触摸开锁
-//                message = "";
-//                drawableId = R.drawable.ic_home_log_icon__password;
+                        message = "One touch unlock";
+                        drawableId = R.drawable.ic_home_log_icon__door_open;
                         break;
                     case 0x12:
                         // 反锁
                         message = "Double lock inside the door";
                         drawableId = R.drawable.ic_home_log_icon_door_lock;
                         break;
+                    case 0x13:
+                        // 门磁检测开门
+                        message = "Detection of door opened";
+                        drawableId = R.drawable.ic_home_log_icon_door_lock;
+                        break;
+                    case 0x14:
+                        // 门磁检测关门
+                        message = "Detection of closed door";
+                        drawableId = R.drawable.ic_home_log_icon_door_lock;
+                        break;
                     case 0x01:
                         // 上锁
                         switch (lockRecord.getEventSource()) {
-//                    case 0x00:
-//                        // 键盘
-//                        // TODO: 2021/3/29 通过编号识别对应用户
-//                        message = "Tester use password to lock";
-//                        drawableId = R.drawable.ic_home_log_icon_door_lock;
-//                        break;
-                            case 0x02:
-                                // 手动
-                                message = "Manual lock";
-                                drawableId = R.drawable.ic_home_log_icon_door_lock;
-                                break;
                             case 0x08:
                                 // App
                                 // TODO: 2021/3/29 通过编号识别对应用户
@@ -628,11 +645,6 @@ public class OperationRecordsActivity extends BaseActivity {
                                 // 键盘
                                 message = "Unlocked by password";
                                 drawableId = R.drawable.ic_home_log_icon__door_open;
-                                break;
-                            case 0x02:
-                                // 手动
-                                message = "Unlocked by mechanical key";
-                                drawableId = R.drawable.ic_home_log_icon__password;
                                 break;
                             case 0x08:
                                 // App
@@ -694,26 +706,26 @@ public class OperationRecordsActivity extends BaseActivity {
                         message = "The lock was picked";
                         drawableId = R.drawable.ic_home_log_icon__alert;
                         break;
-//                    case 0x08:
-//                        // 机械钥匙报警
-//                        message = "The door lock has been restored to factory Settings";
-//                        drawableId = R.drawable.ic_home_log_icon__alert;
-//                        break;
+                    case 0x08:
+                        // 机械钥匙报警
+                        message = "Mechanical key Alarm";
+                        drawableId = R.drawable.ic_home_log_icon__alert;
+                        break;
                     case 0x10:
                         // 低电压报警
                         message = "Low battery alarm";
                         drawableId = R.drawable.ic_home_log_icon__alert;
                         break;
-//                    case 0x20:
-//                        // 锁体异常报警
-//                        message = "The door lock has been restored to factory Settings";
-//                        drawableId = R.drawable.ic_home_log_icon__alert;
-//                        break;
-//                    case 0x40:
-//                        // 门锁布防报警
-//                        message = "The door lock has been restored to factory Settings";
-//                        drawableId = R.drawable.ic_home_log_icon__alert;
-//                        break;
+                    case 0x20:
+                        // 锁体异常报警
+                        message = "Abnormal lock body";
+                        drawableId = R.drawable.ic_home_log_icon__alert;
+                        break;
+                    case 0x40:
+                        // 门锁布防报警
+                        message = "Door lock arming";
+                        drawableId = R.drawable.ic_home_log_icon__alert;
+                        break;
                     case 0x41:
                         // 堵转报警
                         message = "Jam alarm";

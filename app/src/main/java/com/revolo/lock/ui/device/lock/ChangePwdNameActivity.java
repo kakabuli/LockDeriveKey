@@ -124,11 +124,16 @@ public class ChangePwdNameActivity extends BaseActivity {
             @Override
             public void onNext(@NonNull ChangeKeyNickBeanRsp changeKeyNickBeanRsp) {
                 dismissLoading();
-                if(TextUtils.isEmpty(changeKeyNickBeanRsp.getCode())) {
+                String code = changeKeyNickBeanRsp.getCode();
+                if(TextUtils.isEmpty(code)) {
                     Timber.e("changeKeyNickBeanRsp.getCode() is Empty");
                     return;
                 }
-                if(!changeKeyNickBeanRsp.getCode().equals("200")) {
+                if(!code.equals("200")) {
+                    if(code.equals("444")) {
+                        App.getInstance().logout(true, ChangePwdNameActivity.this);
+                        return;
+                    }
                     String msg = changeKeyNickBeanRsp.getMsg();
                     Timber.e("code: %1s, msg: %2s", changeKeyNickBeanRsp.getCode(), msg);
                     if(!TextUtils.isEmpty(msg)) {

@@ -256,10 +256,21 @@ public class DeviceSettingActivity extends BaseActivity {
             @Override
             public void onNext(@NonNull DeviceUnbindBeanRsp deviceUnbindBeanRsp) {
                 dismissLoading();
-                if(deviceUnbindBeanRsp.getCode() == null) {
+                String code = deviceUnbindBeanRsp.getCode();
+                if(code == null) {
+                    Timber.e("unbindDevice code == null");
                     return;
                 }
-                if(!deviceUnbindBeanRsp.getCode().equals("200")) {
+                if(!code.equals("200")) {
+                    if(code.equals("444")) {
+                        App.getInstance().logout(true, DeviceSettingActivity.this);
+                        return;
+                    }
+                    String msg = deviceUnbindBeanRsp.getMsg();
+                    if(!TextUtils.isEmpty(msg)) {
+                        ToastUtils.showShort(msg);
+                    }
+                    Timber.e("unbindDevice code: %1s, msg: %2s", code, msg);
                     return;
                 }
                 // TODO: 2021/2/6 抽离文字 和校对

@@ -298,6 +298,10 @@ public class UserPageActivity extends BaseActivity implements EasyPermissions.Pe
                     return;
                 }
                 if(!code.equals("200")) {
+                    if(code.equals("444")) {
+                        App.getInstance().logout(true, UserPageActivity.this);
+                        return;
+                    }
                     String msg = uploadUserAvatarBeanRsp.getMsg();
                     Timber.e("uploadUserAvatar code: %1s, msg: %2s", code, msg);
                     if(!TextUtils.isEmpty(msg)) {
@@ -403,6 +407,10 @@ public class UserPageActivity extends BaseActivity implements EasyPermissions.Pe
                     return;
                 }
                 if(!code.equals("200")) {
+                    if(code.equals("444")) {
+                        App.getInstance().logout(true, UserPageActivity.this);
+                        return;
+                    }
                     String msg = logoutBeanRsp.getMsg();
                     Timber.e("code: %1s, msg: %2s", code, msg);
                     if(!TextUtils.isEmpty(msg)) {
@@ -410,6 +418,7 @@ public class UserPageActivity extends BaseActivity implements EasyPermissions.Pe
                         return;
                     }
                 }
+                // TODO: 2021/3/30 退出操作
                 if(App.getInstance().getMainActivity() != null) {
                     App.getInstance().getMainActivity().finish();
                 }
