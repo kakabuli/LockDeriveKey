@@ -252,14 +252,15 @@ public class DoorSensorCheckActivity extends BaseActivity {
                     break;
                 case DOOR_HALF:
                     refreshDoorSuc();
+                    break;
+                case DOOR_SUC:
                     if(!isGoToAddWifi) {
                         mBleDeviceLocal.setOpenDoorSensor(true);
                         AppDatabase.getInstance(this).bleDeviceDao().update(mBleDeviceLocal);
                         new Handler(Looper.getMainLooper()).postDelayed(this::finish, 50);
+                    } else {
+                        gotoAddWifi();
                     }
-                    break;
-                case DOOR_SUC:
-                    gotoAddWifi();
                     break;
                 case DOOR_FAIL:
                     break;

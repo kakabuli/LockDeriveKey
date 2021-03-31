@@ -121,15 +121,13 @@ public class DeviceFragment extends Fragment {
         }
 
         initBaseData();
-        // TODO: 2021/3/4 按列表来处理
-        if(mBleDeviceLocals == null || mBleDeviceLocals.isEmpty()) {
-            initData(mBleDeviceLocals);
-        } else {
-            if(mBleDeviceLocals.get(0).getConnectedType() != LocalState.DEVICE_CONNECT_TYPE_WIFI) {
-                initData(mBleDeviceLocals);
-            }
-        }
         return root;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        initData(mBleDeviceLocals);
     }
 
     private void openOrCloseDoorFromBle(int position, @LocalState.LockState int state) {
@@ -327,7 +325,7 @@ public class DeviceFragment extends Fragment {
         System.arraycopy(bean.getPayload(), 4, time, 0, time.length);
         // TODO: 2021/2/8 要做时间都是ffffffff的处理判断
         long realTime = (BleByteUtil.bytesToLong(BleCommandFactory.littleMode(time)))*1000;
-        Timber.d("CMD: %1d, eventType: %2d, eventSource: %3d, eventCode: %4d, userID: %5d, time: %6d",
+        Timber.d("lockUpdateInfo CMD: %1d, eventType: %2d, eventSource: %3d, eventCode: %4d, userID: %5d, time: %6d",
                 bean.getCMD(), eventType, eventSource, eventCode, userID, realTime);
 
         // TODO: 2021/2/10 后期需要移植修改
@@ -336,7 +334,7 @@ public class DeviceFragment extends Fragment {
         }
         getActivity().runOnUiThread(() -> {
             if(eventType == 0x01) {
-                if(eventSource == 0x01) {
+                if(eventCode == 0x01) {
                     // 上锁
                     setLockState(getPositionFromMac(mac), LocalState.LOCK_STATE_CLOSE);
                 } else if(eventCode == 0x02) {
@@ -344,6 +342,21 @@ public class DeviceFragment extends Fragment {
                     setLockState(getPositionFromMac(mac), LocalState.LOCK_STATE_OPEN);
                 } else {
                     // TODO: 2021/2/10 其他处理
+                }
+            } else if(eventType == 0x04) {
+                // sensor附加状态，门磁
+                if(eventCode == LocalState.DOOR_SENSOR_OPEN) {
+                    // 开门
+                    setDoorState(getPositionFromMac(mac), LocalState.DOOR_SENSOR_OPEN);
+                } else if(eventCode == LocalState.DOOR_SENSOR_CLOSE) {
+                    // 关门
+                    setDoorState(getPositionFromMac(mac), LocalState.DOOR_SENSOR_CLOSE);
+                } else if(eventCode == LocalState.DOOR_SENSOR_EXCEPTION) {
+                    // 门磁异常
+                    // TODO: 2021/3/31 门磁异常的操作
+                    Timber.d("lockUpdateInfo 门磁异常");
+                } else {
+                    // TODO: 2021/3/31 异常值
                 }
             }
         });
@@ -403,9 +416,11 @@ public class DeviceFragment extends Fragment {
 
     private void initData(List<BleDeviceLocal> bleDeviceLocals) {
         if(bleDeviceLocals == null) {
+            Timber.e("initData bleDeviceLocals == null");
             return;
         }
         if(bleDeviceLocals.isEmpty()) {
+            Timber.e("initData bleDeviceLocals is Empty");
             return;
         }
         // TODO: 2021/3/7 暂时所有设备都连接上，后续得考虑如何优化，因为暂时只有很少设备测试，大规模设备需要另一套机制处理
@@ -483,6 +498,64 @@ public class DeviceFragment extends Fragment {
                     }
                 } else {
                     if(bleBean.getOKBLEDeviceImp() != null) {
+                        OnBleDeviceListener onBleDeviceListener = new OnBleDeviceListener() {
+                            @Override
+                            public void onConnected(@NotNull String mac) {
+
+                            }
+
+                            @Override
+                            public void onDisconnected(@NotNull String mac) {
+
+                            }
+
+                            @Override
+                            public void onReceivedValue(@NotNull String mac, String uuid, byte[] value) {
+                                if(value == null) {
+                                    return;
+                                }
+                                if(!local.getMac().equals(mac)) {
+                                    return;
+                                }
+                                BleBean bleBean = App.getInstance().getBleBeanFromMac(local.getMac());
+                                if(bleBean == null) {
+                                    return;
+                                }
+                                if(bleBean.getOKBLEDeviceImp() == null) {
+                                    return;
+                                }
+                                if(bleBean.getPwd1() == null) {
+                                    return;
+                                }
+                                if(bleBean.getPwd2() == null) {
+                                    return;
+                                }
+                                BleResultProcess.setOnReceivedProcess(bleResultBean -> {
+                                    if(bleResultBean == null) {
+                                        Timber.e("%1s mOnReceivedProcess bleResultBean == null", local.getMac());
+                                        return;
+                                    }
+                                    processBleResult(local.getMac(), bleResultBean);
+                                });
+                                BleResultProcess.processReceivedData(
+                                        value,
+                                        bleBean.getPwd1(),
+                                        (bleBean.getPwd3() == null)?bleBean.getPwd2():bleBean.getPwd3(),
+                                        bleBean.getOKBLEDeviceImp().getBleScanResult());
+                            }
+
+                            @Override
+                            public void onWriteValue(@NotNull String mac, String uuid, byte[] value, boolean success) {
+
+                            }
+
+                            @Override
+                            public void onAuthSuc(@NotNull String mac) {
+
+                            }
+
+                        };
+                        bleBean.setOnBleDeviceListener(onBleDeviceListener);
                         if(!bleBean.getOKBLEDeviceImp().isConnected()) {
                             bleBean.getOKBLEDeviceImp().connect(true);
                         }
