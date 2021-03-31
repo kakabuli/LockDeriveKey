@@ -28,7 +28,6 @@ import com.revolo.lock.dialog.iosloading.CustomerLoadingDialog;
 import com.revolo.lock.net.HttpRequest;
 import com.revolo.lock.net.ObservableDecorator;
 import com.revolo.lock.ui.TitleBar;
-import com.revolo.lock.ui.sign.ForgetThePwdActivity;
 
 import org.jetbrains.annotations.NotNull;
 

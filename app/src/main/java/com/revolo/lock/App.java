@@ -167,12 +167,11 @@ public class App extends Application {
         mConnectedBleBeanList.add(bleBean);
     }
 
-    public void removeConnectedBleBeanAndDisconnect(BleBean bean) {
+    public void removeConnectedBleBeanAndDisconnect(@NotNull BleBean bean) {
         if(mConnectedBleBeanList.isEmpty()) {
             return;
         }
-        if(bean != null
-                && bean.getOKBLEDeviceImp() != null) {
+        if(bean.getOKBLEDeviceImp() != null) {
             bean.getOKBLEDeviceImp().disConnect(false);
         }
         for (BleBean bleBean : mConnectedBleBeanList) {

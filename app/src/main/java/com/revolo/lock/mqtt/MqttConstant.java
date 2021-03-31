@@ -94,4 +94,10 @@ public class MqttConstant {
     // 设置门锁属性
     public static final String SET_LOCK_ATTR = "setLockAttr";
 
+    // 操作事件
+    public static final String WF_EVENT = "wfevent";
+
+    // 记录
+    public static final String RECORD = "record";
+
 }

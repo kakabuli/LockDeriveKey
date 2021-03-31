@@ -31,6 +31,7 @@ import com.revolo.lock.ble.bean.BleResultBean;
 import com.revolo.lock.mqtt.MqttCommandFactory;
 import com.revolo.lock.mqtt.MqttConstant;
 import com.revolo.lock.mqtt.bean.MqttData;
+import com.revolo.lock.mqtt.bean.eventbean.WifiLockOperationEventBean;
 import com.revolo.lock.mqtt.bean.publishresultbean.WifiLockDoorOptResponseBean;
 import com.revolo.lock.room.AppDatabase;
 import com.revolo.lock.room.entity.BleDeviceLocal;
@@ -76,12 +77,11 @@ public class DeviceDetailActivity extends BaseActivity {
     @Override
     public void initView(@Nullable Bundle savedInstanceState, @Nullable View contentView) {
         useCommonTitleBar("Homepage");
-        initDevice();
-
     }
 
     @Override
     public void doBusiness() {
+        initDevice();
         if(mBleDeviceLocal.getConnectedType() != LocalState.DEVICE_CONNECT_TYPE_WIFI) {
             BleBean bleBean = App.getInstance().getBleBeanFromMac(mBleDeviceLocal.getMac());
             if(bleBean != null) {
@@ -192,7 +192,7 @@ public class DeviceDetailActivity extends BaseActivity {
         if(bean.getCMD() == BleProtocolState.CMD_LOCK_INFO) {
             lockInfo(bean);
         } else if(bean.getCMD() == BleProtocolState.CMD_LOCK_CONTROL_ACK) {
-            controlOpenOrCloseDoorAck(bean);
+            // TODO: 2021/3/31 看是否需要判定锁
         } else if(bean.getCMD() == BleProtocolState.CMD_LOCK_UPLOAD) {
             lockUpdateInfo(bean);
         }
@@ -228,18 +228,6 @@ public class DeviceDetailActivity extends BaseActivity {
 
     }
 
-    private void controlOpenOrCloseDoorAck(BleResultBean bean) {
-        // TODO: 2021/2/7 处理控制开关锁确认帧
-        runOnUiThread(() -> {
-            if(bean.getPayload()[0] == 0x00) {
-                // 上锁
-                refreshLockState();
-                initDevice();
-            }
-        });
-
-    }
-
     private void refreshLockState() {
         @LocalState.LockState int state = mBleDeviceLocal.getLockState();
         if(state == LocalState.LOCK_STATE_OPEN) {
@@ -254,6 +242,13 @@ public class DeviceDetailActivity extends BaseActivity {
     private void setLockState(@LocalState.LockState int state) {
         mBleDeviceLocal.setLockState(state);
         AppDatabase.getInstance(this).bleDeviceDao().update(mBleDeviceLocal);
+        initDevice();
+    }
+
+    private void setDoorState(@LocalState.DoorSensor int door) {
+        mBleDeviceLocal.setDoorSensor(door);
+        AppDatabase.getInstance(this).bleDeviceDao().update(mBleDeviceLocal);
+        initDevice();
     }
 
     private void lockUpdateInfo(BleResultBean bean) {
@@ -272,16 +267,29 @@ public class DeviceDetailActivity extends BaseActivity {
         // TODO: 2021/2/10 后期需要移植修改
         runOnUiThread(() -> {
             if(eventType == 0x01) {
-                if(eventSource == 0x01) {
+                if(eventCode == 0x01) {
                     // 上锁
                     setLockState(LocalState.LOCK_STATE_CLOSE);
-                    initDevice();
                 } else if(eventCode == 0x02) {
                     // 开锁
                     setLockState(LocalState.LOCK_STATE_OPEN);
-                    initDevice();
                 } else {
                     // TODO: 2021/2/10 其他处理
+                }
+            } else if(eventType == 0x04) {
+                // sensor附加状态，门磁
+                if(eventCode == LocalState.DOOR_SENSOR_OPEN) {
+                    // 开门
+                    setDoorState(LocalState.DOOR_SENSOR_OPEN);
+                } else if(eventCode == LocalState.DOOR_SENSOR_CLOSE) {
+                    // 关门
+                    setDoorState(LocalState.DOOR_SENSOR_CLOSE);
+                } else if(eventCode == LocalState.DOOR_SENSOR_EXCEPTION) {
+                    // 门磁异常
+                    // TODO: 2021/3/31 门磁异常的操作
+                    Timber.d("lockUpdateInfo 门磁异常");
+                } else {
+                    // TODO: 2021/3/31 异常值
                 }
             }
         });
@@ -307,6 +315,8 @@ public class DeviceDetailActivity extends BaseActivity {
         if(mBleDeviceLocal == null) {
             return;
         }
+        // 低电量
+        llLowBattery.setVisibility(mBleDeviceLocal.getLockPower() <= 20?View.VISIBLE:View.GONE);
         if(mBleDeviceLocal.getLockState() == LocalState.LOCK_STATE_PRIVATE) {
             ivLockState.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_home_img_lock_privacymodel));
             tvPrivateMode.setVisibility(View.VISIBLE);
@@ -314,17 +324,49 @@ public class DeviceDetailActivity extends BaseActivity {
         } else {
             tvPrivateMode.setVisibility(View.GONE);
             llDoorState.setVisibility(View.VISIBLE);
+            boolean isUseDoorSensor = mBleDeviceLocal.isOpenDoorSensor();
             if(mBleDeviceLocal.getLockState() == LocalState.LOCK_STATE_OPEN) {
                 ivLockState.setImageResource(R.drawable.ic_home_img_lock_open);
-                ivDoorState.setImageResource(R.drawable.ic_home_icon_door_open);
-                tvDoorState.setText(R.string.tip_opened);
+                if(isUseDoorSensor) {
+                    switch (mBleDeviceLocal.getDoorSensor()) {
+                        case LocalState.DOOR_SENSOR_CLOSE:
+                            doorClose(ivDoorState, tvDoorState);
+                            break;
+                        case LocalState.DOOR_SENSOR_EXCEPTION:
+                            break;
+                        case LocalState.DOOR_SENSOR_INIT:
+                            break;
+                        case LocalState.DOOR_SENSOR_OPEN:
+                            doorOpen(ivDoorState, tvDoorState);
+                            break;
+                    }
+                } else {
+                    doorOpen(ivDoorState, tvDoorState);
+                }
+
             } else if(mBleDeviceLocal.getLockState() == LocalState.LOCK_STATE_CLOSE) {
                 ivLockState.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_home_img_lock_close));
-                ivDoorState.setImageResource(R.drawable.ic_home_icon_door_closed);
-                tvDoorState.setText(R.string.tip_closed);
+                if(isUseDoorSensor) {
+                    switch (mBleDeviceLocal.getDoorSensor()) {
+                        case LocalState.DOOR_SENSOR_CLOSE:
+                            doorClose(ivDoorState, tvDoorState);
+                            break;
+                        case LocalState.DOOR_SENSOR_EXCEPTION:
+                            break;
+                        case LocalState.DOOR_SENSOR_INIT:
+                            break;
+                        case LocalState.DOOR_SENSOR_OPEN:
+                            doorOpen(ivDoorState, tvDoorState);
+                            break;
+                    }
+                } else {
+                    doorClose(ivDoorState, tvDoorState);
+                }
             } else {
-
+                // TODO: 2021/3/31 其他选择
+                Timber.e("");
             }
+
         }
         if(mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI) {
             ivNetState.setImageResource(R.drawable.ic_home_icon_wifi);
@@ -332,15 +374,26 @@ public class DeviceDetailActivity extends BaseActivity {
             ivNetState.setImageResource(R.drawable.ic_home_icon_bluetooth);
         } else {
             // TODO: 2021/3/2 其他选择
+            Timber.e("");
         }
         tvNetState.setText(getString(R.string.tip_online));
 
     }
 
+    private void doorClose(ImageView ivDoorState, TextView tvDoorState) {
+        ivDoorState.setImageResource(R.drawable.ic_home_icon_door_closed);
+        tvDoorState.setText(R.string.tip_closed);
+    }
+
+    private void doorOpen(ImageView ivDoorState, TextView tvDoorState) {
+        ivDoorState.setImageResource(R.drawable.ic_home_icon_door_open);
+        tvDoorState.setText(R.string.tip_opened);
+    }
+
     private void openDoor() {
         @LocalState.LockState int state = mBleDeviceLocal.getLockState();
         if(mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI) {
-            publishOpenOrCloseDoor(
+            publishOpenOrCloseLock(
                     mBleDeviceLocal.getEsn(),
                     state==LocalState.LOCK_STATE_OPEN?LocalState.DOOR_STATE_CLOSE:LocalState.DOOR_STATE_OPEN,
                     mBleDeviceLocal.getRandomCode());
@@ -369,11 +422,11 @@ public class DeviceDetailActivity extends BaseActivity {
     }
 
     /**
-     *  开关门
+     *  开关锁
      * @param wifiId wifi的id
-     * @param doorOpt 1:表示开门，0表示关门
+     * @param doorOpt 1:表示开锁，0表示关锁
      */
-    public void publishOpenOrCloseDoor(String wifiId, @LocalState.DoorState int doorOpt, String randomCode) {
+    public void publishOpenOrCloseLock(String wifiId, @LocalState.DoorState int doorOpt, String randomCode) {
         if(App.getInstance().getUserBean() == null) {
             Timber.e("publishOpenOrCloseDoor App.getInstance().getUserBean() == null");
             return;
@@ -397,35 +450,7 @@ public class DeviceDetailActivity extends BaseActivity {
 
             @Override
             public void onNext(@NotNull MqttData mqttData) {
-                if(TextUtils.isEmpty(mqttData.getFunc())) {
-                    return;
-                }
-                // TODO: 2021/3/3 处理开关门的回调信息
-                if(mqttData.getFunc().equals(MqttConstant.SET_LOCK)) {
-                    dismissLoading();
-                    Timber.d("publishOpenOrCloseDoor 开关门信息: %1s", mqttData);
-                    WifiLockDoorOptResponseBean bean;
-                    try {
-                        bean = GsonUtils.fromJson(mqttData.getPayload(), WifiLockDoorOptResponseBean.class);
-                    } catch (JsonSyntaxException e) {
-                        Timber.e(e);
-                        return;
-                    }
-                    if(bean == null) {
-                        Timber.e("publishOpenOrCloseDoor bean == null");
-                        return;
-                    }
-                    if(bean.getParams() == null) {
-                        Timber.e("publishOpenOrCloseDoor bean.getParams() == null");
-                        return;
-                    }
-                    if(bean.getCode() != 200) {
-                        Timber.e("publishOpenOrCloseDoor code : %1d", bean.getCode());
-                        return;
-                    }
-                    refreshLockState();
-                }
-                Timber.d("publishOpenOrCloseDoor %1s", mqttData.toString());
+                processMQttMsg(mqttData);
             }
 
             @Override
@@ -439,6 +464,97 @@ public class DeviceDetailActivity extends BaseActivity {
 
             }
         });
+    }
+
+    private void processMQttMsg(@NotNull MqttData mqttData) {
+        if(TextUtils.isEmpty(mqttData.getFunc())) {
+            return;
+        }
+        // TODO: 2021/3/3 处理开关锁的回调信息
+        if(mqttData.getFunc().equals(MqttConstant.SET_LOCK)) {
+            processSetLock(mqttData);
+        } else if(mqttData.getFunc().equals(MqttConstant.WF_EVENT)) {
+            processRecord(mqttData);
+        }
+    }
+
+    private void processRecord(@NotNull MqttData mqttData) {
+        WifiLockOperationEventBean bean;
+        try {
+            bean = GsonUtils.fromJson(mqttData.getPayload(), WifiLockOperationEventBean.class);
+        } catch (JsonSyntaxException e) {
+            Timber.e(e);
+            return;
+        }
+        if(bean == null) {
+            Timber.e("processRecord RECORD bean == null");
+            return;
+        }
+        if(bean.getWfId() == null) {
+            Timber.e("processRecord RECORD bean.getWfId() == null");
+            return;
+        }
+        if(!bean.getWfId().equals(mBleDeviceLocal.getEsn())) {
+            Timber.e("processRecord RECORD wifiId: %1s current esn: %2s",
+                    bean.getWfId(), mBleDeviceLocal.getEsn());
+            return;
+        }
+        if(bean.getEventparams() == null) {
+            Timber.e("processRecord RECORD bean.getEventparams() == null");
+            return;
+        }
+        if(bean.getEventtype() == null) {
+            Timber.e("processRecord RECORD bean.getEventtype() == null");
+            return;
+        }
+        if(!bean.getEventtype().equals(MqttConstant.RECORD)) {
+            Timber.e("processRecord RECORD eventType: %1s", bean.getEventtype());
+            return;
+        }
+        if(bean.getEventparams().getEventType() == 1) {
+            // 动作操作
+            if(bean.getEventparams().getEventCode() == 1) {
+                // 上锁
+                setLockState(LocalState.LOCK_STATE_CLOSE);
+            } else if(bean.getEventparams().getEventCode() == 2) {
+                // 开锁
+                setLockState(LocalState.LOCK_STATE_OPEN);
+            }
+        } else if(bean.getEventparams().getEventType() == 4) {
+            // 传感器上报，门磁
+            if(bean.getEventparams().getEventCode() == 1) {
+                // 门磁开门
+                setDoorState(LocalState.DOOR_SENSOR_OPEN);
+            } else if(bean.getEventparams().getEventCode() == 2) {
+                // 门磁关门
+                setDoorState(LocalState.DOOR_SENSOR_CLOSE);
+            } else if(bean.getEventparams().getEventCode() == 3) {
+                // 门磁异常
+                Timber.e("processRecord 门磁异常");
+            }
+        }
+    }
+
+    private void processSetLock(@NotNull MqttData mqttData) {
+        dismissLoading();
+        WifiLockDoorOptResponseBean bean;
+        try {
+            bean = GsonUtils.fromJson(mqttData.getPayload(), WifiLockDoorOptResponseBean.class);
+        } catch (JsonSyntaxException e) {
+            Timber.e(e);
+            return;
+        }
+        if(bean == null) {
+            Timber.e("processSetLock bean == null");
+            return;
+        }
+        if(bean.getParams() == null) {
+            Timber.e("processSetLock bean.getParams() == null");
+            return;
+        }
+        if(bean.getCode() != 200) {
+            Timber.e("processSetLock code : %1d", bean.getCode());
+        }
     }
 
 

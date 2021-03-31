@@ -1,6 +1,8 @@
 package com.revolo.lock.adapter;
 
 import android.text.TextUtils;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.chad.library.adapter.base.viewholder.BaseViewHolder;
@@ -40,14 +42,45 @@ public class HomeLockListAdapter extends BaseQuickAdapter<BleDeviceLocal, BaseVi
             baseViewHolder.setGone(R.id.ivDoorState, true);
         } else {
             baseViewHolder.setGone(R.id.ivDoorState, false);
+            boolean isUseDoorSensor = deviceLocal.isOpenDoorSensor();
+            ImageView ivDoorState = baseViewHolder.getView(R.id.ivDoorState);
+            TextView tvDoorState = baseViewHolder.getView(R.id.tvDoorState);
             if(deviceLocal.getLockState() == LocalState.LOCK_STATE_OPEN) {
                 baseViewHolder.setImageResource(R.id.ivLockState, R.drawable.ic_home_img_lock_open);
-                baseViewHolder.setImageResource(R.id.ivDoorState, R.drawable.ic_home_icon_door_open);
-                baseViewHolder.setText(R.id.tvDoorState, getContext().getString(R.string.tip_door_opened));
+                if(isUseDoorSensor) {
+                    switch (deviceLocal.getDoorSensor()) {
+                        case LocalState.DOOR_SENSOR_CLOSE:
+                            doorClose(ivDoorState, tvDoorState);
+                            break;
+                        case LocalState.DOOR_SENSOR_EXCEPTION:
+                            break;
+                        case LocalState.DOOR_SENSOR_INIT:
+                            break;
+                        case LocalState.DOOR_SENSOR_OPEN:
+                            doorOpen(ivDoorState, tvDoorState);
+                            break;
+                    }
+                } else {
+                    doorOpen(ivDoorState, tvDoorState);
+                }
             } else if(deviceLocal.getLockState() == LocalState.LOCK_STATE_CLOSE) {
                 baseViewHolder.setImageResource(R.id.ivLockState, R.drawable.ic_home_img_lock_close);
-                baseViewHolder.setImageResource(R.id.ivDoorState, R.drawable.ic_home_icon_door_closed);
-                baseViewHolder.setText(R.id.tvDoorState, getContext().getString(R.string.tip_door_closed));
+                if(isUseDoorSensor) {
+                    switch (deviceLocal.getDoorSensor()) {
+                        case LocalState.DOOR_SENSOR_CLOSE:
+                            doorClose(ivDoorState, tvDoorState);
+                            break;
+                        case LocalState.DOOR_SENSOR_EXCEPTION:
+                            break;
+                        case LocalState.DOOR_SENSOR_INIT:
+                            break;
+                        case LocalState.DOOR_SENSOR_OPEN:
+                            doorOpen(ivDoorState, tvDoorState);
+                            break;
+                    }
+                } else {
+                    doorClose(ivDoorState, tvDoorState);
+                }
             }
         }
         if(deviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI) {
@@ -61,6 +94,16 @@ public class HomeLockListAdapter extends BaseQuickAdapter<BleDeviceLocal, BaseVi
         baseViewHolder.setText(R.id.tvLockName, TextUtils.isEmpty(name)?
                 (TextUtils.isEmpty(deviceLocal.getEsn())?"":deviceLocal.getEsn())
                 :name);
+    }
+
+    private void doorClose(ImageView ivDoorState, TextView tvDoorState) {
+        ivDoorState.setImageResource(R.drawable.ic_home_icon_door_closed);
+        tvDoorState.setText(R.string.tip_closed);
+    }
+
+    private void doorOpen(ImageView ivDoorState, TextView tvDoorState) {
+        ivDoorState.setImageResource(R.drawable.ic_home_icon_door_open);
+        tvDoorState.setText(R.string.tip_opened);
     }
 
 }

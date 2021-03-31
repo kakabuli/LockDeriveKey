@@ -36,6 +36,7 @@ import com.revolo.lock.dialog.iosloading.CustomerLoadingDialog;
 import com.revolo.lock.mqtt.MqttCommandFactory;
 import com.revolo.lock.mqtt.MqttConstant;
 import com.revolo.lock.mqtt.bean.MqttData;
+import com.revolo.lock.mqtt.bean.eventbean.WifiLockOperationEventBean;
 import com.revolo.lock.mqtt.bean.publishresultbean.WifiLockDoorOptResponseBean;
 import com.revolo.lock.mqtt.bean.publishresultbean.WifiLockGetAllBindDeviceRspBean;
 import com.revolo.lock.room.AppDatabase;
@@ -246,7 +247,7 @@ public class DeviceFragment extends Fragment {
         if(bean.getCMD() == BleProtocolState.CMD_LOCK_INFO) {
             lockInfo(mac, bean);
         } else if(bean.getCMD() == BleProtocolState.CMD_LOCK_CONTROL_ACK) {
-            controlOpenOrCloseDoorAck(mac, bean);
+//            controlOpenOrCloseDoorAck(mac, bean);
         } else if(bean.getCMD() == BleProtocolState.CMD_LOCK_UPLOAD) {
             lockUpdateInfo(mac, bean);
         }
@@ -282,25 +283,24 @@ public class DeviceFragment extends Fragment {
 
     }
 
-    private void controlOpenOrCloseDoorAck(@NotNull String mac, BleResultBean bean) {
-        // TODO: 2021/2/7 处理控制开关锁确认帧
-        if(getActivity() == null) {
-            return;
-        }
-        getActivity().runOnUiThread(() -> {
-            if(bean.getPayload()[0] == 0x00) {
-                refreshLockState(getPositionFromMac(mac));
-            }
-        });
-
-    }
-
     private int getPositionFromMac(@NotNull String mac) {
         if(mBleDeviceLocals.isEmpty()) {
             return -1;
         }
         for (int i=0; i<mBleDeviceLocals.size(); i++) {
             if(mac.equals(mBleDeviceLocals.get(i).getMac())) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    private int getPositionFromWifiId(@NotNull String wifiID) {
+        if(mBleDeviceLocals.isEmpty()) {
+            return -1;
+        }
+        for (int i=0; i<mBleDeviceLocals.size(); i++) {
+            if(wifiID.equals(mBleDeviceLocals.get(i).getEsn())) {
                 return i;
             }
         }
@@ -361,6 +361,23 @@ public class DeviceFragment extends Fragment {
         getActivity().runOnUiThread(() -> {
             BleDeviceLocal local = mHomeLockListAdapter.getData().get(index);
             local.setLockState(state);
+            AppDatabase.getInstance(getContext()).bleDeviceDao().update(local);
+            mHomeLockListAdapter.notifyDataSetChanged();
+        });
+    }
+
+    private void setDoorState(int index, @LocalState.DoorSensor int state) {
+        if(getActivity() == null) {
+            Timber.e("setDoorState getActivity() == null");
+            return;
+        }
+        if(index == -1) {
+            Timber.e("setDoorState index == -1");
+            return;
+        }
+        getActivity().runOnUiThread(() -> {
+            BleDeviceLocal local = mHomeLockListAdapter.getData().get(index);
+            local.setDoorSensor(state);
             AppDatabase.getInstance(getContext()).bleDeviceDao().update(local);
             mHomeLockListAdapter.notifyDataSetChanged();
         });
@@ -552,35 +569,7 @@ public class DeviceFragment extends Fragment {
 
             @Override
             public void onNext(@NotNull MqttData mqttData) {
-                if(TextUtils.isEmpty(mqttData.getFunc())) {
-                    return;
-                }
-                // TODO: 2021/3/3 处理开关门的回调信息
-                if(mqttData.getFunc().equals(MqttConstant.SET_LOCK)) {
-                    dismissLoading();
-                    Timber.d("publishOpenOrCloseDoor 开关门信息: %1s", mqttData);
-                    WifiLockDoorOptResponseBean bean;
-                    try {
-                        bean = GsonUtils.fromJson(mqttData.getPayload(), WifiLockDoorOptResponseBean.class);
-                    } catch (JsonSyntaxException e) {
-                        Timber.e(e);
-                        return;
-                    }
-                    if(bean == null) {
-                        Timber.e("publishOpenOrCloseDoor bean == null");
-                        return;
-                    }
-                    if(bean.getParams() == null) {
-                        Timber.e("publishOpenOrCloseDoor bean.getParams() == null");
-                        return;
-                    }
-                    if(bean.getCode() != 200) {
-                        Timber.e("publishOpenOrCloseDoor code : %1d", bean.getCode());
-                        return;
-                    }
-                    refreshLockState(getPositionFromMac(bleDeviceLocal.getMac()));
-                }
-                Timber.d("publishOpenOrCloseDoor %1s", mqttData.toString());
+                processMQttMsg(mqttData, wifiId);
             }
 
             @Override
@@ -594,6 +583,96 @@ public class DeviceFragment extends Fragment {
 
             }
         });
+    }
+
+    private void processMQttMsg(@NotNull MqttData mqttData, String wifiId) {
+        if(TextUtils.isEmpty(mqttData.getFunc())) {
+            return;
+        }
+        if(mqttData.getFunc().equals(MqttConstant.SET_LOCK)) {
+            processSetLock(mqttData);
+        } else if(mqttData.getFunc().equals(MqttConstant.WF_EVENT)) {
+            processRecord(mqttData, wifiId);
+        }
+    }
+
+    private void processRecord(@NotNull MqttData mqttData, String wifiId) {
+        WifiLockOperationEventBean bean;
+        try {
+            bean = GsonUtils.fromJson(mqttData.getPayload(), WifiLockOperationEventBean.class);
+        } catch (JsonSyntaxException e) {
+            Timber.e(e);
+            return;
+        }
+        if(bean == null) {
+            Timber.e("processRecord RECORD bean == null");
+            return;
+        }
+        if(bean.getWfId() == null) {
+            Timber.e("processRecord RECORD bean.getWfId() == null");
+            return;
+        }
+        if(!bean.getWfId().equals(wifiId)) {
+            Timber.e("processRecord RECORD wifiId: %1s current esn: %2s",
+                    bean.getWfId(), wifiId);
+            return;
+        }
+        if(bean.getEventparams() == null) {
+            Timber.e("processRecord RECORD bean.getEventparams() == null");
+            return;
+        }
+        if(bean.getEventtype() == null) {
+            Timber.e("processRecord RECORD bean.getEventtype() == null");
+            return;
+        }
+        if(!bean.getEventtype().equals(MqttConstant.RECORD)) {
+            Timber.e("processRecord RECORD eventType: %1s", bean.getEventtype());
+            return;
+        }
+        if(bean.getEventparams().getEventType() == 1) {
+            // 动作操作
+            if(bean.getEventparams().getEventCode() == 1) {
+                // 上锁
+                setLockState(getPositionFromWifiId(wifiId), LocalState.LOCK_STATE_CLOSE);
+            } else if(bean.getEventparams().getEventCode() == 2) {
+                // 开锁
+                setLockState(getPositionFromWifiId(wifiId), LocalState.LOCK_STATE_OPEN);
+            }
+        } else if(bean.getEventparams().getEventType() == 4) {
+            // 传感器上报，门磁
+            if(bean.getEventparams().getEventCode() == 1) {
+                // 门磁开门
+                setDoorState(getPositionFromWifiId(wifiId), LocalState.DOOR_SENSOR_OPEN);
+            } else if(bean.getEventparams().getEventCode() == 2) {
+                // 门磁关门
+                setDoorState(getPositionFromWifiId(wifiId), LocalState.DOOR_SENSOR_CLOSE);
+            } else if(bean.getEventparams().getEventCode() == 3) {
+                // 门磁异常
+                Timber.e("processRecord 门磁异常");
+            }
+        }
+    }
+
+    private void processSetLock(@NotNull MqttData mqttData) {
+        dismissLoading();
+        WifiLockDoorOptResponseBean bean;
+        try {
+            bean = GsonUtils.fromJson(mqttData.getPayload(), WifiLockDoorOptResponseBean.class);
+        } catch (JsonSyntaxException e) {
+            Timber.e(e);
+            return;
+        }
+        if(bean == null) {
+            Timber.e("processSetLock bean == null");
+            return;
+        }
+        if(bean.getParams() == null) {
+            Timber.e("processSetLock bean.getParams() == null");
+            return;
+        }
+        if(bean.getCode() != 200) {
+            Timber.e("processSetLock code : %1d", bean.getCode());
+        }
     }
 
 }

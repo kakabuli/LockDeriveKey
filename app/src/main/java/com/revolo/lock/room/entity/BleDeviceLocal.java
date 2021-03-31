@@ -60,7 +60,7 @@ public class BleDeviceLocal implements Parcelable {
     private String lockVer;                                         // 锁端的版本号
 
     @ColumnInfo(name = "d_door_sensor")
-    private int doorSensor;                                         // 门磁的当前状态
+    private @LocalState.DoorSensor int doorSensor;                  // 门磁的当前状态
 
     @ColumnInfo(name = "d_connected_wifi_name")
     private String connectedWifiName;                               // 连接上的wifi名称
@@ -212,11 +212,11 @@ public class BleDeviceLocal implements Parcelable {
         this.lockVer = lockVer;
     }
 
-    public int getDoorSensor() {
+    public @LocalState.DoorSensor int getDoorSensor() {
         return doorSensor;
     }
 
-    public void setDoorSensor(int doorSensor) {
+    public void setDoorSensor(@LocalState.DoorSensor int doorSensor) {
         this.doorSensor = doorSensor;
     }
 

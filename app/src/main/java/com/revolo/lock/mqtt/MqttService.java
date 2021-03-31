@@ -222,6 +222,7 @@ public class MqttService extends Service {
 
             @Override
             public void messageArrived(String topic, MqttMessage message) throws Exception {
+                // TODO: 2021/3/31 消息处理机制存在问题，需要修复
                 if (message == null) {
                     return;
                 }
