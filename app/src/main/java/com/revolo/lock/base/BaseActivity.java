@@ -16,10 +16,10 @@ import androidx.core.content.ContextCompat;
 
 import com.blankj.utilcode.util.AdaptScreenUtils;
 import com.blankj.utilcode.util.ClickUtils;
-import com.kaadas.lock.shulan.KeepAliveManager;
-import com.kaadas.lock.shulan.config.ForegroundNotification;
-import com.kaadas.lock.shulan.config.ForegroundNotificationClickListener;
-import com.kaadas.lock.shulan.config.RunMode;
+import com.revolo.lock.shulan.KeepAliveManager;
+import com.revolo.lock.shulan.config.ForegroundNotification;
+import com.revolo.lock.shulan.config.ForegroundNotificationClickListener;
+import com.revolo.lock.shulan.config.RunMode;
 import com.revolo.lock.App;
 import com.revolo.lock.R;
 import com.revolo.lock.dialog.iosloading.CustomerLoadingDialog;

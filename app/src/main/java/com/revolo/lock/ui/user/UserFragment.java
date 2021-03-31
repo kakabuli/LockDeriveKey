@@ -170,14 +170,12 @@ public class UserFragment extends Fragment {
                 .create();
     }
 
-    // TODO: 2021/3/4 修改抽离文字
     public void showLoading(@NotNull String message) {
         if(mLoadingDialog != null) {
             if(mLoadingDialog.isShowing()) {
                 mLoadingDialog.dismiss();
             }
         }
-        // TODO: 2021/2/25 抽离文字
         mLoadingDialog = new CustomerLoadingDialog.Builder(getContext())
                 .setMessage(message)
                 .setCancelable(true)
