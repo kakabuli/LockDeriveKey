@@ -192,11 +192,16 @@ public class WifiConnectActivity extends BaseActivity {
     };
 
     private void gotoWifiPairFail() {
-        Intent intent = new Intent(this, AddWifiFailActivity.class);
-        intent.putExtra(Constant.WIFI_NAME, mWifiName);
-        intent.putExtra(Constant.WIFI_PWD, mWifiPwd);
-        startActivity(intent);
-        finish();
+        App.getInstance().setWifiSettingNeedToCloseBle(false);
+        mBleDeviceLocal.setConnectedType(LocalState.DEVICE_CONNECT_TYPE_BLE);
+        AppDatabase.getInstance(this).bleDeviceDao().update(mBleDeviceLocal);
+        new Handler(Looper.getMainLooper()).postDelayed(() -> {
+            Intent intent = new Intent(WifiConnectActivity.this, AddWifiFailActivity.class);
+            intent.putExtra(Constant.WIFI_NAME, mWifiName);
+            intent.putExtra(Constant.WIFI_PWD, mWifiPwd);
+            startActivity(intent);
+            finish();
+        }, 50);
     }
 
     private void changeValue(int value) {

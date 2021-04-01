@@ -59,7 +59,6 @@ import static com.revolo.lock.Constant.DEFAULT_TIMEOUT_SEC_VALUE;
 import static com.revolo.lock.ble.BleCommandState.KNOCK_DOOR_SENSITIVITY_HIGH;
 import static com.revolo.lock.ble.BleCommandState.KNOCK_DOOR_SENSITIVITY_LOW;
 import static com.revolo.lock.ble.BleCommandState.KNOCK_DOOR_SENSITIVITY_MEDIUM;
-import static com.revolo.lock.ble.BleProtocolState.CMD_KNOCK_DOOR_AND_UNLOCK_TIME;
 import static com.revolo.lock.ble.BleProtocolState.CMD_SET_SENSITIVITY;
 
 /**
@@ -528,7 +527,7 @@ public class GeoFenceUnlockActivity extends BaseActivity implements OnMapReadyCa
                             Timber.e("publishApproachOpen mqttData.getFunc() is empty");
                             return;
                         }
-                        if(mqttData.getFunc().equals(MqttConstant.APP_ROACHOPEN)) {
+                        if(mqttData.getFunc().equals(MqttConstant.APP_ROACH_OPEN)) {
                             dismissLoading();
                             Timber.d("publishApproachOpen 无感开门: %1s", mqttData);
                             WifiLockApproachOpenResponseBean bean;

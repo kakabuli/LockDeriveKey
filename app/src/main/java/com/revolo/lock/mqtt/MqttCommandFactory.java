@@ -84,7 +84,7 @@ public class MqttCommandFactory {
                 messageId,
                 App.getInstance().getUserBean().getUid(),
                 wifiID,
-                MqttConstant.APP_ROACHOPEN,
+                MqttConstant.APP_ROACH_OPEN,
                 approachOpenPublishBean,
                 (System.currentTimeMillis()/1000) + "");
         String base64Json = getEncryptString(pwd, wifiLockApproachOpenPublishBean);

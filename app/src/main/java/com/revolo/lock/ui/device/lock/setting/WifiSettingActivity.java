@@ -19,7 +19,6 @@ import com.blankj.utilcode.util.GsonUtils;
 import com.blankj.utilcode.util.ToastUtils;
 import com.google.gson.JsonSyntaxException;
 import com.revolo.lock.App;
-import com.revolo.lock.Constant;
 import com.revolo.lock.LocalState;
 import com.revolo.lock.R;
 import com.revolo.lock.base.BaseActivity;
@@ -33,6 +32,7 @@ import com.revolo.lock.ble.bean.BleResultBean;
 import com.revolo.lock.mqtt.MqttCommandFactory;
 import com.revolo.lock.mqtt.MqttConstant;
 import com.revolo.lock.mqtt.bean.MqttData;
+import com.revolo.lock.mqtt.bean.publishresultbean.WifiLockApproachOpenResponseBean;
 import com.revolo.lock.mqtt.bean.publishresultbean.WifiLockCloseWifiResponseBean;
 import com.revolo.lock.room.AppDatabase;
 import com.revolo.lock.room.entity.BleDeviceLocal;
@@ -102,7 +102,7 @@ public class WifiSettingActivity extends BaseActivity {
     public void onDebouncingClick(@NonNull View view) {
         if(view.getId() == R.id.ivWifiEnable) {
             if(isWifiConnected) {
-                closeWifiFromMqtt();
+                closeWifiFromMQtt();
             } else {
                 String wifiName = mBleDeviceLocal.getConnectedWifiName();
                 if(TextUtils.isEmpty(wifiName)) {
@@ -116,14 +116,7 @@ public class WifiSettingActivity extends BaseActivity {
         if(view.getId() == R.id.tvWifiName || view.getId() == R.id.tvSettingTitle) {
             // TODO: 2021/4/1 先开启蓝牙再跳转
             if(mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI) {
-                showLoading();
-                connectBle();
-                new Handler(Looper.getMainLooper()).postDelayed(() -> {
-                    dismissLoading();
-                    Intent intent = new Intent(this, AddWifiActivity.class);
-                    intent.putExtra(Constant.IS_NEED_TO_CLOSE_BLE, true);
-                    startActivity(intent);
-                }, 10000);
+                openBleFromMQtt();
             } else {
                 gotoAddWifiAct();
             }
@@ -148,7 +141,7 @@ public class WifiSettingActivity extends BaseActivity {
         }
     }
 
-    private void closeWifiFromMqtt() {
+    private void closeWifiFromMQtt() {
         showLoading();
         App.getInstance().getMqttService().mqttPublish(MqttConstant.getCallTopic(App.getInstance().getUserBean().getUid()),
                 MqttCommandFactory.closeWifi(
@@ -199,6 +192,71 @@ public class WifiSettingActivity extends BaseActivity {
                     connectBle();
                 }
                 Timber.d("%1s", mqttData.toString());
+            }
+
+            @Override
+            public void onError(@NotNull Throwable e) {
+                dismissLoading();
+                Timber.e(e);
+            }
+
+            @Override
+            public void onComplete() {
+
+            }
+        });
+    }
+
+    private void openBleFromMQtt() {
+        showLoading();
+        App.getInstance().getMqttService().mqttPublish(MqttConstant.getCallTopic(App.getInstance().getUserBean().getUid()),
+                MqttCommandFactory.approachOpen(
+                        mBleDeviceLocal.getEsn(), 60,
+                        BleCommandFactory.getPwd(
+                                ConvertUtils.hexString2Bytes(mBleDeviceLocal.getPwd1()),
+                                ConvertUtils.hexString2Bytes(mBleDeviceLocal.getPwd2()))))
+                .timeout(DEFAULT_TIMEOUT_SEC_VALUE, TimeUnit.SECONDS).safeSubscribe(new Observer<MqttData>() {
+            @Override
+            public void onSubscribe(@NotNull Disposable d) {
+
+            }
+
+            @Override
+            public void onNext(@NotNull MqttData mqttData) {
+                if(TextUtils.isEmpty(mqttData.getFunc())) {
+                    Timber.e("publishApproachOpen mqttData.getFunc() is empty");
+                    return;
+                }
+                if(mqttData.getFunc().equals(MqttConstant.APP_ROACH_OPEN)) {
+                    Timber.d("publishApproachOpen 无感开门: %1s", mqttData);
+                    WifiLockApproachOpenResponseBean bean;
+                    try {
+                        bean = GsonUtils.fromJson(mqttData.getPayload(), WifiLockApproachOpenResponseBean.class);
+                    } catch (JsonSyntaxException e) {
+                        Timber.e(e);
+                        return;
+                    }
+                    if(bean == null) {
+                        Timber.e("publishApproachOpen bean == null");
+                        return;
+                    }
+                    if(bean.getParams() == null) {
+                        Timber.e("publishApproachOpen bean.getParams() == null");
+                        return;
+                    }
+                    if(bean.getCode() != 200) {
+                        Timber.e("publishApproachOpen code : %1d", bean.getCode());
+                        return;
+                    }
+                    // TODO: 2021/3/5 开启成功，然后开启蓝牙并不断搜索设备
+                    connectBle();
+                    new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                        dismissLoading();
+                        App.getInstance().setWifiSettingNeedToCloseBle(true);
+                        gotoAddWifiAct();
+                    }, 10000);
+                }
+                Timber.d("publishApproachOpen %1s", mqttData.toString());
             }
 
             @Override

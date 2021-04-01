@@ -181,6 +181,9 @@ public class DeviceFragment extends Fragment {
             if(!TextUtils.isEmpty(wifiVer)) {
                 bleDeviceLocal.setWifiVer(wifiVer);
             }
+            boolean isWifiConnected = (wifiListBean.getWifiStatus().equals("1"));
+            bleDeviceLocal.setConnectedType(isWifiConnected?
+                    LocalState.DEVICE_CONNECT_TYPE_WIFI:LocalState.DEVICE_CONNECT_TYPE_BLE);
             bleDeviceLocal.setRandomCode(wifiListBean.getRandomCode());
             AppDatabase.getInstance(getContext()).bleDeviceDao().update(bleDeviceLocal);
             locals.add(bleDeviceLocal);

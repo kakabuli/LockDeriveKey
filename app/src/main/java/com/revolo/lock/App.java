@@ -515,4 +515,13 @@ public class App extends Application {
         mWillFinishActivities.clear();
     }
 
+    private boolean isWifiSettingNeedToCloseBle = false;
+
+    public boolean isWifiSettingNeedToCloseBle() {
+        return isWifiSettingNeedToCloseBle;
+    }
+
+    public void setWifiSettingNeedToCloseBle(boolean wifiSettingNeedToCloseBle) {
+        isWifiSettingNeedToCloseBle = wifiSettingNeedToCloseBle;
+    }
 }

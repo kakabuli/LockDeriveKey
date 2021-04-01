@@ -51,16 +51,11 @@ public class AddWifiActivity extends BaseActivity {
     private WifiListPopup mWifiListPopup;
     private EditText mEtWifiName, mEtPwd;
     private boolean isShowPwd = false;
-    private boolean isNeedToCloseBle = false;
 
     private BleDeviceLocal mBleDeviceLocal;
 
     @Override
     public void initData(@Nullable Bundle bundle) {
-        Intent intent = getIntent();
-        if(intent.hasExtra(Constant.IS_NEED_TO_CLOSE_BLE)) {
-            isNeedToCloseBle = intent.getBooleanExtra(Constant.IS_NEED_TO_CLOSE_BLE, false);
-        }
         mBleDeviceLocal = App.getInstance().getBleDeviceLocal();
         if(mBleDeviceLocal == null) {
             // TODO: 2021/2/22 做处理
@@ -119,7 +114,7 @@ public class AddWifiActivity extends BaseActivity {
 
     @Override
     protected void onDestroy() {
-        if(isNeedToCloseBle) {
+        if(App.getInstance().isWifiSettingNeedToCloseBle()) {
             if(mBleBean != null && mBleBean.getOKBLEDeviceImp() != null) {
                 mBleBean.getOKBLEDeviceImp().disConnect(false);
             }

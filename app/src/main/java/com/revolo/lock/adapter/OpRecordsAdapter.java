@@ -141,7 +141,7 @@ public class OpRecordsAdapter extends BaseExpandableListAdapter {
 //        tvMessage.setTextColor(ContextCompat.getColor(mContext, R.color.cFF556D));
         ivLogState.setImageResource(imageResId);
         tvMessage.setText(operationRecord.getMessage());
-        tvTime.setText(TimeUtils.millis2String(operationRecord.getOperationTime(), "HH:mm"));
+        tvTime.setText(TimeUtils.millis2String(operationRecord.getOperationTime(), "HH:mm:ss"));
     }
 
 }

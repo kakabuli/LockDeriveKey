@@ -69,7 +69,7 @@ public class MqttConstant {
     public static final String SET_MAGNETIC = "setMagnetic";
 
     // 无感开门
-    public static final String APP_ROACHOPEN = "approachOpen";
+    public static final String APP_ROACH_OPEN = "approachOpen";
 
     // 关闭wifi
     public static final String CLOSE_WIFI = "closeWifi";

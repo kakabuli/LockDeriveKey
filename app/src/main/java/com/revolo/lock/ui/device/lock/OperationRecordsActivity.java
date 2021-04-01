@@ -599,8 +599,8 @@ public class OperationRecordsActivity extends BaseActivity {
                         break;
                     case 0x10:
                         // 敲击开锁
-                        // TODO: 2021/3/29 通过编号识别对应用户
-                        message = "Tester uses Geo-fence to unlock";
+                        // TODO: 2021/3/29 通过编号识别对应用户, 下面记录还有
+                        message = lockRecord.getUserId() + " uses Geo-fence to unlock";
                         drawableId = R.drawable.ic_home_log_icon__geofence;
                         break;
                     case 0x11:
@@ -629,7 +629,7 @@ public class OperationRecordsActivity extends BaseActivity {
                             case 0x08:
                                 // App
                                 // TODO: 2021/3/29 通过编号识别对应用户
-                                message = "Tester locked the door by APP ";
+                                message = lockRecord.getUserId() + " locked the door by APP ";
                                 drawableId = R.drawable.ic_home_log_icon_door_lock;
                                 break;
                             default:
@@ -648,7 +648,7 @@ public class OperationRecordsActivity extends BaseActivity {
                                 break;
                             case 0x08:
                                 // App
-                                message = "Tester uses the APP to unlock";
+                                message = lockRecord.getUserId() + " uses the APP to unlock";
                                 drawableId = R.drawable.ic_home_log_icon__password;
                                 break;
                             default:
@@ -666,12 +666,12 @@ public class OperationRecordsActivity extends BaseActivity {
                 switch (lockRecord.getEventCode()) {
                     case 0x02:
                         // 密码添加
-                        message = "The user added a password";
+                        message = lockRecord.getUserId() + " added a password";
                         drawableId = R.drawable.ic_home_log_icon__password;
                         break;
                     case 0x03:
                         // 密码删除
-                        message = "The user deleted a password";
+                        message = lockRecord.getUserId() + " deleted a password";
                         drawableId = R.drawable.ic_home_log_icon__password;
                         break;
                     case 0x0f:
