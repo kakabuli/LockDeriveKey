@@ -2,6 +2,8 @@ package com.revolo.lock.ui.device.lock.setting;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.ImageView;
@@ -112,7 +114,20 @@ public class WifiSettingActivity extends BaseActivity {
             return;
         }
         if(view.getId() == R.id.tvWifiName || view.getId() == R.id.tvSettingTitle) {
-            gotoAddWifiAct();
+            // TODO: 2021/4/1 先开启蓝牙再跳转
+            if(mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI) {
+                showLoading();
+                connectBle();
+                new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                    dismissLoading();
+                    Intent intent = new Intent(this, AddWifiActivity.class);
+                    intent.putExtra(Constant.IS_NEED_TO_CLOSE_BLE, true);
+                    startActivity(intent);
+                }, 10000);
+            } else {
+                gotoAddWifiAct();
+            }
+
         }
     }
 
@@ -201,66 +216,66 @@ public class WifiSettingActivity extends BaseActivity {
 
     private void connectBle() {
         BleBean bleBean = App.getInstance().getBleBeanFromMac(mBleDeviceLocal.getMac());
+        OnBleDeviceListener onBleDeviceListener = new OnBleDeviceListener() {
+            @Override
+            public void onConnected(@NotNull String mac) {
+
+            }
+
+            @Override
+            public void onDisconnected(@NotNull String mac) {
+
+            }
+
+            @Override
+            public void onReceivedValue(@NotNull String mac, String uuid, byte[] value) {
+                if(value == null) {
+                    return;
+                }
+                if(!mBleDeviceLocal.getMac().equals(mac)) {
+                    return;
+                }
+                BleBean bleBean = App.getInstance().getBleBeanFromMac(mBleDeviceLocal.getMac());
+                if(bleBean == null) {
+                    return;
+                }
+                if(bleBean.getOKBLEDeviceImp() == null) {
+                    return;
+                }
+                if(bleBean.getPwd1() == null) {
+                    return;
+                }
+                if(bleBean.getPwd2() == null) {
+                    return;
+                }
+                BleResultProcess.setOnReceivedProcess(bleResultBean -> {
+                    if(bleResultBean == null) {
+                        Timber.e("%1s mOnReceivedProcess bleResultBean == null", mBleDeviceLocal.getMac());
+                        return;
+                    }
+                    processBleResult(bleResultBean);
+                });
+                BleResultProcess.processReceivedData(
+                        value,
+                        bleBean.getPwd1(),
+                        (bleBean.getPwd3() == null)?bleBean.getPwd2():bleBean.getPwd3(),
+                        bleBean.getOKBLEDeviceImp().getBleScanResult());
+            }
+
+            @Override
+            public void onWriteValue(@NotNull String mac, String uuid, byte[] value, boolean success) {
+
+            }
+
+            @Override
+            public void onAuthSuc(@NotNull String mac) {
+
+            }
+
+        };
         if(bleBean == null) {
             BLEScanResult bleScanResult = ConvertUtils.bytes2Parcelable(mBleDeviceLocal.getScanResultJson(), BLEScanResult.CREATOR);
             if(bleScanResult != null) {
-                OnBleDeviceListener onBleDeviceListener = new OnBleDeviceListener() {
-                    @Override
-                    public void onConnected(@NotNull String mac) {
-
-                    }
-
-                    @Override
-                    public void onDisconnected(@NotNull String mac) {
-
-                    }
-
-                    @Override
-                    public void onReceivedValue(@NotNull String mac, String uuid, byte[] value) {
-                        if(value == null) {
-                            return;
-                        }
-                        if(!mBleDeviceLocal.getMac().equals(mac)) {
-                            return;
-                        }
-                        BleBean bleBean = App.getInstance().getBleBeanFromMac(mBleDeviceLocal.getMac());
-                        if(bleBean == null) {
-                            return;
-                        }
-                        if(bleBean.getOKBLEDeviceImp() == null) {
-                            return;
-                        }
-                        if(bleBean.getPwd1() == null) {
-                            return;
-                        }
-                        if(bleBean.getPwd2() == null) {
-                            return;
-                        }
-                        BleResultProcess.setOnReceivedProcess(bleResultBean -> {
-                            if(bleResultBean == null) {
-                                Timber.e("%1s mOnReceivedProcess bleResultBean == null", mBleDeviceLocal.getMac());
-                                return;
-                            }
-                            processBleResult(bleResultBean);
-                        });
-                        BleResultProcess.processReceivedData(
-                                value,
-                                bleBean.getPwd1(),
-                                (bleBean.getPwd3() == null)?bleBean.getPwd2():bleBean.getPwd3(),
-                                bleBean.getOKBLEDeviceImp().getBleScanResult());
-                    }
-
-                    @Override
-                    public void onWriteValue(@NotNull String mac, String uuid, byte[] value, boolean success) {
-
-                    }
-
-                    @Override
-                    public void onAuthSuc(@NotNull String mac) {
-
-                    }
-
-                };
                 bleBean = App.getInstance().connectDevice(
                         bleScanResult,
                         ConvertUtils.hexString2Bytes(mBleDeviceLocal.getPwd1()),
@@ -272,6 +287,7 @@ public class WifiSettingActivity extends BaseActivity {
             }
         } else {
             if(bleBean.getOKBLEDeviceImp() != null) {
+                bleBean.setOnBleDeviceListener(onBleDeviceListener);
                 if(!bleBean.getOKBLEDeviceImp().isConnected()) {
                     bleBean.getOKBLEDeviceImp().connect(true);
                 }
@@ -282,10 +298,6 @@ public class WifiSettingActivity extends BaseActivity {
                 // TODO: 2021/1/26 为空的处理
             }
         }
-
-    }
-
-    private void openWifiFromMqtt() {
 
     }
 

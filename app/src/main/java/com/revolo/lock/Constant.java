@@ -55,6 +55,7 @@ public class Constant {
     public static final String SHARED_USER_DATA = "SharedUserData";
 
     public static final String IS_GO_TO_ADD_WIFI = "isGoToAddWifi";
+    public static final String IS_NEED_TO_CLOSE_BLE = "isNeedToCloseBle";
 
     public static final String TERM_TYPE = "TermType";
     public static final String TERM_TYPE_USER = "TermTypeUser";

@@ -428,66 +428,66 @@ public class DeviceFragment extends Fragment {
         for (BleDeviceLocal local : bleDeviceLocals) {
             if(local.getConnectedType() != LocalState.DEVICE_CONNECT_TYPE_WIFI) {
                 BleBean bleBean = App.getInstance().getBleBeanFromMac(local.getMac());
+                OnBleDeviceListener onBleDeviceListener = new OnBleDeviceListener() {
+                    @Override
+                    public void onConnected(@NotNull String mac) {
+
+                    }
+
+                    @Override
+                    public void onDisconnected(@NotNull String mac) {
+
+                    }
+
+                    @Override
+                    public void onReceivedValue(@NotNull String mac, String uuid, byte[] value) {
+                        if(value == null) {
+                            return;
+                        }
+                        if(!local.getMac().equals(mac)) {
+                            return;
+                        }
+                        BleBean bleBean = App.getInstance().getBleBeanFromMac(local.getMac());
+                        if(bleBean == null) {
+                            return;
+                        }
+                        if(bleBean.getOKBLEDeviceImp() == null) {
+                            return;
+                        }
+                        if(bleBean.getPwd1() == null) {
+                            return;
+                        }
+                        if(bleBean.getPwd2() == null) {
+                            return;
+                        }
+                        BleResultProcess.setOnReceivedProcess(bleResultBean -> {
+                            if(bleResultBean == null) {
+                                Timber.e("%1s mOnReceivedProcess bleResultBean == null", local.getMac());
+                                return;
+                            }
+                            processBleResult(local.getMac(), bleResultBean);
+                        });
+                        BleResultProcess.processReceivedData(
+                                value,
+                                bleBean.getPwd1(),
+                                (bleBean.getPwd3() == null)?bleBean.getPwd2():bleBean.getPwd3(),
+                                bleBean.getOKBLEDeviceImp().getBleScanResult());
+                    }
+
+                    @Override
+                    public void onWriteValue(@NotNull String mac, String uuid, byte[] value, boolean success) {
+
+                    }
+
+                    @Override
+                    public void onAuthSuc(@NotNull String mac) {
+
+                    }
+
+                };
                 if(bleBean == null) {
                     BLEScanResult bleScanResult = ConvertUtils.bytes2Parcelable(local.getScanResultJson(), BLEScanResult.CREATOR);
                     if(bleScanResult != null) {
-                        OnBleDeviceListener onBleDeviceListener = new OnBleDeviceListener() {
-                            @Override
-                            public void onConnected(@NotNull String mac) {
-
-                            }
-
-                            @Override
-                            public void onDisconnected(@NotNull String mac) {
-
-                            }
-
-                            @Override
-                            public void onReceivedValue(@NotNull String mac, String uuid, byte[] value) {
-                                if(value == null) {
-                                    return;
-                                }
-                                if(!local.getMac().equals(mac)) {
-                                    return;
-                                }
-                                BleBean bleBean = App.getInstance().getBleBeanFromMac(local.getMac());
-                                if(bleBean == null) {
-                                    return;
-                                }
-                                if(bleBean.getOKBLEDeviceImp() == null) {
-                                    return;
-                                }
-                                if(bleBean.getPwd1() == null) {
-                                    return;
-                                }
-                                if(bleBean.getPwd2() == null) {
-                                    return;
-                                }
-                                BleResultProcess.setOnReceivedProcess(bleResultBean -> {
-                                    if(bleResultBean == null) {
-                                        Timber.e("%1s mOnReceivedProcess bleResultBean == null", local.getMac());
-                                        return;
-                                    }
-                                    processBleResult(local.getMac(), bleResultBean);
-                                });
-                                BleResultProcess.processReceivedData(
-                                        value,
-                                        bleBean.getPwd1(),
-                                        (bleBean.getPwd3() == null)?bleBean.getPwd2():bleBean.getPwd3(),
-                                        bleBean.getOKBLEDeviceImp().getBleScanResult());
-                            }
-
-                            @Override
-                            public void onWriteValue(@NotNull String mac, String uuid, byte[] value, boolean success) {
-
-                            }
-
-                            @Override
-                            public void onAuthSuc(@NotNull String mac) {
-
-                            }
-
-                        };
                         bleBean = App.getInstance().connectDevice(
                                 bleScanResult,
                                 ConvertUtils.hexString2Bytes(local.getPwd1()),
@@ -499,63 +499,6 @@ public class DeviceFragment extends Fragment {
                     }
                 } else {
                     if(bleBean.getOKBLEDeviceImp() != null) {
-                        OnBleDeviceListener onBleDeviceListener = new OnBleDeviceListener() {
-                            @Override
-                            public void onConnected(@NotNull String mac) {
-
-                            }
-
-                            @Override
-                            public void onDisconnected(@NotNull String mac) {
-
-                            }
-
-                            @Override
-                            public void onReceivedValue(@NotNull String mac, String uuid, byte[] value) {
-                                if(value == null) {
-                                    return;
-                                }
-                                if(!local.getMac().equals(mac)) {
-                                    return;
-                                }
-                                BleBean bleBean = App.getInstance().getBleBeanFromMac(local.getMac());
-                                if(bleBean == null) {
-                                    return;
-                                }
-                                if(bleBean.getOKBLEDeviceImp() == null) {
-                                    return;
-                                }
-                                if(bleBean.getPwd1() == null) {
-                                    return;
-                                }
-                                if(bleBean.getPwd2() == null) {
-                                    return;
-                                }
-                                BleResultProcess.setOnReceivedProcess(bleResultBean -> {
-                                    if(bleResultBean == null) {
-                                        Timber.e("%1s mOnReceivedProcess bleResultBean == null", local.getMac());
-                                        return;
-                                    }
-                                    processBleResult(local.getMac(), bleResultBean);
-                                });
-                                BleResultProcess.processReceivedData(
-                                        value,
-                                        bleBean.getPwd1(),
-                                        (bleBean.getPwd3() == null)?bleBean.getPwd2():bleBean.getPwd3(),
-                                        bleBean.getOKBLEDeviceImp().getBleScanResult());
-                            }
-
-                            @Override
-                            public void onWriteValue(@NotNull String mac, String uuid, byte[] value, boolean success) {
-
-                            }
-
-                            @Override
-                            public void onAuthSuc(@NotNull String mac) {
-
-                            }
-
-                        };
                         bleBean.setOnBleDeviceListener(onBleDeviceListener);
                         if(!bleBean.getOKBLEDeviceImp().isConnected()) {
                             bleBean.getOKBLEDeviceImp().connect(true);
