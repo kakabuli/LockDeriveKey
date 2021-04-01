@@ -194,6 +194,7 @@ public class WifiConnectActivity extends BaseActivity {
     private void gotoWifiPairFail() {
         App.getInstance().setWifiSettingNeedToCloseBle(false);
         mBleDeviceLocal.setConnectedType(LocalState.DEVICE_CONNECT_TYPE_BLE);
+        mBleDeviceLocal.setConnectedWifiName("");
         AppDatabase.getInstance(this).bleDeviceDao().update(mBleDeviceLocal);
         new Handler(Looper.getMainLooper()).postDelayed(() -> {
             Intent intent = new Intent(WifiConnectActivity.this, AddWifiFailActivity.class);

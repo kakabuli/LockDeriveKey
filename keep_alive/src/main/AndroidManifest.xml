@@ -17,7 +17,7 @@
         <service android:name=".service.SLLocalService"
             android:exported="true"
             android:label="@string/sllocal_service_name"
-            android:process=":sllocal"/>
+            android:process=":revololocal"/>
 
         <service android:name=".service.SLRemoteService"
             android:exported="true"
