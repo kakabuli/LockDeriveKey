@@ -128,6 +128,7 @@ public class DeviceFragment extends Fragment {
     public void onResume() {
         super.onResume();
         initData(mBleDeviceLocals);
+        mHomeLockListAdapter.setList(mBleDeviceLocals);
     }
 
     private void openOrCloseDoorFromBle(int position, @LocalState.LockState int state) {

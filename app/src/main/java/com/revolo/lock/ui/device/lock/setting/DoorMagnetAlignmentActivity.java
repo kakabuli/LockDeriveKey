@@ -201,7 +201,7 @@ public class DoorMagnetAlignmentActivity extends BaseActivity {
             }
         } else if(bleResultBean.getCMD() == CMD_LOCK_INFO) {
             // TODO: 2021/3/7 获取门磁状态
-            byte[] state = BleByteUtil.byteToBit(bleResultBean.getPayload()[7]);
+            byte[] state = BleByteUtil.byteToBit(bleResultBean.getPayload()[4]);
             byte doorSensorState = state[3];
             Timber.d("LockState 7~0: %1s", ConvertUtils.bytes2HexString(state));
             // 更新最新的门磁状态
