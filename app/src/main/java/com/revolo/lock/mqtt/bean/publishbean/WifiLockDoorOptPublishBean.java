@@ -1,25 +1,9 @@
 package com.revolo.lock.mqtt.bean.publishbean;
 
 public class WifiLockDoorOptPublishBean {
-    /**
-     * msgtype : request
-     * msgId : 4
-     * userId : 5cad4509dc938989e2f542c8
-     * wfId : WF123456789
-     * func : setLock
-     * params : {"dooropt":1,"randomCode":""}
-     * timestamp : 13433333333
-     */
 
-    private String msgtype;
-    private int msgId;
-    private String userId;
-    private String wfId;
-    private String func;
-    private ParamsBean params;
-    private String timestamp;
 
-    public WifiLockDoorOptPublishBean(String msgtype, int msgId, String userId, String wfId, String func, ParamsBean params, String timestamp) {
+    public WifiLockDoorOptPublishBean(String msgtype, Integer msgId, String userId, String wfId, String func, ParamsBean params, String timestamp) {
         this.msgtype = msgtype;
         this.msgId = msgId;
         this.userId = userId;
@@ -29,6 +13,24 @@ public class WifiLockDoorOptPublishBean {
         this.timestamp = timestamp;
     }
 
+    /**
+     * msgtype : request
+     * msgId : 4
+     * userId : 5cad4509dc938989e2f542c8
+     * wfId : WF123456789
+     * func : setLock
+     * params : {"dooropt":1,"offlinePwd":"","userNumberId":1}
+     * timestamp : 13433333333
+     */
+
+    private String msgtype;
+    private Integer msgId;
+    private String userId;
+    private String wfId;
+    private String func;
+    private ParamsBean params;
+    private String timestamp;
+
     public String getMsgtype() {
         return msgtype;
     }
@@ -37,11 +39,11 @@ public class WifiLockDoorOptPublishBean {
         this.msgtype = msgtype;
     }
 
-    public int getMsgId() {
+    public Integer getMsgId() {
         return msgId;
     }
 
-    public void setMsgId(int msgId) {
+    public void setMsgId(Integer msgId) {
         this.msgId = msgId;
     }
 
@@ -88,47 +90,36 @@ public class WifiLockDoorOptPublishBean {
     public static class ParamsBean {
         /**
          * dooropt : 1
-         * randomCode :
+         * offlinePwd :
+         * userNumberId : 1
          */
 
-        private int dooropt;
-        private String randomCode;
+        private Integer dooropt;
+        private String offlinePwd;
+        private Integer userNumberId;
 
-        public int getDooropt() {
+        public Integer getDooropt() {
             return dooropt;
         }
 
-        public void setDooropt(int dooropt) {
+        public void setDooropt(Integer dooropt) {
             this.dooropt = dooropt;
         }
 
-        public String getRandomCode() {
-            return randomCode;
+        public String getOfflinePwd() {
+            return offlinePwd;
         }
 
-        public void setRandomCode(String randomCode) {
-            this.randomCode = randomCode;
+        public void setOfflinePwd(String offlinePwd) {
+            this.offlinePwd = offlinePwd;
         }
 
-        @Override
-        public String toString() {
-            return "ParamsBean{" +
-                    "dooropt=" + dooropt +
-                    ", randomCode='" + randomCode + '\'' +
-                    '}';
+        public Integer getUserNumberId() {
+            return userNumberId;
         }
-    }
 
-    @Override
-    public String toString() {
-        return "WifiLockDoorOptPublishBean{" +
-                "msgtype='" + msgtype + '\'' +
-                ", msgId=" + msgId +
-                ", userId='" + userId + '\'' +
-                ", wfId='" + wfId + '\'' +
-                ", func='" + func + '\'' +
-                ", params=" + params +
-                ", timestamp='" + timestamp + '\'' +
-                '}';
+        public void setUserNumberId(Integer userNumberId) {
+            this.userNumberId = userNumberId;
+        }
     }
 }

@@ -284,6 +284,7 @@ public class DeviceSettingActivity extends BaseActivity {
                         && bleBean.getOKBLEDeviceImp().isConnected()) {
                     App.getInstance().removeConnectedBleBeanAndDisconnect(bleBean);
                 }
+                App.getInstance().removeBleDeviceLocalFromMac(mBleDeviceLocal.getEsn());
                 AppDatabase.getInstance(getApplicationContext()).bleDeviceDao().delete(mBleDeviceLocal);
                 ToastUtils.showShort("Unbind success");
                 new Handler(Looper.getMainLooper()).postDelayed(() -> finish(), 50);

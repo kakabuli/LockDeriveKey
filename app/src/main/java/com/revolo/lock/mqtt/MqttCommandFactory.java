@@ -27,10 +27,15 @@ import com.revolo.lock.mqtt.bean.publishbean.attrparams.AutoLockTimeParams;
 import com.revolo.lock.mqtt.bean.publishbean.attrparams.DuressParams;
 import com.revolo.lock.mqtt.bean.publishbean.attrparams.ElecFenceSensitivityParams;
 import com.revolo.lock.mqtt.bean.publishbean.attrparams.VolumeParams;
+import com.revolo.lock.util.Rsa;
 
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 
 import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+
+import timber.log.Timber;
 
 public class MqttCommandFactory {
 
@@ -129,12 +134,12 @@ public class MqttCommandFactory {
     /**
      * 7.App 下发开门，关门指令
      */
-    public static MqttMessage setLock(String wifiID,int dooropt, byte[] pwd, String randomCode){
+    public static MqttMessage setLock(String wifiID,int dooropt, byte[] pwd, String randomCode, int num){
         int messageId = getMessageId();
         WifiLockDoorOptPublishBean.ParamsBean setLock = new WifiLockDoorOptPublishBean.ParamsBean();
         setLock.setDooropt(dooropt);
-        // TODO: 2021/2/6 临时放一个测试 后续需要修改randomCode从外部调进来
-        setLock.setRandomCode(TextUtils.isEmpty(randomCode)?"":randomCode);
+        setLock.setOfflinePwd(getPassword(wifiID, randomCode));
+        setLock.setUserNumberId(num);
         WifiLockDoorOptPublishBean mWifiLockDoorOptPublishBean = new WifiLockDoorOptPublishBean(
                 MqttConstant.MSG_TYPE_REQUEST,
                 messageId,
@@ -144,6 +149,37 @@ public class MqttCommandFactory {
                 (System.currentTimeMillis()/1000) + "");
         String base64Json = getEncryptString(pwd, mWifiLockDoorOptPublishBean);
         return sendEncryptData(messageId, wifiID, base64Json, 0);
+    }
+
+    private static String getPassword(String wifiEsn, String randomCode) {
+        String time = (System.currentTimeMillis() / 1000 / 60 / 5) + "";
+        Timber.d("--revolo调试--wifiSN  %1s", wifiEsn);
+        Timber.d("--revolo调试--randomCode  %1s", randomCode);
+        Timber.d("--revolo调试--System.currentTimeMillis()  %1d", System.currentTimeMillis());
+
+        String content = wifiEsn + randomCode + time;
+
+        Timber.d("--revolo--本地数据是  %1s", content);
+        byte[] data = content.toUpperCase().getBytes();
+        try {
+            MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
+            messageDigest.update(data);
+            byte[] digest = messageDigest.digest();
+            byte[] temp = new byte[4];
+            System.arraycopy(digest, 0, temp, 0, 4);
+            long l = Rsa.getInt(temp);
+            String text = (l % 1000000) + "";
+            Timber.e("--revolo--转换之后的数据是     " + l + "    " + Rsa.bytes2Int(temp));
+            int offSet = (6 - text.length());
+            for (int i = 0; i < offSet; i++) {
+                text = "0" + text;
+            }
+            System.out.println("--revolo--   testSha256 数据是   " + Rsa.bytesToHexString(messageDigest.digest()));
+            return text;
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+            return "";
+        }
     }
 
     private static String getEncryptString(byte[] pwd, Object src) {

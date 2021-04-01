@@ -393,10 +393,11 @@ public class DeviceDetailActivity extends BaseActivity {
     private void openDoor() {
         @LocalState.LockState int state = mBleDeviceLocal.getLockState();
         if(mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI) {
+            // TODO: 2021/4/1 主编号是0，分享用户再使用分享用户的编号
             publishOpenOrCloseLock(
                     mBleDeviceLocal.getEsn(),
                     state==LocalState.LOCK_STATE_OPEN?LocalState.DOOR_STATE_CLOSE:LocalState.DOOR_STATE_OPEN,
-                    mBleDeviceLocal.getRandomCode());
+                    mBleDeviceLocal.getRandomCode(), 0);
         } else {
             BleBean bleBean = App.getInstance().getBleBeanFromMac(mBleDeviceLocal.getMac());
             if(bleBean == null) {
@@ -426,7 +427,7 @@ public class DeviceDetailActivity extends BaseActivity {
      * @param wifiId wifi的id
      * @param doorOpt 1:表示开锁，0表示关锁
      */
-    public void publishOpenOrCloseLock(String wifiId, @LocalState.DoorState int doorOpt, String randomCode) {
+    public void publishOpenOrCloseLock(String wifiId, @LocalState.DoorState int doorOpt, String randomCode, int num) {
         if(App.getInstance().getUserBean() == null) {
             Timber.e("publishOpenOrCloseDoor App.getInstance().getUserBean() == null");
             return;
@@ -440,7 +441,8 @@ public class DeviceDetailActivity extends BaseActivity {
                 MqttCommandFactory.setLock(wifiId,
                         doorOpt,
                         BleCommandFactory.getPwd(ConvertUtils.hexString2Bytes(mBleDeviceLocal.getPwd1()), ConvertUtils.hexString2Bytes(mBleDeviceLocal.getPwd2())),
-                        randomCode))
+                        randomCode,
+                        num))
                 .timeout(DEFAULT_TIMEOUT_SEC_VALUE, TimeUnit.SECONDS)
                 .safeSubscribe(new Observer<MqttData>() {
             @Override

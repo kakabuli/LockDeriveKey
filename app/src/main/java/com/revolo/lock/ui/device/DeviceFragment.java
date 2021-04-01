@@ -107,10 +107,11 @@ public class DeviceFragment extends Fragment {
                     if(mBleDeviceLocals.get(position).getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_BLE) {
                         openOrCloseDoorFromBle(position, state);
                     } else if(mBleDeviceLocals.get(position).getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI) {
+                        // TODO: 2021/4/1 主编号是0，分享用户再使用分享用户的编号
                         publishOpenOrCloseDoor(
                                 mHomeLockListAdapter.getItem(position).getEsn(),
                                 state==LocalState.LOCK_STATE_OPEN?LocalState.DOOR_STATE_CLOSE:LocalState.DOOR_STATE_OPEN,
-                                mBleDeviceLocals.get(position));
+                                mBleDeviceLocals.get(position), 0);
                     }
                 }
             });
@@ -160,7 +161,7 @@ public class DeviceFragment extends Fragment {
     }
 
     private void updateDataFromNet(List<WifiLockGetAllBindDeviceRspBean.DataBean.WifiListBean> wifiListBeans) {
-        List<BleDeviceLocal> locals = new ArrayList<>();
+        mBleDeviceLocals.clear();
         for (WifiLockGetAllBindDeviceRspBean.DataBean.WifiListBean wifiListBean : wifiListBeans) {
             // TODO: 2021/2/26 后期再考虑是否需要多条件合并查询
             BleDeviceLocal bleDeviceLocal = AppDatabase
@@ -186,13 +187,13 @@ public class DeviceFragment extends Fragment {
                     LocalState.DEVICE_CONNECT_TYPE_WIFI:LocalState.DEVICE_CONNECT_TYPE_BLE);
             bleDeviceLocal.setRandomCode(wifiListBean.getRandomCode());
             AppDatabase.getInstance(getContext()).bleDeviceDao().update(bleDeviceLocal);
-            locals.add(bleDeviceLocal);
+            mBleDeviceLocals.add(bleDeviceLocal);
         }
-        if(locals.isEmpty()) {
+        if(mBleDeviceLocals.isEmpty()) {
             Timber.e("updateDataFromNet locals.isEmpty()");
             return;
         }
-        updateData(locals);
+        updateData(mBleDeviceLocals);
     }
 
     private BleDeviceLocal createDeviceToLocal(WifiLockGetAllBindDeviceRspBean.DataBean.WifiListBean wifiListBean) {
@@ -407,13 +408,15 @@ public class DeviceFragment extends Fragment {
         if(user == null) {
             return;
         }
-        mBleDeviceLocals = AppDatabase.getInstance(App.getInstance()).bleDeviceDao().findBleDevicesFromUserIdByCreateTimeDesc(user.getId());
-        if(mBleDeviceLocals == null) {
+        List<BleDeviceLocal> locals = AppDatabase.getInstance(App.getInstance()).bleDeviceDao().findBleDevicesFromUserIdByCreateTimeDesc(user.getId());
+        if(locals == null) {
             return;
         }
-        if(mBleDeviceLocals.isEmpty()) {
+        if(locals.isEmpty()) {
             return;
         }
+        App.getInstance().addBleDeviceLocals(locals);
+        mBleDeviceLocals = App.getInstance().getBleDeviceLocals();
         updateData(mBleDeviceLocals);
 
     }
@@ -558,7 +561,7 @@ public class DeviceFragment extends Fragment {
      */
     public void publishOpenOrCloseDoor(String wifiId,
                                        @LocalState.DoorState int doorOpt,
-                                       BleDeviceLocal bleDeviceLocal) {
+                                       BleDeviceLocal bleDeviceLocal, int num) {
         if(App.getInstance().getUserBean() == null) {
             Timber.e("publishOpenOrCloseDoor App.getInstance().getUserBean() == null");
             return;
@@ -572,6 +575,7 @@ public class DeviceFragment extends Fragment {
         } else if(doorOpt == LocalState.DOOR_STATE_CLOSE) {
             showLoading("Lock Closing...");
         }
+
         App.getInstance().getMqttService().mqttPublish(
                 MqttConstant.getCallTopic(App.getInstance().getUserBean().getUid()),
                 MqttCommandFactory.setLock(
@@ -580,7 +584,8 @@ public class DeviceFragment extends Fragment {
                         BleCommandFactory.getPwd(
                                 ConvertUtils.hexString2Bytes(bleDeviceLocal.getPwd1()),
                                 ConvertUtils.hexString2Bytes(bleDeviceLocal.getPwd2())),
-                        bleDeviceLocal.getRandomCode()))
+                        bleDeviceLocal.getRandomCode(),
+                        num))
                 .timeout(DEFAULT_TIMEOUT_SEC_VALUE, TimeUnit.SECONDS).safeSubscribe(new Observer<MqttData>() {
             @Override
             public void onSubscribe(@NotNull Disposable d) {

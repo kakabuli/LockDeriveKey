@@ -131,6 +131,7 @@ public class App extends Application {
 
     public void setBleDeviceLocal(BleDeviceLocal bleDeviceLocal) {
         mBleDeviceLocal = bleDeviceLocal;
+        addBleDeviceLocal(mBleDeviceLocal);
     }
 
     public User getUserFromLocal(String mail) {
@@ -190,7 +191,6 @@ public class App extends Application {
         return null;
     }
 
-    // TODO: 2021/2/8 存在bug, 后续要下沉自动鉴权的完整流程
     public BleBean connectDevice(BLEScanResult bleScanResult,  byte[] pwd1, byte[] pwd2, OnBleDeviceListener onBleDeviceListener, boolean isAppPair) {
         OKBLEDeviceImp deviceImp = new OKBLEDeviceImp(getApplicationContext(), bleScanResult);
         BleBean bleBean = new BleBean(deviceImp);
@@ -523,5 +523,33 @@ public class App extends Application {
 
     public void setWifiSettingNeedToCloseBle(boolean wifiSettingNeedToCloseBle) {
         isWifiSettingNeedToCloseBle = wifiSettingNeedToCloseBle;
+    }
+
+
+
+    private List<BleDeviceLocal> mBleDeviceLocals = new ArrayList<>();
+
+    public List<BleDeviceLocal> getBleDeviceLocals() {
+        return mBleDeviceLocals;
+    }
+
+    public void addBleDeviceLocal(BleDeviceLocal bleDeviceLocal) {
+        mBleDeviceLocals.add(bleDeviceLocal);
+    }
+
+    public void addBleDeviceLocals(List<BleDeviceLocal> bleDeviceLocals) {
+        mBleDeviceLocals.addAll(bleDeviceLocals);
+    }
+
+    public void removeBleDeviceLocalFromMac(@NotNull String esn) {
+        if(mBleDeviceLocals.isEmpty()) {
+            return;
+        }
+        for (BleDeviceLocal ble : mBleDeviceLocals) {
+            if(ble.getEsn().equals(esn)) {
+                mBleDeviceLocals.remove(ble);
+                return;
+            }
+        }
     }
 }
