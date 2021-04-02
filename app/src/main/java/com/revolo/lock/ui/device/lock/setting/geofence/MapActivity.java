@@ -73,6 +73,7 @@ public class MapActivity extends BaseActivity implements OnMapReadyCallback, Goo
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
+        setStatusBarColor(R.color.white);
         if (mapFragment != null) {
             mapFragment.getMapAsync(this);
         }

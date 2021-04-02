@@ -477,7 +477,7 @@ public class App extends Application {
 
     public void logout(boolean isShowDialog, Activity act) {
         // TODO: 2021/3/30 logout的数据操作
-        startActivity(new Intent(act, LoginActivity.class));
+        act.startActivity(new Intent(act, LoginActivity.class));
         act.finish();
     }
 
@@ -556,4 +556,5 @@ public class App extends Application {
             }
         }
     }
+
 }

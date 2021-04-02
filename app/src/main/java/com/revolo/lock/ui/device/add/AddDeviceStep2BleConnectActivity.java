@@ -136,10 +136,18 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
 
     @Override
     protected void onPause() {
-        super.onPause();
         if(mScanManager != null) {
             mScanManager.stopScan();
         }
+        super.onPause();
+    }
+
+    @Override
+    protected void onStop() {
+        if(mScanManager != null) {
+            mScanManager.stopScan();
+        }
+        super.onStop();
     }
 
     @Override
@@ -150,6 +158,7 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
         }
         if(mScanManager != null) {
             mScanManager.stopScan();
+            mScanManager = null;
         }
         super.onDestroy();
     }

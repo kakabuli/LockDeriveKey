@@ -186,7 +186,7 @@ public class GeoFenceUnlockActivity extends BaseActivity implements OnMapReadyCa
     public void onDebouncingClick(@NonNull View view) {
         if(view.getId() == R.id.ivGeoFenceUnlockEnable) {
             // TODO: 2021/2/23 开关电子围栏 TEST使用开启地理围栏开门
-            publishApproachOpen(mBleDeviceLocal.getEsn(), mBleDeviceLocal.getSetElectricFenceTime());
+//            publishApproachOpen(mBleDeviceLocal.getEsn(), mBleDeviceLocal.getSetElectricFenceTime());
             return;
         }
         if(view.getId() == R.id.clDistanceRangeSetting) {

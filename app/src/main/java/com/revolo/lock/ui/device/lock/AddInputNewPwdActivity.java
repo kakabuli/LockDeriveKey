@@ -8,6 +8,7 @@ import android.widget.EditText;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.blankj.utilcode.util.RegexUtils;
 import com.blankj.utilcode.util.ToastUtils;
 import com.revolo.lock.App;
 import com.revolo.lock.Constant;
@@ -52,6 +53,13 @@ public class AddInputNewPwdActivity extends BaseActivity {
     public void onDebouncingClick(@NonNull View view) {
         if(view.getId() == R.id.btnNext) {
             String pwd = mEtPwd.getText().toString().trim();
+            if(RegexUtils.isMatch("(?:0(?=1)|1(?=2)|2(?=3)|3(?=4)|4(?=5)|5(?=6)|6(?=7)|7(?=8)|8(?=9)){3,10}\\d", pwd)
+                    || RegexUtils.isMatch("(?:9(?=8)|8(?=7)|7(?=6)|6(?=5)|5(?=4)|4(?=3)|3(?=2)|2(?=1)|1(?=0)){3,10}\\d", pwd)
+                    || RegexUtils.isMatch("([\\d])\\1{2,}", pwd)) {
+                // TODO: 2021/1/25 抽离文字
+                ToastUtils.showShort("Please input right password!");
+                return;
+            }
             if(pwd.length() >= 4 && pwd.length() <= 12) {
                 App.getInstance().addWillFinishAct(this);
                 Intent intent = new Intent(this, AddNewPwdSelectActivity.class);

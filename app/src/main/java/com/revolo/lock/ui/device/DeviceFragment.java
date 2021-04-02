@@ -203,9 +203,9 @@ public class DeviceFragment extends Fragment {
         bleDeviceLocal.setWifiVer(wifiListBean.getWifiVersion());
         bleDeviceLocal.setLockVer(wifiListBean.getLockFirmwareVersion());
         bleDeviceLocal.setName(wifiListBean.getLockNickname());
-        bleDeviceLocal.setOpenDoorSensor(wifiListBean.getDoorSensor()==1);
+//        bleDeviceLocal.setOpenDoorSensor(wifiListBean.getDoorSensor()==1);
 //        bleDeviceLocal.setDoNotDisturbMode(wifiListBean.get);
-        bleDeviceLocal.setSetAutoLockTime(wifiListBean.getAutoLockTime());
+//        bleDeviceLocal.setSetAutoLockTime(wifiListBean.getAutoLockTime());
 //        bleDeviceLocal.setMute();
         // TODO: 2021/3/18 修改为从服务器获取数据
         bleDeviceLocal.setConnectedType(LocalState.DEVICE_CONNECT_TYPE_WIFI);

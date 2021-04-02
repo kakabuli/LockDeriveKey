@@ -91,6 +91,7 @@ public class WifiLockApproachOpenPublishBean {
          */
 
         private int broadcast;
+        private int ibeacon;
 
         public int getBroadcast() {
             return broadcast;
@@ -100,10 +101,19 @@ public class WifiLockApproachOpenPublishBean {
             this.broadcast = broadcast;
         }
 
+        public int getIbeacon() {
+            return ibeacon;
+        }
+
+        public void setIbeacon(int ibeacon) {
+            this.ibeacon = ibeacon;
+        }
+
         @Override
         public String toString() {
             return "ParamsBean{" +
                     "broadcast=" + broadcast +
+                    ", ibeacon=" + ibeacon +
                     '}';
         }
     }
