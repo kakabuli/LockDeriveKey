@@ -99,8 +99,12 @@ public class WifiSnBean implements Parcelable {
             for (WifiSnBytesBean wifi : mWifiSnBytesBeans) {
                 if(wifi.getIndex() == (mWifiSnBytesBeans.size()-1)) {
                     // 最后一包
-                    int remainLen = wifi.getSnLenTotal()%11;
-                    System.arraycopy(wifi.getBytes(), 0, bytes, wifi.getIndex()*11, remainLen);
+                    if(wifi.getSnLenTotal() == 11) {
+                        System.arraycopy(wifi.getBytes(), 0, bytes, wifi.getIndex()*11, 11);
+                    } else {
+                        int remainLen = wifi.getSnLenTotal()%11;
+                        System.arraycopy(wifi.getBytes(), 0, bytes, wifi.getIndex()*11, remainLen);
+                    }
                 } else {
                     System.arraycopy(wifi.getBytes(), 0, bytes, wifi.getIndex()*11, 11);
                 }

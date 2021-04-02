@@ -47,16 +47,16 @@ public class GeoFenceBroadcastReceiver extends BroadcastReceiver {
 
         switch (transitionType) {
             case Geofence.GEOFENCE_TRANSITION_ENTER:
-                ToastUtils.showShort("GEO_FENCE_TRANSITION_ENTER");
-                notificationHelper.sendHighPriorityNotification("GEOFENCE_TRANSITION_ENTER", "", MapActivity.class);
+                ToastUtils.showShort("You have entered the range of the geo fence");
+                notificationHelper.sendHighPriorityNotification("You have entered the range of the geo fence", "", MapActivity.class);
                 break;
             case Geofence.GEOFENCE_TRANSITION_DWELL:
                 ToastUtils.showShort("GEO_FENCE_TRANSITION_DWELL");
                 notificationHelper.sendHighPriorityNotification("GEOFENCE_TRANSITION_DWELL", "", MapActivity.class);
                 break;
             case Geofence.GEOFENCE_TRANSITION_EXIT:
-                ToastUtils.showShort("GEO_FENCE_TRANSITION_EXIT");
-                notificationHelper.sendHighPriorityNotification("GEO_FENCE_TRANSITION_EXIT", "", MapActivity.class);
+                ToastUtils.showShort("You have exited the geo fence");
+                notificationHelper.sendHighPriorityNotification("You have exited the geo fence", "", MapActivity.class);
                 break;
         }
     }

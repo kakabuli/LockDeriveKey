@@ -53,12 +53,9 @@ public class HomeLockListAdapter extends BaseQuickAdapter<BleDeviceLocal, BaseVi
                             doorClose(ivDoorState, tvDoorState);
                             break;
                         case LocalState.DOOR_SENSOR_EXCEPTION:
-                            // 因为异常，所以与锁的状态同步
-                            doorOpen(ivDoorState, tvDoorState);
-                            break;
                         case LocalState.DOOR_SENSOR_INIT:
-                            break;
                         case LocalState.DOOR_SENSOR_OPEN:
+                            // 因为异常，所以与锁的状态同步
                             doorOpen(ivDoorState, tvDoorState);
                             break;
                     }
@@ -70,13 +67,10 @@ public class HomeLockListAdapter extends BaseQuickAdapter<BleDeviceLocal, BaseVi
                 if(isUseDoorSensor) {
                     switch (deviceLocal.getDoorSensor()) {
                         case LocalState.DOOR_SENSOR_CLOSE:
-                            doorClose(ivDoorState, tvDoorState);
-                            break;
                         case LocalState.DOOR_SENSOR_EXCEPTION:
+                        case LocalState.DOOR_SENSOR_INIT:
                             // 因为异常，所以与锁的状态同步
                             doorClose(ivDoorState, tvDoorState);
-                            break;
-                        case LocalState.DOOR_SENSOR_INIT:
                             break;
                         case LocalState.DOOR_SENSOR_OPEN:
                             doorOpen(ivDoorState, tvDoorState);

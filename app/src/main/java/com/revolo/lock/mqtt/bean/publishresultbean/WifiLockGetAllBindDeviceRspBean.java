@@ -627,113 +627,120 @@ public class WifiLockGetAllBindDeviceRspBean {
         }
 
         public static class WifiListBean implements Parcelable {
+
             /**
-             * _id : 5de4c32a33cc1949441265ca
-             * wifiSN : WF132231004
+             * _id : 60667c3b93f7f684d7fbae63
+             * adminUid : 5e66f9a42c98082e5c528342
+             * wifiSN : W010211310006
+             * adminName : yangxianjie@kaadas.com
+             * adminnickname : null
+             * appId : 0
+             * autoLock : 0
+             * bleMac : 80:D2:1D:F2:A2:00
+             * bleVersion : V1.01.003
+             * bleVersionType :
+             * createTime : 1617329211
+             * firstName : yangxianjie@kaadas.com
+             * functionSet : 255
              * isAdmin : 1
-             * adminUid : 5c4fe492dc93897aa7d8600b
-             * adminName : 8618954359822
-             * productSN : s10001192910010
-             * productModel : k8
-             * appId : 1
-             * lockNickname : wode
-             * lockSoftwareVersion : 22222
-             * functionSet : 00
-             * uid : 5c4fe492dc93897aa7d8600b
-             * uname : 8618954359822
+             * lastName : yangxianjie@kaadas.com
+             * latitude : 0
+             * lockNickname : W010211310006
+             * longitude : 0
+             * magneticStatus : 2
+             * model : WP01
+             * password1 : A14870FE3C6896917FCC545C
+             * password2 : 07DE6D0B
+             * peripheralId :
              * pushSwitch : 1
-             * amMode : 1
-             * safeMode : 1
+             * systemID :
+             * uid : 5e66f9a42c98082e5c528342
+             * uname : yangxianjie@kaadas.com
+             * updateTime : 1617342580
+             * userNickname : null
+             * userNumberId : 0
+             * faceVersion :
+             * lockFirmwareVersion : V1.01.003
+             * lockSoftwareVersion : V1.01.003
+             * mqttVersion : 3.1.1
+             * power : 92
+             * productModel :
+             * wifiVersion : V5.01.001
+             * amMode : 0
+             * autoLockTime : 0
              * defences : 0
+             * doorSensor : 0
+             * duress : 0
+             * elecFence : null
+             * elecFenceSensitivity : 0
+             * elecFenceTime : null
+             * faceStatus : null
              * language : zh
              * operatingMode : 0
-             * volume : 1
-             * faceStatus : 1
-             * powerSave : 1
-             * bleVersion : 33333
-             * wifiVersion : 44444
-             * mqttVersion : 55555
-             * faceVersion : 66666
-             * lockFirmwareVersion : 11111
-             * randomCode : randomCode666
-             * distributionNetwork : 1
-             * wifiName : wodewifi
-             * power : 55
-             * updateTime : 1577176575
-             * createTime : 1577176575
+             * powerSave : 0
+             * safeMode : 0
+             * volume : 0
              * openStatus : 2
-             * openStatusTime : 1541468973
-             * switch : {"createTime":"154148973342","mac":"112233445566","switchEn":1,"total":1,"switchArray":[{"type":1,"timeEn":0,"startTime":0,"stopTime":0,"week":0,"nickname":"第一个开关昵称"}]}
+             * openStatusTime : 1617342580
+             * wifiStatus : 0
              */
 
             private String _id;
-            private String wifiSN;
-            private int isAdmin;
             private String adminUid;
+            private String wifiSN;
             private String adminName;
-            private String productSN;
-            private String productModel;
-            private int appId;
-            private String lockNickname;
-            private String lockSoftwareVersion;
-            private String functionSet;
-            private String uid;
-            private String uname;
-            private int pushSwitch;
-            private int amMode;
-            private int safeMode;
-            private int defences;
-            private String language;
-            private int operatingMode;
-            private int volume;
-            private int faceStatus;
-            private int powerSave;
-            private String bleVersion;
-            private String wifiVersion;
-            private String mqttVersion;
-            private String faceVersion;
-            private String lockFirmwareVersion;
-            private String randomCode;
-            private int distributionNetwork;
-            private String wifiName;
-            private int power;
-            private int updateTime;
-            private int createTime;
-            private int openStatus;
-            private int openStatusTime;
-            @SerializedName("switch")
-            private SwitchBean switchX;
-            /**
-             * adminnickname : wengmaowei@kaadas.com
-             * autoLock : 0
-             * bleMac : 80:D2:1D:F2:A1:9A
-             * bleVersionType :
-             * latitude : 0
-             * longitude : 0
-             * magneticStatus : 2
-             * model :
-             * password1 : A610A39CE007C4A53BE17590
-             * password2 : C8A19FD9
-             * peripheralId :
-             * systemID :
-             * userNickname : wengmaowei@kaadas.com
-             * wifiStatus : 1
-             */
-
             private String adminnickname;
+            private Integer appId;
             private String autoLock;
             private String bleMac;
+            private String bleVersion;
             private String bleVersionType;
+            private Integer createTime;
+            private String firstName;
+            private Integer functionSet;
+            private Integer isAdmin;
+            private String lastName;
             private String latitude;
+            private String lockNickname;
             private String longitude;
-            private int magneticStatus;
+            private Integer magneticStatus;
             private String model;
             private String password1;
             private String password2;
             private String peripheralId;
+            private Integer pushSwitch;
             private String systemID;
+            private String uid;
+            private String uname;
+            private Integer updateTime;
             private String userNickname;
+            private Integer userNumberId;
+            private String faceVersion;
+            private String lockFirmwareVersion;
+            private String lockSoftwareVersion;
+            private String mqttVersion;
+            private Integer power;
+            private String productModel;
+            private String wifiVersion;
+            private Integer amMode;
+            private Integer autoLockTime;
+            private Integer defences;
+            private Integer doorSensor;
+            private Integer duress;
+            private Integer elecFence;
+            private Integer elecFenceSensitivity;
+            private Integer elecFenceTime;
+            private Integer faceStatus;
+            private String language;
+            private Integer operatingMode;
+            private Integer powerSave;
+            private Integer safeMode;
+            private Integer volume;
+            private Integer openStatus;
+            private Integer openStatusTime;
             private String wifiStatus;
+            private String wifiName;
+            private String randomCode;
 
             public String get_id() {
                 return _id;
@@ -741,22 +748,6 @@ public class WifiLockGetAllBindDeviceRspBean {
 
             public void set_id(String _id) {
                 this._id = _id;
-            }
-
-            public String getWifiSN() {
-                return wifiSN;
-            }
-
-            public void setWifiSN(String wifiSN) {
-                this.wifiSN = wifiSN;
-            }
-
-            public int getIsAdmin() {
-                return isAdmin;
-            }
-
-            public void setIsAdmin(int isAdmin) {
-                this.isAdmin = isAdmin;
             }
 
             public String getAdminUid() {
@@ -767,6 +758,14 @@ public class WifiLockGetAllBindDeviceRspBean {
                 this.adminUid = adminUid;
             }
 
+            public String getWifiSN() {
+                return wifiSN;
+            }
+
+            public void setWifiSN(String wifiSN) {
+                this.wifiSN = wifiSN;
+            }
+
             public String getAdminName() {
                 return adminName;
             }
@@ -775,260 +774,20 @@ public class WifiLockGetAllBindDeviceRspBean {
                 this.adminName = adminName;
             }
 
-            public String getProductSN() {
-                return productSN;
-            }
-
-            public void setProductSN(String productSN) {
-                this.productSN = productSN;
-            }
-
-            public String getProductModel() {
-                return productModel;
-            }
-
-            public void setProductModel(String productModel) {
-                this.productModel = productModel;
-            }
-
-            public int getAppId() {
-                return appId;
-            }
-
-            public void setAppId(int appId) {
-                this.appId = appId;
-            }
-
-            public String getLockNickname() {
-                return lockNickname;
-            }
-
-            public void setLockNickname(String lockNickname) {
-                this.lockNickname = lockNickname;
-            }
-
-            public String getLockSoftwareVersion() {
-                return lockSoftwareVersion;
-            }
-
-            public void setLockSoftwareVersion(String lockSoftwareVersion) {
-                this.lockSoftwareVersion = lockSoftwareVersion;
-            }
-
-            public String getFunctionSet() {
-                return functionSet;
-            }
-
-            public void setFunctionSet(String functionSet) {
-                this.functionSet = functionSet;
-            }
-
-            public String getUid() {
-                return uid;
-            }
-
-            public void setUid(String uid) {
-                this.uid = uid;
-            }
-
-            public String getUname() {
-                return uname;
-            }
-
-            public void setUname(String uname) {
-                this.uname = uname;
-            }
-
-            public int getPushSwitch() {
-                return pushSwitch;
-            }
-
-            public void setPushSwitch(int pushSwitch) {
-                this.pushSwitch = pushSwitch;
-            }
-
-            public int getAmMode() {
-                return amMode;
-            }
-
-            public void setAmMode(int amMode) {
-                this.amMode = amMode;
-            }
-
-            public int getSafeMode() {
-                return safeMode;
-            }
-
-            public void setSafeMode(int safeMode) {
-                this.safeMode = safeMode;
-            }
-
-            public int getDefences() {
-                return defences;
-            }
-
-            public void setDefences(int defences) {
-                this.defences = defences;
-            }
-
-            public String getLanguage() {
-                return language;
-            }
-
-            public void setLanguage(String language) {
-                this.language = language;
-            }
-
-            public int getOperatingMode() {
-                return operatingMode;
-            }
-
-            public void setOperatingMode(int operatingMode) {
-                this.operatingMode = operatingMode;
-            }
-
-            public int getVolume() {
-                return volume;
-            }
-
-            public void setVolume(int volume) {
-                this.volume = volume;
-            }
-
-            public int getFaceStatus() {
-                return faceStatus;
-            }
-
-            public void setFaceStatus(int faceStatus) {
-                this.faceStatus = faceStatus;
-            }
-
-            public int getPowerSave() {
-                return powerSave;
-            }
-
-            public void setPowerSave(int powerSave) {
-                this.powerSave = powerSave;
-            }
-
-            public String getBleVersion() {
-                return bleVersion;
-            }
-
-            public void setBleVersion(String bleVersion) {
-                this.bleVersion = bleVersion;
-            }
-
-            public String getWifiVersion() {
-                return wifiVersion;
-            }
-
-            public void setWifiVersion(String wifiVersion) {
-                this.wifiVersion = wifiVersion;
-            }
-
-            public String getMqttVersion() {
-                return mqttVersion;
-            }
-
-            public void setMqttVersion(String mqttVersion) {
-                this.mqttVersion = mqttVersion;
-            }
-
-            public String getFaceVersion() {
-                return faceVersion;
-            }
-
-            public void setFaceVersion(String faceVersion) {
-                this.faceVersion = faceVersion;
-            }
-
-            public String getLockFirmwareVersion() {
-                return lockFirmwareVersion;
-            }
-
-            public void setLockFirmwareVersion(String lockFirmwareVersion) {
-                this.lockFirmwareVersion = lockFirmwareVersion;
-            }
-
-            public String getRandomCode() {
-                return randomCode;
-            }
-
-            public void setRandomCode(String randomCode) {
-                this.randomCode = randomCode;
-            }
-
-            public int getDistributionNetwork() {
-                return distributionNetwork;
-            }
-
-            public void setDistributionNetwork(int distributionNetwork) {
-                this.distributionNetwork = distributionNetwork;
-            }
-
-            public String getWifiName() {
-                return wifiName;
-            }
-
-            public void setWifiName(String wifiName) {
-                this.wifiName = wifiName;
-            }
-
-            public int getPower() {
-                return power;
-            }
-
-            public void setPower(int power) {
-                this.power = power;
-            }
-
-            public int getUpdateTime() {
-                return updateTime;
-            }
-
-            public void setUpdateTime(int updateTime) {
-                this.updateTime = updateTime;
-            }
-
-            public int getCreateTime() {
-                return createTime;
-            }
-
-            public void setCreateTime(int createTime) {
-                this.createTime = createTime;
-            }
-
-            public int getOpenStatus() {
-                return openStatus;
-            }
-
-            public void setOpenStatus(int openStatus) {
-                this.openStatus = openStatus;
-            }
-
-            public int getOpenStatusTime() {
-                return openStatusTime;
-            }
-
-            public void setOpenStatusTime(int openStatusTime) {
-                this.openStatusTime = openStatusTime;
-            }
-
-            public SwitchBean getSwitchX() {
-                return switchX;
-            }
-
-            public void setSwitchX(SwitchBean switchX) {
-                this.switchX = switchX;
-            }
-
             public String getAdminnickname() {
                 return adminnickname;
             }
 
             public void setAdminnickname(String adminnickname) {
                 this.adminnickname = adminnickname;
+            }
+
+            public Integer getAppId() {
+                return appId;
+            }
+
+            public void setAppId(Integer appId) {
+                this.appId = appId;
             }
 
             public String getAutoLock() {
@@ -1047,12 +806,60 @@ public class WifiLockGetAllBindDeviceRspBean {
                 this.bleMac = bleMac;
             }
 
+            public String getBleVersion() {
+                return bleVersion;
+            }
+
+            public void setBleVersion(String bleVersion) {
+                this.bleVersion = bleVersion;
+            }
+
             public String getBleVersionType() {
                 return bleVersionType;
             }
 
             public void setBleVersionType(String bleVersionType) {
                 this.bleVersionType = bleVersionType;
+            }
+
+            public Integer getCreateTime() {
+                return createTime;
+            }
+
+            public void setCreateTime(Integer createTime) {
+                this.createTime = createTime;
+            }
+
+            public String getFirstName() {
+                return firstName;
+            }
+
+            public void setFirstName(String firstName) {
+                this.firstName = firstName;
+            }
+
+            public Integer getFunctionSet() {
+                return functionSet;
+            }
+
+            public void setFunctionSet(Integer functionSet) {
+                this.functionSet = functionSet;
+            }
+
+            public Integer getIsAdmin() {
+                return isAdmin;
+            }
+
+            public void setIsAdmin(Integer isAdmin) {
+                this.isAdmin = isAdmin;
+            }
+
+            public String getLastName() {
+                return lastName;
+            }
+
+            public void setLastName(String lastName) {
+                this.lastName = lastName;
             }
 
             public String getLatitude() {
@@ -1063,6 +870,14 @@ public class WifiLockGetAllBindDeviceRspBean {
                 this.latitude = latitude;
             }
 
+            public String getLockNickname() {
+                return lockNickname;
+            }
+
+            public void setLockNickname(String lockNickname) {
+                this.lockNickname = lockNickname;
+            }
+
             public String getLongitude() {
                 return longitude;
             }
@@ -1071,11 +886,11 @@ public class WifiLockGetAllBindDeviceRspBean {
                 this.longitude = longitude;
             }
 
-            public int getMagneticStatus() {
+            public Integer getMagneticStatus() {
                 return magneticStatus;
             }
 
-            public void setMagneticStatus(int magneticStatus) {
+            public void setMagneticStatus(Integer magneticStatus) {
                 this.magneticStatus = magneticStatus;
             }
 
@@ -1111,12 +926,44 @@ public class WifiLockGetAllBindDeviceRspBean {
                 this.peripheralId = peripheralId;
             }
 
+            public Integer getPushSwitch() {
+                return pushSwitch;
+            }
+
+            public void setPushSwitch(Integer pushSwitch) {
+                this.pushSwitch = pushSwitch;
+            }
+
             public String getSystemID() {
                 return systemID;
             }
 
             public void setSystemID(String systemID) {
                 this.systemID = systemID;
+            }
+
+            public String getUid() {
+                return uid;
+            }
+
+            public void setUid(String uid) {
+                this.uid = uid;
+            }
+
+            public String getUname() {
+                return uname;
+            }
+
+            public void setUname(String uname) {
+                this.uname = uname;
+            }
+
+            public Integer getUpdateTime() {
+                return updateTime;
+            }
+
+            public void setUpdateTime(Integer updateTime) {
+                this.updateTime = updateTime;
             }
 
             public String getUserNickname() {
@@ -1127,6 +974,198 @@ public class WifiLockGetAllBindDeviceRspBean {
                 this.userNickname = userNickname;
             }
 
+            public Integer getUserNumberId() {
+                return userNumberId;
+            }
+
+            public void setUserNumberId(Integer userNumberId) {
+                this.userNumberId = userNumberId;
+            }
+
+            public String getFaceVersion() {
+                return faceVersion;
+            }
+
+            public void setFaceVersion(String faceVersion) {
+                this.faceVersion = faceVersion;
+            }
+
+            public String getLockFirmwareVersion() {
+                return lockFirmwareVersion;
+            }
+
+            public void setLockFirmwareVersion(String lockFirmwareVersion) {
+                this.lockFirmwareVersion = lockFirmwareVersion;
+            }
+
+            public String getLockSoftwareVersion() {
+                return lockSoftwareVersion;
+            }
+
+            public void setLockSoftwareVersion(String lockSoftwareVersion) {
+                this.lockSoftwareVersion = lockSoftwareVersion;
+            }
+
+            public String getMqttVersion() {
+                return mqttVersion;
+            }
+
+            public void setMqttVersion(String mqttVersion) {
+                this.mqttVersion = mqttVersion;
+            }
+
+            public Integer getPower() {
+                return power;
+            }
+
+            public void setPower(Integer power) {
+                this.power = power;
+            }
+
+            public String getProductModel() {
+                return productModel;
+            }
+
+            public void setProductModel(String productModel) {
+                this.productModel = productModel;
+            }
+
+            public String getWifiVersion() {
+                return wifiVersion;
+            }
+
+            public void setWifiVersion(String wifiVersion) {
+                this.wifiVersion = wifiVersion;
+            }
+
+            public Integer getAmMode() {
+                return amMode;
+            }
+
+            public void setAmMode(Integer amMode) {
+                this.amMode = amMode;
+            }
+
+            public Integer getAutoLockTime() {
+                return autoLockTime;
+            }
+
+            public void setAutoLockTime(Integer autoLockTime) {
+                this.autoLockTime = autoLockTime;
+            }
+
+            public Integer getDefences() {
+                return defences;
+            }
+
+            public void setDefences(Integer defences) {
+                this.defences = defences;
+            }
+
+            public Integer getDoorSensor() {
+                return doorSensor;
+            }
+
+            public void setDoorSensor(Integer doorSensor) {
+                this.doorSensor = doorSensor;
+            }
+
+            public Integer getDuress() {
+                return duress;
+            }
+
+            public void setDuress(Integer duress) {
+                this.duress = duress;
+            }
+
+            public Integer getElecFence() {
+                return elecFence;
+            }
+
+            public void setElecFence(Integer elecFence) {
+                this.elecFence = elecFence;
+            }
+
+            public Integer getElecFenceSensitivity() {
+                return elecFenceSensitivity;
+            }
+
+            public void setElecFenceSensitivity(Integer elecFenceSensitivity) {
+                this.elecFenceSensitivity = elecFenceSensitivity;
+            }
+
+            public Integer getElecFenceTime() {
+                return elecFenceTime;
+            }
+
+            public void setElecFenceTime(Integer elecFenceTime) {
+                this.elecFenceTime = elecFenceTime;
+            }
+
+            public Integer getFaceStatus() {
+                return faceStatus;
+            }
+
+            public void setFaceStatus(Integer faceStatus) {
+                this.faceStatus = faceStatus;
+            }
+
+            public String getLanguage() {
+                return language;
+            }
+
+            public void setLanguage(String language) {
+                this.language = language;
+            }
+
+            public Integer getOperatingMode() {
+                return operatingMode;
+            }
+
+            public void setOperatingMode(Integer operatingMode) {
+                this.operatingMode = operatingMode;
+            }
+
+            public Integer getPowerSave() {
+                return powerSave;
+            }
+
+            public void setPowerSave(Integer powerSave) {
+                this.powerSave = powerSave;
+            }
+
+            public Integer getSafeMode() {
+                return safeMode;
+            }
+
+            public void setSafeMode(Integer safeMode) {
+                this.safeMode = safeMode;
+            }
+
+            public Integer getVolume() {
+                return volume;
+            }
+
+            public void setVolume(Integer volume) {
+                this.volume = volume;
+            }
+
+            public Integer getOpenStatus() {
+                return openStatus;
+            }
+
+            public void setOpenStatus(Integer openStatus) {
+                this.openStatus = openStatus;
+            }
+
+            public Integer getOpenStatusTime() {
+                return openStatusTime;
+            }
+
+            public void setOpenStatusTime(Integer openStatusTime) {
+                this.openStatusTime = openStatusTime;
+            }
+
             public String getWifiStatus() {
                 return wifiStatus;
             }
@@ -1135,206 +1174,21 @@ public class WifiLockGetAllBindDeviceRspBean {
                 this.wifiStatus = wifiStatus;
             }
 
-            public static class SwitchBean implements Parcelable {
-                /**
-                 * createTime : 154148973342
-                 * mac : 112233445566
-                 * switchEn : 1
-                 * total : 1
-                 * switchArray : [{"type":1,"timeEn":0,"startTime":0,"stopTime":0,"week":0,"nickname":"第一个开关昵称"}]
-                 */
-
-                private String createTime;
-                private String mac;
-                private int switchEn;
-                private int total;
-                private List<SwitchArrayBean> switchArray;
-
-                public String getCreateTime() {
-                    return createTime;
-                }
-
-                public void setCreateTime(String createTime) {
-                    this.createTime = createTime;
-                }
-
-                public String getMac() {
-                    return mac;
-                }
-
-                public void setMac(String mac) {
-                    this.mac = mac;
-                }
-
-                public int getSwitchEn() {
-                    return switchEn;
-                }
-
-                public void setSwitchEn(int switchEn) {
-                    this.switchEn = switchEn;
-                }
-
-                public int getTotal() {
-                    return total;
-                }
-
-                public void setTotal(int total) {
-                    this.total = total;
-                }
-
-                public List<SwitchArrayBean> getSwitchArray() {
-                    return switchArray;
-                }
-
-                public void setSwitchArray(List<SwitchArrayBean> switchArray) {
-                    this.switchArray = switchArray;
-                }
-
-                public static class SwitchArrayBean implements Parcelable {
-                    /**
-                     * type : 1
-                     * timeEn : 0
-                     * startTime : 0
-                     * stopTime : 0
-                     * week : 0
-                     * nickname : 第一个开关昵称
-                     */
-
-                    private int type;
-                    private int timeEn;
-                    private int startTime;
-                    private int stopTime;
-                    private int week;
-                    private String nickname;
-
-                    public int getType() {
-                        return type;
-                    }
-
-                    public void setType(int type) {
-                        this.type = type;
-                    }
-
-                    public int getTimeEn() {
-                        return timeEn;
-                    }
-
-                    public void setTimeEn(int timeEn) {
-                        this.timeEn = timeEn;
-                    }
-
-                    public int getStartTime() {
-                        return startTime;
-                    }
-
-                    public void setStartTime(int startTime) {
-                        this.startTime = startTime;
-                    }
-
-                    public int getStopTime() {
-                        return stopTime;
-                    }
-
-                    public void setStopTime(int stopTime) {
-                        this.stopTime = stopTime;
-                    }
-
-                    public int getWeek() {
-                        return week;
-                    }
-
-                    public void setWeek(int week) {
-                        this.week = week;
-                    }
-
-                    public String getNickname() {
-                        return nickname;
-                    }
-
-                    public void setNickname(String nickname) {
-                        this.nickname = nickname;
-                    }
-
-
-                    @Override
-                    public int describeContents() {
-                        return 0;
-                    }
-
-                    @Override
-                    public void writeToParcel(Parcel dest, int flags) {
-                        dest.writeInt(this.type);
-                        dest.writeInt(this.timeEn);
-                        dest.writeInt(this.startTime);
-                        dest.writeInt(this.stopTime);
-                        dest.writeInt(this.week);
-                        dest.writeString(this.nickname);
-                    }
-
-                    public SwitchArrayBean() {
-                    }
-
-                    protected SwitchArrayBean(Parcel in) {
-                        this.type = in.readInt();
-                        this.timeEn = in.readInt();
-                        this.startTime = in.readInt();
-                        this.stopTime = in.readInt();
-                        this.week = in.readInt();
-                        this.nickname = in.readString();
-                    }
-
-                    public static final Creator<SwitchArrayBean> CREATOR = new Creator<SwitchArrayBean>() {
-                        @Override
-                        public SwitchArrayBean createFromParcel(Parcel source) {
-                            return new SwitchArrayBean(source);
-                        }
-
-                        @Override
-                        public SwitchArrayBean[] newArray(int size) {
-                            return new SwitchArrayBean[size];
-                        }
-                    };
-                }
-
-
-                @Override
-                public int describeContents() {
-                    return 0;
-                }
-
-                @Override
-                public void writeToParcel(Parcel dest, int flags) {
-                    dest.writeString(this.createTime);
-                    dest.writeString(this.mac);
-                    dest.writeInt(this.switchEn);
-                    dest.writeInt(this.total);
-                    dest.writeTypedList(this.switchArray);
-                }
-
-                public SwitchBean() {
-                }
-
-                protected SwitchBean(Parcel in) {
-                    this.createTime = in.readString();
-                    this.mac = in.readString();
-                    this.switchEn = in.readInt();
-                    this.total = in.readInt();
-                    this.switchArray = in.createTypedArrayList(SwitchArrayBean.CREATOR);
-                }
-
-                public static final Creator<SwitchBean> CREATOR = new Creator<SwitchBean>() {
-                    @Override
-                    public SwitchBean createFromParcel(Parcel source) {
-                        return new SwitchBean(source);
-                    }
-
-                    @Override
-                    public SwitchBean[] newArray(int size) {
-                        return new SwitchBean[size];
-                    }
-                };
+            public String getWifiName() {
+                return wifiName;
             }
 
+            public void setWifiName(String wifiName) {
+                this.wifiName = wifiName;
+            }
+
+            public String getRandomCode() {
+                return randomCode;
+            }
+
+            public void setRandomCode(String randomCode) {
+                this.randomCode = randomCode;
+            }
 
             @Override
             public int describeContents() {
@@ -1344,55 +1198,120 @@ public class WifiLockGetAllBindDeviceRspBean {
             @Override
             public void writeToParcel(Parcel dest, int flags) {
                 dest.writeString(this._id);
-                dest.writeString(this.wifiSN);
-                dest.writeInt(this.isAdmin);
                 dest.writeString(this.adminUid);
+                dest.writeString(this.wifiSN);
                 dest.writeString(this.adminName);
-                dest.writeString(this.productSN);
-                dest.writeString(this.productModel);
-                dest.writeInt(this.appId);
-                dest.writeString(this.lockNickname);
-                dest.writeString(this.lockSoftwareVersion);
-                dest.writeString(this.functionSet);
-                dest.writeString(this.uid);
-                dest.writeString(this.uname);
-                dest.writeInt(this.pushSwitch);
-                dest.writeInt(this.amMode);
-                dest.writeInt(this.safeMode);
-                dest.writeInt(this.defences);
-                dest.writeString(this.language);
-                dest.writeInt(this.operatingMode);
-                dest.writeInt(this.volume);
-                dest.writeInt(this.faceStatus);
-                dest.writeInt(this.powerSave);
-                dest.writeString(this.bleVersion);
-                dest.writeString(this.wifiVersion);
-                dest.writeString(this.mqttVersion);
-                dest.writeString(this.faceVersion);
-                dest.writeString(this.lockFirmwareVersion);
-                dest.writeString(this.randomCode);
-                dest.writeInt(this.distributionNetwork);
-                dest.writeString(this.wifiName);
-                dest.writeInt(this.power);
-                dest.writeInt(this.updateTime);
-                dest.writeInt(this.createTime);
-                dest.writeInt(this.openStatus);
-                dest.writeInt(this.openStatusTime);
-                dest.writeParcelable(this.switchX, flags);
                 dest.writeString(this.adminnickname);
+                dest.writeValue(this.appId);
                 dest.writeString(this.autoLock);
                 dest.writeString(this.bleMac);
+                dest.writeString(this.bleVersion);
                 dest.writeString(this.bleVersionType);
+                dest.writeValue(this.createTime);
+                dest.writeString(this.firstName);
+                dest.writeValue(this.functionSet);
+                dest.writeValue(this.isAdmin);
+                dest.writeString(this.lastName);
                 dest.writeString(this.latitude);
+                dest.writeString(this.lockNickname);
                 dest.writeString(this.longitude);
-                dest.writeInt(this.magneticStatus);
+                dest.writeValue(this.magneticStatus);
                 dest.writeString(this.model);
                 dest.writeString(this.password1);
                 dest.writeString(this.password2);
                 dest.writeString(this.peripheralId);
+                dest.writeValue(this.pushSwitch);
                 dest.writeString(this.systemID);
+                dest.writeString(this.uid);
+                dest.writeString(this.uname);
+                dest.writeValue(this.updateTime);
                 dest.writeString(this.userNickname);
+                dest.writeValue(this.userNumberId);
+                dest.writeString(this.faceVersion);
+                dest.writeString(this.lockFirmwareVersion);
+                dest.writeString(this.lockSoftwareVersion);
+                dest.writeString(this.mqttVersion);
+                dest.writeValue(this.power);
+                dest.writeString(this.productModel);
+                dest.writeString(this.wifiVersion);
+                dest.writeValue(this.amMode);
+                dest.writeValue(this.autoLockTime);
+                dest.writeValue(this.defences);
+                dest.writeValue(this.doorSensor);
+                dest.writeValue(this.duress);
+                dest.writeValue(this.elecFence);
+                dest.writeValue(this.elecFenceSensitivity);
+                dest.writeValue(this.elecFenceTime);
+                dest.writeValue(this.faceStatus);
+                dest.writeString(this.language);
+                dest.writeValue(this.operatingMode);
+                dest.writeValue(this.powerSave);
+                dest.writeValue(this.safeMode);
+                dest.writeValue(this.volume);
+                dest.writeValue(this.openStatus);
+                dest.writeValue(this.openStatusTime);
                 dest.writeString(this.wifiStatus);
+                dest.writeString(this.wifiName);
+                dest.writeString(this.randomCode);
+            }
+
+            public void readFromParcel(Parcel source) {
+                this._id = source.readString();
+                this.adminUid = source.readString();
+                this.wifiSN = source.readString();
+                this.adminName = source.readString();
+                this.adminnickname = source.readString();
+                this.appId = (Integer) source.readValue(Integer.class.getClassLoader());
+                this.autoLock = source.readString();
+                this.bleMac = source.readString();
+                this.bleVersion = source.readString();
+                this.bleVersionType = source.readString();
+                this.createTime = (Integer) source.readValue(Integer.class.getClassLoader());
+                this.firstName = source.readString();
+                this.functionSet = (Integer) source.readValue(Integer.class.getClassLoader());
+                this.isAdmin = (Integer) source.readValue(Integer.class.getClassLoader());
+                this.lastName = source.readString();
+                this.latitude = source.readString();
+                this.lockNickname = source.readString();
+                this.longitude = source.readString();
+                this.magneticStatus = (Integer) source.readValue(Integer.class.getClassLoader());
+                this.model = source.readString();
+                this.password1 = source.readString();
+                this.password2 = source.readString();
+                this.peripheralId = source.readString();
+                this.pushSwitch = (Integer) source.readValue(Integer.class.getClassLoader());
+                this.systemID = source.readString();
+                this.uid = source.readString();
+                this.uname = source.readString();
+                this.updateTime = (Integer) source.readValue(Integer.class.getClassLoader());
+                this.userNickname = source.readString();
+                this.userNumberId = (Integer) source.readValue(Integer.class.getClassLoader());
+                this.faceVersion = source.readString();
+                this.lockFirmwareVersion = source.readString();
+                this.lockSoftwareVersion = source.readString();
+                this.mqttVersion = source.readString();
+                this.power = (Integer) source.readValue(Integer.class.getClassLoader());
+                this.productModel = source.readString();
+                this.wifiVersion = source.readString();
+                this.amMode = (Integer) source.readValue(Integer.class.getClassLoader());
+                this.autoLockTime = (Integer) source.readValue(Integer.class.getClassLoader());
+                this.defences = (Integer) source.readValue(Integer.class.getClassLoader());
+                this.doorSensor = (Integer) source.readValue(Integer.class.getClassLoader());
+                this.duress = (Integer) source.readValue(Integer.class.getClassLoader());
+                this.elecFence = (Integer) source.readValue(Integer.class.getClassLoader());
+                this.elecFenceSensitivity = (Integer) source.readValue(Integer.class.getClassLoader());
+                this.elecFenceTime = (Integer) source.readValue(Integer.class.getClassLoader());
+                this.faceStatus = (Integer) source.readValue(Integer.class.getClassLoader());
+                this.language = source.readString();
+                this.operatingMode = (Integer) source.readValue(Integer.class.getClassLoader());
+                this.powerSave = (Integer) source.readValue(Integer.class.getClassLoader());
+                this.safeMode = (Integer) source.readValue(Integer.class.getClassLoader());
+                this.volume = (Integer) source.readValue(Integer.class.getClassLoader());
+                this.openStatus = (Integer) source.readValue(Integer.class.getClassLoader());
+                this.openStatusTime = (Integer) source.readValue(Integer.class.getClassLoader());
+                this.wifiStatus = source.readString();
+                this.wifiName = source.readString();
+                this.randomCode = source.readString();
             }
 
             public WifiListBean() {
@@ -1400,55 +1319,61 @@ public class WifiLockGetAllBindDeviceRspBean {
 
             protected WifiListBean(Parcel in) {
                 this._id = in.readString();
-                this.wifiSN = in.readString();
-                this.isAdmin = in.readInt();
                 this.adminUid = in.readString();
+                this.wifiSN = in.readString();
                 this.adminName = in.readString();
-                this.productSN = in.readString();
-                this.productModel = in.readString();
-                this.appId = in.readInt();
-                this.lockNickname = in.readString();
-                this.lockSoftwareVersion = in.readString();
-                this.functionSet = in.readString();
-                this.uid = in.readString();
-                this.uname = in.readString();
-                this.pushSwitch = in.readInt();
-                this.amMode = in.readInt();
-                this.safeMode = in.readInt();
-                this.defences = in.readInt();
-                this.language = in.readString();
-                this.operatingMode = in.readInt();
-                this.volume = in.readInt();
-                this.faceStatus = in.readInt();
-                this.powerSave = in.readInt();
-                this.bleVersion = in.readString();
-                this.wifiVersion = in.readString();
-                this.mqttVersion = in.readString();
-                this.faceVersion = in.readString();
-                this.lockFirmwareVersion = in.readString();
-                this.randomCode = in.readString();
-                this.distributionNetwork = in.readInt();
-                this.wifiName = in.readString();
-                this.power = in.readInt();
-                this.updateTime = in.readInt();
-                this.createTime = in.readInt();
-                this.openStatus = in.readInt();
-                this.openStatusTime = in.readInt();
-                this.switchX = in.readParcelable(SwitchBean.class.getClassLoader());
                 this.adminnickname = in.readString();
+                this.appId = (Integer) in.readValue(Integer.class.getClassLoader());
                 this.autoLock = in.readString();
                 this.bleMac = in.readString();
+                this.bleVersion = in.readString();
                 this.bleVersionType = in.readString();
+                this.createTime = (Integer) in.readValue(Integer.class.getClassLoader());
+                this.firstName = in.readString();
+                this.functionSet = (Integer) in.readValue(Integer.class.getClassLoader());
+                this.isAdmin = (Integer) in.readValue(Integer.class.getClassLoader());
+                this.lastName = in.readString();
                 this.latitude = in.readString();
+                this.lockNickname = in.readString();
                 this.longitude = in.readString();
-                this.magneticStatus = in.readInt();
+                this.magneticStatus = (Integer) in.readValue(Integer.class.getClassLoader());
                 this.model = in.readString();
                 this.password1 = in.readString();
                 this.password2 = in.readString();
                 this.peripheralId = in.readString();
+                this.pushSwitch = (Integer) in.readValue(Integer.class.getClassLoader());
                 this.systemID = in.readString();
+                this.uid = in.readString();
+                this.uname = in.readString();
+                this.updateTime = (Integer) in.readValue(Integer.class.getClassLoader());
                 this.userNickname = in.readString();
+                this.userNumberId = (Integer) in.readValue(Integer.class.getClassLoader());
+                this.faceVersion = in.readString();
+                this.lockFirmwareVersion = in.readString();
+                this.lockSoftwareVersion = in.readString();
+                this.mqttVersion = in.readString();
+                this.power = (Integer) in.readValue(Integer.class.getClassLoader());
+                this.productModel = in.readString();
+                this.wifiVersion = in.readString();
+                this.amMode = (Integer) in.readValue(Integer.class.getClassLoader());
+                this.autoLockTime = (Integer) in.readValue(Integer.class.getClassLoader());
+                this.defences = (Integer) in.readValue(Integer.class.getClassLoader());
+                this.doorSensor = (Integer) in.readValue(Integer.class.getClassLoader());
+                this.duress = (Integer) in.readValue(Integer.class.getClassLoader());
+                this.elecFence = (Integer) in.readValue(Integer.class.getClassLoader());
+                this.elecFenceSensitivity = (Integer) in.readValue(Integer.class.getClassLoader());
+                this.elecFenceTime = (Integer) in.readValue(Integer.class.getClassLoader());
+                this.faceStatus = (Integer) in.readValue(Integer.class.getClassLoader());
+                this.language = in.readString();
+                this.operatingMode = (Integer) in.readValue(Integer.class.getClassLoader());
+                this.powerSave = (Integer) in.readValue(Integer.class.getClassLoader());
+                this.safeMode = (Integer) in.readValue(Integer.class.getClassLoader());
+                this.volume = (Integer) in.readValue(Integer.class.getClassLoader());
+                this.openStatus = (Integer) in.readValue(Integer.class.getClassLoader());
+                this.openStatusTime = (Integer) in.readValue(Integer.class.getClassLoader());
                 this.wifiStatus = in.readString();
+                this.wifiName = in.readString();
+                this.randomCode = in.readString();
             }
 
             public static final Creator<WifiListBean> CREATOR = new Creator<WifiListBean>() {

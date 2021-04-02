@@ -34,7 +34,7 @@ public class NotificationHelper extends ContextWrapper {
     }
 
     private String CHANNEL_NAME = "High priority channel";
-    private String CHANNEL_ID = "com.example.notifications" + CHANNEL_NAME;
+    private String CHANNEL_ID = "com.revolo.notifications" + CHANNEL_NAME;
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     private void createChannels() {

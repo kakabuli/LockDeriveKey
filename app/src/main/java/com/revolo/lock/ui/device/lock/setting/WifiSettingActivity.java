@@ -11,7 +11,6 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.constraintlayout.widget.ConstraintLayout;
 
 import com.a1anwang.okble.client.scan.BLEScanResult;
 import com.blankj.utilcode.util.ConvertUtils;
@@ -59,10 +58,9 @@ import static com.revolo.lock.ble.BleProtocolState.CMD_WIFI_SWITCH;
 public class WifiSettingActivity extends BaseActivity {
 
     private BleDeviceLocal mBleDeviceLocal;
-    private ConstraintLayout mClTip;
     private ImageView mIvWifiEnable;
     private boolean isWifiConnected = false;
-    private TextView mTvSettingTitle, mTvWifiName, mTvSettingTip;
+    private TextView mTvWifiName;
 
     @Override
     public void initData(@Nullable Bundle bundle) {
@@ -80,13 +78,10 @@ public class WifiSettingActivity extends BaseActivity {
     @Override
     public void initView(@Nullable Bundle savedInstanceState, @Nullable View contentView) {
         useCommonTitleBar(getString(R.string.title_wifi_setting));
-        mClTip = findViewById(R.id.clTip);
         mIvWifiEnable = findViewById(R.id.ivWifiEnable);
-        mTvSettingTip = findViewById(R.id.tvSettingTip);
-        mTvSettingTitle = findViewById(R.id.tvSettingTitle);
         mTvWifiName = findViewById(R.id.tvWifiName);
         initLoading("Setting...");
-        applyDebouncingClickListener(mIvWifiEnable, mTvSettingTitle, mTvWifiName);
+        applyDebouncingClickListener(mIvWifiEnable, findViewById(R.id.tvSettingTitle), findViewById(R.id.clTip));
     }
 
     @Override
@@ -113,7 +108,7 @@ public class WifiSettingActivity extends BaseActivity {
             }
             return;
         }
-        if(view.getId() == R.id.tvWifiName || view.getId() == R.id.tvSettingTitle) {
+        if(view.getId() == R.id.clTip || view.getId() == R.id.tvSettingTitle) {
             // TODO: 2021/4/1 先开启蓝牙再跳转
             if(mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI) {
                 openBleFromMQtt();
@@ -408,7 +403,6 @@ public class WifiSettingActivity extends BaseActivity {
     private void updateWifiState() {
         runOnUiThread(() -> {
             mIvWifiEnable.setImageResource(R.drawable.ic_icon_switch_open);
-            mClTip.setVisibility(View.VISIBLE);
             String wifiName = mBleDeviceLocal.getConnectedWifiName();
             mTvWifiName.setText(TextUtils.isEmpty(wifiName)?"":wifiName);
             isWifiConnected = true;
@@ -418,7 +412,6 @@ public class WifiSettingActivity extends BaseActivity {
     private void updateBleState() {
         runOnUiThread(() -> {
             mIvWifiEnable.setImageResource(R.drawable.ic_icon_switch_close);
-            mClTip.setVisibility(View.GONE);
             isWifiConnected = false;
         });
     }

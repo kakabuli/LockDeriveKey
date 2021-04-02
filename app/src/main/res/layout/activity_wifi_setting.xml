@@ -38,8 +38,7 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/clTip"
         android:layout_width="match_parent"
-        android:layout_height="0pt"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_height="wrap_content"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView33">
@@ -49,11 +48,11 @@
             android:id="@+id/tvSettingTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginStart="16pt"
+            android:layout_marginTop="30pt"
             android:text="@string/setting_connected_wifi"
             android:textColor="@color/c333333"
             android:textSize="15pt"
-            android:layout_marginTop="30pt"
-            android:layout_marginStart="16pt"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
@@ -61,11 +60,11 @@
             android:id="@+id/tvSettingTip"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/setting_tip_change_a_new_wifi_to_reconnect_network"
-            android:textSize="14pt"
-            android:textColor="@color/c666666"
-            android:layout_marginTop="5pt"
             android:layout_marginStart="16pt"
+            android:layout_marginTop="5pt"
+            android:text="@string/setting_tip_change_a_new_wifi_to_reconnect_network"
+            android:textColor="@color/c666666"
+            android:textSize="14pt"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/tvSettingTitle" />
 
@@ -73,8 +72,8 @@
             android:id="@+id/imageView22"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="15pt"
             android:layout_marginTop="34pt"
+            android:layout_marginEnd="15pt"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:srcCompat="@drawable/ic_icon_more" />

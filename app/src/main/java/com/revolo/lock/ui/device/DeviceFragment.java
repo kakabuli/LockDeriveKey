@@ -170,7 +170,6 @@ public class DeviceFragment extends Fragment {
             if(bleDeviceLocal == null) {
                 Timber.e("updateDataFromNet bleDeviceLocal == null");
                 bleDeviceLocal = createDeviceToLocal(wifiListBean);
-                continue;
             }
             bleDeviceLocal.setName(wifiListBean.getWifiName());
             String firmwareVer = wifiListBean.getLockFirmwareVersion();
@@ -204,9 +203,9 @@ public class DeviceFragment extends Fragment {
         bleDeviceLocal.setWifiVer(wifiListBean.getWifiVersion());
         bleDeviceLocal.setLockVer(wifiListBean.getLockFirmwareVersion());
         bleDeviceLocal.setName(wifiListBean.getLockNickname());
-//        bleDeviceLocal.setOpenDoorSensor(wifiListBean.get);
-//        bleDeviceLocal.setDoNotDisturbMode();
-//        bleDeviceLocal.setSetAutoLockTime();
+        bleDeviceLocal.setOpenDoorSensor(wifiListBean.getDoorSensor()==1);
+//        bleDeviceLocal.setDoNotDisturbMode(wifiListBean.get);
+        bleDeviceLocal.setSetAutoLockTime(wifiListBean.getAutoLockTime());
 //        bleDeviceLocal.setMute();
         // TODO: 2021/3/18 修改为从服务器获取数据
         bleDeviceLocal.setConnectedType(LocalState.DEVICE_CONNECT_TYPE_WIFI);
@@ -405,6 +404,7 @@ public class DeviceFragment extends Fragment {
 
     private void initBaseData() {
         User user = App.getInstance().getUser();
+        mBleDeviceLocals = App.getInstance().getBleDeviceLocals();
         if(user == null) {
             return;
         }
@@ -416,7 +416,6 @@ public class DeviceFragment extends Fragment {
             return;
         }
         App.getInstance().addBleDeviceLocals(locals);
-        mBleDeviceLocals = App.getInstance().getBleDeviceLocals();
         updateData(mBleDeviceLocals);
 
     }
