@@ -1,7 +1,5 @@
 package com.revolo.lock.mqtt;
 
-import android.text.TextUtils;
-
 import com.blankj.utilcode.util.EncodeUtils;
 import com.blankj.utilcode.util.EncryptUtils;
 import com.google.gson.Gson;
@@ -152,7 +150,8 @@ public class MqttCommandFactory {
     }
 
     private static String getPassword(String wifiEsn, String randomCode) {
-        String time = (System.currentTimeMillis() / 1000 / 60 / 5) + "";
+        // 有效时间为20秒
+        String time = (System.currentTimeMillis() / 1000 / 20) + "";
         Timber.d("--revolo调试--wifiSN  %1s", wifiEsn);
         Timber.d("--revolo调试--randomCode  %1s", randomCode);
         Timber.d("--revolo调试--System.currentTimeMillis()  %1d", System.currentTimeMillis());

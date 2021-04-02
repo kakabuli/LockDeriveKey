@@ -50,7 +50,6 @@ import com.revolo.lock.ui.device.lock.DeviceDetailActivity;
 import org.jetbrains.annotations.NotNull;
 
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -182,6 +181,7 @@ public class DeviceFragment extends Fragment {
             if(!TextUtils.isEmpty(wifiVer)) {
                 bleDeviceLocal.setWifiVer(wifiVer);
             }
+            // 0 锁端wifi没有与服务器连接   1 锁端wifi与服务器连接成功
             boolean isWifiConnected = (wifiListBean.getWifiStatus().equals("1"));
             bleDeviceLocal.setConnectedType(isWifiConnected?
                     LocalState.DEVICE_CONNECT_TYPE_WIFI:LocalState.DEVICE_CONNECT_TYPE_BLE);

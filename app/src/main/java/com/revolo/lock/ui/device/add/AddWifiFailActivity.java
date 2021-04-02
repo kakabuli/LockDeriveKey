@@ -62,6 +62,7 @@ public class AddWifiFailActivity extends BaseActivity {
             intent.putExtra(Constant.WIFI_NAME, mWifiName);
             intent.putExtra(Constant.WIFI_PWD, mWifiPwd);
             startActivity(intent);
+            finish();
             return;
         }
         if(view.getId() == R.id.btnCancel) {

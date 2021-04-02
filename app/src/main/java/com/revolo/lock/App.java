@@ -534,10 +534,14 @@ public class App extends Application {
     }
 
     public void addBleDeviceLocal(BleDeviceLocal bleDeviceLocal) {
+        if(mBleDeviceLocals.contains(bleDeviceLocal)) {
+            return;
+        }
         mBleDeviceLocals.add(bleDeviceLocal);
     }
 
     public void addBleDeviceLocals(List<BleDeviceLocal> bleDeviceLocals) {
+        mBleDeviceLocals.clear();
         mBleDeviceLocals.addAll(bleDeviceLocals);
     }
 

@@ -222,13 +222,13 @@ public class MqttService extends Service {
 
             @Override
             public void messageArrived(String topic, MqttMessage message) throws Exception {
-                // TODO: 2021/3/31 消息处理机制存在问题，需要修复
+                // TODO: 2021/3/31 消息处理机制存在问题，需要修复,这种分发机制会导致使用超时的话一直都超时
                 if (message == null) {
                     return;
                 }
                 //收到消息
                 String payload = new String(message.getPayload());
-                Timber.d("收到mqtt消息111" +  payload + "---topic" + topic + "  messageID  " + message.getId());
+                Timber.d("收到MQtt消息" +  payload + "---topic" + topic + "  messageID  " + message.getId());
                 //String func, String topic, String payload, MqttMessage mqttMessage
                 JSONObject jsonObject = new JSONObject(payload);
                 int messageId = -1;
