@@ -425,6 +425,9 @@ public class OperationRecordsActivity extends BaseActivity {
         } else {
             // TODO: 2021/3/18 时间错误就不能存储
             if(beans.isEmpty()) {
+                if(mRefreshLayout != null) {
+                    mRefreshLayout.finishLoadMore();
+                }
                 Timber.e("processRecordFromNet beans is empty");
                 return;
             }

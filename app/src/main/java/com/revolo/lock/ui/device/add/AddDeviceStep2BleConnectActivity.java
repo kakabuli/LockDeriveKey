@@ -381,6 +381,7 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
             long deviceId = AppDatabase.getInstance(this).bleDeviceDao().insert(bleDeviceLocal);
             BleDeviceLocal deviceLocal = AppDatabase.getInstance(this).bleDeviceDao().findBleDeviceFromId(deviceId);
             App.getInstance().setBleDeviceLocal(deviceLocal);
+            App.getInstance().addBleDeviceLocal(deviceLocal);
         }
     }
 
@@ -577,10 +578,12 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
             case DeviceScanCallBack.SCAN_FAILED_BLUETOOTH_DISABLE:
                 Timber.e("请打开手机蓝牙");
                 // TODO: 2021/1/22 打开手机蓝牙
+                ToastUtils.showShort("Please open Ble");
                 break;
             case DeviceScanCallBack.SCAN_FAILED_LOCATION_PERMISSION_DISABLE:
                 Timber.e("请授予位置权限以扫描周围的蓝牙设备");
                 // TODO: 2021/1/22 请求位置权限
+                ToastUtils.showShort("Please open location");
                 break;
             case DeviceScanCallBack.SCAN_FAILED_LOCATION_PERMISSION_DISABLE_FOREVER:
                 Timber.e("位置权限被您永久拒绝,请在设置里授予位置权限以扫描周围的蓝牙设备");

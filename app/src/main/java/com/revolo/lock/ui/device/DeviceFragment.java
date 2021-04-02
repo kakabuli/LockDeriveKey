@@ -120,13 +120,13 @@ public class DeviceFragment extends Fragment {
             }
         }
 
-        initBaseData();
         return root;
     }
 
     @Override
     public void onResume() {
         super.onResume();
+        initBaseData();
         initData(mBleDeviceLocals);
         mHomeLockListAdapter.setList(mBleDeviceLocals);
     }
@@ -307,16 +307,6 @@ public class DeviceFragment extends Fragment {
             }
         }
         return -1;
-    }
-
-    private void refreshLockState(int position) {
-        @LocalState.LockState int state = mHomeLockListAdapter.getData().get(position).getLockState();
-        if(state == LocalState.LOCK_STATE_OPEN) {
-            state = LocalState .LOCK_STATE_CLOSE;
-        } else if(state == LocalState.LOCK_STATE_CLOSE) {
-            state = LocalState.LOCK_STATE_OPEN;
-        }
-        setLockState(position, state);
     }
 
     private void lockUpdateInfo(@NotNull String mac, BleResultBean bean) {

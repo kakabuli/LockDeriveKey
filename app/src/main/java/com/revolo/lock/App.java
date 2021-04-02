@@ -131,7 +131,6 @@ public class App extends Application {
 
     public void setBleDeviceLocal(BleDeviceLocal bleDeviceLocal) {
         mBleDeviceLocal = bleDeviceLocal;
-        addBleDeviceLocal(mBleDeviceLocal);
     }
 
     public User getUserFromLocal(String mail) {
