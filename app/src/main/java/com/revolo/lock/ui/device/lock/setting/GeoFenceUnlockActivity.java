@@ -3,6 +3,7 @@ package com.revolo.lock.ui.device.lock.setting;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.location.Location;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -23,7 +24,9 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.gson.JsonSyntaxException;
 import com.revolo.lock.App;
@@ -76,6 +79,7 @@ public class GeoFenceUnlockActivity extends BaseActivity implements OnMapReadyCa
 
     private FusedLocationProviderClient fusedLocationClient;
     private GoogleMap mMap;
+    public float GEO_FENCE_RADIUS = 200;
 
     @Override
     public void initData(@Nullable Bundle bundle) {
@@ -134,8 +138,6 @@ public class GeoFenceUnlockActivity extends BaseActivity implements OnMapReadyCa
             }
         });
 
-        mIvGeoFenceUnlockEnable.setImageResource(mBleDeviceLocal.isOpenElectricFence()?R.drawable.ic_icon_switch_open:R.drawable.ic_icon_switch_close);
-
         applyDebouncingClickListener(mIvGeoFenceUnlockEnable, findViewById(R.id.clDistanceRangeSetting));
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
@@ -177,6 +179,7 @@ public class GeoFenceUnlockActivity extends BaseActivity implements OnMapReadyCa
     public void doBusiness() {
         initDefaultValue();
         initTimeNSensitivityDataUI();
+        mIvGeoFenceUnlockEnable.setImageResource(mBleDeviceLocal.isOpenElectricFence()?R.drawable.ic_icon_switch_open:R.drawable.ic_icon_switch_close);
         if(mBleDeviceLocal.getConnectedType() != LocalState.DEVICE_CONNECT_TYPE_WIFI) {
             initBleListener();
         }
@@ -185,6 +188,14 @@ public class GeoFenceUnlockActivity extends BaseActivity implements OnMapReadyCa
     @Override
     public void onDebouncingClick(@NonNull View view) {
         if(view.getId() == R.id.ivGeoFenceUnlockEnable) {
+            if(mBleDeviceLocal.isOpenElectricFence()) {
+                mBleDeviceLocal.setOpenElectricFence(false);
+                AppDatabase.getInstance(this).bleDeviceDao().update(mBleDeviceLocal);
+                mIvGeoFenceUnlockEnable.setImageResource(mBleDeviceLocal.isOpenElectricFence()?R.drawable.ic_icon_switch_open:R.drawable.ic_icon_switch_close);
+            } else {
+                Intent intent = new Intent(this, MapActivity.class);
+                startActivity(intent);
+            }
             // TODO: 2021/2/23 开关电子围栏 TEST使用开启地理围栏开门
 //            publishApproachOpen(mBleDeviceLocal.getEsn(), mBleDeviceLocal.getSetElectricFenceTime());
             return;
@@ -216,9 +227,35 @@ public class GeoFenceUnlockActivity extends BaseActivity implements OnMapReadyCa
             mBleDeviceLocal.setSetElectricFenceSensitivity(mSensitivity);
             isNeedSave = true;
         }
+        if(mBleDeviceLocal.isOpenElectricFence()) {
+            long la = mBleDeviceLocal.getLatitude();
+            long lo = mBleDeviceLocal.getLongitude();
+            if(mMap != null) {
+                LatLng latLng = new LatLng(la, lo);
+                addMarker(latLng);
+                addCircle(latLng, GEO_FENCE_RADIUS);
+            }
+        }
         if(isNeedSave) {
             AppDatabase.getInstance(this).bleDeviceDao().update(mBleDeviceLocal);
         }
+    }
+
+    private void addMarker(LatLng latLng) {
+        MarkerOptions markerOptions = new MarkerOptions().position(latLng);
+        mMap.addMarker(markerOptions);
+    }
+
+    private void addCircle(LatLng latLng, float radius) {
+        CircleOptions circleOptions = new CircleOptions();
+
+        circleOptions.center(latLng)
+                .radius(radius)
+                .strokeColor(Color.argb(255, 255, 0, 0))
+                .fillColor(Color.argb(64, 255, 0, 0))
+                .strokeWidth(4);
+
+        mMap.addCircle(circleOptions);
     }
     
     private void initTimeNSensitivityDataUI() {

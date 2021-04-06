@@ -14,6 +14,8 @@ import com.a1anwang.okble.client.core.OKBLEDeviceImp;
 import com.a1anwang.okble.client.core.OKBLEDeviceListener;
 import com.a1anwang.okble.client.core.OKBLEOperation;
 import com.a1anwang.okble.client.scan.BLEScanResult;
+import com.a1anwang.okble.client.scan.DeviceScanCallBack;
+import com.a1anwang.okble.client.scan.OKBLEScanManager;
 import com.blankj.utilcode.util.CacheDiskUtils;
 import com.blankj.utilcode.util.ConvertUtils;
 import com.blankj.utilcode.util.SPUtils;
@@ -555,5 +557,21 @@ public class App extends Application {
             }
         }
     }
+
+    /*-------------------------------- 蓝牙搜索 --------------------------------*/
+    private OKBLEScanManager mScanManager;
+
+    public OKBLEScanManager getScanManager() {
+        if(mScanManager == null) {
+            mScanManager = new OKBLEScanManager(this);
+        }
+        return mScanManager;
+    }
+
+    public void setScanCallBack(DeviceScanCallBack scanCallBack) {
+        mScanManager.setScanCallBack(scanCallBack);
+        mScanManager.setScanDuration(20*1000);
+    }
+
 
 }

@@ -107,6 +107,12 @@ public class BleDeviceLocal implements Parcelable {
     @ColumnInfo(name = "d_random_code")
     private String randomCode;                                      // randomCode 用于开关门
 
+    @ColumnInfo(name = "d_latitude")
+    private long latitude;                                          // 地理围栏纬度
+
+    @ColumnInfo(name = "d_longitude")
+    private long longitude;                                         // 地理围栏经度
+
 
     public long getId() {
         return id;
@@ -340,6 +346,23 @@ public class BleDeviceLocal implements Parcelable {
         this.randomCode = randomCode;
     }
 
+    public long getLatitude() {
+        return latitude;
+    }
+
+    public void setLatitude(long latitude) {
+        this.latitude = latitude;
+    }
+
+    public long getLongitude() {
+        return longitude;
+    }
+
+    public void setLongitude(long longitude) {
+        this.longitude = longitude;
+    }
+
+
     @Override
     public int describeContents() {
         return 0;
@@ -376,6 +399,42 @@ public class BleDeviceLocal implements Parcelable {
         dest.writeByte(this.isDoNotDisturbMode ? (byte) 1 : (byte) 0);
         dest.writeByte(this.isDuress ? (byte) 1 : (byte) 0);
         dest.writeString(this.randomCode);
+        dest.writeLong(this.latitude);
+        dest.writeLong(this.longitude);
+    }
+
+    public void readFromParcel(Parcel source) {
+        this.id = source.readLong();
+        this.userId = source.readLong();
+        this.pwd1 = source.readString();
+        this.pwd2 = source.readString();
+        this.esn = source.readString();
+        this.mac = source.readString();
+        this.name = source.readString();
+        this.functionSet = source.readString();
+        this.createTime = source.readLong();
+        this.scanResultJson = source.createByteArray();
+        this.type = source.readString();
+        this.wifiVer = source.readString();
+        this.lockVer = source.readString();
+        this.doorSensor = source.readInt();
+        this.connectedWifiName = source.readString();
+        this.connectedType = source.readInt();
+        this.lockState = source.readInt();
+        this.lockPower = source.readInt();
+        this.setAutoLockTime = source.readInt();
+        this.isDetectionLock = source.readByte() != 0;
+        this.setElectricFenceTime = source.readInt();
+        this.setElectricFenceSensitivity = source.readInt();
+        this.isAutoLock = source.readByte() != 0;
+        this.isOpenElectricFence = source.readByte() != 0;
+        this.isOpenDoorSensor = source.readByte() != 0;
+        this.isMute = source.readByte() != 0;
+        this.isDoNotDisturbMode = source.readByte() != 0;
+        this.isDuress = source.readByte() != 0;
+        this.randomCode = source.readString();
+        this.latitude = source.readLong();
+        this.longitude = source.readLong();
     }
 
     public BleDeviceLocal() {
@@ -411,9 +470,11 @@ public class BleDeviceLocal implements Parcelable {
         this.isDoNotDisturbMode = in.readByte() != 0;
         this.isDuress = in.readByte() != 0;
         this.randomCode = in.readString();
+        this.latitude = in.readLong();
+        this.longitude = in.readLong();
     }
 
-    public static final Parcelable.Creator<BleDeviceLocal> CREATOR = new Parcelable.Creator<BleDeviceLocal>() {
+    public static final Creator<BleDeviceLocal> CREATOR = new Creator<BleDeviceLocal>() {
         @Override
         public BleDeviceLocal createFromParcel(Parcel source) {
             return new BleDeviceLocal(source);

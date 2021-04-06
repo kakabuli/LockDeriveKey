@@ -143,22 +143,10 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
     }
 
     @Override
-    protected void onStop() {
-        if(mScanManager != null) {
-            mScanManager.stopScan();
-        }
-        super.onStop();
-    }
-
-    @Override
     protected void onDestroy() {
         BleBean bleBean = App.getInstance().getBleBeanFromMac(mMac);
         if(bleBean != null) {
             bleBean.setAppPair(false);
-        }
-        if(mScanManager != null) {
-            mScanManager.stopScan();
-            mScanManager = null;
         }
         super.onDestroy();
     }
@@ -518,7 +506,7 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
     };
 
     private void initScanManager() {
-        mScanManager = new OKBLEScanManager(this);
+        mScanManager = App.getInstance().getScanManager();
         DeviceScanCallBack scanCallBack = new DeviceScanCallBack() {
             @Override
             public void onBLEDeviceScan(BLEScanResult device, int rssi) {
@@ -534,8 +522,7 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
             public void onStartSuccess() {
             }
         };
-        mScanManager.setScanCallBack(scanCallBack);
-        mScanManager.setScanDuration(20*1000);
+        App.getInstance().setScanCallBack(scanCallBack);
         mScanManager.startScan();
     }
 

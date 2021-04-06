@@ -30,7 +30,7 @@ import timber.log.Timber;
  * E-mail : wengmaowei@kaadas.com
  * desc   :
  */
-@Database(entities = {BleDeviceLocal.class, User.class, DevicePwd.class, LockRecord.class}, version = 2)
+@Database(entities = {BleDeviceLocal.class, User.class, DevicePwd.class, LockRecord.class}, version = 3)
 public abstract class AppDatabase extends RoomDatabase {
 
     public abstract BleDeviceDao bleDeviceDao();
@@ -50,7 +50,7 @@ public abstract class AppDatabase extends RoomDatabase {
                 INSTANCE =
                         Room.databaseBuilder(context.getApplicationContext(), AppDatabase.class, "rev.db")
                                 .allowMainThreadQueries() // TODO: 2021/2/3 后续需要把这些操作放到非UI线程里
-                                .addMigrations(MIGRATION_1_2)
+                                .addMigrations(MIGRATION_1_2, MIGRATION_2_3)
                                 .openHelperFactory(FACTORY)
                                 .addCallback(new Callback() {
                                     @Override
@@ -81,6 +81,15 @@ public abstract class AppDatabase extends RoomDatabase {
         public void migrate(@NonNull SupportSQLiteDatabase database) {
             // User新增一个字段u_gesture_code
             database.execSQL("ALTER TABLE User ADD COLUMN u_avatar_local_path TEXT");
+        }
+    };
+
+    static final Migration MIGRATION_2_3 = new Migration(2, 3) {
+        @Override
+        public void migrate(@NonNull SupportSQLiteDatabase database) {
+            // BleDeviceLocal新增地理围栏的经纬度字段
+            database.execSQL("ALTER TABLE BleDeviceLocal ADD COLUMN d_latitude INTEGER NOT NULL");
+            database.execSQL("ALTER TABLE BleDeviceLocal ADD COLUMN d_longitude INTEGER NOT NULL");
         }
     };
 
