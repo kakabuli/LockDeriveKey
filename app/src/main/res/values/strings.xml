@@ -361,6 +361,8 @@
     <string name="dialog_tip_your_device_wifi_is_offline_please_close_to_the_door_lock_open_bluetooth_and_set_it">Your device WiFi is offline,\nPlease close to the door lock,\nopen Bluetooth and set it.</string>
     <string name="dialog_tip_are_you_sure_you_want_to_remove_this_user_right">Are you sure you want to remove\nthis user right.</string>
     <string name="dialog_tip_log_out">Log out</string>
+    <string name="dialog_tip_please_wake_up_lock_and_wait_bluetooth_connecting">Please wake up lock and wait Bluetooth connecting</string>
+    <string name="dialog_title_weak_signal_state">Weak signal state</string>
 
     <!-- AddNewPwdSelectActivity -->
     <string name="repeat">Repeat</string>

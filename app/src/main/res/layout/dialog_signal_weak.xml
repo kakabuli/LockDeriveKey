@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="289pt"
+    android:layout_height="161pt"
+    android:background="@drawable/shape_dialog_bg">
+
+    <TextView
+        android:id="@+id/tvContent"
+        android:layout_width="182pt"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:textColor="@color/c333333"
+        android:textSize="15pt"
+        android:layout_marginTop="12pt"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView55"
+        android:text="@string/dialog_tip_please_wake_up_lock_and_wait_bluetooth_connecting" />
+
+    <View
+        android:id="@+id/view"
+        android:layout_width="match_parent"
+        android:layout_height="1pt"
+        android:background="@color/cF2F2F2"
+        app:layout_constraintBottom_toTopOf="@+id/tvConfirm"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <TextView
+        android:id="@+id/tvCancel"
+        android:layout_width="144pt"
+        android:layout_height="50pt"
+        android:gravity="center"
+        android:text="@string/cancel"
+        android:textColor="@color/cA5A4DA"
+        android:textSize="15pt"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <View
+        android:layout_width="1pt"
+        android:layout_height="50pt"
+        android:background="@color/cF2F2F2"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/tvConfirm" />
+
+    <TextView
+        android:id="@+id/tvConfirm"
+        android:layout_width="144pt"
+        android:layout_height="50pt"
+        android:gravity="center"
+        android:text="@string/dialog_btn_confirm"
+        android:textColor="@color/c2C68FF"
+        android:textSize="15pt"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <TextView
+        android:id="@+id/textView55"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="19pt"
+        android:textSize="15pt"
+        android:textColor="@color/c333333"
+        android:textStyle="bold"
+        android:text="@string/dialog_title_weak_signal_state"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

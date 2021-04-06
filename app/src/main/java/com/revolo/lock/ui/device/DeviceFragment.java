@@ -2,6 +2,9 @@ package com.revolo.lock.ui.device;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.CountDownTimer;
+import android.os.Handler;
+import android.os.Looper;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -32,6 +35,7 @@ import com.revolo.lock.ble.BleProtocolState;
 import com.revolo.lock.ble.BleResultProcess;
 import com.revolo.lock.ble.OnBleDeviceListener;
 import com.revolo.lock.ble.bean.BleResultBean;
+import com.revolo.lock.dialog.SignalWeakDialog;
 import com.revolo.lock.dialog.iosloading.CustomerLoadingDialog;
 import com.revolo.lock.mqtt.MqttCommandFactory;
 import com.revolo.lock.mqtt.MqttConstant;
@@ -52,6 +56,7 @@ import org.jetbrains.annotations.NotNull;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import io.reactivex.Observer;
 import io.reactivex.disposables.Disposable;
@@ -61,7 +66,6 @@ import static com.revolo.lock.Constant.DEFAULT_TIMEOUT_SEC_VALUE;
 import static com.revolo.lock.ble.BleCommandState.LOCK_SETTING_CLOSE;
 import static com.revolo.lock.ble.BleCommandState.LOCK_SETTING_OPEN;
 
-// TODO: 2021/3/8 状态混乱，需要整理
 public class DeviceFragment extends Fragment {
 
     private DeviceViewModel mDeviceViewModel;
@@ -127,6 +131,7 @@ public class DeviceFragment extends Fragment {
     public void onResume() {
         super.onResume();
         initBaseData();
+        initSignalWeakDialog();
         initData(mBleDeviceLocals);
         mHomeLockListAdapter.setList(mBleDeviceLocals);
     }
@@ -505,6 +510,14 @@ public class DeviceFragment extends Fragment {
                         // TODO: 2021/1/26 为空的处理
                     }
                 }
+            } else {
+                // TODO: 2021/4/6 wifi 下是否蓝牙连接
+                BleBean bleBean = App.getInstance().getBleBeanFromMac(local.getMac());
+                if(bleBean != null && bleBean.getOKBLEDeviceImp() != null) {
+                    if(bleBean.getOKBLEDeviceImp().isConnected()) {
+                        bleBean.getOKBLEDeviceImp().disConnect(false);
+                    }
+                }
             }
         }
 
@@ -564,7 +577,7 @@ public class DeviceFragment extends Fragment {
         } else if(doorOpt == LocalState.DOOR_STATE_CLOSE) {
             showLoading("Lock Closing...");
         }
-
+        mCount++;
         App.getInstance().getMqttService().mqttPublish(
                 MqttConstant.getCallTopic(App.getInstance().getUserBean().getUid()),
                 MqttCommandFactory.setLock(
@@ -583,12 +596,26 @@ public class DeviceFragment extends Fragment {
 
             @Override
             public void onNext(@NotNull MqttData mqttData) {
+                mCount = 0;
                 processMQttMsg(mqttData, wifiId);
             }
 
             @Override
             public void onError(@NotNull Throwable e) {
                 dismissLoading();
+                if(e instanceof TimeoutException) {
+                    if(mCount == 3) {
+                        // 3次机会,超时失败开始连接蓝牙
+                        mCount = 0;
+                        mBleDeviceLocal = bleDeviceLocal;
+                        if(getActivity() == null) return;
+                        getActivity().runOnUiThread(() -> {
+                            if(mSignalWeakDialog != null) {
+                                mSignalWeakDialog.show();
+                            }
+                        });
+                    }
+                }
                 Timber.e(e);
             }
 
@@ -688,5 +715,151 @@ public class DeviceFragment extends Fragment {
             Timber.e("processSetLock code : %1d", bean.getCode());
         }
     }
+
+    /*-------------------------- 多次失败，弹出UI连接蓝牙 --------------------------*/
+    private SignalWeakDialog mSignalWeakDialog;
+    private int mCount = 0;
+    private BleDeviceLocal mBleDeviceLocal;
+
+    private void initSignalWeakDialog() {
+        mSignalWeakDialog = new SignalWeakDialog(getContext());
+        mSignalWeakDialog.setOnCancelClickListener(v -> {
+            if(mSignalWeakDialog != null) {
+                mSignalWeakDialog.dismiss();
+            }
+        });
+        mSignalWeakDialog.setOnConfirmListener(v -> {
+            if(mSignalWeakDialog != null) {
+                mSignalWeakDialog.dismiss();
+            }
+            connectBle();
+        });
+    }
+
+    private boolean isRestartConnectingBle = false;
+    private BleBean mBleBean;
+
+    private void connectBle() {
+        if(mBleDeviceLocal == null) {
+            return;
+        }
+        showLoading("Loading...");
+        isRestartConnectingBle = true;
+        OnBleDeviceListener onBleDeviceListener = new OnBleDeviceListener() {
+            @Override
+            public void onConnected(@NotNull String mac) {
+
+            }
+
+            @Override
+            public void onDisconnected(@NotNull String mac) {
+
+            }
+
+            @Override
+            public void onReceivedValue(@NotNull String mac, String uuid, byte[] value) {
+                if(value == null) {
+                    return;
+                }
+                if(!mBleDeviceLocal.getMac().equals(mac)) {
+                    return;
+                }
+                BleBean bleBean = App.getInstance().getBleBeanFromMac(mBleDeviceLocal.getMac());
+                if(bleBean == null) {
+                    return;
+                }
+                if(bleBean.getOKBLEDeviceImp() == null) {
+                    return;
+                }
+                if(bleBean.getPwd1() == null) {
+                    return;
+                }
+                if(bleBean.getPwd2() == null) {
+                    return;
+                }
+                BleResultProcess.setOnReceivedProcess(bleResultBean -> {
+                    if(bleResultBean == null) {
+                        Timber.e("%1s mOnReceivedProcess bleResultBean == null", mBleDeviceLocal.getMac());
+                        return;
+                    }
+                    processBleResult(mBleDeviceLocal.getMac(), bleResultBean);
+                });
+                BleResultProcess.processReceivedData(
+                        value,
+                        bleBean.getPwd1(),
+                        (bleBean.getPwd3() == null)?bleBean.getPwd2():bleBean.getPwd3(),
+                        bleBean.getOKBLEDeviceImp().getBleScanResult());
+            }
+
+            @Override
+            public void onWriteValue(@NotNull String mac, String uuid, byte[] value, boolean success) {
+
+            }
+
+            @Override
+            public void onAuthSuc(@NotNull String mac) {
+                // 配对成功
+                if(mac.equals(mBleDeviceLocal.getMac())) {
+                    isRestartConnectingBle = false;
+                }
+            }
+
+        };
+        mBleDeviceLocal.setConnectedType(LocalState.DEVICE_CONNECT_TYPE_BLE);
+        mBleBean = App.getInstance().getBleBeanFromMac(mBleDeviceLocal.getMac());
+        if(mBleBean == null) {
+            BLEScanResult bleScanResult = ConvertUtils.bytes2Parcelable(mBleDeviceLocal.getScanResultJson(), BLEScanResult.CREATOR);
+            if(bleScanResult != null) {
+                mBleBean = App.getInstance().connectDevice(
+                        bleScanResult,
+                        ConvertUtils.hexString2Bytes(mBleDeviceLocal.getPwd1()),
+                        ConvertUtils.hexString2Bytes(mBleDeviceLocal.getPwd2()),
+                        onBleDeviceListener,false);
+                mBleBean.setEsn(mBleDeviceLocal.getEsn());
+            } else {
+                // TODO: 2021/1/26 处理为空的情况
+            }
+        } else {
+            if(mBleBean.getOKBLEDeviceImp() != null) {
+                mBleBean.setOnBleDeviceListener(onBleDeviceListener);
+                if(!mBleBean.getOKBLEDeviceImp().isConnected()) {
+                    mBleBean.getOKBLEDeviceImp().connect(true);
+                }
+                mBleBean.setPwd1(ConvertUtils.hexString2Bytes(mBleDeviceLocal.getPwd1()));
+                mBleBean.setPwd2(ConvertUtils.hexString2Bytes(mBleDeviceLocal.getPwd2()));
+                mBleBean.setEsn(mBleDeviceLocal.getEsn());
+            } else {
+                // TODO: 2021/1/26 为空的处理
+            }
+        }
+        // 1分钟后判断设备是否连接成功，否就恢复wifi状态，每秒判断一次是否配对设备成功
+        mCountDownTimer.start();
+    }
+
+    private final CountDownTimer mCountDownTimer = new CountDownTimer(60000, 1000) {
+        @Override
+        public void onTick(long millisUntilFinished) {
+            if(mBleBean != null) {
+                if(!isRestartConnectingBle) {
+                    mBleDeviceLocal.setConnectedType(LocalState.DEVICE_CONNECT_TYPE_BLE);
+                    AppDatabase.getInstance(getContext()).bleDeviceDao().update(mBleDeviceLocal);
+                    mCountDownTimer.cancel();
+                    new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                        mHomeLockListAdapter.notifyDataSetChanged();
+                        dismissLoading();
+                    }, 50);
+                }
+            }
+        }
+
+        @Override
+        public void onFinish() {
+            isRestartConnectingBle = false;
+            if(mBleBean != null && mBleBean.getOKBLEDeviceImp() != null) {
+                mBleBean.getOKBLEDeviceImp().disConnect(false);
+            }
+            dismissLoading();
+        }
+    };
 
 }

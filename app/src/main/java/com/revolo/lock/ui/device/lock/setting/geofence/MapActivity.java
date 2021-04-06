@@ -172,6 +172,7 @@ public class MapActivity extends BaseActivity implements OnMapReadyCallback, Goo
             //Ask for permission
             if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_FINE_LOCATION)) {
                 //We need to show a dialog for displaying why the permission is needed and the ask the permission
+                // TODO: 2021/4/6 提示语抽离
                 new AlertDialog.Builder(this)
                         .setMessage("We need to permission for location!")
                         .setCancelable(true)
@@ -200,7 +201,8 @@ public class MapActivity extends BaseActivity implements OnMapReadyCallback, Goo
                 //Permission is not Granted
                 if (!ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_FINE_LOCATION)) {
                     //This block here means PERMANENTLY DENIED PERMISSION
-                    new androidx.appcompat.app.AlertDialog.Builder(MapActivity.this)
+                    // TODO: 2021/4/6 提示语抽离
+                    new AlertDialog.Builder(MapActivity.this)
                             .setMessage("You have permanently denied this permission, go to settings to enable this permission")
                             .setPositiveButton("Go to settings", new DialogInterface.OnClickListener() {
                                 @Override
