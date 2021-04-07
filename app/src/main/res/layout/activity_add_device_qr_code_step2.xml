@@ -31,6 +31,18 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <TextView
+        android:id="@+id/textView68"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@color/white"
+        android:textSize="12pt"
+        android:layout_marginTop="10pt"
+        android:text="@string/please_scan_the_qr_code_on_the_back_panel_of_lock"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/include12" />
+
     <LinearLayout
         android:id="@+id/llLight"
         android:layout_width="match_parent"
@@ -52,7 +64,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_marginTop="3pt"
-            android:text="@string/touch_to_light_up"
+            android:text="@string/turn_on_torch"
             android:textColor="@color/white"
             android:textSize="12pt" />
 
@@ -60,11 +72,11 @@
 
     <TextView
         android:id="@+id/tvManualInput"
-        android:layout_width="121pt"
+        android:layout_width="180pt"
         android:layout_height="36pt"
         android:layout_marginBottom="31pt"
         android:gravity="center"
-        android:text="@string/manual_input"
+        android:text="@string/enter_serial_number"
         android:textColor="@color/white"
         android:textSize="16pt"
         android:background="@drawable/shape_manual_input_bg"

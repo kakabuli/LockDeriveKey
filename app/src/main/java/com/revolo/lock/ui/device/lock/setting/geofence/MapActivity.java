@@ -33,10 +33,14 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.revolo.lock.App;
 import com.revolo.lock.R;
 import com.revolo.lock.base.BaseActivity;
+import com.revolo.lock.room.AppDatabase;
+import com.revolo.lock.room.entity.BleDeviceLocal;
+
+import org.jetbrains.annotations.NotNull;
 
 import timber.log.Timber;
 
@@ -53,14 +57,20 @@ public class MapActivity extends BaseActivity implements OnMapReadyCallback, Goo
     private String GEO_FENCE_ID = "SOME_GEO_FENCE_ID";
     private GoogleMap mMap;
     private GeofencingClient mGeoFencingClient;
-    private GeofenceHelper mGeoFenceHelper;
+    private GeoFenceHelper mGeoFenceHelper;
     public float GEO_FENCE_RADIUS = 200;
 
     private FusedLocationProviderClient fusedLocationClient;
 
+    private BleDeviceLocal mBleDeviceLocal;
+
     @Override
     public void initData(@Nullable Bundle bundle) {
-
+        mBleDeviceLocal = App.getInstance().getBleDeviceLocal();
+        if(mBleDeviceLocal == null) {
+            Timber.e("initData mBleDeviceLocal == null");
+            return;
+        }
     }
 
     @Override
@@ -79,7 +89,7 @@ public class MapActivity extends BaseActivity implements OnMapReadyCallback, Goo
         }
 
         mGeoFencingClient = LocationServices.getGeofencingClient(this);
-        mGeoFenceHelper = new GeofenceHelper(this);
+        mGeoFenceHelper = new GeoFenceHelper(this);
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             // TODO: Consider calling
@@ -99,11 +109,18 @@ public class MapActivity extends BaseActivity implements OnMapReadyCallback, Goo
                         if (location != null) {
                             // Logic to handle location object
                             if(mMap != null) {
-                                // Add a marker in Sydney and move the camera 23.795158587414274, 90.39920794033618
                                 LatLng dhaka = new LatLng(location.getLatitude(), location.getLongitude());
-                                // mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
                                 mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(dhaka, 16));
-
+                                if(mBleDeviceLocal.isOpenElectricFence()) {
+                                    double la = mBleDeviceLocal.getLatitude();
+                                    double lo = mBleDeviceLocal.getLongitude();
+                                    if(mMap != null) {
+                                        mMap.clear();
+                                        LatLng latLng = new LatLng(la, lo);
+                                        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 16));
+                                        handleMapLongClick(latLng);
+                                    }
+                                }
                             }
                         }
                     }
@@ -126,6 +143,7 @@ public class MapActivity extends BaseActivity implements OnMapReadyCallback, Goo
             //We need background permission
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_BACKGROUND_LOCATION) == PackageManager.PERMISSION_GRANTED) {
                 handleMapLongClick(latLng);
+                saveLatLngToLocal(latLng);
             } else {
                 if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_BACKGROUND_LOCATION)) {
                     //We show a dialog and ask for permission
@@ -134,9 +152,9 @@ public class MapActivity extends BaseActivity implements OnMapReadyCallback, Goo
                     ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.ACCESS_BACKGROUND_LOCATION}, BACKGROUND_LOCATION_ACCESS_REQUEST_CODE);
                 }
             }
-
         } else {
             handleMapLongClick(latLng);
+            saveLatLngToLocal(latLng);
         }
     }
 
@@ -152,14 +170,7 @@ public class MapActivity extends BaseActivity implements OnMapReadyCallback, Goo
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
-
-//        // Add a marker in Sydney and move the camera 23.795158587414274, 90.39920794033618
-//        LatLng dhaka = new LatLng(23.795158587414274, 90.39920794033618);
-//        // mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
-//        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(dhaka, 16));
-
         enableUserLocation();
-
         mMap.setOnMapLongClickListener(this);
     }
 
@@ -228,7 +239,6 @@ public class MapActivity extends BaseActivity implements OnMapReadyCallback, Goo
         }
     }
 
-
     private void handleMapLongClick(LatLng latLng) {
         mMap.clear();
         addMarker(latLng);
@@ -236,38 +246,34 @@ public class MapActivity extends BaseActivity implements OnMapReadyCallback, Goo
         addGeoFence(latLng, GEO_FENCE_RADIUS);
     }
 
+    private void saveLatLngToLocal(@NotNull LatLng latLng) {
+        mBleDeviceLocal.setLatitude(latLng.latitude);
+        mBleDeviceLocal.setLongitude(latLng.longitude);
+        mBleDeviceLocal.setOpenElectricFence(true);
+        AppDatabase.getInstance(this).bleDeviceDao().update(mBleDeviceLocal);
+    }
 
     @SuppressLint("MissingPermission")
     private void addGeoFence(LatLng latLng, float radius) {
         Timber.d("addGeoFence: started");
 
-        Geofence geofence = mGeoFenceHelper.getGeofence(
+        Geofence geofence = mGeoFenceHelper.getGeoFence(
                 GEO_FENCE_ID,
                 latLng,
                 radius,
                 Geofence.GEOFENCE_TRANSITION_ENTER | Geofence.GEOFENCE_TRANSITION_DWELL | Geofence.GEOFENCE_TRANSITION_EXIT
         );
 
-        GeofencingRequest geofencingRequest = mGeoFenceHelper.getGeofencingRequest(geofence);
+        GeofencingRequest geofencingRequest = mGeoFenceHelper.getGeoFencingRequest(geofence);
 
         PendingIntent pendingIntent = mGeoFenceHelper.getPendingIntent();
         mGeoFencingClient.addGeofences(geofencingRequest, pendingIntent)
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        Timber.d("onSuccess: GeoFence Added........");
-
-                    }
-                }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-
-                String errorMessage = mGeoFenceHelper.getErrorString(e);
-                Timber.d("GeoFence onFailure: %1s", errorMessage);
-            }
-        });
+                .addOnSuccessListener(aVoid -> Timber.d("onSuccess: GeoFence Added........"))
+                .addOnFailureListener(e -> {
+                    String errorMessage = mGeoFenceHelper.getErrorString(e);
+                    Timber.d("GeoFence onFailure: %1s", errorMessage);
+                });
     }
-
 
     private void addMarker(LatLng latLng) {
         MarkerOptions markerOptions = new MarkerOptions().position(latLng);
@@ -285,7 +291,6 @@ public class MapActivity extends BaseActivity implements OnMapReadyCallback, Goo
 
         mMap.addCircle(circleOptions);
     }
-
 
     private void gotoApplicationSettings() {
         Intent intent = new Intent();

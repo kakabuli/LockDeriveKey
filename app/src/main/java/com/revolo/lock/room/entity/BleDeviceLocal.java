@@ -108,10 +108,10 @@ public class BleDeviceLocal implements Parcelable {
     private String randomCode;                                      // randomCode 用于开关门
 
     @ColumnInfo(name = "d_latitude")
-    private long latitude;                                          // 地理围栏纬度
+    private double latitude;                                          // 地理围栏纬度
 
     @ColumnInfo(name = "d_longitude")
-    private long longitude;                                         // 地理围栏经度
+    private double longitude;                                         // 地理围栏经度
 
 
     public long getId() {
@@ -346,19 +346,19 @@ public class BleDeviceLocal implements Parcelable {
         this.randomCode = randomCode;
     }
 
-    public long getLatitude() {
+    public double getLatitude() {
         return latitude;
     }
 
-    public void setLatitude(long latitude) {
+    public void setLatitude(double latitude) {
         this.latitude = latitude;
     }
 
-    public long getLongitude() {
+    public double getLongitude() {
         return longitude;
     }
 
-    public void setLongitude(long longitude) {
+    public void setLongitude(double longitude) {
         this.longitude = longitude;
     }
 
@@ -399,8 +399,8 @@ public class BleDeviceLocal implements Parcelable {
         dest.writeByte(this.isDoNotDisturbMode ? (byte) 1 : (byte) 0);
         dest.writeByte(this.isDuress ? (byte) 1 : (byte) 0);
         dest.writeString(this.randomCode);
-        dest.writeLong(this.latitude);
-        dest.writeLong(this.longitude);
+        dest.writeDouble(this.latitude);
+        dest.writeDouble(this.longitude);
     }
 
     public void readFromParcel(Parcel source) {
@@ -433,8 +433,8 @@ public class BleDeviceLocal implements Parcelable {
         this.isDoNotDisturbMode = source.readByte() != 0;
         this.isDuress = source.readByte() != 0;
         this.randomCode = source.readString();
-        this.latitude = source.readLong();
-        this.longitude = source.readLong();
+        this.latitude = source.readDouble();
+        this.longitude = source.readDouble();
     }
 
     public BleDeviceLocal() {

@@ -76,8 +76,8 @@ public class GeoFenceUnlockActivity extends BaseActivity implements OnMapReadyCa
     private TextView mTvTime, mTvSensitivity;
     private BleDeviceLocal mBleDeviceLocal;
     private SeekBar mSeekBarTime, mSeekBarSensitivity;
-
     private FusedLocationProviderClient fusedLocationClient;
+
     private GoogleMap mMap;
     public float GEO_FENCE_RADIUS = 200;
 
@@ -163,12 +163,16 @@ public class GeoFenceUnlockActivity extends BaseActivity implements OnMapReadyCa
                         // Got last known location. In some rare situations this can be null.
                         if (location != null) {
                             // Logic to handle location object
-                            if(mMap != null) {
-                                // Add a marker in Sydney and move the camera 23.795158587414274, 90.39920794033618
-                                LatLng dhaka = new LatLng(location.getLatitude(), location.getLongitude());
-                                // mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
-                                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(dhaka, 16));
-
+                            if(mBleDeviceLocal.isOpenElectricFence()) {
+                                double la = mBleDeviceLocal.getLatitude();
+                                double lo = mBleDeviceLocal.getLongitude();
+                                if(mMap != null) {
+                                    mMap.clear();
+                                    LatLng latLng = new LatLng(la, lo);
+                                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 16));
+                                    addMarker(latLng);
+                                    addCircle(latLng, GEO_FENCE_RADIUS);
+                                }
                             }
                         }
                     }
@@ -228,10 +232,12 @@ public class GeoFenceUnlockActivity extends BaseActivity implements OnMapReadyCa
             isNeedSave = true;
         }
         if(mBleDeviceLocal.isOpenElectricFence()) {
-            long la = mBleDeviceLocal.getLatitude();
-            long lo = mBleDeviceLocal.getLongitude();
+            double la = mBleDeviceLocal.getLatitude();
+            double lo = mBleDeviceLocal.getLongitude();
             if(mMap != null) {
+                mMap.clear();
                 LatLng latLng = new LatLng(la, lo);
+                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 16));
                 addMarker(latLng);
                 addCircle(latLng, GEO_FENCE_RADIUS);
             }
@@ -619,6 +625,6 @@ public class GeoFenceUnlockActivity extends BaseActivity implements OnMapReadyCa
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
-
     }
+
 }

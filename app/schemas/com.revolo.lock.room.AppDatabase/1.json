@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "ebdd58efe6e5e63e78de481b623e7c9d",
+    "identityHash": "d69190b10bd4ba75689857729f8850b8",
     "entities": [
       {
         "tableName": "BleDeviceLocal",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`d_id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `d_user_id` INTEGER NOT NULL, `d_pwd1` TEXT, `d_pwd2` TEXT, `d_esn` TEXT, `d_mac` TEXT, `d_name` TEXT, `d_function_set` TEXT, `d_create_time` INTEGER NOT NULL, `d_scan_result_json` BLOB, `d_type` TEXT, `d_wifi_ver` TEXT, `d_lock_ver` TEXT, `d_door_sensor` INTEGER NOT NULL, `d_connected_wifi_name` TEXT, `d_connected_type` INTEGER NOT NULL DEFAULT 2, `d_lock_state` INTEGER NOT NULL, `d_lock_power` INTEGER NOT NULL, `d_set_auto_lock_time` INTEGER NOT NULL, `d_is_detection_lock` INTEGER NOT NULL DEFAULT false, `d_set_electric_fence_time` INTEGER NOT NULL, `d_set_electric_fence_sensitivity` INTEGER NOT NULL, `d_is_auto_lock` INTEGER NOT NULL DEFAULT false, `d_is_open_electric_fence` INTEGER NOT NULL DEFAULT false, `d_is_open_door_sensor` INTEGER NOT NULL DEFAULT false, `d_is_mute` INTEGER NOT NULL DEFAULT false, `d_is_do_not_disturb_mode` INTEGER NOT NULL DEFAULT false, `d_is_duress` INTEGER NOT NULL, `d_random_code` TEXT)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`d_id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `d_user_id` INTEGER NOT NULL, `d_pwd1` TEXT, `d_pwd2` TEXT, `d_esn` TEXT, `d_mac` TEXT, `d_name` TEXT, `d_function_set` TEXT, `d_create_time` INTEGER NOT NULL, `d_scan_result_json` BLOB, `d_type` TEXT, `d_wifi_ver` TEXT, `d_lock_ver` TEXT, `d_door_sensor` INTEGER NOT NULL, `d_connected_wifi_name` TEXT, `d_connected_type` INTEGER NOT NULL DEFAULT 2, `d_lock_state` INTEGER NOT NULL, `d_lock_power` INTEGER NOT NULL, `d_set_auto_lock_time` INTEGER NOT NULL, `d_is_detection_lock` INTEGER NOT NULL DEFAULT false, `d_set_electric_fence_time` INTEGER NOT NULL, `d_set_electric_fence_sensitivity` INTEGER NOT NULL, `d_is_auto_lock` INTEGER NOT NULL DEFAULT false, `d_is_open_electric_fence` INTEGER NOT NULL DEFAULT false, `d_is_open_door_sensor` INTEGER NOT NULL DEFAULT false, `d_is_mute` INTEGER NOT NULL DEFAULT false, `d_is_do_not_disturb_mode` INTEGER NOT NULL DEFAULT false, `d_is_duress` INTEGER NOT NULL, `d_random_code` TEXT, `d_latitude` REAL NOT NULL, `d_longitude` REAL NOT NULL)",
         "fields": [
           {
             "fieldPath": "id",
@@ -188,6 +188,18 @@
             "columnName": "d_random_code",
             "affinity": "TEXT",
             "notNull": false
+          },
+          {
+            "fieldPath": "latitude",
+            "columnName": "d_latitude",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "longitude",
+            "columnName": "d_longitude",
+            "affinity": "REAL",
+            "notNull": true
           }
         ],
         "primaryKey": {
@@ -201,7 +213,7 @@
       },
       {
         "tableName": "User",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`u_id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `u_mail` TEXT, `u_user_name` TEXT, `u_register_time` INTEGER NOT NULL, `u_first_name` TEXT, `u_last_name` TEXT, `u_avatar_url` TEXT, `u_is_use_gesture_password` INTEGER NOT NULL DEFAULT false, `u_is_use_face_id` INTEGER NOT NULL DEFAULT false, `u_is_use_touch_id` INTEGER NOT NULL DEFAULT false, `u_gesture_code` TEXT)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`u_id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `u_mail` TEXT, `u_user_name` TEXT, `u_register_time` INTEGER NOT NULL, `u_first_name` TEXT, `u_last_name` TEXT, `u_avatar_url` TEXT, `u_avatar_local_path` TEXT, `u_is_use_gesture_password` INTEGER NOT NULL DEFAULT false, `u_is_use_face_id` INTEGER NOT NULL DEFAULT false, `u_is_use_touch_id` INTEGER NOT NULL DEFAULT false, `u_gesture_code` TEXT)",
         "fields": [
           {
             "fieldPath": "id",
@@ -242,6 +254,12 @@
           {
             "fieldPath": "avatarUrl",
             "columnName": "u_avatar_url",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "avatarLocalPath",
+            "columnName": "u_avatar_local_path",
             "affinity": "TEXT",
             "notNull": false
           },
@@ -427,7 +445,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'ebdd58efe6e5e63e78de481b623e7c9d')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'd69190b10bd4ba75689857729f8850b8')"
     ]
   }
 }

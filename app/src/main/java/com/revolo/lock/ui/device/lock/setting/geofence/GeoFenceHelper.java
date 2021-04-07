@@ -17,16 +17,16 @@ import com.google.android.gms.maps.model.LatLng;
  * E-mail : wengmaowei@kaadas.com
  * desc   :
  */
-public class GeofenceHelper extends ContextWrapper {
+public class GeoFenceHelper extends ContextWrapper {
 
     PendingIntent pendingIntent;
 
 
-    public GeofenceHelper(Context base) {
+    public GeoFenceHelper(Context base) {
         super(base);
     }
 
-    public GeofencingRequest getGeofencingRequest(Geofence geofence) {
+    public GeofencingRequest getGeoFencingRequest(Geofence geofence) {
 
 
         return new GeofencingRequest.Builder()
@@ -36,8 +36,7 @@ public class GeofenceHelper extends ContextWrapper {
 
     }
 
-    public Geofence getGeofence(String ID, LatLng latLng, float radius, int transitionType) {
-
+    public Geofence getGeoFence(String ID, LatLng latLng, float radius, int transitionType) {
 
         return new Geofence.Builder()
                 .setCircularRegion(latLng.latitude, latLng.longitude, radius)

@@ -573,5 +573,15 @@ public class App extends Application {
         mScanManager.setScanDuration(20*1000);
     }
 
+    /*-------------------------------- 地理围栏设备 ---------------------------------*/
 
+    private BleDeviceLocal mUsingGeoFenceBleDeviceLocal;
+
+    public BleDeviceLocal getUsingGeoFenceBleDeviceLocal() {
+        return mUsingGeoFenceBleDeviceLocal;
+    }
+
+    public void setUsingGeoFenceBleDeviceLocal(BleDeviceLocal usingGeoFenceBleDeviceLocal) {
+        mUsingGeoFenceBleDeviceLocal = usingGeoFenceBleDeviceLocal;
+    }
 }
