@@ -4,8 +4,6 @@ import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
@@ -30,6 +28,7 @@ import com.revolo.lock.Constant;
 import com.revolo.lock.LocalState;
 import com.revolo.lock.R;
 import com.revolo.lock.base.BaseActivity;
+import com.revolo.lock.bean.DevicePwdBean;
 import com.revolo.lock.bean.request.LockKeyAddBeanReq;
 import com.revolo.lock.bean.respone.LockKeyAddBeanRsp;
 import com.revolo.lock.ble.BleByteUtil;
@@ -51,9 +50,7 @@ import com.revolo.lock.mqtt.bean.publishresultbean.WifiLockAddPwdAttrResponseBea
 import com.revolo.lock.mqtt.bean.publishresultbean.WifiLockAddPwdRspBean;
 import com.revolo.lock.net.HttpRequest;
 import com.revolo.lock.net.ObservableDecorator;
-import com.revolo.lock.room.AppDatabase;
 import com.revolo.lock.room.entity.BleDeviceLocal;
-import com.revolo.lock.room.entity.DevicePwd;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -437,7 +434,7 @@ public class AddNewPwdSelectActivity extends BaseActivity {
 
     /**                  蓝牙指令与处理               **/
     private int mNum;
-    private DevicePwd mDevicePwd = new DevicePwd();
+    private final DevicePwdBean mDevicePwdBean = new DevicePwdBean();
 
     private final OnBleDeviceListener mOnBleDeviceListener = new OnBleDeviceListener() {
         @Override
@@ -483,7 +480,7 @@ public class AddNewPwdSelectActivity extends BaseActivity {
         } else if(bleResultBean.getCMD() == CMD_KEY_ATTRIBUTES_SET) {
             byte state = bleResultBean.getPayload()[0];
             if(state == 0x00) {
-                savePwdToService(mDevicePwd);
+                savePwdToService(mDevicePwdBean);
             } else {
                 dismissLoadingAndShowAddFail();
                 Timber.e("设置密钥属性失败，state: %1s", BleByteUtil.byteToInt(state));
@@ -505,13 +502,13 @@ public class AddNewPwdSelectActivity extends BaseActivity {
 
     private void savePwd(BleResultBean bleResultBean) {
         mNum = bleResultBean.getPayload()[1];
-        mDevicePwd.setPwdNum(mNum);
+        mDevicePwdBean.setPwdNum(mNum);
         // 使用秒存储，所以除以1000
-        mDevicePwd.setCreateTime(TimeUtils.getNowMills()/1000);
-        mDevicePwd.setDeviceId(mBleDeviceLocal.getId());
-        mDevicePwd.setAttribute(BleCommandState.KEY_SET_ATTRIBUTE_ALWAYS);
+        mDevicePwdBean.setCreateTime(TimeUtils.getNowMills()/1000);
+        mDevicePwdBean.setDeviceId(mBleDeviceLocal.getId());
+        mDevicePwdBean.setAttribute(BleCommandState.KEY_SET_ATTRIBUTE_ALWAYS);
         if(mSelectedPwdState == PERMANENT_STATE) {
-            savePwdToService(mDevicePwd);
+            savePwdToService(mDevicePwdBean);
         } else if(mSelectedPwdState == SCHEDULE_STATE) {
             setSchedulePwd();
         } else if(mSelectedPwdState == TEMPORARY_STATE) {
@@ -530,9 +527,9 @@ public class AddNewPwdSelectActivity extends BaseActivity {
     private void setTimePwd() {
         Timber.d("num: %1s, startTime: %2d, endTime: %3d",
                 mNum, mTemStartDateTimeMill/1000, mTemEndDateTimeMill/1000);
-        mDevicePwd.setStartTime(mTemStartDateTimeMill/1000);
-        mDevicePwd.setEndTime(mTemEndDateTimeMill/1000);
-        mDevicePwd.setAttribute(KEY_SET_ATTRIBUTE_TIME_KEY);
+        mDevicePwdBean.setStartTime(mTemStartDateTimeMill/1000);
+        mDevicePwdBean.setEndTime(mTemEndDateTimeMill/1000);
+        mDevicePwdBean.setAttribute(KEY_SET_ATTRIBUTE_TIME_KEY);
         if(mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI) {
             publishAddPwdAttr(mBleDeviceLocal.getEsn(),
                     KEY_SET_ATTRIBUTE_TIME_KEY,
@@ -574,10 +571,10 @@ public class AddNewPwdSelectActivity extends BaseActivity {
         Timber.d("num: %1s, week: %2s, weekBytes: %3s, startTime: %4d, endTime: %5d",
                 mNum, ConvertUtils.int2HexString(week), ConvertUtils.bytes2HexString(weekBit),
                 mScheduleStartTimeMill/1000, mScheduleEndTimeMill/1000);
-        mDevicePwd.setWeekly(week);
-        mDevicePwd.setStartTime(mScheduleStartTimeMill/1000);
-        mDevicePwd.setEndTime(mScheduleEndTimeMill/1000);
-        mDevicePwd.setAttribute(KEY_SET_ATTRIBUTE_WEEK_KEY);
+        mDevicePwdBean.setWeekly(week);
+        mDevicePwdBean.setStartTime(mScheduleStartTimeMill/1000);
+        mDevicePwdBean.setEndTime(mScheduleEndTimeMill/1000);
+        mDevicePwdBean.setAttribute(KEY_SET_ATTRIBUTE_WEEK_KEY);
         if(mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI) {
             publishAddPwdAttr(mBleDeviceLocal.getEsn(),
                     KEY_SET_ATTRIBUTE_WEEK_KEY,
@@ -601,16 +598,7 @@ public class AddNewPwdSelectActivity extends BaseActivity {
 
     }
 
-    private void showSucAndGotoAnotherPage() {
-        if(mDevicePwd == null) {
-            return;
-        }
-        long id = AppDatabase.getInstance(this).devicePwdDao().insert(mDevicePwd);
-        new Handler(Looper.getMainLooper()).postDelayed(() -> showSucMessage(id), 50);
-
-    }
-
-    private void showSucMessage(long id) {
+    private void showSucMessage() {
         runOnUiThread(() -> {
             MessageDialog dialog = new MessageDialog(AddNewPwdSelectActivity.this);
             dialog.setMessage(getString(R.string.dialog_tip_password_added));
@@ -621,7 +609,7 @@ public class AddNewPwdSelectActivity extends BaseActivity {
                 }
                 App.getInstance().addWillFinishAct(this);
                 Intent intent = new Intent(AddNewPwdSelectActivity.this, AddNewPwdNameActivity.class);
-                intent.putExtra(Constant.PWD_ID, id);
+                intent.putExtra(Constant.PWD_NUM, mDevicePwdBean.getPwdNum());
                 intent.putExtra(Constant.LOCK_ESN, mBleDeviceLocal.getEsn());
                 startActivity(intent);
             });
@@ -694,13 +682,13 @@ public class AddNewPwdSelectActivity extends BaseActivity {
                         return;
                     }
                     mNum = bean.getParams().getKeyNum();
-                    mDevicePwd.setPwdNum(mNum);
+                    mDevicePwdBean.setPwdNum(mNum);
                     // 使用秒存储，所以除以1000
-                    mDevicePwd.setCreateTime(TimeUtils.getNowMills()/1000);
-                    mDevicePwd.setDeviceId(mBleDeviceLocal.getId());
-                    mDevicePwd.setAttribute(BleCommandState.KEY_SET_ATTRIBUTE_ALWAYS);
+                    mDevicePwdBean.setCreateTime(TimeUtils.getNowMills()/1000);
+                    mDevicePwdBean.setDeviceId(mBleDeviceLocal.getId());
+                    mDevicePwdBean.setAttribute(BleCommandState.KEY_SET_ATTRIBUTE_ALWAYS);
                     if(mSelectedPwdState == PERMANENT_STATE) {
-                        savePwdToService(mDevicePwd);
+                        savePwdToService(mDevicePwdBean);
                     } else if(mSelectedPwdState == SCHEDULE_STATE) {
                         setSchedulePwd();
                     } else if(mSelectedPwdState == TEMPORARY_STATE) {
@@ -774,7 +762,7 @@ public class AddNewPwdSelectActivity extends BaseActivity {
                         Timber.e("publishAddPwdAttr bean.getParams() == null");
                         return;
                     }
-                    savePwdToService(mDevicePwd);
+                    savePwdToService(mDevicePwdBean);
                 }
                 Timber.d("%1s", mqttData.toString());
             }
@@ -795,22 +783,22 @@ public class AddNewPwdSelectActivity extends BaseActivity {
     // TODO: 2021/2/4 要做后面时间不能超过前面时间的判断和逻辑处理
     /*--------------------------  把密码上传到服务器  ---------------------------*/
     // TODO: 2021/2/24 要做失败重新请求
-    private void savePwdToService(DevicePwd devicePwd) {
+    private void savePwdToService(DevicePwdBean devicePwdBean) {
         List<LockKeyAddBeanReq.PwdListBean> pwdListBeans = new ArrayList<>();
         LockKeyAddBeanReq.PwdListBean pwdListBean = new LockKeyAddBeanReq.PwdListBean();
-        pwdListBean.setNum(devicePwd.getPwdNum());
-        pwdListBean.setNickName(devicePwd.getPwdNum()+"");
+        pwdListBean.setNum(devicePwdBean.getPwdNum());
+        pwdListBean.setNickName(devicePwdBean.getPwdNum()+"");
         pwdListBean.setPwdType(1);
-        if(devicePwd.getAttribute() == BleCommandState.KEY_SET_ATTRIBUTE_ALWAYS) {
+        if(devicePwdBean.getAttribute() == BleCommandState.KEY_SET_ATTRIBUTE_ALWAYS) {
             pwdListBean.setType(BleCommandState.KEY_SET_ATTRIBUTE_ALWAYS);
-        } else if(devicePwd.getAttribute() == KEY_SET_ATTRIBUTE_TIME_KEY) {
+        } else if(devicePwdBean.getAttribute() == KEY_SET_ATTRIBUTE_TIME_KEY) {
             pwdListBean.setType(KEY_SET_ATTRIBUTE_TIME_KEY);
-            pwdListBean.setStartTime(devicePwd.getStartTime());
-            pwdListBean.setEndTime(devicePwd.getEndTime());
-        } else if(devicePwd.getAttribute() == KEY_SET_ATTRIBUTE_WEEK_KEY) {
+            pwdListBean.setStartTime(devicePwdBean.getStartTime());
+            pwdListBean.setEndTime(devicePwdBean.getEndTime());
+        } else if(devicePwdBean.getAttribute() == KEY_SET_ATTRIBUTE_WEEK_KEY) {
             pwdListBean.setType(KEY_SET_ATTRIBUTE_WEEK_KEY);
-            pwdListBean.setStartTime(devicePwd.getStartTime());
-            pwdListBean.setEndTime(devicePwd.getEndTime());
+            pwdListBean.setStartTime(devicePwdBean.getStartTime());
+            pwdListBean.setEndTime(devicePwdBean.getEndTime());
             pwdListBean.setItems(getWeekItems());
         }
         pwdListBeans.add(pwdListBean);
@@ -836,10 +824,10 @@ public class AddNewPwdSelectActivity extends BaseActivity {
             dismissLoadingAndShowAddFail();
             return;
         }
-        dataRequestService(devicePwd, req, token);
+        dataRequestService(devicePwdBean, req, token);
     }
 
-    private void dataRequestService(@NotNull DevicePwd devicePwd,
+    private void dataRequestService(@NotNull DevicePwdBean devicePwdBean,
                                     @NotNull LockKeyAddBeanReq req,
                                     @NotNull String token) {
         Observable<LockKeyAddBeanRsp> observable = HttpRequest.getInstance().addLockKey(token, req);
@@ -876,8 +864,8 @@ public class AddNewPwdSelectActivity extends BaseActivity {
                     return;
                 }
                 dismissLoading();
-                devicePwd.setCreateTime(lockKeyAddBeanRsp.getData().getCreateTime());
-                showSucAndGotoAnotherPage();
+                devicePwdBean.setCreateTime(lockKeyAddBeanRsp.getData().getCreateTime());
+                showSucMessage();
             }
 
             @Override

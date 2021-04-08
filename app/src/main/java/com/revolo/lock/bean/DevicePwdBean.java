@@ -1,8 +1,7 @@
-package com.revolo.lock.room.entity;
+package com.revolo.lock.bean;
 
-import androidx.room.ColumnInfo;
-import androidx.room.Entity;
-import androidx.room.PrimaryKey;
+import android.os.Parcel;
+import android.os.Parcelable;
 
 import com.revolo.lock.ble.BleCommandState;
 
@@ -12,47 +11,18 @@ import com.revolo.lock.ble.BleCommandState;
  * E-mail : wengmaowei@kaadas.com
  * desc   :
  */
-@Entity
-public class DevicePwd {
 
-    @PrimaryKey(autoGenerate = true)
-    @ColumnInfo(name = "dp_id")
-    private long id;                               // 自增长id
+public class DevicePwdBean implements Parcelable {
 
-    @ColumnInfo(name = "dp_device_id")
     private long deviceId;                         // 设备ID
-
-    @ColumnInfo(name = "dp_create_time")
     private long createTime;                      // 创建时间
-
-    @ColumnInfo(name = "dp_pwd_num")
     private int pwdNum;                           // 密码编号
-
-    @ColumnInfo(name = "dp_start_time")
     private long startTime;                       // 开始时间
-
-    @ColumnInfo(name = "dp_end_time")
     private long endTime;                         // 结束时间
-
-    @ColumnInfo(name = "dp_attribute")
     private int attribute;                        // 密码属性
-
-    @ColumnInfo(name = "dp_weekly")
     private byte weekly;                          // 周策略
-
-    @ColumnInfo(name = "dp_pwd_name")
     private String pwdName;                       // 密码名称
-
-    @ColumnInfo(name = "dp_pwd_state", defaultValue = "1")
     private int pwdState;                         // 1: 可用  2: 不可用
-
-    public long getId() {
-        return id;
-    }
-
-    public void setId(long id) {
-        this.id = id;
-    }
 
     public long getDeviceId() {
         return deviceId;
@@ -125,4 +95,62 @@ public class DevicePwd {
     public void setPwdState(int pwdState) {
         this.pwdState = pwdState;
     }
+
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeLong(this.deviceId);
+        dest.writeLong(this.createTime);
+        dest.writeInt(this.pwdNum);
+        dest.writeLong(this.startTime);
+        dest.writeLong(this.endTime);
+        dest.writeInt(this.attribute);
+        dest.writeByte(this.weekly);
+        dest.writeString(this.pwdName);
+        dest.writeInt(this.pwdState);
+    }
+
+    public void readFromParcel(Parcel source) {
+        this.deviceId = source.readLong();
+        this.createTime = source.readLong();
+        this.pwdNum = source.readInt();
+        this.startTime = source.readLong();
+        this.endTime = source.readLong();
+        this.attribute = source.readInt();
+        this.weekly = source.readByte();
+        this.pwdName = source.readString();
+        this.pwdState = source.readInt();
+    }
+
+    public DevicePwdBean() {
+    }
+
+    protected DevicePwdBean(Parcel in) {
+        this.deviceId = in.readLong();
+        this.createTime = in.readLong();
+        this.pwdNum = in.readInt();
+        this.startTime = in.readLong();
+        this.endTime = in.readLong();
+        this.attribute = in.readInt();
+        this.weekly = in.readByte();
+        this.pwdName = in.readString();
+        this.pwdState = in.readInt();
+    }
+
+    public static final Parcelable.Creator<DevicePwdBean> CREATOR = new Parcelable.Creator<DevicePwdBean>() {
+        @Override
+        public DevicePwdBean createFromParcel(Parcel source) {
+            return new DevicePwdBean(source);
+        }
+
+        @Override
+        public DevicePwdBean[] newArray(int size) {
+            return new DevicePwdBean[size];
+        }
+    };
 }

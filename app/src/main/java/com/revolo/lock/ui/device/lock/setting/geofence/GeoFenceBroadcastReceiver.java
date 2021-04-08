@@ -221,18 +221,15 @@ public class GeoFenceBroadcastReceiver extends BroadcastReceiver {
                 // 配对成功
                 if(mac.equals(mBleDeviceLocal.getMac())) {
                     isRestartConnectingBle = false;
-                    new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            BleBean bleBean = App.getInstance().getBleBeanFromMac(mBleDeviceLocal.getMac());
-                            if(bleBean == null) {
-                                Timber.e("mOnBleDeviceListener bleBean == null");
-                                return;
-                            }
-                            // TODO: 2021/4/7 抽离0x01
-                            App.getInstance().writeControlMsg(BleCommandFactory
-                                    .setKnockDoorAndUnlockTime(0x01, bleBean.getPwd1(), bleBean.getPwd3()), bleBean.getOKBLEDeviceImp());
+                    new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                        BleBean bleBean = App.getInstance().getBleBeanFromMac(mBleDeviceLocal.getMac());
+                        if(bleBean == null) {
+                            Timber.e("mOnBleDeviceListener bleBean == null");
+                            return;
                         }
+                        // TODO: 2021/4/7 抽离0x01
+                        App.getInstance().writeControlMsg(BleCommandFactory
+                                .setKnockDoorAndUnlockTime(0x01, bleBean.getPwd1(), bleBean.getPwd3()), bleBean.getOKBLEDeviceImp());
                     }, 200);
                 }
             }

@@ -51,7 +51,7 @@ public class Constant {
     public static final String UNBIND_REQ = "UnbindReq";
 
     public static final String DEVICE_ID = "DeviceId";
-    public static final String PWD_ID = "PwdId";
+    public static final String PWD_NUM = "PwdNum";
     public static final String SHARED_USER_DATA = "SharedUserData";
 
     public static final String IS_GO_TO_ADD_WIFI = "isGoToAddWifi";

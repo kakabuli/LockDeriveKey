@@ -2,8 +2,6 @@ package com.revolo.lock.ui.device.lock;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.TextView;
@@ -21,6 +19,7 @@ import com.revolo.lock.Constant;
 import com.revolo.lock.LocalState;
 import com.revolo.lock.R;
 import com.revolo.lock.base.BaseActivity;
+import com.revolo.lock.bean.DevicePwdBean;
 import com.revolo.lock.bean.request.DelKeyBeanReq;
 import com.revolo.lock.bean.respone.DelKeyBeanRsp;
 import com.revolo.lock.ble.BleByteUtil;
@@ -39,7 +38,6 @@ import com.revolo.lock.net.HttpRequest;
 import com.revolo.lock.net.ObservableDecorator;
 import com.revolo.lock.room.AppDatabase;
 import com.revolo.lock.room.entity.BleDeviceLocal;
-import com.revolo.lock.room.entity.DevicePwd;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -69,22 +67,17 @@ import static com.revolo.lock.ble.BleProtocolState.CMD_KEY_ATTRIBUTES_SET;
 public class PasswordDetailActivity extends BaseActivity {
 
     private TextView mTvPwdName, mTvPwd, mTvPwdCharacteristic, mTvCreationDate;
-    private long mPwdId;
-    private DevicePwd mDevicePwd;
+    private DevicePwdBean mDevicePwdBean;
     private String mESN;
     private BleDeviceLocal mBleDeviceLocal;
 
     @Override
     public void initData(@Nullable Bundle bundle) {
         Intent intent = getIntent();
-        if(intent.hasExtra(Constant.PWD_ID)) {
-            mPwdId = intent.getLongExtra(Constant.PWD_ID, -1L);
+        if(intent.hasExtra(Constant.PWD_DETAIL)) {
+            mDevicePwdBean = intent.getParcelableExtra(Constant.PWD_DETAIL);
         }
-        if(mPwdId == -1) {
-            finish();
-        }
-        mDevicePwd = AppDatabase.getInstance(this).devicePwdDao().findDevicePwdFromId(mPwdId);
-        if(mDevicePwd == null) {
+        if(mDevicePwdBean == null) {
             finish();
         }
         if(intent.hasExtra(Constant.LOCK_ESN)) {
@@ -95,7 +88,7 @@ public class PasswordDetailActivity extends BaseActivity {
             // TODO: 2021/2/24 无法获取esn来处理问题
             finish();
         }
-        mBleDeviceLocal = AppDatabase.getInstance(this).bleDeviceDao().findBleDeviceFromId(mDevicePwd.getDeviceId());
+        mBleDeviceLocal = AppDatabase.getInstance(this).bleDeviceDao().findBleDeviceFromId(mDevicePwdBean.getDeviceId());
         if(mBleDeviceLocal == null) {
             finish();
         }
@@ -132,7 +125,7 @@ public class PasswordDetailActivity extends BaseActivity {
     public void onDebouncingClick(@NonNull View view) {
         if(view.getId() == R.id.ivEditPwdName) {
             Intent intent = new Intent(this, ChangePwdNameActivity.class);
-            intent.putExtra(Constant.PWD_ID, mPwdId);
+            intent.putExtra(Constant.PWD_DETAIL, mDevicePwdBean);
             intent.putExtra(Constant.LOCK_ESN, mESN);
             startActivity(intent);
             return;
@@ -143,26 +136,26 @@ public class PasswordDetailActivity extends BaseActivity {
     }
 
     private void initDetail() {
-        if(mDevicePwd != null) {
-            mTvPwdName.setText(mDevicePwd.getPwdName());
+        if(mDevicePwdBean != null) {
+            mTvPwdName.setText(mDevicePwdBean.getPwdName());
             mTvPwd.setText("***********");
-            mTvPwdCharacteristic.setText(getPwdCharacteristic(mDevicePwd));
-            mTvCreationDate.setText(TimeUtils.millis2String(mDevicePwd.getCreateTime()*1000, "MM,dd,yyyy HH:mm:ss"));
+            mTvPwdCharacteristic.setText(getPwdCharacteristic(mDevicePwdBean));
+            mTvCreationDate.setText(TimeUtils.millis2String(mDevicePwdBean.getCreateTime()*1000, "MM,dd,yyyy HH:mm:ss"));
         }
     }
 
-    private String getPwdCharacteristic(DevicePwd devicePwd) {
-        int attribute = devicePwd.getAttribute();
+    private String getPwdCharacteristic(DevicePwdBean devicePwdBean) {
+        int attribute = devicePwdBean.getAttribute();
         String detail = "";
         if(attribute == KEY_SET_ATTRIBUTE_ALWAYS) {
             detail = "Permanent";
         } else if(attribute == KEY_SET_ATTRIBUTE_TIME_KEY) {
-            long startTimeMill = devicePwd.getStartTime()*1000;
-            long endTimeMill = devicePwd.getEndTime()*1000;
+            long startTimeMill = devicePwdBean.getStartTime()*1000;
+            long endTimeMill = devicePwdBean.getEndTime()*1000;
             detail = TimeUtils.millis2String(startTimeMill, "MM,dd,yyyy   HH:mm")
                     + "-" + TimeUtils.millis2String(endTimeMill, "MM,dd,yyyy   HH:mm");
         } else if(attribute == KEY_SET_ATTRIBUTE_WEEK_KEY) {
-            byte[] weekBytes = BleByteUtil.byteToBit(devicePwd.getWeekly());
+            byte[] weekBytes = BleByteUtil.byteToBit(devicePwdBean.getWeekly());
             String weekly = "";
             if(weekBytes[0] == 0x01) {
                 weekly += "Sun";
@@ -186,8 +179,8 @@ public class PasswordDetailActivity extends BaseActivity {
                 weekly += TextUtils.isEmpty(weekly)?"Sat":"、Sat";
             }
             weekly += "\n";
-            long startTimeMill = devicePwd.getStartTime()*1000;
-            long endTimeMill = devicePwd.getEndTime()*1000;
+            long startTimeMill = devicePwdBean.getStartTime()*1000;
+            long endTimeMill = devicePwdBean.getEndTime()*1000;
             detail = weekly
                     + TimeUtils.millis2String(startTimeMill, "HH:mm")
                     + " - "
@@ -268,7 +261,7 @@ public class PasswordDetailActivity extends BaseActivity {
     private void delPwd() {
         showLoading();
         if(mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI) {
-            publishDelPwd(mBleDeviceLocal.getEsn(), mDevicePwd.getPwdNum());
+            publishDelPwd(mBleDeviceLocal.getEsn(), mDevicePwdBean.getPwdNum());
         } else {
             BleBean bleBean = App.getInstance().getBleBeanFromMac(mBleDeviceLocal.getMac());
             if(bleBean == null) {
@@ -290,7 +283,7 @@ public class PasswordDetailActivity extends BaseActivity {
             App.getInstance().writeControlMsg(BleCommandFactory
                     .keyAttributesSet(KEY_SET_KEY_OPTION_DEL,
                             KEY_SET_KEY_TYPE_PWD,
-                            (byte)mDevicePwd.getPwdNum(),
+                            (byte) mDevicePwdBean.getPwdNum(),
                             KEY_SET_ATTRIBUTE_WEEK_KEY,
                             (byte)0x00,
                             (byte)0x00,
@@ -356,7 +349,7 @@ public class PasswordDetailActivity extends BaseActivity {
 
     }
 
-    private OnBleDeviceListener mOnBleDeviceListener = new OnBleDeviceListener() {
+    private final OnBleDeviceListener mOnBleDeviceListener = new OnBleDeviceListener() {
         @Override
         public void onConnected(@NotNull String mac) {
 
@@ -403,12 +396,12 @@ public class PasswordDetailActivity extends BaseActivity {
 
         List<DelKeyBeanReq.PwdListBean> listBeans = new ArrayList<>();
         DelKeyBeanReq.PwdListBean pwdListBean = new DelKeyBeanReq.PwdListBean();
-        pwdListBean.setNum(mDevicePwd.getPwdNum());
+        pwdListBean.setNum(mDevicePwdBean.getPwdNum());
         pwdListBean.setPwdType(1);
         listBeans.add(pwdListBean);
 
         // TODO: 2021/2/24 服务器删除失败，需要检查如何通过服务器再删除，下面所有
-        BleDeviceLocal bleDeviceLocal = AppDatabase.getInstance(this).bleDeviceDao().findBleDeviceFromId(mDevicePwd.getDeviceId());
+        BleDeviceLocal bleDeviceLocal = AppDatabase.getInstance(this).bleDeviceDao().findBleDeviceFromId(mDevicePwdBean.getDeviceId());
         if(bleDeviceLocal == null) {
             dismissLoadingAndShowFailMessage();
             Timber.e("delKeyFromService bleDeviceLocal == null");
@@ -473,8 +466,7 @@ public class PasswordDetailActivity extends BaseActivity {
                     }
                     return;
                 }
-                AppDatabase.getInstance(getApplicationContext()).devicePwdDao().delete(mDevicePwd);
-                new Handler(Looper.getMainLooper()).postDelayed(() -> dismissLoadingAndShowSucMessage(), 50);
+                dismissLoadingAndShowSucMessage();
             }
 
             @Override

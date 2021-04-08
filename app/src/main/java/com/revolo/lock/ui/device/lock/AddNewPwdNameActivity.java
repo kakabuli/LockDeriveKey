@@ -2,8 +2,6 @@ package com.revolo.lock.ui.device.lock;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.EditText;
@@ -20,8 +18,6 @@ import com.revolo.lock.bean.request.ChangeKeyNickBeanReq;
 import com.revolo.lock.bean.respone.ChangeKeyNickBeanRsp;
 import com.revolo.lock.net.HttpRequest;
 import com.revolo.lock.net.ObservableDecorator;
-import com.revolo.lock.room.AppDatabase;
-import com.revolo.lock.room.entity.DevicePwd;
 
 import io.reactivex.Observable;
 import io.reactivex.Observer;
@@ -37,18 +33,18 @@ import timber.log.Timber;
  */
 public class AddNewPwdNameActivity extends BaseActivity {
 
-    private long mPwdId;
     private String mEsn;
+    private int mPwdNum = -1;
 
     @Override
     public void initData(@Nullable Bundle bundle) {
         Intent intent = getIntent();
-        if(intent.hasExtra(Constant.PWD_ID)) {
-            mPwdId = intent.getLongExtra(Constant.PWD_ID, -1L);
+        if(intent.hasExtra(Constant.PWD_NUM)) {
+            mPwdNum = intent.getIntExtra(Constant.PWD_NUM, -1);
         }
-        if(mPwdId == -1) {
-            // TODO: 2021/2/21 或者有其他更好的处理方式
+        if(mPwdNum == -1) {
             finish();
+            return;
         }
         if(intent.hasExtra(Constant.LOCK_ESN)) {
             mEsn = intent.getStringExtra(Constant.LOCK_ESN);
@@ -94,12 +90,6 @@ public class AddNewPwdNameActivity extends BaseActivity {
             ToastUtils.showShort("Please Input Password Name!");
             return;
         }
-        DevicePwd devicePwd = AppDatabase.getInstance(this).devicePwdDao().findDevicePwdFromId(mPwdId);
-        if(devicePwd == null) {
-            showAddFail();
-            return;
-        }
-        devicePwd.setPwdName(pwdName);
         if(App.getInstance().getUserBean() == null) {
             showAddFail();
             return;
@@ -113,7 +103,8 @@ public class AddNewPwdNameActivity extends BaseActivity {
         showLoading();
         ChangeKeyNickBeanReq req = new ChangeKeyNickBeanReq();
         req.setNickName(pwdName);
-        req.setNum(devicePwd.getPwdNum());
+        req.setNum(mPwdNum);
+        // TODO: 2021/4/8 后面是否需要修改 要与服务器校对，因为服务器MQTT与蓝牙相关字段没有统一
         req.setPwdType(1);
         req.setSn(mEsn);
         req.setUid(uid);
@@ -145,8 +136,7 @@ public class AddNewPwdNameActivity extends BaseActivity {
                     }
                     return;
                 }
-                AppDatabase.getInstance(getApplicationContext()).devicePwdDao().update(devicePwd);
-                new Handler(Looper.getMainLooper()).postDelayed(() -> finishThisAct(), 50);
+                finishThisAct();
             }
 
             @Override

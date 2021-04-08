@@ -9,8 +9,8 @@ import com.blankj.utilcode.util.TimeUtils;
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.chad.library.adapter.base.viewholder.BaseViewHolder;
 import com.revolo.lock.R;
+import com.revolo.lock.bean.DevicePwdBean;
 import com.revolo.lock.ble.BleByteUtil;
-import com.revolo.lock.room.entity.DevicePwd;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -27,8 +27,8 @@ import static com.revolo.lock.ble.BleCommandState.KEY_SET_ATTRIBUTE_WEEK_KEY;
  * E-mail : wengmaowei@kaadas.com
  * desc   : 密码列表
  */
-public class PasswordListAdapter extends BaseQuickAdapter<DevicePwd, BaseViewHolder> {
-    public PasswordListAdapter(int layoutResId, @Nullable List<DevicePwd> data) {
+public class PasswordListAdapter extends BaseQuickAdapter<DevicePwdBean, BaseViewHolder> {
+    public PasswordListAdapter(int layoutResId, @Nullable List<DevicePwdBean> data) {
         super(layoutResId, data);
     }
 
@@ -37,12 +37,12 @@ public class PasswordListAdapter extends BaseQuickAdapter<DevicePwd, BaseViewHol
     }
 
     @Override
-    protected void convert(@NotNull BaseViewHolder baseViewHolder, DevicePwd devicePwd) {
-        if(devicePwd != null) {
+    protected void convert(@NotNull BaseViewHolder baseViewHolder, DevicePwdBean devicePwdBean) {
+        if(devicePwdBean != null) {
             TextView tvPwdName = baseViewHolder.getView(R.id.tvPwdName);
             TextView tvDetail = baseViewHolder.getView(R.id.tvDetail);
             // TODO: 2021/2/21 要提前判断密码是否失效
-            if(devicePwd.getPwdState() == 2) {
+            if(devicePwdBean.getPwdState() == 2) {
                 baseViewHolder.setImageResource(R.id.ivPwdState, R.drawable.ic_home_icon_password_overdue);
                 tvPwdName.setTextColor(ContextCompat.getColor(getContext(), R.color.cCCCCCC));
                 tvDetail.setTextColor(ContextCompat.getColor(getContext(), R.color.cCCCCCC));
@@ -52,25 +52,25 @@ public class PasswordListAdapter extends BaseQuickAdapter<DevicePwd, BaseViewHol
                 tvDetail.setTextColor(ContextCompat.getColor(getContext(), R.color.c666666));
             }
 
-            baseViewHolder.setText(R.id.tvPwdName, devicePwd.getPwdName());
-            baseViewHolder.setText(R.id.tvDetail, getPwdDetail(devicePwd));
+            baseViewHolder.setText(R.id.tvPwdName, devicePwdBean.getPwdName());
+            baseViewHolder.setText(R.id.tvDetail, getPwdDetail(devicePwdBean));
         }
     }
 
-    private String getPwdDetail(DevicePwd devicePwd) {
-        int attribute = devicePwd.getAttribute();
+    private String getPwdDetail(DevicePwdBean devicePwdBean) {
+        int attribute = devicePwdBean.getAttribute();
         String detail = "";
         if(attribute == KEY_SET_ATTRIBUTE_ALWAYS) {
             detail = "Permanent password";
         } else if(attribute == KEY_SET_ATTRIBUTE_TIME_KEY) {
-            long startTimeMill = devicePwd.getStartTime()*1000;
-            long endTimeMill = devicePwd.getEndTime()*1000;
+            long startTimeMill = devicePwdBean.getStartTime()*1000;
+            long endTimeMill = devicePwdBean.getEndTime()*1000;
             detail = "start: "
                     + TimeUtils.millis2String(startTimeMill, "MM,dd,yyyy   HH:mm")
                     + "\n" + "end: "
                     + TimeUtils.millis2String(endTimeMill, "MM,dd,yyyy   HH:mm");
         } else if(attribute == KEY_SET_ATTRIBUTE_WEEK_KEY) {
-            byte[] weekBytes = BleByteUtil.byteToBit(devicePwd.getWeekly());
+            byte[] weekBytes = BleByteUtil.byteToBit(devicePwdBean.getWeekly());
             String weekly = "";
             if(weekBytes[0] == 0x01) {
                 weekly += "Sun";
@@ -94,8 +94,8 @@ public class PasswordListAdapter extends BaseQuickAdapter<DevicePwd, BaseViewHol
                 weekly += TextUtils.isEmpty(weekly)?"Sat":"、Sat";
             }
             weekly += "\n";
-            long startTimeMill = devicePwd.getStartTime()*1000;
-            long endTimeMill = devicePwd.getEndTime()*1000;
+            long startTimeMill = devicePwdBean.getStartTime()*1000;
+            long endTimeMill = devicePwdBean.getEndTime()*1000;
             detail = weekly
                     + TimeUtils.millis2String(startTimeMill, "HH:mm")
                     + " - "

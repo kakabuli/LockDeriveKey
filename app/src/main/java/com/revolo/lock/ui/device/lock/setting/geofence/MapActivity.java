@@ -102,24 +102,21 @@ public class MapActivity extends BaseActivity implements OnMapReadyCallback, Goo
             return;
         }
         fusedLocationClient.getLastLocation()
-                .addOnSuccessListener(this, new OnSuccessListener<Location>() {
-                    @Override
-                    public void onSuccess(Location location) {
-                        // Got last known location. In some rare situations this can be null.
-                        if (location != null) {
-                            // Logic to handle location object
-                            if(mMap != null) {
-                                LatLng dhaka = new LatLng(location.getLatitude(), location.getLongitude());
-                                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(dhaka, 16));
-                                if(mBleDeviceLocal.isOpenElectricFence()) {
-                                    double la = mBleDeviceLocal.getLatitude();
-                                    double lo = mBleDeviceLocal.getLongitude();
-                                    if(mMap != null) {
-                                        mMap.clear();
-                                        LatLng latLng = new LatLng(la, lo);
-                                        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 16));
-                                        handleMapLongClick(latLng);
-                                    }
+                .addOnSuccessListener(this, location -> {
+                    // Got last known location. In some rare situations this can be null.
+                    if (location != null) {
+                        // Logic to handle location object
+                        if(mMap != null) {
+                            LatLng dhaka = new LatLng(location.getLatitude(), location.getLongitude());
+                            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(dhaka, 16));
+                            if(mBleDeviceLocal.isOpenElectricFence()) {
+                                double la = mBleDeviceLocal.getLatitude();
+                                double lo = mBleDeviceLocal.getLongitude();
+                                if(mMap != null) {
+                                    mMap.clear();
+                                    LatLng latLng = new LatLng(la, lo);
+                                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 16));
+                                    handleMapLongClick(latLng);
                                 }
                             }
                         }

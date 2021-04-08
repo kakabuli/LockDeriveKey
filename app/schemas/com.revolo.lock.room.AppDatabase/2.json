@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 2,
-    "identityHash": "bc86a2b3e09f9e6d191b6ca9026f1cc2",
+    "identityHash": "2ec114d7573458c015aa1e67eecc7433",
     "entities": [
       {
         "tableName": "BleDeviceLocal",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`d_id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `d_user_id` INTEGER NOT NULL, `d_pwd1` TEXT, `d_pwd2` TEXT, `d_esn` TEXT, `d_mac` TEXT, `d_name` TEXT, `d_function_set` TEXT, `d_create_time` INTEGER NOT NULL, `d_scan_result_json` BLOB, `d_type` TEXT, `d_wifi_ver` TEXT, `d_lock_ver` TEXT, `d_door_sensor` INTEGER NOT NULL, `d_connected_wifi_name` TEXT, `d_connected_type` INTEGER NOT NULL DEFAULT 2, `d_lock_state` INTEGER NOT NULL, `d_lock_power` INTEGER NOT NULL, `d_set_auto_lock_time` INTEGER NOT NULL, `d_is_detection_lock` INTEGER NOT NULL DEFAULT false, `d_set_electric_fence_time` INTEGER NOT NULL, `d_set_electric_fence_sensitivity` INTEGER NOT NULL, `d_is_auto_lock` INTEGER NOT NULL DEFAULT false, `d_is_open_electric_fence` INTEGER NOT NULL DEFAULT false, `d_is_open_door_sensor` INTEGER NOT NULL DEFAULT false, `d_is_mute` INTEGER NOT NULL DEFAULT false, `d_is_do_not_disturb_mode` INTEGER NOT NULL DEFAULT false, `d_is_duress` INTEGER NOT NULL, `d_random_code` TEXT)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`d_id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `d_user_id` INTEGER NOT NULL, `d_pwd1` TEXT, `d_pwd2` TEXT, `d_esn` TEXT, `d_mac` TEXT, `d_name` TEXT, `d_function_set` TEXT, `d_create_time` INTEGER NOT NULL, `d_scan_result_json` BLOB, `d_type` TEXT, `d_wifi_ver` TEXT, `d_lock_ver` TEXT, `d_door_sensor` INTEGER NOT NULL, `d_connected_wifi_name` TEXT, `d_connected_type` INTEGER NOT NULL DEFAULT 2, `d_lock_state` INTEGER NOT NULL, `d_lock_power` INTEGER NOT NULL, `d_set_auto_lock_time` INTEGER NOT NULL, `d_is_detection_lock` INTEGER NOT NULL DEFAULT false, `d_set_electric_fence_time` INTEGER NOT NULL, `d_set_electric_fence_sensitivity` INTEGER NOT NULL, `d_is_auto_lock` INTEGER NOT NULL DEFAULT false, `d_is_open_electric_fence` INTEGER NOT NULL DEFAULT false, `d_is_open_door_sensor` INTEGER NOT NULL DEFAULT false, `d_is_mute` INTEGER NOT NULL DEFAULT false, `d_is_do_not_disturb_mode` INTEGER NOT NULL DEFAULT false, `d_is_duress` INTEGER NOT NULL, `d_random_code` TEXT, `d_latitude` REAL NOT NULL, `d_longitude` REAL NOT NULL)",
         "fields": [
           {
             "fieldPath": "id",
@@ -188,6 +188,18 @@
             "columnName": "d_random_code",
             "affinity": "TEXT",
             "notNull": false
+          },
+          {
+            "fieldPath": "latitude",
+            "columnName": "d_latitude",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "longitude",
+            "columnName": "d_longitude",
+            "affinity": "REAL",
+            "notNull": true
           }
         ],
         "primaryKey": {
@@ -289,81 +301,6 @@
         "foreignKeys": []
       },
       {
-        "tableName": "DevicePwd",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`dp_id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `dp_device_id` INTEGER NOT NULL, `dp_create_time` INTEGER NOT NULL, `dp_pwd_num` INTEGER NOT NULL, `dp_start_time` INTEGER NOT NULL, `dp_end_time` INTEGER NOT NULL, `dp_attribute` INTEGER NOT NULL, `dp_weekly` INTEGER NOT NULL, `dp_pwd_name` TEXT, `dp_pwd_state` INTEGER NOT NULL DEFAULT 1)",
-        "fields": [
-          {
-            "fieldPath": "id",
-            "columnName": "dp_id",
-            "affinity": "INTEGER",
-            "notNull": true
-          },
-          {
-            "fieldPath": "deviceId",
-            "columnName": "dp_device_id",
-            "affinity": "INTEGER",
-            "notNull": true
-          },
-          {
-            "fieldPath": "createTime",
-            "columnName": "dp_create_time",
-            "affinity": "INTEGER",
-            "notNull": true
-          },
-          {
-            "fieldPath": "pwdNum",
-            "columnName": "dp_pwd_num",
-            "affinity": "INTEGER",
-            "notNull": true
-          },
-          {
-            "fieldPath": "startTime",
-            "columnName": "dp_start_time",
-            "affinity": "INTEGER",
-            "notNull": true
-          },
-          {
-            "fieldPath": "endTime",
-            "columnName": "dp_end_time",
-            "affinity": "INTEGER",
-            "notNull": true
-          },
-          {
-            "fieldPath": "attribute",
-            "columnName": "dp_attribute",
-            "affinity": "INTEGER",
-            "notNull": true
-          },
-          {
-            "fieldPath": "weekly",
-            "columnName": "dp_weekly",
-            "affinity": "INTEGER",
-            "notNull": true
-          },
-          {
-            "fieldPath": "pwdName",
-            "columnName": "dp_pwd_name",
-            "affinity": "TEXT",
-            "notNull": false
-          },
-          {
-            "fieldPath": "pwdState",
-            "columnName": "dp_pwd_state",
-            "affinity": "INTEGER",
-            "notNull": true,
-            "defaultValue": "1"
-          }
-        ],
-        "primaryKey": {
-          "columnNames": [
-            "dp_id"
-          ],
-          "autoGenerate": true
-        },
-        "indices": [],
-        "foreignKeys": []
-      },
-      {
         "tableName": "LockRecord",
         "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`lr_event_type` INTEGER NOT NULL, `lr_event_source` INTEGER NOT NULL, `lr_event_code` INTEGER NOT NULL, `lr_user_id` INTEGER NOT NULL, `lr_app_id` INTEGER NOT NULL, `lr_device_id` INTEGER NOT NULL, `lr_create_time` INTEGER NOT NULL, PRIMARY KEY(`lr_device_id`, `lr_create_time`))",
         "fields": [
@@ -433,7 +370,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'bc86a2b3e09f9e6d191b6ca9026f1cc2')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '2ec114d7573458c015aa1e67eecc7433')"
     ]
   }
 }

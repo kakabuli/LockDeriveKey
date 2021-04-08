@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "d69190b10bd4ba75689857729f8850b8",
+    "identityHash": "2ec114d7573458c015aa1e67eecc7433",
     "entities": [
       {
         "tableName": "BleDeviceLocal",
@@ -301,81 +301,6 @@
         "foreignKeys": []
       },
       {
-        "tableName": "DevicePwd",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`dp_id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `dp_device_id` INTEGER NOT NULL, `dp_create_time` INTEGER NOT NULL, `dp_pwd_num` INTEGER NOT NULL, `dp_start_time` INTEGER NOT NULL, `dp_end_time` INTEGER NOT NULL, `dp_attribute` INTEGER NOT NULL, `dp_weekly` INTEGER NOT NULL, `dp_pwd_name` TEXT, `dp_pwd_state` INTEGER NOT NULL DEFAULT 1)",
-        "fields": [
-          {
-            "fieldPath": "id",
-            "columnName": "dp_id",
-            "affinity": "INTEGER",
-            "notNull": true
-          },
-          {
-            "fieldPath": "deviceId",
-            "columnName": "dp_device_id",
-            "affinity": "INTEGER",
-            "notNull": true
-          },
-          {
-            "fieldPath": "createTime",
-            "columnName": "dp_create_time",
-            "affinity": "INTEGER",
-            "notNull": true
-          },
-          {
-            "fieldPath": "pwdNum",
-            "columnName": "dp_pwd_num",
-            "affinity": "INTEGER",
-            "notNull": true
-          },
-          {
-            "fieldPath": "startTime",
-            "columnName": "dp_start_time",
-            "affinity": "INTEGER",
-            "notNull": true
-          },
-          {
-            "fieldPath": "endTime",
-            "columnName": "dp_end_time",
-            "affinity": "INTEGER",
-            "notNull": true
-          },
-          {
-            "fieldPath": "attribute",
-            "columnName": "dp_attribute",
-            "affinity": "INTEGER",
-            "notNull": true
-          },
-          {
-            "fieldPath": "weekly",
-            "columnName": "dp_weekly",
-            "affinity": "INTEGER",
-            "notNull": true
-          },
-          {
-            "fieldPath": "pwdName",
-            "columnName": "dp_pwd_name",
-            "affinity": "TEXT",
-            "notNull": false
-          },
-          {
-            "fieldPath": "pwdState",
-            "columnName": "dp_pwd_state",
-            "affinity": "INTEGER",
-            "notNull": true,
-            "defaultValue": "1"
-          }
-        ],
-        "primaryKey": {
-          "columnNames": [
-            "dp_id"
-          ],
-          "autoGenerate": true
-        },
-        "indices": [],
-        "foreignKeys": []
-      },
-      {
         "tableName": "LockRecord",
         "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`lr_event_type` INTEGER NOT NULL, `lr_event_source` INTEGER NOT NULL, `lr_event_code` INTEGER NOT NULL, `lr_user_id` INTEGER NOT NULL, `lr_app_id` INTEGER NOT NULL, `lr_device_id` INTEGER NOT NULL, `lr_create_time` INTEGER NOT NULL, PRIMARY KEY(`lr_device_id`, `lr_create_time`))",
         "fields": [
@@ -445,7 +370,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'd69190b10bd4ba75689857729f8850b8')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '2ec114d7573458c015aa1e67eecc7433')"
     ]
   }
 }

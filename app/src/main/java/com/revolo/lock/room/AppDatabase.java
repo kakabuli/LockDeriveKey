@@ -10,11 +10,10 @@ import androidx.room.migration.Migration;
 import androidx.sqlite.db.SupportSQLiteDatabase;
 
 import com.revolo.lock.room.dao.BleDeviceDao;
-import com.revolo.lock.room.dao.DevicePwdDao;
 import com.revolo.lock.room.dao.LockRecordDao;
 import com.revolo.lock.room.dao.UserDao;
 import com.revolo.lock.room.entity.BleDeviceLocal;
-import com.revolo.lock.room.entity.DevicePwd;
+import com.revolo.lock.bean.DevicePwdBean;
 import com.revolo.lock.room.entity.LockRecord;
 import com.revolo.lock.room.entity.User;
 
@@ -30,12 +29,11 @@ import timber.log.Timber;
  * E-mail : wengmaowei@kaadas.com
  * desc   :
  */
-@Database(entities = {BleDeviceLocal.class, User.class, DevicePwd.class, LockRecord.class}, version = 1)
+@Database(entities = {BleDeviceLocal.class, User.class, LockRecord.class}, version = 2)
 public abstract class AppDatabase extends RoomDatabase {
 
     public abstract BleDeviceDao bleDeviceDao();
     public abstract UserDao userDao();
-    public abstract DevicePwdDao devicePwdDao();
     public abstract LockRecordDao lockRecordDao();
     private static AppDatabase INSTANCE;
     private static final Object sLock = new Object();
@@ -50,6 +48,7 @@ public abstract class AppDatabase extends RoomDatabase {
                 INSTANCE =
                         Room.databaseBuilder(context.getApplicationContext(), AppDatabase.class, "rev.db")
                                 .allowMainThreadQueries() // TODO: 2021/2/3 后续需要把这些操作放到非UI线程里
+                                .addMigrations(MIGRATION_1_2)
                                 .openHelperFactory(FACTORY)
                                 .addCallback(new Callback() {
                                     @Override
@@ -74,5 +73,13 @@ public abstract class AppDatabase extends RoomDatabase {
             return INSTANCE;
         }
     }
+
+    static final Migration MIGRATION_1_2 = new Migration(1, 2) {
+        @Override
+        public void migrate(@NonNull SupportSQLiteDatabase database) {
+            // 删除密码表
+            database.execSQL("DROP TABLE DevicePwd");
+        }
+    };
 
 }
