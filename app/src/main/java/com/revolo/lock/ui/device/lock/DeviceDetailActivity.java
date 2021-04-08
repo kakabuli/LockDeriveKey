@@ -212,6 +212,24 @@ public class DeviceDetailActivity extends BaseActivity {
             // TODO: 2021/3/31 看是否需要判定锁
         } else if(bean.getCMD() == BleProtocolState.CMD_LOCK_UPLOAD) {
             lockUpdateInfo(bean);
+        } else if(bean.getCMD() == BleProtocolState.CMD_LOCK_ALARM_UPLOAD) {
+            lockAlarm(bean);
+        }
+    }
+
+    private void lockAlarm(BleResultBean bean) {
+        // TODO: 2021/4/8 后续需要生成对应的实体类再使用
+        byte[] alarmCode = new byte[4];
+        System.arraycopy(bean.getPayload(), 4, alarmCode, 0, alarmCode.length);
+        byte[] alarmCodeBit7_0 = BleByteUtil.byteToBit(alarmCode[3]);
+        if(alarmCodeBit7_0[7] == 1) {
+            // 存在低电量报警
+            BleBean bleBean = App.getInstance().getBleBeanFromMac(mBleDeviceLocal.getMac());
+            if(bleBean != null) {
+                App.getInstance().writeControlMsg(BleCommandFactory
+                                .checkLockBaseInfoCommand(bleBean.getPwd1(), bleBean.getPwd3()),
+                        bleBean.getOKBLEDeviceImp());
+            }
         }
     }
 
