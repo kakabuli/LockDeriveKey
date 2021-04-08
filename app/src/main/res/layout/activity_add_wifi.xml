@@ -65,6 +65,7 @@
         android:layout_marginTop="10pt"
         android:inputType="textPassword"
         android:hint="@string/hint_password"
+        android:maxLength="64"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/etWifiName" />
