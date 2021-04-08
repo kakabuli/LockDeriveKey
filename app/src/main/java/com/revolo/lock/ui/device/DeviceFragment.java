@@ -185,6 +185,8 @@ public class DeviceFragment extends Fragment {
             if(!TextUtils.isEmpty(wifiVer)) {
                 bleDeviceLocal.setWifiVer(wifiVer);
             }
+            Timber.d("wifiESN: %1s, 电量：%2d", wifiListBean.getWifiSN(), wifiListBean.getPower());
+            bleDeviceLocal.setLockPower(wifiListBean.getPower());
             // 0 锁端wifi没有与服务器连接   1 锁端wifi与服务器连接成功
             boolean isWifiConnected = (wifiListBean.getWifiStatus().equals("1"));
             bleDeviceLocal.setConnectedType(isWifiConnected?

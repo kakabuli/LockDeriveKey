@@ -93,6 +93,9 @@ public class DeviceDetailActivity extends BaseActivity {
             BleBean bleBean = App.getInstance().getBleBeanFromMac(mBleDeviceLocal.getMac());
             if(bleBean != null) {
                 bleBean.setOnBleDeviceListener(mOnBleDeviceListener);
+                App.getInstance().writeControlMsg(BleCommandFactory
+                                .checkLockBaseInfoCommand(bleBean.getPwd1(), bleBean.getPwd3()),
+                        bleBean.getOKBLEDeviceImp());
             }
         }
     }
@@ -217,29 +220,39 @@ public class DeviceDetailActivity extends BaseActivity {
         byte[] lockFunBytes = new byte[4];
         System.arraycopy(bean.getPayload(), 0, lockFunBytes, 0, lockFunBytes.length);
         // 以下标来命名区分 bit0~7
-        byte[] bit0_7 = BleByteUtil.byteToBit(lockFunBytes[3]);
+        byte[] bit7_0 = BleByteUtil.byteToBit(lockFunBytes[3]);
         // bit8~15
-        byte[] bit8_15 = BleByteUtil.byteToBit(lockFunBytes[2]);
+        byte[] bit15_8 = BleByteUtil.byteToBit(lockFunBytes[2]);
         // bit16~23
-        byte[] bit16_23 = BleByteUtil.byteToBit(lockFunBytes[1]);
+        byte[] bit23_16 = BleByteUtil.byteToBit(lockFunBytes[1]);
 
         byte[] lockState = new byte[4];
         System.arraycopy(bean.getPayload(), 4, lockState, 0, lockState.length);
-        byte[] lockStateBit0_7 = BleByteUtil.byteToBit(lockState[3]);
-        byte[] lockStateBit8_15 = BleByteUtil.byteToBit(lockState[2]);
+        byte[] lockStateBit7_0 = BleByteUtil.byteToBit(lockState[3]);
+        byte[] lockStateBit15_8 = BleByteUtil.byteToBit(lockState[2]);
         int soundVolume = bean.getPayload()[8];
         byte[] language = new byte[2];
         System.arraycopy(bean.getPayload(), 9, language, 0, language.length);
         String languageStr = new String(language, StandardCharsets.UTF_8);
-        int battery = bean.getPayload()[11];
+        int power = bean.getPayload()[11];
         byte[] time = new byte[4];
         System.arraycopy(bean.getPayload(), 12, time, 0, time.length);
         long realTime = (BleByteUtil.bytesToLong(BleCommandFactory.littleMode(time)) + Constant.WILL_ADD_TIME)*1000;
-        Timber.d("CMD: %1d, lockFunBytes: bit0_7: %2s, bit8_15: %3s, bit16_23: %4s, lockStateBit0_7: %5s, lockStateBit8_15: %6s, soundVolume: %7d, language: %8s, battery: %9d, time: %10d",
-                bean.getCMD(), ConvertUtils.bytes2HexString(bit0_7), ConvertUtils.bytes2HexString(bit8_15),
-                ConvertUtils.bytes2HexString(bit16_23), ConvertUtils.bytes2HexString(lockStateBit0_7),
-                ConvertUtils.bytes2HexString(lockStateBit8_15), soundVolume, languageStr, battery, realTime);
+        Timber.d("lockInfo CMD: %1d, lockFunBytes: bit7_0: %2s, bit15_8: %3s, bit23_16: %4s, lockStateBit7_0: %5s, lockStateBit15_8: %6s, soundVolume: %7d, language: %8s, battery: %9d, time: %10d",
+                bean.getCMD(), ConvertUtils.bytes2HexString(bit7_0), ConvertUtils.bytes2HexString(bit15_8),
+                ConvertUtils.bytes2HexString(bit23_16), ConvertUtils.bytes2HexString(lockStateBit7_0),
+                ConvertUtils.bytes2HexString(lockStateBit15_8), soundVolume, languageStr, power, realTime);
 
+        mBleDeviceLocal.setLockPower(power);
+        boolean isMute = (soundVolume==LocalState.VOLUME_STATE_MUTE);
+        mBleDeviceLocal.setMute(isMute);
+        byte doorSensorState = bit7_0[3];
+        boolean isOpenDoorSensor = (doorSensorState == 0x01);
+        mBleDeviceLocal.setOpenDoorSensor(isOpenDoorSensor);
+        Timber.d("电量：%1d, 是否静音 %2b, 门磁功能是否开启：%3b", power, isMute, isOpenDoorSensor);
+        AppDatabase.getInstance(this).bleDeviceDao().update(mBleDeviceLocal);
+        // 更新UI
+        runOnUiThread(this::initDevice);
     }
 
     private void setLockState(@LocalState.LockState int state) {
