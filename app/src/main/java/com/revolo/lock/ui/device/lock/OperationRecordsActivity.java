@@ -701,7 +701,7 @@ public class OperationRecordsActivity extends BaseActivity {
                         break;
                     case 0x03:
                         // 三次错误报警
-                        message = "The door lock has been restored to factory Settings";
+                        message = "three input error alarms";
                         drawableId = R.drawable.ic_home_log_icon__alert;
                         break;
                     case 0x04:

@@ -57,7 +57,7 @@ public class AddInputNewPwdActivity extends BaseActivity {
                     || RegexUtils.isMatch("(?:9(?=8)|8(?=7)|7(?=6)|6(?=5)|5(?=4)|4(?=3)|3(?=2)|2(?=1)|1(?=0)){3,10}\\d", pwd)
                     || RegexUtils.isMatch("([\\d])\\1{2,}", pwd)) {
                 // TODO: 2021/1/25 抽离文字
-                ToastUtils.showShort("Please input right password!");
+                ToastUtils.showShort("Don't enter a simple password!");
                 return;
             }
             if(pwd.length() >= 4 && pwd.length() <= 12) {
