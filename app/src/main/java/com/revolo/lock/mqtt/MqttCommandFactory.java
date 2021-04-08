@@ -175,7 +175,7 @@ public class MqttCommandFactory {
             for (int i = 0; i < offSet; i++) {
                 text = "0" + text;
             }
-            System.out.println("--revolo--   testSha256 数据是   " + Rsa.bytesToHexString(messageDigest.digest()));
+            Timber.d("--revolo--   testSha256 数据是   %1s", Rsa.bytesToHexString(messageDigest.digest()));
             return text;
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();

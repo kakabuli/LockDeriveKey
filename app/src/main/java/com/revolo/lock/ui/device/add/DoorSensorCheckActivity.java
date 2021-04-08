@@ -39,7 +39,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.concurrent.TimeUnit;
 
-import io.reactivex.Observer;
 import io.reactivex.disposables.Disposable;
 import timber.log.Timber;
 
@@ -179,7 +178,11 @@ public class DoorSensorCheckActivity extends BaseActivity {
             return;
         }
         if(view.getId() == R.id.tvSkip) {
-            gotoAddWifi();
+            if(isGoToAddWifi) {
+                gotoAddWifi();
+            } else {
+                finish();
+            }
         }
     }
 
@@ -230,7 +233,7 @@ public class DoorSensorCheckActivity extends BaseActivity {
     private void refreshDoorSuc() {
         mIvDoorState.setImageResource(R.drawable.ic_equipment_img_magnetic_door_success);
         mTvTip.setText(getString(R.string.door_check_suc_tip));
-        mBtnNext.setText(getString(R.string.connect_wifi));
+        mBtnNext.setText(isGoToAddWifi?getString(R.string.connect_wifi):getString(R.string.complete));
         mTvSkip.setVisibility(View.GONE);
         mTvStep.setText("");
         mTvStep.setVisibility(View.INVISIBLE);
@@ -271,81 +274,75 @@ public class DoorSensorCheckActivity extends BaseActivity {
     /*---------------------------------- MQTT ----------------------------------*/
 
     private int mLastMsgId = -1;
+    private Disposable mSetMagneticDisposable;
 
     public void publishSetMagnetic(String wifiID, @BleCommandState.DoorCalibrationState int mode) {
         showLoading();
+        if(mMQttService == null) {
+            Timber.e("publishSetMagnetic mMQttService == null");
+            return;
+        }
+        toDisposable(mSetMagneticDisposable);
         mCalibrationState = mode;
-        App.getInstance().getMqttService().mqttPublish(MqttConstant.getCallTopic(App.getInstance().getUserBean().getUid()),
+        mSetMagneticDisposable = mMQttService.mqttPublish(MqttConstant.getCallTopic(App.getInstance().getUserBean().getUid()),
                 MqttCommandFactory.setMagnetic(wifiID, mode, BleCommandFactory.getPwd(
                         ConvertUtils.hexString2Bytes(mBleDeviceLocal.getPwd1()),
                         ConvertUtils.hexString2Bytes(mBleDeviceLocal.getPwd2()))))
                 .timeout(DEFAULT_TIMEOUT_SEC_VALUE, TimeUnit.SECONDS)
-                .safeSubscribe(new Observer<MqttData>() {
-            @Override
-            public void onSubscribe(@NotNull Disposable d) {
-
-            }
-
-            @Override
-            public void onNext(@NotNull MqttData mqttData) {
-                if(TextUtils.isEmpty(mqttData.getFunc())) {
-                    Timber.e("publishSetMagnetic mqttData.getFunc() is empty");
-                    return;
-                }
-                if(mqttData.getFunc().equals(MqttConstant.SET_MAGNETIC)) {
+                .subscribe(mqttData -> refreshDoorSensor(mode, mqttData), e -> {
+                    // TODO: 2021/3/3 错误处理
+                    // 超时或者其他错误
                     dismissLoading();
-                    Timber.d("publishSetMagnetic 设置门磁: %1s", mqttData);
-                    WifiLockSetMagneticResponseBean bean;
-                    try {
-                        bean = GsonUtils.fromJson(mqttData.getPayload(), WifiLockSetMagneticResponseBean.class);
-                    } catch (JsonSyntaxException e) {
-                        Timber.e(e);
-                        return;
-                    }
-                    if(bean == null) {
-                        Timber.e("publishSetMagnetic bean == null");
-                        return;
-                    }
-                    if(bean.getMsgId() == mLastMsgId) {
-                        Timber.e("publishSetMagnetic 过滤重复数据ID， msgId: %1d, lastMsgId: %2d", bean.getMsgId(), mLastMsgId);
-                        return;
-                    }
-                    mLastMsgId = bean.getMsgId();
-                    if(bean.getParams() == null) {
-                        Timber.e("publishSetMagnetic bean.getParams() == null");
-                        return;
-                    }
-                    if(bean.getCode() != 200) {
-                        Timber.e("publishSetMagnetic code : %1d", bean.getCode());
-                        if(bean.getCode() == 201) {
-                            // 门磁校验失败
-                            gotoFailAct();
-                        }
-                        return;
-                    }
-                    // 排除掉第一次发送禁用门磁指令的状态反馈
-                    if(bean.getParams().getMode() == BleCommandState.DOOR_CALIBRATION_STATE_CLOSE_SE) {
-                        return;
-                    }
-                    saveDoorSensorStateToLocal(mode);
-                    refreshCurrentUI();
-                }
-                Timber.d("%1s", mqttData.toString());
-            }
+                    Timber.e(e);
+                });
+        mCompositeDisposable.add(mSetMagneticDisposable);
+    }
 
-            @Override
-            public void onError(@NotNull Throwable e) {
-                // TODO: 2021/3/3 错误处理
-                // 超时或者其他错误
-                dismissLoading();
+    private void refreshDoorSensor(@BleCommandState.DoorCalibrationState int mode, MqttData mqttData) {
+        toDisposable(mSetMagneticDisposable);
+        if(TextUtils.isEmpty(mqttData.getFunc())) {
+            Timber.e("publishSetMagnetic mqttData.getFunc() is empty");
+            return;
+        }
+        if(mqttData.getFunc().equals(MqttConstant.SET_MAGNETIC)) {
+            dismissLoading();
+            Timber.d("publishSetMagnetic 设置门磁: %1s", mqttData);
+            WifiLockSetMagneticResponseBean bean;
+            try {
+                bean = GsonUtils.fromJson(mqttData.getPayload(), WifiLockSetMagneticResponseBean.class);
+            } catch (JsonSyntaxException e) {
                 Timber.e(e);
+                return;
             }
-
-            @Override
-            public void onComplete() {
-
+            if(bean == null) {
+                Timber.e("publishSetMagnetic bean == null");
+                return;
             }
-        });
+            if(bean.getMsgId() == mLastMsgId) {
+                Timber.e("publishSetMagnetic 过滤重复数据ID， msgId: %1d, lastMsgId: %2d", bean.getMsgId(), mLastMsgId);
+                return;
+            }
+            mLastMsgId = bean.getMsgId();
+            if(bean.getParams() == null) {
+                Timber.e("publishSetMagnetic bean.getParams() == null");
+                return;
+            }
+            if(bean.getCode() != 200) {
+                Timber.e("publishSetMagnetic code : %1d", bean.getCode());
+                if(bean.getCode() == 201) {
+                    // 门磁校验失败
+                    gotoFailAct();
+                }
+                return;
+            }
+            saveDoorSensorStateToLocal(mode);
+            // 排除掉第一次发送禁用门磁指令的状态反馈
+            if(bean.getParams().getMode() == BleCommandState.DOOR_CALIBRATION_STATE_CLOSE_SE) {
+                return;
+            }
+            refreshCurrentUI();
+        }
+        Timber.d("%1s", mqttData.toString());
     }
 
     /*--------------------------------- 蓝牙 -----------------------------------*/
@@ -443,11 +440,11 @@ public class DoorSensorCheckActivity extends BaseActivity {
     private void changedDoor(BleResultBean bleResultBean) {
         if(bleResultBean.getCMD() == CMD_DOOR_SENSOR_CALIBRATION) {
             if(bleResultBean.getPayload()[0] == 0x00) {
+                saveDoorSensorStateToLocal(mCalibrationState);
                 // 排除掉第一次发送禁用门磁指令的状态反馈
                 if(mCalibrationState == BleCommandState.DOOR_CALIBRATION_STATE_CLOSE_SE) {
                     return;
                 }
-                saveDoorSensorStateToLocal(mCalibrationState);
                 refreshCurrentUI();
             } else {
                 gotoFailAct();

@@ -16,6 +16,7 @@ import androidx.core.content.ContextCompat;
 
 import com.blankj.utilcode.util.AdaptScreenUtils;
 import com.blankj.utilcode.util.ClickUtils;
+import com.revolo.lock.mqtt.MqttService;
 import com.revolo.lock.shulan.KeepAliveManager;
 import com.revolo.lock.shulan.config.ForegroundNotification;
 import com.revolo.lock.shulan.config.ForegroundNotificationClickListener;
@@ -27,6 +28,8 @@ import com.revolo.lock.ui.TitleBar;
 
 import org.jetbrains.annotations.NotNull;
 
+import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.disposables.Disposable;
 import timber.log.Timber;
 
 /**
@@ -41,6 +44,8 @@ public abstract class BaseActivity extends AppCompatActivity
         implements IBaseView {
 
     private final View.OnClickListener mClickListener = this::onDebouncingClick;
+    protected CompositeDisposable mCompositeDisposable = new CompositeDisposable();
+    public MqttService mMQttService = App.getInstance().getMqttService();
 
     public View     mContentView;
     public Activity mActivity;
@@ -52,8 +57,13 @@ public abstract class BaseActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         initData(getIntent().getExtras());
         setContentView();
-        if(App.getInstance().getMqttService() != null) {
-            App.getInstance().getMqttService().mqttConnection();
+        if(mMQttService == null) {
+            mMQttService = App.getInstance().getMqttService();
+        }
+        if(mMQttService != null) {
+            if(mMQttService.getMqttClient() != null && !mMQttService.getMqttClient().isConnected()) {
+                mMQttService.mqttConnection();
+            }
         }
         initView(savedInstanceState, mContentView);
 
@@ -64,6 +74,14 @@ public abstract class BaseActivity extends AppCompatActivity
     protected void onResume() {
         super.onResume();
         doBusiness();
+    }
+
+    @Override
+    protected void onStop() {
+        if (mCompositeDisposable != null) {
+            mCompositeDisposable.clear();
+        }
+        super.onStop();
     }
 
     @Override
@@ -181,6 +199,12 @@ public abstract class BaseActivity extends AppCompatActivity
                 mLoadingDialog.dismiss();
             }
         });
+    }
+
+    public void toDisposable(Disposable disposable) {
+        if (disposable != null && !disposable.isDisposed()) {
+            disposable.dispose();
+        }
     }
 
 }

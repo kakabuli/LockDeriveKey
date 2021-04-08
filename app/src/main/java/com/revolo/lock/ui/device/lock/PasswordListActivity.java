@@ -213,7 +213,8 @@ public class PasswordListActivity extends BaseActivity {
             devicePwdBean.setPwdName(bean.getNickName());
             devicePwdBean.setStartTime(bean.getStartTime());
             devicePwdBean.setEndTime(bean.getEndTime());
-            @BleCommandState.KeySetAttribute int attribute = getPwdAttribute(bean.getType());
+//            @BleCommandState.KeySetAttribute int attribute = getPwdAttribute(bean.getType());
+            @BleCommandState.KeySetAttribute int attribute = bean.getType();
             devicePwdBean.setAttribute(attribute);
             setWeeklyFromNetData(bean, devicePwdBean, attribute);
             // 默认可用

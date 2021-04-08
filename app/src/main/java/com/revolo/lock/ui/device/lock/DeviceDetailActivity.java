@@ -46,7 +46,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import io.reactivex.Observer;
 import io.reactivex.disposables.Disposable;
 import timber.log.Timber;
 
@@ -64,6 +63,8 @@ public class DeviceDetailActivity extends BaseActivity {
 
     private BleDeviceLocal mBleDeviceLocal;
     private SignalWeakDialog mSignalWeakDialog;
+    private Disposable mOpenOrCloseLockDisposable;
+    private Disposable mEventDisposable;
 
     @Override
     public void initData(@Nullable Bundle bundle) {
@@ -98,6 +99,7 @@ public class DeviceDetailActivity extends BaseActivity {
                         bleBean.getOKBLEDeviceImp());
             }
         }
+        initLockEvent();
     }
 
     @Override
@@ -208,13 +210,14 @@ public class DeviceDetailActivity extends BaseActivity {
     private void processBleResult(BleResultBean bean) {
         if(bean.getCMD() == BleProtocolState.CMD_LOCK_INFO) {
             lockInfo(bean);
-        } else if(bean.getCMD() == BleProtocolState.CMD_LOCK_CONTROL_ACK) {
-            // TODO: 2021/3/31 看是否需要判定锁
         } else if(bean.getCMD() == BleProtocolState.CMD_LOCK_UPLOAD) {
             lockUpdateInfo(bean);
         } else if(bean.getCMD() == BleProtocolState.CMD_LOCK_ALARM_UPLOAD) {
             lockAlarm(bean);
         }
+//        else if(bean.getCMD() == BleProtocolState.CMD_LOCK_CONTROL_ACK) {
+//            // TODO: 2021/3/31 看是否需要判定锁
+//        }
     }
 
     private void lockAlarm(BleResultBean bean) {
@@ -307,9 +310,10 @@ public class DeviceDetailActivity extends BaseActivity {
                 } else if(eventCode == 0x02) {
                     // 开锁
                     setLockState(LocalState.LOCK_STATE_OPEN);
-                } else {
-                    // TODO: 2021/2/10 其他处理
                 }
+//                else {
+//                    // TODO: 2021/2/10 其他处理
+//                }
             } else if(eventType == 0x04) {
                 // sensor附加状态，门磁
                 if(eventCode == LocalState.DOOR_SENSOR_OPEN) {
@@ -322,13 +326,13 @@ public class DeviceDetailActivity extends BaseActivity {
                     // 门磁异常
                     // TODO: 2021/3/31 门磁异常的操作
                     Timber.d("lockUpdateInfo 门磁异常");
-                } else {
-                    // TODO: 2021/3/31 异常值
                 }
+//                else {
+//                    // TODO: 2021/3/31 异常值
+//                }
             }
         });
     }
-
 
     private void initDevice() {
         ImageView ivLockState = findViewById(R.id.ivLockState);
@@ -464,65 +468,76 @@ public class DeviceDetailActivity extends BaseActivity {
             Timber.e("publishOpenOrCloseDoor App.getInstance().getUserBean() == null");
             return;
         }
+        if(mMQttService == null) {
+            Timber.e("publishOpenOrCloseDoor mMQttService == null");
+            return;
+        }
         if(doorOpt == LocalState.DOOR_STATE_OPEN) {
             showLoading("Lock Opening...");
         } else if(doorOpt == LocalState.DOOR_STATE_CLOSE) {
             showLoading("Lock Closing...");
         }
         mCount++;
-        App.getInstance().getMqttService().mqttPublish(MqttConstant.getCallTopic(App.getInstance().getUserBean().getUid()),
+        toDisposable(mOpenOrCloseLockDisposable);
+        mOpenOrCloseLockDisposable = mMQttService.mqttPublish(
+                MqttConstant.getCallTopic(App.getInstance().getUserBean().getUid()),
                 MqttCommandFactory.setLock(wifiId,
                         doorOpt,
                         BleCommandFactory.getPwd(ConvertUtils.hexString2Bytes(mBleDeviceLocal.getPwd1()), ConvertUtils.hexString2Bytes(mBleDeviceLocal.getPwd2())),
                         randomCode,
                         num))
                 .timeout(DEFAULT_TIMEOUT_SEC_VALUE, TimeUnit.SECONDS)
-                .safeSubscribe(new Observer<MqttData>() {
-            @Override
-            public void onSubscribe(@NotNull Disposable d) {
+                .filter(mqttData -> mqttData.getFunc().equals(MqttConstant.SET_LOCK) || mqttData.getFunc().equals(MqttConstant.WF_EVENT))
+                .subscribe(mqttData -> {
+                    mCount = 0;
+                    processOpenOrClose(mqttData);
+                }, e -> {
+                    dismissLoading();
+                    if(e instanceof TimeoutException) {
+                        if(mCount == 3) {
+                            // 3次机会,超时失败开始连接蓝牙
+                            mCount = 0;
+                            runOnUiThread(() -> {
+                                if(mSignalWeakDialog != null) {
+                                    mSignalWeakDialog.show();
+                                }
+                            });
 
-            }
-
-            @Override
-            public void onNext(@NotNull MqttData mqttData) {
-                mCount = 0;
-                processMQttMsg(mqttData);
-            }
-
-            @Override
-            public void onError(@NotNull Throwable e) {
-                dismissLoading();
-                if(e instanceof TimeoutException) {
-                    if(mCount == 3) {
-                        // 3次机会,超时失败开始连接蓝牙
-                        mCount = 0;
-                        runOnUiThread(() -> {
-                            if(mSignalWeakDialog != null) {
-                                mSignalWeakDialog.show();
-                            }
-                        });
-
+                        }
                     }
-                }
-                Timber.e(e);
-            }
-
-            @Override
-            public void onComplete() {
-
-            }
-        });
+                    Timber.e(e);
+                });
+        mCompositeDisposable.add(mOpenOrCloseLockDisposable);
     }
 
-    private void processMQttMsg(@NotNull MqttData mqttData) {
+    private void initLockEvent() {
+        if(mMQttService == null) {
+            Timber.e("initLockEvent mMQttService == null");
+            return;
+        }
+        toDisposable(mEventDisposable);
+        mEventDisposable = mMQttService.listenerDataBack()
+                .filter(mqttData -> mqttData.getFunc().equals(MqttConstant.WF_EVENT))
+                .subscribe(this::processEvent, Timber::e);
+        mCompositeDisposable.add(mEventDisposable);
+    }
+
+    private void processEvent(@NotNull MqttData mqttData) {
+        if(TextUtils.isEmpty(mqttData.getFunc())) {
+            return;
+        }
+        if(mqttData.getFunc().equals(MqttConstant.WF_EVENT)) {
+            processRecord(mqttData);
+        }
+    }
+
+    private void processOpenOrClose(@NotNull MqttData mqttData) {
         if(TextUtils.isEmpty(mqttData.getFunc())) {
             return;
         }
         // TODO: 2021/3/3 处理开关锁的回调信息
         if(mqttData.getFunc().equals(MqttConstant.SET_LOCK)) {
             processSetLock(mqttData);
-        } else if(mqttData.getFunc().equals(MqttConstant.WF_EVENT)) {
-            processRecord(mqttData);
         }
     }
 
@@ -643,9 +658,10 @@ public class DeviceDetailActivity extends BaseActivity {
                         ConvertUtils.hexString2Bytes(mBleDeviceLocal.getPwd2()),
                         mOnBleDeviceListener,false);
                 mBleBean.setEsn(mBleDeviceLocal.getEsn());
-            } else {
-                // TODO: 2021/1/26 处理为空的情况
             }
+//            else {
+//                // TODO: 2021/1/26 处理为空的情况
+//            }
         } else {
             if(mBleBean.getOKBLEDeviceImp() != null) {
                 mBleBean.setOnBleDeviceListener(mOnBleDeviceListener);
@@ -655,9 +671,10 @@ public class DeviceDetailActivity extends BaseActivity {
                 mBleBean.setPwd1(ConvertUtils.hexString2Bytes(mBleDeviceLocal.getPwd1()));
                 mBleBean.setPwd2(ConvertUtils.hexString2Bytes(mBleDeviceLocal.getPwd2()));
                 mBleBean.setEsn(mBleDeviceLocal.getEsn());
-            } else {
-                // TODO: 2021/1/26 为空的处理
             }
+//            else {
+//                // TODO: 2021/1/26 为空的处理
+//            }
         }
         // 1分钟后判断设备是否连接成功，否就恢复wifi状态，每秒判断一次是否配对设备成功
         mCountDownTimer.start();

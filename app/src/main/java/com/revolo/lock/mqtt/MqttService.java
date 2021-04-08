@@ -259,10 +259,10 @@ public class MqttService extends Service {
                 mqttData.setMsgtype(msgtype);
 
                 onReceiverDataObservable.onNext(mqttData);
-                if (MqttConstant.GATEWAY_STATE.equals(mqttData.getFunc())) {
-                    Timber.d("网关状态上报");
-                    notifyDataObservable.onNext(mqttData);
-                }
+//                if (MqttConstant.GATEWAY_STATE.equals(mqttData.getFunc())) {
+//                    Timber.d("网关状态上报");
+//                    notifyDataObservable.onNext(mqttData);
+//                }
 
             }
 

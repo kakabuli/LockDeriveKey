@@ -19,9 +19,14 @@ import com.revolo.lock.base.BaseActivity;
  */
 public class DoorCheckFailActivity extends BaseActivity {
 
+    private boolean isGoToAddWifi = true;
+
     @Override
     public void initData(@Nullable Bundle bundle) {
-      
+        Intent intent = getIntent();
+        if(intent.hasExtra(Constant.IS_GO_TO_ADD_WIFI)) {
+            isGoToAddWifi = intent.getBooleanExtra(Constant.IS_GO_TO_ADD_WIFI, true);
+        }
     }
 
     @Override
@@ -48,7 +53,7 @@ public class DoorCheckFailActivity extends BaseActivity {
         }
         if(view.getId() == R.id.btnTryAgain) {
             Intent intent = new Intent(this, DoorSensorCheckActivity.class);
-            intent.putExtra(Constant.IS_GO_TO_ADD_WIFI, true);
+            intent.putExtra(Constant.IS_GO_TO_ADD_WIFI, isGoToAddWifi);
             startActivity(intent);
             finish();
         }
