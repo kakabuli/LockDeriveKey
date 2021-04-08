@@ -138,6 +138,7 @@ public class AutoLockActivity extends BaseActivity {
             mTvDetectionLock.setVisibility(mBleDeviceLocal.isAutoLock()?View.VISIBLE:View.GONE);
             mIvDetectionLockEnable.setVisibility(mBleDeviceLocal.isAutoLock()?View.VISIBLE:View.GONE);
             mClSetLockTime.setVisibility(mBleDeviceLocal.isAutoLock()?View.VISIBLE:View.GONE);
+            mTvTime.setText(getTimeString(mTime));
             mIvDetectionLockEnable
                     .setImageResource(mBleDeviceLocal.isDetectionLock()?R.drawable.ic_icon_switch_open:R.drawable.ic_icon_switch_close);
             mSeekBar.setProgress(getProgressFromTime(mBleDeviceLocal.getSetAutoLockTime()));
@@ -423,38 +424,38 @@ public class AutoLockActivity extends BaseActivity {
     }
 
     private void progressChange(int progress) {
-        if(progress == 0) {
+        if(progress >= 0 && progress < 10) {
             mTvTime.setText("0s");
-        } else if(progress == 10) {
+        } else if(progress >= 10 && progress < 20) {
             mTvTime.setText("5s");
-        } else if(progress == 20) {
+        } else if(progress >= 20 && progress < 30) {
             mTvTime.setText("10s");
-        } else if(progress == 30) {
+        } else if(progress >= 30 && progress < 40) {
             mTvTime.setText("15s");
-        } else if(progress == 40) {
+        } else if(progress >= 40 && progress < 50) {
             mTvTime.setText("20s");
-        } else if(progress == 50) {
+        } else if(progress >= 50 && progress < 60) {
             mTvTime.setText("25s");
-        } else if(progress == 60) {
+        } else if(progress >= 60 && progress < 70) {
             mTvTime.setText("30s");
-        } else if(progress == 70) {
+        } else if(progress >= 70 && progress < 80) {
             mTvTime.setText("1min");
-        } else if(progress == 80) {
+        } else if(progress >= 80 && progress < 90) {
             mTvTime.setText("2min");
-        } else if(progress == 90) {
+        } else if(progress >= 90 && progress < 100) {
             mTvTime.setText("5min");
-        } else if(progress == 100) {
+        } else if(progress >= 100 && progress < 110) {
             mTvTime.setText("10min");
-        } else if(progress == 110) {
+        } else if(progress >= 110 && progress < 120) {
             mTvTime.setText("15min");
-        } else if(progress == 120) {
+        } else if(progress >= 120 && progress < 130) {
             mTvTime.setText("20min");
-        } else if(progress == 140) {
+        } else if(progress >= 130 && progress < 140) {
             mTvTime.setText("30min");
         }
     }
 
-    private OnBleDeviceListener mOnBleDeviceListener = new OnBleDeviceListener() {
+    private final OnBleDeviceListener mOnBleDeviceListener = new OnBleDeviceListener() {
         @Override
         public void onConnected(@NotNull String mac) {
 
@@ -553,6 +554,16 @@ public class AutoLockActivity extends BaseActivity {
     private void saveAutoLockTimeToLocal() {
         mBleDeviceLocal.setSetAutoLockTime(mTime);
         AppDatabase.getInstance(this).bleDeviceDao().update(mBleDeviceLocal);
+    }
+
+    private String getTimeString(int time) {
+        String timeStr;
+        if(time < 60) {
+            timeStr = time+"s";
+        } else {
+            timeStr = (time/60) + "min";
+        }
+        return timeStr;
     }
 
 }
