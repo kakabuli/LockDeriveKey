@@ -358,6 +358,9 @@ public class AddWifiActivity extends BaseActivity {
         runOnUiThread(() -> {
             if(mWifiListPopup != null) {
                 mWifiListPopup.updateWifiList(mWifiSnList);
+                if(mWifiSnList.isEmpty()) {
+                    return;
+                }mEtWifiName.setText(mWifiSnList.get(0));
             }
         });
 
