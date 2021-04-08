@@ -185,6 +185,7 @@ public class MqttCommandFactory {
 
     private static String getEncryptString(byte[] pwd, Object src) {
         String json = new Gson().toJson(src);
+        Timber.d("MQtt 发送数据未加密： %1s", json);
         // 先AES加密
         byte[] aesJson = EncryptUtils.encryptAES(json.getBytes(StandardCharsets.UTF_8), pwd, "AES/ECB/PKCS5Padding", null);
         // 后Base64字符串编码
