@@ -294,7 +294,7 @@ public class DoorSensorCheckActivity extends BaseActivity {
                 }
                 if(mqttData.getFunc().equals(MqttConstant.SET_MAGNETIC)) {
                     dismissLoading();
-                    Timber.d("设置门磁: %1s", mqttData);
+                    Timber.d("publishSetMagnetic 设置门磁: %1s", mqttData);
                     WifiLockSetMagneticResponseBean bean;
                     try {
                         bean = GsonUtils.fromJson(mqttData.getPayload(), WifiLockSetMagneticResponseBean.class);
@@ -303,20 +303,24 @@ public class DoorSensorCheckActivity extends BaseActivity {
                         return;
                     }
                     if(bean == null) {
-                        Timber.e("bean == null");
+                        Timber.e("publishSetMagnetic bean == null");
                         return;
                     }
                     if(bean.getMsgId() == mLastMsgId) {
-                        Timber.e("过滤重复数据ID， msgId: %1d, lastMsgId: %2d", bean.getMsgId(), mLastMsgId);
+                        Timber.e("publishSetMagnetic 过滤重复数据ID， msgId: %1d, lastMsgId: %2d", bean.getMsgId(), mLastMsgId);
                         return;
                     }
                     mLastMsgId = bean.getMsgId();
                     if(bean.getParams() == null) {
-                        Timber.e("bean.getParams() == null");
+                        Timber.e("publishSetMagnetic bean.getParams() == null");
                         return;
                     }
                     if(bean.getCode() != 200) {
-                        Timber.e("code : %1d", bean.getCode());
+                        Timber.e("publishSetMagnetic code : %1d", bean.getCode());
+                        if(bean.getCode() == 201) {
+                            // 门磁校验失败
+                            gotoFailAct();
+                        }
                         return;
                     }
                     // 排除掉第一次发送禁用门磁指令的状态反馈
