@@ -490,6 +490,7 @@ public class DeviceDetailActivity extends BaseActivity {
                 .filter(mqttData -> mqttData.getFunc().equals(MqttConstant.SET_LOCK) || mqttData.getFunc().equals(MqttConstant.WF_EVENT))
                 .subscribe(mqttData -> {
                     mCount = 0;
+                    toDisposable(mOpenOrCloseLockDisposable);
                     processOpenOrClose(mqttData);
                 }, e -> {
                     dismissLoading();

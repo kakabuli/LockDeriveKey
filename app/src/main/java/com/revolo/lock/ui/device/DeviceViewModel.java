@@ -9,7 +9,6 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import com.blankj.utilcode.util.GsonUtils;
-import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import com.revolo.lock.App;
 import com.revolo.lock.mqtt.MqttCommandFactory;
@@ -32,11 +31,11 @@ public class DeviceViewModel extends ViewModel {
     public DeviceViewModel() {
 
         mWifiListBean = new MutableLiveData<>();
-        new Handler(Looper.getMainLooper()).postDelayed(this::initGetAllBindDevicesFromMQTT, 200);
+        new Handler(Looper.getMainLooper()).postDelayed(this::refreshGetAllBindDevicesFromMQTT, 200);
 
     }
 
-    public void initGetAllBindDevicesFromMQTT() {
+    public void refreshGetAllBindDevicesFromMQTT() {
         if(App.getInstance().getUserBean() == null) {
             return;
         }

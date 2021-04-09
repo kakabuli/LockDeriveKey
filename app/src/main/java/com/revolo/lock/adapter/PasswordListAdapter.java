@@ -1,5 +1,6 @@
 package com.revolo.lock.adapter;
 
+import android.annotation.SuppressLint;
 import android.text.TextUtils;
 import android.widget.TextView;
 
@@ -15,7 +16,9 @@ import com.revolo.lock.ble.BleByteUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.text.SimpleDateFormat;
 import java.util.List;
+import java.util.TimeZone;
 
 import static com.revolo.lock.ble.BleCommandState.KEY_SET_ATTRIBUTE_ALWAYS;
 import static com.revolo.lock.ble.BleCommandState.KEY_SET_ATTRIBUTE_TIME_KEY;
@@ -34,6 +37,7 @@ public class PasswordListAdapter extends BaseQuickAdapter<DevicePwdBean, BaseVie
 
     public PasswordListAdapter(int layoutResId) {
         super(layoutResId);
+        initZeroTimeZoneDate();
     }
 
     @Override
@@ -97,11 +101,22 @@ public class PasswordListAdapter extends BaseQuickAdapter<DevicePwdBean, BaseVie
             long startTimeMill = devicePwdBean.getStartTime()*1000;
             long endTimeMill = devicePwdBean.getEndTime()*1000;
             detail = weekly
-                    + TimeUtils.millis2String(startTimeMill, "HH:mm")
+                    + TimeUtils.millis2String(startTimeMill, mZeroTimeZoneDateFormat)
                     + " - "
-                    + TimeUtils.millis2String(endTimeMill, "HH:mm");
+                    + TimeUtils.millis2String(endTimeMill, mZeroTimeZoneDateFormat);
         }
         return detail;
+    }
+
+    /*------------------------------- 零时区的时间解析时间 ------------------------------*/
+
+    // 因为周策略的时间锁端用的是零时区时间设置的，所以需要转换为零时区时间设置
+    private SimpleDateFormat mZeroTimeZoneDateFormat;
+
+    @SuppressLint("SimpleDateFormat")
+    private void initZeroTimeZoneDate() {
+        mZeroTimeZoneDateFormat = new SimpleDateFormat("HH:mm");
+        mZeroTimeZoneDateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
     }
 
 }

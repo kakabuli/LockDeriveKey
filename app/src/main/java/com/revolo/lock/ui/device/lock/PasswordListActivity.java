@@ -35,6 +35,8 @@ import com.revolo.lock.ble.bean.BleResultBean;
 import com.revolo.lock.net.HttpRequest;
 import com.revolo.lock.net.ObservableDecorator;
 import com.revolo.lock.room.entity.BleDeviceLocal;
+import com.scwang.smart.refresh.header.ClassicsHeader;
+import com.scwang.smart.refresh.layout.api.RefreshLayout;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -63,6 +65,7 @@ public class PasswordListActivity extends BaseActivity {
 
     private PasswordListAdapter mPasswordListAdapter;
     private BleDeviceLocal mBleDeviceLocal;
+    private RefreshLayout mRefreshLayout;
 
     @Override
     public void initData(@Nullable Bundle bundle) {
@@ -99,6 +102,11 @@ public class PasswordListActivity extends BaseActivity {
         });
         rvPwdList.setAdapter(mPasswordListAdapter);
         initLoading("Loading...");
+
+        mRefreshLayout = findViewById(R.id.refreshLayout);
+        mRefreshLayout.setEnableLoadMore(false);
+        mRefreshLayout.setRefreshHeader(new ClassicsHeader(this));
+        mRefreshLayout.setOnRefreshListener(refreshLayout -> searchPwdListFromNET());
     }
 
     @Override
@@ -150,6 +158,9 @@ public class PasswordListActivity extends BaseActivity {
 
             @Override
             public void onNext(@NonNull SearchKeyListBeanRsp searchKeyListBeanRsp) {
+                if(mRefreshLayout != null) {
+                    mRefreshLayout.finishRefresh();
+                }
                 processKeyListFromNet(searchKeyListBeanRsp);
             }
 
@@ -213,7 +224,6 @@ public class PasswordListActivity extends BaseActivity {
             devicePwdBean.setPwdName(bean.getNickName());
             devicePwdBean.setStartTime(bean.getStartTime());
             devicePwdBean.setEndTime(bean.getEndTime());
-//            @BleCommandState.KeySetAttribute int attribute = getPwdAttribute(bean.getType());
             @BleCommandState.KeySetAttribute int attribute = bean.getType();
             devicePwdBean.setAttribute(attribute);
             setWeeklyFromNetData(bean, devicePwdBean, attribute);
@@ -255,18 +265,6 @@ public class PasswordListActivity extends BaseActivity {
             if(isSaveWeekly) {
                 devicePwdBean.setWeekly(BleByteUtil.bitToByte(weekBit));
             }
-        }
-    }
-
-    private int getPwdAttribute(int type) {
-        if(type == 1) {
-            return BleCommandState.KEY_SET_ATTRIBUTE_ALWAYS;
-        } else if(type == 2) {
-            return BleCommandState.KEY_SET_ATTRIBUTE_TIME_KEY;
-        } else if(type == 3) {
-            return BleCommandState.KEY_SET_ATTRIBUTE_WEEK_KEY;
-        } else {
-            return BleCommandState.KEY_SET_ATTRIBUTE_ALWAYS;
         }
     }
 
@@ -337,6 +335,9 @@ public class PasswordListActivity extends BaseActivity {
     private void inCasePwdEmptyThanUseBleCheck() {
         if(mBleDeviceLocal.getConnectedType() != LocalState.DEVICE_CONNECT_TYPE_WIFI) {
             checkHadPwdFromBle();
+        } else {
+            // 清空数据
+            mPasswordListAdapter.setList(new ArrayList<>());
         }
     }
 

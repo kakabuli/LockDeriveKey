@@ -1,7 +1,10 @@
 package com.revolo.lock.ui.device.lock;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.TextView;
@@ -41,8 +44,10 @@ import com.revolo.lock.room.entity.BleDeviceLocal;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 
 import io.reactivex.Observable;
@@ -107,6 +112,9 @@ public class PasswordDetailActivity extends BaseActivity {
         mTvPwd = findViewById(R.id.tvPwd);
         mTvCreationDate = findViewById(R.id.tvCreationDate);
         mTvPwdCharacteristic  = findViewById(R.id.tvPwdCharacteristic);
+        initZeroTimeZoneDate();
+        initSucMessageDialog();
+        initFailMessageDialog();
         initLoading("Deleting...");
     }
 
@@ -133,6 +141,13 @@ public class PasswordDetailActivity extends BaseActivity {
         if(view.getId() == R.id.btnDeletePwd) {
             showDelDialog();
         }
+    }
+
+    @Override
+    protected void onDestroy() {
+        mSucMessageDialog = null;
+        mFailMessageDialog = null;
+        super.onDestroy();
     }
 
     private void initDetail() {
@@ -182,9 +197,9 @@ public class PasswordDetailActivity extends BaseActivity {
             long startTimeMill = devicePwdBean.getStartTime()*1000;
             long endTimeMill = devicePwdBean.getEndTime()*1000;
             detail = weekly
-                    + TimeUtils.millis2String(startTimeMill, "HH:mm")
+                    + TimeUtils.millis2String(startTimeMill, mZeroTimeZoneDateFormat)
                     + " - "
-                    + TimeUtils.millis2String(endTimeMill, "HH:mm");
+                    + TimeUtils.millis2String(endTimeMill, mZeroTimeZoneDateFormat);
         }
         return detail;
     }
@@ -200,62 +215,60 @@ public class PasswordDetailActivity extends BaseActivity {
         dialog.show();
     }
 
+    private Disposable mDelPwdDisposable;
+
     private void publishDelPwd(String wifiId, int num) {
-        App.getInstance().getMqttService().mqttPublish(MqttConstant.getCallTopic(App.getInstance().getUserBean().getUid()),
+        if(mMQttService == null) {
+            Timber.e("publishDelPwd mMQttService == null");
+            return;
+        }
+        toDisposable(mDelPwdDisposable);
+        mDelPwdDisposable = mMQttService
+                .mqttPublish(MqttConstant.getCallTopic(App.getInstance().getUserBean().getUid()),
                 MqttCommandFactory.removePwd(
                         wifiId,
                         0,
                         num,
                         BleCommandFactory.getPwd(ConvertUtils.hexString2Bytes(mBleDeviceLocal.getPwd1()), ConvertUtils.hexString2Bytes(mBleDeviceLocal.getPwd2()))))
-                .timeout(DEFAULT_TIMEOUT_SEC_VALUE, TimeUnit.SECONDS).safeSubscribe(new Observer<MqttData>() {
-            @Override
-            public void onSubscribe(@NotNull Disposable d) {
-
-            }
-
-            @Override
-            public void onNext(@NotNull MqttData mqttData) {
-                if(TextUtils.isEmpty(mqttData.getFunc())) {
-                    return;
-                }
-                if(mqttData.getFunc().equals(MqttConstant.REMOVE_PWD)) {
+                .timeout(DEFAULT_TIMEOUT_SEC_VALUE, TimeUnit.SECONDS)
+                .filter(mqttData -> mqttData.getFunc().equals(MqttConstant.REMOVE_PWD))
+                .subscribe(this::processDelPwd, e -> {
                     dismissLoading();
-                    Timber.d("删除密码信息: %1s", mqttData);
-                    WifiLockRemovePasswordResponseBean bean;
-                    try {
-                        bean = GsonUtils.fromJson(mqttData.getPayload(), WifiLockRemovePasswordResponseBean.class);
-                    } catch (JsonSyntaxException e) {
-                        Timber.e(e);
-                        return;
-                    }
-                    if(bean == null) {
-                        Timber.e("publishDelPwd bean == null");
-                        return;
-                    }
-                    if(bean.getParams() == null) {
-                        Timber.e("publishDelPwd bean.getParams() == null");
-                        return;
-                    }
-                    if(bean.getCode() != 200) {
-                        Timber.e("publishDelPwd code : %1d", bean.getCode());
-                        return;
-                    }
-                    delKeyFromService();
-                }
-                Timber.d("publishDelPwd %1s", mqttData.toString());
-            }
+                    Timber.e(e);
+                });
+        mCompositeDisposable.add(mDelPwdDisposable);
+    }
 
-            @Override
-            public void onError(@NotNull Throwable e) {
-                dismissLoading();
+    private void processDelPwd(MqttData mqttData) {
+        toDisposable(mDelPwdDisposable);
+        if(TextUtils.isEmpty(mqttData.getFunc())) {
+            return;
+        }
+        if(mqttData.getFunc().equals(MqttConstant.REMOVE_PWD)) {
+            dismissLoading();
+            Timber.d("删除密码信息: %1s", mqttData);
+            WifiLockRemovePasswordResponseBean bean;
+            try {
+                bean = GsonUtils.fromJson(mqttData.getPayload(), WifiLockRemovePasswordResponseBean.class);
+            } catch (JsonSyntaxException e) {
                 Timber.e(e);
+                return;
             }
-
-            @Override
-            public void onComplete() {
-
+            if(bean == null) {
+                Timber.e("publishDelPwd bean == null");
+                return;
             }
-        });
+            if(bean.getParams() == null) {
+                Timber.e("publishDelPwd bean.getParams() == null");
+                return;
+            }
+            if(bean.getCode() != 200) {
+                Timber.e("publishDelPwd code : %1d", bean.getCode());
+                return;
+            }
+            delKeyFromService();
+        }
+        Timber.d("publishDelPwd %1s", mqttData.toString());
     }
 
     private void delPwd() {
@@ -326,25 +339,44 @@ public class PasswordDetailActivity extends BaseActivity {
         showSucMessage();
     }
 
+    private MessageDialog mFailMessageDialog;
+    private MessageDialog mSucMessageDialog;
+
+    private void initSucMessageDialog() {
+        mSucMessageDialog = new MessageDialog(PasswordDetailActivity.this);
+        mSucMessageDialog.setMessage(getString(R.string.dialog_tip_password_deleted));
+        mSucMessageDialog.setOnListener(v -> {
+            if(mSucMessageDialog != null) {
+                mSucMessageDialog.dismiss();
+                new Handler(Looper.getMainLooper()).postDelayed(this::finish,50);
+            }
+        });
+    }
+
     private void showSucMessage() {
         runOnUiThread(() -> {
-            MessageDialog messageDialog = new MessageDialog(PasswordDetailActivity.this);
-            messageDialog.setMessage(getString(R.string.dialog_tip_password_deleted));
-            messageDialog.setOnListener(v -> {
-                messageDialog.dismiss();
-                finish();
-            });
-            messageDialog.show();
+            if(mSucMessageDialog != null) {
+                mSucMessageDialog.show();
+            }
         });
 
     }
 
+    private void initFailMessageDialog() {
+        mFailMessageDialog = new MessageDialog(this);
+        mFailMessageDialog.setMessage(getString(R.string.dialog_tip_deletion_failed_door_lock_bluetooth_is_not_found));
+        mFailMessageDialog.setOnListener(v -> {
+            if(mFailMessageDialog != null) {
+                mFailMessageDialog.dismiss();
+            }
+        });
+    }
+
     private void showFailMessage() {
         runOnUiThread(() -> {
-            MessageDialog messageDialog = new MessageDialog(PasswordDetailActivity.this);
-            messageDialog.setMessage(getString(R.string.dialog_tip_deletion_failed_door_lock_bluetooth_is_not_found));
-            messageDialog.setOnListener(v -> messageDialog.dismiss());
-            messageDialog.show();
+            if(mFailMessageDialog != null) {
+                mFailMessageDialog.show();
+            }
         });
 
     }
@@ -399,7 +431,6 @@ public class PasswordDetailActivity extends BaseActivity {
         pwdListBean.setNum(mDevicePwdBean.getPwdNum());
         pwdListBean.setPwdType(1);
         listBeans.add(pwdListBean);
-
         // TODO: 2021/2/24 服务器删除失败，需要检查如何通过服务器再删除，下面所有
         BleDeviceLocal bleDeviceLocal = AppDatabase.getInstance(this).bleDeviceDao().findBleDeviceFromId(mDevicePwdBean.getDeviceId());
         if(bleDeviceLocal == null) {
@@ -430,11 +461,11 @@ public class PasswordDetailActivity extends BaseActivity {
             Timber.e("delKeyFromService token is Empty");
             return;
         }
+        showLoading();
         DelKeyBeanReq req = new DelKeyBeanReq();
         req.setPwdList(listBeans);
         req.setSn(esn);
         req.setUid(uid);
-
         Observable<DelKeyBeanRsp> observable = HttpRequest.getInstance().delKey(token, req);
         ObservableDecorator.decorate(observable).safeSubscribe(new Observer<DelKeyBeanRsp>() {
             @Override
@@ -480,6 +511,17 @@ public class PasswordDetailActivity extends BaseActivity {
 
             }
         });
+    }
+
+    /*------------------------------- 零时区的时间解析时间 ------------------------------*/
+
+    // 因为周策略的时间锁端用的是零时区时间设置的，所以需要转换为零时区时间设置
+    private SimpleDateFormat mZeroTimeZoneDateFormat;
+
+    @SuppressLint("SimpleDateFormat")
+    private void initZeroTimeZoneDate() {
+        mZeroTimeZoneDateFormat = new SimpleDateFormat("HH:mm");
+        mZeroTimeZoneDateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
     }
 
 }

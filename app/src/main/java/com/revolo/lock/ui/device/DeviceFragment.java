@@ -50,6 +50,8 @@ import com.revolo.lock.ui.MainActivity;
 import com.revolo.lock.ui.TitleBar;
 import com.revolo.lock.ui.device.add.AddDeviceActivity;
 import com.revolo.lock.ui.device.lock.DeviceDetailActivity;
+import com.scwang.smart.refresh.header.ClassicsHeader;
+import com.scwang.smart.refresh.layout.api.RefreshLayout;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -72,6 +74,7 @@ public class DeviceFragment extends Fragment {
     private HomeLockListAdapter mHomeLockListAdapter;
     private ConstraintLayout mClNoDevice, mClHadDevice;
     private CustomerLoadingDialog mLoadingDialog;
+    private RefreshLayout mRefreshLayout;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -124,6 +127,11 @@ public class DeviceFragment extends Fragment {
             }
         }
 
+        mRefreshLayout = root.findViewById(R.id.refreshLayout);
+        mRefreshLayout.setEnableLoadMore(false);
+        mRefreshLayout.setRefreshHeader(new ClassicsHeader(getContext()));
+        mRefreshLayout.setOnRefreshListener(refreshLayout -> mDeviceViewModel.refreshGetAllBindDevicesFromMQTT());
+
         return root;
     }
 
@@ -165,6 +173,9 @@ public class DeviceFragment extends Fragment {
     }
 
     private void updateDataFromNet(List<WifiLockGetAllBindDeviceRspBean.DataBean.WifiListBean> wifiListBeans) {
+        if(mRefreshLayout != null) {
+            mRefreshLayout.finishRefresh();
+        }
         mBleDeviceLocals.clear();
         for (WifiLockGetAllBindDeviceRspBean.DataBean.WifiListBean wifiListBean : wifiListBeans) {
             // TODO: 2021/2/26 后期再考虑是否需要多条件合并查询
@@ -255,11 +266,12 @@ public class DeviceFragment extends Fragment {
     private void processBleResult(@NotNull String mac, BleResultBean bean) {
         if(bean.getCMD() == BleProtocolState.CMD_LOCK_INFO) {
             lockInfo(mac, bean);
-        } else if(bean.getCMD() == BleProtocolState.CMD_LOCK_CONTROL_ACK) {
-//            controlOpenOrCloseDoorAck(mac, bean);
         } else if(bean.getCMD() == BleProtocolState.CMD_LOCK_UPLOAD) {
             lockUpdateInfo(mac, bean);
         }
+//        else if(bean.getCMD() == BleProtocolState.CMD_LOCK_CONTROL_ACK) {
+////            controlOpenOrCloseDoorAck(mac, bean);
+//        }
     }
 
     private void lockInfo(@NotNull String mac, BleResultBean bean) {
@@ -341,9 +353,10 @@ public class DeviceFragment extends Fragment {
                 } else if(eventCode == 0x02) {
                     // 开锁
                     setLockState(getPositionFromMac(mac), LocalState.LOCK_STATE_OPEN);
-                } else {
-                    // TODO: 2021/2/10 其他处理
                 }
+//                else {
+//                    // TODO: 2021/2/10 其他处理
+//                }
             } else if(eventType == 0x04) {
                 // sensor附加状态，门磁
                 if(eventCode == LocalState.DOOR_SENSOR_OPEN) {
@@ -356,9 +369,10 @@ public class DeviceFragment extends Fragment {
                     // 门磁异常
                     // TODO: 2021/3/31 门磁异常的操作
                     Timber.d("lockUpdateInfo 门磁异常");
-                } else {
-                    // TODO: 2021/3/31 异常值
                 }
+//                else {
+//                    // TODO: 2021/3/31 异常值
+//                }
             }
         });
     }
