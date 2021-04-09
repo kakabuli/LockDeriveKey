@@ -165,6 +165,14 @@ public class DoorSensorCheckActivity extends BaseActivity {
                     }
                     break;
                 case DOOR_SUC:
+                    if(isGoToAddWifi) {
+                        gotoAddWifi();
+                    } else {
+                        mBleDeviceLocal.setOpenDoorSensor(true);
+                        AppDatabase.getInstance(this).bleDeviceDao().update(mBleDeviceLocal);
+                        new Handler(Looper.getMainLooper()).postDelayed(this::finish, 50);
+                    }
+                    break;
                 case DOOR_FAIL:
                     break;
 
@@ -332,6 +340,9 @@ public class DoorSensorCheckActivity extends BaseActivity {
                 publishSetMagnetic(mBleDeviceLocal.getEsn(), BleCommandState.DOOR_CALIBRATION_STATE_START_SE);
                 return;
             }
+            if(bean.getParams().getMode() == BleCommandState.DOOR_CALIBRATION_STATE_START_SE) {
+                mDoorState = DOOR_SUC;
+            }
             refreshCurrentUI();
         }
         Timber.d("%1s", mqttData.toString());
@@ -440,6 +451,9 @@ public class DoorSensorCheckActivity extends BaseActivity {
                 if(mCalibrationState == BleCommandState.DOOR_CALIBRATION_STATE_HALF) {
                     sendCommand(BleCommandState.DOOR_CALIBRATION_STATE_START_SE);
                     return;
+                }
+                if(mCalibrationState == BleCommandState.DOOR_CALIBRATION_STATE_START_SE) {
+                    mDoorState = DOOR_SUC;
                 }
                 refreshCurrentUI();
             } else {
