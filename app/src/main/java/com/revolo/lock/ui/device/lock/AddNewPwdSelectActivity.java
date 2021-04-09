@@ -886,6 +886,9 @@ public class AddNewPwdSelectActivity extends BaseActivity {
     private void dataRequestService(@NotNull DevicePwdBean devicePwdBean,
                                     @NotNull LockKeyAddBeanReq req,
                                     @NotNull String token) {
+        if(!checkNetConnectFail()) {
+            return;
+        }
         Observable<LockKeyAddBeanRsp> observable = HttpRequest.getInstance().addLockKey(token, req);
         ObservableDecorator.decorate(observable).safeSubscribe(new Observer<LockKeyAddBeanRsp>() {
             @Override

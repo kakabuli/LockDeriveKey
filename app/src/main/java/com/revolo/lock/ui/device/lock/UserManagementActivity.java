@@ -102,6 +102,9 @@ public class UserManagementActivity extends BaseActivity {
     }
 
     private void getAllSharedUserFromLock() {
+        if(!checkNetConnectFail()) {
+            return;
+        }
         if(App.getInstance().getUserBean() == null) {
             Timber.e("getAllSharedUserFromLock App.getInstance().getUserBean() == null");
             return;

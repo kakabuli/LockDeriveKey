@@ -226,7 +226,9 @@ public class RegisterAddAvatarActivity extends BaseActivity implements EasyPermi
     }
 
     private void uploadUserAvatar(@NotNull File avatarFile) {
-
+        if(!checkNetConnectFail()) {
+            return;
+        }
         if(App.getInstance().getUserBean() == null) {
             Timber.e("uploadUserAvatar App.getInstance().getUserBean() == null");
             return;

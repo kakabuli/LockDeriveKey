@@ -61,6 +61,9 @@ public class FeedbackActivity extends BaseActivity {
     }
 
     private void feedback() {
+        if(!checkNetConnectFail()) {
+            return;
+        }
         String feedbackStr = ((TextView) findViewById(R.id.etFeedback)).getText().toString().trim();
         if(TextUtils.isEmpty(feedbackStr)) {
             ToastUtils.showShort("Please enter feedback content!");

@@ -16,6 +16,8 @@ import androidx.core.content.ContextCompat;
 
 import com.blankj.utilcode.util.AdaptScreenUtils;
 import com.blankj.utilcode.util.ClickUtils;
+import com.blankj.utilcode.util.NetworkUtils;
+import com.blankj.utilcode.util.ToastUtils;
 import com.revolo.lock.mqtt.MqttService;
 import com.revolo.lock.shulan.KeepAliveManager;
 import com.revolo.lock.shulan.config.ForegroundNotification;
@@ -205,6 +207,14 @@ public abstract class BaseActivity extends AppCompatActivity
         if (disposable != null && !disposable.isDisposed()) {
             disposable.dispose();
         }
+    }
+
+    public boolean checkNetConnectFail() {
+        if(!NetworkUtils.isConnected()) {
+            // TODO: 2021/4/9 抽离文字
+            ToastUtils.showShort("Connect Net Fail!");
+        }
+        return NetworkUtils.isConnected();
     }
 
 }

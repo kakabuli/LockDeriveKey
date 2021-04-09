@@ -119,6 +119,9 @@ public class LoginActivity extends BaseActivity {
     }
 
     private void login() {
+        if(!checkNetConnectFail()) {
+            return;
+        }
         String mail = mEtEmail.getText().toString().trim();
         String pwd = mEtPwd.getText().toString();
         // TODO: 2021/1/26 提示语抽离同时修正

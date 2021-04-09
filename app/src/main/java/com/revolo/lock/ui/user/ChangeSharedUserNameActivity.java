@@ -73,6 +73,9 @@ public class ChangeSharedUserNameActivity extends BaseActivity {
     }
 
     private void updateSharedUserName() {
+        if(!checkNetConnectFail()) {
+            return;
+        }
         String name = etName.getText().toString().trim();
         if(TextUtils.isEmpty(name)) {
             // TODO: 2021/3/14 修改提示语

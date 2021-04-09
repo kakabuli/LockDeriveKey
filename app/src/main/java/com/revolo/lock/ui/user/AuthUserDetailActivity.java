@@ -126,6 +126,9 @@ public class AuthUserDetailActivity extends BaseActivity {
     }
 
     private void searchUserDevice() {
+        if(!checkNetConnectFail()) {
+            return;
+        }
         if(App.getInstance().getUserBean() == null) {
             Timber.e("searchUserDevice App.getInstance().getUserBean() == null");
             return;

@@ -99,6 +99,9 @@ public class ForgetThePwdActivity extends BaseActivity {
     }
 
     private void getCode() {
+        if(!checkNetConnectFail()) {
+            return;
+        }
         String mail = ((EditText) findViewById(R.id.etEmail)).getText().toString().trim();
         // TODO: 2021/2/2 修正提示语
         if(TextUtils.isEmpty(mail)) {
@@ -161,6 +164,9 @@ public class ForgetThePwdActivity extends BaseActivity {
     }
 
     private void forgetPwd() {
+        if(!checkNetConnectFail()) {
+            return;
+        }
         String mail = ((EditText) findViewById(R.id.etEmail)).getText().toString().trim();
         // TODO: 2021/2/2 修正提示语
         if(TextUtils.isEmpty(mail)) {

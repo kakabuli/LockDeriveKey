@@ -71,6 +71,9 @@ public class ChangeLockNameActivity extends BaseActivity {
     }
 
     private void changeDeviceName() {
+        if(!checkNetConnectFail()) {
+            return;
+        }
         EditText etLockName = findViewById(R.id.etLockName);
         String name = etLockName.getText().toString().trim();
         if(TextUtils.isEmpty(name)) {

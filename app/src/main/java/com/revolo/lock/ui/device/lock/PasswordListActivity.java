@@ -129,6 +129,9 @@ public class PasswordListActivity extends BaseActivity {
     /*-------------------------------- 密钥数据从服务器库获取 ---------------------------------*/
 
     private void searchPwdListFromNET() {
+        if(!checkNetConnectFail()) {
+            return;
+        }
         // TODO: 2021/2/24 异常情况处理
         if(App.getInstance().getUserBean() == null) {
             Timber.e("searchPwdListFromNET App.getInstance().getUserBean() == null");

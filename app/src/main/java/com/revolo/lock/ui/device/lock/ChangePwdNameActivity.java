@@ -80,6 +80,9 @@ public class ChangePwdNameActivity extends BaseActivity {
     }
 
     private void sendPwdDataToServiceAndLocal() {
+        if(!checkNetConnectFail()) {
+            return;
+        }
         EditText etPwdName = findViewById(R.id.etPwdName);
         String pwdName = etPwdName.getText().toString().trim();
         if(TextUtils.isEmpty(pwdName)) {

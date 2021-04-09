@@ -425,7 +425,9 @@ public class PasswordDetailActivity extends BaseActivity {
     };
 
     private void delKeyFromService() {
-
+        if(!checkNetConnectFail()) {
+            return;
+        }
         List<DelKeyBeanReq.PwdListBean> listBeans = new ArrayList<>();
         DelKeyBeanReq.PwdListBean pwdListBean = new DelKeyBeanReq.PwdListBean();
         pwdListBean.setNum(mDevicePwdBean.getPwdNum());

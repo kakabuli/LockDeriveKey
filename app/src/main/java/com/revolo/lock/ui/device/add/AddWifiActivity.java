@@ -2,6 +2,8 @@ package com.revolo.lock.ui.device.add;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.text.InputType;
 import android.text.TextUtils;
 import android.view.Gravity;
@@ -250,6 +252,13 @@ public class AddWifiActivity extends BaseActivity {
         App.getInstance().writeControlMsg(BleCommandFactory
                         .checkLockBaseInfoCommand(mBleBean.getPwd1(), mBleBean.getPwd3()),
                 mBleBean.getOKBLEDeviceImp());
+        // 临时加一个6秒后执行取消loading
+        new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                dismissLoading();
+            }
+        }, 6000);
     }
 
     private void receiveLockBaseInfo(BleResultBean bleResultBean) {

@@ -260,6 +260,9 @@ public class DoorLockInformationActivity extends BaseActivity {
     /*------------------------- 前板 ------------------------------*/
 
     private void checkFirmwareOTAVer(String ver) {
+        if(!checkNetConnectFail()) {
+            return;
+        }
         CheckOTABeanReq req = new CheckOTABeanReq();
         // TODO: 2021/2/9 先暂时使用16，后面制定好规范
         req.setCustomer(16);
@@ -331,6 +334,9 @@ public class DoorLockInformationActivity extends BaseActivity {
     }
 
     private void checkOrUseFirmwareOTAUpdateVer() {
+        if(!checkNetConnectFail()) {
+            return;
+        }
         if(mCheckFirmwareOTABeanRsp == null) {
             return;
         }
@@ -400,6 +406,9 @@ public class DoorLockInformationActivity extends BaseActivity {
     }
 
     private void checkWifiOTAVer(String ver) {
+        if(!checkNetConnectFail()) {
+            return;
+        }
         CheckOTABeanReq req = new CheckOTABeanReq();
         // TODO: 2021/2/9 先暂时使用16，后面制定好规范
         req.setCustomer(16);
@@ -472,6 +481,9 @@ public class DoorLockInformationActivity extends BaseActivity {
     }
 
     private void checkOrUseWifiOTAUpdateVer() {
+        if(!checkNetConnectFail()) {
+            return;
+        }
         if(mCheckWifiOTABeanRsp == null) {
             return;
         }
@@ -532,6 +544,9 @@ public class DoorLockInformationActivity extends BaseActivity {
     /*----------------------------- 多固件版本升级 ------------------------------*/
 
     private void checkAllOTAVer(String firmwareVer, String wifiVer) {
+        if(!checkNetConnectFail()) {
+            return;
+        }
         if(App.getInstance().getUserBean() == null) {
             Timber.e("checkAllOTAVer App.getInstance().getUserBean() == null");
             return;
@@ -642,6 +657,9 @@ public class DoorLockInformationActivity extends BaseActivity {
     }
 
     private void checkOrUseAllOTAUpdateVer() {
+        if(!checkNetConnectFail()) {
+            return;
+        }
         String token = App.getInstance().getUserBean().getToken();
         if(mAllOTADataBean == null) {
             return;

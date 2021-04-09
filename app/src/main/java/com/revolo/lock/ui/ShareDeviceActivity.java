@@ -90,6 +90,9 @@ public class ShareDeviceActivity extends BaseActivity {
     }
 
     private void acceptShare() {
+        if(!checkNetConnectFail()) {
+            return;
+        }
         if(App.getInstance() == null) {
             Timber.e("acceptShare App.getInstance() == null");
             ToastUtils.showShort("Please sign in!");

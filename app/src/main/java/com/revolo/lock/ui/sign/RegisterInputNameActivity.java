@@ -70,6 +70,9 @@ public class RegisterInputNameActivity extends BaseActivity {
     }
 
     private void updateFirstLastName() {
+        if(!checkNetConnectFail()) {
+            return;
+        }
         String firstName = etFirstName.getText().toString().trim();
         if(TextUtils.isEmpty(firstName)) {
             // TODO: 2021/3/13 抽离文字

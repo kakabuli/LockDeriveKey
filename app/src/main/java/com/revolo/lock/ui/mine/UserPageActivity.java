@@ -264,7 +264,9 @@ public class UserPageActivity extends BaseActivity implements EasyPermissions.Pe
     }
 
     private void uploadUserAvatar(@NotNull File avatarFile) {
-
+        if(!checkNetConnectFail()) {
+            return;
+        }
         if(App.getInstance().getUserBean() == null) {
             Timber.e("uploadUserAvatar App.getInstance().getUserBean() == null");
             return;
@@ -383,6 +385,9 @@ public class UserPageActivity extends BaseActivity implements EasyPermissions.Pe
     }
 
     private void logout() {
+        if(!checkNetConnectFail()) {
+            return;
+        }
         if(App.getInstance().getUserBean() == null) {
             return;
         }

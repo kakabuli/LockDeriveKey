@@ -153,6 +153,9 @@ public class SharedUserDetailActivity extends BaseActivity {
     }
 
     private void removeUser() {
+        if(!checkNetConnectFail()) {
+            return;
+        }
         if(mSharedUserData == null) {
             Timber.e("removeUser mSharedUserData == null");
             return;
@@ -238,6 +241,9 @@ public class SharedUserDetailActivity extends BaseActivity {
     }
 
     private void switchUserEnable(boolean isEnable) {
+        if(!checkNetConnectFail()) {
+            return;
+        }
         if(mSharedUserData == null) {
             Timber.e("switchUserEnable mSharedUserData == null");
             return;
@@ -302,6 +308,9 @@ public class SharedUserDetailActivity extends BaseActivity {
     }
 
     private void switchUserAuthority(boolean isFamily) {
+        if(!checkNetConnectFail()) {
+            return;
+        }
         if(mSharedUserData == null) {
             Timber.e("switchUserAuthority mSharedUserData == null");
             return;

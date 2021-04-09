@@ -340,6 +340,9 @@ public class OperationRecordsActivity extends BaseActivity {
     /*--------------------------------- 服务器 -------------------------------------*/
 
     private void searchRecordFromNet(int page, boolean isNeedBleGetRecords) {
+        if(!checkNetConnectFail()) {
+            return;
+        }
         if(App.getInstance().getUserBean()  == null) {
             Timber.e("searchRecordFromNet App.getInstance().getUserBean()  == null");
             return;
@@ -453,6 +456,9 @@ public class OperationRecordsActivity extends BaseActivity {
     }
 
     private void uploadRecordsToService(List<LockRecord> records) {
+        if(!checkNetConnectFail()) {
+            return;
+        }
         if(records.isEmpty()) {
             Timber.e("updateLockRecord records is empty");
             return;

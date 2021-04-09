@@ -152,6 +152,9 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
     }
 
     private void checkDeviceIsBind() {
+        if(!checkNetConnectFail()) {
+            return;
+        }
         if(App.getInstance()  == null) {
             Timber.e("App.getInstance()  == null");
             return;
@@ -216,6 +219,9 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
     private byte[] mPwd1;
 
     private void getPwd1FromNet() {
+        if(!checkNetConnectFail()) {
+            return;
+        }
         GetPwd1BeanReq req = new GetPwd1BeanReq();
         req.setSN(mEsn);
         Observable<GetPwd1BeanRsp> getPwd1BeanRspObservable = HttpRequest
@@ -394,6 +400,9 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
     }
 
     private void addDeviceToService()  {
+        if(!checkNetConnectFail()) {
+            return;
+        }
         // 本地存储
         addDeviceToLocal(mEsn, mMac, ConvertUtils.bytes2HexString(mPwd1), ConvertUtils.bytes2HexString(mPwd2), mScanResult);
         AdminAddDeviceBeanReq req = new AdminAddDeviceBeanReq();

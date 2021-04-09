@@ -244,6 +244,9 @@ public class DeviceSettingActivity extends BaseActivity {
     }
 
     private void unbindDevice() {
+        if(!checkNetConnectFail()) {
+            return;
+        }
         showLoading("Unbinding...");
         Observable<DeviceUnbindBeanRsp> observable = HttpRequest
                 .getInstance().unbindDevice(App.getInstance().getUserBean().getToken(), mReq);

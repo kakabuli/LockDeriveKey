@@ -104,6 +104,9 @@ public class SelectAuthorizedDeviceActivity extends BaseActivity {
     }
 
     private void share() {
+        if(!checkNetConnectFail()) {
+            return;
+        }
         if(App.getInstance().getUserBean() == null) {
             Timber.e("share App.getInstance().getUserBean() == null");
             return;

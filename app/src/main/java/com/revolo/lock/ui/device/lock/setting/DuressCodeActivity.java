@@ -112,6 +112,9 @@ public class DuressCodeActivity extends BaseActivity {
     }
 
     private void settingDuressReceiveMail() {
+        if(!checkNetConnectFail()) {
+            return;
+        }
         String mail = mEtEmail.getText().toString().trim();
         if(TextUtils.isEmpty(mail)) {
             ToastUtils.showShort("Please input mail");

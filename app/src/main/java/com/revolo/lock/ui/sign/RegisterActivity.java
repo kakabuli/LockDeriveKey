@@ -135,6 +135,9 @@ public class RegisterActivity extends BaseActivity {
     }
 
     private void getCode() {
+        if(!checkNetConnectFail()) {
+            return;
+        }
         String mail = ((EditText) findViewById(R.id.etEmail)).getText().toString().trim();
         // TODO: 2021/2/2 修正提示语
         if(TextUtils.isEmpty(mail)) {
@@ -187,6 +190,9 @@ public class RegisterActivity extends BaseActivity {
     }
 
     private void register() {
+        if(!checkNetConnectFail()) {
+            return;
+        }
         String mail = ((EditText) findViewById(R.id.etEmail)).getText().toString().trim();
         // TODO: 2021/2/2 修正提示语
         if(TextUtils.isEmpty(mail)) {
@@ -287,6 +293,9 @@ public class RegisterActivity extends BaseActivity {
     private int loginCount = 3;
 
     private void login(@NotNull String mail, @NotNull String pwd) {
+        if(!checkNetConnectFail()) {
+            return;
+        }
         showLoading();
         MailLoginBeanReq req = new MailLoginBeanReq();
         req.setMail(mail);

@@ -22,6 +22,7 @@ import com.revolo.lock.App;
 import com.revolo.lock.Constant;
 import com.revolo.lock.R;
 import com.revolo.lock.adapter.UserListAdapter;
+import com.revolo.lock.base.BaseActivity;
 import com.revolo.lock.bean.request.GetAllSharedUserFromAdminUserBeanReq;
 import com.revolo.lock.bean.respone.GetAllSharedUserFromAdminUserBeanRsp;
 import com.revolo.lock.dialog.iosloading.CustomerLoadingDialog;
@@ -88,6 +89,11 @@ public class UserFragment extends Fragment {
     }
 
     private void getAllSharedUserFromAdminUser() {
+        if(getActivity() instanceof BaseActivity) {
+            if(!((BaseActivity)getActivity()).checkNetConnectFail()) {
+                return;
+            }
+        }
         if(App.getInstance().getUserBean() == null) {
             Timber.e("getAllSharedUserFromAdminUser App.getInstance().getUserBean() == null");
             return;

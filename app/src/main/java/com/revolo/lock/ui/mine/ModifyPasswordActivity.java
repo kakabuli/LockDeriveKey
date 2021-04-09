@@ -103,6 +103,9 @@ public class ModifyPasswordActivity extends BaseActivity {
     }
 
     private void changeUserPwd() {
+        if(!checkNetConnectFail()) {
+            return;
+        }
         String oldPwd = mEtOldPwd.getText().toString().trim();
         if(TextUtils.isEmpty(oldPwd)) {
             ToastUtils.showShort("Please input old password");
@@ -190,6 +193,9 @@ public class ModifyPasswordActivity extends BaseActivity {
     }
 
     private void getCode() {
+        if(!checkNetConnectFail()) {
+            return;
+        }
         String mail = ((EditText) findViewById(R.id.etEmail)).getText().toString().trim();
         // TODO: 2021/2/2 修正提示语
         if(TextUtils.isEmpty(mail)) {
