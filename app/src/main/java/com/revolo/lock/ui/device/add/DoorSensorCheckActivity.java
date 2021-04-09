@@ -165,12 +165,6 @@ public class DoorSensorCheckActivity extends BaseActivity {
                     }
                     break;
                 case DOOR_SUC:
-                    if(mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI) {
-                        publishSetMagnetic(mBleDeviceLocal.getEsn(), BleCommandState.DOOR_CALIBRATION_STATE_START_SE);
-                    } else {
-                        sendCommand(BleCommandState.DOOR_CALIBRATION_STATE_START_SE);
-                    }
-                    break;
                 case DOOR_FAIL:
                     break;
 
@@ -254,18 +248,12 @@ public class DoorSensorCheckActivity extends BaseActivity {
                     refreshHalfTheDoor();
                     break;
                 case DOOR_HALF:
-                    refreshDoorSuc();
+                case DOOR_FAIL:
                     break;
                 case DOOR_SUC:
-                    if(!isGoToAddWifi) {
-                        mBleDeviceLocal.setOpenDoorSensor(true);
-                        AppDatabase.getInstance(this).bleDeviceDao().update(mBleDeviceLocal);
-                        new Handler(Looper.getMainLooper()).postDelayed(this::finish, 50);
-                    } else {
-                        gotoAddWifi();
-                    }
-                    break;
-                case DOOR_FAIL:
+                    refreshDoorSuc();
+                    mBleDeviceLocal.setOpenDoorSensor(true);
+                    AppDatabase.getInstance(this).bleDeviceDao().update(mBleDeviceLocal);
                     break;
             }
         });
@@ -338,6 +326,10 @@ public class DoorSensorCheckActivity extends BaseActivity {
             saveDoorSensorStateToLocal(mode);
             // 排除掉第一次发送禁用门磁指令的状态反馈
             if(bean.getParams().getMode() == BleCommandState.DOOR_CALIBRATION_STATE_CLOSE_SE) {
+                return;
+            }
+            if(bean.getParams().getMode() == BleCommandState.DOOR_CALIBRATION_STATE_HALF) {
+                publishSetMagnetic(mBleDeviceLocal.getEsn(), BleCommandState.DOOR_CALIBRATION_STATE_START_SE);
                 return;
             }
             refreshCurrentUI();
@@ -443,6 +435,10 @@ public class DoorSensorCheckActivity extends BaseActivity {
                 saveDoorSensorStateToLocal(mCalibrationState);
                 // 排除掉第一次发送禁用门磁指令的状态反馈
                 if(mCalibrationState == BleCommandState.DOOR_CALIBRATION_STATE_CLOSE_SE) {
+                    return;
+                }
+                if(mCalibrationState == BleCommandState.DOOR_CALIBRATION_STATE_HALF) {
+                    sendCommand(BleCommandState.DOOR_CALIBRATION_STATE_START_SE);
                     return;
                 }
                 refreshCurrentUI();

@@ -142,6 +142,8 @@ public class AddNewPwdSelectActivity extends BaseActivity {
         initApplyClick();
         initZeroTimeZoneDate();
         initLoading("password generating");
+        mAddPwdFailDialog = new AddPwdFailDialog(this);
+        initSucMessageDialog();
     }
 
     private void initApplyClick() {
@@ -274,6 +276,13 @@ public class AddNewPwdSelectActivity extends BaseActivity {
         }
     }
 
+    @Override
+    protected void onDestroy() {
+        mSucMessageDialog = null;
+        mAddPwdFailDialog = null;
+        super.onDestroy();
+    }
+
     private void nextStep() {
         if(mKey == null) {
             // TODO: 2021/1/29 处理密码为空的情况
@@ -351,8 +360,8 @@ public class AddNewPwdSelectActivity extends BaseActivity {
 
     private long mScheduleStartTimeMill;
     private long mScheduleEndTimeMill;
-    private long mTemStartDateTimeMill = TimeUtils.string2Millis("2020-12-28 10:00:00");
-    private long mTemEndDateTimeMill = TimeUtils.string2Millis("2020-12-28 14:00:00");
+    private long mTemStartDateTimeMill;
+    private long mTemEndDateTimeMill;
     private String mTemStartDateTimeStr = "10:00:00";
     private String mTemEndDateTimeStr = "14:00:00";
     private String mTemStartDateStr = "2020-12-28";
@@ -368,14 +377,12 @@ public class AddNewPwdSelectActivity extends BaseActivity {
     }
 
     private void initScheduleStartTimeMill() {
-        String nowDate = TimeUtils.millis2String(TimeUtils.getNowMills(), TimeUtils.getSafeDateFormat("yyyy-MM-dd"));
-        String date = nowDate + " 00:00:00";
+        String date = "2000-01-01 00:00:00";
         mScheduleStartTimeMill = TimeUtils.string2Millis(date, mZeroTimeZoneDateFormat);
     }
 
     private void initScheduleEndTimeMill() {
-        String nowDate = TimeUtils.millis2String(TimeUtils.getNowMills(), TimeUtils.getSafeDateFormat("yyyy-MM-dd"));
-        String date = nowDate + " 23:59:00";
+        String date = "2000-01-01 23:59:00";
         mScheduleEndTimeMill = TimeUtils.string2Millis(date, mZeroTimeZoneDateFormat);
     }
 
@@ -400,22 +407,46 @@ public class AddNewPwdSelectActivity extends BaseActivity {
                 (view, hourOfDay, minute) -> {
             String time = (hourOfDay<10?"0"+hourOfDay:hourOfDay)+":"+(minute<10?"0"+minute:minute);
             if(id == R.id.tvStartTime) {
+                long scheduleStartTimeMill = TimeUtils.string2Millis("2000-01-01 " + time + ":00", mZeroTimeZoneDateFormat);
+                if(scheduleStartTimeMill > mScheduleEndTimeMill) {
+                    // TODO: 2021/4/9 开始时间大于结束时间 ，抽离和修改提示语
+                    ToastUtils.showShort("The start time cannot be greater than the end time!");
+                    return;
+                }
                 mTvStartTime.setText(time);
-                mScheduleStartTimeMill = TimeUtils.string2Millis("2000-01-01 " + time + ":00", mZeroTimeZoneDateFormat);
+                mScheduleStartTimeMill = scheduleStartTimeMill;
                 Timber.d("startTime 选择的时间%1s, 时间流：%2d",time, mScheduleStartTimeMill);
             } else if(id == R.id.tvEndTime) {
+                long scheduleEndTimeMill = TimeUtils.string2Millis("2000-01-01 " + time + ":00", mZeroTimeZoneDateFormat);
+                if(scheduleEndTimeMill < mScheduleStartTimeMill) {
+                    // TODO: 2021/4/9 结束时间小于开始时间 ，抽离和修改提示语
+                    ToastUtils.showShort("The end time cannot be less than the start time!");
+                    return;
+                }
                 mTvEndTime.setText(time);
-                mScheduleEndTimeMill = TimeUtils.string2Millis("2000-01-01 " + time + ":00", mZeroTimeZoneDateFormat);
+                mScheduleEndTimeMill = scheduleEndTimeMill;
                 Timber.d("endTime 选择的时间%1s, 时间流：%2d",time, mScheduleEndTimeMill);
             } else if(id == R.id.tvEndDateTime) {
+                long temEndDateTimeMill = TimeUtils.string2Millis(mTemEndDateStr + " " + time + ":00");
+                if(temEndDateTimeMill < mTemStartDateTimeMill) {
+                    // TODO: 2021/4/9 结束时间小于开始时间 ，抽离和修改提示语
+                    ToastUtils.showShort("The end time cannot be less than the start time!");
+                    return;
+                }
                 mTvEndDateTime.setText(time);
                 mTemEndDateTimeStr = time;
-                mTemEndDateTimeMill = TimeUtils.string2Millis(mTemEndDateStr + " " + mTemEndDateTimeStr + ":00");
+                mTemEndDateTimeMill = temEndDateTimeMill;
                 Timber.d("endDateTime 选择的时间%1s, 时间流：%2d",time, mTemEndDateTimeMill);
             } else if(id == R.id.tvStartDateTime) {
+                long temStartDateTimeMill = TimeUtils.string2Millis(mTemStartDateStr + " " + time + ":00");
+                if(temStartDateTimeMill > mTemEndDateTimeMill) {
+                    // TODO: 2021/4/9 开始时间大于结束时间，抽离和修改提示语
+                    ToastUtils.showShort("The start time cannot be greater than the end time!");
+                    return;
+                }
                 mTvStartDateTime.setText(time);
                 mTemStartDateTimeStr = time;
-                mTemStartDateTimeMill = TimeUtils.string2Millis(mTemStartDateStr + " " + mTemStartDateTimeStr + ":00");
+                mTemStartDateTimeMill = temStartDateTimeMill;
                 Timber.d("startDateTime 选择的时间%1s, 时间流：%2d",time, mTemStartDateTimeMill);
             }
         }, 0,0, true);
@@ -425,17 +456,29 @@ public class AddNewPwdSelectActivity extends BaseActivity {
     private void showDatePicker(@IdRes int id) {
         DatePickerDialog datePickerDialog = new DatePickerDialog(this, R.style.MyTimePickerDialogTheme);
         datePickerDialog.setOnDateSetListener((view, year, month, dayOfMonth) -> {
-            // TODO: 2021/2/4 date
+            // 月份需要加1
             month+=1;
             String date = year+"-"+(month<10?"0"+month:month)+"-"+(dayOfMonth<10?"0"+dayOfMonth:dayOfMonth);
             if(id == R.id.tvStartDate) {
+                long temStartDateTimeMill = TimeUtils.string2Millis(date + " " + mTemStartDateTimeStr);
+                if(temStartDateTimeMill > mTemEndDateTimeMill) {
+                    // TODO: 2021/4/9 开始时间大于结束时间，抽离修改提示语
+                    ToastUtils.showShort("The start time cannot be greater than the end time!");
+                    return;
+                }
                 mTemStartDateStr = date;
-                mTemStartDateTimeMill = TimeUtils.string2Millis(mTemStartDateStr + " " + mTemStartDateTimeStr);
+                mTemStartDateTimeMill = temStartDateTimeMill;
                 mTvStartDate.setText(mTemStartDateStr);
                 Timber.d("startDate 选择的日期%1s, 时间流：%2d",date, mTemStartDateTimeMill);
             } else if(id == R.id.tvEndDate) {
+                long temEndDateTimeMill = TimeUtils.string2Millis(date + " " + mTemEndDateTimeStr);
+                if(temEndDateTimeMill < mTemStartDateTimeMill) {
+                    // TODO: 2021/4/9 开始时间大于结束时间，抽离修改提示语
+                    ToastUtils.showShort("The end time cannot be less than the start time!");
+                    return;
+                }
                 mTemEndDateStr = date;
-                mTemEndDateTimeMill = TimeUtils.string2Millis(mTemEndDateStr + " " + mTemEndDateTimeStr);
+                mTemEndDateTimeMill = temEndDateTimeMill;
                 mTvEndDate.setText(mTemEndDateStr);
                 Timber.d("startDate 选择的日期%1s, 时间流：%2d",date, mTemStartDateTimeMill);
             }
@@ -528,11 +571,14 @@ public class AddNewPwdSelectActivity extends BaseActivity {
         }
     }
 
+    private AddPwdFailDialog mAddPwdFailDialog;
+
     private void dismissLoadingAndShowAddFail() {
         dismissLoading();
         runOnUiThread(() -> {
-            AddPwdFailDialog dialog = new AddPwdFailDialog(this);
-            dialog.show();
+            if(mAddPwdDisposable != null) {
+                mAddPwdFailDialog.show();
+            }
         });
     }
 
@@ -610,23 +656,28 @@ public class AddNewPwdSelectActivity extends BaseActivity {
 
     }
 
+    private MessageDialog mSucMessageDialog;
+
+    private void initSucMessageDialog() {
+        mSucMessageDialog = new MessageDialog(AddNewPwdSelectActivity.this);
+        mSucMessageDialog.setMessage(getString(R.string.dialog_tip_password_added));
+        mSucMessageDialog.setOnListener(v -> {
+            // 不销毁会导致内存泄漏
+            if(mSucMessageDialog != null) {
+                mSucMessageDialog.dismiss();
+            }
+            App.getInstance().addWillFinishAct(this);
+            Intent intent = new Intent(AddNewPwdSelectActivity.this, AddNewPwdNameActivity.class);
+            intent.putExtra(Constant.PWD_NUM, mDevicePwdBean.getPwdNum());
+            intent.putExtra(Constant.LOCK_ESN, mBleDeviceLocal.getEsn());
+            startActivity(intent);
+        });
+    }
+
     private void showSucMessage() {
         runOnUiThread(() -> {
-            MessageDialog dialog = new MessageDialog(AddNewPwdSelectActivity.this);
-            dialog.setMessage(getString(R.string.dialog_tip_password_added));
-            dialog.setOnListener(v -> {
-                // 不销毁会导致内存泄漏
-                if(dialog != null) {
-                    dialog.dismiss();
-                }
-                App.getInstance().addWillFinishAct(this);
-                Intent intent = new Intent(AddNewPwdSelectActivity.this, AddNewPwdNameActivity.class);
-                intent.putExtra(Constant.PWD_NUM, mDevicePwdBean.getPwdNum());
-                intent.putExtra(Constant.LOCK_ESN, mBleDeviceLocal.getEsn());
-                startActivity(intent);
-            });
-            if(dialog != null) {
-                dialog.show();
+            if(mSucMessageDialog != null) {
+                mSucMessageDialog.show();
             }
         });
     }
@@ -654,6 +705,7 @@ public class AddNewPwdSelectActivity extends BaseActivity {
             Timber.e("publishAddPwd mMQttService == null");
             return;
         }
+        showLoading();
         WifiLockAddPwdPublishBean.ParamsBean paramsBean = new WifiLockAddPwdPublishBean.ParamsBean();
         paramsBean.setKey(key);
         // TODO: 2021/3/17 后期修改密钥属性
@@ -678,11 +730,11 @@ public class AddNewPwdSelectActivity extends BaseActivity {
 
     private void processAddPwd(MqttData mqttData) {
         toDisposable(mAddPwdDisposable);
+        dismissLoading();
         if(TextUtils.isEmpty(mqttData.getFunc())) {
             return;
         }
         if(mqttData.getFunc().equals(MqttConstant.CREATE_PWD)) {
-            dismissLoading();
             Timber.d("创建密码: %1s", mqttData);
             WifiLockAddPwdRspBean bean;
             try {

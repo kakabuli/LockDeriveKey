@@ -142,6 +142,7 @@ public class DeviceFragment extends Fragment {
         initSignalWeakDialog();
         initData(mBleDeviceLocals);
         mHomeLockListAdapter.setList(mBleDeviceLocals);
+        mDeviceViewModel.refreshGetAllBindDevicesFromMQTT();
     }
 
     private void openOrCloseDoorFromBle(int position, @LocalState.LockState int state) {
