@@ -80,7 +80,7 @@ public class DuressCodeActivity extends BaseActivity {
 
     @Override
     public void initView(@Nullable Bundle savedInstanceState, @Nullable View contentView) {
-        useCommonTitleBar(getString(R.string.title_duress_code));
+        useCommonTitleBar(getString(R.string.title_duress_password));
         mClInputEmail = findViewById(R.id.clInputEmail);
         mIvDuressCodeEnable = findViewById(R.id.ivDuressCodeEnable);
         mEtEmail = findViewById(R.id.etEmail);

@@ -170,7 +170,7 @@
 
     <!-- DuressCodeActivity -->
     <string name="save">Save</string>
-    <string name="title_duress_code">Duress code</string>
+    <string name="title_duress_password">Duress password</string>
     <string name="it_is_not_allowed_to_enter_two_911_and_above">It is not allowed to enter two 911 and above.</string>
     <string name="it_is_not_allowed_to_enter_911_before_correct_n_password">It is not allowed to enter 911 before correct\n password.</string>
     <string name="please_enter_the_email_address_to_receive_the_duress_password">Please enter the email address to receive the duress password</string>
