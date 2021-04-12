@@ -99,7 +99,8 @@ public class DeviceSettingActivity extends BaseActivity {
         applyDebouncingClickListener(mTvName, findViewById(R.id.clAutoLock), findViewById(R.id.clPrivateMode),
                 findViewById(R.id.clDuressCode), findViewById(R.id.clDoorLockInformation),
                 findViewById(R.id.clGeoFenceLock), findViewById(R.id.clDoorMagneticSwitch),
-                findViewById(R.id.clUnbind), findViewById(R.id.clMute), findViewById(R.id.clWifi), mIvDoNotDisturbModeEnable);
+                findViewById(R.id.clUnbind), findViewById(R.id.clMute), findViewById(R.id.clWifi),
+                mIvDoNotDisturbModeEnable, findViewById(R.id.ivLockName));
         mIvDoNotDisturbModeEnable.setImageResource(mBleDeviceLocal.isDoNotDisturbMode()?R.drawable.ic_icon_switch_open:R.drawable.ic_icon_switch_close);
         mIvMuteEnable.setImageResource(mBleDeviceLocal.isMute()?R.drawable.ic_icon_switch_open:R.drawable.ic_icon_switch_close);
     }
@@ -124,7 +125,7 @@ public class DeviceSettingActivity extends BaseActivity {
 
     @Override
     public void onDebouncingClick(@NonNull View view) {
-        if(view.getId() == R.id.tvName) {
+        if(view.getId() == R.id.tvName || view.getId() == R.id.ivLockName) {
             Intent intent = new Intent(this, ChangeLockNameActivity.class);
             startActivity(intent);
             return;
