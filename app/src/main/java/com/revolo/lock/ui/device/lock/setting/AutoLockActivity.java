@@ -55,7 +55,7 @@ import static com.revolo.lock.ble.BleProtocolState.CMD_SET_AUTO_LOCK_TIME;
 public class AutoLockActivity extends BaseActivity {
 
     private SeekBar mSeekBar;
-    private TextView mTvTime, mTvDetectionLock;
+    private TextView mTvTime, mTvDetectionLock, mTvTip;
     private int mTime = 0;
     private ImageView mIvDetectionLockEnable, mIvAutoLockEnable;
     private ConstraintLayout mClSetLockTime;
@@ -79,6 +79,7 @@ public class AutoLockActivity extends BaseActivity {
         useCommonTitleBar(getString(R.string.title_auto_lock));
         mSeekBar = findViewById(R.id.seekBar);
         mTvTime = findViewById(R.id.tvTime);
+        mTvTip = findViewById(R.id.tvTip);
         mTvDetectionLock = findViewById(R.id.tvDetectionLock);
         mClSetLockTime = findViewById(R.id.clSetLockTime);
         mIvAutoLockEnable = findViewById(R.id.ivAutoLockEnable);
@@ -142,6 +143,7 @@ public class AutoLockActivity extends BaseActivity {
             mIvDetectionLockEnable
                     .setImageResource(mBleDeviceLocal.isDetectionLock()?R.drawable.ic_icon_switch_open:R.drawable.ic_icon_switch_close);
             mSeekBar.setProgress(getProgressFromTime(mBleDeviceLocal.getSetAutoLockTime()));
+            mTvTip.setText(getString(mTime==0?R.string.tip_the_timer_will_start_when_your_door_is_closed:R.string.tip_door_will_be_locked_when_time_is_up));
         });
 
     }
