@@ -241,7 +241,11 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
                         App.getInstance().logout(true, AddDeviceStep2BleConnectActivity.this);
                         return;
                     }
-                    Timber.e("getPwd1FromNet code: %1s, msg: %2s", getPwd1BeanRsp.getCode(), getPwd1BeanRsp.getMsg());
+                    String msg = getPwd1BeanRsp.getMsg();
+                    Timber.e("getPwd1FromNet code: %1s, msg: %2s", getPwd1BeanRsp.getCode(), msg);
+                    if(!TextUtils.isEmpty(msg)) {
+                        ToastUtils.showShort(msg);
+                    }
                     gotoBleConnectFail();
                     return;
                 }
