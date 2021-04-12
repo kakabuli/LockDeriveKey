@@ -94,7 +94,7 @@ public class DoorSensorCheckActivity extends BaseActivity {
 
     @Override
     public void initView(@Nullable Bundle savedInstanceState, @Nullable View contentView) {
-        useCommonTitleBar(getString(R.string.title_door_magnet_alignment));
+        useCommonTitleBar(getString(R.string.title_door_sensor_alignment));
         mBtnNext = findViewById(R.id.btnNext);
         mIvDoorState = findViewById(R.id.ivDoorState);
         mTvTip = findViewById(R.id.tvTip);
