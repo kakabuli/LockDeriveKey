@@ -117,7 +117,7 @@ public class DuressCodeActivity extends BaseActivity {
         }
         String mail = mEtEmail.getText().toString().trim();
         if(TextUtils.isEmpty(mail)) {
-            ToastUtils.showShort("Please input mail");
+            ToastUtils.showShort(R.string.err_tip_please_input_email);
             return;
         }
         if(!RegexUtils.isEmail(mail)) {

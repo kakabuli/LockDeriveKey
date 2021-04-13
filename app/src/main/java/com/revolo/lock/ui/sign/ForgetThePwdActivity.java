@@ -105,7 +105,7 @@ public class ForgetThePwdActivity extends BaseActivity {
         String mail = ((EditText) findViewById(R.id.etEmail)).getText().toString().trim();
         // TODO: 2021/2/2 修正提示语
         if(TextUtils.isEmpty(mail)) {
-            ToastUtils.showShort("Please input mail");
+            ToastUtils.showShort(R.string.err_tip_please_input_email);
             return;
         }
         if(!RegexUtils.isEmail(mail)) {
@@ -170,7 +170,7 @@ public class ForgetThePwdActivity extends BaseActivity {
         String mail = ((EditText) findViewById(R.id.etEmail)).getText().toString().trim();
         // TODO: 2021/2/2 修正提示语
         if(TextUtils.isEmpty(mail)) {
-            ToastUtils.showShort("Please input mail");
+            ToastUtils.showShort(R.string.err_tip_please_input_email);
             return;
         }
         if(!RegexUtils.isEmail(mail)) {
@@ -179,7 +179,7 @@ public class ForgetThePwdActivity extends BaseActivity {
         }
         String tokens = ((EditText) findViewById(R.id.etCode)).getText().toString().trim();
         if(TextUtils.isEmpty(tokens)) {
-            ToastUtils.showShort("Please input Verification");
+            ToastUtils.showShort(R.string.err_tip_please_input_verification_code);
             return;
         }
         String pwd = ((EditText) findViewById(R.id.etPwd)).getText().toString().trim();

@@ -402,5 +402,7 @@
     <!-- keepAlive Service -->
     <string name="app_name_notification_title">revolo running</string>
     <string name="app_name_notification_content">We will notify you when you have news</string>
+    <string name="err_tip_please_input_email">Please input email</string>
+    <string name="err_tip_please_input_verification_code">Please input verification code</string>
 
 </resources>

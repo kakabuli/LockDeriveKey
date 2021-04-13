@@ -124,11 +124,6 @@ public class ModifyPasswordActivity extends BaseActivity {
             ToastUtils.showShort("Please input right new password");
             return;
         }
-//        String code = etVerification.getText().toString().trim();
-//        if(TextUtils.isEmpty(code)) {
-//            ToastUtils.showShort("Please input Verification");
-//            return;
-//        }
         if(App.getInstance().getUserBean() == null) {
             Timber.e("changeUserPwd App.getInstance().getUserBean() == null");
             return;
@@ -199,7 +194,7 @@ public class ModifyPasswordActivity extends BaseActivity {
         String mail = ((EditText) findViewById(R.id.etEmail)).getText().toString().trim();
         // TODO: 2021/2/2 修正提示语
         if(TextUtils.isEmpty(mail)) {
-            ToastUtils.showShort("Please input mail");
+            ToastUtils.showShort(R.string.err_tip_please_input_email);
             return;
         }
         if(!RegexUtils.isEmail(mail)) {
