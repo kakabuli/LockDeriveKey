@@ -46,7 +46,7 @@ public abstract class BaseActivity extends AppCompatActivity
         implements IBaseView {
 
     private final View.OnClickListener mClickListener = this::onDebouncingClick;
-    protected CompositeDisposable mCompositeDisposable = new CompositeDisposable();
+    public CompositeDisposable mCompositeDisposable = new CompositeDisposable();
     public MqttService mMQttService = App.getInstance().getMqttService();
 
     public View     mContentView;

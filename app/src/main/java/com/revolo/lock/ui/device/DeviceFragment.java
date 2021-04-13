@@ -15,7 +15,6 @@ import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -28,6 +27,7 @@ import com.revolo.lock.Constant;
 import com.revolo.lock.LocalState;
 import com.revolo.lock.R;
 import com.revolo.lock.adapter.HomeLockListAdapter;
+import com.revolo.lock.base.BaseActivity;
 import com.revolo.lock.ble.BleByteUtil;
 import com.revolo.lock.ble.bean.BleBean;
 import com.revolo.lock.ble.BleCommandFactory;
@@ -62,6 +62,7 @@ import java.util.concurrent.TimeoutException;
 
 import io.reactivex.Observer;
 import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Consumer;
 import timber.log.Timber;
 
 import static com.revolo.lock.Constant.DEFAULT_TIMEOUT_SEC_VALUE;
@@ -78,13 +79,13 @@ public class DeviceFragment extends Fragment {
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
-        mDeviceViewModel =
-                new ViewModelProvider(this).get(DeviceViewModel.class);
+//        mDeviceViewModel =
+//                new ViewModelProvider(this).get(DeviceViewModel.class);
 
         View root = inflater.inflate(R.layout.fragment_device, container, false);
         mClNoDevice = root.findViewById(R.id.clNoDevice);
         mClHadDevice = root.findViewById(R.id.clHadDevice);
-        mDeviceViewModel.getWifiListBeans().observe(getViewLifecycleOwner(), this::updateDataFromNet);
+//        mDeviceViewModel.getWifiListBeans().observe(getViewLifecycleOwner(), this::updateDataFromNet);
         // 无设备的时候控件UI
         ImageView ivAdd = root.findViewById(R.id.ivAdd);
         ivAdd.setOnClickListener(v -> startActivity(new Intent(getContext(), AddDeviceActivity.class)));
@@ -130,7 +131,10 @@ public class DeviceFragment extends Fragment {
         mRefreshLayout = root.findViewById(R.id.refreshLayout);
         mRefreshLayout.setEnableLoadMore(false);
         mRefreshLayout.setRefreshHeader(new ClassicsHeader(getContext()));
-        mRefreshLayout.setOnRefreshListener(refreshLayout -> mDeviceViewModel.refreshGetAllBindDevicesFromMQTT());
+        mRefreshLayout.setOnRefreshListener(refreshLayout -> {
+//            mDeviceViewModel.refreshGetAllBindDevicesFromMQTT();
+            refreshGetAllBindDevicesFromMQTT();
+        });
 
         return root;
     }
@@ -138,11 +142,12 @@ public class DeviceFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
+        refreshGetAllBindDevicesFromMQTT();
         initBaseData();
         initSignalWeakDialog();
         initData(mBleDeviceLocals);
         mHomeLockListAdapter.setList(mBleDeviceLocals);
-        mDeviceViewModel.refreshGetAllBindDevicesFromMQTT();
+//        mDeviceViewModel.refreshGetAllBindDevicesFromMQTT();
     }
 
     private void openOrCloseDoorFromBle(int position, @LocalState.LockState int state) {
@@ -171,6 +176,74 @@ public class DeviceFragment extends Fragment {
                         bleBean.getPwd1(),
                         bleBean.getPwd3()),
                 bleBean.getOKBLEDeviceImp());
+    }
+
+    private Disposable mBindDevicesDisposable;
+
+    public void refreshGetAllBindDevicesFromMQTT() {
+        if(App.getInstance().getUserBean() == null) {
+            return;
+        }
+        if(getActivity() == null) {
+            Timber.e("refreshGetAllBindDevicesFromMQTT getActivity() == null");
+            return;
+        }
+        BaseActivity baseActivity = ((BaseActivity) getActivity());
+        if(baseActivity.mMQttService == null) {
+            Timber.e("refreshGetAllBindDevicesFromMQTT baseActivity.mMQttService == null");
+            return;
+        }
+        baseActivity.toDisposable(mBindDevicesDisposable);
+        Timber.d("执行获取设备信息");
+        mBindDevicesDisposable = baseActivity.mMQttService
+                .mqttPublish(MqttConstant.PUBLISH_TO_SERVER,
+                        MqttCommandFactory.getAllBindDevices(App.getInstance().getUserBean().getUid()))
+                .filter(mqttData -> mqttData.getFunc().equals(MqttConstant.GET_ALL_BIND_DEVICE))
+                .subscribe(mqttData -> {
+                    baseActivity.toDisposable(mBindDevicesDisposable);
+                    processDevices(mqttData);
+                }, Timber::e);
+        baseActivity.mCompositeDisposable.add(mBindDevicesDisposable);
+    }
+
+    private void processDevices(MqttData mqttData) {
+        if(TextUtils.isEmpty(mqttData.getFunc())) {
+            return;
+        }
+        if(!mqttData.getFunc().equals(MqttConstant.GET_ALL_BIND_DEVICE)) {
+            return;
+        }
+        WifiLockGetAllBindDeviceRspBean bean;
+        try {
+            bean = GsonUtils.fromJson(mqttData.getPayload(), WifiLockGetAllBindDeviceRspBean.class);
+        } catch (JsonSyntaxException e) {
+            // TODO: 2021/2/6 解析失败的处理
+            Timber.e(e);
+            return;
+        }
+        if(bean == null) {
+            Timber.e("WifiLockGetAllBindDeviceRspBean is null");
+            return;
+        }
+        if(TextUtils.isEmpty(bean.getMsgtype())) {
+            return;
+        }
+        if(!bean.getMsgtype().equals("response")) {
+            return;
+        }
+        if(bean.getData() == null) {
+            Timber.e("WifiLockGetAllBindDeviceRspBean.Data is null");
+            return;
+        }
+        if(bean.getData().getWifiList() == null) {
+            Timber.e("WifiLockGetAllBindDeviceRspBean..getData().getWifiList() is null");
+            return;
+        }
+        if(bean.getData().getWifiList().isEmpty()) {
+            Timber.e("WifiLockGetAllBindDeviceRspBean..getData().getWifiList().isEmpty()");
+            return;
+        }
+        updateDataFromNet(bean.getData().getWifiList());
     }
 
     private void updateDataFromNet(List<WifiLockGetAllBindDeviceRspBean.DataBean.WifiListBean> wifiListBeans) {
