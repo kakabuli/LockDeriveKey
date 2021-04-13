@@ -18,6 +18,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:gravity="center"
+        android:layout_marginTop="35pt"
         android:text="@string/tip_add_device_tip"
         android:textColor="@color/c333333"
         android:textSize="14pt"
