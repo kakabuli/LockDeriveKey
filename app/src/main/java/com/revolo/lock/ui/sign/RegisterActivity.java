@@ -9,6 +9,7 @@ import android.text.InputType;
 import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.TextUtils;
+import android.text.method.LinkMovementMethod;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -96,6 +97,7 @@ public class RegisterActivity extends BaseActivity {
         spannableString.setSpan(span, 0, agreementStr.length(), Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
         tvAgreement.append(getString(R.string.i_agree_to));
         tvAgreement.append(spannableString);
+        tvAgreement.setMovementMethod(LinkMovementMethod.getInstance());
         initLoading("Registering...");
 
     }
