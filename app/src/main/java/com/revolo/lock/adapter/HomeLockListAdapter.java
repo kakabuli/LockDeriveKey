@@ -96,12 +96,12 @@ public class HomeLockListAdapter extends BaseQuickAdapter<BleDeviceLocal, BaseVi
 
     private void doorClose(ImageView ivDoorState, TextView tvDoorState) {
         ivDoorState.setImageResource(R.drawable.ic_home_icon_door_closed);
-        tvDoorState.setText(R.string.tip_closed);
+        tvDoorState.setText(R.string.tip_door_closed);
     }
 
     private void doorOpen(ImageView ivDoorState, TextView tvDoorState) {
         ivDoorState.setImageResource(R.drawable.ic_home_icon_door_open);
-        tvDoorState.setText(R.string.tip_opened);
+        tvDoorState.setText(R.string.tip_door_opened);
     }
 
 }
