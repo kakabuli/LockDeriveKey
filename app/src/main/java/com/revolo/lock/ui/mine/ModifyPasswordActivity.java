@@ -37,7 +37,7 @@ import timber.log.Timber;
  */
 public class ModifyPasswordActivity extends BaseActivity {
 
-    private EditText mEtOldPwd, mEtPwd, mEtVerification;
+    private EditText mEtOldPwd, mEtPwd;
     private ImageView mIvOldPwdEye, mIvEye;
     private TextView mTvGetCode;
 
@@ -62,7 +62,6 @@ public class ModifyPasswordActivity extends BaseActivity {
         mEtPwd = findViewById(R.id.etPwd);
         mIvOldPwdEye = findViewById(R.id.ivOldPwdEye);
         mIvEye = findViewById(R.id.ivEye);
-        mEtVerification = findViewById(R.id.etVerification);
         mTvGetCode = findViewById(R.id.tvGetCode);
         applyDebouncingClickListener(mIvOldPwdEye, mIvEye, mTvGetCode, findViewById(R.id.btnComplete));
         initLoading("Updating...");
