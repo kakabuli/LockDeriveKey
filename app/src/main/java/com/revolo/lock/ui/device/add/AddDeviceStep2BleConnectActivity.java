@@ -14,6 +14,7 @@ import androidx.annotation.Nullable;
 import com.a1anwang.okble.client.scan.BLEScanResult;
 import com.a1anwang.okble.client.scan.DeviceScanCallBack;
 import com.a1anwang.okble.client.scan.OKBLEScanManager;
+import com.blankj.utilcode.util.ActivityUtils;
 import com.blankj.utilcode.util.ConvertUtils;
 import com.blankj.utilcode.util.TimeUtils;
 import com.blankj.utilcode.util.ToastUtils;
@@ -39,7 +40,6 @@ import com.revolo.lock.net.ObservableDecorator;
 import com.revolo.lock.room.AppDatabase;
 import com.revolo.lock.room.entity.BleDeviceLocal;
 import com.revolo.lock.room.entity.User;
-import com.revolo.lock.util.AppManager;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -218,9 +218,9 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
     }
 
     private void finishPreAct() {
-        AppManager.getInstance().finishActivity(AddDeviceActivity.class);
-        AppManager.getInstance().finishActivity(AddDeviceStep1Activity.class);
-        AppManager.getInstance().finishActivity(AddDeviceQRCodeStep2Activity.class);
+        ActivityUtils.finishActivity(AddDeviceActivity.class);
+        ActivityUtils.finishActivity(AddDeviceStep1Activity.class);
+        ActivityUtils.finishActivity(AddDeviceQRCodeStep2Activity.class);
     }
 
     private byte[] mPwd1;

@@ -108,7 +108,7 @@ public class UserPageActivity extends BaseActivity implements EasyPermissions.Pe
             if(mUser != null) {
                 TextView tvUserName = findViewById(R.id.tvUserName);
                 TextView tvEmailAddress = findViewById(R.id.tvEmailAddress);
-                String userName = mUser.getFirstName();
+                String userName = mUser.getFirstName() + " " + mUser.getLastName();
                 // TODO: 2021/3/7 名字后面需要更改其他显示
                 tvUserName.setText(TextUtils.isEmpty(userName)?"":userName);
                 String email = mUser.getMail();

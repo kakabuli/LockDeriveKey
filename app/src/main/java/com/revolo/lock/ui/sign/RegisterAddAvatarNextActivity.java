@@ -9,6 +9,7 @@ import android.widget.ImageView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.blankj.utilcode.util.ActivityUtils;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.RequestOptions;
@@ -18,7 +19,6 @@ import com.revolo.lock.R;
 import com.revolo.lock.base.BaseActivity;
 import com.revolo.lock.room.entity.User;
 import com.revolo.lock.ui.MainActivity;
-import com.revolo.lock.util.AppManager;
 
 import java.io.File;
 
@@ -75,9 +75,9 @@ public class RegisterAddAvatarNextActivity extends BaseActivity {
     }
 
     private void finishPreAct() {
-        AppManager.getInstance().finishActivity(SignSelectActivity.class);
-        AppManager.getInstance().finishActivity(RegisterActivity.class);
-        AppManager.getInstance().finishActivity(RegisterAddAvatarActivity.class);
+        ActivityUtils.finishActivity(SignSelectActivity.class);
+        ActivityUtils.finishActivity(RegisterActivity.class);
+        ActivityUtils.finishActivity(RegisterAddAvatarActivity.class);
     }
 
     private void refreshAvatar() {

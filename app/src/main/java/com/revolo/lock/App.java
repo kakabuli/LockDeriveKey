@@ -16,6 +16,7 @@ import com.a1anwang.okble.client.core.OKBLEOperation;
 import com.a1anwang.okble.client.scan.BLEScanResult;
 import com.a1anwang.okble.client.scan.DeviceScanCallBack;
 import com.a1anwang.okble.client.scan.OKBLEScanManager;
+import com.blankj.utilcode.util.ActivityUtils;
 import com.blankj.utilcode.util.CacheDiskUtils;
 import com.blankj.utilcode.util.ConvertUtils;
 import com.blankj.utilcode.util.SPUtils;
@@ -31,7 +32,6 @@ import com.revolo.lock.room.entity.BleDeviceLocal;
 import com.revolo.lock.room.entity.User;
 import com.revolo.lock.ui.MainActivity;
 import com.revolo.lock.ui.sign.LoginActivity;
-import com.revolo.lock.util.AppManager;
 import com.scwang.smart.refresh.footer.ClassicsFooter;
 import com.scwang.smart.refresh.header.ClassicsHeader;
 import com.scwang.smart.refresh.layout.SmartRefreshLayout;
@@ -444,12 +444,12 @@ public class App extends Application {
      */
     public void tokenInvalid(boolean isShowDialog) {
         clearData();  //清除数据库数据
-        Activity activity = AppManager.getInstance().currentActivity();
+        Activity activity = ActivityUtils.getTopActivity();
         if(activity != null) {
             Intent intent = new Intent(activity, LoginActivity.class);
             intent.putExtra(Constant.IS_SHOW_DIALOG, isShowDialog);
             activity.startActivity(intent);
-            AppManager.getInstance().finishOtherActivity(LoginActivity.class);
+            ActivityUtils.finishOtherActivities(LoginActivity.class);
             Timber.d("token过期   ");
         }
 

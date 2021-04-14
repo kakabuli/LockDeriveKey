@@ -14,6 +14,7 @@ import android.widget.ImageView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.blankj.utilcode.util.ActivityUtils;
 import com.blankj.utilcode.util.ToastUtils;
 import com.revolo.lock.App;
 import com.revolo.lock.Constant;
@@ -29,7 +30,6 @@ import com.revolo.lock.ble.bean.BleResultBean;
 import com.revolo.lock.popup.WifiListPopup;
 import com.revolo.lock.room.AppDatabase;
 import com.revolo.lock.room.entity.BleDeviceLocal;
-import com.revolo.lock.util.AppManager;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -125,10 +125,10 @@ public class AddWifiActivity extends BaseActivity {
     }
 
     private void finishPreAct() {
-        AppManager.getInstance().finishActivity(AddDeviceActivity.class);
-        AppManager.getInstance().finishActivity(AddDeviceStep1Activity.class);
-        AppManager.getInstance().finishActivity(AddDeviceQRCodeStep2Activity.class);
-        AppManager.getInstance().finishActivity(DoorSensorCheckActivity.class);
+        ActivityUtils.finishActivity(AddDeviceActivity.class);
+        ActivityUtils.finishActivity(AddDeviceStep1Activity.class);
+        ActivityUtils.finishActivity(AddDeviceQRCodeStep2Activity.class);
+        ActivityUtils.finishActivity(DoorSensorCheckActivity.class);
     }
 
     private void gotoWifiConnectAct() {

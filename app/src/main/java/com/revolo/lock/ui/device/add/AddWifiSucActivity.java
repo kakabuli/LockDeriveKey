@@ -8,9 +8,9 @@ import android.view.View;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.blankj.utilcode.util.ActivityUtils;
 import com.revolo.lock.R;
 import com.revolo.lock.base.BaseActivity;
-import com.revolo.lock.util.AppManager;
 
 
 /**
@@ -46,8 +46,8 @@ public class AddWifiSucActivity extends BaseActivity {
     }
 
     private void finishPreAct() {
-        AppManager.getInstance().finishActivity(WifiConnectActivity.class);
-        AppManager.getInstance().finishActivity(AddWifiActivity.class);
+        ActivityUtils.finishActivity(WifiConnectActivity.class);
+        ActivityUtils.finishActivity(AddWifiActivity.class);
     }
 
     private void threeSecFinish() {

@@ -13,6 +13,7 @@ import android.widget.ImageView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.blankj.utilcode.util.ActivityUtils;
 import com.blankj.utilcode.util.GsonUtils;
 import com.blankj.utilcode.util.RegexUtils;
 import com.blankj.utilcode.util.SPUtils;
@@ -30,7 +31,6 @@ import com.revolo.lock.room.entity.User;
 import com.revolo.lock.ui.MainActivity;
 import com.revolo.lock.R;
 import com.revolo.lock.base.BaseActivity;
-import com.revolo.lock.util.AppManager;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -192,9 +192,8 @@ public class LoginActivity extends BaseActivity {
             App.getInstance().setUserBean(mailLoginBeanRsp.getData());
             saveLoginBeanToLocal(mailLoginBeanRsp);
             runOnUiThread(() -> new Handler(Looper.getMainLooper()).postDelayed(() -> {
-                AppManager.getInstance().finishActivity(SignSelectActivity.class);
+                ActivityUtils.finishActivity(SignSelectActivity.class);
                 startActivity(new Intent(LoginActivity.this, MainActivity.class));
-                AppManager.getInstance().finishActivity(SignSelectActivity.class);
                 finish();
             }, 50));
         });

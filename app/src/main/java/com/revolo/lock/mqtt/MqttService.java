@@ -7,12 +7,10 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.text.TextUtils;
 
-import com.blankj.utilcode.util.ToastUtils;
+import com.blankj.utilcode.util.ActivityUtils;
 import com.revolo.lock.App;
-import com.revolo.lock.R;
 import com.revolo.lock.mqtt.bean.MqttData;
 import com.revolo.lock.mqtt.bean.publishresultbean.PublishResult;
-import com.revolo.lock.util.AppManager;
 
 import org.eclipse.paho.android.service.MqttAndroidClient;
 import org.eclipse.paho.client.mqttv3.DisconnectedBufferOptions;
@@ -139,7 +137,7 @@ public class MqttService extends Service {
         super.onDestroy();
         Timber.d("mqtt MqttService 被杀死");
         //System.exit(0); 退出并没finish activity 因此增加了这一步
-        AppManager.getInstance().finishAllActivity();
+        ActivityUtils.finishAllActivities();
         System.exit(0);
     }
 

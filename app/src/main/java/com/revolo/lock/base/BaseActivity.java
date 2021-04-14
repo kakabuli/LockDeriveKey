@@ -27,7 +27,6 @@ import com.revolo.lock.App;
 import com.revolo.lock.R;
 import com.revolo.lock.dialog.iosloading.CustomerLoadingDialog;
 import com.revolo.lock.ui.TitleBar;
-import com.revolo.lock.util.AppManager;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -58,7 +57,6 @@ public abstract class BaseActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         mActivity = this;
         super.onCreate(savedInstanceState);
-        AppManager.getInstance().addActivity(this);
         initData(getIntent().getExtras());
         setContentView();
         if(mMQttService == null) {
