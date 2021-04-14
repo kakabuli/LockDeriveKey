@@ -281,7 +281,7 @@
     <string name="half_door_step_4_tip">1. Turn the thumb turn to reach the deadbolt \n&#160;&#160;&#160;&#160;out . \n2. Half close the door to make the deadbolt \n&#160;&#160;&#160;&#160;against the door frame.</string>
 
     <!-- DoorCheckFailActivity -->
-    <string name="door_magnet_cant_be_detected">Door magnet can\'t be detected.</string>
+    <string name="door_sensor_cant_be_detected">Door sensor can\'t be detected.</string>
     <string name="try_again">Try again</string>
 
     <!-- GeoFenceUnlockActivity -->
