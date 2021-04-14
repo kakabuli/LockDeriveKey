@@ -40,7 +40,7 @@ import static com.revolo.lock.Constant.USER_MAIL;
  */
 public class ForgetThePwdActivity extends BaseActivity {
 
-    private boolean isShowPwd = false;
+    private boolean isShowPwd = true;
     private boolean isCountdown = false;
     private TextView mTvGetCode;
 

@@ -59,7 +59,7 @@ import static com.revolo.lock.Constant.REVOLO_SP;
 public class RegisterActivity extends BaseActivity {
 
     private boolean isSelected = false;
-    private boolean isShowPwd = false;
+    private boolean isShowPwd = true;
     private boolean isCountdown = false;
 
     private TextView mTvGetCode;

@@ -42,7 +42,7 @@ public class ModifyPasswordActivity extends BaseActivity {
     private TextView mTvGetCode;
 
     private boolean isShowOldPwd = false;
-    private boolean isShowPwd = false;
+    private boolean isShowPwd = true;
     private boolean isCountdown = false;
 
     @Override

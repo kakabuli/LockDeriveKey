@@ -51,7 +51,7 @@ import static com.revolo.lock.Constant.USER_MAIL;
 public class LoginActivity extends BaseActivity {
 
     private EditText mEtEmail, mEtPwd;
-    private boolean isShowPwd = false;
+    private boolean isShowPwd = true;
 
     @Override
     public void initData(@Nullable Bundle bundle) {

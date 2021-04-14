@@ -53,7 +53,7 @@ public class AddWifiActivity extends BaseActivity {
     private BleBean mBleBean;
     private WifiListPopup mWifiListPopup;
     private EditText mEtWifiName, mEtPwd;
-    private boolean isShowPwd = false;
+    private boolean isShowPwd = true;
 
     private BleDeviceLocal mBleDeviceLocal;
 
