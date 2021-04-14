@@ -73,7 +73,7 @@ public class AddWifiActivity extends BaseActivity {
 
     @Override
     public void initView(@Nullable Bundle savedInstanceState, @Nullable View contentView) {
-        useCommonTitleBar(getString(R.string.title_add_wifi));
+        useCommonTitleBar(getString(R.string.title_connect_wifi));
         mEtWifiName = findViewById(R.id.etWifiName);
         mEtPwd = findViewById(R.id.etPwd);
         mWifiListPopup = new WifiListPopup(this);
