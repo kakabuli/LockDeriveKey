@@ -13,6 +13,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.blankj.utilcode.util.ActivityUtils;
 import com.blankj.utilcode.util.AdaptScreenUtils;
 import com.blankj.utilcode.util.ConvertUtils;
 import com.blankj.utilcode.util.GsonUtils;
@@ -42,6 +43,7 @@ import com.revolo.lock.net.HttpRequest;
 import com.revolo.lock.net.ObservableDecorator;
 import com.revolo.lock.room.AppDatabase;
 import com.revolo.lock.room.entity.BleDeviceLocal;
+import com.revolo.lock.ui.device.lock.DeviceDetailActivity;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -291,7 +293,10 @@ public class DeviceSettingActivity extends BaseActivity {
                 App.getInstance().removeBleDeviceLocalFromMac(mBleDeviceLocal.getEsn());
                 AppDatabase.getInstance(getApplicationContext()).bleDeviceDao().delete(mBleDeviceLocal);
                 ToastUtils.showShort("Unbind success");
-                new Handler(Looper.getMainLooper()).postDelayed(() -> finish(), 50);
+                new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                    ActivityUtils.finishActivity(DeviceDetailActivity.class);
+                    finish();
+                    }, 50);
             }
 
             @Override
