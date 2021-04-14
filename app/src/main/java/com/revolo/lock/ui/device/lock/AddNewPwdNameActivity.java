@@ -68,7 +68,7 @@ public class AddNewPwdNameActivity extends BaseActivity {
 
     @Override
     public void doBusiness() {
-        App.getInstance().finishPreActivities();
+
     }
 
     @Override

@@ -1,7 +1,5 @@
 package com.revolo.lock.ui.device.add;
 
-import android.app.Activity;
-import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -10,12 +8,10 @@ import android.view.View;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.blankj.utilcode.util.ActivityUtils;
-import com.revolo.lock.App;
 import com.revolo.lock.R;
 import com.revolo.lock.base.BaseActivity;
+import com.revolo.lock.util.AppManager;
 
-import java.util.List;
 
 /**
  * author :
@@ -41,7 +37,7 @@ public class AddWifiSucActivity extends BaseActivity {
 
     @Override
     public void doBusiness() {
-        App.getInstance().finishPreActivities();
+        finishPreAct();
         threeSecFinish();
     }
 
@@ -49,19 +45,9 @@ public class AddWifiSucActivity extends BaseActivity {
     public void onDebouncingClick(@NonNull View view) {
     }
 
-    private void finishPreActivities() {
-        List<Activity> activities = App.getInstance().getWillFinishActivities();
-        if(activities.isEmpty()) {
-            return;
-        }
-        for (Activity activity : activities) {
-            if(activity instanceof WifiConnectActivity) {
-                activity.finish();
-            }
-            if(activity instanceof AddWifiActivity) {
-                activity.finish();
-            }
-        }
+    private void finishPreAct() {
+        AppManager.getInstance().finishActivity(WifiConnectActivity.class);
+        AppManager.getInstance().finishActivity(AddWifiActivity.class);
     }
 
     private void threeSecFinish() {

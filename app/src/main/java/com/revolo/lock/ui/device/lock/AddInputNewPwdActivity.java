@@ -10,12 +10,10 @@ import androidx.annotation.Nullable;
 
 import com.blankj.utilcode.util.RegexUtils;
 import com.blankj.utilcode.util.ToastUtils;
-import com.revolo.lock.App;
 import com.revolo.lock.Constant;
 import com.revolo.lock.R;
 import com.revolo.lock.base.BaseActivity;
 
-import timber.log.Timber;
 
 /**
  * author : Jack
@@ -61,10 +59,10 @@ public class AddInputNewPwdActivity extends BaseActivity {
                 return;
             }
             if(pwd.length() >= 4 && pwd.length() <= 12) {
-                App.getInstance().addWillFinishAct(this);
                 Intent intent = new Intent(this, AddNewPwdSelectActivity.class);
                 intent.putExtra(Constant.USER_PWD, pwd);
                 startActivity(intent);
+                finish();
             } else {
                 // TODO: 2021/1/25 抽离文字
                 ToastUtils.showShort("Please input right password!");

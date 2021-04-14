@@ -666,11 +666,11 @@ public class AddNewPwdSelectActivity extends BaseActivity {
             if(mSucMessageDialog != null) {
                 mSucMessageDialog.dismiss();
             }
-            App.getInstance().addWillFinishAct(this);
             Intent intent = new Intent(AddNewPwdSelectActivity.this, AddNewPwdNameActivity.class);
             intent.putExtra(Constant.PWD_NUM, mDevicePwdBean.getPwdNum());
             intent.putExtra(Constant.LOCK_ESN, mBleDeviceLocal.getEsn());
             startActivity(intent);
+            finish();
         });
     }
 

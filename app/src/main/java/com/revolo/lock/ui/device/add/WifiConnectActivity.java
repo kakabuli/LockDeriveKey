@@ -85,7 +85,6 @@ public class WifiConnectActivity extends BaseActivity {
     public void doBusiness() {
         changeValue(0);
         initDevice();
-        App.getInstance().addWillFinishAct(this);
     }
 
     @Override

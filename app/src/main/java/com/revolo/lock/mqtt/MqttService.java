@@ -12,6 +12,7 @@ import com.revolo.lock.App;
 import com.revolo.lock.R;
 import com.revolo.lock.mqtt.bean.MqttData;
 import com.revolo.lock.mqtt.bean.publishresultbean.PublishResult;
+import com.revolo.lock.util.AppManager;
 
 import org.eclipse.paho.android.service.MqttAndroidClient;
 import org.eclipse.paho.client.mqttv3.DisconnectedBufferOptions;
@@ -138,7 +139,7 @@ public class MqttService extends Service {
         super.onDestroy();
         Timber.d("mqtt MqttService 被杀死");
         //System.exit(0); 退出并没finish activity 因此增加了这一步
-        App.getInstance().finishPreActivities();
+        AppManager.getInstance().finishAllActivity();
         System.exit(0);
     }
 

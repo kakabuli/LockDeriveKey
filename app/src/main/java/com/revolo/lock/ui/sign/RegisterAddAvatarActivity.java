@@ -137,7 +137,6 @@ public class RegisterAddAvatarActivity extends BaseActivity implements EasyPermi
                     }
                     mUser.setAvatarLocalPath(path);
                     uploadUserAvatar(avatarFile);
-                    refreshAvatar();
 
                     break;
                 default:
@@ -274,6 +273,7 @@ public class RegisterAddAvatarActivity extends BaseActivity implements EasyPermi
                     Timber.e("avatarUrl is empty");
                     return;
                 }
+                refreshAvatar();
                 mUser.setAvatarUrl(avatarUrl);
                 AppDatabase.getInstance(RegisterAddAvatarActivity.this).userDao().update(mUser);
                 new Handler(Looper.getMainLooper()).postDelayed(() -> {

@@ -10,7 +10,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.blankj.utilcode.util.ToastUtils;
-import com.revolo.lock.App;
 import com.revolo.lock.Constant;
 import com.revolo.lock.R;
 import com.revolo.lock.base.BaseActivity;
@@ -42,7 +41,7 @@ public class InputESNActivity extends BaseActivity {
 
     @Override
     public void doBusiness() {
-        App.getInstance().addWillFinishAct(this);
+
     }
 
     @Override

@@ -18,6 +18,7 @@ import com.revolo.lock.R;
 import com.revolo.lock.base.BaseActivity;
 import com.revolo.lock.room.entity.User;
 import com.revolo.lock.ui.MainActivity;
+import com.revolo.lock.util.AppManager;
 
 import java.io.File;
 
@@ -60,6 +61,7 @@ public class RegisterAddAvatarNextActivity extends BaseActivity {
         if(view.getId() == R.id.btnAddNextTime) {
             Intent intent = new Intent(this, MainActivity.class);
             startActivity(intent);
+            finishPreAct();
             finish();
             return;
         }
@@ -67,8 +69,15 @@ public class RegisterAddAvatarNextActivity extends BaseActivity {
             Intent intent = new Intent(this, MainActivity.class);
             intent.putExtra(Constant.COMMAND, Constant.ADD_DEVICE);
             startActivity(intent);
+            finishPreAct();
             finish();
         }
+    }
+
+    private void finishPreAct() {
+        AppManager.getInstance().finishActivity(SignSelectActivity.class);
+        AppManager.getInstance().finishActivity(RegisterActivity.class);
+        AppManager.getInstance().finishActivity(RegisterAddAvatarActivity.class);
     }
 
     private void refreshAvatar() {

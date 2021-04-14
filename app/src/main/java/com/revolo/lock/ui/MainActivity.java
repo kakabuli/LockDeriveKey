@@ -10,6 +10,7 @@ import com.revolo.lock.Constant;
 import com.revolo.lock.R;
 import com.revolo.lock.base.BaseActivity;
 import com.revolo.lock.ui.device.add.AddDeviceActivity;
+import com.revolo.lock.util.AppManager;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -45,6 +46,7 @@ public class MainActivity extends BaseActivity {
         if(isGotoAddDeviceAct) {
             startActivity(new Intent(this, AddDeviceActivity.class));
         }
+        AppManager.getInstance().removeActivity(this);
     }
 
     @Override

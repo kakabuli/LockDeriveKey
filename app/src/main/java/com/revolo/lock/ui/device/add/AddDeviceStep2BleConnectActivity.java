@@ -39,6 +39,7 @@ import com.revolo.lock.net.ObservableDecorator;
 import com.revolo.lock.room.AppDatabase;
 import com.revolo.lock.room.entity.BleDeviceLocal;
 import com.revolo.lock.room.entity.User;
+import com.revolo.lock.util.AppManager;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -193,7 +194,7 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
                     // 提示已绑定，并退出
                     // TODO: 2021/2/6 修改显示方式
                     ToastUtils.showLong("The device is already bound");
-                    App.getInstance().finishPreActivities();
+                    finishPreAct();
                     finish();
                     return;
                 }
@@ -214,6 +215,12 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
 
             }
         });
+    }
+
+    private void finishPreAct() {
+        AppManager.getInstance().finishActivity(AddDeviceActivity.class);
+        AppManager.getInstance().finishActivity(AddDeviceStep1Activity.class);
+        AppManager.getInstance().finishActivity(AddDeviceQRCodeStep2Activity.class);
     }
 
     private byte[] mPwd1;
