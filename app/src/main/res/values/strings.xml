@@ -273,7 +273,7 @@
     <string name="title_door_sensor_alignment">Door sensor alignment</string>
     <string name="close_the_door">Close the door</string>
     <string name="open_the_door">Open the door</string>
-    <string name="half_close_the_door">half close the door</string>
+    <string name="half_close_the_door">Half close the door</string>
     <string name="door_check_suc_tip">WiFi connected,then you can acquire status of\nthe door lock remotely.\nPlease continue to connect WiFi.</string>
     <string name="connect_wifi">Connect WiFi</string>
     <string name="open_door_step_1_3_tip">1. Please install the door sensor on the door \n&#160;&#160;&#160;&#160;frame. \n2. Please install the door sensor along the top \n&#160;&#160;&#160;&#160;of the lock. \n3. Please full open the door.</string>
