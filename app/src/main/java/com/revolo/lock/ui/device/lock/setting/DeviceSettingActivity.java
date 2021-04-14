@@ -163,7 +163,7 @@ public class DeviceSettingActivity extends BaseActivity {
             return;
         }
         if(view.getId() == R.id.clDoorMagneticSwitch) {
-            Intent intent = new Intent(this, DoorMagnetAlignmentActivity.class);
+            Intent intent = new Intent(this, DoorSensorAlignmentActivity.class);
             startActivity(intent);
             return;
         }

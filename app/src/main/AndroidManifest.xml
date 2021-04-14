@@ -239,7 +239,7 @@
             android:name=".ui.device.lock.setting.GeoFenceUnlockActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".ui.device.lock.setting.DoorMagnetAlignmentActivity"
+            android:name=".ui.device.lock.setting.DoorSensorAlignmentActivity"
             android:screenOrientation="portrait" />
         <activity
             android:name=".ui.device.lock.setting.SetGeofenceActivity"

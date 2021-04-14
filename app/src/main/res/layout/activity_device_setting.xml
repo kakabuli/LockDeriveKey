@@ -189,7 +189,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="16pt"
-            android:text="@string/door_magnetic_switch"
+            android:text="@string/door_sensor_alignment"
             android:textColor="@color/c333333"
             android:textSize="15pt"
             app:layout_constraintBottom_toBottomOf="parent"

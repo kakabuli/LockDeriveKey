@@ -51,7 +51,7 @@ import static com.revolo.lock.ble.BleProtocolState.CMD_LOCK_INFO;
  * E-mail : wengmaowei@kaadas.com
  * desc   : 门磁校验
  */
-public class DoorMagnetAlignmentActivity extends BaseActivity {
+public class DoorSensorAlignmentActivity extends BaseActivity {
 
     // TODO: 2021/3/6 进页面先MQTT读取门磁状态
     private ConstraintLayout mClTip;
