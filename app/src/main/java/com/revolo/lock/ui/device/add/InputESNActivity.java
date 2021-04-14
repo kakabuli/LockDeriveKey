@@ -35,7 +35,7 @@ public class InputESNActivity extends BaseActivity {
 
     @Override
     public void initView(@Nullable Bundle savedInstanceState, @Nullable View contentView) {
-        useCommonTitleBar(getString(R.string.title_manual_input));
+        useCommonTitleBar(getString(R.string.title_enter_codes));
         applyDebouncingClickListener(findViewById(R.id.btnNext));
     }
 
