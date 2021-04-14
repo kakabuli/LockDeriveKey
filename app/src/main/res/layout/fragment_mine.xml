@@ -29,13 +29,17 @@
 
         <TextView
             android:id="@+id/tvHiName"
-            android:layout_width="wrap_content"
+            android:layout_width="0pt"
             android:layout_height="wrap_content"
             android:layout_marginStart="15pt"
+            android:layout_marginEnd="15pt"
             android:layout_marginTop="41pt"
             android:textColor="@color/c333333"
             android:textSize="20pt"
             android:textStyle="bold"
+            android:maxLines="1"
+            android:singleLine="true"
+            app:layout_constraintEnd_toStartOf="@+id/ivAvatar"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             tools:text="Hi, John" />

@@ -57,14 +57,19 @@
 
         <TextView
             android:id="@+id/tvUserName"
-            android:layout_width="wrap_content"
+            android:layout_width="0pt"
             android:layout_height="wrap_content"
-            tools:text="hudada's"
             android:textColor="@color/c666666"
             android:textSize="14pt"
+            android:gravity="end"
+            android:layout_marginStart="15pt"
+            android:maxLines="1"
+            android:singleLine="true"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/imageView27"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintStart_toEndOf="@+id/textView48"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="hudada's" />
 
         <ImageView
             android:id="@+id/imageView27"
