@@ -27,6 +27,7 @@
         android:paddingStart="20pt"
         android:paddingEnd="20pt"
         android:textSize="16pt"
+        android:hint="@string/please_enter_your_feedback"
         android:background="@drawable/shape_feedback_bg"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

@@ -245,6 +245,7 @@
 
     <!-- FeedbackActivity -->
     <string name="title_feedback">Feedback</string>
+    <string name="please_enter_your_feedback">Please enter your feedback</string>
     <string name="submit">Submit</string>
 
     <!-- BleConnectSucActivity -->
