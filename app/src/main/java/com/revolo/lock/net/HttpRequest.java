@@ -124,7 +124,7 @@ public class HttpRequest {
     public static final String HOST = ABROAD_HOST;
     private static final String CHECK_OTA_HOST_TEST = "https://test1.juziwulian.com:9111";          // 国内服务器测试接口
     private static final String CHECK_OTA_HOST_ABROAD = "https://ota-global.juziwulian.com:9111";   // 海外服务器接口
-    public static final String CHECK_OTA_HOST = CHECK_OTA_HOST_TEST;
+    public static final String CHECK_OTA_HOST = CHECK_OTA_HOST_ABROAD;
     
 
   private static HttpRequest ourInstance;

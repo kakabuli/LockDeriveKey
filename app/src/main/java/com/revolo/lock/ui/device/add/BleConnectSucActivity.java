@@ -55,18 +55,9 @@ public class BleConnectSucActivity extends BaseActivity {
     }
 
     private void finishPreActivities() {
-        List<Activity> activities = ActivityUtils.getActivityList();
-        if(activities.isEmpty()) {
-            return;
-        }
-        for (Activity activity : activities) {
-            if(activity instanceof AddDeviceStep1Activity) {
-                activity.finish();
-            }
-            if(activity instanceof AddDeviceActivity) {
-                activity.finish();
-            }
-        }
+        ActivityUtils.finishActivity(AddDeviceStep1Activity.class);
+        ActivityUtils.finishActivity(AddDeviceActivity.class);
+        ActivityUtils.finishActivity(InputESNActivity.class);
     }
 
 }

@@ -48,6 +48,7 @@ public class AddWifiSucActivity extends BaseActivity {
     private void finishPreAct() {
         ActivityUtils.finishActivity(WifiConnectActivity.class);
         ActivityUtils.finishActivity(AddWifiActivity.class);
+        ActivityUtils.finishActivity(InputESNActivity.class);
     }
 
     private void threeSecFinish() {

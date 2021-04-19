@@ -72,6 +72,9 @@ public class DoorLockInformationActivity extends BaseActivity {
     private boolean isCanUpdateFirmwareVer = false;
     private boolean isCanUpdateWifiVer = false;
 
+    // -1 不做任何升级， 2 wifi锁， 6 前板
+    private int mUpdateType = -1;
+
     @Override
     public void initData(@Nullable Bundle bundle) {
         Intent intent = getIntent();
@@ -126,12 +129,14 @@ public class DoorLockInformationActivity extends BaseActivity {
         if(view.getId() == R.id.tvFirmwareVersion) {
             if(isCanUpdateFirmwareVer) {
                 showAllUpdateVerDialog();
+                mUpdateType = 6;
             }
             return;
         }
         if(view.getId() == R.id.tvWifiVersion) {
             if(isCanUpdateWifiVer) {
                 showAllUpdateVerDialog();
+                mUpdateType = 2;
             }
         }
     }
@@ -680,7 +685,9 @@ public class DoorLockInformationActivity extends BaseActivity {
             bean.setFileMd5(taskBean.getFileMd5());
             bean.setFileUrl(taskBean.getFileUrl());
             bean.setFileVersion(taskBean.getFileVersion());
-            taskBeans.add(bean);
+            if(mUpdateType == taskBean.getDevNum()) {
+                taskBeans.add(bean);
+            }
         }
         req.setUpgradeTask(taskBeans);
         req.setWifiSN(mBleDeviceLocal.getEsn());
