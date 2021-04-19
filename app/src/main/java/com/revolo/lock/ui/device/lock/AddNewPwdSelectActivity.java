@@ -744,15 +744,19 @@ public class AddNewPwdSelectActivity extends BaseActivity {
                 return;
             }
             if(bean == null) {
-                Timber.e("publishAddPwd bean == null");
+                Timber.e("processAddPwd bean == null");
                 return;
             }
             if(bean.getCode() != 200) {
-                Timber.e("publishAddPwd code : %1d", bean.getCode());
+                Timber.e("processAddPwd code : %1d", bean.getCode());
+                if(bean.getCode() == 201) {
+                    // TODO: 2021/4/19 抽离文字信息
+                    ToastUtils.showShort("Failed to add password!");
+                }
                 return;
             }
             if(bean.getParams() == null) {
-                Timber.e("publishAddPwd bean.getParams() == null");
+                Timber.e("processAddPwd bean.getParams() == null");
                 return;
             }
             mNum = bean.getParams().getKeyNum();

@@ -260,7 +260,7 @@ public class DeviceFragment extends Fragment {
                 Timber.e("updateDataFromNet bleDeviceLocal == null");
                 bleDeviceLocal = createDeviceToLocal(wifiListBean);
             }
-            bleDeviceLocal.setName(wifiListBean.getWifiName());
+            bleDeviceLocal.setName(wifiListBean.getLockNickname());
             String firmwareVer = wifiListBean.getLockFirmwareVersion();
             if(!TextUtils.isEmpty(firmwareVer)) {
                 bleDeviceLocal.setLockVer(firmwareVer);
