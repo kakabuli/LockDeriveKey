@@ -4,7 +4,6 @@ import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
-import android.location.Location;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
@@ -18,6 +17,7 @@ import androidx.core.app.ActivityCompat;
 
 import com.blankj.utilcode.util.ConvertUtils;
 import com.blankj.utilcode.util.GsonUtils;
+import com.blankj.utilcode.util.ToastUtils;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -27,7 +27,6 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.gson.JsonSyntaxException;
 import com.revolo.lock.App;
 import com.revolo.lock.LocalState;
@@ -44,7 +43,6 @@ import com.revolo.lock.mqtt.MqttCommandFactory;
 import com.revolo.lock.mqtt.MqttConstant;
 import com.revolo.lock.mqtt.bean.MqttData;
 import com.revolo.lock.mqtt.bean.publishbean.attrparams.ElecFenceSensitivityParams;
-import com.revolo.lock.mqtt.bean.publishresultbean.WifiLockApproachOpenResponseBean;
 import com.revolo.lock.mqtt.bean.publishresultbean.WifiLockSetLockAttrSensitivityRspBean;
 import com.revolo.lock.room.AppDatabase;
 import com.revolo.lock.room.entity.BleDeviceLocal;
@@ -54,7 +52,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.concurrent.TimeUnit;
 
-import io.reactivex.Observer;
 import io.reactivex.disposables.Disposable;
 import timber.log.Timber;
 
@@ -76,7 +73,6 @@ public class GeoFenceUnlockActivity extends BaseActivity implements OnMapReadyCa
     private TextView mTvTime, mTvSensitivity;
     private BleDeviceLocal mBleDeviceLocal;
     private SeekBar mSeekBarTime, mSeekBarSensitivity;
-    private FusedLocationProviderClient fusedLocationClient;
 
     private GoogleMap mMap;
     public float GEO_FENCE_RADIUS = 200;
@@ -145,7 +141,7 @@ public class GeoFenceUnlockActivity extends BaseActivity implements OnMapReadyCa
         if(mapFragment != null) {
             mapFragment.getMapAsync(this);
         }
-        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+        FusedLocationProviderClient fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             // TODO: Consider calling
             //    ActivityCompat#requestPermissions
@@ -157,22 +153,19 @@ public class GeoFenceUnlockActivity extends BaseActivity implements OnMapReadyCa
             return;
         }
         fusedLocationClient.getLastLocation()
-                .addOnSuccessListener(this, new OnSuccessListener<Location>() {
-                    @Override
-                    public void onSuccess(Location location) {
-                        // Got last known location. In some rare situations this can be null.
-                        if (location != null) {
-                            // Logic to handle location object
-                            if(mBleDeviceLocal.isOpenElectricFence()) {
-                                double la = mBleDeviceLocal.getLatitude();
-                                double lo = mBleDeviceLocal.getLongitude();
-                                if(mMap != null) {
-                                    mMap.clear();
-                                    LatLng latLng = new LatLng(la, lo);
-                                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 16));
-                                    addMarker(latLng);
-                                    addCircle(latLng, GEO_FENCE_RADIUS);
-                                }
+                .addOnSuccessListener(this, location -> {
+                    // Got last known location. In some rare situations this can be null.
+                    if (location != null) {
+                        // Logic to handle location object
+                        if(mBleDeviceLocal.isOpenElectricFence()) {
+                            double la = mBleDeviceLocal.getLatitude();
+                            double lo = mBleDeviceLocal.getLongitude();
+                            if(mMap != null) {
+                                mMap.clear();
+                                LatLng latLng = new LatLng(la, lo);
+                                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 16));
+                                addMarker(latLng);
+                                addCircle(latLng, GEO_FENCE_RADIUS);
                             }
                         }
                     }
@@ -457,19 +450,11 @@ public class GeoFenceUnlockActivity extends BaseActivity implements OnMapReadyCa
         if(bean.getCMD() == CMD_SET_SENSITIVITY) {
             processSetSensitivity(bean);
         }
-//        else if(bean.getCMD() == CMD_KNOCK_DOOR_AND_UNLOCK_TIME) {
-//            processKnockUnlockTime(bean);
-//        }
     }
 
-    private void processKnockUnlockTime(BleResultBean bean) {
-        byte state = bean.getPayload()[0];
-        if(state == 0x00) {
-            mBleDeviceLocal.setSetElectricFenceTime(mTime);
-            AppDatabase.getInstance(this).bleDeviceDao().update(mBleDeviceLocal);
-        } else {
-            Timber.e("处理失败原因 state：%1s", ConvertUtils.int2HexString(BleByteUtil.byteToInt(state)));
-        }
+    private void saveElectricFenceTimeToLocal(int time) {
+        mBleDeviceLocal.setSetElectricFenceTime(time);
+        AppDatabase.getInstance(this).bleDeviceDao().update(mBleDeviceLocal);
     }
 
     private void processSetSensitivity(BleResultBean bean) {
@@ -486,130 +471,72 @@ public class GeoFenceUnlockActivity extends BaseActivity implements OnMapReadyCa
         AppDatabase.getInstance(this).bleDeviceDao().update(mBleDeviceLocal);
     }
 
+    private Disposable mSensitivityDisposable;
+
     private void publishSensitivity(String wifiID, int sensitivity) {
+        if(mMQttService == null) {
+            Timber.e("publishSensitivity mMQttService == null");
+            return;
+        }
         showLoading();
         ElecFenceSensitivityParams autoLockTimeParams = new ElecFenceSensitivityParams();
         autoLockTimeParams.setElecFenceSensitivity(sensitivity);
-        App.getInstance().getMqttService().mqttPublish(MqttConstant.getCallTopic(App.getInstance().getUserBean().getUid()),
+        toDisposable(mSensitivityDisposable);
+        mSensitivityDisposable = mMQttService.mqttPublish(MqttConstant.getCallTopic(App.getInstance().getUserBean().getUid()),
                 MqttCommandFactory.setLockAttr(wifiID, autoLockTimeParams,
                         BleCommandFactory.getPwd(
                                 ConvertUtils.hexString2Bytes(mBleDeviceLocal.getPwd1()),
                                 ConvertUtils.hexString2Bytes(mBleDeviceLocal.getPwd2()))))
                 .timeout(DEFAULT_TIMEOUT_SEC_VALUE, TimeUnit.SECONDS)
-                .safeSubscribe(new Observer<MqttData>() {
-                    @Override
-                    public void onSubscribe(@NotNull Disposable d) {
-
-                    }
-
-                    @Override
-                    public void onNext(@NotNull MqttData mqttData) {
-                        if(TextUtils.isEmpty(mqttData.getFunc())) {
-                            Timber.e("publishSensitivity mqttData.getFunc() is empty");
-                            return;
-                        }
-                        if(mqttData.getFunc().equals(MqttConstant.SET_LOCK_ATTR)) {
-                            dismissLoading();
-                            Timber.d("publishSensitivity 设置属性: %1s", mqttData);
-                            WifiLockSetLockAttrSensitivityRspBean bean;
-                            try {
-                                bean = GsonUtils.fromJson(mqttData.getPayload(), WifiLockSetLockAttrSensitivityRspBean.class);
-                            } catch (JsonSyntaxException e) {
-                                Timber.e(e);
-                                return;
-                            }
-                            if(bean == null) {
-                                Timber.e("publishSensitivity bean == null");
-                                return;
-                            }
-                            if(bean.getParams() == null) {
-                                Timber.e("publishSensitivity bean.getParams() == null");
-                                return;
-                            }
-                            if(bean.getCode() != 200) {
-                                Timber.e("publishSensitivity code : %1d", bean.getCode());
-                                return;
-                            }
-                            saveSensitivityToLocal();
-                        }
-                        Timber.d("publishSensitivity %1s", mqttData.toString());
-                    }
-
-                    @Override
-                    public void onError(@NotNull Throwable e) {
-                        // TODO: 2021/3/3 错误处理
-                        // 超时或者其他错误
-                        dismissLoading();
-                        Timber.e(e);
-                    }
-
-                    @Override
-                    public void onComplete() {
-
-                    }
+                .subscribe(mqttData -> {
+                    toDisposable(mSensitivityDisposable);
+                    processSensitivity(mqttData);
+                }, e -> {
+                    // TODO: 2021/3/3 错误处理
+                    // 超时或者其他错误
+                    dismissLoading();
+                    Timber.e(e);
                 });
+        mCompositeDisposable.add(mSensitivityDisposable);
     }
 
-    private void publishApproachOpen(String wifiID, int broadcastTime) {
-        showLoading();
-        App.getInstance().getMqttService().mqttPublish(MqttConstant.getCallTopic(App.getInstance().getUserBean().getUid()),
-                MqttCommandFactory.approachOpen(wifiID, broadcastTime,
-                        BleCommandFactory.getPwd(
-                                ConvertUtils.hexString2Bytes(mBleDeviceLocal.getPwd1()),
-                                ConvertUtils.hexString2Bytes(mBleDeviceLocal.getPwd2()))))
-                .timeout(DEFAULT_TIMEOUT_SEC_VALUE, TimeUnit.SECONDS)
-                .safeSubscribe(new Observer<MqttData>() {
-                    @Override
-                    public void onSubscribe(@NotNull Disposable d) {
-
-                    }
-
-                    @Override
-                    public void onNext(@NotNull MqttData mqttData) {
-                        if(TextUtils.isEmpty(mqttData.getFunc())) {
-                            Timber.e("publishApproachOpen mqttData.getFunc() is empty");
-                            return;
-                        }
-                        if(mqttData.getFunc().equals(MqttConstant.APP_ROACH_OPEN)) {
-                            dismissLoading();
-                            Timber.d("publishApproachOpen 无感开门: %1s", mqttData);
-                            WifiLockApproachOpenResponseBean bean;
-                            try {
-                                bean = GsonUtils.fromJson(mqttData.getPayload(), WifiLockApproachOpenResponseBean.class);
-                            } catch (JsonSyntaxException e) {
-                                Timber.e(e);
-                                return;
-                            }
-                            if(bean == null) {
-                                Timber.e("publishApproachOpen bean == null");
-                                return;
-                            }
-                            if(bean.getParams() == null) {
-                                Timber.e("publishApproachOpen bean.getParams() == null");
-                                return;
-                            }
-                            if(bean.getCode() != 200) {
-                                Timber.e("publishApproachOpen code : %1d", bean.getCode());
-                                return;
-                            }
-                            // TODO: 2021/3/5 开启成功，然后开启蓝牙并不断搜索设备
-                        }
-                        Timber.d("publishApproachOpen %1s", mqttData.toString());
-                    }
-
-                    @Override
-                    public void onError(@NotNull Throwable e) {
-                        // TODO: 2021/3/3 错误处理
-                        // 超时或者其他错误
-                        dismissLoading();
-                        Timber.e(e);
-                    }
-
-                    @Override
-                    public void onComplete() {
-
-                    }
-                });
+    private void processSensitivity(MqttData mqttData) {
+        if(TextUtils.isEmpty(mqttData.getFunc())) {
+            Timber.e("publishSensitivity mqttData.getFunc() is empty");
+            return;
+        }
+        if(mqttData.getFunc().equals(MqttConstant.SET_LOCK_ATTR)) {
+            dismissLoading();
+            Timber.d("publishSensitivity 设置属性: %1s", mqttData);
+            WifiLockSetLockAttrSensitivityRspBean bean;
+            try {
+                bean = GsonUtils.fromJson(mqttData.getPayload(), WifiLockSetLockAttrSensitivityRspBean.class);
+            } catch (JsonSyntaxException e) {
+                Timber.e(e);
+                return;
+            }
+            if(bean == null) {
+                Timber.e("publishSensitivity bean == null");
+                return;
+            }
+            if(bean.getParams() == null) {
+                Timber.e("publishSensitivity bean.getParams() == null");
+                return;
+            }
+            if(bean.getCode() != 200) {
+                Timber.e("publishSensitivity code : %1d", bean.getCode());
+                if(bean.getCode() == 201) {
+                    // 设置失败了
+                    // TODO: 2021/4/20 抽离文字信息
+                    ToastUtils.showShort("Setting sensitivity fail!");
+                    initDefaultValue();
+                    initTimeNSensitivityDataUI();
+                }
+                return;
+            }
+            saveSensitivityToLocal();
+        }
+        Timber.d("publishSensitivity %1s", mqttData.toString());
     }
 
     /**
