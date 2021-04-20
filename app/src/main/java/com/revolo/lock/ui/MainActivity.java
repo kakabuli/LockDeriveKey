@@ -40,9 +40,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.concurrent.TimeUnit;
 
-import io.reactivex.Observer;
 import io.reactivex.disposables.Disposable;
-import io.reactivex.functions.Consumer;
 import timber.log.Timber;
 
 import static com.revolo.lock.Constant.DEFAULT_TIMEOUT_SEC_VALUE;

@@ -23,7 +23,9 @@ import com.revolo.lock.R;
 import com.revolo.lock.adapter.PasswordListAdapter;
 import com.revolo.lock.base.BaseActivity;
 import com.revolo.lock.bean.DevicePwdBean;
+import com.revolo.lock.bean.request.DelKeyBeanReq;
 import com.revolo.lock.bean.request.SearchKeyListBeanReq;
+import com.revolo.lock.bean.respone.DelKeyBeanRsp;
 import com.revolo.lock.bean.respone.SearchKeyListBeanRsp;
 import com.revolo.lock.ble.BleByteUtil;
 import com.revolo.lock.ble.BleCommandFactory;
@@ -114,10 +116,13 @@ public class PasswordListActivity extends BaseActivity {
         if(mBleDeviceLocal.getConnectedType() != LocalState.DEVICE_CONNECT_TYPE_WIFI) {
             BleBean bleBean = App.getInstance().getBleBeanFromMac(mBleDeviceLocal.getMac());
             if(bleBean != null) {
+                showLoading();
                 bleBean.setOnBleDeviceListener(mOnBleDeviceListener);
+                new Handler(Looper.getMainLooper()).postDelayed(this::checkHadPwdFromBle, 20);
             }
+        } else {
+            searchPwdListFromNET();
         }
-        searchPwdListFromNET();
     }
 
     @Override
@@ -164,7 +169,7 @@ public class PasswordListActivity extends BaseActivity {
                 if(mRefreshLayout != null) {
                     mRefreshLayout.finishRefresh();
                 }
-                processKeyListFromNet(searchKeyListBeanRsp);
+                processPwdListFromNet(searchKeyListBeanRsp);
             }
 
             @Override
@@ -180,7 +185,7 @@ public class PasswordListActivity extends BaseActivity {
         });
     }
 
-    private void processKeyListFromNet(@NonNull SearchKeyListBeanRsp searchKeyListBeanRsp) {
+    private void processPwdListFromNet(@NonNull SearchKeyListBeanRsp searchKeyListBeanRsp) {
         String code = searchKeyListBeanRsp.getCode();
         if(TextUtils.isEmpty(code)) {
             Timber.e("processKeyListFromNet searchKeyListBeanRsp.getCode() is Empty");
@@ -209,13 +214,15 @@ public class PasswordListActivity extends BaseActivity {
         if(searchKeyListBeanRsp.getData().getPwdList() == null) {
             dismissLoading();
             Timber.e("processKeyListFromNet searchKeyListBeanRsp.getData().getPwdList() == null");
-            inCasePwdEmptyThanUseBleCheck();
+            // 清空数据
+            mPasswordListAdapter.setList(new ArrayList<>());
             return;
         }
         if(searchKeyListBeanRsp.getData().getPwdList().isEmpty()) {
             dismissLoading();
             Timber.e("processKeyListFromNet searchKeyListBeanRsp.getData().getPwdList().isEmpty()");
-            inCasePwdEmptyThanUseBleCheck();
+            // 清空数据
+            mPasswordListAdapter.setList(new ArrayList<>());
             return;
         }
         List<DevicePwdBean> pwdList = new ArrayList<>();
@@ -233,12 +240,122 @@ public class PasswordListActivity extends BaseActivity {
             // 默认可用
             // TODO: 2021/2/24 后面需要修改通过策略和时间判断是否可用
             devicePwdBean.setPwdState(1);
+            if(mBleDeviceLocal.getConnectedType() != LocalState.DEVICE_CONNECT_TYPE_WIFI) {
+                Timber.d("bean num: %1d", bean.getNum());
+                if(!mWillSearchList.contains(BleByteUtil.intToByte(bean.getNum()))) {
+                    mWillDelPwd.add(bean.getNum());
+                    continue;
+                }
+            }
             pwdList.add(devicePwdBean);
         }
+        deleteCantFindPwd(pwdList);
+    }
+
+    private void showPwdList(List<DevicePwdBean> pwdList) {
         new Handler(Looper.getMainLooper()).postDelayed(() -> {
             mPasswordListAdapter.setList(pwdList);
             dismissLoading();
         }, 200);
+    }
+
+    private final List<Integer> mWillDelPwd = new ArrayList<>();
+
+    private void deleteCantFindPwd(List<DevicePwdBean> pwdList) {
+        if(!checkNetConnectFail()) {
+            showPwdList(pwdList);
+            return;
+        }
+        if(mWillDelPwd.isEmpty()) {
+            showPwdList(pwdList);
+            return;
+        }
+        List<DelKeyBeanReq.PwdListBean> listBeans = new ArrayList<>();
+        for (int num : mWillDelPwd) {
+            DelKeyBeanReq.PwdListBean pwdListBean = new DelKeyBeanReq.PwdListBean();
+            pwdListBean.setNum(num);
+            pwdListBean.setPwdType(1);
+            listBeans.add(pwdListBean);
+        }
+        // TODO: 2021/2/24 服务器删除失败，需要检查如何通过服务器再删除，下面所有
+        if(mBleDeviceLocal == null) {
+            showPwdList(pwdList);
+            Timber.e("delKeyFromService bleDeviceLocal == null");
+            return;
+        }
+        String esn = mBleDeviceLocal.getEsn();
+        if(TextUtils.isEmpty(esn)) {
+            showPwdList(pwdList);
+            Timber.e("delKeyFromService esn is Empty");
+            return;
+        }
+        if(App.getInstance().getUserBean() == null) {
+            showPwdList(pwdList);
+            Timber.e("delKeyFromService App.getInstance().getUserBean() == null");
+            return;
+        }
+        String uid = App.getInstance().getUserBean().getUid();
+        if(TextUtils.isEmpty(uid)) {
+            showPwdList(pwdList);
+            Timber.e("delKeyFromService uid is Empty");
+            return;
+        }
+        String token = App.getInstance().getUserBean().getToken();
+        if(TextUtils.isEmpty(token)) {
+            showPwdList(pwdList);
+            Timber.e("delKeyFromService token is Empty");
+            return;
+        }
+        DelKeyBeanReq req = new DelKeyBeanReq();
+        req.setPwdList(listBeans);
+        req.setSn(esn);
+        req.setUid(uid);
+        Observable<DelKeyBeanRsp> observable = HttpRequest.getInstance().delKey(token, req);
+        ObservableDecorator.decorate(observable).safeSubscribe(new Observer<DelKeyBeanRsp>() {
+            @Override
+            public void onSubscribe(@NonNull Disposable d) {
+
+            }
+
+            @Override
+            public void onNext(@NonNull DelKeyBeanRsp delKeyBeanRsp) {
+                String code = delKeyBeanRsp.getCode();
+                if(TextUtils.isEmpty(code)) {
+                    // TODO: 2021/2/24 服务器删除失败，需要检查如何通过服务器再删除
+                    showPwdList(pwdList);
+                    Timber.e("delKeyFromService delKeyBeanRsp.getCode() is Empty");
+                    return;
+                }
+                if(!code.equals("200")) {
+                    // TODO: 2021/2/24 服务器删除失败，需要检查如何通过服务器再删除
+                    if(code.equals("444")) {
+                        dismissLoading();
+                        App.getInstance().logout(true, PasswordListActivity.this);
+                        return;
+                    }
+                    showPwdList(pwdList);
+                    String msg = delKeyBeanRsp.getMsg();
+                    Timber.e("delKeyFromService code: %1s msg: %2s", code, msg);
+                    if(!TextUtils.isEmpty(msg)) {
+                        ToastUtils.showShort(msg);
+                    }
+                    return;
+                }
+                showPwdList(pwdList);
+            }
+
+            @Override
+            public void onError(@NonNull Throwable e) {
+                showPwdList(pwdList);
+                Timber.e(e);
+            }
+
+            @Override
+            public void onComplete() {
+
+            }
+        });
+        mWillDelPwd.clear();
     }
 
     private void setWeeklyFromNetData(SearchKeyListBeanRsp.DataBean.PwdListBean bean, DevicePwdBean devicePwdBean, int attribute) {
@@ -335,15 +452,6 @@ public class PasswordListActivity extends BaseActivity {
 
     };
 
-    private void inCasePwdEmptyThanUseBleCheck() {
-        if(mBleDeviceLocal.getConnectedType() != LocalState.DEVICE_CONNECT_TYPE_WIFI) {
-            checkHadPwdFromBle();
-        } else {
-            // 清空数据
-            mPasswordListAdapter.setList(new ArrayList<>());
-        }
-    }
-
     private void checkHadPwdFromBle() {
         new Handler(Looper.getMainLooper()).postDelayed(() -> {
             mWillSearchList.clear();
@@ -379,8 +487,6 @@ public class PasswordListActivity extends BaseActivity {
         // TODO: 2021/2/4 后续需要做去重操作
         if(bean.getCMD() == CMD_SY_KEY_STATE) {
             checkPwdIsExist(bean);
-            // 查询到密钥存在后，开始读取对应密钥
-            mHandler.postDelayed(mSearchPwdListRunnable, 20);
         } else if(bean.getCMD() == CMD_KEY_ATTRIBUTES_READ) {
             String name = App.getInstance().getCacheDiskUtils().getString("pwdName"+mCurrentSearchNum);
             byte attribute = bean.getPayload()[0];
@@ -463,7 +569,7 @@ public class PasswordListActivity extends BaseActivity {
         byte[] num2 = BleByteUtil.byteToBit(value[4]);
         // 17-20
         byte[] num3 = BleByteUtil.byteToBit(value[5]);
-        Timber.d("1-8: %1s, 9-16: %2s, 17-20: %3s",
+        Timber.d("7-0: %1s, 15-8: %2s, 19-16: %3s",
                 ConvertUtils.bytes2HexString(num1), ConvertUtils.bytes2HexString(num2), ConvertUtils.bytes2HexString(num3));
         // 循环判断20个内有哪些编号是存在密码的
         for (int i=7; i>=0; i--) {
@@ -481,6 +587,18 @@ public class PasswordListActivity extends BaseActivity {
                 mWillSearchList.add((byte) (23-i));
             }
         }
+
+        if(!mWillSearchList.isEmpty()) {
+            StringBuilder logStr = new StringBuilder();
+            for (byte b: mWillSearchList) {
+                logStr.append(", ").append(BleByteUtil.byteToInt(b));
+            }
+            Timber.d("存在的密钥编号：%1s", logStr.toString());
+        }
+        searchPwdListFromNET();
+        // TODO: 2021/4/20 后续再校对数据是否存在遗漏或者重合
+        // 查询到密钥存在后，开始读取对应密钥
+//        mHandler.postDelayed(mSearchPwdListRunnable, 20);
     }
 
     private final Handler mHandler = new Handler(Looper.getMainLooper());
