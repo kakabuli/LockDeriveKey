@@ -370,7 +370,7 @@ public class DeviceSettingActivity extends BaseActivity {
                 bean.getCMD(), eventType, eventSource, eventCode, userID, realTime);
     }
 
-    private OnBleDeviceListener mOnBleDeviceListener = new OnBleDeviceListener() {
+    private final OnBleDeviceListener mOnBleDeviceListener = new OnBleDeviceListener() {
         @Override
         public void onConnected(@NotNull String mac) {
 
@@ -423,71 +423,70 @@ public class DeviceSettingActivity extends BaseActivity {
         }
     };
 
+    private Disposable mSetVolumeDisposable;
+
     /**
      * 设置是否静音
      * @param mute 0语音模式 1静音模式
      */
     private void publishSetVolume(String wifiID, @LocalState.VolumeState int mute) {
+        if(mMQttService == null) {
+            Timber.e("publishSetVolume mMQttService == null");
+            return;
+        }
         VolumeParams volumeParams = new VolumeParams();
         volumeParams.setVolume(mute);
-        App.getInstance().getMqttService().mqttPublish(MqttConstant.getCallTopic(App.getInstance().getUserBean().getUid()),
+        toDisposable(mSetVolumeDisposable);
+        mSetVolumeDisposable = mMQttService.mqttPublish(MqttConstant.getCallTopic(App.getInstance().getUserBean().getUid()),
                 MqttCommandFactory.setLockAttr(wifiID, volumeParams,
                         BleCommandFactory.getPwd(
                                 ConvertUtils.hexString2Bytes(mBleDeviceLocal.getPwd1()),
                                 ConvertUtils.hexString2Bytes(mBleDeviceLocal.getPwd2()))))
+                .filter(mqttData -> mqttData.getFunc().equals(MqttConstant.SET_LOCK_ATTR))
                 .timeout(DEFAULT_TIMEOUT_SEC_VALUE, TimeUnit.SECONDS)
-                .safeSubscribe(new Observer<MqttData>() {
-                    @Override
-                    public void onSubscribe(@NotNull Disposable d) {
-
-                    }
-
-                    @Override
-                    public void onNext(@NotNull MqttData mqttData) {
-                        if(TextUtils.isEmpty(mqttData.getFunc())) {
-                            Timber.e("publishSetVolume mqttData.getFunc() is empty");
-                            return;
-                        }
-                        if(mqttData.getFunc().equals(MqttConstant.SET_LOCK_ATTR)) {
-                            dismissLoading();
-                            Timber.d("设置属性: %1s", mqttData);
-                            WifiLockSetLockAttrVolumeRspBean bean;
-                            try {
-                                bean = GsonUtils.fromJson(mqttData.getPayload(), WifiLockSetLockAttrVolumeRspBean.class);
-                            } catch (JsonSyntaxException e) {
-                                Timber.e(e);
-                                return;
-                            }
-                            if(bean == null) {
-                                Timber.e("publishSetVolume bean == null");
-                                return;
-                            }
-                            if(bean.getParams() == null) {
-                                Timber.e("publishSetVolume bean.getParams() == null");
-                                return;
-                            }
-                            if(bean.getCode() != 200) {
-                                Timber.e("publishSetVolume code : %1d", bean.getCode());
-                                return;
-                            }
-                            saveMuteStateToLocal(mute);
-                        }
-                        Timber.d("publishSetVolume %1s", mqttData.toString());
-                    }
-
-                    @Override
-                    public void onError(@NotNull Throwable e) {
-                        // TODO: 2021/3/3 错误处理
-                        // 超时或者其他错误
-                        dismissLoading();
-                        Timber.e(e);
-                    }
-
-                    @Override
-                    public void onComplete() {
-
-                    }
+                .subscribe(mqttData -> {
+                    toDisposable(mSetVolumeDisposable);
+                    processSetVolume(mqttData, mute);
+                }, e -> {
+                    // TODO: 2021/3/3 错误处理
+                    // 超时或者其他错误
+                    dismissLoading();
+                    Timber.e(e);
                 });
+        mCompositeDisposable.add(mSetVolumeDisposable);
     }
+
+    private void processSetVolume(MqttData mqttData, @LocalState.VolumeState int mute) {
+        if(TextUtils.isEmpty(mqttData.getFunc())) {
+            Timber.e("publishSetVolume mqttData.getFunc() is empty");
+            return;
+        }
+        if(mqttData.getFunc().equals(MqttConstant.SET_LOCK_ATTR)) {
+            dismissLoading();
+            Timber.d("设置属性: %1s", mqttData);
+            WifiLockSetLockAttrVolumeRspBean bean;
+            try {
+                bean = GsonUtils.fromJson(mqttData.getPayload(), WifiLockSetLockAttrVolumeRspBean.class);
+            } catch (JsonSyntaxException e) {
+                Timber.e(e);
+                return;
+            }
+            if(bean == null) {
+                Timber.e("publishSetVolume bean == null");
+                return;
+            }
+            if(bean.getParams() == null) {
+                Timber.e("publishSetVolume bean.getParams() == null");
+                return;
+            }
+            if(bean.getCode() != 200) {
+                Timber.e("publishSetVolume code : %1d", bean.getCode());
+                return;
+            }
+            saveMuteStateToLocal(mute);
+        }
+        Timber.d("publishSetVolume %1s", mqttData.toString());
+    }
+
 
 }

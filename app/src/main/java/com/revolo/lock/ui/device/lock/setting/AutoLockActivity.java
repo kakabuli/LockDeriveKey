@@ -38,7 +38,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.concurrent.TimeUnit;
 
-import io.reactivex.Observer;
 import io.reactivex.disposables.Disposable;
 import timber.log.Timber;
 
@@ -148,139 +147,135 @@ public class AutoLockActivity extends BaseActivity {
 
     }
 
+    private Disposable mOpenOrCloseAutoLockDisposable;
+
     private void publishOpenOrCloseAutoLock(String wifiID) {
+        if(mMQttService == null) {
+            Timber.e("publishOpenOrCloseAutoLock mMQttService == null");
+            return;
+        }
+        toDisposable(mOpenOrCloseAutoLockDisposable);
         @LocalState.AutoState int auto = mBleDeviceLocal.isAutoLock()?LocalState.AUTO_STATE_CLOSE:LocalState.AUTO_STATE_OPEN;
         showLoading();
         AmModeParams amModeParams = new AmModeParams();
         amModeParams.setAmMode(auto);
-        App.getInstance().getMqttService().mqttPublish(MqttConstant.getCallTopic(App.getInstance().getUserBean().getUid()),
+        mOpenOrCloseAutoLockDisposable = mMQttService.mqttPublish(MqttConstant.getCallTopic(App.getInstance().getUserBean().getUid()),
                 MqttCommandFactory.setLockAttr(wifiID, amModeParams,
                         BleCommandFactory.getPwd(
                                 ConvertUtils.hexString2Bytes(mBleDeviceLocal.getPwd1()),
                                 ConvertUtils.hexString2Bytes(mBleDeviceLocal.getPwd2()))))
+                .filter(mqttData -> mqttData.getFunc().equals(MqttConstant.SET_LOCK_ATTR))
                 .timeout(DEFAULT_TIMEOUT_SEC_VALUE, TimeUnit.SECONDS)
-                .safeSubscribe(new Observer<MqttData>() {
-                    @Override
-                    public void onSubscribe(@NotNull Disposable d) {
-
-                    }
-
-                    @Override
-                    public void onNext(@NotNull MqttData mqttData) {
-                        if(TextUtils.isEmpty(mqttData.getFunc())) {
-                            Timber.e("publishOpenOrCloseAutoLock mqttData.getFunc() is empty");
-                            return;
-                        }
-                        if(mqttData.getFunc().equals(MqttConstant.SET_LOCK_ATTR)) {
-                            if(!mqttData.getPayload().contains("amMode")) {
-                                // 不是该MQTT的数据 不处理
-                                return;
-                            }
-                            dismissLoading();
-                            Timber.d("publishOpenOrCloseAutoLock 设置属性: %1s", mqttData);
-                            WifiLockSetLockAttrAutoRspBean bean;
-                            try {
-                                bean = GsonUtils.fromJson(mqttData.getPayload(), WifiLockSetLockAttrAutoRspBean.class);
-                            } catch (JsonSyntaxException e) {
-                                Timber.e(e);
-                                return;
-                            }
-                            if(bean == null) {
-                                Timber.e("publishOpenOrCloseAutoLock bean == null");
-                                return;
-                            }
-                            if(bean.getParams() == null) {
-                                Timber.e("publishOpenOrCloseAutoLock bean.getParams() == null");
-                                return;
-                            }
-                            if(bean.getCode() != 200) {
-                                Timber.e("publishOpenOrCloseAutoLock code : %1d", bean.getCode());
-                                return;
-                            }
-                            saveAutoLockStateToLocal();
-                            initUI();
-                        }
-                        Timber.d("publishOpenOrCloseAutoLock %1s", mqttData.toString());
-                    }
-
-                    @Override
-                    public void onError(@NotNull Throwable e) {
-                        // TODO: 2021/3/3 错误处理
-                        // 超时或者其他错误
-                        dismissLoading();
-                        Timber.e(e);
-                    }
-
-                    @Override
-                    public void onComplete() {
-
-                    }
+                .subscribe(mqttData -> {
+                    toDisposable(mOpenOrCloseAutoLockDisposable);
+                    processOpenOrCloseAutoLock(mqttData);
+                }, e -> {
+                    // TODO: 2021/3/3 错误处理
+                    // 超时或者其他错误
+                    dismissLoading();
+                    Timber.e(e);
                 });
+        mCompositeDisposable.add(mOpenOrCloseAutoLockDisposable);
     }
 
+    private void processOpenOrCloseAutoLock(MqttData mqttData) {
+        if(TextUtils.isEmpty(mqttData.getFunc())) {
+            Timber.e("publishOpenOrCloseAutoLock mqttData.getFunc() is empty");
+            return;
+        }
+        if(mqttData.getFunc().equals(MqttConstant.SET_LOCK_ATTR)) {
+            if(!mqttData.getPayload().contains("amMode")) {
+                // 不是该MQTT的数据 不处理
+                return;
+            }
+            dismissLoading();
+            Timber.d("publishOpenOrCloseAutoLock 设置属性: %1s", mqttData);
+            WifiLockSetLockAttrAutoRspBean bean;
+            try {
+                bean = GsonUtils.fromJson(mqttData.getPayload(), WifiLockSetLockAttrAutoRspBean.class);
+            } catch (JsonSyntaxException e) {
+                Timber.e(e);
+                return;
+            }
+            if(bean == null) {
+                Timber.e("publishOpenOrCloseAutoLock bean == null");
+                return;
+            }
+            if(bean.getParams() == null) {
+                Timber.e("publishOpenOrCloseAutoLock bean.getParams() == null");
+                return;
+            }
+            if(bean.getCode() != 200) {
+                Timber.e("publishOpenOrCloseAutoLock code : %1d", bean.getCode());
+                return;
+            }
+            saveAutoLockStateToLocal();
+            initUI();
+        }
+        Timber.d("publishOpenOrCloseAutoLock %1s", mqttData.toString());
+    }
+
+    private Disposable mAutoLockTimeDisposable;
+
     private void publishAutoLockTime(String wifiID, int time) {
+        if(mMQttService == null) {
+            Timber.e("publishAutoLockTime mMQttService == null");
+            return;
+        }
         showLoading();
         AutoLockTimeParams autoLockTimeParams = new AutoLockTimeParams();
         autoLockTimeParams.setAutoLockTime(time);
-        App.getInstance().getMqttService().mqttPublish(MqttConstant.getCallTopic(App.getInstance().getUserBean().getUid()),
+        toDisposable(mAutoLockTimeDisposable);
+        mAutoLockTimeDisposable = mMQttService.mqttPublish(MqttConstant.getCallTopic(App.getInstance().getUserBean().getUid()),
                 MqttCommandFactory.setLockAttr(wifiID, autoLockTimeParams,
                         BleCommandFactory.getPwd(
                                 ConvertUtils.hexString2Bytes(mBleDeviceLocal.getPwd1()),
                                 ConvertUtils.hexString2Bytes(mBleDeviceLocal.getPwd2()))))
+                .filter(mqttData -> mqttData.getFunc().equals(MqttConstant.SET_LOCK_ATTR))
                 .timeout(DEFAULT_TIMEOUT_SEC_VALUE, TimeUnit.SECONDS)
-                .safeSubscribe(new Observer<MqttData>() {
-                    @Override
-                    public void onSubscribe(@NotNull Disposable d) {
-
-                    }
-
-                    @Override
-                    public void onNext(@NotNull MqttData mqttData) {
-                        if(TextUtils.isEmpty(mqttData.getFunc())) {
-                            Timber.e("publishAutoLockTime mqttData.getFunc() is empty");
-                            return;
-                        }
-                        if(mqttData.getFunc().equals(MqttConstant.SET_LOCK_ATTR)) {
-                            dismissLoading();
-                            Timber.d("publishAutoLockTime 设置属性: %1s", mqttData);
-                            WifiLockSetLockAttrAutoTimeRspBean bean;
-                            try {
-                                bean = GsonUtils.fromJson(mqttData.getPayload(), WifiLockSetLockAttrAutoTimeRspBean.class);
-                            } catch (JsonSyntaxException e) {
-                                Timber.e(e);
-                                return;
-                            }
-                            if(bean == null) {
-                                Timber.e("publishAutoLockTime bean == null");
-                                return;
-                            }
-                            if(bean.getParams() == null) {
-                                Timber.e("publishAutoLockTime bean.getParams() == null");
-                                return;
-                            }
-                            if(bean.getCode() != 200) {
-                                Timber.e("publishAutoLockTime code : %1d", bean.getCode());
-                                return;
-                            }
-                            saveAutoLockTimeToLocal();
-                            initUI();
-                        }
-                        Timber.d("publishAutoLockTime %1s", mqttData.toString());
-                    }
-
-                    @Override
-                    public void onError(@NotNull Throwable e) {
-                        // TODO: 2021/3/3 错误处理
-                        // 超时或者其他错误
-                        dismissLoading();
-                        Timber.e(e);
-                    }
-
-                    @Override
-                    public void onComplete() {
-
-                    }
+                .subscribe(mqttData -> {
+                    toDisposable(mAutoLockTimeDisposable);
+                    processAutoLockTime(mqttData);
+                }, e -> {
+                    // TODO: 2021/3/3 错误处理
+                    // 超时或者其他错误
+                    dismissLoading();
+                    Timber.e(e);
                 });
+        mCompositeDisposable.add(mAutoLockTimeDisposable);
+    }
+
+    private void processAutoLockTime(MqttData mqttData) {
+        if(TextUtils.isEmpty(mqttData.getFunc())) {
+            Timber.e("publishAutoLockTime mqttData.getFunc() is empty");
+            return;
+        }
+        if(mqttData.getFunc().equals(MqttConstant.SET_LOCK_ATTR)) {
+            dismissLoading();
+            Timber.d("publishAutoLockTime 设置属性: %1s", mqttData);
+            WifiLockSetLockAttrAutoTimeRspBean bean;
+            try {
+                bean = GsonUtils.fromJson(mqttData.getPayload(), WifiLockSetLockAttrAutoTimeRspBean.class);
+            } catch (JsonSyntaxException e) {
+                Timber.e(e);
+                return;
+            }
+            if(bean == null) {
+                Timber.e("publishAutoLockTime bean == null");
+                return;
+            }
+            if(bean.getParams() == null) {
+                Timber.e("publishAutoLockTime bean.getParams() == null");
+                return;
+            }
+            if(bean.getCode() != 200) {
+                Timber.e("publishAutoLockTime code : %1d", bean.getCode());
+                return;
+            }
+            saveAutoLockTimeToLocal();
+            initUI();
+        }
+        Timber.d("publishAutoLockTime %1s", mqttData.toString());
     }
 
     private void openOrCloseDetectionLock() {

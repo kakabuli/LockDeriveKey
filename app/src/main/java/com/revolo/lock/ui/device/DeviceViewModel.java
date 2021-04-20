@@ -24,6 +24,7 @@ import io.reactivex.Observer;
 import io.reactivex.disposables.Disposable;
 import timber.log.Timber;
 
+// TODO: 2021/4/20 暂时不使用viewModel层，因为需要提供新的改进方案才开始实现
 public class DeviceViewModel extends ViewModel {
 
     private final MutableLiveData<List<WifiLockGetAllBindDeviceRspBean.DataBean.WifiListBean>> mWifiListBean;

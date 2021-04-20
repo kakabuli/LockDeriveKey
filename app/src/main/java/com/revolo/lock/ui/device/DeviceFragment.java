@@ -60,7 +60,6 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import io.reactivex.Observer;
 import io.reactivex.disposables.Disposable;
 import timber.log.Timber;
 
@@ -645,6 +644,8 @@ public class DeviceFragment extends Fragment {
         });
     }
 
+    private Disposable mOpenOrCloseDoorDisposable;
+
     /**
      *  开关门
      * @param wifiId wifi的id
@@ -666,9 +667,19 @@ public class DeviceFragment extends Fragment {
         } else if(doorOpt == LocalState.DOOR_STATE_CLOSE) {
             showLoading("Lock Closing...");
         }
+        if(getActivity() == null) {
+            Timber.e("refreshGetAllBindDevicesFromMQTT getActivity() == null");
+            return;
+        }
+        BaseActivity baseActivity = ((BaseActivity) getActivity());
+        if(baseActivity.mMQttService == null) {
+            Timber.e("refreshGetAllBindDevicesFromMQTT baseActivity.mMQttService == null");
+            return;
+        }
         mCount++;
-        App.getInstance().getMqttService().mqttPublish(
-                MqttConstant.getCallTopic(App.getInstance().getUserBean().getUid()),
+        baseActivity.toDisposable(mOpenOrCloseDoorDisposable);
+        mOpenOrCloseDoorDisposable = baseActivity.mMQttService
+                .mqttPublish(MqttConstant.getCallTopic(App.getInstance().getUserBean().getUid()),
                 MqttCommandFactory.setLock(
                         wifiId,
                         doorOpt,
@@ -677,42 +688,29 @@ public class DeviceFragment extends Fragment {
                                 ConvertUtils.hexString2Bytes(bleDeviceLocal.getPwd2())),
                         bleDeviceLocal.getRandomCode(),
                         num))
-                .timeout(DEFAULT_TIMEOUT_SEC_VALUE, TimeUnit.SECONDS).safeSubscribe(new Observer<MqttData>() {
-            @Override
-            public void onSubscribe(@NotNull Disposable d) {
-
-            }
-
-            @Override
-            public void onNext(@NotNull MqttData mqttData) {
-                mCount = 0;
-                processMQttMsg(mqttData, wifiId);
-            }
-
-            @Override
-            public void onError(@NotNull Throwable e) {
-                dismissLoading();
-                if(e instanceof TimeoutException) {
-                    if(mCount == 3) {
-                        // 3次机会,超时失败开始连接蓝牙
-                        mCount = 0;
-                        mBleDeviceLocal = bleDeviceLocal;
-                        if(getActivity() == null) return;
-                        getActivity().runOnUiThread(() -> {
-                            if(mSignalWeakDialog != null) {
-                                mSignalWeakDialog.show();
-                            }
-                        });
+                .timeout(DEFAULT_TIMEOUT_SEC_VALUE, TimeUnit.SECONDS)
+                .subscribe(mqttData -> {
+                    baseActivity.toDisposable(mOpenOrCloseDoorDisposable);
+                    mCount = 0;
+                    processMQttMsg(mqttData, wifiId);
+                }, e -> {
+                    dismissLoading();
+                    if(e instanceof TimeoutException) {
+                        if(mCount == 3) {
+                            // 3次机会,超时失败开始连接蓝牙
+                            mCount = 0;
+                            mBleDeviceLocal = bleDeviceLocal;
+                            if(getActivity() == null) return;
+                            getActivity().runOnUiThread(() -> {
+                                if(mSignalWeakDialog != null) {
+                                    mSignalWeakDialog.show();
+                                }
+                            });
+                        }
                     }
-                }
-                Timber.e(e);
-            }
-
-            @Override
-            public void onComplete() {
-
-            }
-        });
+                    Timber.e(e);
+                });
+        baseActivity.mCompositeDisposable.add(mOpenOrCloseDoorDisposable);
     }
 
     private void processMQttMsg(@NotNull MqttData mqttData, String wifiId) {
