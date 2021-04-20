@@ -41,7 +41,7 @@ public class DeviceViewModel extends ViewModel {
             return;
         }
         Timber.d("执行获取设备信息");
-        App.getInstance().getMqttService()
+        App.getInstance().getMQttService()
                 .mqttPublish(MqttConstant.PUBLISH_TO_SERVER,
                         MqttCommandFactory.getAllBindDevices(App.getInstance().getUserBean().getUid()))
                 .safeSubscribe(new Observer<MqttData>() {

@@ -214,7 +214,7 @@ public class MqttService extends Service {
                     Timber.d("connectionLost 用户id或者token为空无法重连");
                     return;
                 }
-                App.getInstance().getMqttService().mqttConnection();
+                App.getInstance().getMQttService().mqttConnection();
 
 
             }

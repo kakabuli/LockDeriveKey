@@ -6,9 +6,11 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.os.CountDownTimer;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
+import android.text.TextUtils;
 
 import com.a1anwang.okble.client.core.OKBLEDeviceImp;
 import com.a1anwang.okble.client.core.OKBLEDeviceListener;
@@ -19,14 +21,23 @@ import com.a1anwang.okble.client.scan.OKBLEScanManager;
 import com.blankj.utilcode.util.ActivityUtils;
 import com.blankj.utilcode.util.CacheDiskUtils;
 import com.blankj.utilcode.util.ConvertUtils;
+import com.blankj.utilcode.util.GsonUtils;
 import com.blankj.utilcode.util.SPUtils;
 import com.blankj.utilcode.util.TimeUtils;
+import com.google.gson.JsonSyntaxException;
 import com.revolo.lock.bean.respone.MailLoginBeanRsp;
 import com.revolo.lock.ble.BleByteUtil;
 import com.revolo.lock.ble.BleCommandFactory;
+import com.revolo.lock.ble.BleProtocolState;
+import com.revolo.lock.ble.BleResultProcess;
 import com.revolo.lock.ble.bean.BleBean;
 import com.revolo.lock.ble.OnBleDeviceListener;
+import com.revolo.lock.ble.bean.BleResultBean;
+import com.revolo.lock.mqtt.MqttCommandFactory;
+import com.revolo.lock.mqtt.MqttConstant;
 import com.revolo.lock.mqtt.MqttService;
+import com.revolo.lock.mqtt.bean.MqttData;
+import com.revolo.lock.mqtt.bean.publishresultbean.WifiLockApproachOpenResponseBean;
 import com.revolo.lock.room.AppDatabase;
 import com.revolo.lock.room.entity.BleDeviceLocal;
 import com.revolo.lock.room.entity.User;
@@ -42,9 +53,13 @@ import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
+import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.disposables.Disposable;
 import timber.log.Timber;
 
+import static com.revolo.lock.Constant.DEFAULT_TIMEOUT_SEC_VALUE;
 import static com.revolo.lock.Constant.REVOLO_SP;
 import static com.revolo.lock.Constant.USER_MAIL;
 import static com.revolo.lock.ble.BleProtocolState.CMD_ENCRYPT_KEY_UPLOAD;
@@ -83,7 +98,7 @@ public class App extends Application {
         return instance;
     }
 
-    protected MqttService mqttService;
+    protected MqttService mMQttService;
 
     @Override
     public void onCreate() {
@@ -414,8 +429,8 @@ public class App extends Application {
             public void onServiceConnected(ComponentName name, IBinder service) {
                 if (service instanceof MqttService.MyBinder) {
                     MqttService.MyBinder binder = (MqttService.MyBinder) service;
-                    mqttService = binder.getService();
-                    Timber.d("attachView service启动" + (mqttService == null));
+                    mMQttService = binder.getService();
+                    Timber.d("attachView service启动" + (mMQttService == null));
                 }
             }
 
@@ -427,8 +442,8 @@ public class App extends Application {
     }
 
 
-    public MqttService getMqttService() {
-        return mqttService;
+    public MqttService getMQttService() {
+        return mMQttService;
     }
 
     /**
@@ -492,7 +507,7 @@ public class App extends Application {
 
 
 
-    private List<BleDeviceLocal> mBleDeviceLocals = new ArrayList<>();
+    private final List<BleDeviceLocal> mBleDeviceLocals = new ArrayList<>();
 
     public List<BleDeviceLocal> getBleDeviceLocals() {
         return mBleDeviceLocals;
@@ -548,4 +563,224 @@ public class App extends Application {
     public void setUsingGeoFenceBleDeviceLocal(BleDeviceLocal usingGeoFenceBleDeviceLocal) {
         mUsingGeoFenceBleDeviceLocal = usingGeoFenceBleDeviceLocal;
     }
+
+
+    /*--------------------------------- 地理围栏功能 --------------------------------*/
+
+    // TODO: 2021/4/20 现在的写法是存在问题，因为是基于一个设备来考虑的，如果出现多设备，这方案后续是需要修改的。
+    private final CompositeDisposable mCompositeDisposable = new CompositeDisposable();
+    private Disposable mApproachOpenDisposable;
+    private BleBean mGeoFenceBleBean;
+
+    public void publishApproachOpen(String wifiID, int broadcastTime) {
+        BleDeviceLocal deviceLocal = App.getInstance().getBleDeviceLocal();
+        if(deviceLocal == null) {
+            Timber.e("publishApproachOpen deviceLocal == null");
+            return;
+        }
+        if(mMQttService == null) {
+            Timber.e("publishApproachOpen mMQttService == null");
+            return;
+        }
+        toDisposable(mApproachOpenDisposable);
+        App.getInstance().setUsingGeoFenceBleDeviceLocal(deviceLocal);
+        mApproachOpenDisposable = mMQttService.mqttPublish(MqttConstant.getCallTopic(App.getInstance().getUserBean().getUid()),
+                MqttCommandFactory.approachOpen(wifiID, broadcastTime,
+                        BleCommandFactory.getPwd(
+                                ConvertUtils.hexString2Bytes(deviceLocal.getPwd1()),
+                                ConvertUtils.hexString2Bytes(deviceLocal.getPwd2()))))
+                .filter(mqttData -> mqttData.getFunc().equals(MqttConstant.APP_ROACH_OPEN))
+                .timeout(DEFAULT_TIMEOUT_SEC_VALUE, TimeUnit.SECONDS)
+                .subscribe(mqttData -> {
+                    toDisposable(mApproachOpenDisposable);
+                    processApproachOpen(mqttData);
+                }, e -> {
+                    // TODO: 2021/3/3 错误处理
+                    // 超时或者其他错误
+                    Timber.e(e);
+                });
+        mCompositeDisposable.add(mApproachOpenDisposable);
+    }
+
+    private void processApproachOpen(MqttData mqttData) {
+        if(TextUtils.isEmpty(mqttData.getFunc())) {
+            Timber.e("publishApproachOpen mqttData.getFunc() is empty");
+            return;
+        }
+        if(mqttData.getFunc().equals(MqttConstant.APP_ROACH_OPEN)) {
+            Timber.d("publishApproachOpen 无感开门: %1s", mqttData);
+            WifiLockApproachOpenResponseBean bean;
+            try {
+                bean = GsonUtils.fromJson(mqttData.getPayload(), WifiLockApproachOpenResponseBean.class);
+            } catch (JsonSyntaxException e) {
+                Timber.e(e);
+                return;
+            }
+            if(bean == null) {
+                Timber.e("publishApproachOpen bean == null");
+                return;
+            }
+            if(bean.getParams() == null) {
+                Timber.e("publishApproachOpen bean.getParams() == null");
+                return;
+            }
+            if(bean.getCode() != 200) {
+                Timber.e("publishApproachOpen code : %1d", bean.getCode());
+                return;
+            }
+            // TODO: 2021/3/5 开启成功，然后开启蓝牙并不断搜索设备
+            connectBle();
+        }
+        Timber.d("publishApproachOpen %1s", mqttData.toString());
+    }
+
+    private boolean isRestartConnectingBle = false;
+
+    private void connectBle() {
+        if(mUsingGeoFenceBleDeviceLocal == null) {
+            return;
+        }
+        isRestartConnectingBle = true;
+        final OnBleDeviceListener onBleDeviceListener = new OnBleDeviceListener() {
+            @Override
+            public void onConnected(@NotNull String mac) {
+
+            }
+
+            @Override
+            public void onDisconnected(@NotNull String mac) {
+
+            }
+
+            @Override
+            public void onReceivedValue(@NotNull String mac, String uuid, byte[] value) {
+                if(value == null) {
+                    Timber.e("mOnBleDeviceListener value == null");
+                    return;
+                }
+                if(!mUsingGeoFenceBleDeviceLocal.getMac().equals(mac)) {
+                    Timber.e("mOnBleDeviceListener mac: %1s, localMac: %2s", mac, mUsingGeoFenceBleDeviceLocal.getMac());
+                    return;
+                }
+                BleBean bleBean = App.getInstance().getBleBeanFromMac(mUsingGeoFenceBleDeviceLocal.getMac());
+                if(bleBean == null) {
+                    Timber.e("mOnBleDeviceListener bleBean == null");
+                    return;
+                }
+                if(bleBean.getOKBLEDeviceImp() == null) {
+                    Timber.e("mOnBleDeviceListener bleBean.getOKBLEDeviceImp() == null");
+                    return;
+                }
+                if(bleBean.getPwd1() == null) {
+                    Timber.e("mOnBleDeviceListener bleBean.getPwd1() == null");
+                    return;
+                }
+                if(bleBean.getPwd3() == null) {
+                    Timber.e("mOnBleDeviceListener bleBean.getPwd3() == null");
+                    return;
+                }
+                BleResultProcess.setOnReceivedProcess(mOnReceivedProcess);
+                BleResultProcess.processReceivedData(value, bleBean.getPwd1(), bleBean.getPwd3(),
+                        bleBean.getOKBLEDeviceImp().getBleScanResult());
+            }
+
+            @Override
+            public void onWriteValue(@NotNull String mac, String uuid, byte[] value, boolean success) {
+
+            }
+
+            @Override
+            public void onAuthSuc(@NotNull String mac) {
+                // 配对成功
+                if(mac.equals(mUsingGeoFenceBleDeviceLocal.getMac())) {
+                    isRestartConnectingBle = false;
+                    new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                        BleBean bleBean = App.getInstance().getBleBeanFromMac(mUsingGeoFenceBleDeviceLocal.getMac());
+                        if(bleBean == null) {
+                            Timber.e("mOnBleDeviceListener bleBean == null");
+                            return;
+                        }
+                        // TODO: 2021/4/7 抽离0x01
+                        App.getInstance().writeControlMsg(BleCommandFactory
+                                .setKnockDoorAndUnlockTime(0x01, bleBean.getPwd1(), bleBean.getPwd3()), bleBean.getOKBLEDeviceImp());
+                    }, 200);
+                }
+            }
+
+        };
+        mGeoFenceBleBean = App.getInstance().getBleBeanFromMac(mUsingGeoFenceBleDeviceLocal.getMac());
+        if(mGeoFenceBleBean == null) {
+            BLEScanResult bleScanResult = ConvertUtils.bytes2Parcelable(mUsingGeoFenceBleDeviceLocal.getScanResultJson(), BLEScanResult.CREATOR);
+            if(bleScanResult != null) {
+                mGeoFenceBleBean = App.getInstance().connectDevice(
+                        bleScanResult,
+                        ConvertUtils.hexString2Bytes(mUsingGeoFenceBleDeviceLocal.getPwd1()),
+                        ConvertUtils.hexString2Bytes(mUsingGeoFenceBleDeviceLocal.getPwd2()),
+                        onBleDeviceListener,false);
+                mGeoFenceBleBean.setEsn(mUsingGeoFenceBleDeviceLocal.getEsn());
+            } else {
+                // TODO: 2021/1/26 处理为空的情况
+            }
+        } else {
+            if(mGeoFenceBleBean.getOKBLEDeviceImp() != null) {
+                mGeoFenceBleBean.setOnBleDeviceListener(onBleDeviceListener);
+                if(!mGeoFenceBleBean.getOKBLEDeviceImp().isConnected()) {
+                    mGeoFenceBleBean.getOKBLEDeviceImp().connect(true);
+                }
+                mGeoFenceBleBean.setPwd1(ConvertUtils.hexString2Bytes(mUsingGeoFenceBleDeviceLocal.getPwd1()));
+                mGeoFenceBleBean.setPwd2(ConvertUtils.hexString2Bytes(mUsingGeoFenceBleDeviceLocal.getPwd2()));
+                mGeoFenceBleBean.setEsn(mUsingGeoFenceBleDeviceLocal.getEsn());
+            } else {
+                // TODO: 2021/1/26 为空的处理
+            }
+        }
+        // 1分钟后判断设备是否连接成功，否就恢复wifi状态，每秒判断一次是否配对设备成功
+        mCountDownTimer.start();
+    }
+
+    private final BleResultProcess.OnReceivedProcess mOnReceivedProcess = bleResultBean -> {
+        if(bleResultBean == null) {
+            Timber.e("mOnReceivedProcess bleResultBean == null");
+            return;
+        }
+        processBleResult(bleResultBean);
+    };
+
+    private void processBleResult(BleResultBean bean) {
+        if(bean.getCMD() == BleProtocolState.CMD_KNOCK_DOOR_AND_UNLOCK_TIME) {
+            if(bean.getPayload()[0] == 0) {
+                // 设置敲击开锁成功
+                if(mGeoFenceBleBean != null && mGeoFenceBleBean.getOKBLEDeviceImp() != null) {
+                    mGeoFenceBleBean.getOKBLEDeviceImp().disConnect(false);
+                }
+            }
+        }
+    }
+
+
+    private final CountDownTimer mCountDownTimer = new CountDownTimer(600000, 1000) {
+        @Override
+        public void onTick(long millisUntilFinished) {
+            if(mGeoFenceBleBean != null) {
+                if(!isRestartConnectingBle) {
+                    mCountDownTimer.cancel();
+                }
+            }
+        }
+
+        @Override
+        public void onFinish() {
+            isRestartConnectingBle = false;
+            if(mGeoFenceBleBean != null && mGeoFenceBleBean.getOKBLEDeviceImp() != null) {
+                mGeoFenceBleBean.getOKBLEDeviceImp().disConnect(false);
+            }
+        }
+    };
+
+    private void toDisposable(Disposable disposable) {
+        if (disposable != null && !disposable.isDisposed()) {
+            disposable.dispose();
+        }
+    }
+
 }

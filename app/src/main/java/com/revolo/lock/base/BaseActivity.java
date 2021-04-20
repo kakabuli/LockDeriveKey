@@ -47,7 +47,7 @@ public abstract class BaseActivity extends AppCompatActivity
 
     private final View.OnClickListener mClickListener = this::onDebouncingClick;
     public CompositeDisposable mCompositeDisposable = new CompositeDisposable();
-    public MqttService mMQttService = App.getInstance().getMqttService();
+    public MqttService mMQttService = App.getInstance().getMQttService();
 
     public View     mContentView;
     public Activity mActivity;
@@ -60,7 +60,7 @@ public abstract class BaseActivity extends AppCompatActivity
         initData(getIntent().getExtras());
         setContentView();
         if(mMQttService == null) {
-            mMQttService = App.getInstance().getMqttService();
+            mMQttService = App.getInstance().getMQttService();
         }
         if(mMQttService != null) {
             if(mMQttService.getMqttClient() != null && !mMQttService.getMqttClient().isConnected()) {

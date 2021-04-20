@@ -363,6 +363,7 @@ public class DeviceDetailActivity extends BaseActivity {
             tvPrivateMode.setVisibility(View.GONE);
             llDoorState.setVisibility(View.VISIBLE);
             boolean isUseDoorSensor = mBleDeviceLocal.isOpenDoorSensor();
+            Timber.d("door sensor state: %1d, isUseDoorSensor: %2b", mBleDeviceLocal.getDoorSensor(), isUseDoorSensor);
             if(mBleDeviceLocal.getLockState() == LocalState.LOCK_STATE_OPEN) {
                 ivLockState.setImageResource(R.drawable.ic_home_img_lock_open);
                 if(isUseDoorSensor) {

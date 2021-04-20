@@ -376,6 +376,8 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
             bleDeviceLocal.setMac(mac);
             bleDeviceLocal.setPwd1(pwd1);
             bleDeviceLocal.setPwd2(pwd2);
+            // 设置初始默认值为30s
+            bleDeviceLocal.setSetAutoLockTime(30);
             bleDeviceLocal.setDoorSensor(LocalState.DOOR_SENSOR_INIT);
             bleDeviceLocal.setUserId(user.getId());
             bleDeviceLocal.setConnectedType(LocalState.DEVICE_CONNECT_TYPE_BLE);

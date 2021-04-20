@@ -9,7 +9,6 @@ import com.google.android.gms.location.Geofence;
 import com.google.android.gms.location.GeofencingEvent;
 import com.revolo.lock.App;
 import com.revolo.lock.room.entity.BleDeviceLocal;
-import com.revolo.lock.ui.MainActivity;
 
 import java.util.List;
 
@@ -56,11 +55,7 @@ public class GeoFenceBroadcastReceiver extends BroadcastReceiver {
                 if(deviceLocal == null) {
                     return;
                 }
-                MainActivity mainActivity = App.getInstance().getMainActivity();
-                if(mainActivity == null) {
-                    return;
-                }
-                mainActivity.publishApproachOpen(deviceLocal.getEsn(), deviceLocal.getSetElectricFenceTime());
+                App.getInstance().publishApproachOpen(deviceLocal.getEsn(), deviceLocal.getSetElectricFenceTime());
                 break;
             case Geofence.GEOFENCE_TRANSITION_DWELL:
                 ToastUtils.showShort("GEO_FENCE_TRANSITION_DWELL");
