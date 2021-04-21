@@ -34,7 +34,7 @@ public class MqttService extends Service {
     //请勿添加static
     private MqttAndroidClient mqttClient;
 
-    private Handler mHandler = new Handler();
+    private final Handler mHandler = new Handler();
 
     //重连次数10
     public int reconnectionNum = 10;
@@ -42,13 +42,12 @@ public class MqttService extends Service {
     /**
      * 判断是否订阅成功
      */
-    private PublishSubject<Boolean> mSubscribe = PublishSubject.create();
-    private PublishSubject<MqttData> onReceiverDataObservable = PublishSubject.create();
-    private PublishSubject<Boolean> connectStateObservable = PublishSubject.create();
-    private PublishSubject<PublishResult> publishObservable = PublishSubject.create();
-    private PublishSubject<Boolean> disconnectObservable = PublishSubject.create();
-    private PublishSubject<MqttData> notifyDataObservable = PublishSubject.create();
-    private PublishSubject<MqttData> powerDataObversable = PublishSubject.create();
+    private final PublishSubject<Boolean> mSubscribe = PublishSubject.create();
+    private final PublishSubject<MqttData> onReceiverDataObservable = PublishSubject.create();
+    private final PublishSubject<Boolean> connectStateObservable = PublishSubject.create();
+    private final PublishSubject<PublishResult> publishObservable = PublishSubject.create();
+    private final PublishSubject<Boolean> disconnectObservable = PublishSubject.create();
+    private final PublishSubject<MqttData> notifyEventObservable = PublishSubject.create();
 
 
     /**
@@ -70,15 +69,7 @@ public class MqttService extends Service {
     }
 
     public Observable<MqttData> listenerNotifyData() {
-        return notifyDataObservable;
-    }
-
-    /**
-     * 获取电量数据
-     * @return
-     */
-    public Observable<MqttData> getPowerData() {
-        return powerDataObversable;
+        return notifyEventObservable;
     }
 
 
@@ -258,10 +249,10 @@ public class MqttService extends Service {
                 mqttData.setMsgtype(msgtype);
 
                 onReceiverDataObservable.onNext(mqttData);
-//                if (MqttConstant.GATEWAY_STATE.equals(mqttData.getFunc())) {
-//                    Timber.d("网关状态上报");
-//                    notifyDataObservable.onNext(mqttData);
-//                }
+
+                if(MqttConstant.WF_EVENT.equals(mqttData.getFunc())) {
+                    notifyEventObservable.onNext(mqttData);
+                }
 
             }
 
@@ -370,9 +361,8 @@ public class MqttService extends Service {
     }
 
     //发布
-    public Observable<MqttData> mqttPublishListener() {
-
-        return notifyDataObservable;
+    public Observable<MqttData> mqttEventNotifyPublishListener() {
+        return notifyEventObservable;
     }
 
     //发布

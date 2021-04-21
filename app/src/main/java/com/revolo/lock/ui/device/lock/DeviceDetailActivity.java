@@ -46,7 +46,9 @@ import java.nio.charset.StandardCharsets;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import io.reactivex.Observer;
 import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Consumer;
 import timber.log.Timber;
 
 import static com.revolo.lock.Constant.DEFAULT_TIMEOUT_SEC_VALUE;
@@ -64,7 +66,7 @@ public class DeviceDetailActivity extends BaseActivity {
     private BleDeviceLocal mBleDeviceLocal;
     private SignalWeakDialog mSignalWeakDialog;
     private Disposable mOpenOrCloseLockDisposable;
-    private Disposable mEventDisposable;
+    private Disposable mWfEventDisposable;
 
     @Override
     public void initData(@Nullable Bundle bundle) {
@@ -269,7 +271,8 @@ public class DeviceDetailActivity extends BaseActivity {
         mBleDeviceLocal.setMute(isMute);
         byte doorSensorState = bit7_0[3];
         boolean isOpenDoorSensor = (doorSensorState == 0x01);
-        mBleDeviceLocal.setOpenDoorSensor(isOpenDoorSensor);
+        // TODO: 2021/4/21 暂时屏蔽掉开始的基本信息检查
+//        mBleDeviceLocal.setOpenDoorSensor(isOpenDoorSensor);
         Timber.d("电量：%1d, 是否静音 %2b, 门磁功能是否开启：%3b", power, isMute, isOpenDoorSensor);
         AppDatabase.getInstance(this).bleDeviceDao().update(mBleDeviceLocal);
         // 更新UI
@@ -278,12 +281,14 @@ public class DeviceDetailActivity extends BaseActivity {
 
     private void setLockState(@LocalState.LockState int state) {
         mBleDeviceLocal.setLockState(state);
+        Timber.d("setLockState wifiId: %1s %2s", mBleDeviceLocal.getEsn(), state==LocalState.LOCK_STATE_OPEN?"锁开了":"锁关了");
         AppDatabase.getInstance(this).bleDeviceDao().update(mBleDeviceLocal);
         initDevice();
     }
 
     private void setDoorState(@LocalState.DoorSensor int door) {
         mBleDeviceLocal.setDoorSensor(door);
+        Timber.d("setDoorState wifiId: %1s %2s", mBleDeviceLocal.getEsn(), door==LocalState.DOOR_SENSOR_OPEN?"开门了":"关门了");
         AppDatabase.getInstance(this).bleDeviceDao().update(mBleDeviceLocal);
         initDevice();
     }
@@ -517,11 +522,10 @@ public class DeviceDetailActivity extends BaseActivity {
             Timber.e("initLockEvent mMQttService == null");
             return;
         }
-        toDisposable(mEventDisposable);
-        mEventDisposable = mMQttService.listenerDataBack()
-                .filter(mqttData -> mqttData.getFunc().equals(MqttConstant.WF_EVENT))
+        toDisposable(mWfEventDisposable);
+        mWfEventDisposable = mMQttService.mqttEventNotifyPublishListener()
                 .subscribe(this::processEvent, Timber::e);
-        mCompositeDisposable.add(mEventDisposable);
+        mCompositeDisposable.add(mWfEventDisposable);
     }
 
     private void processEvent(@NotNull MqttData mqttData) {
@@ -578,10 +582,11 @@ public class DeviceDetailActivity extends BaseActivity {
         }
         if(bean.getEventparams().getEventType() == 1) {
             // 动作操作
-            if(bean.getEventparams().getEventCode() == 1) {
+            int eventCode = bean.getEventparams().getEventCode();
+            if(eventCode == 0x01||eventCode == 0x08||eventCode == 0x0D||eventCode == 0x0A) {
                 // 上锁
                 setLockState(LocalState.LOCK_STATE_CLOSE);
-            } else if(bean.getEventparams().getEventCode() == 2) {
+            } else if(eventCode == 2||eventCode == 0x09||eventCode == 0x0E) {
                 // 开锁
                 setLockState(LocalState.LOCK_STATE_OPEN);
             }

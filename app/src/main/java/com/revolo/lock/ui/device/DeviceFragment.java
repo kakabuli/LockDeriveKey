@@ -60,7 +60,9 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import io.reactivex.Observer;
 import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Consumer;
 import timber.log.Timber;
 
 import static com.revolo.lock.Constant.DEFAULT_TIMEOUT_SEC_VALUE;
@@ -145,6 +147,7 @@ public class DeviceFragment extends Fragment {
         initSignalWeakDialog();
         initData(mBleDeviceLocals);
         mHomeLockListAdapter.setList(mBleDeviceLocals);
+        initWfEven();
 //        mDeviceViewModel.refreshGetAllBindDevicesFromMQTT();
     }
 
@@ -196,12 +199,34 @@ public class DeviceFragment extends Fragment {
         mBindDevicesDisposable = baseActivity.mMQttService
                 .mqttPublish(MqttConstant.PUBLISH_TO_SERVER,
                         MqttCommandFactory.getAllBindDevices(App.getInstance().getUserBean().getUid()))
-                .filter(mqttData -> mqttData.getFunc().equals(MqttConstant.GET_ALL_BIND_DEVICE))
+                .filter(mqttData -> mqttData.getFunc().equals(MqttConstant.GET_ALL_BIND_DEVICE)
+                        ||mqttData.getFunc().equals(MqttConstant.WF_EVENT))
                 .subscribe(mqttData -> {
                     baseActivity.toDisposable(mBindDevicesDisposable);
-                    processDevices(mqttData);
+                    if(mqttData.getFunc().equals(MqttConstant.GET_ALL_BIND_DEVICE)) {
+                        processDevices(mqttData);
+                    }
                 }, Timber::e);
         baseActivity.mCompositeDisposable.add(mBindDevicesDisposable);
+    }
+
+    private Disposable mWfEventDisposable;
+
+    private void initWfEven() {
+        if(getActivity() == null) {
+            return;
+        }
+        if(getActivity() instanceof MainActivity) {
+            MainActivity activity = (MainActivity) getActivity();
+            if(activity.mMQttService == null) {
+                return;
+            }
+            activity.toDisposable(mWfEventDisposable);
+            mWfEventDisposable = activity.mMQttService
+                    .mqttEventNotifyPublishListener()
+                    .subscribe(this::processRecord, Timber::e);
+            activity.mCompositeDisposable.add(mWfEventDisposable);
+        }
     }
 
     private void processDevices(MqttData mqttData) {
@@ -461,6 +486,7 @@ public class DeviceFragment extends Fragment {
         getActivity().runOnUiThread(() -> {
             BleDeviceLocal local = mHomeLockListAdapter.getData().get(index);
             local.setLockState(state);
+            Timber.d("setLockState wifiId: %1s %2s", local.getEsn(), state==LocalState.LOCK_STATE_OPEN?"锁开了":"锁关了");
             AppDatabase.getInstance(getContext()).bleDeviceDao().update(local);
             mHomeLockListAdapter.notifyDataSetChanged();
         });
@@ -477,6 +503,7 @@ public class DeviceFragment extends Fragment {
         }
         getActivity().runOnUiThread(() -> {
             BleDeviceLocal local = mHomeLockListAdapter.getData().get(index);
+            Timber.d("setDoorState wifiId: %1s %2s", local.getEsn(), state==LocalState.DOOR_SENSOR_OPEN?"开门了":"关门了");
             local.setDoorSensor(state);
             AppDatabase.getInstance(getContext()).bleDeviceDao().update(local);
             mHomeLockListAdapter.notifyDataSetChanged();
@@ -688,11 +715,12 @@ public class DeviceFragment extends Fragment {
                                 ConvertUtils.hexString2Bytes(bleDeviceLocal.getPwd2())),
                         bleDeviceLocal.getRandomCode(),
                         num))
+                .filter(mqttData -> mqttData.getFunc().equals(MqttConstant.SET_LOCK))
                 .timeout(DEFAULT_TIMEOUT_SEC_VALUE, TimeUnit.SECONDS)
                 .subscribe(mqttData -> {
                     baseActivity.toDisposable(mOpenOrCloseDoorDisposable);
                     mCount = 0;
-                    processMQttMsg(mqttData, wifiId);
+                    processMQttMsg(mqttData);
                 }, e -> {
                     dismissLoading();
                     if(e instanceof TimeoutException) {
@@ -713,18 +741,17 @@ public class DeviceFragment extends Fragment {
         baseActivity.mCompositeDisposable.add(mOpenOrCloseDoorDisposable);
     }
 
-    private void processMQttMsg(@NotNull MqttData mqttData, String wifiId) {
+    private void processMQttMsg(@NotNull MqttData mqttData) {
         if(TextUtils.isEmpty(mqttData.getFunc())) {
             return;
         }
         if(mqttData.getFunc().equals(MqttConstant.SET_LOCK)) {
             processSetLock(mqttData);
-        } else if(mqttData.getFunc().equals(MqttConstant.WF_EVENT)) {
-            processRecord(mqttData, wifiId);
         }
     }
 
-    private void processRecord(@NotNull MqttData mqttData, String wifiId) {
+    private void processRecord(@NotNull MqttData mqttData) {
+        Timber.d("刷新数据来自MQtt");
         WifiLockOperationEventBean bean;
         try {
             bean = GsonUtils.fromJson(mqttData.getPayload(), WifiLockOperationEventBean.class);
@@ -738,11 +765,6 @@ public class DeviceFragment extends Fragment {
         }
         if(bean.getWfId() == null) {
             Timber.e("processRecord RECORD bean.getWfId() == null");
-            return;
-        }
-        if(!bean.getWfId().equals(wifiId)) {
-            Timber.e("processRecord RECORD wifiId: %1s current esn: %2s",
-                    bean.getWfId(), wifiId);
             return;
         }
         if(bean.getEventparams() == null) {
@@ -759,21 +781,22 @@ public class DeviceFragment extends Fragment {
         }
         if(bean.getEventparams().getEventType() == 1) {
             // 动作操作
-            if(bean.getEventparams().getEventCode() == 1) {
+            int eventCode = bean.getEventparams().getEventCode();
+            if(eventCode == 0x01||eventCode == 0x08||eventCode == 0x0D||eventCode == 0x0A) {
                 // 上锁
-                setLockState(getPositionFromWifiId(wifiId), LocalState.LOCK_STATE_CLOSE);
-            } else if(bean.getEventparams().getEventCode() == 2) {
+                setLockState(getPositionFromWifiId(bean.getWfId()), LocalState.LOCK_STATE_CLOSE);
+            } else if(eventCode == 2||eventCode == 0x09||eventCode == 0x0E) {
                 // 开锁
-                setLockState(getPositionFromWifiId(wifiId), LocalState.LOCK_STATE_OPEN);
+                setLockState(getPositionFromWifiId(bean.getWfId()), LocalState.LOCK_STATE_OPEN);
             }
         } else if(bean.getEventparams().getEventType() == 4) {
             // 传感器上报，门磁
             if(bean.getEventparams().getEventCode() == 1) {
                 // 门磁开门
-                setDoorState(getPositionFromWifiId(wifiId), LocalState.DOOR_SENSOR_OPEN);
+                setDoorState(getPositionFromWifiId(bean.getWfId()), LocalState.DOOR_SENSOR_OPEN);
             } else if(bean.getEventparams().getEventCode() == 2) {
                 // 门磁关门
-                setDoorState(getPositionFromWifiId(wifiId), LocalState.DOOR_SENSOR_CLOSE);
+                setDoorState(getPositionFromWifiId(bean.getWfId()), LocalState.DOOR_SENSOR_CLOSE);
             } else if(bean.getEventparams().getEventCode() == 3) {
                 // 门磁异常
                 Timber.e("processRecord 门磁异常");
