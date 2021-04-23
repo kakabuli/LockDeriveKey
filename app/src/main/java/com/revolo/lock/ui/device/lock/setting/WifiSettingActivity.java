@@ -187,8 +187,7 @@ public class WifiSettingActivity extends BaseActivity {
             if(bean.getCode() != 200) {
                 Timber.e("closeWifiFromMqtt code : %1d", bean.getCode());
                 if(bean.getCode() == 201) {
-                    // TODO: 2021/3/4 抽离文字
-                    ToastUtils.showShort("Close Wifi Fail!");
+                    ToastUtils.showShort(R.string.t_close_wifi_fail);
                 }
                 return;
             }

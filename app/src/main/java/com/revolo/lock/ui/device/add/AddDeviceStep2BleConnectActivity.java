@@ -193,7 +193,7 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
                 if(code.equals("202")) {
                     // 提示已绑定，并退出
                     // TODO: 2021/2/6 修改显示方式
-                    ToastUtils.showLong("The device is already bound");
+                    ToastUtils.showLong(R.string.t_the_device_is_already_bound);
                     finishPreAct();
                     finish();
                     return;
@@ -587,12 +587,12 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
             case DeviceScanCallBack.SCAN_FAILED_BLUETOOTH_DISABLE:
                 Timber.e("请打开手机蓝牙");
                 // TODO: 2021/1/22 打开手机蓝牙
-                ToastUtils.showShort("Please open Ble");
+                ToastUtils.showShort(R.string.t_please_open_bluetooth);
                 break;
             case DeviceScanCallBack.SCAN_FAILED_LOCATION_PERMISSION_DISABLE:
                 Timber.e("请授予位置权限以扫描周围的蓝牙设备");
                 // TODO: 2021/1/22 请求位置权限
-                ToastUtils.showShort("Please open location");
+                ToastUtils.showShort(R.string.t_please_open_location);
                 break;
             case DeviceScanCallBack.SCAN_FAILED_LOCATION_PERMISSION_DISABLE_FOREVER:
                 Timber.e("位置权限被您永久拒绝,请在设置里授予位置权限以扫描周围的蓝牙设备");

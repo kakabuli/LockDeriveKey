@@ -7,7 +7,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
-import android.location.Location;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -33,7 +32,6 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.revolo.lock.App;
 import com.revolo.lock.R;
 import com.revolo.lock.base.BaseActivity;
@@ -180,11 +178,10 @@ public class MapActivity extends BaseActivity implements OnMapReadyCallback, Goo
             //Ask for permission
             if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_FINE_LOCATION)) {
                 //We need to show a dialog for displaying why the permission is needed and the ask the permission
-                // TODO: 2021/4/6 提示语抽离
                 new AlertDialog.Builder(this)
-                        .setMessage("We need to permission for location!")
+                        .setMessage(R.string.dialog_we_need_to_permission_for_location)
                         .setCancelable(true)
-                        .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                        .setPositiveButton(R.string.dialog_ok, new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialogInterface, int i) {
                                 ActivityCompat.requestPermissions(MapActivity.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, FINE_LOCATION_ACCESS_REQUEST_CODE);
@@ -209,16 +206,15 @@ public class MapActivity extends BaseActivity implements OnMapReadyCallback, Goo
                 //Permission is not Granted
                 if (!ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_FINE_LOCATION)) {
                     //This block here means PERMANENTLY DENIED PERMISSION
-                    // TODO: 2021/4/6 提示语抽离
                     new AlertDialog.Builder(MapActivity.this)
-                            .setMessage("You have permanently denied this permission, go to settings to enable this permission")
-                            .setPositiveButton("Go to settings", new DialogInterface.OnClickListener() {
+                            .setMessage(R.string.dialog_go_to_settings_enable_this_permission)
+                            .setPositiveButton(R.string.dialog_go_to_settings, new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialogInterface, int i) {
                                     gotoApplicationSettings();
                                 }
                             })
-                            .setNegativeButton("Cancel", null)
+                            .setNegativeButton(R.string.dialog_cancel, null)
                             .setCancelable(false)
                             .show();
                 }
@@ -228,10 +224,10 @@ public class MapActivity extends BaseActivity implements OnMapReadyCallback, Goo
         if (requestCode == BACKGROUND_LOCATION_ACCESS_REQUEST_CODE) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 //We have the permission
-                ToastUtils.showShort("You can add geofences...");
+                ToastUtils.showShort(R.string.t_you_can_add_geo_fences);
             } else {
                 //We do not have the permission..
-                ToastUtils.showShort( "Background location access is necessary for geofences to trigger...");
+                ToastUtils.showShort(R.string.t_bg_loc_access_is_necessary_for_geo_fences_to_trigger);
             }
         }
     }

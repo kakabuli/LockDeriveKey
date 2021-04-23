@@ -78,8 +78,7 @@ public class ChangeSharedUserNameActivity extends BaseActivity {
         }
         String name = etName.getText().toString().trim();
         if(TextUtils.isEmpty(name)) {
-            // TODO: 2021/3/14 修改提示语
-            ToastUtils.showShort("Please input the new name");
+            ToastUtils.showShort(R.string.t_please_input_the_new_name);
             return;
         }
         String token = App.getInstance().getUserBean().getToken();
@@ -124,7 +123,7 @@ public class ChangeSharedUserNameActivity extends BaseActivity {
                     Timber.e("updateSharedUserName code: %1s, msg: %2s", code, msg);
                     return;
                 }
-                ToastUtils.showShort("Success");
+                ToastUtils.showShort(R.string.t_success);
                 finish();
             }
 

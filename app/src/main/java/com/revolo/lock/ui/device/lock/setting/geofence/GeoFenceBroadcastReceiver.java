@@ -8,6 +8,7 @@ import com.blankj.utilcode.util.ToastUtils;
 import com.google.android.gms.location.Geofence;
 import com.google.android.gms.location.GeofencingEvent;
 import com.revolo.lock.App;
+import com.revolo.lock.R;
 import com.revolo.lock.room.entity.BleDeviceLocal;
 
 import java.util.List;
@@ -49,8 +50,8 @@ public class GeoFenceBroadcastReceiver extends BroadcastReceiver {
 
         switch (transitionType) {
             case Geofence.GEOFENCE_TRANSITION_ENTER:
-                ToastUtils.showShort("You have entered the range of the geo fence");
-                notificationHelper.sendHighPriorityNotification("You have entered the range of the geo fence", "", MapActivity.class);
+                ToastUtils.showShort(R.string.t_you_have_entered_the_range_of_the_geo_fence);
+                notificationHelper.sendHighPriorityNotification(context.getString(R.string.n_geo_fence), context.getString(R.string.t_you_have_entered_the_range_of_the_geo_fence), MapActivity.class);
                 BleDeviceLocal deviceLocal = App.getInstance().getBleDeviceLocal();
                 if(deviceLocal == null) {
                     return;
@@ -58,12 +59,13 @@ public class GeoFenceBroadcastReceiver extends BroadcastReceiver {
                 App.getInstance().publishApproachOpen(deviceLocal.getEsn(), deviceLocal.getSetElectricFenceTime());
                 break;
             case Geofence.GEOFENCE_TRANSITION_DWELL:
-                ToastUtils.showShort("GEO_FENCE_TRANSITION_DWELL");
-                notificationHelper.sendHighPriorityNotification("GEOFENCE_TRANSITION_DWELL", "", MapActivity.class);
+                // TODO: 2021/4/23 停留
+//                ToastUtils.showShort("GEO_FENCE_TRANSITION_DWELL");
+//                notificationHelper.sendHighPriorityNotification("GEOFENCE_TRANSITION_DWELL", "", MapActivity.class);
                 break;
             case Geofence.GEOFENCE_TRANSITION_EXIT:
-                ToastUtils.showShort("You have exited the geo fence");
-                notificationHelper.sendHighPriorityNotification("You have exited the geo fence", "", MapActivity.class);
+                ToastUtils.showShort(R.string.t_you_have_exited_the_geo_fence);
+                notificationHelper.sendHighPriorityNotification(context.getString(R.string.n_geo_fence), context.getString(R.string.t_you_have_exited_the_geo_fence), MapActivity.class);
                 break;
         }
     }

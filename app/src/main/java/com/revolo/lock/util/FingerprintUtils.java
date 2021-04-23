@@ -8,6 +8,7 @@ import androidx.annotation.RequiresPermission;
 
 import com.blankj.utilcode.util.ToastUtils;
 import com.revolo.lock.App;
+import com.revolo.lock.R;
 
 import static android.Manifest.permission.USE_FINGERPRINT;
 
@@ -53,14 +54,12 @@ public class FingerprintUtils {
         if (mFingerprintManager != null) {
             // 判断硬件是否支持指纹识别
             if(!mFingerprintManager.isHardwareDetected()) {
-                // TODO: 2021/3/19 抽离文字
-                ToastUtils.showShort("The device does not support fingerprint recognition");
+                ToastUtils.showShort(R.string.t_the_device_does_not_support_fingerprint_recognition);
                 return false;
             }
             // 判断是否有指纹录入
             if(!mFingerprintManager.hasEnrolledFingerprints()) {
-                // TODO: 2021/3/19 抽离文字
-                ToastUtils.showShort("No fingerprints");
+                ToastUtils.showShort(R.string.t_no_fingerprints);
                 return false;
             }
             return true;

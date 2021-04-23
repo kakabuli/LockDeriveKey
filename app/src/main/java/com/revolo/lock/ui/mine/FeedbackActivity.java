@@ -66,7 +66,7 @@ public class FeedbackActivity extends BaseActivity {
         }
         String feedbackStr = ((TextView) findViewById(R.id.etFeedback)).getText().toString().trim();
         if(TextUtils.isEmpty(feedbackStr)) {
-            ToastUtils.showShort("Please enter feedback content!");
+            ToastUtils.showShort(R.string.t_please_enter_feedback_content);
             return;
         }
         if(App.getInstance().getUserBean() == null) {
@@ -114,8 +114,7 @@ public class FeedbackActivity extends BaseActivity {
                     }
                     return;
                 }
-                // TODO: 2021/3/26 修正提示语
-                ToastUtils.showShort("Success");
+                ToastUtils.showShort(R.string.t_success);
                 finish();
             }
 

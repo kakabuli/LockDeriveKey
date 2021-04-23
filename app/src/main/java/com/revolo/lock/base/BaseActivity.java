@@ -161,7 +161,6 @@ public abstract class BaseActivity extends AppCompatActivity
     }
 
     public void initLoading(String message) {
-        // TODO: 2021/2/25 抽离文字
         mLoadingDialog = new CustomerLoadingDialog.Builder(this)
                 .setMessage(message)
                 .setCancelable(true)
@@ -169,7 +168,6 @@ public abstract class BaseActivity extends AppCompatActivity
                 .create();
     }
 
-    // TODO: 2021/3/4 修改抽离文字
     public void showLoading(@NotNull String message) {
         runOnUiThread(() -> {
             if(mLoadingDialog != null) {
@@ -177,7 +175,6 @@ public abstract class BaseActivity extends AppCompatActivity
                     mLoadingDialog.dismiss();
                 }
             }
-            // TODO: 2021/2/25 抽离文字
             mLoadingDialog = new CustomerLoadingDialog.Builder(this)
                     .setMessage(message)
                     .setCancelable(true)
@@ -211,8 +208,7 @@ public abstract class BaseActivity extends AppCompatActivity
 
     public boolean checkNetConnectFail() {
         if(!NetworkUtils.isConnected()) {
-            // TODO: 2021/4/9 抽离文字
-            ToastUtils.showShort("Connect Net Fail!");
+            ToastUtils.showShort(R.string.connect_net_fail);
         }
         return NetworkUtils.isConnected();
     }

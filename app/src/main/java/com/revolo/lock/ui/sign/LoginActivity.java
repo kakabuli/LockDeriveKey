@@ -127,15 +127,15 @@ public class LoginActivity extends BaseActivity {
         String pwd = mEtPwd.getText().toString();
         // TODO: 2021/1/26 提示语抽离同时修正
         if(TextUtils.isEmpty(mail)) {
-            ToastUtils.showShort("Please input your account!");
+            ToastUtils.showShort(R.string.t_please_input_your_account);
             return;
         }
         if(!RegexUtils.isEmail(mail)) {
-            ToastUtils.showShort("Please input right account!");
+            ToastUtils.showShort(R.string.t_please_input_right_account);
             return;
         }
         if(TextUtils.isEmpty(pwd)) {
-            ToastUtils.showShort("Please input your password!");
+            ToastUtils.showShort(R.string.t_please_input_your_pwd);
             return;
         }
         showLoading();

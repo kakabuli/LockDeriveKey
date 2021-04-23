@@ -339,8 +339,7 @@ public class UserPageActivity extends BaseActivity implements EasyPermissions.Pe
     private void rcSelectPicPermissions() {
         String[] perms = new String[] {Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE};
         if (!EasyPermissions.hasPermissions(this, perms)) {
-            // TODO: 2021/1/3 use string
-            EasyPermissions.requestPermissions(this, "If you want to use the function needs camera permission and write storage permission",
+            EasyPermissions.requestPermissions(this, getString(R.string.rq_use_fun_need_camera_n_write_permission),
                     RC_QR_CODE_PERMISSIONS, perms);
         } else {
             showSelectPopup();
@@ -350,8 +349,7 @@ public class UserPageActivity extends BaseActivity implements EasyPermissions.Pe
     @AfterPermissionGranted(RC_CAMERA_PERMISSIONS)
     private void rcCameraPermission() {
         if(!hasCameraPermission()) {
-            // TODO: 2021/1/3 use string
-            EasyPermissions.requestPermissions(this, "If you want to use the camera needs camera permission",
+            EasyPermissions.requestPermissions(this, getString(R.string.rq_use_the_camera_needs_camera_permission),
                     RC_CAMERA_PERMISSIONS, Manifest.permission.CAMERA);
         }
     }
@@ -359,8 +357,7 @@ public class UserPageActivity extends BaseActivity implements EasyPermissions.Pe
     @AfterPermissionGranted(RC_WRITE_EXTERNAL_STORAGE_PERMISSIONS)
     private void rcWriteStoragePermission(){
         if(!hasWriteExternalStoragePermission()) {
-            // TODO: 2021/1/3 use string
-            EasyPermissions.requestPermissions(this, "If you want to use photo album needs write storage permission",
+            EasyPermissions.requestPermissions(this, getString(R.string.rq_use_album_needs_write_permission),
                     RC_WRITE_EXTERNAL_STORAGE_PERMISSIONS, Manifest.permission.READ_EXTERNAL_STORAGE);
         }
     }

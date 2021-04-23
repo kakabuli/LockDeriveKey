@@ -70,8 +70,7 @@ public class AddDeviceStep1Activity extends BaseActivity implements EasyPermissi
     private void rcQRCodePermissions() {
         String[] perms = new String[] {Manifest.permission.CAMERA, Manifest.permission.READ_EXTERNAL_STORAGE};
         if (!EasyPermissions.hasPermissions(this, perms)) {
-            // TODO: 2021/1/3 use string
-            EasyPermissions.requestPermissions(this, "Scanning QR code needs camera permission and read external storage permission",
+            EasyPermissions.requestPermissions(this, getString(R.string.tip_get_read_external_n_camera_permissions),
                     RC_QR_CODE_PERMISSIONS, perms);
         } else {
             startActivity(new Intent(this, AddDeviceQRCodeStep2Activity.class));
@@ -81,8 +80,7 @@ public class AddDeviceStep1Activity extends BaseActivity implements EasyPermissi
     @AfterPermissionGranted(RC_CAMERA_PERMISSIONS)
     private void rcCameraPermission() {
         if(!hasCameraPermission()) {
-            // TODO: 2021/1/3 use string
-            EasyPermissions.requestPermissions(this, "Scanning QR code needs camera permission",
+            EasyPermissions.requestPermissions(this, getString(R.string.tip_scan_qr_code_need_camera_permission),
                     RC_CAMERA_PERMISSIONS, Manifest.permission.CAMERA);
         }
     }
@@ -90,8 +88,7 @@ public class AddDeviceStep1Activity extends BaseActivity implements EasyPermissi
     @AfterPermissionGranted(RC_READ_EXTERNAL_STORAGE_PERMISSIONS)
     private void rcReadStoragePermission(){
         if(!hasReadExternalStoragePermission()) {
-            // TODO: 2021/1/3 use string
-            EasyPermissions.requestPermissions(this, "Scanning QR code needs read external storage permission",
+            EasyPermissions.requestPermissions(this, getString(R.string.tip_scan_qr_code_need_read_external_permission),
                     RC_READ_EXTERNAL_STORAGE_PERMISSIONS, Manifest.permission.READ_EXTERNAL_STORAGE);
         }
     }

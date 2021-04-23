@@ -121,7 +121,7 @@ public class DuressCodeActivity extends BaseActivity {
             return;
         }
         if(!RegexUtils.isEmail(mail)) {
-            ToastUtils.showShort("Please input right mail address");
+            ToastUtils.showShort(R.string.t_please_input_right_mail_address);
             return;
         }
         String token = App.getInstance().getUserBean().getToken();
@@ -167,8 +167,7 @@ public class DuressCodeActivity extends BaseActivity {
                     Timber.e("settingDuressReceiveMail code: %1s, msg: %2s", code, settingDuressPwdReceiveEMailBeanRsp.getMsg());
                     return;
                 }
-                // TODO: 2021/3/8 修改文字
-                ToastUtils.showShort("Setting Email success");
+                ToastUtils.showShort(R.string.t_setting_email_suc);
                 finish();
             }
 

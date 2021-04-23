@@ -54,8 +54,7 @@ public class AddInputNewPwdActivity extends BaseActivity {
             if(RegexUtils.isMatch("(?:0(?=1)|1(?=2)|2(?=3)|3(?=4)|4(?=5)|5(?=6)|6(?=7)|7(?=8)|8(?=9)){3,10}\\d", pwd)
                     || RegexUtils.isMatch("(?:9(?=8)|8(?=7)|7(?=6)|6(?=5)|5(?=4)|4(?=3)|3(?=2)|2(?=1)|1(?=0)){3,10}\\d", pwd)
                     || RegexUtils.isMatch("([\\d])\\1{2,}", pwd)) {
-                // TODO: 2021/1/25 抽离文字
-                ToastUtils.showShort("Don't enter a simple password!");
+                ToastUtils.showShort(R.string.t_dont_enter_a_simple_pwd);
                 return;
             }
             if(pwd.length() >= 4 && pwd.length() <= 12) {
@@ -64,8 +63,7 @@ public class AddInputNewPwdActivity extends BaseActivity {
                 startActivity(intent);
                 finish();
             } else {
-                // TODO: 2021/1/25 抽离文字
-                ToastUtils.showShort("Please input right password!");
+                ToastUtils.showShort(R.string.t_please_input_right_pwd);
             }
 
         }

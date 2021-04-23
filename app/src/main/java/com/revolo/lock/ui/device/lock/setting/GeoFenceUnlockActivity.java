@@ -528,8 +528,7 @@ public class GeoFenceUnlockActivity extends BaseActivity implements OnMapReadyCa
                 Timber.e("publishSensitivity code : %1d", bean.getCode());
                 if(bean.getCode() == 201) {
                     // 设置失败了
-                    // TODO: 2021/4/20 抽离文字信息
-                    ToastUtils.showShort("Setting sensitivity fail!");
+                    ToastUtils.showShort(R.string.t_setting_sensitivity_fail);
                     initDefaultValue();
                     initTimeNSensitivityDataUI();
                 }

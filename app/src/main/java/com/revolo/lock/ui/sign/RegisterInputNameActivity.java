@@ -75,13 +75,12 @@ public class RegisterInputNameActivity extends BaseActivity {
         }
         String firstName = etFirstName.getText().toString().trim();
         if(TextUtils.isEmpty(firstName)) {
-            // TODO: 2021/3/13 抽离文字
-            ToastUtils.showShort("Please input your first name!");
+            ToastUtils.showShort(R.string.t_please_input_your_first_name);
             return;
         }
         String lastName = etLastName.getText().toString().trim();
         if(TextUtils.isEmpty(lastName)) {
-            ToastUtils.showShort("Please input your last name!");
+            ToastUtils.showShort(R.string.t_please_input_your_last_name);
             return;
         }
 

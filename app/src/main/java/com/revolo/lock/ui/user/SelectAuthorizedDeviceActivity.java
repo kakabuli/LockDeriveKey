@@ -99,8 +99,7 @@ public class SelectAuthorizedDeviceActivity extends BaseActivity {
         String name = mBleDeviceLocal.getName();
         tvUserName.setText(TextUtils.isEmpty(name)?"":name);
         String esn = mBleDeviceLocal.getEsn();
-        // TODO: 2021/3/8 文字抽离
-        tvSn.setText(TextUtils.isEmpty(esn)?"":"equipment "+esn );
+        tvSn.setText(TextUtils.isEmpty(esn)?"":getString(R.string.equipment_n_esn, esn));
     }
 
     private void share() {
@@ -181,8 +180,7 @@ public class SelectAuthorizedDeviceActivity extends BaseActivity {
     private void shareUrlToOtherApp(@NotNull String url) {
         Intent intent = new Intent(Intent.ACTION_SEND);
         intent.setType("text/plain");
-        // TODO: 2021/3/8 标题后续是否需要修改
-        intent.putExtra(Intent.EXTRA_SUBJECT, "Share To");
+        intent.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.title_share_to));
         intent.putExtra(Intent.EXTRA_TEXT, url);//extraText为文本的内容
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);//为Activity新建一个任务栈
         startActivity(intent);

@@ -34,8 +34,7 @@ public class AuthUserDeviceAdapter extends BaseQuickAdapter<BleDeviceLocal, Base
             String name = local.getName();
             String esn = local.getEsn();
             holder.setText(R.id.tvDeviceName, TextUtils.isEmpty(name)?esn:name);
-            // TODO: 2021/3/8 抽离文字
-            holder.setText(R.id.tvSn, TextUtils.isEmpty(esn)?"":"equipment "+esn);
+            holder.setText(R.id.tvSn, TextUtils.isEmpty(esn)?"":getContext().getString(R.string.equipment_n_esn, esn));
         }
     }
 }

@@ -201,8 +201,7 @@ public class SharedUserDetailActivity extends BaseActivity {
                     }
                     return;
                 }
-                // TODO: 2021/3/8 修改提示语 
-                ToastUtils.showShort("Delete Share User Success");
+                ToastUtils.showShort(R.string.t_delete_share_user_suc);
                 finish();
             }
 
@@ -225,9 +224,7 @@ public class SharedUserDetailActivity extends BaseActivity {
                 ?R.string.dialog_tip_operation_authorization_of_revolo_device_is_eabled
                 :R.string.dialog_tip_operation_authorization_of_revolo_device_is_disabled));
         dialog.setCanceledOnTouchOutside(true);
-        dialog.setOnListener(v -> {
-            dialog.cancel();
-        });
+        dialog.setOnListener(v -> dialog.cancel());
         dialog.show();
     }
 

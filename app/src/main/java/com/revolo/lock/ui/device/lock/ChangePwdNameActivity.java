@@ -86,8 +86,7 @@ public class ChangePwdNameActivity extends BaseActivity {
         EditText etPwdName = findViewById(R.id.etPwdName);
         String pwdName = etPwdName.getText().toString().trim();
         if(TextUtils.isEmpty(pwdName)) {
-            // TODO: 2021/1/30 修改提示语
-            ToastUtils.showShort("Please Input Password Name!");
+            ToastUtils.showShort(R.string.t_please_input_pwd_name);
             return;
         }
         if(App.getInstance().getUserBean() == null) {
@@ -135,8 +134,7 @@ public class ChangePwdNameActivity extends BaseActivity {
                     }
                     return;
                 }
-                // TODO: 2021/3/6 修改提示语
-                ToastUtils.showShort("Success");
+                ToastUtils.showShort(R.string.t_success);
                 finishThisAct();
             }
 
@@ -160,8 +158,7 @@ public class ChangePwdNameActivity extends BaseActivity {
     }
 
     private void showAddFail() {
-        // TODO: 2021/2/26 文字后期要改
-        runOnUiThread(() -> ToastUtils.showShort("Setting failed"));
+        runOnUiThread(() -> ToastUtils.showShort(R.string.t_setting_fail));
 
     }
 

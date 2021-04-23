@@ -103,13 +103,12 @@ public class ForgetThePwdActivity extends BaseActivity {
             return;
         }
         String mail = ((EditText) findViewById(R.id.etEmail)).getText().toString().trim();
-        // TODO: 2021/2/2 修正提示语
         if(TextUtils.isEmpty(mail)) {
             ToastUtils.showShort(R.string.err_tip_please_input_email);
             return;
         }
         if(!RegexUtils.isEmail(mail)) {
-            ToastUtils.showShort("Please input right mail address");
+            ToastUtils.showShort(R.string.t_please_input_right_mail_address);
             return;
         }
         showLoading();
@@ -128,26 +127,24 @@ public class ForgetThePwdActivity extends BaseActivity {
                 dismissLoading();
                 if(TextUtils.isEmpty(getCodeBeanRsp.getCode())) {
                     Timber.e("getCode getCodeBeanRsp.getCode() is null");
-                    ToastUtils.showShort("Fail");
+                    ToastUtils.showShort(R.string.t_fail);
                     return;
                 }
-                // TODO: 2021/2/2 对应的提示语
                 if(!getCodeBeanRsp.getCode().equals("200")) {
                     Timber.e("getCode code: %1s, msg: %2s",
                             getCodeBeanRsp.getCode(),
                             getCodeBeanRsp.getMsg());
                     String msg = getCodeBeanRsp.getMsg();
                     if(TextUtils.isEmpty(msg)) {
-                        ToastUtils.showShort("Fail");
+                        ToastUtils.showShort(R.string.t_fail);
                     } else {
                         ToastUtils.showShort(msg);
                     }
                     return;
                 }
-                // TODO: 2021/2/2 对应的提示语
                 isCountdown = true;
                 mCountDownTimer.start();
-                ToastUtils.showShort("Success");
+                ToastUtils.showShort(R.string.t_success);
             }
 
             @Override
@@ -168,13 +165,12 @@ public class ForgetThePwdActivity extends BaseActivity {
             return;
         }
         String mail = ((EditText) findViewById(R.id.etEmail)).getText().toString().trim();
-        // TODO: 2021/2/2 修正提示语
         if(TextUtils.isEmpty(mail)) {
             ToastUtils.showShort(R.string.err_tip_please_input_email);
             return;
         }
         if(!RegexUtils.isEmail(mail)) {
-            ToastUtils.showShort("Please input right mail address");
+            ToastUtils.showShort(R.string.t_please_input_right_mail_address);
             return;
         }
         String tokens = ((EditText) findViewById(R.id.etCode)).getText().toString().trim();
@@ -184,11 +180,11 @@ public class ForgetThePwdActivity extends BaseActivity {
         }
         String pwd = ((EditText) findViewById(R.id.etPwd)).getText().toString().trim();
         if(TextUtils.isEmpty(pwd)) {
-            ToastUtils.showShort("Please input password");
+            ToastUtils.showShort(R.string.t_please_input_pwd);
             return;
         }
         if(!RegexUtils.isMatch("^(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{6,15}$", pwd)) {
-            ToastUtils.showShort("Please input right password");
+            ToastUtils.showShort(R.string.t_please_input_right_pwd);
             return;
         }
         showLoading();
@@ -207,22 +203,21 @@ public class ForgetThePwdActivity extends BaseActivity {
             @Override
             public void onNext(@NonNull ForgotPwdRsp forgotPwdRsp) {
                 dismissLoading();
-                // TODO: 2021/3/6 修正提示语
                 if(TextUtils.isEmpty(forgotPwdRsp.getCode())) {
-                    ToastUtils.showShort("Fail");
+                    ToastUtils.showShort(R.string.t_fail);
                     return;
                 }
                 if(!forgotPwdRsp.getCode().equals("200")) {
                     Timber.e("forgetPwd code: %1s, msg: %2s", forgotPwdRsp.getCode(), forgotPwdRsp.getMsg());
                     String msg = forgotPwdRsp.getMsg();
                     if(TextUtils.isEmpty(msg)) {
-                        ToastUtils.showShort("Fail");
+                        ToastUtils.showShort(R.string.t_fail);
                     } else {
                         ToastUtils.showShort(msg);
                     }
                     return;
                 }
-                ToastUtils.showShort("Success");
+                ToastUtils.showShort(R.string.t_success);
                 finish();
             }
 

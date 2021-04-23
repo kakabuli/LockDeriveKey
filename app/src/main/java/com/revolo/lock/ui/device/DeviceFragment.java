@@ -60,9 +60,7 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import io.reactivex.Observer;
 import io.reactivex.disposables.Disposable;
-import io.reactivex.functions.Consumer;
 import timber.log.Timber;
 
 import static com.revolo.lock.Constant.DEFAULT_TIMEOUT_SEC_VALUE;
@@ -661,7 +659,6 @@ public class DeviceFragment extends Fragment {
                     mLoadingDialog.dismiss();
                 }
             }
-            // TODO: 2021/2/25 抽离文字
             mLoadingDialog = new CustomerLoadingDialog.Builder(getContext())
                     .setMessage(message)
                     .setCancelable(true)

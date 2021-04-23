@@ -167,7 +167,6 @@ public class UserFragment extends Fragment {
     }
 
     public void initLoading(String message) {
-        // TODO: 2021/2/25 抽离文字
         mLoadingDialog = new CustomerLoadingDialog.Builder(getContext())
                 .setMessage(message)
                 .setCancelable(true)

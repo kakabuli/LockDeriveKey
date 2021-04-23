@@ -383,8 +383,7 @@ public class DoorLockInformationActivity extends BaseActivity {
                     Timber.e("checkOrUseOTAUpdateVer code: %1s,  msg: %2s", code, msg);
                     return;
                 }
-                // TODO: 2021/2/9 完成OTA升级推送 后面提示语需要修改
-                ToastUtils.showShort("OTA update success");
+                ToastUtils.showShort(R.string.t_ota_update_success);
             }
 
             @Override
@@ -530,8 +529,7 @@ public class DoorLockInformationActivity extends BaseActivity {
                     Timber.e("checkOrUseWifiOTAUpdateVer code: %1s,  msg: %2s", code, msg);
                     return;
                 }
-                // TODO: 2021/2/9 完成OTA升级推送 后面提示语需要修改
-                ToastUtils.showShort("OTA update success");
+                ToastUtils.showShort(R.string.t_ota_update_suc);
             }
 
             @Override
@@ -723,8 +721,7 @@ public class DoorLockInformationActivity extends BaseActivity {
                     }
                     return;
                 }
-                // TODO: 2021/2/9 完成OTA升级推送 后面提示语需要修改
-                ToastUtils.showShort("OTA update success");
+                ToastUtils.showShort(R.string.t_ota_update_success);
             }
 
             @Override

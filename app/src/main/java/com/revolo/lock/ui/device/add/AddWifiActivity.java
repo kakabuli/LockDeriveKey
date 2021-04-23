@@ -134,8 +134,7 @@ public class AddWifiActivity extends BaseActivity {
     private void gotoWifiConnectAct() {
         String wifiSn = mEtWifiName.getText().toString().trim();
         if(TextUtils.isEmpty(wifiSn)) {
-            // TODO: 2021/1/22 调整提示语
-            ToastUtils.showShort("Please input wifi name!");
+            ToastUtils.showShort(R.string.t_please_input_wifi_name);
             return;
         }
         String wifiPwd = mEtPwd.getText().toString();
@@ -277,8 +276,7 @@ public class AddWifiActivity extends BaseActivity {
             getWifiList();
         } else {
             dismissLoading();
-            // TODO: 2021/3/2 不允许wifi配网
-            ToastUtils.showShort("Low Battery! Can't Pair Wifi!");
+            ToastUtils.showShort(R.string.t_low_battery_cant_pair_wifi);
         }
     }
 

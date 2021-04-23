@@ -141,13 +141,12 @@ public class RegisterActivity extends BaseActivity {
             return;
         }
         String mail = ((EditText) findViewById(R.id.etEmail)).getText().toString().trim();
-        // TODO: 2021/2/2 修正提示语
         if(TextUtils.isEmpty(mail)) {
             ToastUtils.showShort(R.string.err_tip_please_input_email);
             return;
         }
         if(!RegexUtils.isEmail(mail)) {
-            ToastUtils.showShort("Please input right mail address");
+            ToastUtils.showShort(R.string.t_please_input_right_mail_address);
             return;
         }
         GetCodeBeanReq req = new GetCodeBeanReq();
@@ -168,15 +167,15 @@ public class RegisterActivity extends BaseActivity {
                     Timber.e("getCodeBeanRsp.getCode() is null");
                     return;
                 }
-                // TODO: 2021/2/2 对应的提示语
                 if(!getCodeBeanRsp.getCode().equals("200")) {
-                    Timber.e("code: %1s, msg: %2s",
-                            getCodeBeanRsp.getCode(),
-                            getCodeBeanRsp.getMsg());
+                    String msg = getCodeBeanRsp.getMsg();
+                    Timber.e("code: %1s, msg: %2s", getCodeBeanRsp.getCode(), msg);
+                    if(!TextUtils.isEmpty(msg)) {
+                        ToastUtils.showShort(msg);
+                    }
                     return;
                 }
-                // TODO: 2021/2/2 对应的提示语
-                ToastUtils.showShort("Success!");
+                ToastUtils.showShort(R.string.t_success);
             }
 
             @Override
@@ -196,13 +195,12 @@ public class RegisterActivity extends BaseActivity {
             return;
         }
         String mail = ((EditText) findViewById(R.id.etEmail)).getText().toString().trim();
-        // TODO: 2021/2/2 修正提示语
         if(TextUtils.isEmpty(mail)) {
             ToastUtils.showShort(R.string.err_tip_please_input_email);
             return;
         }
         if(!RegexUtils.isEmail(mail)) {
-            ToastUtils.showShort("Please input right mail address");
+            ToastUtils.showShort(R.string.t_please_input_right_mail_address);
             return;
         }
         String tokens = ((EditText) findViewById(R.id.etVerification)).getText().toString().trim();
@@ -212,16 +210,15 @@ public class RegisterActivity extends BaseActivity {
         }
         String pwd = ((EditText) findViewById(R.id.etPwd)).getText().toString().trim();
         if(TextUtils.isEmpty(pwd)) {
-            ToastUtils.showShort("Please input password");
+            ToastUtils.showShort(R.string.t_please_input_pwd);
             return;
         }
         if(!RegexUtils.isMatch("^(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{6,15}$", pwd)) {
-            ToastUtils.showShort("Please input right password");
+            ToastUtils.showShort(R.string.t_please_input_right_pwd);
             return;
         }
-        // TODO: 2021/2/8 抽离提示语
         if(!isSelected) {
-            ToastUtils.showShort("Please agree to the terms of use");
+            ToastUtils.showShort(R.string.t_please_agree_to_the_terms_of_use);
             return;
         }
         showLoading();
@@ -254,7 +251,7 @@ public class RegisterActivity extends BaseActivity {
                     return;
                 }
                 addUserToLocal(mail);
-                ToastUtils.showShort("Register Success!");
+                ToastUtils.showShort(R.string.t_register_success);
                 // 注册成功, 然后登录再跳转
                 login(mail, pwd);
             }
@@ -366,13 +363,10 @@ public class RegisterActivity extends BaseActivity {
     }
 
     private void gotoLoginAct() {
-        runOnUiThread(() -> new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
-                startActivity(intent);
-                finish();
-            }
+        runOnUiThread(() -> new Handler(Looper.getMainLooper()).postDelayed(() -> {
+            Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
+            startActivity(intent);
+            finish();
         }, 50));
     }
 

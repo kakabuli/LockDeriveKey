@@ -107,20 +107,20 @@ public class ModifyPasswordActivity extends BaseActivity {
         }
         String oldPwd = mEtOldPwd.getText().toString().trim();
         if(TextUtils.isEmpty(oldPwd)) {
-            ToastUtils.showShort("Please input old password");
+            ToastUtils.showShort(R.string.t_please_input_old_pwd);
             return;
         }
         if(!RegexUtils.isMatch("^(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{6,15}$", oldPwd)) {
-            ToastUtils.showShort("Please input right old password");
+            ToastUtils.showShort(R.string.t_please_input_right_old_pwd);
             return;
         }
         String pwd = mEtPwd.getText().toString().trim();
         if(TextUtils.isEmpty(pwd)) {
-            ToastUtils.showShort("Please input new password");
+            ToastUtils.showShort(R.string.t_please_input_new_pwd);
             return;
         }
         if(!RegexUtils.isMatch("^(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{6,15}$", pwd)) {
-            ToastUtils.showShort("Please input right new password");
+            ToastUtils.showShort(R.string.t_please_input_right_new_pwd);
             return;
         }
         if(App.getInstance().getUserBean() == null) {
@@ -169,7 +169,7 @@ public class ModifyPasswordActivity extends BaseActivity {
                     Timber.e("changeUserPwd code: %1s, msg: %2s", code, changeUserPwdBeanRsp.getMsg());
                     return;
                 }
-                ToastUtils.showShort("Update password success");
+                ToastUtils.showShort(R.string.t_update_pwd_suc);
                 finish();
             }
 
@@ -191,13 +191,12 @@ public class ModifyPasswordActivity extends BaseActivity {
             return;
         }
         String mail = ((EditText) findViewById(R.id.etEmail)).getText().toString().trim();
-        // TODO: 2021/2/2 修正提示语
         if(TextUtils.isEmpty(mail)) {
             ToastUtils.showShort(R.string.err_tip_please_input_email);
             return;
         }
         if(!RegexUtils.isEmail(mail)) {
-            ToastUtils.showShort("Please input right mail address");
+            ToastUtils.showShort(R.string.t_please_input_right_mail_address);
             return;
         }
         GetCodeBeanReq req = new GetCodeBeanReq();
@@ -219,7 +218,6 @@ public class ModifyPasswordActivity extends BaseActivity {
                     Timber.e("getCodeBeanRsp.getCode() is null");
                     return;
                 }
-                // TODO: 2021/2/2 对应的提示语
                 if(!code.equals("200")) {
                     if(code.equals("444")) {
                         App.getInstance().logout(true, ModifyPasswordActivity.this);
@@ -232,8 +230,7 @@ public class ModifyPasswordActivity extends BaseActivity {
                     Timber.e("code: %1s, msg: %2s", code, msg);
                     return;
                 }
-                // TODO: 2021/2/2 对应的提示语
-                ToastUtils.showShort("Success!");
+                ToastUtils.showShort(R.string.t_success);
             }
 
             @Override

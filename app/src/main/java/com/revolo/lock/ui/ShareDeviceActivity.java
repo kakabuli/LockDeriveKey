@@ -93,26 +93,27 @@ public class ShareDeviceActivity extends BaseActivity {
         if(!checkNetConnectFail()) {
             return;
         }
+        // TODO: 2021/4/23 跳转到登录页面
         if(App.getInstance() == null) {
             Timber.e("acceptShare App.getInstance() == null");
-            ToastUtils.showShort("Please sign in!");
+            ToastUtils.showShort(R.string.t_please_sign_in);
             return;
         }
         if(App.getInstance().getUserBean() == null) {
             Timber.e("acceptShare App.getInstance().getUserBean() == null");
-            ToastUtils.showShort("Please sign in!");
+            ToastUtils.showShort(R.string.t_please_sign_in);
             return;
         }
         String uid = App.getInstance().getUserBean().getUid();
         if(TextUtils.isEmpty(uid)) {
             Timber.e("acceptShare uid is empty");
-            ToastUtils.showShort("Please sign in!");
+            ToastUtils.showShort(R.string.t_please_sign_in);
             return;
         }
         String token = App.getInstance().getUserBean().getToken();
         if(TextUtils.isEmpty(token)) {
             Timber.e("acceptShare token is empty");
-            ToastUtils.showShort("Please sign in!");
+            ToastUtils.showShort(R.string.t_please_sign_in);
             return;
         }
 
@@ -147,7 +148,7 @@ public class ShareDeviceActivity extends BaseActivity {
                     }
                     return;
                 }
-                ToastUtils.showShort("Success");
+                ToastUtils.showShort(R.string.t_success);
                 finish();
             }
 

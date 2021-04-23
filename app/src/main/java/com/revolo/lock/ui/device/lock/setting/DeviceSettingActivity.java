@@ -279,7 +279,6 @@ public class DeviceSettingActivity extends BaseActivity {
                     Timber.e("unbindDevice code: %1s, msg: %2s", code, msg);
                     return;
                 }
-                // TODO: 2021/2/6 抽离文字 和校对
                 // TODO: 2021/2/9 清除了本地所有数据
                 App.getInstance().getCacheDiskUtils().clear();
                 // 如果是蓝牙，断开蓝牙连接
@@ -292,7 +291,7 @@ public class DeviceSettingActivity extends BaseActivity {
                 }
                 App.getInstance().removeBleDeviceLocalFromMac(mBleDeviceLocal.getEsn());
                 AppDatabase.getInstance(getApplicationContext()).bleDeviceDao().delete(mBleDeviceLocal);
-                ToastUtils.showShort("Unbind success");
+                ToastUtils.showShort(R.string.t_unbind_success);
                 new Handler(Looper.getMainLooper()).postDelayed(() -> {
                     ActivityUtils.finishActivity(DeviceDetailActivity.class);
                     finish();
@@ -334,8 +333,7 @@ public class DeviceSettingActivity extends BaseActivity {
             saveMuteStateToLocal(mBleDeviceLocal.isMute()?LocalState.VOLUME_STATE_OPEN:LocalState.VOLUME_STATE_MUTE);
             refreshMuteEnable();
         } else {
-            // TODO: 2021/2/7 信息失败了的操作
-            ToastUtils.showShort("Setting Mute Fail");
+            ToastUtils.showShort(R.string.t_setting_mute_fail);
         }
     }
 

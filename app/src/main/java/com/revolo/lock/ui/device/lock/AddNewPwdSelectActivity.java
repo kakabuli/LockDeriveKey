@@ -409,8 +409,8 @@ public class AddNewPwdSelectActivity extends BaseActivity {
             if(id == R.id.tvStartTime) {
                 long scheduleStartTimeMill = TimeUtils.string2Millis("2000-01-01 " + time + ":00", mZeroTimeZoneDateFormat);
                 if(scheduleStartTimeMill > mScheduleEndTimeMill) {
-                    // TODO: 2021/4/9 开始时间大于结束时间 ，抽离和修改提示语
-                    ToastUtils.showShort("The start time cannot be greater than the end time!");
+                    // 开始时间大于结束时间
+                    ToastUtils.showShort(R.string.t_the_start_time_cannot_be_greater_than_the_end_time);
                     return;
                 }
                 mTvStartTime.setText(time);
@@ -419,8 +419,8 @@ public class AddNewPwdSelectActivity extends BaseActivity {
             } else if(id == R.id.tvEndTime) {
                 long scheduleEndTimeMill = TimeUtils.string2Millis("2000-01-01 " + time + ":00", mZeroTimeZoneDateFormat);
                 if(scheduleEndTimeMill < mScheduleStartTimeMill) {
-                    // TODO: 2021/4/9 结束时间小于开始时间 ，抽离和修改提示语
-                    ToastUtils.showShort("The end time cannot be less than the start time!");
+                    // 结束时间小于开始时间
+                    ToastUtils.showShort(R.string.t_the_end_time_cannot_be_less_than_the_start_time);
                     return;
                 }
                 mTvEndTime.setText(time);
@@ -429,8 +429,8 @@ public class AddNewPwdSelectActivity extends BaseActivity {
             } else if(id == R.id.tvEndDateTime) {
                 long temEndDateTimeMill = TimeUtils.string2Millis(mTemEndDateStr + " " + time + ":00");
                 if(temEndDateTimeMill < mTemStartDateTimeMill) {
-                    // TODO: 2021/4/9 结束时间小于开始时间 ，抽离和修改提示语
-                    ToastUtils.showShort("The end time cannot be less than the start time!");
+                    // 结束时间小于开始时间
+                    ToastUtils.showShort(R.string.t_the_end_time_cannot_be_less_than_the_start_time);
                     return;
                 }
                 mTvEndDateTime.setText(time);
@@ -440,8 +440,8 @@ public class AddNewPwdSelectActivity extends BaseActivity {
             } else if(id == R.id.tvStartDateTime) {
                 long temStartDateTimeMill = TimeUtils.string2Millis(mTemStartDateStr + " " + time + ":00");
                 if(temStartDateTimeMill > mTemEndDateTimeMill) {
-                    // TODO: 2021/4/9 开始时间大于结束时间，抽离和修改提示语
-                    ToastUtils.showShort("The start time cannot be greater than the end time!");
+                    // 开始时间大于结束时间
+                    ToastUtils.showShort(R.string.t_the_start_time_cannot_be_greater_than_the_end_time);
                     return;
                 }
                 mTvStartDateTime.setText(time);
@@ -462,8 +462,8 @@ public class AddNewPwdSelectActivity extends BaseActivity {
             if(id == R.id.tvStartDate) {
                 long temStartDateTimeMill = TimeUtils.string2Millis(date + " " + mTemStartDateTimeStr);
                 if(temStartDateTimeMill > mTemEndDateTimeMill) {
-                    // TODO: 2021/4/9 开始时间大于结束时间，抽离修改提示语
-                    ToastUtils.showShort("The start time cannot be greater than the end time!");
+                    // 开始时间大于结束时间
+                    ToastUtils.showShort(R.string.t_the_start_time_cannot_be_greater_than_the_end_time);
                     return;
                 }
                 mTemStartDateStr = date;
@@ -473,8 +473,8 @@ public class AddNewPwdSelectActivity extends BaseActivity {
             } else if(id == R.id.tvEndDate) {
                 long temEndDateTimeMill = TimeUtils.string2Millis(date + " " + mTemEndDateTimeStr);
                 if(temEndDateTimeMill < mTemStartDateTimeMill) {
-                    // TODO: 2021/4/9 开始时间大于结束时间，抽离修改提示语
-                    ToastUtils.showShort("The end time cannot be less than the start time!");
+                    // 开始时间大于结束时间
+                    ToastUtils.showShort(R.string.t_the_end_time_cannot_be_less_than_the_start_time);
                     return;
                 }
                 mTemEndDateStr = date;
@@ -750,8 +750,7 @@ public class AddNewPwdSelectActivity extends BaseActivity {
             if(bean.getCode() != 200) {
                 Timber.e("processAddPwd code : %1d", bean.getCode());
                 if(bean.getCode() == 201) {
-                    // TODO: 2021/4/19 抽离文字信息
-                    ToastUtils.showShort("Failed to add password!");
+                    ToastUtils.showShort(R.string.t_add_pwd_fail);
                 }
                 return;
             }
