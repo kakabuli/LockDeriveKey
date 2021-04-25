@@ -3,10 +3,10 @@ package com.revolo.lock.bean.request;
 import java.util.List;
 
 /**
- * author :
+ * author : Jack
  * time   : 2021/3/17
  * E-mail : wengmaowei@kaadas.com
- * desc   :
+ * desc   : 用户检查升级（多组件）请求实体
  */
 public class CheckAllOTABeanReq {
 
@@ -17,9 +17,9 @@ public class CheckAllOTABeanReq {
      * versions : [{"devNum":1,"version":"1.0"},{"devNum":2,"version":"1.3"}]
      */
 
-    private int customer;
-    private String deviceName;
-    private List<VersionsBean> versions;
+    private int customer;                   // 客户。16为Revolo。
+    private String deviceName;              // WIFI设备SN
+    private List<VersionsBean> versions;    // 设备各组件当前版本
 
     public int getCustomer() {
         return customer;
@@ -51,8 +51,8 @@ public class CheckAllOTABeanReq {
          * version : 1.0
          */
 
-        private int devNum;
-        private String version;
+        private int devNum;       // 升级编号。1为WIFI模块，2为WIFI锁，3为人脸模组，4为视频模组，5为视频模组微控制器，6为前面板，7为后面板。
+        private String version;   // 当前组件版本号
 
         public int getDevNum() {
             return devNum;

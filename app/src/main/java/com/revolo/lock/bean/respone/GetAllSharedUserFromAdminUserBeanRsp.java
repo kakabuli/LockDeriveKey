@@ -6,10 +6,10 @@ import android.os.Parcelable;
 import java.util.List;
 
 /**
- * author :
+ * author : Jack
  * time   : 2021/3/7
  * E-mail : wengmaowei@kaadas.com
- * desc   :
+ * desc   : 获取管理员下的所有分享用户回调实体
  */
 public class GetAllSharedUserFromAdminUserBeanRsp {
 
@@ -70,14 +70,14 @@ public class GetAllSharedUserFromAdminUserBeanRsp {
          * createTime : 1576225646
          */
 
-        private String _id;
-        private String adminUid;
-        private String uid;
-        private String userNickname;
-        private int shareUserType;
-        private int shareType;
-        private int isEnable;
-        private int createTime;
+        private String _id;                 // 分享用户-设备关联ID（自增id）
+        private String adminUid;            // 管理员id
+        private String uid;                 // 用户id
+        private String userNickname;        // 邀请用户昵称
+        private int shareUserType;          // 邀请用户类型。 1 family； 2 guest
+        private int shareType;              // 分享状态。 1 等待；2 接收；3 超时；4 删除；5 失效
+        private int isEnable;               // 启用状态。 1 启用； 0 未启用
+        private int createTime;             // 创建时间
 
         public String get_id() {
             return _id;

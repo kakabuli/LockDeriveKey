@@ -3,10 +3,10 @@ package com.revolo.lock.bean.request;
 import java.util.List;
 
 /**
- * author :
+ * author : Jack
  * time   : 2021/3/16
  * E-mail : wengmaowei@kaadas.com
- * desc   :
+ * desc   : 上传操作记录请求实体
  */
 public class UpdateLockRecordBeanReq {
 
@@ -17,9 +17,9 @@ public class UpdateLockRecordBeanReq {
      * operationList : [{"eventType":1,"eventSource":8,"eventCode":1,"userId":1,"appId":"","timesTamp":1578377588}]
      */
 
-    private String uid;
-    private String deviceSN;
-    private List<OperationListBean> operationList;
+    private String uid;                                 // 用户ID
+    private String deviceSN;                            // 设备SN
+    private List<OperationListBean> operationList;      // 操作记录
 
     public String getUid() {
         return uid;
@@ -55,12 +55,12 @@ public class UpdateLockRecordBeanReq {
          * timesTamp : 1578377588
          */
 
-        private int eventType;
-        private int eventSource;
-        private int eventCode;
-        private int userId;
-        private int appId;
-        private long timesTamp;
+        private int eventType;       // 事件类型
+        private int eventSource;     // 操作类型
+        private int eventCode;       // 操作方式
+        private int userId;          // 操作编码
+        private int appId;           // app用户编码
+        private long timesTamp;      // 时间
 
         public int getEventType() {
             return eventType;

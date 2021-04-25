@@ -4,10 +4,10 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 /**
- * author :
+ * author : Jack
  * time   : 2021/1/21
  * E-mail : wengmaowei@kaadas.com
- * desc   :
+ * desc   : 查询密钥列表请求实体
  */
 public class SearchKeyListBeanReq implements Parcelable {
 
@@ -18,9 +18,9 @@ public class SearchKeyListBeanReq implements Parcelable {
      * pwdType : 1
      */
 
-    private String uid;
-    private String sn;
-    private int pwdType;
+    private String uid;       // 管理员用户ID
+    private String sn;        // 设备唯一编号
+    private int pwdType;      // 密钥类型：0所有密码 1密码 2指纹密码 3卡片密码 4人脸
 
     public String getUid() {
         return uid;

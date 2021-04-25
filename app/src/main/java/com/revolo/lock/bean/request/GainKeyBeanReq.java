@@ -1,10 +1,10 @@
 package com.revolo.lock.bean.request;
 
 /**
- * author :
+ * author : Jack
  * time   : 2021/3/7
  * E-mail : wengmaowei@kaadas.com
- * desc   :
+ * desc   : 创建分享链接请求实体
  */
 public class GainKeyBeanReq {
 
@@ -18,12 +18,14 @@ public class GainKeyBeanReq {
      * endTime : 2019-12-12 15:00:00
      */
 
-    private String uid;
-    private String deviceSN;
-    private int shareUserType;
-    private int openPurview;
-    private String startTime;
-    private String endTime;
+    private String uid;             // 用户uid
+    private String deviceSN;        // 设备SN
+    private int shareUserType;      // 分享用户类型。1为 family 用户，2为 guest 用户
+    private int openPurview;        // 分享权限类型。1：一次性开锁，2：时间段开锁，3：无限开锁
+    private long startTime;         // 开始时间
+    private long endTime;           // 结束结束
+    private String shareNickName;   // 用户昵称
+
 
     public String getUid() {
         return uid;
@@ -57,19 +59,28 @@ public class GainKeyBeanReq {
         this.openPurview = openPurview;
     }
 
-    public String getStartTime() {
+    public long getStartTime() {
         return startTime;
     }
 
-    public void setStartTime(String startTime) {
+    public void setStartTime(long startTime) {
         this.startTime = startTime;
     }
 
-    public String getEndTime() {
+    public long getEndTime() {
         return endTime;
     }
 
-    public void setEndTime(String endTime) {
+    public void setEndTime(long endTime) {
         this.endTime = endTime;
     }
+
+    public String getShareNickName() {
+        return shareNickName;
+    }
+
+    public void setShareNickName(String shareNickName) {
+        this.shareNickName = shareNickName;
+    }
+
 }

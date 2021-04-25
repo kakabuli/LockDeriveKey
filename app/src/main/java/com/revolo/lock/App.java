@@ -108,7 +108,7 @@ public class App extends Application {
             Timber.plant(new Timber.DebugTree());
         }
         initCacheDisk();
-        initMqttService();
+        initMQttService();
     }
 
     // TODO: 2021/3/8 临时存个MainActivity 后期删除
@@ -422,7 +422,7 @@ public class App extends Application {
     /**
      * 启动MQTT服务
      */
-    private void initMqttService() {
+    private void initMQttService() {
         Intent intent = new Intent(this, MqttService.class);
         bindService(intent, new ServiceConnection() {
             @Override

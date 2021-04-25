@@ -1,10 +1,10 @@
 package com.revolo.lock.bean.respone;
 
 /**
- * author :
+ * author : Jack
  * time   : 2021/3/16
  * E-mail : wengmaowei@kaadas.com
- * desc   :
+ * desc   : 上传操作记录回调实体
  */
 public class UpdateLockRecordBeanRsp {
 

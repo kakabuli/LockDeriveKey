@@ -1,10 +1,10 @@
 package com.revolo.lock.bean.respone;
 
 /**
- * author :
+ * author : Jack
  * time   : 2021/3/17
  * E-mail : wengmaowei@kaadas.com
- * desc   :
+ * desc   : 确认升级（多组件）回调实体
  */
 public class StartAllOTAUpdateBeanRsp {
 

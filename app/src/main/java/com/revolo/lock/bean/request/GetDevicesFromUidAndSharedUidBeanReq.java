@@ -1,10 +1,10 @@
 package com.revolo.lock.bean.request;
 
 /**
- * author :
+ * author : Jack
  * time   : 2021/3/14
  * E-mail : wengmaowei@kaadas.com
- * desc   :
+ * desc   : 获取分享用户的设备列表请求实体
  */
 public class GetDevicesFromUidAndSharedUidBeanReq {
 
@@ -14,8 +14,8 @@ public class GetDevicesFromUidAndSharedUidBeanReq {
      * shareId : 5c4fe492dc93897aa7d8123456
      */
 
-    private String uid;
-    private String shareId;
+    private String uid;           // 管理员ID
+    private String shareId;       // 分享用户ID
 
     public String getUid() {
         return uid;

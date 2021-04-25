@@ -4,10 +4,10 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 /**
- * author :
+ * author : Jack
  * time   : 2021/1/21
  * E-mail : wengmaowei@kaadas.com
- * desc   :
+ * desc   : 修改无感开锁参数请求实体
  */
 public class ChangeOpenLockParameterBeanReq implements Parcelable {
 
@@ -20,11 +20,11 @@ public class ChangeOpenLockParameterBeanReq implements Parcelable {
      * latitude :
      */
 
-    private String sn;
-    private int approachStatus;
-    private int approachTime;
-    private String longitude;
-    private String latitude;
+    private String sn;                  // 设备唯一编号
+    private int approachStatus;         // 靠近开锁开关状态：1开 0关
+    private int approachTime;           // 无感开门的时间，单位秒
+    private String longitude;           // 经度
+    private String latitude;            // 纬度
 
     public String getSn() {
         return sn;

@@ -1,10 +1,10 @@
 package com.revolo.lock.bean.respone;
 
 /**
- * author :
+ * author : jack
  * time   : 2021/3/10
  * E-mail : wengmaowei@kaadas.com
- * desc   :
+ * desc   : 登出回调实体
  */
 public class LogoutBeanRsp {
 

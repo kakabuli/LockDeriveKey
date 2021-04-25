@@ -66,7 +66,7 @@ public class SearchKeyListBeanRsp {
          */
 
         private String _id;
-        private List<PwdListBean> pwdList;
+        private List<PwdListBean> pwdList;        // 密码列表
         private List<?> faceList;
         private List<?> fingerprintList;
         private List<?> cardList;
@@ -122,13 +122,13 @@ public class SearchKeyListBeanRsp {
              * items : ["1","3"]
              */
 
-            private int num;
-            private String nickName;
-            private int createTime;
-            private int type;
-            private int startTime;
-            private int endTime;
-            private List<String> items;
+            private int num;                      // 密钥编号
+            private String nickName;              // 密钥昵称
+            private int createTime;               // 添加时间
+            private int type;                     // 密钥周期类型：永久密钥：00,时间策略密钥：01,胁迫密钥02,管理员密钥：03,无权限密钥：04,周策略密钥：05,一次性密钥：FE
+            private int startTime;                // 时间段密钥开始时间
+            private int endTime;                  // 时间段密钥结束时间
+            private List<String> items;           // 周期密码星期几
 
             public int getNum() {
                 return num;

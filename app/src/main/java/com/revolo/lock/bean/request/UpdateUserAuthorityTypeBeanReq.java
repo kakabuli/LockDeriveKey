@@ -1,10 +1,10 @@
 package com.revolo.lock.bean.request;
 
 /**
- * author :
+ * author : Jack
  * time   : 2021/3/7
  * E-mail : wengmaowei@kaadas.com
- * desc   :
+ * desc   : 修改邀请用户类型
  */
 public class UpdateUserAuthorityTypeBeanReq {
 
@@ -15,9 +15,9 @@ public class UpdateUserAuthorityTypeBeanReq {
      * shareUserType : 1
      */
 
-    private String shareId;
-    private String uid;
-    private int shareUserType;
+    private String shareId;           // 分享用户-设备关联ID(分享用户自增id)
+    private String uid;               // 管理员ID
+    private int shareUserType;        // 分享用户类型。 1 family；2 guest
 
     public String getShareId() {
         return shareId;

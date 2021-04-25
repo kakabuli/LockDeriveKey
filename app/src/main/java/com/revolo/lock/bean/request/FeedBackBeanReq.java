@@ -1,10 +1,10 @@
 package com.revolo.lock.bean.request;
 
 /**
- * author :
+ * author : Jack
  * time   : 2021/3/26
  * E-mail : wengmaowei@kaadas.com
- * desc   :
+ * desc   : 用户反馈接口请求实体
  */
 public class FeedBackBeanReq {
 
@@ -14,8 +14,8 @@ public class FeedBackBeanReq {
      * suggest : 这个APP很完美，没毛病
      */
 
-    private String uid;
-    private String suggest;
+    private String uid;          // 用户id
+    private String suggest;      // 反馈内容
 
     public String getUid() {
         return uid;

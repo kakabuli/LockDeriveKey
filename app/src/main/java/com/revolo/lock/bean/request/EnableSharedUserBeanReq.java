@@ -1,10 +1,10 @@
 package com.revolo.lock.bean.request;
 
 /**
- * author :
+ * author : Jack
  * time   : 2021/3/7
  * E-mail : wengmaowei@kaadas.com
- * desc   :
+ * desc   : 启用/禁用分享用户权限请求实体
  */
 public class EnableSharedUserBeanReq {
 
@@ -15,9 +15,9 @@ public class EnableSharedUserBeanReq {
      * isEnable : 1
      */
 
-    private String shareId;
-    private String uid;
-    private int isEnable;
+    private String shareId;   // 分享用户-设备关联ID(分享用户自增id)
+    private String uid;       // 管理员ID
+    private int isEnable;     // 分享用户权限启用/禁止。 1 启用（默认）； 0禁止
 
     public String getShareId() {
         return shareId;

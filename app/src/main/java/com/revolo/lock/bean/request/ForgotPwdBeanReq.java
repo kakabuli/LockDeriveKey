@@ -4,10 +4,10 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 /**
- * author :
+ * author : Jack
  * time   : 2021/3/6
  * E-mail : wengmaowei@kaadas.com
- * desc   :
+ * desc   : 忘记密码请求实体
  */
 public class ForgotPwdBeanReq implements Parcelable {
 
@@ -19,10 +19,10 @@ public class ForgotPwdBeanReq implements Parcelable {
      * tokens : 673404
      */
 
-    private String name;
-    private String pwd;
-    private int type;
-    private String tokens;
+    private String name;        // 账号
+    private String pwd;         // 新密码
+    private int type;           // 账号类型：1手机号码 2邮箱
+    private String tokens;      // 验证码
 
     public String getName() {
         return name;

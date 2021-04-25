@@ -1,10 +1,10 @@
 package com.revolo.lock.bean.request;
 
 /**
- * author :
+ * author : Jack
  * time   : 2021/3/7
  * E-mail : wengmaowei@kaadas.com
- * desc   :
+ * desc   : 修改分享用户昵称请求实体
  */
 public class UpdateSharedUserNickNameBeanReq {
 
@@ -15,9 +15,9 @@ public class UpdateSharedUserNickNameBeanReq {
      * uid : 5c4fe492dc93897aa7d8600b
      */
 
-    private String shareId;
-    private String nickname;
-    private String uid;
+    private String shareId;      // 分享用户-设备关联ID
+    private String nickname;     // 分享用户昵称
+    private String uid;          // 管理员ID
 
     public String getShareId() {
         return shareId;

@@ -1,10 +1,10 @@
 package com.revolo.lock.bean.request;
 
 /**
- * author :
+ * author : Jack
  * time   : 2021/3/7
  * E-mail : wengmaowei@kaadas.com
- * desc   :
+ * desc   : 设置胁迫密码邮箱请求实体
  */
 public class SettingDuressPwdReceiveEMailBeanReq {
 
@@ -15,9 +15,9 @@ public class SettingDuressPwdReceiveEMailBeanReq {
      * duressEmail : chason888@163.com
      */
 
-    private String uid;
-    private int type;
-    private String duressEmail;
+    private String uid;             // 用户唯一编号
+    private int type;               // 账号类型。 1 手机；2 邮箱
+    private String duressEmail;     // 胁迫密码邮箱
 
     public String getUid() {
         return uid;

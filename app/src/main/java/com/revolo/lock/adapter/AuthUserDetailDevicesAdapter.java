@@ -8,9 +8,6 @@ import com.revolo.lock.R;
 import com.revolo.lock.bean.respone.GetDevicesFromUidAndSharedUidBeanRsp;
 
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
-import java.util.List;
 
 /**
  * author : Jack
@@ -19,9 +16,6 @@ import java.util.List;
  * desc   : 分享的用户的详情页面下的设备列表
  */
 public class AuthUserDetailDevicesAdapter extends BaseQuickAdapter<GetDevicesFromUidAndSharedUidBeanRsp.DataBean, BaseViewHolder> {
-    public AuthUserDetailDevicesAdapter(int layoutResId, @Nullable List<GetDevicesFromUidAndSharedUidBeanRsp.DataBean> data) {
-        super(layoutResId, data);
-    }
 
     public AuthUserDetailDevicesAdapter(int layoutResId) {
         super(layoutResId);

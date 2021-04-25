@@ -19,10 +19,10 @@ import java.util.List;
 
 
 /**
- * author :
+ * author : Jack
  * time   : 2021/3/18
  * E-mail : wengmaowei@kaadas.com
- * desc   :
+ * desc   : 操作记录
  */
 public class OpRecordsAdapter extends BaseExpandableListAdapter {
 

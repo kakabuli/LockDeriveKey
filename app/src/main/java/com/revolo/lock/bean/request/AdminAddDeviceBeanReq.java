@@ -26,17 +26,17 @@ public class AdminAddDeviceBeanReq implements Parcelable {
      * systemID : ss
      */
 
-    private String devmac;
-    private String user_id;
-    private String password1;
-    private String password2;
-    private String model;
-    private String deviceSN;
-    private String peripheralId;
-    private String bleVersionType;
-    private String bleVersion;
-    private String functionSet;
-    private String systemID;
+    private String devmac;                       // 设备mac
+    private String user_id;                      // 用户ID
+    private String password1;                    // 密码1
+    private String password2;                    // 密码2
+    private String model;                        // 型号
+    private String deviceSN;                     // 设备SN,和wifiSN保持一致
+    private String peripheralId;                 // ios蓝牙UUID
+    private String bleVersionType;               // 蓝牙版本号：1 2 3
+    private String bleVersion;                   // 固件版本号
+    private String functionSet;                  // 功能集
+    private String systemID;                     // 参数，扫描所得(现在的锁已经取消了这个)
 
     public String getDevmac() {
         return devmac;

@@ -6,10 +6,10 @@ import android.os.Parcelable;
 import java.util.List;
 
 /**
- * author :
+ * author : Jack
  * time   : 2021/1/21
  * E-mail : wengmaowei@kaadas.com
- * desc   :
+ * desc   : 删除密钥请求实体
  */
 public class DelKeyBeanReq implements Parcelable {
 
@@ -20,9 +20,9 @@ public class DelKeyBeanReq implements Parcelable {
      * pwdList : [{"pwdType":1,"num":1}]
      */
 
-    private String uid;
-    private String sn;
-    private List<PwdListBean> pwdList;
+    private String uid;                     // 管理员用户ID
+    private String sn;                      // 设备唯一编号
+    private List<PwdListBean> pwdList;      // 密钥列表
 
     public String getUid() {
         return uid;
@@ -54,8 +54,8 @@ public class DelKeyBeanReq implements Parcelable {
          * num : 01
          */
 
-        private int pwdType;
-        private int num;
+        private int pwdType;               // 密钥类型：1密码 2指纹密码 3卡片密码 4人脸
+        private int num;                   // 密钥编号
 
         public int getPwdType() {
             return pwdType;

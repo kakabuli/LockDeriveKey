@@ -3,10 +3,10 @@ package com.revolo.lock.bean.respone;
 import java.util.List;
 
 /**
- * author :
+ * author : Jack
  * time   : 2021/3/16
  * E-mail : wengmaowei@kaadas.com
- * desc   :
+ * desc   : 获取操作记录回调实体
  */
 public class LockRecordBeanRsp {
 
@@ -55,6 +55,7 @@ public class LockRecordBeanRsp {
         this.data = data;
     }
 
+    // TODO: 2021/4/25 记录混乱，需要推翻重整
     public static class DataBean {
         /**
          * _id : 604f29c18af521731595e177

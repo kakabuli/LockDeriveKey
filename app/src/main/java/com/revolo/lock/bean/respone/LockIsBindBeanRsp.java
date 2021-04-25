@@ -4,10 +4,10 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 /**
- * author :
+ * author : Jack
  * time   : 2021/1/21
  * E-mail : wengmaowei@kaadas.com
- * desc   :
+ * desc   : 设备是否被绑定回调实体
  */
 public class LockIsBindBeanRsp implements Parcelable {
 
@@ -19,9 +19,9 @@ public class LockIsBindBeanRsp implements Parcelable {
      * data : {"_id":"5cf34165457411492b74da11","adminname":"8613786399316"}
      */
 
-    private String code;
-    private String msg;
-    private int nowTime;
+    private String code;       // 状态码
+    private String msg;        // 提示语
+    private int nowTime;       // 现在时间
     private DataBean data;
 
     public String getCode() {
@@ -63,7 +63,7 @@ public class LockIsBindBeanRsp implements Parcelable {
          */
 
         private String _id;
-        private String adminname;
+        private String adminname;       // 管理员账号
 
         public String get_id() {
             return _id;

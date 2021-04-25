@@ -16,7 +16,7 @@ public class CheckDoorSensorStateBeanReq implements Parcelable {
      * sn : KV51203710172
      */
 
-    private String sn;
+    private String sn;      // 设备唯一编号
 
     public String getSn() {
         return sn;

@@ -7,9 +7,6 @@ import com.revolo.lock.R;
 import com.revolo.lock.bean.test.TestMessageBean;
 
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
-import java.util.List;
 
 /**
  * author : Jack
@@ -18,9 +15,6 @@ import java.util.List;
  * desc   : 信息列表
  */
 public class MessageListAdapter extends BaseQuickAdapter<TestMessageBean, BaseViewHolder> {
-    public MessageListAdapter(int layoutResId, @Nullable List<TestMessageBean> data) {
-        super(layoutResId, data);
-    }
 
     public MessageListAdapter(int layoutResId) {
         super(layoutResId);

@@ -6,10 +6,10 @@ import android.os.Parcelable;
 import java.util.List;
 
 /**
- * author :
+ * author : Jack
  * time   : 2021/3/7
  * E-mail : wengmaowei@kaadas.com
- * desc   :
+ * desc   : 获取锁下的所有分享用户列表回调实体
  */
 public class GetAllSharedUserFromLockBeanRsp {
 
@@ -70,9 +70,10 @@ public class GetAllSharedUserFromLockBeanRsp {
          * createTime : 1576225646
          */
 
-        private String _id;
-        private String adminUid;
-        private String uid;
+        // TODO: 2021/4/25 后面需要修改与showDoc最新的数据校对一起
+        private String _id;               // 分享用户-设备关联ID（自增id）
+        private String adminUid;          // 管理员id
+        private String uid;               //
         private String userNickname;
         private int shareUserType;
         private int shareType;

@@ -1,10 +1,10 @@
 package com.revolo.lock.bean.respone;
 
 /**
- * author :
+ * author : Jack
  * time   : 2021/3/26
  * E-mail : wengmaowei@kaadas.com
- * desc   :
+ * desc   : 用户反馈接口回调实体
  */
 public class FeedBackBeanRsp {
 

@@ -11,9 +11,6 @@ import com.revolo.lock.R;
 import com.revolo.lock.room.entity.BleDeviceLocal;
 
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
-import java.util.List;
 
 
 /**
@@ -23,9 +20,6 @@ import java.util.List;
  * desc   : 首页锁列表适配器
  */
 public class HomeLockListAdapter extends BaseQuickAdapter<BleDeviceLocal, BaseViewHolder> {
-    public HomeLockListAdapter(int layoutResId, @Nullable List<BleDeviceLocal> data) {
-        super(layoutResId, data);
-    }
 
     public HomeLockListAdapter(int layoutResId) {
         super(layoutResId);

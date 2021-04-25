@@ -4,10 +4,10 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 /**
- * author :
+ * author : Jack
  * time   : 2021/1/21
  * E-mail : wengmaowei@kaadas.com
- * desc   :
+ * desc   : 设备解绑请求实体
  */
 public class DeviceUnbindBeanReq implements Parcelable {
 
@@ -17,8 +17,8 @@ public class DeviceUnbindBeanReq implements Parcelable {
      * uid : 5c4fe492dc93897aa7d8600b
      */
 
-    private String wifiSN;
-    private String uid;
+    private String wifiSN;         // wifi模块ESN
+    private String uid;            // 用户ID
 
     public String getWifiSN() {
         return wifiSN;

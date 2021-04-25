@@ -109,195 +109,478 @@ import retrofit2.http.Part;
 
 public interface ApiService {
 
+    /**
+     * 邮箱登录
+     * @param req        请求实体
+     * @param urlName    用于区分，可能后期替换不一样的接口
+     */
     @Headers({"Content-Type: application/json"})
     @POST("/user/login/getuserbymail")
     Observable<MailLoginBeanRsp> login(@Body MailLoginBeanReq req, @Header("url_name") String  urlName);
 
+    /**
+     * 判断锁是否被绑定
+     * @param token       用户登录获取到的token值
+     * @param req         请求实体
+     * @param urlName     用于区分，可能后期替换不一样的接口
+     */
     @Headers({"Content-Type: application/json"})
     @POST("/wpflock/device/checkadmindev")
     Observable<LockIsBindBeanRsp> lockIsBind(@Header("token") String token, @Body LockIsBindBeanReq req, @Header("url_name") String  urlName);
 
+    /**
+     * 获取pwd1
+     * @param token      用户权限码
+     * @param req        请求实体
+     * @param urlName    用于区分，可能后期替换不一样的接口
+     */
     @Headers({"Content-Type: application/json"})
     @POST("/model/getpwdBySN")
     Observable<GetPwd1BeanRsp> getPwd1(@Header("token") String token, @Body GetPwd1BeanReq req, @Header("url_name") String  urlName);
 
+    /**
+     * 管理员添加设备
+     * @param token        用户权限码
+     * @param req          请求实体
+     * @param urlName      用于区分，可能后期替换不一样的接口
+     */
     @Headers({"Content-Type: application/json"})
     @POST("/wpflock/device/createadmindev")
     Observable<AdminAddDeviceBeanRsp> adminAddDevice(@Header("token") String token, @Body AdminAddDeviceBeanReq req, @Header("url_name") String  urlName);
 
+    /**
+     * 设备解绑
+     * @param token        用户权限码
+     * @param req          请求实体
+     * @param urlName      用于区分，可能后期替换不一样的接口
+     */
     @Headers({"Content-Type: application/json"})
     @POST("/wpflock/device/unbind")
     Observable<DeviceUnbindBeanRsp> unbindDevice(@Header("token") String token, @Body DeviceUnbindBeanReq req, @Header("url_name") String  urlName);
 
+    /**
+     * 修改蓝牙版本类型
+     * @param token       用户权限码
+     * @param req         请求实体
+     * @param urlName     用于区分，可能后期替换不一样的接口
+     */
     @Headers({"Content-Type: application/json"})
     @POST("/wpflock/device/updateBleVersionType")
     Observable<ChangeBleVerBeanRsp> changeBleVer(@Header("token") String token, @Body ChangeBleVerBeanReq req, @Header("url_name") String  urlName);
 
+    /**
+     * 修改设备固件版本
+     * @param token      用户权限码
+     * @param req        请求实体
+     * @param urlName    用于区分，可能后期替换不一样的接口
+     */
     @Headers({"Content-Type: application/json"})
     @POST("/wpflock/device/updateBleVersion")
     Observable<ChangeDeviceHardVerBeanRsp> changeDeviceHardVer(@Header("token") String token, @Body ChangeDeviceHardVerBeanReq req, @Header("url_name") String  urlName);
 
+    /**
+     * 修改功能集
+     * @param token      用户权限码
+     * @param req        请求实体
+     * @param urlName    用于区分，可能后期替换不一样的接口
+     */
     @Headers({"Content-Type: application/json"})
     @POST("/wpflock/device/updateFunctionSet")
     Observable<ChangeFeaturesBeanRsp> updateFunctionSet(@Header("token") String token, @Body ChangeFeaturesBeanReq req, @Header("url_name") String  urlName);
 
+    /**
+     * 删除设备 todo 存疑，解绑可以达到同种效果，似无必要，联调时确定
+     * @param token      用户权限码
+     * @param req        请求实体
+     * @param urlName    用于区分，可能后期替换不一样的接口
+     */
     @Headers({"Content-Type: application/json"})
     @POST("/wpflock/device/deleteadmindev")
     Observable<DelDeviceBeanRsp> delDevice(@Header("token") String token, @Body DelDeviceBeanReq req, @Header("url_name") String  urlName);
 
+    /**
+     * 修改设备昵称
+     * @param token      用户权限码
+     * @param req        请求实体
+     * @param urlName    用于区分，可能后期替换不一样的接口
+     */
     @Headers({"Content-Type: application/json"})
     @POST("/wpflock/device/updateAdminlockNickName")
     Observable<ChangeDeviceNameBeanRsp> changeDeviceNickName(@Header("token") String token, @Body ChangeDeviceNameBeanReq req, @Header("url_name") String  urlName);
 
+    /**
+     * 搜索设备型号（模糊查询）
+     * @param token      用户权限码
+     * @param req        请求实体
+     * @param urlName    用于区分，可能后期替换不一样的接口
+     */
     @Headers({"Content-Type: application/json"})
     @POST("/deviceModel/search")
     Observable<SearchProductNoBeanRsp> searchDevice(@Header("token") String token, @Body SearchProductNoBeanReq req, @Header("url_name") String  urlName);
 
+    /**
+     * 上传开门记录
+     * @param token      用户权限码
+     * @param req        请求实体
+     * @param urlName    用于区分，可能后期替换不一样的接口
+     */
     @Headers({"Content-Type: application/json"})
     @POST("/wpflock/device/uploadopenlocklist")
     Observable<UploadOpenDoorRecordBeanRsp> uploadOpenDoorRecord(@Header("token") String token, @Body UploadOpenDoorRecordBeanReq req, @Header("url_name") String  urlName);
 
+    /**
+     * 开门记录查询
+     * @param token     用户权限码
+     * @param req       请求实体
+     * @param urlName   用于区分，可能后期替换不一样的接口
+     */
     @Headers({"Content-Type: application/json"})
     @POST("/wpflock/device/findopenlockrecord")
     Observable<OpenDoorRecordSearchBeanRsp> searchOpenLockRecord(@Header("token") String token, @Body OpenDoorRecordSearchBeanReq req, @Header("url_name") String  urlName);
 
+    /**
+     * 上传报警记录
+     * @param token      用户权限码
+     * @param req        请求实体
+     * @param urlName    用于区分，可能后期替换不一样的接口
+     */
     @Headers({"Content-Type: application/json"})
     @POST("/wpflock/device/uploadalarmlist")
     Observable<UploadAlarmRecordBeanRsp> uploadAlarmRecord(@Header("token") String token, @Body UploadAlarmRecordBeanReq req, @Header("url_name") String  urlName);
 
+    /**
+     * 查询报警记录
+     * @param token     用户权限码
+     * @param req       请求实体
+     * @param urlName   用于区分，可能后期替换不一样的接口
+     */
     @Headers({"Content-Type: application/json"})
     @POST("/wifi/alarm/list")
     Observable<SearchAlarmRecordBeanRsp> searchAlarmRecord(@Header("token") String token, @Body SearchAlarmRecordBeanReq req, @Header("url_name") String  urlName);
 
+    /**
+     * 门锁秘钥添加
+     * @param token      用户权限码
+     * @param req        请求实体
+     * @param urlName    用于区分，可能后期替换不一样的接口
+     */
     @Headers({"Content-Type: application/json"})
     @POST("/wpflock/device/pwdadd")
     Observable<LockKeyAddBeanRsp> addLockKey(@Header("token") String token, @Body LockKeyAddBeanReq req, @Header("url_name") String  urlName);
 
+    /**
+     * 查询密钥列表
+     * @param token        用户权限码
+     * @param req          请求实体
+     * @param urlName      用于区分，可能后期替换不一样的接口
+     */
     @Headers({"Content-Type: application/json"})
     @POST("/wpflock/device/pwdlist")
     Observable<SearchKeyListBeanRsp> searchLockKey(@Header("token") String token, @Body SearchKeyListBeanReq req, @Header("url_name") String  urlName);
 
+    /**
+     * 删除秘钥
+     * @param token       用户权限码
+     * @param req         请求实体
+     * @param urlName     用于区分，可能后期替换不一样的接口
+     */
     @Headers({"Content-Type: application/json"})
     @POST("/wpflock/device/pwddelete")
     Observable<DelKeyBeanRsp> delKey(@Header("token") String token, @Body DelKeyBeanReq req, @Header("url_name") String  urlName);
 
+    /**
+     * 修改秘钥昵称
+     * @param token       用户权限码
+     * @param req         请求实体
+     * @param urlName     用于区分，可能后期替换不一样的接口
+     */
     @Headers({"Content-Type: application/json"})
     @POST("/wpflock/device/nicknameupdate")
     Observable<ChangeKeyNickBeanRsp> changeKeyNickName(@Header("token") String token, @Body ChangeKeyNickBeanReq req, @Header("url_name") String  urlName);
 
+    /**
+     * 获取门锁秘钥昵称(单个)
+     * @param token       用户权限码
+     * @param req         请求实体
+     * @param urlName     用于区分，可能后期替换不一样的接口
+     */
     @Headers({"Content-Type: application/json"})
     @POST("/wpflock/device/getNickname")
     Observable<GetLockKeyNickBeanRsp> getKeyNickName(@Header("token") String token, @Body GetLockKeyNickBeanReq req, @Header("url_name") String  urlName);
 
+    /**
+     * 更新门磁状态
+     * @param token      用户权限码
+     * @param req        请求实体
+     * @param urlName    用于区分，可能后期替换不一样的接口
+     */
     @Headers({"Content-Type: application/json"})
     @POST("/wpflock/device/updateMagneticStatus")
     Observable<UpdateDoorSensorStateBeanRsp> updateDoorSensorState(@Header("token") String token, @Body UpdateDoorSensorStateBeanReq req, @Header("url_name") String  urlName);
 
+    /**
+     * 查询门磁状态
+     * @param token             用户权限码
+     * @param req               请求实体
+     * @param urlName           用于区分，可能后期替换不一样的接口
+     */
     @Headers({"Content-Type: application/json"})
     @POST("/wpflock/device/findMagneticStatus")
     Observable<CheckDoorSensorStateBeanRsp> checkDoorSensorState(@Header("token") String token, @Body CheckDoorSensorStateBeanReq req, @Header("url_name") String  urlName);
 
+    /**
+     * 修改无感开锁参数
+     * @param token       用户权限码
+     * @param req         请求实体
+     * @param urlName     用于区分，可能后期替换不一样的接口
+     */
     @Headers({"Content-Type: application/json"})
     @POST("/wpflock/device/updateApproachParameters")
     Observable<ChangeOpenLockParameterBeanRsp> changeOpenLockParameter(@Header("token") String token, @Body ChangeOpenLockParameterBeanReq req, @Header("url_name") String  urlName);
 
+    /**
+     * 发送邮箱验证码
+     * @param req       请求实体
+     * @param urlName   用于区分，可能后期替换不一样的接口
+     */
     @Headers({"Content-Type: application/json"})
     @POST("/mail/sendemailtoken")
     Observable<GetCodeBeanRsp> getCode(@Body GetCodeBeanReq req, @Header("url_name") String  urlName);
 
+    /**
+     * 邮箱注册
+     * @param req          请求实体
+     * @param urlName      用于区分，可能后期替换不一样的接口
+     */
     @Headers({"Content-Type: application/json"})
     @POST("/user/reg/putuserbyemail")
     Observable<MailRegisterBeanRsp> register(@Body MailRegisterBeanReq req, @Header("url_name") String  urlName);
 
+    /**
+     * 检测升级文件（单组件）
+     * @param token         用户权限码
+     * @param req           请求实体
+     * @param urlName       用于区分，可能后期替换不一样的接口
+     */
     @Headers({"Content-Type: application/json"})
     @POST("/ota/checkUpgrade")
     Observable<CheckOTABeanRsp> checkOtaVer(@Header("token") String token, @Body CheckOTABeanReq req, @Header("url_name") String  urlName);
 
+    /**
+     * 确认升级（单设备单组件）
+     * @param token       用户权限码
+     * @param req         请求实体
+     * @param urlName     用于区分，可能后期替换不一样的接口
+     */
     @Headers({"Content-Type: application/json"})
     @POST("/wifi/device/ota")
     Observable<StartOTAUpdateBeanRsp> startOtaUpdate(@Header("token") String token, @Body StartOTAUpdateBeanReq req, @Header("url_name") String  urlName);
 
+    /**
+     * 用户检查升级（多组件）
+     * @param token        用户权限码
+     * @param req          请求实体
+     * @param urlName      用于区分，可能后期替换不一样的接口
+     */
     @Headers({"Content-Type: application/json"})
     @POST("/ota/multiCheckUpgrade")
     Observable<CheckAllOTABeanRsp> checkAllOtaVer(@Header("token") String token, @Body CheckAllOTABeanReq req, @Header("url_name") String  urlName);
 
+    /**
+     * 确认升级（多组件）
+     * @param token      用户权限码
+     * @param req        请求实体
+     * @param urlName    用于区分，可能后期替换不一样的接口
+     */
     @Headers({"Content-Type: application/json"})
     @POST("/wifi/device/multiOta")
     Observable<StartAllOTAUpdateBeanRsp> startAllOtaUpdate(@Header("token") String token, @Body StartAllOTAUpdateBeanReq req, @Header("url_name") String  urlName);
 
+    /**
+     * 忘记密码
+     * @param req           请求实体
+     * @param urlName       用于区分，可能后期替换不一样的接口
+     */
     @Headers({"Content-Type: application/json"})
     @POST("/user/edit/forgetPwd")
     Observable<ForgotPwdRsp> forgotPwd(@Body ForgotPwdBeanReq req, @Header("url_name") String  urlName);
 
+    /**
+     * 修改密码
+     * @param token     用户权限码
+     * @param req       请求实体
+     * @param urlName   用于区分，可能后期替换不一样的接口
+     */
     @Headers({"Content-Type: application/json"})
     @POST("/user/edit/postUserPwd")
     Observable<ChangeUserPwdBeanRsp> changeUserPwd(@Header("token") String token, @Body ChangeUserPwdBeanReq req, @Header("url_name") String  urlName);
 
+    /**
+     * 创建分享链接
+     * @param token      用户权限码
+     * @param req        请求实体
+     * @param urlName    用于区分，可能后期替换不一样的接口
+     */
     @Headers({"Content-Type: application/json"})
     @POST("/wpflock/share/gainKey")
     Observable<GainKeyBeanRsp> gainKey(@Header("token") String token, @Body GainKeyBeanReq req, @Header("url_name") String  urlName);
 
+    /**
+     * 获取锁下的所有分享用户列表
+     * @param token     用户权限码
+     * @param req       请求实体
+     * @param urlName   用于区分，可能后期替换不一样的接口
+     */
     @Headers({"Content-Type: application/json"})
     @POST("/wpflock/share/list")
     Observable<GetAllSharedUserFromLockBeanRsp> getAllSharedUserFromLock(@Header("token") String token, @Body GetAllSharedUserFromLockBeanReq req, @Header("url_name") String  urlName);
 
+    /**
+     * 修改分享用户昵称
+     * @param token     用户权限码
+     * @param req       请求实体
+     * @param urlName   用于区分，可能后期替换不一样的接口
+     */
     @Headers({"Content-Type: application/json"})
     @POST("/wpflock/share/updateNickName")
     Observable<UpdateSharedUserNickNameBeanRsp> updateSharedUserNickName(@Header("token") String token, @Body UpdateSharedUserNickNameBeanReq req, @Header("url_name") String  urlName);
 
+    /**
+     * 删除无效分享链接
+     * @param token       用户权限码
+     * @param req         请求实体
+     * @param urlName     用于区分，可能后期替换不一样的接口
+     */
     @Headers({"Content-Type: application/json"})
     @POST("/wpflock/share/delShareKey")
     Observable<DelInvalidShareBeanRsp> delInvalidShare(@Header("token") String token, @Body DelInvalidShareBeanReq req, @Header("url_name") String  urlName);
 
+    /**
+     * 启用/禁用分享用户权限
+     * @param token       用户权限码
+     * @param req         请求实体
+     * @param urlName     用于区分，可能后期替换不一样的接口
+     */
     @Headers({"Content-Type: application/json"})
     @POST("/wpflock/share/updateEnable")
     Observable<EnableSharedUserBeanRsp> enableSharedUser(@Header("token") String token, @Body EnableSharedUserBeanReq req, @Header("url_name") String  urlName);
 
+    /**
+     * 删除分享用户
+     * @param token       用户权限码
+     * @param req         请求实体
+     * @param urlName     用于区分，可能后期替换不一样的接口
+     */
     @Headers({"Content-Type: application/json"})
     @POST("/wpflock/share/delShareUser")
     Observable<DelSharedUserBeanRsp> delSharedUser(@Header("token") String token, @Body DelSharedUserBeanReq req, @Header("url_name") String  urlName);
 
+    /**
+     * 修改邀请用户类型
+     * @param token       用户权限码
+     * @param req         请求实体
+     * @param urlName     用于区分，可能后期替换不一样的接口
+     */
     @Headers({"Content-Type: application/json"})
     @POST("/wpflock/share/updateUserType")
     Observable<UpdateUserAuthorityTypeBeanRsp> updateUserAuthorityType(@Header("token") String token, @Body UpdateUserAuthorityTypeBeanReq req, @Header("url_name") String  urlName);
 
+    /**
+     * 获取管理员下的所有分享用户
+     * @param token     用户权限码
+     * @param req       请求实体
+     * @param urlName   用于区分，可能后期替换不一样的接口
+     */
     @Headers({"Content-Type: application/json"})
     @POST("/wpflock/share/userList")
     Observable<GetAllSharedUserFromAdminUserBeanRsp> getAllSharedUserFromAdminUser(@Header("token") String token, @Body GetAllSharedUserFromAdminUserBeanReq req, @Header("url_name") String  urlName);
 
+    /**
+     * 设置胁迫密码邮箱
+     * @param token      用户权限码
+     * @param req        请求实体
+     * @param urlName    用于区分，可能后期替换不一样的接口
+     */
     @Headers({"Content-Type: application/json"})
     @POST("/wpflock/set/duressEmail")
     Observable<SettingDuressPwdReceiveEMailBeanRsp> settingDuressPwdReceiveEMail(@Header("token") String token, @Body SettingDuressPwdReceiveEMailBeanReq req, @Header("url_name") String  urlName);
 
+    /**
+     * 接收邀请
+     * @param token      用户权限码
+     * @param req        请求实体
+     * @param urlName    用于区分，可能后期替换不一样的接口
+     */
     @Headers({"Content-Type: application/json"})
     @POST("/wpflock/share/add")
     Observable<AcceptShareBeanRsp> acceptShare(@Header("token") String token, @Body AcceptShareBeanReq req, @Header("url_name") String  urlName);
 
+    /**
+     * 登出
+     * @param token         用户权限码
+     * @param urlName       用于区分，可能后期替换不一样的接口
+     */
     @Headers({"Content-Type: application/json"})
     @POST("/user/logout")
     Observable<LogoutBeanRsp> logout(@Header("token") String token, @Header("url_name") String  urlName);
 
+    /**
+     * 设置/修改用户名称
+     * @param token       用户权限码
+     * @param req         请求实体
+     * @param urlName     用于区分，可能后期替换不一样的接口
+     */
     @Headers({"Content-Type: application/json"})
     @POST("/user/edit/postUserName")
     Observable<UpdateUserFirstLastNameBeanRsp> updateUserFirstLastName(@Header("token") String token, @Body UpdateUserFirstLastNameBeanReq req, @Header("url_name") String  urlName);
 
+    /**
+     * 上传头像
+     * @param token           用户权限码
+     * @param partLis         图片文件
+     * @param urlName         用于区分，可能后期替换不一样的接口
+     */
 //    @Headers({"Content-Type: multipart/form-data"})
     @Multipart
     @POST("/user/edit/uploadUserAvatar")
     Observable<UploadUserAvatarBeanRsp> uploadUserAvatar(@Header("token") String token, @Part List<MultipartBody.Part> partLis, @Header("url_name") String  urlName);
 
+    /**
+     * 获取分享用户的设备列表
+     * @param token         用户权限码
+     * @param req           请求实体
+     * @param urlName       用于区分，可能后期替换不一样的接口
+     */
     @Headers({"Content-Type: application/json"})
     @POST("/wpflock/user/devList")
     Observable<GetDevicesFromUidAndSharedUidBeanRsp> getDevicesFromUidAndSharedUid(@Header("token") String token, @Body GetDevicesFromUidAndSharedUidBeanReq req, @Header("url_name") String  urlName);
 
+    /**
+     * 获取操作记录
+     * @param token       用户权限码
+     * @param req         请求实体
+     * @param urlName     用于区分，可能后期替换不一样的接口
+     */
     @Headers({"Content-Type: application/json"})
     @POST("/wpflock/operation/list")
     Observable<LockRecordBeanRsp> getLockRecordList(@Header("token") String token, @Body LockRecordBeanReq req, @Header("url_name") String  urlName);
 
+    /**
+     * 上传操作记录
+     * @param token        用户权限码
+     * @param req          请求实体
+     * @param urlName      用于区分，可能后期替换不一样的接口
+     */
     @Headers({"Content-Type: application/json"})
     @POST("/wpflock/device/uploadOperationList")
     Observable<UpdateLockRecordBeanRsp> updateLockRecordList(@Header("token") String token, @Body UpdateLockRecordBeanReq req, @Header("url_name") String  urlName);
 
+    /**
+     * 用户反馈接口
+     * @param token      用户权限码
+     * @param req        请求实体
+     * @param urlName    用于区分，可能后期替换不一样的接口
+     */
     @Headers({"Content-Type: application/json"})
     @POST("/suggest/putmsg")
     Observable<FeedBackBeanRsp> feedback(@Header("token") String token, @Body FeedBackBeanReq req, @Header("url_name") String  urlName);

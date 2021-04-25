@@ -1,10 +1,10 @@
 package com.revolo.lock.bean.request;
 
 /**
- * author :
+ * author : Jack
  * time   : 2021/3/7
  * E-mail : wengmaowei@kaadas.com
- * desc   :
+ * desc   : 修改密码请求实体
  */
 public class ChangeUserPwdBeanReq {
 
@@ -15,9 +15,9 @@ public class ChangeUserPwdBeanReq {
      * oldpwd : bds4545
      */
 
-    private String uid;
-    private String newpwd;
-    private String oldpwd;
+    private String uid;       // 用户ID
+    private String newpwd;    // 新密码
+    private String oldpwd;    // 旧密码
 
     public String getUid() {
         return uid;

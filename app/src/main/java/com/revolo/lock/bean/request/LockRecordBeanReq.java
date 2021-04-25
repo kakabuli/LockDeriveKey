@@ -1,10 +1,10 @@
 package com.revolo.lock.bean.request;
 
 /**
- * author :
+ * author : Jack
  * time   : 2021/3/16
  * E-mail : wengmaowei@kaadas.com
- * desc   :
+ * desc   : 获取操作记录请求实体
  */
 public class LockRecordBeanReq {
 
@@ -15,9 +15,9 @@ public class LockRecordBeanReq {
      * page : 1
      */
 
-    private String deviceSN;
-    private String uid;
-    private int page;
+    private String deviceSN;         // wifi模块SN
+    private String uid;              // 用户id
+    private int page;                // 第几页
 
     public String getDeviceSN() {
         return deviceSN;

@@ -1,10 +1,10 @@
 package com.revolo.lock.bean.respone;
 
 /**
- * author :
+ * author : Jack
  * time   : 2021/3/7
  * E-mail : wengmaowei@kaadas.com
- * desc   :
+ * desc   : 创建分享链接回调实体
  */
 public class GainKeyBeanRsp {
 
@@ -58,7 +58,7 @@ public class GainKeyBeanRsp {
          * shareUrl : https://127.0.0.1:8090/wpflock/share/claimKey/1a6334f1-c8a1-471e-b8f4-2f8d9e966e74
          */
 
-        private String url;
+        private String url;         // 分享链接
 
         public String getUrl() {
             return url;

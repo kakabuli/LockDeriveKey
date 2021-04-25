@@ -17,8 +17,8 @@ public class GetCodeBeanReq implements Parcelable {
      * world : 2
      */
 
-    private String mail;
-    private int world;
+    private String mail;                  // 邮箱地址
+    private int world;                    // 国际版标识：1国内版 2国际版（null默认为国内版）
 
     public String getMail() {
         return mail;

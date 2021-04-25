@@ -63,7 +63,7 @@ public class CheckDoorSensorStateBeanRsp implements Parcelable {
          */
 
         private String _id;
-        private int magneticStatus;
+        private int magneticStatus;          // 门磁状态：1开 2关 todo showDoc上字段名字不一样，需要确认
 
         public String get_id() {
             return _id;

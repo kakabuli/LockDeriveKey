@@ -1,10 +1,10 @@
 package com.revolo.lock.bean.request;
 
 /**
- * author :
+ * author : Jack
  * time   : 2021/3/12
  * E-mail : wengmaowei@kaadas.com
- * desc   :
+ * desc   : 设置/修改用户名称请求实体
  */
 public class UpdateUserFirstLastNameBeanReq {
 
@@ -15,9 +15,9 @@ public class UpdateUserFirstLastNameBeanReq {
      * lastName : 888
      */
 
-    private String uid;
-    private String firstName;
-    private String lastName;
+    private String uid;          // 用户ID
+    private String firstName;    // 名
+    private String lastName;     // 姓
 
     public String getUid() {
         return uid;

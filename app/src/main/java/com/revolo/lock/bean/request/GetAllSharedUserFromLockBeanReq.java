@@ -1,10 +1,10 @@
 package com.revolo.lock.bean.request;
 
 /**
- * author :
+ * author : Jack
  * time   : 2021/3/7
  * E-mail : wengmaowei@kaadas.com
- * desc   :
+ * desc   : 获取锁下的所有分享用户列表请求实体
  */
 public class GetAllSharedUserFromLockBeanReq {
 
@@ -14,8 +14,8 @@ public class GetAllSharedUserFromLockBeanReq {
      * deviceSN : WPF00000123
      */
 
-    private String uid;
-    private String deviceSN;
+    private String uid;            // 用户uid
+    private String deviceSN;       // 设备SN
 
     public String getUid() {
         return uid;

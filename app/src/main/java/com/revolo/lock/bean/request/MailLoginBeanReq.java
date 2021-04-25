@@ -4,10 +4,10 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 /**
- * author :
+ * author : Jack
  * time   : 2021/1/26
  * E-mail : wengmaowei@kaadas.com
- * desc   :
+ * desc   : 邮箱登录实体
  */
 public class MailLoginBeanReq implements Parcelable {
 
@@ -17,8 +17,8 @@ public class MailLoginBeanReq implements Parcelable {
      * password : ll123654
      */
 
-    private String mail;
-    private String password;
+    private String mail;                   // 邮箱
+    private String password;               // 密码
 
     public String getMail() {
         return mail;

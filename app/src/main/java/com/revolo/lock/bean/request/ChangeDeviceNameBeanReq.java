@@ -4,10 +4,10 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 /**
- * author :
+ * author : Jack
  * time   : 2021/1/21
  * E-mail : wengmaowei@kaadas.com
- * desc   :
+ * desc   : 修改设备昵称请求实体
  */
 public class ChangeDeviceNameBeanReq implements Parcelable {
 
@@ -18,9 +18,9 @@ public class ChangeDeviceNameBeanReq implements Parcelable {
      * lockNickName : 我的门锁
      */
 
-    private String sn;
-    private String uid;
-    private String lockNickName;
+    private String sn;              // 设备唯一ID
+    private String uid;             // 用户ID
+    private String lockNickName;    // 设备昵称
 
     public String getSn() {
         return sn;

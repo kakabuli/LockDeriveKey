@@ -1,10 +1,10 @@
 package com.revolo.lock.bean.respone;
 
 /**
- * author :
+ * author : Jack
  * time   : 2021/3/14
  * E-mail : wengmaowei@kaadas.com
- * desc   :
+ * desc   : 上传头像回调实体
  */
 public class UploadUserAvatarBeanRsp {
 
@@ -26,7 +26,7 @@ public class UploadUserAvatarBeanRsp {
          * path : http://test.irevolo.com:83/avatarFiles/60459a490423e437d2c01ccc/p.png
          */
 
-        private String path;
+        private String path;       // 头像地址
 
         public String getPath() {
             return path;

@@ -1,10 +1,10 @@
 package com.revolo.lock.bean.respone;
 
 /**
- * author :
+ * author : Jack
  * time   : 2021/2/9
  * E-mail : wengmaowei@kaadas.com
- * desc   :
+ * desc   : 检测升级文件（单组件）回调实体
  */
 public class CheckOTABeanRsp {
 
@@ -52,11 +52,11 @@ public class CheckOTABeanRsp {
          * fileVersion : 1.1.0
          */
 
-        private int fileLen;
-        private String fileUrl;
-        private String fileMd5;
-        private int devNum;
-        private String fileVersion;
+        private int fileLen;                // 文件长度
+        private String fileUrl;             // 文件url
+        private String fileMd5;             // 文件MD5值
+        private int devNum;                 // 升级编号。1为WIFI模块，2为WIFI锁。（具体固件未知）
+        private String fileVersion;         // 版本
 
         public int getFileLen() {
             return fileLen;

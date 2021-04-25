@@ -14,10 +14,8 @@ import com.revolo.lock.bean.DevicePwdBean;
 import com.revolo.lock.ble.BleByteUtil;
 
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.text.SimpleDateFormat;
-import java.util.List;
 import java.util.TimeZone;
 
 import static com.revolo.lock.ble.BleCommandState.KEY_SET_ATTRIBUTE_ALWAYS;
@@ -31,9 +29,6 @@ import static com.revolo.lock.ble.BleCommandState.KEY_SET_ATTRIBUTE_WEEK_KEY;
  * desc   : 密码列表
  */
 public class PasswordListAdapter extends BaseQuickAdapter<DevicePwdBean, BaseViewHolder> {
-    public PasswordListAdapter(int layoutResId, @Nullable List<DevicePwdBean> data) {
-        super(layoutResId, data);
-    }
 
     public PasswordListAdapter(int layoutResId) {
         super(layoutResId);

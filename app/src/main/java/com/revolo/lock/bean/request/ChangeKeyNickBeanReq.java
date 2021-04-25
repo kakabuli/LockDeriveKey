@@ -4,10 +4,10 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 /**
- * author :
+ * author : Jack
  * time   : 2021/1/21
  * E-mail : wengmaowei@kaadas.com
- * desc   :
+ * desc   : 修改秘钥昵称请求实体
  */
 public class ChangeKeyNickBeanReq implements Parcelable {
 
@@ -20,11 +20,11 @@ public class ChangeKeyNickBeanReq implements Parcelable {
      * nickName : 密码1
      */
 
-    private String uid;
-    private String sn;
-    private int pwdType;
-    private int num;
-    private String nickName;
+    private String uid;             // 管理员用户ID
+    private String sn;              // 设备唯一编号
+    private int pwdType;            // 密钥类型：1密码 2指纹密码 3卡片密码 4人脸
+    private int num;                // 密钥编号
+    private String nickName;        // 密钥昵称
 
     public String getUid() {
         return uid;

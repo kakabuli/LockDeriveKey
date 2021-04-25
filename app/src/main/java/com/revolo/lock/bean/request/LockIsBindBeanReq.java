@@ -4,10 +4,10 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 /**
- * author :
+ * author : Jack
  * time   : 2021/1/21
  * E-mail : wengmaowei@kaadas.com
- * desc   :
+ * desc   : 判断锁是否被绑定请求实体
  */
 public class LockIsBindBeanReq implements Parcelable {
 
@@ -17,8 +17,8 @@ public class LockIsBindBeanReq implements Parcelable {
      * user_id : 5c4fe492dc93897aa7d8600b
      */
 
-    private String deviceSN;
-    private String user_id;
+    private String deviceSN;                  // 设备唯一编号，蓝牙SN,和wifiSN保持一致
+    private String user_id;                   // 用户ID
 
     public String getDeviceSN() {
         return deviceSN;

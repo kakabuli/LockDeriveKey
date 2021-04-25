@@ -6,10 +6,10 @@ import android.os.Parcelable;
 import java.util.List;
 
 /**
- * author :
+ * author : Jack
  * time   : 2021/1/21
  * E-mail : wengmaowei@kaadas.com
- * desc   :
+ * desc   : 添加密码请求实体
  */
 public class LockKeyAddBeanReq implements Parcelable {
 
@@ -20,9 +20,9 @@ public class LockKeyAddBeanReq implements Parcelable {
      * pwdList : [{"pwdType":1,"num":1,"nickName":"密码1","type":1,"startTime":1551774543,"endTime":1551774543,"items":["1","3"]}]
      */
 
-    private String sn;
-    private String uid;
-    private List<PwdListBean> pwdList;
+    private String sn;                         // 设备唯一编号
+    private String uid;                        // 管理员用户ID
+    private List<PwdListBean> pwdList;         // 密钥列表
 
     public String getSn() {
         return sn;
@@ -59,13 +59,13 @@ public class LockKeyAddBeanReq implements Parcelable {
          * items : ["1","3"]
          */
 
-        private int pwdType;
-        private int num;
-        private String nickName;
-        private int type;
-        private long startTime;
-        private long endTime;
-        private List<String> items;
+        private int pwdType;                // 密钥类型：1密码 2指纹密码 3卡片密码 4人脸（暂时没有）
+        private int num;                    // 密钥编号
+        private String nickName;            // 密钥昵称
+        private int type;                   // 永久密钥：00,时间策略密钥：01,胁迫密钥02,管理员密钥：03,无权限密钥：04,周策略密钥：05,一次性密钥：FE
+        private long startTime;             // 时间段密钥开始时间
+        private long endTime;               // 时间段密钥结束时间
+        private List<String> items;         // 周期密码星期几
 
         public int getPwdType() {
             return pwdType;

@@ -4,10 +4,10 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 /**
- * author :
+ * author : Jack
  * time   : 2021/1/26
  * E-mail : wengmaowei@kaadas.com
- * desc   :
+ * desc   : 邮箱登录回调实体
  */
 public class MailLoginBeanRsp implements Parcelable {
 
@@ -55,8 +55,8 @@ public class MailLoginBeanRsp implements Parcelable {
          * storeToken : eyJhbGciOiJIUzI1NiJ9.eyJqdGkiOiI5NDgiLCJpc3MiOiJodHRwczovL3d3dy5rYW5nYXJvb2JhYnljYXIuY29tIiwiaWF0IjoxNTY5ODA4MTk2fQ.nim1clpDSCInVFekcoy9ZfUK5fzgJWik85RietVaRlc
          */
 
-        private String uid;
-        private String token;
+        private String uid;                        // 用户ID
+        private String token;                      // 用户权限码
         /**
          * insertTime : 2021-03-08 03:30:17
          * firstName : 666
@@ -64,10 +64,10 @@ public class MailLoginBeanRsp implements Parcelable {
          * userHead :
          */
 
-        private String insertTime;
-        private String firstName;
-        private String lastName;
-        private String userHead;
+        private String insertTime;                 // 存储时间
+        private String firstName;                  // 名
+        private String lastName;                   // 姓
+        private String userHead;                   // 用户头像地址 todo 确认字段名是否变化了
 
 
         public String getUid() {

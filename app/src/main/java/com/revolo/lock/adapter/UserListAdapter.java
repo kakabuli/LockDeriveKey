@@ -4,12 +4,8 @@ import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.chad.library.adapter.base.viewholder.BaseViewHolder;
 import com.revolo.lock.R;
 import com.revolo.lock.bean.respone.GetAllSharedUserFromAdminUserBeanRsp;
-import com.revolo.lock.bean.test.TestUserManagementBean;
 
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
-import java.util.List;
 
 /**
  * author : Jack
@@ -18,9 +14,6 @@ import java.util.List;
  * desc   : 首页的分享用户列表
  */
 public class UserListAdapter extends BaseQuickAdapter<GetAllSharedUserFromAdminUserBeanRsp.DataBean, BaseViewHolder> {
-    public UserListAdapter(int layoutResId, @Nullable List<GetAllSharedUserFromAdminUserBeanRsp.DataBean> data) {
-        super(layoutResId, data);
-    }
 
     public UserListAdapter(int layoutResId) {
         super(layoutResId);

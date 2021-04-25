@@ -4,10 +4,10 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 /**
- * author :
+ * author : Jack
  * time   : 2021/3/6
  * E-mail : wengmaowei@kaadas.com
- * desc   :
+ * desc   : 忘记密码回调实体
  */
 public class ForgotPwdRsp implements Parcelable {
 

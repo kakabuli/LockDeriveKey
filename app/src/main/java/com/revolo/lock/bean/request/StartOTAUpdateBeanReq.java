@@ -1,10 +1,10 @@
 package com.revolo.lock.bean.request;
 
 /**
- * author :
+ * author : Jack
  * time   : 2021/2/9
  * E-mail : wengmaowei@kaadas.com
- * desc   :
+ * desc   : 确认升级（单设备单组件）请求实体
  */
 public class StartOTAUpdateBeanReq {
 
@@ -18,12 +18,12 @@ public class StartOTAUpdateBeanReq {
      * fileVersion : 1.1.0
      */
 
-    private String wifiSN;
-    private int fileLen;
-    private String fileUrl;
-    private String fileMd5;
-    private int devNum;
-    private String fileVersion;
+    private String wifiSN;        // WIFI设备SN
+    private int fileLen;          // 文件长度
+    private String fileUrl;       // 文件url
+    private String fileMd5;       // 文件MD5值
+    private int devNum;           // 升级编号。1为WIFI模块，2为WIFI锁。（具体固件未确定）
+    private String fileVersion;   // 文件版本号
 
     public String getWifiSN() {
         return wifiSN;

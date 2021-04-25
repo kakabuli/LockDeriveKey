@@ -3,10 +3,10 @@ package com.revolo.lock.bean.respone;
 import java.util.List;
 
 /**
- * author :
+ * author : Jack
  * time   : 2021/3/17
  * E-mail : wengmaowei@kaadas.com
- * desc   :
+ * desc   : 用户检查升级（多组件）回调实体
  */
 public class CheckAllOTABeanRsp {
 
@@ -75,11 +75,11 @@ public class CheckAllOTABeanRsp {
              * fileVersion : test-1.0
              */
 
-            private int fileLen;
-            private String fileUrl;
-            private int devNum;
-            private String fileMd5;
-            private String fileVersion;
+            private int fileLen;           // 文件长度
+            private String fileUrl;        // 文件url
+            private int devNum;            // 升级编号。1为WIFI模块，2为WIFI锁，3为人脸模组，4为视频模组，5为视频模组微控制器，6为前面板，7为后面板。
+            private String fileMd5;        // 文件MD5值
+            private String fileVersion;    // 文件版本号
 
             public int getFileLen() {
                 return fileLen;

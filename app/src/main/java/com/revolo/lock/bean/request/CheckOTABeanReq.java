@@ -1,10 +1,10 @@
 package com.revolo.lock.bean.request;
 
 /**
- * author :
+ * author : Jack
  * time   : 2021/2/9
  * E-mail : wengmaowei@kaadas.com
- * desc   :
+ * desc   : 检测升级文件（单组件）请求实体
  */
 public class CheckOTABeanReq {
 
@@ -16,10 +16,10 @@ public class CheckOTABeanReq {
      * devNum : 1
      */
 
-    private int customer;
-    private String deviceName;
-    private String version;
-    private int devNum;
+    private int customer;             // 客户。16为Revolo。
+    private String deviceName;        // WIFI设备SN
+    private String version;           // 当前版本
+    private int devNum;               // 升级编号。1为WIFI模块，2为WIFI锁。（具体固件未知）
 
     public int getCustomer() {
         return customer;

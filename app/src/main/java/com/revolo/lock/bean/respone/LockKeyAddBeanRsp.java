@@ -4,10 +4,10 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 /**
- * author :
+ * author : Jack
  * time   : 2021/1/21
  * E-mail : wengmaowei@kaadas.com
- * desc   :
+ * desc   : 添加密码回调实体
  */
 public class LockKeyAddBeanRsp implements Parcelable {
 
@@ -61,7 +61,7 @@ public class LockKeyAddBeanRsp implements Parcelable {
          * createTime : 1610003529
          */
 
-        private int createTime;
+        private int createTime;    // 添加时间（s）
 
         public int getCreateTime() {
             return createTime;

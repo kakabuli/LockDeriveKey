@@ -1,10 +1,10 @@
 package com.revolo.lock.bean.respone;
 
 /**
- * author :
+ * author : Jack
  * time   : 2021/3/12
  * E-mail : wengmaowei@kaadas.com
- * desc   :
+ * desc   : 设置/修改用户名称回调实体
  */
 public class UpdateUserFirstLastNameBeanRsp {
 

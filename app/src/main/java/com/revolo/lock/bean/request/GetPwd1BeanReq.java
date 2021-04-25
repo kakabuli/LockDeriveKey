@@ -16,7 +16,7 @@ public class GetPwd1BeanReq implements Parcelable {
      * SN : GI132231004
      */
 
-    private String SN;
+    private String SN;          // 设备ESN,蓝牙和wifi保持一致
 
     public String getSN() {
         return SN;
