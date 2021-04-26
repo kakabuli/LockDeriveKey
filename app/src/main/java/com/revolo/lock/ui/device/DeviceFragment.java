@@ -38,7 +38,7 @@ import com.revolo.lock.ble.bean.BleResultBean;
 import com.revolo.lock.dialog.SignalWeakDialog;
 import com.revolo.lock.dialog.iosloading.CustomerLoadingDialog;
 import com.revolo.lock.mqtt.MqttCommandFactory;
-import com.revolo.lock.mqtt.MqttConstant;
+import com.revolo.lock.mqtt.MQttConstant;
 import com.revolo.lock.mqtt.bean.MqttData;
 import com.revolo.lock.mqtt.bean.eventbean.WifiLockOperationEventBean;
 import com.revolo.lock.mqtt.bean.publishresultbean.WifiLockDoorOptResponseBean;
@@ -195,13 +195,13 @@ public class DeviceFragment extends Fragment {
         baseActivity.toDisposable(mBindDevicesDisposable);
         Timber.d("执行获取设备信息");
         mBindDevicesDisposable = baseActivity.mMQttService
-                .mqttPublish(MqttConstant.PUBLISH_TO_SERVER,
+                .mqttPublish(MQttConstant.PUBLISH_TO_SERVER,
                         MqttCommandFactory.getAllBindDevices(App.getInstance().getUserBean().getUid()))
-                .filter(mqttData -> mqttData.getFunc().equals(MqttConstant.GET_ALL_BIND_DEVICE)
-                        ||mqttData.getFunc().equals(MqttConstant.WF_EVENT))
+                .filter(mqttData -> mqttData.getFunc().equals(MQttConstant.GET_ALL_BIND_DEVICE)
+                        ||mqttData.getFunc().equals(MQttConstant.WF_EVENT))
                 .subscribe(mqttData -> {
                     baseActivity.toDisposable(mBindDevicesDisposable);
-                    if(mqttData.getFunc().equals(MqttConstant.GET_ALL_BIND_DEVICE)) {
+                    if(mqttData.getFunc().equals(MQttConstant.GET_ALL_BIND_DEVICE)) {
                         processDevices(mqttData);
                     }
                 }, Timber::e);
@@ -231,7 +231,7 @@ public class DeviceFragment extends Fragment {
         if(TextUtils.isEmpty(mqttData.getFunc())) {
             return;
         }
-        if(!mqttData.getFunc().equals(MqttConstant.GET_ALL_BIND_DEVICE)) {
+        if(!mqttData.getFunc().equals(MQttConstant.GET_ALL_BIND_DEVICE)) {
             return;
         }
         WifiLockGetAllBindDeviceRspBean bean;
@@ -703,7 +703,7 @@ public class DeviceFragment extends Fragment {
         mCount++;
         baseActivity.toDisposable(mOpenOrCloseDoorDisposable);
         mOpenOrCloseDoorDisposable = baseActivity.mMQttService
-                .mqttPublish(MqttConstant.getCallTopic(App.getInstance().getUserBean().getUid()),
+                .mqttPublish(MQttConstant.getCallTopic(App.getInstance().getUserBean().getUid()),
                 MqttCommandFactory.setLock(
                         wifiId,
                         doorOpt,
@@ -712,7 +712,7 @@ public class DeviceFragment extends Fragment {
                                 ConvertUtils.hexString2Bytes(bleDeviceLocal.getPwd2())),
                         bleDeviceLocal.getRandomCode(),
                         num))
-                .filter(mqttData -> mqttData.getFunc().equals(MqttConstant.SET_LOCK))
+                .filter(mqttData -> mqttData.getFunc().equals(MQttConstant.SET_LOCK))
                 .timeout(DEFAULT_TIMEOUT_SEC_VALUE, TimeUnit.SECONDS)
                 .subscribe(mqttData -> {
                     baseActivity.toDisposable(mOpenOrCloseDoorDisposable);
@@ -742,7 +742,7 @@ public class DeviceFragment extends Fragment {
         if(TextUtils.isEmpty(mqttData.getFunc())) {
             return;
         }
-        if(mqttData.getFunc().equals(MqttConstant.SET_LOCK)) {
+        if(mqttData.getFunc().equals(MQttConstant.SET_LOCK)) {
             processSetLock(mqttData);
         }
     }
@@ -772,7 +772,7 @@ public class DeviceFragment extends Fragment {
             Timber.e("processRecord RECORD bean.getEventtype() == null");
             return;
         }
-        if(!bean.getEventtype().equals(MqttConstant.RECORD)) {
+        if(!bean.getEventtype().equals(MQttConstant.RECORD)) {
             Timber.e("processRecord RECORD eventType: %1s", bean.getEventtype());
             return;
         }

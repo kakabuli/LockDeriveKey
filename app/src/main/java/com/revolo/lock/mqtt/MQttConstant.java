@@ -8,9 +8,9 @@ package com.revolo.lock.mqtt;
  * <p>
  * created at 2019/3/27 17:09
  */
-public class MqttConstant {
+public class MQttConstant {
 
-    private MqttConstant() {
+    private MQttConstant() {
     }
 
     public static final String MQTT_ABROAD_URL = "tcp://test.irevolo.com:1883";     // 海外服务器
@@ -46,8 +46,7 @@ public class MqttConstant {
 
 
     public static String getSubscribeTopic(String userId) {
-        String topic = "/" + userId + "/rpc/reply";
-        return topic;
+        return "/" + userId + "/rpc/reply";
     }
 
 

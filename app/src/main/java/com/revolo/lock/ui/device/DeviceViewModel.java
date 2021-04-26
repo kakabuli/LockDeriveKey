@@ -12,7 +12,7 @@ import com.blankj.utilcode.util.GsonUtils;
 import com.google.gson.JsonSyntaxException;
 import com.revolo.lock.App;
 import com.revolo.lock.mqtt.MqttCommandFactory;
-import com.revolo.lock.mqtt.MqttConstant;
+import com.revolo.lock.mqtt.MQttConstant;
 import com.revolo.lock.mqtt.bean.MqttData;
 import com.revolo.lock.mqtt.bean.publishresultbean.WifiLockGetAllBindDeviceRspBean;
 
@@ -42,7 +42,7 @@ public class DeviceViewModel extends ViewModel {
         }
         Timber.d("执行获取设备信息");
         App.getInstance().getMQttService()
-                .mqttPublish(MqttConstant.PUBLISH_TO_SERVER,
+                .mqttPublish(MQttConstant.PUBLISH_TO_SERVER,
                         MqttCommandFactory.getAllBindDevices(App.getInstance().getUserBean().getUid()))
                 .safeSubscribe(new Observer<MqttData>() {
                     @Override
@@ -55,7 +55,7 @@ public class DeviceViewModel extends ViewModel {
                         if(TextUtils.isEmpty(mqttData.getFunc())) {
                             return;
                         }
-                        if(!mqttData.getFunc().equals(MqttConstant.GET_ALL_BIND_DEVICE)) {
+                        if(!mqttData.getFunc().equals(MQttConstant.GET_ALL_BIND_DEVICE)) {
                             return;
                         }
                         WifiLockGetAllBindDeviceRspBean bean;

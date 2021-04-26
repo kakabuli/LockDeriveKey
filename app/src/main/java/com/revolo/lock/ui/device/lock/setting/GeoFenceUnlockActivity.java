@@ -40,7 +40,7 @@ import com.revolo.lock.ble.OnBleDeviceListener;
 import com.revolo.lock.ble.bean.BleBean;
 import com.revolo.lock.ble.bean.BleResultBean;
 import com.revolo.lock.mqtt.MqttCommandFactory;
-import com.revolo.lock.mqtt.MqttConstant;
+import com.revolo.lock.mqtt.MQttConstant;
 import com.revolo.lock.mqtt.bean.MqttData;
 import com.revolo.lock.mqtt.bean.publishbean.attrparams.ElecFenceSensitivityParams;
 import com.revolo.lock.mqtt.bean.publishresultbean.WifiLockSetLockAttrSensitivityRspBean;
@@ -482,12 +482,12 @@ public class GeoFenceUnlockActivity extends BaseActivity implements OnMapReadyCa
         ElecFenceSensitivityParams autoLockTimeParams = new ElecFenceSensitivityParams();
         autoLockTimeParams.setElecFenceSensitivity(sensitivity);
         toDisposable(mSensitivityDisposable);
-        mSensitivityDisposable = mMQttService.mqttPublish(MqttConstant.getCallTopic(App.getInstance().getUserBean().getUid()),
+        mSensitivityDisposable = mMQttService.mqttPublish(MQttConstant.getCallTopic(App.getInstance().getUserBean().getUid()),
                 MqttCommandFactory.setLockAttr(wifiID, autoLockTimeParams,
                         BleCommandFactory.getPwd(
                                 ConvertUtils.hexString2Bytes(mBleDeviceLocal.getPwd1()),
                                 ConvertUtils.hexString2Bytes(mBleDeviceLocal.getPwd2()))))
-                .filter(mqttData -> mqttData.getFunc().equals(MqttConstant.SET_LOCK_ATTR))
+                .filter(mqttData -> mqttData.getFunc().equals(MQttConstant.SET_LOCK_ATTR))
                 .timeout(DEFAULT_TIMEOUT_SEC_VALUE, TimeUnit.SECONDS)
                 .subscribe(mqttData -> {
                     toDisposable(mSensitivityDisposable);
@@ -506,7 +506,7 @@ public class GeoFenceUnlockActivity extends BaseActivity implements OnMapReadyCa
             Timber.e("publishSensitivity mqttData.getFunc() is empty");
             return;
         }
-        if(mqttData.getFunc().equals(MqttConstant.SET_LOCK_ATTR)) {
+        if(mqttData.getFunc().equals(MQttConstant.SET_LOCK_ATTR)) {
             dismissLoading();
             Timber.d("publishSensitivity 设置属性: %1s", mqttData);
             WifiLockSetLockAttrSensitivityRspBean bean;

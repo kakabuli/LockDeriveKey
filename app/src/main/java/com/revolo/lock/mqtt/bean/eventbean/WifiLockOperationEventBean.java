@@ -82,7 +82,7 @@ public class WifiLockOperationEventBean {
     private String wfId;
     private String timestamp;
 
-    public class EventparamsBean {
+    public static class EventparamsBean {
         private int eventType;
         private int eventSource;
         private int eventCode;

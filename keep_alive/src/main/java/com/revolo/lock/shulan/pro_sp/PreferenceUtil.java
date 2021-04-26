@@ -8,6 +8,9 @@ import androidx.annotation.NonNull;
 
 
 public class PreferenceUtil {
+
+    private PreferenceUtil() {}
+
     public static final String METHOD_CONTAIN_KEY = "revolo_shulan_method_contain_key";
     public static final String AUTHORITY = "com.revolo.lock.shulan.preference";
     public static final Uri URI = Uri.parse("content://" + AUTHORITY);

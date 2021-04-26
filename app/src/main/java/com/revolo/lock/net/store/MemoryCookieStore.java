@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import okhttp3.Cookie;
@@ -64,13 +65,11 @@ public class MemoryCookieStore implements CookieStore {
     }
 
     @Override
-    public List<Cookie> getCookies()
-    {
+    public List<Cookie> getCookies() {
         List<Cookie> cookies = new ArrayList<>();
-        Set<String> httpUrls = allCookies.keySet();
-        for (String url : httpUrls)
-        {
-            cookies.addAll(allCookies.get(url));
+        Set<Map.Entry<String, List<Cookie>>> httpUrls = allCookies.entrySet();
+        for (Map.Entry<String, List<Cookie>> url : httpUrls) {
+            cookies.addAll(url.getValue());
         }
         return cookies;
     }
@@ -79,7 +78,9 @@ public class MemoryCookieStore implements CookieStore {
     @Override
     public boolean remove(HttpUrl uri, Cookie cookie) {
         List<Cookie> cookies = allCookies.get(uri.host());
-        return cookie != null && cookies.remove(cookie);
+        if (cookie == null) return false;
+        assert cookies != null;
+        return cookies.remove(cookie);
     }
 
 }

@@ -27,9 +27,9 @@ import timber.log.Timber;
  */
 public class AddDeviceStep1Activity extends BaseActivity implements EasyPermissions.PermissionCallbacks {
 
-    private final int RC_QR_CODE_PERMISSIONS = 9999;
-    private final int RC_CAMERA_PERMISSIONS = 7777;
-    private final int RC_READ_EXTERNAL_STORAGE_PERMISSIONS = 8888;
+    private static final int RC_QR_CODE_PERMISSIONS = 9999;
+    private static final int RC_CAMERA_PERMISSIONS = 7777;
+    private static final int RC_READ_EXTERNAL_STORAGE_PERMISSIONS = 8888;
 
     @Override
     public void initData(@Nullable Bundle bundle) {

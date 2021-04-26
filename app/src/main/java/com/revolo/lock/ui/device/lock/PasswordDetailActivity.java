@@ -34,7 +34,7 @@ import com.revolo.lock.ble.bean.BleResultBean;
 import com.revolo.lock.dialog.MessageDialog;
 import com.revolo.lock.dialog.SelectDialog;
 import com.revolo.lock.mqtt.MqttCommandFactory;
-import com.revolo.lock.mqtt.MqttConstant;
+import com.revolo.lock.mqtt.MQttConstant;
 import com.revolo.lock.mqtt.bean.MqttData;
 import com.revolo.lock.mqtt.bean.publishresultbean.WifiLockRemovePasswordResponseBean;
 import com.revolo.lock.net.HttpRequest;
@@ -224,14 +224,14 @@ public class PasswordDetailActivity extends BaseActivity {
         }
         toDisposable(mDelPwdDisposable);
         mDelPwdDisposable = mMQttService
-                .mqttPublish(MqttConstant.getCallTopic(App.getInstance().getUserBean().getUid()),
+                .mqttPublish(MQttConstant.getCallTopic(App.getInstance().getUserBean().getUid()),
                 MqttCommandFactory.removePwd(
                         wifiId,
                         0,
                         num,
                         BleCommandFactory.getPwd(ConvertUtils.hexString2Bytes(mBleDeviceLocal.getPwd1()), ConvertUtils.hexString2Bytes(mBleDeviceLocal.getPwd2()))))
                 .timeout(DEFAULT_TIMEOUT_SEC_VALUE, TimeUnit.SECONDS)
-                .filter(mqttData -> mqttData.getFunc().equals(MqttConstant.REMOVE_PWD))
+                .filter(mqttData -> mqttData.getFunc().equals(MQttConstant.REMOVE_PWD))
                 .subscribe(this::processDelPwd, e -> {
                     dismissLoading();
                     Timber.e(e);
@@ -244,7 +244,7 @@ public class PasswordDetailActivity extends BaseActivity {
         if(TextUtils.isEmpty(mqttData.getFunc())) {
             return;
         }
-        if(mqttData.getFunc().equals(MqttConstant.REMOVE_PWD)) {
+        if(mqttData.getFunc().equals(MQttConstant.REMOVE_PWD)) {
             dismissLoading();
             Timber.d("删除密码信息: %1s", mqttData);
             WifiLockRemovePasswordResponseBean bean;

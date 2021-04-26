@@ -13,12 +13,11 @@ public class AppUtil {
 	 * @param context
 	 * @return
 	 */
-	public static int[] getScreenDispaly(Context context) {
+	public static int[] getScreenDisplay(Context context) {
 		WindowManager windowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
 		int width = windowManager.getDefaultDisplay().getWidth()-80;// 手机屏幕的宽度
 		int height = windowManager.getDefaultDisplay().getHeight();// 手机屏幕的高度
-		int result[] = { width, height };
-		return result;
+		return new int[]{ width, height };
 	}
 
 

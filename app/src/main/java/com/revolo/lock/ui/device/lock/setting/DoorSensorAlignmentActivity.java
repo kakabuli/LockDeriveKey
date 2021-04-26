@@ -26,7 +26,7 @@ import com.revolo.lock.ble.OnBleDeviceListener;
 import com.revolo.lock.ble.bean.BleBean;
 import com.revolo.lock.ble.bean.BleResultBean;
 import com.revolo.lock.mqtt.MqttCommandFactory;
-import com.revolo.lock.mqtt.MqttConstant;
+import com.revolo.lock.mqtt.MQttConstant;
 import com.revolo.lock.mqtt.bean.MqttData;
 import com.revolo.lock.mqtt.bean.publishresultbean.WifiLockSetMagneticResponseBean;
 import com.revolo.lock.room.AppDatabase;
@@ -269,11 +269,11 @@ public class DoorSensorAlignmentActivity extends BaseActivity {
         }
         showLoading();
         toDisposable(mSetMagneticDisposable);
-        mSetMagneticDisposable = mMQttService.mqttPublish(MqttConstant.getCallTopic(App.getInstance().getUserBean().getUid()),
+        mSetMagneticDisposable = mMQttService.mqttPublish(MQttConstant.getCallTopic(App.getInstance().getUserBean().getUid()),
                 MqttCommandFactory.setMagnetic(wifiID, mode, BleCommandFactory.getPwd(
                         ConvertUtils.hexString2Bytes(mBleDeviceLocal.getPwd1()),
                         ConvertUtils.hexString2Bytes(mBleDeviceLocal.getPwd2()))))
-                .filter(mqttData -> mqttData.getFunc().equals(MqttConstant.SET_MAGNETIC))
+                .filter(mqttData -> mqttData.getFunc().equals(MQttConstant.SET_MAGNETIC))
                 .timeout(DEFAULT_TIMEOUT_SEC_VALUE, TimeUnit.SECONDS)
                 .subscribe(mqttData -> {
                     toDisposable(mSetMagneticDisposable);
@@ -292,7 +292,7 @@ public class DoorSensorAlignmentActivity extends BaseActivity {
             Timber.e("publishSetMagnetic mqttData.getFunc() is empty");
             return;
         }
-        if(mqttData.getFunc().equals(MqttConstant.SET_MAGNETIC)) {
+        if(mqttData.getFunc().equals(MQttConstant.SET_MAGNETIC)) {
             dismissLoading();
             Timber.d("publishSetMagnetic 设置门磁: %1s", mqttData);
             WifiLockSetMagneticResponseBean bean;

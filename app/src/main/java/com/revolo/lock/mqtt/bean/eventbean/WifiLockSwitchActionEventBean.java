@@ -35,7 +35,7 @@ public class WifiLockSwitchActionEventBean  {
     private String wfId;
     private String timestamp;
 
-    public class EventparamsBean {
+    public static class EventparamsBean {
         private int amMode;
         private int safeMode;
         private int defences;

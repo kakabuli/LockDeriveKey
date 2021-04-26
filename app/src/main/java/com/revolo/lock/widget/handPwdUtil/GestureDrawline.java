@@ -68,7 +68,7 @@ public class GestureDrawline extends View {
     public GestureDrawline(Context context, List<GesturePoint> list, boolean isVerify,
                            String passWord, GestureCallBack callBack) {
         super(context);
-        screenDispaly = AppUtil.getScreenDispaly(context);
+        screenDispaly = AppUtil.getScreenDisplay(context);
         paint = new Paint(Paint.DITHER_FLAG);// 创建一个画笔
         bitmap = Bitmap.createBitmap(screenDispaly[0], screenDispaly[0], Bitmap.Config.ARGB_8888); // 设置位图的宽高
         canvas = new Canvas();

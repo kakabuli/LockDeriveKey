@@ -32,7 +32,7 @@ public class WifiLockSecretKeyListEventBean {
     private String wfId;
     private String timestamp;
 
-    public class EventparamsBean {
+    public static class EventparamsBean {
         private String c;
         private String f;
         private String p;

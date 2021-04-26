@@ -19,6 +19,8 @@ public class RunMode {
      */
     public static final int HIGH_POWER_CONSUMPTION = 1;
 
+    private RunMode() {}
+
 
     @IntDef(flag = true, value = {POWER_SAVING, HIGH_POWER_CONSUMPTION})
     @Target({ElementType.PARAMETER, ElementType.METHOD, ElementType.FIELD})

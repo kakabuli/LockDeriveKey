@@ -26,7 +26,7 @@ public class WifiLockUnBindEventBean {
     private String wfId;
     private String timestamp;
 
-    public class EventParamsBean{
+    public static class EventParamsBean{
 
     }
 

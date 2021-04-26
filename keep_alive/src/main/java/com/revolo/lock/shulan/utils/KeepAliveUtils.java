@@ -12,6 +12,8 @@ import java.util.List;
 
 public class KeepAliveUtils {
 
+    private KeepAliveUtils() {}
+
     public static boolean isRunning(Application application) {
         int pid = android.os.Process.myPid();
         String processName = "";

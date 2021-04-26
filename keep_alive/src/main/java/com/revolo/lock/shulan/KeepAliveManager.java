@@ -30,6 +30,8 @@ import com.revolo.lock.shulan.utils.SPUtils;
 public class KeepAliveManager {
     private static final String TAG = "KeepAliveManager";
 
+    private KeepAliveManager() {}
+
     /**
      * 启动保活
      *

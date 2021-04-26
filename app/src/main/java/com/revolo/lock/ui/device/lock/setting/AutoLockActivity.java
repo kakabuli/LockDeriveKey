@@ -25,7 +25,7 @@ import com.revolo.lock.ble.OnBleDeviceListener;
 import com.revolo.lock.ble.bean.BleBean;
 import com.revolo.lock.ble.bean.BleResultBean;
 import com.revolo.lock.mqtt.MqttCommandFactory;
-import com.revolo.lock.mqtt.MqttConstant;
+import com.revolo.lock.mqtt.MQttConstant;
 import com.revolo.lock.mqtt.bean.MqttData;
 import com.revolo.lock.mqtt.bean.publishbean.attrparams.AmModeParams;
 import com.revolo.lock.mqtt.bean.publishbean.attrparams.AutoLockTimeParams;
@@ -159,12 +159,12 @@ public class AutoLockActivity extends BaseActivity {
         showLoading();
         AmModeParams amModeParams = new AmModeParams();
         amModeParams.setAmMode(auto);
-        mOpenOrCloseAutoLockDisposable = mMQttService.mqttPublish(MqttConstant.getCallTopic(App.getInstance().getUserBean().getUid()),
+        mOpenOrCloseAutoLockDisposable = mMQttService.mqttPublish(MQttConstant.getCallTopic(App.getInstance().getUserBean().getUid()),
                 MqttCommandFactory.setLockAttr(wifiID, amModeParams,
                         BleCommandFactory.getPwd(
                                 ConvertUtils.hexString2Bytes(mBleDeviceLocal.getPwd1()),
                                 ConvertUtils.hexString2Bytes(mBleDeviceLocal.getPwd2()))))
-                .filter(mqttData -> mqttData.getFunc().equals(MqttConstant.SET_LOCK_ATTR))
+                .filter(mqttData -> mqttData.getFunc().equals(MQttConstant.SET_LOCK_ATTR))
                 .timeout(DEFAULT_TIMEOUT_SEC_VALUE, TimeUnit.SECONDS)
                 .subscribe(mqttData -> {
                     toDisposable(mOpenOrCloseAutoLockDisposable);
@@ -183,7 +183,7 @@ public class AutoLockActivity extends BaseActivity {
             Timber.e("publishOpenOrCloseAutoLock mqttData.getFunc() is empty");
             return;
         }
-        if(mqttData.getFunc().equals(MqttConstant.SET_LOCK_ATTR)) {
+        if(mqttData.getFunc().equals(MQttConstant.SET_LOCK_ATTR)) {
             if(!mqttData.getPayload().contains("amMode")) {
                 // 不是该MQTT的数据 不处理
                 return;
@@ -226,12 +226,12 @@ public class AutoLockActivity extends BaseActivity {
         AutoLockTimeParams autoLockTimeParams = new AutoLockTimeParams();
         autoLockTimeParams.setAutoLockTime(time);
         toDisposable(mAutoLockTimeDisposable);
-        mAutoLockTimeDisposable = mMQttService.mqttPublish(MqttConstant.getCallTopic(App.getInstance().getUserBean().getUid()),
+        mAutoLockTimeDisposable = mMQttService.mqttPublish(MQttConstant.getCallTopic(App.getInstance().getUserBean().getUid()),
                 MqttCommandFactory.setLockAttr(wifiID, autoLockTimeParams,
                         BleCommandFactory.getPwd(
                                 ConvertUtils.hexString2Bytes(mBleDeviceLocal.getPwd1()),
                                 ConvertUtils.hexString2Bytes(mBleDeviceLocal.getPwd2()))))
-                .filter(mqttData -> mqttData.getFunc().equals(MqttConstant.SET_LOCK_ATTR))
+                .filter(mqttData -> mqttData.getFunc().equals(MQttConstant.SET_LOCK_ATTR))
                 .timeout(DEFAULT_TIMEOUT_SEC_VALUE, TimeUnit.SECONDS)
                 .subscribe(mqttData -> {
                     toDisposable(mAutoLockTimeDisposable);
@@ -250,7 +250,7 @@ public class AutoLockActivity extends BaseActivity {
             Timber.e("publishAutoLockTime mqttData.getFunc() is empty");
             return;
         }
-        if(mqttData.getFunc().equals(MqttConstant.SET_LOCK_ATTR)) {
+        if(mqttData.getFunc().equals(MQttConstant.SET_LOCK_ATTR)) {
             dismissLoading();
             Timber.d("publishAutoLockTime 设置属性: %1s", mqttData);
             WifiLockSetLockAttrAutoTimeRspBean bean;

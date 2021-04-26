@@ -58,9 +58,9 @@ public class UserPageActivity extends BaseActivity implements EasyPermissions.Pe
     private ImageView mIvAvatar;
     private PicSelectPopup mPicSelectPopup;
 
-    private final int RC_QR_CODE_PERMISSIONS = 9999;
-    private final int RC_CAMERA_PERMISSIONS = 7777;
-    private final int RC_WRITE_EXTERNAL_STORAGE_PERMISSIONS = 9999;
+    private static final int RC_QR_CODE_PERMISSIONS = 9999;
+    private static final int RC_CAMERA_PERMISSIONS = 7777;
+    private static final int RC_WRITE_EXTERNAL_STORAGE_PERMISSIONS = 9999;
 
     @Override
     public void initData(@Nullable Bundle bundle) {

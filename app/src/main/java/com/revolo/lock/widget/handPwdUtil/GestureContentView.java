@@ -42,7 +42,7 @@ public class GestureContentView extends ViewGroup {
      */
     public GestureContentView(Context context, boolean isVerify, String passWord, GestureDrawline.GestureCallBack callBack) {
         super(context);
-        screenDispaly = AppUtil.getScreenDispaly(context);
+        screenDispaly = AppUtil.getScreenDisplay(context);
         blockWidth = screenDispaly[0] / 3;
         this.list = new ArrayList<>();
         this.context = context;

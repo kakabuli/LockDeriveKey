@@ -11,6 +11,8 @@ public class DevicesLaunchConfig {
 
     private static Context mContext;
 
+    private DevicesLaunchConfig() {}
+
     /**
      * @param context
      */

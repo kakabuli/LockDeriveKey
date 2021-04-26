@@ -488,23 +488,22 @@ public class PasswordListActivity extends BaseActivity {
         if(bean.getCMD() == CMD_SY_KEY_STATE) {
             checkPwdIsExist(bean);
         } else if(bean.getCMD() == CMD_KEY_ATTRIBUTES_READ) {
-            String name = App.getInstance().getCacheDiskUtils().getString("pwdName"+mCurrentSearchNum);
             byte attribute = bean.getPayload()[0];
             if(attribute == KEY_SET_ATTRIBUTE_ALWAYS) {
-                addPermanentPwd(name);
+                addPermanentPwd();
             } else if(attribute == KEY_SET_ATTRIBUTE_TIME_KEY) {
                 // TODO: 2021/2/7 时间高低位反回来取
-                addTimePwd(bean, name);
+                addTimePwd(bean);
             } else if(attribute == KEY_SET_ATTRIBUTE_WEEK_KEY) {
                 // TODO: 2021/2/7 时间高低位反回来取
-                addWeeklyPwd(bean, name);
+                addWeeklyPwd(bean);
             }
             runOnUiThread(() -> mPasswordListAdapter.setList(mDevicePwdBeanFormBle));
             mHandler.postDelayed(mSearchPwdListRunnable, 20);
         }
     }
 
-    private void addPermanentPwd(String name) {
+    private void addPermanentPwd() {
         Timber.d("addPermanentPwd num: %1s", mCurrentSearchNum);
         DevicePwdBean devicePwdBean = new DevicePwdBean();
         devicePwdBean.setPwdNum(mCurrentSearchNum);
@@ -513,11 +512,11 @@ public class PasswordListActivity extends BaseActivity {
         devicePwdBean.setCreateTime(TimeUtils.getNowMills()/1000);
         devicePwdBean.setDeviceId(mBleDeviceLocal.getId());
         devicePwdBean.setAttribute(BleCommandState.KEY_SET_ATTRIBUTE_ALWAYS);
-        devicePwdBean.setPwdName(name);
+        devicePwdBean.setPwdName(""+mCurrentSearchNum);
         mDevicePwdBeanFormBle.add(devicePwdBean);
     }
 
-    private void addTimePwd(BleResultBean bean, String name) {
+    private void addTimePwd(BleResultBean bean) {
         byte[] startTimeBytes = new byte[4];
         byte[] endTimeBytes = new byte[4];
         System.arraycopy(bean.getPayload(), 2, startTimeBytes, 0, startTimeBytes.length);
@@ -526,7 +525,7 @@ public class PasswordListActivity extends BaseActivity {
         long endTimeMill = BleByteUtil.bytesToLong(BleCommandFactory.littleMode(endTimeBytes));
         DevicePwdBean devicePwdBean = new DevicePwdBean();
         devicePwdBean.setDeviceId(mBleDeviceLocal.getId());
-        devicePwdBean.setPwdName(name);
+        devicePwdBean.setPwdName(""+mCurrentSearchNum);
         devicePwdBean.setPwdNum(mCurrentSearchNum);
         devicePwdBean.setAttribute(KEY_SET_ATTRIBUTE_TIME_KEY);
         devicePwdBean.setStartTime(startTimeMill);
@@ -534,7 +533,7 @@ public class PasswordListActivity extends BaseActivity {
         mDevicePwdBeanFormBle.add(devicePwdBean);
     }
 
-    private void addWeeklyPwd(BleResultBean bean, String name) {
+    private void addWeeklyPwd(BleResultBean bean) {
         byte[] weekBytes = BleByteUtil.byteToBit(bean.getPayload()[1]);
         Timber.d("addWeeklyPwd num: %1s week: %1s", mCurrentSearchNum, ConvertUtils.bytes2HexString(weekBytes));
         byte[] startTimeBytes = new byte[4];
@@ -546,7 +545,7 @@ public class PasswordListActivity extends BaseActivity {
         DevicePwdBean devicePwdBean = new DevicePwdBean();
         devicePwdBean.setDeviceId(mBleDeviceLocal.getId());
         devicePwdBean.setPwdNum(mCurrentSearchNum);
-        devicePwdBean.setPwdName(name);
+        devicePwdBean.setPwdName(""+mCurrentSearchNum);
         devicePwdBean.setWeekly(bean.getPayload()[1]);
         devicePwdBean.setStartTime(startTimeMill);
         devicePwdBean.setEndTime(endTimeMill);

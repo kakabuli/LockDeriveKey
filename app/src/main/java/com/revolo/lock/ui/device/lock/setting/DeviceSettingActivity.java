@@ -35,7 +35,7 @@ import com.revolo.lock.ble.bean.BleBean;
 import com.revolo.lock.ble.bean.BleResultBean;
 import com.revolo.lock.dialog.UnbindLockDialog;
 import com.revolo.lock.mqtt.MqttCommandFactory;
-import com.revolo.lock.mqtt.MqttConstant;
+import com.revolo.lock.mqtt.MQttConstant;
 import com.revolo.lock.mqtt.bean.MqttData;
 import com.revolo.lock.mqtt.bean.publishbean.attrparams.VolumeParams;
 import com.revolo.lock.mqtt.bean.publishresultbean.WifiLockSetLockAttrVolumeRspBean;
@@ -279,8 +279,6 @@ public class DeviceSettingActivity extends BaseActivity {
                     Timber.e("unbindDevice code: %1s, msg: %2s", code, msg);
                     return;
                 }
-                // TODO: 2021/2/9 清除了本地所有数据
-                App.getInstance().getCacheDiskUtils().clear();
                 // 如果是蓝牙，断开蓝牙连接
                 BleBean bleBean = App.getInstance().getBleBeanFromMac(mBleDeviceLocal.getMac());
                 if(mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_BLE
@@ -435,12 +433,12 @@ public class DeviceSettingActivity extends BaseActivity {
         VolumeParams volumeParams = new VolumeParams();
         volumeParams.setVolume(mute);
         toDisposable(mSetVolumeDisposable);
-        mSetVolumeDisposable = mMQttService.mqttPublish(MqttConstant.getCallTopic(App.getInstance().getUserBean().getUid()),
+        mSetVolumeDisposable = mMQttService.mqttPublish(MQttConstant.getCallTopic(App.getInstance().getUserBean().getUid()),
                 MqttCommandFactory.setLockAttr(wifiID, volumeParams,
                         BleCommandFactory.getPwd(
                                 ConvertUtils.hexString2Bytes(mBleDeviceLocal.getPwd1()),
                                 ConvertUtils.hexString2Bytes(mBleDeviceLocal.getPwd2()))))
-                .filter(mqttData -> mqttData.getFunc().equals(MqttConstant.SET_LOCK_ATTR))
+                .filter(mqttData -> mqttData.getFunc().equals(MQttConstant.SET_LOCK_ATTR))
                 .timeout(DEFAULT_TIMEOUT_SEC_VALUE, TimeUnit.SECONDS)
                 .subscribe(mqttData -> {
                     toDisposable(mSetVolumeDisposable);
@@ -459,7 +457,7 @@ public class DeviceSettingActivity extends BaseActivity {
             Timber.e("publishSetVolume mqttData.getFunc() is empty");
             return;
         }
-        if(mqttData.getFunc().equals(MqttConstant.SET_LOCK_ATTR)) {
+        if(mqttData.getFunc().equals(MQttConstant.SET_LOCK_ATTR)) {
             dismissLoading();
             Timber.d("设置属性: %1s", mqttData);
             WifiLockSetLockAttrVolumeRspBean bean;

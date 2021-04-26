@@ -48,12 +48,7 @@ public class AddDeviceQRCodeStep2Activity extends BaseActivity {
         mZBarView.setDelegate(new QRCodeView.Delegate() {
             @Override
             public void onScanQRCodeSuccess(String result) {
-                Timber.d("onScanQRCodeSuccess 扫描结果：%1s", result);
-                Intent intent = new Intent(AddDeviceQRCodeStep2Activity.this, AddDeviceStep2BleConnectActivity.class);
-                intent.putExtra(Constant.PRE_A, Constant.QR_CODE_A);
-                intent.putExtra(Constant.QR_RESULT, result);
-                startActivity(intent);
-                finish();
+                gotoBleConnectAct(result);
             }
 
             @Override
@@ -71,6 +66,15 @@ public class AddDeviceQRCodeStep2Activity extends BaseActivity {
             }
         });
 
+    }
+
+    private void gotoBleConnectAct(String result) {
+        Timber.d("onScanQRCodeSuccess 扫描结果：%1s", result);
+        Intent intent = new Intent(AddDeviceQRCodeStep2Activity.this, AddDeviceStep2BleConnectActivity.class);
+        intent.putExtra(Constant.PRE_A, Constant.QR_CODE_A);
+        intent.putExtra(Constant.QR_RESULT, result);
+        startActivity(intent);
+        finish();
     }
 
     @Override

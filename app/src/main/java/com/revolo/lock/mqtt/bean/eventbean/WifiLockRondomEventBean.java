@@ -24,7 +24,7 @@ public class WifiLockRondomEventBean {
     private String wfId;
     private String timestamp;
 
-    public class EventParamsBean{
+    public static class EventParamsBean{
         private String randomCode;
 
         public String getRandomCode() {

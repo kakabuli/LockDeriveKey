@@ -174,8 +174,8 @@ public class PersistentCookieStore implements CookieStore {
     public List<Cookie> getCookies()
     {
         ArrayList<Cookie> ret = new ArrayList<>();
-        for (String key : cookies.keySet())
-            ret.addAll(cookies.get(key).values());
+        for (Map.Entry<String, ConcurrentHashMap<String, Cookie>> key : cookies.entrySet())
+            ret.addAll(key.getValue().values());
 
         return ret;
     }

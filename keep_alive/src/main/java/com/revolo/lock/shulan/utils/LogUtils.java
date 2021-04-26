@@ -48,7 +48,8 @@ public class LogUtils {
 	 * 用于记时的变量
 	 */
 	private static long mTimestamp = 5;
-	
+
+	private LogUtils() {}
 	
 	/**
 	 * 以级别为 d 的形式输出LOG

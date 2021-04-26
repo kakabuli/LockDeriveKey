@@ -51,9 +51,9 @@ import timber.log.Timber;
 public class RegisterAddAvatarActivity extends BaseActivity implements EasyPermissions.PermissionCallbacks {
 
     private User mUser;
-    private final int RC_QR_CODE_PERMISSIONS = 9999;
-    private final int RC_CAMERA_PERMISSIONS = 7777;
-    private final int RC_WRITE_EXTERNAL_STORAGE_PERMISSIONS = 9999;
+    private static final int RC_QR_CODE_PERMISSIONS = 9999;
+    private static final int RC_CAMERA_PERMISSIONS = 7777;
+    private static final int RC_WRITE_EXTERNAL_STORAGE_PERMISSIONS = 9999;
     private ImageView mIvAvatar;
 
     private boolean isCanUploadAvatar = false;

@@ -6,6 +6,7 @@ import android.util.Log;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
@@ -28,6 +29,7 @@ public class Rsa {
     private static final String RSA_PUBLICE = "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQC3//sR2tXw0wrC2DySx8vNGlqt3Y7ldU9+LBLI6e1KS5lfc5jlTGF7KBTSkCHBM3ouEHWqp1ZJ85iJe59aF5gIB2klBd6h4wrbbHA2XE1sq21ykja/Gqx7/IRia3zQfxGv/qEkyGOx+XALVoOlZqDwh76o2n1vP1D+tD3amHsK7QIDAQAB";
     private static final String ALGORITHM = "RSA";
 
+    private Rsa() {}
 
     /**
      * 得到公钥
@@ -56,10 +58,9 @@ public class Rsa {
             PublicKey pubkey = getPublicKeyFromX509(ALGORITHM, RSA_PUBLICE);
             Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
             cipher.init(Cipher.ENCRYPT_MODE, pubkey);
-            byte plaintext[] = content.getBytes("UTF-8");
+            byte plaintext[] = content.getBytes(StandardCharsets.UTF_8);
             byte[] output = cipher.doFinal(plaintext);
-            String s = new String(Base64.encode(output, Base64.DEFAULT));
-            return s;
+            return new String(Base64.encode(output, Base64.DEFAULT));
         } catch (Exception e) {
             return null;
         }
@@ -82,18 +83,16 @@ public class Rsa {
             byte[] buf = new byte[128];
             int bufl;
             while ((bufl = ins.read(buf)) != -1) {
-                byte[] block = null;
+                byte[] block;
                 if (buf.length == bufl) {
                     block = buf;
                 } else {
                     block = new byte[bufl];
-                    for (int i = 0; i < bufl; i++) {
-                        block[i] = buf[i];
-                    }
+                    if (bufl >= 0) System.arraycopy(buf, 0, block, 0, bufl);
                 }
                 writer.write(cipher.doFinal(block));
             }
-            return new String(writer.toByteArray(), "utf-8");
+            return new String(writer.toByteArray(), StandardCharsets.UTF_8);
         } catch (Exception e) {
             return null;
         }
@@ -117,8 +116,7 @@ public class Rsa {
             Cipher cipher = Cipher.getInstance("AES");// 创建密码器
             byte[] byteContent = content;//content.getBytes("utf-8");
             cipher.init(Cipher.ENCRYPT_MODE, key);// 初始化
-            byte[] result = cipher.doFinal(byteContent);
-            return result; // 加密
+            return cipher.doFinal(byteContent); // 加密
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -147,8 +145,7 @@ public class Rsa {
             SecretKeySpec key = new SecretKeySpec(password, "AES");
             Cipher cipher = Cipher.getInstance("AES/ECB/NoPadding");
             cipher.init(Cipher.ENCRYPT_MODE, key);// 初始化
-            byte[] result = cipher.doFinal(content);
-            return result; // 加密
+            return cipher.doFinal(content); // 加密
         } catch (Exception e) {
             Log.e("walter", "加密异常==" + e.toString());
         }
@@ -169,8 +166,7 @@ public class Rsa {
             Cipher cipher = Cipher.getInstance("AES/ECB/NoPadding");
             // byte[] byteContent = content.getBytes("utf-8");
             cipher.init(Cipher.ENCRYPT_MODE, key);// 初始化
-            byte[] result = cipher.doFinal(content);
-            return result; // 加密
+            return cipher.doFinal(content); // 加密
         } catch (Exception e) {
             e.printStackTrace();
             Timber.e("walter 加密异常 : %1s", e.toString());
@@ -191,8 +187,7 @@ public class Rsa {
             SecretKeySpec key = new SecretKeySpec(password, "AES");
             Cipher cipher = Cipher.getInstance("AES/ECB/NoPadding");
             cipher.init(Cipher.DECRYPT_MODE, key);// 初始化
-            byte[] result = cipher.doFinal(content);
-            return result; //
+            return cipher.doFinal(content); //
         } catch (Exception e) {
             e.printStackTrace();
             Timber.e("解密异常 : %1s", e.toString());
@@ -295,7 +290,7 @@ public class Rsa {
         return mToHexString.toString();
     }
 
-    public static final byte[] hex2byte(String hex)
+    public static byte[] hex2byte(String hex)
             throws IllegalArgumentException {
         if (hex.length() % 2 != 0) {
             throw new IllegalArgumentException();
@@ -304,13 +299,13 @@ public class Rsa {
         byte[] b = new byte[hex.length() / 2];
         for (int i = 0, j = 0, l = hex.length(); i < l; i++, j++) {
             String swap = "" + arr[i++] + arr[i];
-            int byteint = Integer.parseInt(swap, 16) & 0xFF;
-            b[j] = new Integer(byteint).byteValue();
+            int byteInt = Integer.parseInt(swap, 16) & 0xFF;
+            b[j] = Integer.valueOf(byteInt).byteValue();
         }
         return b;
     }
 
-    public static final byte[] hex2byte2(String hex)
+    public static byte[] hex2byte2(String hex)
             throws IllegalArgumentException {
         hex = hex.replaceAll(" ", "");
         if (hex.length() % 2 != 0) {
@@ -320,8 +315,8 @@ public class Rsa {
         byte[] b = new byte[hex.length() / 2];
         for (int i = 0, j = 0, l = hex.length(); i < l; i++, j++) {
             String swap = "" + arr[i++] + arr[i];
-            int byteint = Integer.parseInt(swap, 16) & 0xFF;
-            b[j] = new Integer(byteint).byteValue();
+            int byteInt = Integer.parseInt(swap, 16) & 0xFF;
+            b[j] = Integer.valueOf(byteInt).byteValue();
         }
         return b;
     }

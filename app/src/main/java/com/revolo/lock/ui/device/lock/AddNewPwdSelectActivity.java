@@ -43,7 +43,7 @@ import com.revolo.lock.ble.bean.BleResultBean;
 import com.revolo.lock.dialog.AddPwdFailDialog;
 import com.revolo.lock.dialog.MessageDialog;
 import com.revolo.lock.mqtt.MqttCommandFactory;
-import com.revolo.lock.mqtt.MqttConstant;
+import com.revolo.lock.mqtt.MQttConstant;
 import com.revolo.lock.mqtt.bean.MqttData;
 import com.revolo.lock.mqtt.bean.publishbean.WifiLockAddPwdAttrPublishBean;
 import com.revolo.lock.mqtt.bean.publishbean.WifiLockAddPwdPublishBean;
@@ -711,7 +711,7 @@ public class AddNewPwdSelectActivity extends BaseActivity {
         // TODO: 2021/3/17 后期修改密钥属性
         paramsBean.setKeyType(0);
         toDisposable(mAddPwdDisposable);
-        mAddPwdDisposable = mMQttService.mqttPublish(MqttConstant.getCallTopic(uid),
+        mAddPwdDisposable = mMQttService.mqttPublish(MQttConstant.getCallTopic(uid),
                 MqttCommandFactory.addPwd(
                         wifiId,
                         paramsBean,
@@ -720,7 +720,7 @@ public class AddNewPwdSelectActivity extends BaseActivity {
                                 ConvertUtils.hexString2Bytes(mBleDeviceLocal.getPwd2())
                         )))
                 .timeout(DEFAULT_TIMEOUT_SEC_VALUE, TimeUnit.SECONDS)
-                .filter(mqttData -> mqttData.getFunc().equals(MqttConstant.CREATE_PWD))
+                .filter(mqttData -> mqttData.getFunc().equals(MQttConstant.CREATE_PWD))
                 .subscribe(this::processAddPwd, e -> {
                     dismissLoading();
                     Timber.e(e);
@@ -734,7 +734,7 @@ public class AddNewPwdSelectActivity extends BaseActivity {
         if(TextUtils.isEmpty(mqttData.getFunc())) {
             return;
         }
-        if(mqttData.getFunc().equals(MqttConstant.CREATE_PWD)) {
+        if(mqttData.getFunc().equals(MQttConstant.CREATE_PWD)) {
             Timber.d("创建密码: %1s", mqttData);
             WifiLockAddPwdRspBean bean;
             try {
@@ -789,7 +789,7 @@ public class AddNewPwdSelectActivity extends BaseActivity {
         // TODO: 2021/3/17 后期修改密钥属性
         paramsBean.setKeyType(0);
         toDisposable(mSetPwdAttrDisposable);
-        mSetPwdAttrDisposable = mMQttService.mqttPublish(MqttConstant.getCallTopic(App.getInstance().getUserBean().getUid()),
+        mSetPwdAttrDisposable = mMQttService.mqttPublish(MQttConstant.getCallTopic(App.getInstance().getUserBean().getUid()),
                 MqttCommandFactory.addPwdAttr(
                         wifiId,
                         paramsBean,
@@ -798,7 +798,7 @@ public class AddNewPwdSelectActivity extends BaseActivity {
                                 ConvertUtils.hexString2Bytes(mBleDeviceLocal.getPwd2())
                         )))
                 .timeout(DEFAULT_TIMEOUT_SEC_VALUE, TimeUnit.SECONDS)
-                .filter(mqttData -> mqttData.getFunc().equals(MqttConstant.ADD_PWD))
+                .filter(mqttData -> mqttData.getFunc().equals(MQttConstant.ADD_PWD))
                 .subscribe(this::setPwdAttrCallback, e -> {
                     dismissLoading();
                     Timber.e(e);
@@ -812,7 +812,7 @@ public class AddNewPwdSelectActivity extends BaseActivity {
             return;
         }
         // TODO: 2021/3/3 处理开关门的回调信息
-        if(mqttData.getFunc().equals(MqttConstant.ADD_PWD)) {
+        if(mqttData.getFunc().equals(MQttConstant.ADD_PWD)) {
             dismissLoading();
             Timber.d("publishAddPwdAttr 添加密码属性: %1s", mqttData);
             WifiLockAddPwdAttrResponseBean bean;

@@ -19,7 +19,6 @@ import com.a1anwang.okble.client.scan.BLEScanResult;
 import com.a1anwang.okble.client.scan.DeviceScanCallBack;
 import com.a1anwang.okble.client.scan.OKBLEScanManager;
 import com.blankj.utilcode.util.ActivityUtils;
-import com.blankj.utilcode.util.CacheDiskUtils;
 import com.blankj.utilcode.util.ConvertUtils;
 import com.blankj.utilcode.util.GsonUtils;
 import com.blankj.utilcode.util.SPUtils;
@@ -34,7 +33,7 @@ import com.revolo.lock.ble.bean.BleBean;
 import com.revolo.lock.ble.OnBleDeviceListener;
 import com.revolo.lock.ble.bean.BleResultBean;
 import com.revolo.lock.mqtt.MqttCommandFactory;
-import com.revolo.lock.mqtt.MqttConstant;
+import com.revolo.lock.mqtt.MQttConstant;
 import com.revolo.lock.mqtt.MqttService;
 import com.revolo.lock.mqtt.bean.MqttData;
 import com.revolo.lock.mqtt.bean.publishresultbean.WifiLockApproachOpenResponseBean;
@@ -91,8 +90,6 @@ public class App extends Application {
 
     private MailLoginBeanRsp.DataBean mUserBean;
     private static App instance;
-    private final String mFilePath = File.pathSeparator + "Ble" + File.pathSeparator;
-    private CacheDiskUtils mCacheDiskUtils;
 
     public static App getInstance() {
         return instance;
@@ -107,7 +104,6 @@ public class App extends Application {
         if (BuildConfig.DEBUG) {
             Timber.plant(new Timber.DebugTree());
         }
-        initCacheDisk();
         initMQttService();
     }
 
@@ -120,11 +116,6 @@ public class App extends Application {
 
     public void setMainActivity(MainActivity mainActivity) {
         mMainActivity = mainActivity;
-    }
-
-    private void initCacheDisk() {
-        File file = new File(getDir("Ble", MODE_PRIVATE) + mFilePath);
-        mCacheDiskUtils = CacheDiskUtils.getInstance(file);
     }
 
     private User mUser;
@@ -407,10 +398,6 @@ public class App extends Application {
         }
     }
 
-    public CacheDiskUtils getCacheDiskUtils() {
-        return mCacheDiskUtils;
-    }
-
     public MailLoginBeanRsp.DataBean getUserBean() {
         return mUserBean;
     }
@@ -458,7 +445,6 @@ public class App extends Application {
      *                     ....
      */
     public void tokenInvalid(boolean isShowDialog) {
-        clearData();  //清除数据库数据
         Activity activity = ActivityUtils.getTopActivity();
         if(activity != null) {
             Intent intent = new Intent(activity, LoginActivity.class);
@@ -483,16 +469,6 @@ public class App extends Application {
         // TODO: 2021/3/30 logout的数据操作
         act.startActivity(new Intent(act, LoginActivity.class));
         act.finish();
-    }
-
-    /**
-     * 删除持久化数据
-     */
-    private void clearData() {
-        //TODO:未实现Room 清除ORM数据库
-        File file = new File(getDir("Ble", MODE_PRIVATE) + mFilePath);
-        file.delete();
-
     }
 
     private boolean isWifiSettingNeedToCloseBle = false;
@@ -584,12 +560,12 @@ public class App extends Application {
         }
         toDisposable(mApproachOpenDisposable);
         App.getInstance().setUsingGeoFenceBleDeviceLocal(deviceLocal);
-        mApproachOpenDisposable = mMQttService.mqttPublish(MqttConstant.getCallTopic(App.getInstance().getUserBean().getUid()),
+        mApproachOpenDisposable = mMQttService.mqttPublish(MQttConstant.getCallTopic(App.getInstance().getUserBean().getUid()),
                 MqttCommandFactory.approachOpen(wifiID, broadcastTime,
                         BleCommandFactory.getPwd(
                                 ConvertUtils.hexString2Bytes(deviceLocal.getPwd1()),
                                 ConvertUtils.hexString2Bytes(deviceLocal.getPwd2()))))
-                .filter(mqttData -> mqttData.getFunc().equals(MqttConstant.APP_ROACH_OPEN))
+                .filter(mqttData -> mqttData.getFunc().equals(MQttConstant.APP_ROACH_OPEN))
                 .timeout(DEFAULT_TIMEOUT_SEC_VALUE, TimeUnit.SECONDS)
                 .subscribe(mqttData -> {
                     toDisposable(mApproachOpenDisposable);
@@ -607,7 +583,7 @@ public class App extends Application {
             Timber.e("publishApproachOpen mqttData.getFunc() is empty");
             return;
         }
-        if(mqttData.getFunc().equals(MqttConstant.APP_ROACH_OPEN)) {
+        if(mqttData.getFunc().equals(MQttConstant.APP_ROACH_OPEN)) {
             Timber.d("publishApproachOpen 无感开门: %1s", mqttData);
             WifiLockApproachOpenResponseBean bean;
             try {

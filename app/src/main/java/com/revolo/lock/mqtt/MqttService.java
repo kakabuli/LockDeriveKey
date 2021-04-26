@@ -107,13 +107,13 @@ public class MqttService extends Service {
         //断开后，是否自动连接
         connOpts.setAutomaticReconnect(true);
         //是否清空客户端的连接记录。若为true，则断开后，broker将自动清除该客户端连接信息
-        connOpts.setCleanSession(MqttConstant.MQTT_CLEANSE_SSION);
+        connOpts.setCleanSession(MQttConstant.MQTT_CLEANSE_SSION);
         //设置超时时间，单位为秒 10
-        connOpts.setConnectionTimeout(MqttConstant.MQTT_CONNECTION_TIMEOUT);
+        connOpts.setConnectionTimeout(MQttConstant.MQTT_CONNECTION_TIMEOUT);
         //设置心跳时间，单位为秒 20
-        connOpts.setKeepAliveInterval(MqttConstant.MQTT_KEEP_ALIVE_INTERVAL);
+        connOpts.setKeepAliveInterval(MQttConstant.MQTT_KEEP_ALIVE_INTERVAL);
         //允许同时发送几条消息（未收到broker确认信息）
-        connOpts.setMaxInflight(MqttConstant.MQTT_MAX_INFLIGHT);
+        connOpts.setMaxInflight(MQttConstant.MQTT_MAX_INFLIGHT);
         //用户的id,和token
         if (!TextUtils.isEmpty(user_id)&&!TextUtils.isEmpty(user_token)) {
             connOpts.setUserName(user_id);
@@ -151,7 +151,7 @@ public class MqttService extends Service {
         //
 
         if (mqttClient == null) {
-            mqttClient = new MqttAndroidClient(App.getInstance(), MqttConstant.MQTT_BASE_URL, "app:" + userId);
+            mqttClient = new MqttAndroidClient(App.getInstance(), MQttConstant.MQTT_BASE_URL, "app:" + userId);
         }
 
         //已经连接
@@ -184,7 +184,7 @@ public class MqttService extends Service {
                         mqttClient.setBufferOpts(disconnectedBufferOptions);
                     }
                     //连接成功之后订阅主题
-                    mqttSubscribe(mqttClient, MqttConstant.getSubscribeTopic(userId), 2);
+                    mqttSubscribe(mqttClient, MQttConstant.getSubscribeTopic(userId), 2);
                     reconnectionNum = 10;
                     connectStateObservable.onNext(true);
                 }
@@ -250,7 +250,7 @@ public class MqttService extends Service {
 
                 onReceiverDataObservable.onNext(mqttData);
 
-                if(MqttConstant.WF_EVENT.equals(mqttData.getFunc())) {
+                if(MQttConstant.WF_EVENT.equals(mqttData.getFunc())) {
                     notifyEventObservable.onNext(mqttData);
                 }
 

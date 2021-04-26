@@ -29,7 +29,7 @@ import com.revolo.lock.ble.OnBleDeviceListener;
 import com.revolo.lock.ble.bean.BleBean;
 import com.revolo.lock.ble.bean.BleResultBean;
 import com.revolo.lock.mqtt.MqttCommandFactory;
-import com.revolo.lock.mqtt.MqttConstant;
+import com.revolo.lock.mqtt.MQttConstant;
 import com.revolo.lock.mqtt.bean.MqttData;
 import com.revolo.lock.mqtt.bean.publishbean.attrparams.DuressParams;
 import com.revolo.lock.mqtt.bean.publishresultbean.WifiLockSetLockAttrDuressRspBean;
@@ -196,12 +196,12 @@ public class DuressCodeActivity extends BaseActivity {
         DuressParams duressParams = new DuressParams();
         duressParams.setDuress(mute);
         toDisposable(mOpenOrCloseDuressPwdDisposable);
-        mOpenOrCloseDuressPwdDisposable = mMQttService.mqttPublish(MqttConstant.getCallTopic(App.getInstance().getUserBean().getUid()),
+        mOpenOrCloseDuressPwdDisposable = mMQttService.mqttPublish(MQttConstant.getCallTopic(App.getInstance().getUserBean().getUid()),
                 MqttCommandFactory.setLockAttr(wifiID, duressParams,
                         BleCommandFactory.getPwd(
                                 ConvertUtils.hexString2Bytes(mBleDeviceLocal.getPwd1()),
                                 ConvertUtils.hexString2Bytes(mBleDeviceLocal.getPwd2()))))
-                .filter(mqttData -> mqttData.getFunc().equals(MqttConstant.SET_LOCK_ATTR))
+                .filter(mqttData -> mqttData.getFunc().equals(MQttConstant.SET_LOCK_ATTR))
                 .timeout(DEFAULT_TIMEOUT_SEC_VALUE, TimeUnit.SECONDS)
                 .subscribe(mqttData -> {
                     toDisposable(mOpenOrCloseDuressPwdDisposable);
@@ -220,7 +220,7 @@ public class DuressCodeActivity extends BaseActivity {
             Timber.e("publishOpenOrCloseDuressPwd mqttData.getFunc() is empty");
             return;
         }
-        if(mqttData.getFunc().equals(MqttConstant.SET_LOCK_ATTR)) {
+        if(mqttData.getFunc().equals(MQttConstant.SET_LOCK_ATTR)) {
             dismissLoading();
             Timber.d("publishOpenOrCloseDuressPwd 设置属性: %1s", mqttData);
             WifiLockSetLockAttrDuressRspBean bean;

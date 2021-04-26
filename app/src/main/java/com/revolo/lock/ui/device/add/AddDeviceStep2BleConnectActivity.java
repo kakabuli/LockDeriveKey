@@ -61,9 +61,9 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
     private OKBLEScanManager mScanManager;
     private BLEScanResult mScanResult;
 
-    private final int mQRPre = 1;
-    private final int mDefault = 0;
-    private final int mESNPre = 2;
+    private static final int mQRPre = 1;
+    private static final int mDefault = 0;
+    private static final int mESNPre = 2;
     private int mPreA = mDefault;
     private String mEsn;
     private String mMac;
@@ -182,27 +182,7 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
 
             @Override
             public void onNext(@NonNull LockIsBindBeanRsp lockIsBindBeanRsp) {
-                String code = lockIsBindBeanRsp.getCode();
-                if(code == null) {
-                    return;
-                }
-                if(code.equals("444")) {
-                    App.getInstance().logout(true, AddDeviceStep2BleConnectActivity.this);
-                    return;
-                }
-                if(code.equals("202")) {
-                    // 提示已绑定，并退出
-                    // TODO: 2021/2/6 修改显示方式
-                    ToastUtils.showLong(R.string.t_the_device_is_already_bound);
-                    finishPreAct();
-                    finish();
-                    return;
-                }
-                if(code.equals("201")) {
-                    getPwd1FromNet();
-                    return;
-                }
-                Timber.e("code: %1s，msg: %2s", lockIsBindBeanRsp.getCode(), lockIsBindBeanRsp.getMsg());
+                processBindDevice(lockIsBindBeanRsp);
             }
 
             @Override
@@ -215,6 +195,30 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
 
             }
         });
+    }
+
+    private void processBindDevice(@NonNull LockIsBindBeanRsp lockIsBindBeanRsp) {
+        String code = lockIsBindBeanRsp.getCode();
+        if(code == null) {
+            return;
+        }
+        if(code.equals("444")) {
+            App.getInstance().logout(true, AddDeviceStep2BleConnectActivity.this);
+            return;
+        }
+        if(code.equals("202")) {
+            // 提示已绑定，并退出
+            // TODO: 2021/2/6 修改显示方式
+            ToastUtils.showLong(R.string.t_the_device_is_already_bound);
+            finishPreAct();
+            finish();
+            return;
+        }
+        if(code.equals("201")) {
+            getPwd1FromNet();
+            return;
+        }
+        Timber.e("code: %1s，msg: %2s", lockIsBindBeanRsp.getCode(), lockIsBindBeanRsp.getMsg());
     }
 
     private void finishPreAct() {
@@ -241,39 +245,7 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
 
             @Override
             public void onNext(@NonNull GetPwd1BeanRsp getPwd1BeanRsp) {
-                // TODO: 2021/1/26 添加错误操作
-                String code = getPwd1BeanRsp.getCode();
-                if(!code.equals("200")) {
-                    if(code.equals("444")) {
-                        App.getInstance().logout(true, AddDeviceStep2BleConnectActivity.this);
-                        return;
-                    }
-                    String msg = getPwd1BeanRsp.getMsg();
-                    Timber.e("getPwd1FromNet code: %1s, msg: %2s", getPwd1BeanRsp.getCode(), msg);
-                    if(!TextUtils.isEmpty(msg)) {
-                        ToastUtils.showShort(msg);
-                    }
-                    gotoBleConnectFail();
-                    return;
-                }
-                if(getPwd1BeanRsp.getData() == null) {
-                    Timber.e("getPwd1FromNet getPwd1BeanRsp.getData() == null");
-                    gotoBleConnectFail();
-                    return;
-                }
-                if(TextUtils.isEmpty(getPwd1BeanRsp.getData().getPassword1())) {
-                    Timber.e("getPwd1FromNet getPwd1BeanRsp.getData().getPassword1() is empty");
-                    gotoBleConnectFail();
-                    return;
-                }
-                byte[] bytes = ConvertUtils.hexString2Bytes(getPwd1BeanRsp.getData().getPassword1());
-                if(bytes.length != 12) {
-                    Timber.e("getPwd1FromNet bytes.length != 12");
-                    return;
-                }
-                mPwd1 = new byte[16];
-                System.arraycopy(bytes, 0, mPwd1, 0, bytes.length);
-                initScanManager();
+                processGetPwd1(getPwd1BeanRsp);
             }
 
             @Override
@@ -287,6 +259,42 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
 
             }
         });
+    }
+
+    private void processGetPwd1(@NonNull GetPwd1BeanRsp getPwd1BeanRsp) {
+        // TODO: 2021/1/26 添加错误操作
+        String code = getPwd1BeanRsp.getCode();
+        if(!code.equals("200")) {
+            if(code.equals("444")) {
+                App.getInstance().logout(true, AddDeviceStep2BleConnectActivity.this);
+                return;
+            }
+            String msg = getPwd1BeanRsp.getMsg();
+            Timber.e("getPwd1FromNet code: %1s, msg: %2s", getPwd1BeanRsp.getCode(), msg);
+            if(!TextUtils.isEmpty(msg)) {
+                ToastUtils.showShort(msg);
+            }
+            gotoBleConnectFail();
+            return;
+        }
+        if(getPwd1BeanRsp.getData() == null) {
+            Timber.e("getPwd1FromNet getPwd1BeanRsp.getData() == null");
+            gotoBleConnectFail();
+            return;
+        }
+        if(TextUtils.isEmpty(getPwd1BeanRsp.getData().getPassword1())) {
+            Timber.e("getPwd1FromNet getPwd1BeanRsp.getData().getPassword1() is empty");
+            gotoBleConnectFail();
+            return;
+        }
+        byte[] bytes = ConvertUtils.hexString2Bytes(getPwd1BeanRsp.getData().getPassword1());
+        if(bytes.length != 12) {
+            Timber.e("getPwd1FromNet bytes.length != 12");
+            return;
+        }
+        mPwd1 = new byte[16];
+        System.arraycopy(bytes, 0, mPwd1, 0, bytes.length);
+        initScanManager();
     }
 
     /**               蓝牙               **/
@@ -439,24 +447,7 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
 
             @Override
             public void onNext(@NonNull AdminAddDeviceBeanRsp adminAddDeviceBeanRsp) {
-                String code = adminAddDeviceBeanRsp.getCode();
-                if(code == null) {
-                    gotoBleConnectFail();
-                    return;
-                }
-                if(!code.equals("200")) {
-                    if(code.equals("444")) {
-                        App.getInstance().logout(true, AddDeviceStep2BleConnectActivity.this);
-                        return;
-                    }
-                    Timber.e("code: %1s, msg: %2s", adminAddDeviceBeanRsp.getCode(), adminAddDeviceBeanRsp.getMsg());
-                    return;
-                }
-                Timber.d("addDeviceToService 添加设备成功");
-                Timber.d("rsp: %1s", adminAddDeviceBeanRsp.toString());
-                Intent intent = new Intent(AddDeviceStep2BleConnectActivity.this, BleConnectSucActivity.class);
-                startActivity(intent);
-                finish();
+                processAddDevice(adminAddDeviceBeanRsp);
             }
 
             @Override
@@ -472,24 +463,31 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
 
     }
 
+    private void processAddDevice(@NonNull AdminAddDeviceBeanRsp adminAddDeviceBeanRsp) {
+        String code = adminAddDeviceBeanRsp.getCode();
+        if(code == null) {
+            gotoBleConnectFail();
+            return;
+        }
+        if(!code.equals("200")) {
+            if(code.equals("444")) {
+                App.getInstance().logout(true, AddDeviceStep2BleConnectActivity.this);
+                return;
+            }
+            Timber.e("code: %1s, msg: %2s", adminAddDeviceBeanRsp.getCode(), adminAddDeviceBeanRsp.getMsg());
+            return;
+        }
+        Timber.d("addDeviceToService 添加设备成功");
+        Timber.d("rsp: %1s", adminAddDeviceBeanRsp.toString());
+        Intent intent = new Intent(AddDeviceStep2BleConnectActivity.this, BleConnectSucActivity.class);
+        startActivity(intent);
+        finish();
+    }
+
     private final OnBleDeviceListener mOnBleDeviceListener = new OnBleDeviceListener() {
         @Override
         public void onConnected(@NotNull String mac) {
-            BleBean bleBean = App.getInstance().getBleBeanFromMac(mac);
-            if(bleBean == null) {
-                Timber.e("initBleListener bleBean == null");
-                return;
-            }
-            if(bleBean.getOKBLEDeviceImp() == null) {
-                Timber.e("initBleListener bleBean.getOKBLEDeviceImp() == null");
-                return;
-            }
-            new Handler(Looper.getMainLooper()).postDelayed(() -> {
-                Timber.d("%1s 发送配网指令，并校验ESN", mac);
-                App.getInstance().writeControlMsg(BleCommandFactory
-                        .pairCommand(mPwd1, mEsn.getBytes(StandardCharsets.UTF_8)), bleBean.getOKBLEDeviceImp());
-            }, 100);
-
+            processDeviceConnected(mac);
         }
 
         @Override
@@ -499,21 +497,7 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
 
         @Override
         public void onReceivedValue(@NotNull String mac, String uuid, byte[] value) {
-            if(value == null) {
-                return;
-            }
-            BleResultProcess.setOnReceivedProcess(mOnReceivedProcess);
-            byte[] pwd2Or3 = null;
-            if(isHavePwd2Or3) {
-                if(mPwd3 == null) {
-                    if(mPwd2 != null) {
-                        pwd2Or3 = mPwd2;
-                    }
-                } else {
-                    pwd2Or3 = mPwd3;
-                }
-            }
-            BleResultProcess.processReceivedData(value, mPwd1, isHavePwd2Or3?pwd2Or3:null, mScanResult);
+            processRecValue(value);
         }
 
         @Override
@@ -526,6 +510,41 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
 
         }
     };
+
+    private void processDeviceConnected(@NotNull String mac) {
+        BleBean bleBean = App.getInstance().getBleBeanFromMac(mac);
+        if(bleBean == null) {
+            Timber.e("initBleListener bleBean == null");
+            return;
+        }
+        if(bleBean.getOKBLEDeviceImp() == null) {
+            Timber.e("initBleListener bleBean.getOKBLEDeviceImp() == null");
+            return;
+        }
+        new Handler(Looper.getMainLooper()).postDelayed(() -> {
+            Timber.d("%1s 发送配网指令，并校验ESN", mac);
+            App.getInstance().writeControlMsg(BleCommandFactory
+                    .pairCommand(mPwd1, mEsn.getBytes(StandardCharsets.UTF_8)), bleBean.getOKBLEDeviceImp());
+        }, 100);
+    }
+
+    private void processRecValue(byte[] value) {
+        if(value == null) {
+            return;
+        }
+        BleResultProcess.setOnReceivedProcess(mOnReceivedProcess);
+        byte[] pwd2Or3 = null;
+        if(isHavePwd2Or3) {
+            if(mPwd3 == null) {
+                if(mPwd2 != null) {
+                    pwd2Or3 = mPwd2;
+                }
+            } else {
+                pwd2Or3 = mPwd3;
+            }
+        }
+        BleResultProcess.processReceivedData(value, mPwd1, isHavePwd2Or3?pwd2Or3:null, mScanResult);
+    }
 
     private void initScanManager() {
         mScanManager = App.getInstance().getScanManager();

@@ -38,7 +38,7 @@ public class WifiLockMessageEventBean {
     private String timestamp;
 
 
-    public class EventparamsBean {
+    public static class EventparamsBean {
         private String sn;
         private String firmware;
         private String software;

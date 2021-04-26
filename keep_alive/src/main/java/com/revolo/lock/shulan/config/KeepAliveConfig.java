@@ -7,6 +7,8 @@ import com.revolo.lock.shulan.R;
  */
 public class KeepAliveConfig {
 
+    private KeepAliveConfig() {}
+
     /**
      * Job 的时间
      */

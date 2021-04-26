@@ -29,7 +29,7 @@ import com.revolo.lock.ble.OnBleDeviceListener;
 import com.revolo.lock.ble.bean.BleBean;
 import com.revolo.lock.ble.bean.BleResultBean;
 import com.revolo.lock.mqtt.MqttCommandFactory;
-import com.revolo.lock.mqtt.MqttConstant;
+import com.revolo.lock.mqtt.MQttConstant;
 import com.revolo.lock.mqtt.bean.MqttData;
 import com.revolo.lock.mqtt.bean.publishresultbean.WifiLockApproachOpenResponseBean;
 import com.revolo.lock.mqtt.bean.publishresultbean.WifiLockCloseWifiResponseBean;
@@ -144,13 +144,13 @@ public class WifiSettingActivity extends BaseActivity {
         }
         showLoading();
         toDisposable(mCloseWifiFromMQttDisposable);
-        mCloseWifiFromMQttDisposable = mMQttService.mqttPublish(MqttConstant.getCallTopic(App.getInstance().getUserBean().getUid()),
+        mCloseWifiFromMQttDisposable = mMQttService.mqttPublish(MQttConstant.getCallTopic(App.getInstance().getUserBean().getUid()),
                 MqttCommandFactory.closeWifi(
                         mBleDeviceLocal.getEsn(),
                         BleCommandFactory
                                 .getPwd(ConvertUtils.hexString2Bytes(mBleDeviceLocal.getPwd1()),
                                         ConvertUtils.hexString2Bytes(mBleDeviceLocal.getPwd2()))))
-                .filter(mqttData -> mqttData.getFunc().equals(MqttConstant.CLOSE_WIFI))
+                .filter(mqttData -> mqttData.getFunc().equals(MQttConstant.CLOSE_WIFI))
                 .timeout(DEFAULT_TIMEOUT_SEC_VALUE, TimeUnit.SECONDS)
                 .subscribe(mqttData -> {
                     toDisposable(mCloseWifiFromMQttDisposable);
@@ -166,7 +166,7 @@ public class WifiSettingActivity extends BaseActivity {
         if(TextUtils.isEmpty(mqttData.getFunc())) {
             return;
         }
-        if(mqttData.getFunc().equals(MqttConstant.CLOSE_WIFI)) {
+        if(mqttData.getFunc().equals(MQttConstant.CLOSE_WIFI)) {
             dismissLoading();
             Timber.d("closeWifiFromMqtt 关闭信息: %1s", mqttData);
             WifiLockCloseWifiResponseBean bean;
@@ -208,13 +208,13 @@ public class WifiSettingActivity extends BaseActivity {
         }
         showLoading();
         toDisposable(mOpenBleFromMQttDisposable);
-        mOpenBleFromMQttDisposable = mMQttService.mqttPublish(MqttConstant.getCallTopic(App.getInstance().getUserBean().getUid()),
+        mOpenBleFromMQttDisposable = mMQttService.mqttPublish(MQttConstant.getCallTopic(App.getInstance().getUserBean().getUid()),
                 MqttCommandFactory.approachOpen(
                         mBleDeviceLocal.getEsn(), 60/*用于临时开启蓝牙，用于使用蓝牙来重新配网*/,
                         BleCommandFactory.getPwd(
                                 ConvertUtils.hexString2Bytes(mBleDeviceLocal.getPwd1()),
                                 ConvertUtils.hexString2Bytes(mBleDeviceLocal.getPwd2()))))
-                .filter(mqttData -> mqttData.getFunc().equals(MqttConstant.APP_ROACH_OPEN))
+                .filter(mqttData -> mqttData.getFunc().equals(MQttConstant.APP_ROACH_OPEN))
                 .timeout(DEFAULT_TIMEOUT_SEC_VALUE, TimeUnit.SECONDS)
                 .subscribe(mqttData -> {
                     toDisposable(mOpenBleFromMQttDisposable);
@@ -231,7 +231,7 @@ public class WifiSettingActivity extends BaseActivity {
             Timber.e("publishApproachOpen mqttData.getFunc() is empty");
             return;
         }
-        if(mqttData.getFunc().equals(MqttConstant.APP_ROACH_OPEN)) {
+        if(mqttData.getFunc().equals(MQttConstant.APP_ROACH_OPEN)) {
             Timber.d("publishApproachOpen 无感开门: %1s", mqttData);
             WifiLockApproachOpenResponseBean bean;
             try {

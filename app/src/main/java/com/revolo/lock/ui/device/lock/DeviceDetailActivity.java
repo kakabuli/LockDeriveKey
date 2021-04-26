@@ -32,7 +32,7 @@ import com.revolo.lock.ble.bean.BleBean;
 import com.revolo.lock.ble.bean.BleResultBean;
 import com.revolo.lock.dialog.SignalWeakDialog;
 import com.revolo.lock.mqtt.MqttCommandFactory;
-import com.revolo.lock.mqtt.MqttConstant;
+import com.revolo.lock.mqtt.MQttConstant;
 import com.revolo.lock.mqtt.bean.MqttData;
 import com.revolo.lock.mqtt.bean.eventbean.WifiLockOperationEventBean;
 import com.revolo.lock.mqtt.bean.publishresultbean.WifiLockDoorOptResponseBean;
@@ -46,9 +46,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import io.reactivex.Observer;
 import io.reactivex.disposables.Disposable;
-import io.reactivex.functions.Consumer;
 import timber.log.Timber;
 
 import static com.revolo.lock.Constant.DEFAULT_TIMEOUT_SEC_VALUE;
@@ -486,14 +484,14 @@ public class DeviceDetailActivity extends BaseActivity {
         mCount++;
         toDisposable(mOpenOrCloseLockDisposable);
         mOpenOrCloseLockDisposable = mMQttService.mqttPublish(
-                MqttConstant.getCallTopic(App.getInstance().getUserBean().getUid()),
+                MQttConstant.getCallTopic(App.getInstance().getUserBean().getUid()),
                 MqttCommandFactory.setLock(wifiId,
                         doorOpt,
                         BleCommandFactory.getPwd(ConvertUtils.hexString2Bytes(mBleDeviceLocal.getPwd1()), ConvertUtils.hexString2Bytes(mBleDeviceLocal.getPwd2())),
                         randomCode,
                         num))
                 .timeout(DEFAULT_TIMEOUT_SEC_VALUE, TimeUnit.SECONDS)
-                .filter(mqttData -> mqttData.getFunc().equals(MqttConstant.SET_LOCK) || mqttData.getFunc().equals(MqttConstant.WF_EVENT))
+                .filter(mqttData -> mqttData.getFunc().equals(MQttConstant.SET_LOCK) || mqttData.getFunc().equals(MQttConstant.WF_EVENT))
                 .subscribe(mqttData -> {
                     mCount = 0;
                     toDisposable(mOpenOrCloseLockDisposable);
@@ -532,7 +530,7 @@ public class DeviceDetailActivity extends BaseActivity {
         if(TextUtils.isEmpty(mqttData.getFunc())) {
             return;
         }
-        if(mqttData.getFunc().equals(MqttConstant.WF_EVENT)) {
+        if(mqttData.getFunc().equals(MQttConstant.WF_EVENT)) {
             processRecord(mqttData);
         }
     }
@@ -542,7 +540,7 @@ public class DeviceDetailActivity extends BaseActivity {
             return;
         }
         // TODO: 2021/3/3 处理开关锁的回调信息
-        if(mqttData.getFunc().equals(MqttConstant.SET_LOCK)) {
+        if(mqttData.getFunc().equals(MQttConstant.SET_LOCK)) {
             processSetLock(mqttData);
         }
     }
@@ -576,7 +574,7 @@ public class DeviceDetailActivity extends BaseActivity {
             Timber.e("processRecord RECORD bean.getEventtype() == null");
             return;
         }
-        if(!bean.getEventtype().equals(MqttConstant.RECORD)) {
+        if(!bean.getEventtype().equals(MQttConstant.RECORD)) {
             Timber.e("processRecord RECORD eventType: %1s", bean.getEventtype());
             return;
         }
