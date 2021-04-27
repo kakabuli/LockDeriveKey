@@ -108,7 +108,7 @@ dependencies {
     // 引用第三方蓝牙库，后续也可以通过源码进行修改
     implementation(name: 'okble-lib-1.1.5', ext: 'aar')
     // 扫描二维码
-    implementation 'cn.bingoogolapple:bga-qrcode-zbar:1.3.7'
+    implementation 'com.king.zxing:zxing-lite:2.0.3'
     // 权限辅助
     implementation 'pub.devrel:easypermissions:3.0.0'
     // base recyclerView辅助工具类

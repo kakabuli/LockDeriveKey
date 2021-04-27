@@ -69,7 +69,7 @@ public abstract class BaseActivity extends AppCompatActivity
         }
         initView(savedInstanceState, mContentView);
 
-        startKeepAlive();
+//        startKeepAlive();
     }
 
     @Override

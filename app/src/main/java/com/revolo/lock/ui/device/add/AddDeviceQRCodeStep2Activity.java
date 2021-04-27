@@ -8,13 +8,14 @@ import android.widget.LinearLayout;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.camera.view.PreviewView;
 
+import com.king.zxing.CameraScan;
+import com.king.zxing.DefaultCameraScan;
 import com.revolo.lock.Constant;
 import com.revolo.lock.R;
 import com.revolo.lock.base.BaseActivity;
 
-import cn.bingoogolapple.qrcode.core.QRCodeView;
-import cn.bingoogolapple.qrcode.zbar.ZBarView;
 import timber.log.Timber;
 
 /**
@@ -25,9 +26,7 @@ import timber.log.Timber;
  */
 public class AddDeviceQRCodeStep2Activity extends BaseActivity {
 
-    private ZBarView mZBarView;
-    private LinearLayout mLlLight;
-    private boolean isOpenFlashLight = false;
+    private CameraScan mCameraScan;
 
     @Override
     public void initData(@Nullable Bundle bundle) {
@@ -42,29 +41,18 @@ public class AddDeviceQRCodeStep2Activity extends BaseActivity {
     @Override
     public void initView(@Nullable Bundle savedInstanceState, @Nullable View contentView) {
         useCommonTitleBar(getString(R.string.add_device)).getTvTitle().setTextColor(Color.WHITE);
-        mLlLight = findViewById(R.id.llLight);
-        applyDebouncingClickListener(findViewById(R.id.tvManualInput), mLlLight);
-        mZBarView = findViewById(R.id.zBarView);
-        mZBarView.setDelegate(new QRCodeView.Delegate() {
-            @Override
-            public void onScanQRCodeSuccess(String result) {
-                gotoBleConnectAct(result);
-            }
+        LinearLayout llLight = findViewById(R.id.llLight);
+        applyDebouncingClickListener(findViewById(R.id.tvManualInput), llLight);
 
-            @Override
-            public void onCameraAmbientBrightnessChanged(boolean isDark) {
-                if(isOpenFlashLight) {
-                    mLlLight.setVisibility(View.VISIBLE);
-                } else {
-                    mLlLight.setVisibility(isDark?View.VISIBLE:View.INVISIBLE);
-                }
-            }
-
-            @Override
-            public void onScanQRCodeOpenCameraError() {
-                Timber.e("onScanQRCodeOpenCameraError 打开相机出错了");
-            }
-        });
+        PreviewView previewView = findViewById(R.id.previewView);
+        mCameraScan = new DefaultCameraScan(this, previewView);
+        mCameraScan.setOnScanResultCallback(result -> {
+            gotoBleConnectAct(result.getText());
+            return false;
+        })
+                .bindFlashlightView(llLight)
+                .setVibrate(true)
+                .startCamera();
 
     }
 
@@ -89,41 +77,33 @@ public class AddDeviceQRCodeStep2Activity extends BaseActivity {
             return;
         }
         if(view.getId() == R.id.llLight) {
-            if(isOpenFlashLight) {
-                mZBarView.openFlashlight();
-            } else {
-                mZBarView.closeFlashlight();
+            if(mCameraScan != null) {
+                mCameraScan.enableTorch(!mCameraScan.isTorchEnabled());
             }
-            isOpenFlashLight=!isOpenFlashLight;
-
         }
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-        if(mZBarView != null) {
-            // 打开后置摄像头开始预览，但是并未开始识别
-            mZBarView.startCamera();
-            // 显示扫描框，并开始识别
-            mZBarView.startSpotAndShowRect();
+        if(mCameraScan != null) {
+            mCameraScan.startCamera();
         }
     }
 
     @Override
     protected void onStop() {
-        if(mZBarView != null) {
-            mZBarView.stopCamera(); // 关闭摄像头预览，并且隐藏扫描框
-            mZBarView.closeFlashlight();
+        if(mCameraScan != null) {
+            mCameraScan.stopCamera();
         }
         super.onStop();
     }
 
     @Override
     protected void onDestroy() {
-        if(mZBarView != null) {
-            mZBarView.onDestroy(); // 销毁二维码扫描控件
-            mZBarView.closeFlashlight();
+        if(mCameraScan != null) {
+            mCameraScan.enableTorch(false);
+            mCameraScan.release();
         }
         super.onDestroy();
     }
