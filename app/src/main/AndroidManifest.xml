@@ -90,7 +90,26 @@
         <activity
             android:name=".ui.MainActivity"
             android:screenOrientation="portrait"
-            android:configChanges="orientation|keyboardHidden" />
+            android:configChanges="orientation|keyboardHidden">
+
+            <!--注册scheme-->
+            <intent-filter android:label="alexa">
+                <!--必有项-->
+                <action android:name="android.intent.action.VIEW" />
+                <!--表示该页面可以被隐式调用，必须加上该项-->
+                <category android:name="android.intent.category.DEFAULT" />
+                <!--BROWSABLE指定该Activity能被浏览器安全调用-->
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <!--协议部分-->
+                <!--声明自定义scheme，类似于http, https-->
+                <data
+                    android:host="test.irevolo.com"
+                    android:scheme="https"
+                    android:pathPrefix="/triple"/>
+            </intent-filter>
+
+        </activity>
         <activity
             android:name=".ui.sign.RegisterActivity"
             android:screenOrientation="portrait" />
@@ -251,7 +270,7 @@
             android:name=".ui.ShareDeviceActivity"
             android:screenOrientation="portrait">
             <!--注册scheme-->
-            <intent-filter android:label="test1">
+            <intent-filter android:label="share User">
                 <!--必有项-->
                 <action android:name="android.intent.action.VIEW" />
                 <!--表示该页面可以被隐式调用，必须加上该项-->

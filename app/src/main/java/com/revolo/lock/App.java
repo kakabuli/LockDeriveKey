@@ -544,6 +544,7 @@ public class App extends Application {
     /*--------------------------------- 地理围栏功能 --------------------------------*/
 
     // TODO: 2021/4/20 现在的写法是存在问题，因为是基于一个设备来考虑的，如果出现多设备，这方案后续是需要修改的。
+    // TODO: 2021/5/13 需要全局监听地理位置来实现地理围栏功能，国内google获取的坐标是火星坐标，存在很大偏差（但设备是海外的，所以最好直接在海外测试）
     private final CompositeDisposable mCompositeDisposable = new CompositeDisposable();
     private Disposable mApproachOpenDisposable;
     private BleBean mGeoFenceBleBean;

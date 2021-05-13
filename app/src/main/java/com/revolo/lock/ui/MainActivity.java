@@ -1,6 +1,7 @@
 package com.revolo.lock.ui;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 
@@ -17,6 +18,8 @@ import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.NavigationUI;
 
+import timber.log.Timber;
+
 
 public class MainActivity extends BaseActivity {
 
@@ -29,6 +32,13 @@ public class MainActivity extends BaseActivity {
             String command = intent.getStringExtra(Constant.COMMAND);
             isGotoAddDeviceAct = command.equals(Constant.ADD_DEVICE);
         }
+        getAlexaIntent(getIntent());
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        getAlexaIntent(intent);
     }
 
     @Override
@@ -55,6 +65,20 @@ public class MainActivity extends BaseActivity {
     @Override
     public void onDebouncingClick(@NonNull View view) {
 
+    }
+
+    private void getAlexaIntent(Intent intent) {
+        String action = intent.getAction();
+        if(Intent.ACTION_VIEW.equals(action)) {
+            Uri data = getIntent().getData();
+
+            if (data != null) {
+                String code = data.getQueryParameter("code");
+                String scope = data.getQueryParameter("scope");
+                String state = data.getQueryParameter("state");
+                Timber.d("code: %1s, scope: %2s, state: %3s", code, scope, state);
+            }
+        }
     }
 
 }

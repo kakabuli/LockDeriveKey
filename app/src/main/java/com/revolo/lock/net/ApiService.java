@@ -96,7 +96,6 @@ import com.revolo.lock.bean.respone.UploadOpenDoorRecordBeanRsp;
 import com.revolo.lock.bean.respone.UploadUserAvatarBeanRsp;
 
 import java.util.List;
-import java.util.Map;
 
 import io.reactivex.Observable;
 import okhttp3.MultipartBody;

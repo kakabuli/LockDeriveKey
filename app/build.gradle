@@ -56,10 +56,10 @@ android {
     android.applicationVariants.all { variant ->
         variant.outputs.all {
             def date = new Date().format("yyyyMMdd" , TimeZone.getDefault())
-            if(variant.buildType.name.equals('debug')){
+            if(variant.buildType.name == 'debug'){
                 outputFileName = "revolo_debug${date}_${versionName}.apk"
             }
-            if(variant.buildType.name.equals('release')){
+            if(variant.buildType.name == 'release'){
                 outputFileName = "revolo${versionCode}_${versionName}_release.apk"
             }
         }
@@ -175,4 +175,6 @@ dependencies {
     // Android - Use Guava in your implementation only:
     // 因为zxing-lite这个库使用到guava，在部分手机上没有集成这个，也会导致出现问题，所以集成进来
     implementation("com.google.guava:guava:30.1.1-android")
+    // Gson
+    implementation 'com.google.code.gson:gson:2.8.6'
 }
