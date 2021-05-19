@@ -116,7 +116,6 @@ public class SignSelectActivity extends BaseActivity {
         if(isUseGestureCode) {
             Intent intent = new Intent(this, DrawHandPwdAutoLoginActivity.class);
             startActivity(intent);
-            finish();
         }
     }
 

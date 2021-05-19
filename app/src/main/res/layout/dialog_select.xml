@@ -13,6 +13,8 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="35pt"
         tools:text="@string/dialog_tip_incorrect_input_please_try_again"
+        android:paddingStart="24dp"
+        android:paddingEnd="24dp"
         android:textColor="@color/c333333"
         android:textSize="15pt"
         android:gravity="center"

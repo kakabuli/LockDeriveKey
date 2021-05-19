@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -41,12 +42,13 @@ public class UserManagementActivity extends BaseActivity {
     private SharedUserListAdapter mSharedUserListAdapter;
     private BleDeviceLocal mBleDeviceLocal;
     private RecyclerView mRvSharedUser;
+    private LinearLayout mLinearLayout;
 
     @Override
     public void initData(@Nullable Bundle bundle) {
         mBleDeviceLocal = App.getInstance().getBleDeviceLocal();
         // TODO: 2021/3/8 处理
-        if(mBleDeviceLocal == null) {
+        if (mBleDeviceLocal == null) {
             finish();
         }
     }
@@ -66,16 +68,17 @@ public class UserManagementActivity extends BaseActivity {
                             startActivity(intent);
                         });
         mRvSharedUser = findViewById(R.id.rvSharedUser);
+        mLinearLayout = findViewById(R.id.linearLayout);
         mSharedUserListAdapter = new SharedUserListAdapter(R.layout.item_shared_user_rv);
         mSharedUserListAdapter.setOnItemClickListener(new OnItemClickListener() {
             @Override
             public void onItemClick(@NonNull BaseQuickAdapter<?, ?> adapter, @NonNull View view, int position) {
-                if(position < 0) {
+                if (position < 0) {
                     Timber.e("position: %1d", position);
                     return;
                 }
                 int shareType = mSharedUserListAdapter.getItem(position).getShareType();
-                if(shareType == 3||shareType == 4||shareType == 5) {
+                if (shareType == 3 || shareType == 4 || shareType == 5) {
                     return;
                 }
                 Intent intent = new Intent(UserManagementActivity.this, SharedUserDetailActivity.class);
@@ -86,13 +89,14 @@ public class UserManagementActivity extends BaseActivity {
         });
         mRvSharedUser.setLayoutManager(new LinearLayoutManager(this));
         mRvSharedUser.setAdapter(mSharedUserListAdapter);
+        mSharedUserListAdapter.setEmptyView(R.layout.empty_view_share_user_list);
         initLoading("Loading...");
     }
 
     @Override
     public void doBusiness() {
         String firstName = App.getInstance().getUser().getFirstName();
-        ((TextView) findViewById(R.id.tvUserShared)).setText((TextUtils.isEmpty(firstName)?"":firstName)+"'s Shared");
+        ((TextView) findViewById(R.id.tvUserShared)).setText((TextUtils.isEmpty(firstName) ? "" : firstName) + "'s Shared");
         getAllSharedUserFromLock();
     }
 
@@ -102,20 +106,20 @@ public class UserManagementActivity extends BaseActivity {
     }
 
     private void getAllSharedUserFromLock() {
-        if(!checkNetConnectFail()) {
+        if (!checkNetConnectFail()) {
             return;
         }
-        if(App.getInstance().getUserBean() == null) {
+        if (App.getInstance().getUserBean() == null) {
             Timber.e("getAllSharedUserFromLock App.getInstance().getUserBean() == null");
             return;
         }
         String uid = App.getInstance().getUserBean().getUid();
-        if(TextUtils.isEmpty(uid)) {
+        if (TextUtils.isEmpty(uid)) {
             Timber.e("getAllSharedUserFromLock uid is empty");
             return;
         }
         String token = App.getInstance().getUserBean().getToken();
-        if(TextUtils.isEmpty(token)) {
+        if (TextUtils.isEmpty(token)) {
             Timber.e("getAllSharedUserFromLock token is empty");
             return;
         }
@@ -134,26 +138,26 @@ public class UserManagementActivity extends BaseActivity {
             public void onNext(@NonNull GetAllSharedUserFromLockBeanRsp rsp) {
                 dismissLoading();
                 String code = rsp.getCode();
-                if(TextUtils.isEmpty(code)) {
+                if (TextUtils.isEmpty(code)) {
                     Timber.e("getAllSharedUserFromLock code is empty");
                     return;
                 }
-                if(!code.equals("200")) {
-                    if(code.equals("444")) {
+                if (!code.equals("200")) {
+                    if (code.equals("444")) {
                         App.getInstance().logout(true, UserManagementActivity.this);
                         return;
                     }
                     Timber.e("getAllSharedUserFromLock code: %1s, msg: %2s", code, rsp.getMsg());
                     return;
                 }
-                if(rsp.getData() == null) {
-                    mRvSharedUser.setVisibility(View.GONE);
+                if (rsp.getData() == null) {
+                    mLinearLayout.setVisibility(View.GONE);
                     return;
                 }
-                if(rsp.getData().isEmpty()) {
-                    mRvSharedUser.setVisibility(View.GONE);
+                if (rsp.getData().isEmpty()) {
+                    mLinearLayout.setVisibility(View.GONE);
                 } else {
-                    mRvSharedUser.setVisibility(View.VISIBLE);
+                    mLinearLayout.setVisibility(View.VISIBLE);
                 }
                 mSharedUserListAdapter.setList(rsp.getData());
             }

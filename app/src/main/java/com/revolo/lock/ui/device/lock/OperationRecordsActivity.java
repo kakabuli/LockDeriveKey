@@ -1,6 +1,6 @@
 package com.revolo.lock.ui.device.lock;
 
-import android.app.DatePickerDialog;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
@@ -12,25 +12,26 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 
-import com.blankj.utilcode.util.ThreadUtils;
+import com.bigkoo.pickerview.builder.TimePickerBuilder;
+import com.bigkoo.pickerview.view.TimePickerView;
 import com.blankj.utilcode.util.TimeUtils;
 import com.blankj.utilcode.util.ToastUtils;
+import com.contrarywind.view.WheelView;
 import com.revolo.lock.App;
 import com.revolo.lock.LocalState;
 import com.revolo.lock.R;
-
 import com.revolo.lock.adapter.OpRecordsAdapter;
 import com.revolo.lock.base.BaseActivity;
+import com.revolo.lock.bean.OperationRecords;
 import com.revolo.lock.bean.request.LockRecordBeanReq;
 import com.revolo.lock.bean.request.UpdateLockRecordBeanReq;
 import com.revolo.lock.bean.respone.LockRecordBeanRsp;
 import com.revolo.lock.bean.respone.UpdateLockRecordBeanRsp;
-import com.revolo.lock.bean.OperationRecords;
 import com.revolo.lock.ble.BleByteUtil;
-import com.revolo.lock.ble.bean.BleBean;
 import com.revolo.lock.ble.BleCommandFactory;
 import com.revolo.lock.ble.BleResultProcess;
 import com.revolo.lock.ble.OnBleDeviceListener;
+import com.revolo.lock.ble.bean.BleBean;
 import com.revolo.lock.ble.bean.BleResultBean;
 import com.revolo.lock.net.HttpRequest;
 import com.revolo.lock.net.ObservableDecorator;
@@ -43,8 +44,11 @@ import com.scwang.smart.refresh.layout.listener.OnLoadMoreListener;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -824,21 +828,56 @@ public class OperationRecordsActivity extends BaseActivity {
     }
 
     private void showDatePicker() {
-        DatePickerDialog datePickerDialog = new DatePickerDialog(this, R.style.MyTimePickerDialogTheme);
-        datePickerDialog.setOnDateSetListener((view, year, month, dayOfMonth) -> {
-            // TODO: 2021/2/4 date
-            showLoading();
-            month += 1;
-            String date = year + "-" + (month < 10 ? "0" + month : month) + "-" + (dayOfMonth < 10 ? "0" + dayOfMonth : dayOfMonth);
-            long startTime = TimeUtils.string2Millis(date + " 00:00:00");
-            long endTime = TimeUtils.string2Millis(date + " 23:59:59");
-            ThreadUtils.getSinglePool().execute(() -> {
-                searchRecordsFromDate(date, startTime, endTime);
-            });
 
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+
+        TimePickerBuilder timePickerBuilder = new TimePickerBuilder(this, (date, v) -> {
+            OperationRecordsActivity.this.showLoading();
+            String time = dateFormat.format(date);
+            long startTime = TimeUtils.string2Millis(time + " 00:00:00");
+            long endTime = TimeUtils.string2Millis(time + " 23:59:59");
+            searchRecordsFromDate(time, startTime, endTime);
         });
-        datePickerDialog.setCancelable(true);
-        datePickerDialog.show();
+
+        timePickerBuilder.setCancelColor(Color.parseColor("#999999"))
+                .setDividerColor(Color.parseColor("#f7f7f7"))
+                .setSubmitColor(Color.parseColor("#2c68ff"))
+                .setTitleColor(Color.parseColor("#333333"))
+                .setTextColorCenter(Color.parseColor("#333333"))
+                .setTextColorOut(Color.parseColor("#999999"))
+                .setDividerColor(Color.parseColor("#f7f7f7"))
+                .isCenterLabel(false).setCancelText("cancel")
+                .setSubmitText("confirm")
+                .setBgColor(Color.parseColor("#ffffff"))
+                .setItemVisibleCount(3).setContentTextSize(16)
+                .setTitleBgColor(Color.parseColor("#ffffff"))
+                .setLabel("", "", "", "", "", "")
+                .setLineSpacingMultiplier(3f)
+                .setDividerType(WheelView.DividerType.FILL)
+                .setTextXOffset(0, 0, 0, 0, 0, 0);
+
+
+        TimePickerView timePickerView = timePickerBuilder.build();
+        timePickerView.setDate(Calendar.getInstance());
+        timePickerView.setTitleText("Date");
+        timePickerView.show();
+
+
+//        DatePickerDialog datePickerDialog = new DatePickerDialog(this, R.style.MyTimePickerDialogTheme);
+//        datePickerDialog.setOnDateSetListener((view, year, month, dayOfMonth) -> {
+//            // TODO: 2021/2/4 date
+//            showLoading();
+//            month += 1;
+//            String date = year + "-" + (month < 10 ? "0" + month : month) + "-" + (dayOfMonth < 10 ? "0" + dayOfMonth : dayOfMonth);
+//            long startTime = TimeUtils.string2Millis(date + " 00:00:00");
+//            long endTime = TimeUtils.string2Millis(date + " 23:59:59");
+//            ThreadUtils.getSinglePool().execute(() -> {
+//                searchRecordsFromDate(date, startTime, endTime);
+//            });
+//
+//        });
+//        datePickerDialog.setCancelable(true);
+//        datePickerDialog.show();
     }
 
     private void searchRecordsFromDate(String date, long startTime, long endTime) {

@@ -49,7 +49,7 @@
     <string name="get_code">Get code</string>
     <string name="verification_code">Verification code</string>
     <string name="complete">Complete</string>
-    
+
     <!-- HomeFragment -->
     <string name="tip_home_page">Welcome to use the\n Revolo smart door lock</string>
     <string name="title_my_devices">My devices</string>
@@ -472,4 +472,6 @@
     <string name="t_add_input_new_pwd_full">Password library full</string>
     <string name="t_open_wifi_tip_low_power">The battery power of door lock is low, please replace the battery in time.</string>
     <string name="t_pass_word_list_nothing">No password yet~</string>
+    <string name="t_shared_users_list_nothing">No users shared yet~</string>
+    <string name="t_closed_wifi_connect_msg">WiFi disconnected. Reboot the WiFi will reallocate the network.</string>
 </resources>

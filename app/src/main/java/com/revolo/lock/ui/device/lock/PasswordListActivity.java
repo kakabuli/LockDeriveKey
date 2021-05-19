@@ -68,7 +68,6 @@ import static com.revolo.lock.ble.BleProtocolState.CMD_SY_KEY_STATE;
  * desc   : 密码列表界面
  */
 public class PasswordListActivity extends BaseActivity {
-
     private PasswordListAdapter mPasswordListAdapter;
     private BleDeviceLocal mBleDeviceLocal;
     private RefreshLayout mRefreshLayout;
