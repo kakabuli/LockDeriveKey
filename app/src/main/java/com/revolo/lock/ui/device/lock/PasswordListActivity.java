@@ -5,10 +5,13 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
+import android.widget.LinearLayout;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -34,6 +37,7 @@ import com.revolo.lock.ble.BleResultProcess;
 import com.revolo.lock.ble.OnBleDeviceListener;
 import com.revolo.lock.ble.bean.BleBean;
 import com.revolo.lock.ble.bean.BleResultBean;
+import com.revolo.lock.dialog.MessageDialog;
 import com.revolo.lock.net.HttpRequest;
 import com.revolo.lock.net.ObservableDecorator;
 import com.revolo.lock.room.entity.BleDeviceLocal;
@@ -68,11 +72,12 @@ public class PasswordListActivity extends BaseActivity {
     private PasswordListAdapter mPasswordListAdapter;
     private BleDeviceLocal mBleDeviceLocal;
     private RefreshLayout mRefreshLayout;
+    private MessageDialog mPasswordFull;
 
     @Override
     public void initData(@Nullable Bundle bundle) {
         mBleDeviceLocal = App.getInstance().getBleDeviceLocal();
-        if(mBleDeviceLocal == null) {
+        if (mBleDeviceLocal == null) {
             finish();
         }
     }
@@ -84,12 +89,26 @@ public class PasswordListActivity extends BaseActivity {
 
     @Override
     public void initView(@Nullable Bundle savedInstanceState, @Nullable View contentView) {
+
+        mPasswordFull = new MessageDialog(this);
+        mPasswordFull.setMessage(getString(R.string.t_add_input_new_pwd_full));
+        mPasswordFull.setOnListener(v -> {
+            if (mPasswordFull != null) {
+                mPasswordFull.dismiss();
+            }
+        });
         useCommonTitleBar(getString(R.string.password))
                 .setRight(ContextCompat.getDrawable(this, R.drawable.ic_home_icon_add),
                         v -> {
-                    Intent intent = new Intent(this, AddInputNewPwdActivity.class);
-                    startActivity(intent);
-                });
+                            if (mPasswordListAdapter != null && mPasswordListAdapter.getItemCount() < 20) {
+                                Intent intent = new Intent(this, AddInputNewPwdActivity.class);
+                                startActivity(intent);
+                            } else {
+                                if (mPasswordFull != null) {
+                                    mPasswordFull.show();
+                                }
+                            }
+                        });
         RecyclerView rvPwdList = findViewById(R.id.rvPwdList);
         rvPwdList.setLayoutManager(new LinearLayoutManager(this));
         mPasswordListAdapter = new PasswordListAdapter(R.layout.item_pwd_list_rv);
@@ -103,6 +122,7 @@ public class PasswordListActivity extends BaseActivity {
             }
         });
         rvPwdList.setAdapter(mPasswordListAdapter);
+        mPasswordListAdapter.setEmptyView(R.layout.empty_view_password_list);
         initLoading("Loading...");
 
         mRefreshLayout = findViewById(R.id.refreshLayout);
@@ -488,23 +508,22 @@ public class PasswordListActivity extends BaseActivity {
         if(bean.getCMD() == CMD_SY_KEY_STATE) {
             checkPwdIsExist(bean);
         } else if(bean.getCMD() == CMD_KEY_ATTRIBUTES_READ) {
-            String name = App.getInstance().getCacheDiskUtils().getString("pwdName"+mCurrentSearchNum);
             byte attribute = bean.getPayload()[0];
             if(attribute == KEY_SET_ATTRIBUTE_ALWAYS) {
-                addPermanentPwd(name);
+                addPermanentPwd();
             } else if(attribute == KEY_SET_ATTRIBUTE_TIME_KEY) {
                 // TODO: 2021/2/7 时间高低位反回来取
-                addTimePwd(bean, name);
+                addTimePwd(bean);
             } else if(attribute == KEY_SET_ATTRIBUTE_WEEK_KEY) {
                 // TODO: 2021/2/7 时间高低位反回来取
-                addWeeklyPwd(bean, name);
+                addWeeklyPwd(bean);
             }
             runOnUiThread(() -> mPasswordListAdapter.setList(mDevicePwdBeanFormBle));
             mHandler.postDelayed(mSearchPwdListRunnable, 20);
         }
     }
 
-    private void addPermanentPwd(String name) {
+    private void addPermanentPwd() {
         Timber.d("addPermanentPwd num: %1s", mCurrentSearchNum);
         DevicePwdBean devicePwdBean = new DevicePwdBean();
         devicePwdBean.setPwdNum(mCurrentSearchNum);
@@ -513,11 +532,11 @@ public class PasswordListActivity extends BaseActivity {
         devicePwdBean.setCreateTime(TimeUtils.getNowMills()/1000);
         devicePwdBean.setDeviceId(mBleDeviceLocal.getId());
         devicePwdBean.setAttribute(BleCommandState.KEY_SET_ATTRIBUTE_ALWAYS);
-        devicePwdBean.setPwdName(name);
+        devicePwdBean.setPwdName(""+mCurrentSearchNum);
         mDevicePwdBeanFormBle.add(devicePwdBean);
     }
 
-    private void addTimePwd(BleResultBean bean, String name) {
+    private void addTimePwd(BleResultBean bean) {
         byte[] startTimeBytes = new byte[4];
         byte[] endTimeBytes = new byte[4];
         System.arraycopy(bean.getPayload(), 2, startTimeBytes, 0, startTimeBytes.length);
@@ -526,7 +545,7 @@ public class PasswordListActivity extends BaseActivity {
         long endTimeMill = BleByteUtil.bytesToLong(BleCommandFactory.littleMode(endTimeBytes));
         DevicePwdBean devicePwdBean = new DevicePwdBean();
         devicePwdBean.setDeviceId(mBleDeviceLocal.getId());
-        devicePwdBean.setPwdName(name);
+        devicePwdBean.setPwdName(""+mCurrentSearchNum);
         devicePwdBean.setPwdNum(mCurrentSearchNum);
         devicePwdBean.setAttribute(KEY_SET_ATTRIBUTE_TIME_KEY);
         devicePwdBean.setStartTime(startTimeMill);
@@ -534,7 +553,7 @@ public class PasswordListActivity extends BaseActivity {
         mDevicePwdBeanFormBle.add(devicePwdBean);
     }
 
-    private void addWeeklyPwd(BleResultBean bean, String name) {
+    private void addWeeklyPwd(BleResultBean bean) {
         byte[] weekBytes = BleByteUtil.byteToBit(bean.getPayload()[1]);
         Timber.d("addWeeklyPwd num: %1s week: %1s", mCurrentSearchNum, ConvertUtils.bytes2HexString(weekBytes));
         byte[] startTimeBytes = new byte[4];
@@ -546,7 +565,7 @@ public class PasswordListActivity extends BaseActivity {
         DevicePwdBean devicePwdBean = new DevicePwdBean();
         devicePwdBean.setDeviceId(mBleDeviceLocal.getId());
         devicePwdBean.setPwdNum(mCurrentSearchNum);
-        devicePwdBean.setPwdName(name);
+        devicePwdBean.setPwdName(""+mCurrentSearchNum);
         devicePwdBean.setWeekly(bean.getPayload()[1]);
         devicePwdBean.setStartTime(startTimeMill);
         devicePwdBean.setEndTime(endTimeMill);
@@ -634,4 +653,10 @@ public class PasswordListActivity extends BaseActivity {
         mWillSearchList.remove(0);
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        mPasswordFull = null;
+    }
 }

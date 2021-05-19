@@ -65,7 +65,6 @@ public class AddInputNewPwdActivity extends BaseActivity {
             } else {
                 ToastUtils.showShort(R.string.t_please_input_right_pwd);
             }
-
         }
     }
 }

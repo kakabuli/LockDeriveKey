@@ -29,7 +29,7 @@
         android:layout_marginTop="20pt"
         android:textColor="@color/c333333"
         android:textSize="15pt"
-        android:text="@string/tip_you_can_set_4_12_valid_passwords"
+        android:text="@string/tip_you_can_set_4_10_valid_passwords"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/imageView8" />
@@ -42,7 +42,7 @@
         android:layout_marginTop="50pt"
         android:drawableStart="@drawable/ic_register_icon_password"
         android:drawablePadding="41pt"
-        android:maxLength="12"
+        android:maxLength="10"
         android:hint="@string/hint_please_enter_password"
         android:inputType="numberSigned"
         android:paddingStart="15pt"

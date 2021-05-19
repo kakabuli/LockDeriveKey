@@ -28,8 +28,9 @@ import com.revolo.lock.ble.BleResultProcess;
 import com.revolo.lock.ble.OnBleDeviceListener;
 import com.revolo.lock.ble.bean.BleBean;
 import com.revolo.lock.ble.bean.BleResultBean;
+import com.revolo.lock.dialog.MessageDialog;
 import com.revolo.lock.mqtt.MqttCommandFactory;
-import com.revolo.lock.mqtt.MqttConstant;
+import com.revolo.lock.mqtt.MQttConstant;
 import com.revolo.lock.mqtt.bean.MqttData;
 import com.revolo.lock.mqtt.bean.publishresultbean.WifiLockApproachOpenResponseBean;
 import com.revolo.lock.mqtt.bean.publishresultbean.WifiLockCloseWifiResponseBean;
@@ -61,6 +62,8 @@ public class WifiSettingActivity extends BaseActivity {
     private boolean isWifiConnected = false;
     private TextView mTvWifiName;
 
+    private MessageDialog mPowerLowDialog;
+
     @Override
     public void initData(@Nullable Bundle bundle) {
         mBleDeviceLocal = App.getInstance().getBleDeviceLocal();
@@ -81,12 +84,20 @@ public class WifiSettingActivity extends BaseActivity {
         mTvWifiName = findViewById(R.id.tvWifiName);
         initLoading("Setting...");
         applyDebouncingClickListener(mIvWifiEnable, findViewById(R.id.tvSettingTitle), findViewById(R.id.clTip));
+
+        mPowerLowDialog = new MessageDialog(this);
+        mPowerLowDialog.setMessage(getString(R.string.t_open_wifi_tip_low_power));
+        mPowerLowDialog.setOnListener(v -> {
+            if (mPowerLowDialog != null) {
+                mPowerLowDialog.dismiss();
+            }
+        });
     }
 
     @Override
     public void doBusiness() {
         updateUI();
-        if(mBleDeviceLocal.getConnectedType() != LocalState.DEVICE_CONNECT_TYPE_WIFI) {
+        if (mBleDeviceLocal.getConnectedType() != LocalState.DEVICE_CONNECT_TYPE_WIFI) {
             initBleListener();
         }
 
@@ -94,22 +105,31 @@ public class WifiSettingActivity extends BaseActivity {
 
     @Override
     public void onDebouncingClick(@NonNull View view) {
-        if(view.getId() == R.id.ivWifiEnable) {
-            if(isWifiConnected) {
-                closeWifiFromMQtt();
-            } else {
-                String wifiName = mBleDeviceLocal.getConnectedWifiName();
-                if(TextUtils.isEmpty(wifiName)) {
-                    gotoAddWifiAct();
-                } else {
-                    openWifiFromBle();
+        if (view.getId() == R.id.ivWifiEnable) {
+
+            int i = mBleDeviceLocal.getLockPower();
+            if (mBleDeviceLocal.getLockPower() <= 20) {
+                // 低电量
+                if (mPowerLowDialog != null) {
+                    mPowerLowDialog.show();
                 }
+            } else {
+                if (isWifiConnected) {
+                    closeWifiFromMQtt();
+                } else {
+                    String wifiName = mBleDeviceLocal.getConnectedWifiName();
+                    if (TextUtils.isEmpty(wifiName)) {
+                        gotoAddWifiAct();
+                    } else {
+                        openWifiFromBle();
+                    }
+                }
+                return;
             }
-            return;
         }
-        if(view.getId() == R.id.clTip || view.getId() == R.id.tvSettingTitle) {
+        if (view.getId() == R.id.clTip || view.getId() == R.id.tvSettingTitle) {
             // TODO: 2021/4/1 先开启蓝牙再跳转
-            if(mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI) {
+            if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI) {
                 openBleFromMQtt();
             } else {
                 gotoAddWifiAct();
@@ -124,10 +144,10 @@ public class WifiSettingActivity extends BaseActivity {
     }
 
     private void updateUI() {
-        if(mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI) {
+        if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI) {
             // Wifi
             updateWifiState();
-        } else if(mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_BLE) {
+        } else if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_BLE) {
             // 蓝牙
             updateBleState();
         } else {
@@ -138,19 +158,19 @@ public class WifiSettingActivity extends BaseActivity {
     private Disposable mCloseWifiFromMQttDisposable;
 
     private void closeWifiFromMQtt() {
-        if(mMQttService == null) {
+        if (mMQttService == null) {
             Timber.e("closeWifiFromMQtt mMQttService == null");
             return;
         }
         showLoading();
         toDisposable(mCloseWifiFromMQttDisposable);
-        mCloseWifiFromMQttDisposable = mMQttService.mqttPublish(MqttConstant.getCallTopic(App.getInstance().getUserBean().getUid()),
+        mCloseWifiFromMQttDisposable = mMQttService.mqttPublish(MQttConstant.getCallTopic(App.getInstance().getUserBean().getUid()),
                 MqttCommandFactory.closeWifi(
                         mBleDeviceLocal.getEsn(),
                         BleCommandFactory
                                 .getPwd(ConvertUtils.hexString2Bytes(mBleDeviceLocal.getPwd1()),
                                         ConvertUtils.hexString2Bytes(mBleDeviceLocal.getPwd2()))))
-                .filter(mqttData -> mqttData.getFunc().equals(MqttConstant.CLOSE_WIFI))
+                .filter(mqttData -> mqttData.getFunc().equals(MQttConstant.CLOSE_WIFI))
                 .timeout(DEFAULT_TIMEOUT_SEC_VALUE, TimeUnit.SECONDS)
                 .subscribe(mqttData -> {
                     toDisposable(mCloseWifiFromMQttDisposable);
@@ -163,10 +183,10 @@ public class WifiSettingActivity extends BaseActivity {
     }
 
     private void processCloseWifiFromMQtt(MqttData mqttData) {
-        if(TextUtils.isEmpty(mqttData.getFunc())) {
+        if (TextUtils.isEmpty(mqttData.getFunc())) {
             return;
         }
-        if(mqttData.getFunc().equals(MqttConstant.CLOSE_WIFI)) {
+        if (mqttData.getFunc().equals(MQttConstant.CLOSE_WIFI)) {
             dismissLoading();
             Timber.d("closeWifiFromMqtt 关闭信息: %1s", mqttData);
             WifiLockCloseWifiResponseBean bean;
@@ -208,13 +228,13 @@ public class WifiSettingActivity extends BaseActivity {
         }
         showLoading();
         toDisposable(mOpenBleFromMQttDisposable);
-        mOpenBleFromMQttDisposable = mMQttService.mqttPublish(MqttConstant.getCallTopic(App.getInstance().getUserBean().getUid()),
+        mOpenBleFromMQttDisposable = mMQttService.mqttPublish(MQttConstant.getCallTopic(App.getInstance().getUserBean().getUid()),
                 MqttCommandFactory.approachOpen(
                         mBleDeviceLocal.getEsn(), 60/*用于临时开启蓝牙，用于使用蓝牙来重新配网*/,
                         BleCommandFactory.getPwd(
                                 ConvertUtils.hexString2Bytes(mBleDeviceLocal.getPwd1()),
                                 ConvertUtils.hexString2Bytes(mBleDeviceLocal.getPwd2()))))
-                .filter(mqttData -> mqttData.getFunc().equals(MqttConstant.APP_ROACH_OPEN))
+                .filter(mqttData -> mqttData.getFunc().equals(MQttConstant.APP_ROACH_OPEN))
                 .timeout(DEFAULT_TIMEOUT_SEC_VALUE, TimeUnit.SECONDS)
                 .subscribe(mqttData -> {
                     toDisposable(mOpenBleFromMQttDisposable);
@@ -231,7 +251,7 @@ public class WifiSettingActivity extends BaseActivity {
             Timber.e("publishApproachOpen mqttData.getFunc() is empty");
             return;
         }
-        if(mqttData.getFunc().equals(MqttConstant.APP_ROACH_OPEN)) {
+        if(mqttData.getFunc().equals(MQttConstant.APP_ROACH_OPEN)) {
             Timber.d("publishApproachOpen 无感开门: %1s", mqttData);
             WifiLockApproachOpenResponseBean bean;
             try {

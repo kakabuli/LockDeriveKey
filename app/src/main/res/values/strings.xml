@@ -84,7 +84,7 @@
     <string name="title_operation_records">Operation Records</string>
 
     <!-- AddNewPwdActivity -->
-    <string name="tip_you_can_set_4_12_valid_passwords">You can set 4&#8211;12 valid passwords</string>
+    <string name="tip_you_can_set_4_10_valid_passwords">You can set 4&#8211;10 valid passwords</string>
     <string name="hint_please_enter_password">Please enter password</string>
     <string name="title_add_password">Add password</string>
     <string name="select_permanent">Permanent</string>
@@ -469,4 +469,7 @@
     <string name="rq_use_album_needs_write_permission">If you want to use photo album needs write storage permission</string>
     <string name="title_share_to">Share To</string>
 
+    <string name="t_add_input_new_pwd_full">Password library full</string>
+    <string name="t_open_wifi_tip_low_power">The battery power of door lock is low, please replace the battery in time.</string>
+    <string name="t_pass_word_list_nothing">No password yet~</string>
 </resources>

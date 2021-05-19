@@ -35,6 +35,9 @@ public class LockRecord {
     @ColumnInfo(name = "lr_create_time")
     private long createTime;
 
+    @ColumnInfo(name = "lr_last_name")
+    private String lastName;
+
     public int getEventType() {
         return eventType;
     }
@@ -89,5 +92,13 @@ public class LockRecord {
 
     public void setCreateTime(long createTime) {
         this.createTime = createTime;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
     }
 }
