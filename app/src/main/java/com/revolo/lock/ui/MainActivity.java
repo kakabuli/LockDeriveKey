@@ -2,6 +2,7 @@ package com.revolo.lock.ui;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.MenuItem;
 import android.view.View;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -21,6 +22,7 @@ import androidx.navigation.ui.NavigationUI;
 public class MainActivity extends BaseActivity {
 
     private boolean isGotoAddDeviceAct = false;
+    private int isMainItemIndex=-1;
     
     @Override
     public void initData(@Nullable Bundle bundle) {
@@ -39,6 +41,16 @@ public class MainActivity extends BaseActivity {
     @Override
     public void initView(@Nullable Bundle savedInstanceState, @Nullable View contentView) {
         BottomNavigationView navView = findViewById(R.id.nav_view);
+        navView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                if(isMainItemIndex!=item.getGroupId()){
+                    isMainItemIndex=item.getItemId();
+                    return false;
+                }
+                return true;
+            }
+        });
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
         NavigationUI.setupWithNavController(navView, navController);
         App.getInstance().setMainActivity(this);
