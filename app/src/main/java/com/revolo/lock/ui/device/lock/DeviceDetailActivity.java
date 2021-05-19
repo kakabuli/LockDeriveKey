@@ -85,7 +85,12 @@ public class DeviceDetailActivity extends BaseActivity {
     @Override
     public void initView(@Nullable Bundle savedInstanceState, @Nullable View contentView) {
         // TODO: 2021/4/6 抽离文字
-        useCommonTitleBar("Homepage");
+        BleDeviceLocal mBleDeviceLocal=App.getInstance().getBleDeviceLocal();
+        if(null!=mBleDeviceLocal&&null!=mBleDeviceLocal.getName()&&!"".equals(mBleDeviceLocal.getName())){
+            useCommonTitleBar(mBleDeviceLocal.getName());
+        }else{
+            useCommonTitleBar("Homepage");
+        }
         initSignalWeakDialog();
     }
 
