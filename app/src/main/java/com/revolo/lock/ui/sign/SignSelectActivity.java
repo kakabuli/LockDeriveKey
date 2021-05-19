@@ -64,11 +64,11 @@ public class SignSelectActivity extends BaseActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if(requestCode == REQUEST_CODE_DRAW_GESTURE_CODE) {
+       /* if(requestCode == REQUEST_CODE_DRAW_GESTURE_CODE) {
             if(resultCode == RESULT_OK) {
                 autoLogin();
             }
-        }
+        }*/
     }
 
     private void verification() {
@@ -115,7 +115,8 @@ public class SignSelectActivity extends BaseActivity {
     private void gestureCode(boolean isUseGestureCode) {
         if(isUseGestureCode) {
             Intent intent = new Intent(this, DrawHandPwdAutoLoginActivity.class);
-            startActivityForResult(intent, REQUEST_CODE_DRAW_GESTURE_CODE);
+            startActivity(intent);
+            finish();
         }
     }
 
