@@ -53,10 +53,10 @@
 
         <TextView
             android:id="@+id/tvName"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginEnd="10pt"
-            tools:text="Tester333333333333333333333"
+            tools:text="Tester"
             android:textSize="14pt"
             android:textColor="@color/c333333"
             android:singleLine="true"
@@ -101,11 +101,12 @@
 
         <TextView
             android:id="@+id/tvWifiName"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginEnd="10pt"
-            tools:text="kaadas123dddddddddddd"
+            tools:text="kaadas123"
             android:textSize="14pt"
+            android:singleLine="true"
             android:textColor="@color/c333333"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintLeft_toRightOf="@+id/textView22"
