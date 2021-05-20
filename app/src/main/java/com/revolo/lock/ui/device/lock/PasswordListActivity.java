@@ -41,6 +41,7 @@ import com.revolo.lock.dialog.MessageDialog;
 import com.revolo.lock.net.HttpRequest;
 import com.revolo.lock.net.ObservableDecorator;
 import com.revolo.lock.room.entity.BleDeviceLocal;
+import com.revolo.lock.ui.view.SmartClassicsHeaderView;
 import com.scwang.smart.refresh.header.ClassicsHeader;
 import com.scwang.smart.refresh.layout.api.RefreshLayout;
 
@@ -126,7 +127,7 @@ public class PasswordListActivity extends BaseActivity {
 
         mRefreshLayout = findViewById(R.id.refreshLayout);
         mRefreshLayout.setEnableLoadMore(false);
-        mRefreshLayout.setRefreshHeader(new ClassicsHeader(this));
+        mRefreshLayout.setRefreshHeader(new SmartClassicsHeaderView(this));
         mRefreshLayout.setOnRefreshListener(refreshLayout -> searchPwdListFromNET());
     }
 

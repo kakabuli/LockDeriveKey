@@ -38,6 +38,7 @@ import com.revolo.lock.net.ObservableDecorator;
 import com.revolo.lock.room.AppDatabase;
 import com.revolo.lock.room.entity.BleDeviceLocal;
 import com.revolo.lock.room.entity.LockRecord;
+import com.revolo.lock.ui.view.SmartClassicsFooterView;
 import com.scwang.smart.refresh.footer.ClassicsFooter;
 import com.scwang.smart.refresh.layout.api.RefreshLayout;
 import com.scwang.smart.refresh.layout.listener.OnLoadMoreListener;
@@ -114,7 +115,7 @@ public class OperationRecordsActivity extends BaseActivity {
         mRefreshLayout = findViewById(R.id.refreshLayout);
         mRefreshLayout.setEnableRefresh(false);
 //        refreshLayout.setRefreshHeader(new ClassicsHeader(this));
-        mRefreshLayout.setRefreshFooter(new ClassicsFooter(this));
+        mRefreshLayout.setRefreshFooter(new SmartClassicsFooterView((this)));
 //        refreshLayout.setOnRefreshListener(new OnRefreshListener() {
 //            @Override
 //            public void onRefresh(RefreshLayout refreshlayout) {

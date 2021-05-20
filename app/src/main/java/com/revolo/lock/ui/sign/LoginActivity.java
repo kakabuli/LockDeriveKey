@@ -4,8 +4,12 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.text.Editable;
 import android.text.InputType;
 import android.text.TextUtils;
+import android.text.TextWatcher;
+import android.text.method.TextKeyListener;
+import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -52,6 +56,7 @@ public class LoginActivity extends BaseActivity {
 
     private EditText mEtEmail, mEtPwd;
     private boolean isShowPwd = true;
+    private String emailName = "";
 
     @Override
     public void initData(@Nullable Bundle bundle) {
@@ -67,23 +72,43 @@ public class LoginActivity extends BaseActivity {
     public void initView(@Nullable Bundle savedInstanceState, @Nullable View contentView) {
         useCommonTitleBar(getString(R.string.sign_in));
         mEtEmail = findViewById(R.id.etEmail);
+        mEtEmail.setOnFocusChangeListener(new android.view.View.
+                OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                if (hasFocus) {
+                    // 此处为得到焦点时的处理内容
+                    mEtEmail.setText(emailName);
+                } else {
+                    // 此处为失去焦点时的处理内容
+                    emailName = mEtEmail.getText().toString();
+                    if (null != emailName && !"".equals(emailName) && emailName.length() > 15) {
+                        String hintText = emailName.substring(0, 7) + "..." + emailName.substring(emailName.length() - 7, emailName.length());
+                        mEtEmail.setText(hintText);
+                    } else {
+                        mEtEmail.setText(emailName);
+                    }
+                }
+            }
+        });
         mEtPwd = findViewById(R.id.etPwd);
         applyDebouncingClickListener(findViewById(R.id.tvForgotPwd),
                 findViewById(R.id.ivEye), findViewById(R.id.btnSignIn));
 
-        if(getIntent().getBooleanExtra(Constant.IS_SHOW_DIALOG,false)){
+        if (getIntent().getBooleanExtra(Constant.IS_SHOW_DIALOG, false)) {
             //TODO:是否弹出token失效弹窗
             tokenDialog();
         }
         String mail = SPUtils.getInstance(REVOLO_SP).getString(USER_MAIL);
-        if(!TextUtils.isEmpty(mail)) {
+        if (!TextUtils.isEmpty(mail)) {
+            emailName=mail;
             mEtEmail.setText(mail);
         }
         initLoading("Loading...");
     }
 
     /**
-     *  弹出token失效弹窗
+     * 弹出token失效弹窗
      */
     private void tokenDialog() {
 
@@ -96,45 +121,45 @@ public class LoginActivity extends BaseActivity {
 
     @Override
     public void onDebouncingClick(@NonNull View view) {
-        if(view.getId() == R.id.tvForgotPwd) {
+        if (view.getId() == R.id.tvForgotPwd) {
             startActivity(new Intent(this, ForgetThePwdActivity.class));
             return;
         }
-        if(view.getId() == R.id.ivEye) {
+        if (view.getId() == R.id.ivEye) {
             openOrClosePwdEye();
             return;
         }
-        if(view.getId() == R.id.btnSignIn) {
+        if (view.getId() == R.id.btnSignIn) {
             login();
         }
     }
 
     private void openOrClosePwdEye() {
         ImageView ivEye = findViewById(R.id.ivEye);
-        ivEye.setImageResource(isShowPwd?R.drawable.ic_login_icon_display:R.drawable.ic_login_icon_hide);
+        ivEye.setImageResource(isShowPwd ? R.drawable.ic_login_icon_display : R.drawable.ic_login_icon_hide);
         EditText etPwd = findViewById(R.id.etPwd);
-        etPwd.setInputType(isShowPwd?
+        etPwd.setInputType(isShowPwd ?
                 InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
-                :(InputType.TYPE_CLASS_TEXT|InputType.TYPE_TEXT_VARIATION_PASSWORD));
+                : (InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD));
         isShowPwd = !isShowPwd;
     }
 
     private void login() {
-        if(!checkNetConnectFail()) {
+        if (!checkNetConnectFail()) {
             return;
         }
-        String mail = mEtEmail.getText().toString().trim();
+        String mail = emailName.trim();
         String pwd = mEtPwd.getText().toString();
         // TODO: 2021/1/26 提示语抽离同时修正
-        if(TextUtils.isEmpty(mail)) {
+        if (TextUtils.isEmpty(mail)) {
             ToastUtils.showShort(R.string.t_please_input_your_account);
             return;
         }
-        if(!RegexUtils.isEmail(mail)) {
+        if (!RegexUtils.isEmail(mail)) {
             ToastUtils.showShort(R.string.t_please_input_right_account);
             return;
         }
-        if(TextUtils.isEmpty(pwd)) {
+        if (TextUtils.isEmpty(pwd)) {
             ToastUtils.showShort(R.string.t_please_input_your_pwd);
             return;
         }
@@ -170,19 +195,19 @@ public class LoginActivity extends BaseActivity {
     }
 
     private void processLoginRsp(@NonNull MailLoginBeanRsp mailLoginBeanRsp, String mail) {
-        if(!mailLoginBeanRsp.getCode().equals("200")) {
+        if (!mailLoginBeanRsp.getCode().equals("200")) {
             // TODO: 2021/1/26 获取弹出错误的信息
             Timber.e("processLoginRsp 登录请求错误了！ code : %1s, msg: %2s",
                     mailLoginBeanRsp.getCode(), mailLoginBeanRsp.getMsg());
             ToastUtils.showShort(mailLoginBeanRsp.getMsg());
             return;
         }
-        if(mailLoginBeanRsp.getData() == null) {
+        if (mailLoginBeanRsp.getData() == null) {
             Timber.e("processLoginRsp mailLoginBeanRsp.getData() == null");
             return;
         }
         ThreadUtils.getSinglePool().execute(() -> {
-            if(mailLoginBeanRsp.getData() == null) {
+            if (mailLoginBeanRsp.getData() == null) {
                 Timber.e("processLoginRsp mailLoginBeanRsp.getData() == null");
                 return;
             }
@@ -207,17 +232,17 @@ public class LoginActivity extends BaseActivity {
 
     private void updateUser(String mail, @NotNull MailLoginBeanRsp.DataBean rsp) {
         User user = App.getInstance().getUserFromLocal(mail);
-        if(user == null) {
+        if (user == null) {
             user = new User();
             user.setMail(mail);
             user.setFirstName(rsp.getFirstName());
             user.setLastName(rsp.getLastName());
-            user.setRegisterTime(TimeUtils.string2Millis(rsp.getInsertTime())/1000);
+            user.setRegisterTime(TimeUtils.string2Millis(rsp.getInsertTime()) / 1000);
             AppDatabase.getInstance(this).userDao().insert(user);
         } else {
             user.setFirstName(rsp.getFirstName());
             user.setLastName(rsp.getLastName());
-            user.setRegisterTime(TimeUtils.string2Millis(rsp.getInsertTime())/1000);
+            user.setRegisterTime(TimeUtils.string2Millis(rsp.getInsertTime()) / 1000);
             AppDatabase.getInstance(this).userDao().update(user);
         }
     }

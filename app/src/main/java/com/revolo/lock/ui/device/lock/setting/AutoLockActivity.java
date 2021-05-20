@@ -314,7 +314,7 @@ public class AutoLockActivity extends BaseActivity {
     private void stopTrackingTouch(SeekBar seekBar) {
         int progress = seekBar.getProgress();
         if(progress >= 0 && progress < 10) {
-            mTvTime.setText("0s");
+            mTvTime.setText(getString(R.string.activity_auto_lock_immediately));
             mTime = 0;
         } else if(progress >= 10 && progress < 20) {
             mTvTime.setText("5s");
@@ -422,7 +422,7 @@ public class AutoLockActivity extends BaseActivity {
 
     private void progressChange(int progress) {
         if(progress >= 0 && progress < 10) {
-            mTvTime.setText("0s");
+            mTvTime.setText(getString(R.string.activity_auto_lock_immediately));
         } else if(progress >= 10 && progress < 20) {
             mTvTime.setText("5s");
         } else if(progress >= 20 && progress < 30) {
