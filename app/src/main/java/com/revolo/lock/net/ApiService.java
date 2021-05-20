@@ -33,6 +33,7 @@ import com.revolo.lock.bean.request.LockRecordBeanReq;
 import com.revolo.lock.bean.request.MailLoginBeanReq;
 import com.revolo.lock.bean.request.MailRegisterBeanReq;
 import com.revolo.lock.bean.request.OpenDoorRecordSearchBeanReq;
+import com.revolo.lock.bean.request.QuestionBeanReq;
 import com.revolo.lock.bean.request.SearchAlarmRecordBeanReq;
 import com.revolo.lock.bean.request.SearchKeyListBeanReq;
 import com.revolo.lock.bean.request.SearchProductNoBeanReq;
@@ -80,6 +81,7 @@ import com.revolo.lock.bean.respone.LogoutBeanRsp;
 import com.revolo.lock.bean.respone.MailLoginBeanRsp;
 import com.revolo.lock.bean.respone.MailRegisterBeanRsp;
 import com.revolo.lock.bean.respone.OpenDoorRecordSearchBeanRsp;
+import com.revolo.lock.bean.respone.QuestionBeanRsp;
 import com.revolo.lock.bean.respone.SearchAlarmRecordBeanRsp;
 import com.revolo.lock.bean.respone.SearchKeyListBeanRsp;
 import com.revolo.lock.bean.respone.SearchProductNoBeanRsp;
@@ -101,205 +103,210 @@ import java.util.Map;
 import io.reactivex.Observable;
 import okhttp3.MultipartBody;
 import retrofit2.http.Body;
+import retrofit2.http.GET;
 import retrofit2.http.Header;
 import retrofit2.http.Headers;
 import retrofit2.http.Multipart;
 import retrofit2.http.POST;
 import retrofit2.http.Part;
+import retrofit2.http.Path;
 
 public interface ApiService {
 
     @Headers({"Content-Type: application/json"})
     @POST("/user/login/getuserbymail")
-    Observable<MailLoginBeanRsp> login(@Body MailLoginBeanReq req, @Header("url_name") String  urlName);
+    Observable<MailLoginBeanRsp> login(@Body MailLoginBeanReq req, @Header("url_name") String urlName);
 
     @Headers({"Content-Type: application/json"})
     @POST("/wpflock/device/checkadmindev")
-    Observable<LockIsBindBeanRsp> lockIsBind(@Header("token") String token, @Body LockIsBindBeanReq req, @Header("url_name") String  urlName);
+    Observable<LockIsBindBeanRsp> lockIsBind(@Header("token") String token, @Body LockIsBindBeanReq req, @Header("url_name") String urlName);
 
     @Headers({"Content-Type: application/json"})
     @POST("/model/getpwdBySN")
-    Observable<GetPwd1BeanRsp> getPwd1(@Header("token") String token, @Body GetPwd1BeanReq req, @Header("url_name") String  urlName);
+    Observable<GetPwd1BeanRsp> getPwd1(@Header("token") String token, @Body GetPwd1BeanReq req, @Header("url_name") String urlName);
 
     @Headers({"Content-Type: application/json"})
     @POST("/wpflock/device/createadmindev")
-    Observable<AdminAddDeviceBeanRsp> adminAddDevice(@Header("token") String token, @Body AdminAddDeviceBeanReq req, @Header("url_name") String  urlName);
+    Observable<AdminAddDeviceBeanRsp> adminAddDevice(@Header("token") String token, @Body AdminAddDeviceBeanReq req, @Header("url_name") String urlName);
 
     @Headers({"Content-Type: application/json"})
     @POST("/wpflock/device/unbind")
-    Observable<DeviceUnbindBeanRsp> unbindDevice(@Header("token") String token, @Body DeviceUnbindBeanReq req, @Header("url_name") String  urlName);
+    Observable<DeviceUnbindBeanRsp> unbindDevice(@Header("token") String token, @Body DeviceUnbindBeanReq req, @Header("url_name") String urlName);
 
     @Headers({"Content-Type: application/json"})
     @POST("/wpflock/device/updateBleVersionType")
-    Observable<ChangeBleVerBeanRsp> changeBleVer(@Header("token") String token, @Body ChangeBleVerBeanReq req, @Header("url_name") String  urlName);
+    Observable<ChangeBleVerBeanRsp> changeBleVer(@Header("token") String token, @Body ChangeBleVerBeanReq req, @Header("url_name") String urlName);
 
     @Headers({"Content-Type: application/json"})
     @POST("/wpflock/device/updateBleVersion")
-    Observable<ChangeDeviceHardVerBeanRsp> changeDeviceHardVer(@Header("token") String token, @Body ChangeDeviceHardVerBeanReq req, @Header("url_name") String  urlName);
+    Observable<ChangeDeviceHardVerBeanRsp> changeDeviceHardVer(@Header("token") String token, @Body ChangeDeviceHardVerBeanReq req, @Header("url_name") String urlName);
 
     @Headers({"Content-Type: application/json"})
     @POST("/wpflock/device/updateFunctionSet")
-    Observable<ChangeFeaturesBeanRsp> updateFunctionSet(@Header("token") String token, @Body ChangeFeaturesBeanReq req, @Header("url_name") String  urlName);
+    Observable<ChangeFeaturesBeanRsp> updateFunctionSet(@Header("token") String token, @Body ChangeFeaturesBeanReq req, @Header("url_name") String urlName);
 
     @Headers({"Content-Type: application/json"})
     @POST("/wpflock/device/deleteadmindev")
-    Observable<DelDeviceBeanRsp> delDevice(@Header("token") String token, @Body DelDeviceBeanReq req, @Header("url_name") String  urlName);
+    Observable<DelDeviceBeanRsp> delDevice(@Header("token") String token, @Body DelDeviceBeanReq req, @Header("url_name") String urlName);
 
     @Headers({"Content-Type: application/json"})
     @POST("/wpflock/device/updateAdminlockNickName")
-    Observable<ChangeDeviceNameBeanRsp> changeDeviceNickName(@Header("token") String token, @Body ChangeDeviceNameBeanReq req, @Header("url_name") String  urlName);
+    Observable<ChangeDeviceNameBeanRsp> changeDeviceNickName(@Header("token") String token, @Body ChangeDeviceNameBeanReq req, @Header("url_name") String urlName);
 
     @Headers({"Content-Type: application/json"})
     @POST("/deviceModel/search")
-    Observable<SearchProductNoBeanRsp> searchDevice(@Header("token") String token, @Body SearchProductNoBeanReq req, @Header("url_name") String  urlName);
+    Observable<SearchProductNoBeanRsp> searchDevice(@Header("token") String token, @Body SearchProductNoBeanReq req, @Header("url_name") String urlName);
 
     @Headers({"Content-Type: application/json"})
     @POST("/wpflock/device/uploadopenlocklist")
-    Observable<UploadOpenDoorRecordBeanRsp> uploadOpenDoorRecord(@Header("token") String token, @Body UploadOpenDoorRecordBeanReq req, @Header("url_name") String  urlName);
+    Observable<UploadOpenDoorRecordBeanRsp> uploadOpenDoorRecord(@Header("token") String token, @Body UploadOpenDoorRecordBeanReq req, @Header("url_name") String urlName);
 
     @Headers({"Content-Type: application/json"})
     @POST("/wpflock/device/findopenlockrecord")
-    Observable<OpenDoorRecordSearchBeanRsp> searchOpenLockRecord(@Header("token") String token, @Body OpenDoorRecordSearchBeanReq req, @Header("url_name") String  urlName);
+    Observable<OpenDoorRecordSearchBeanRsp> searchOpenLockRecord(@Header("token") String token, @Body OpenDoorRecordSearchBeanReq req, @Header("url_name") String urlName);
 
     @Headers({"Content-Type: application/json"})
     @POST("/wpflock/device/uploadalarmlist")
-    Observable<UploadAlarmRecordBeanRsp> uploadAlarmRecord(@Header("token") String token, @Body UploadAlarmRecordBeanReq req, @Header("url_name") String  urlName);
+    Observable<UploadAlarmRecordBeanRsp> uploadAlarmRecord(@Header("token") String token, @Body UploadAlarmRecordBeanReq req, @Header("url_name") String urlName);
 
     @Headers({"Content-Type: application/json"})
     @POST("/wifi/alarm/list")
-    Observable<SearchAlarmRecordBeanRsp> searchAlarmRecord(@Header("token") String token, @Body SearchAlarmRecordBeanReq req, @Header("url_name") String  urlName);
+    Observable<SearchAlarmRecordBeanRsp> searchAlarmRecord(@Header("token") String token, @Body SearchAlarmRecordBeanReq req, @Header("url_name") String urlName);
 
     @Headers({"Content-Type: application/json"})
     @POST("/wpflock/device/pwdadd")
-    Observable<LockKeyAddBeanRsp> addLockKey(@Header("token") String token, @Body LockKeyAddBeanReq req, @Header("url_name") String  urlName);
+    Observable<LockKeyAddBeanRsp> addLockKey(@Header("token") String token, @Body LockKeyAddBeanReq req, @Header("url_name") String urlName);
 
     @Headers({"Content-Type: application/json"})
     @POST("/wpflock/device/pwdlist")
-    Observable<SearchKeyListBeanRsp> searchLockKey(@Header("token") String token, @Body SearchKeyListBeanReq req, @Header("url_name") String  urlName);
+    Observable<SearchKeyListBeanRsp> searchLockKey(@Header("token") String token, @Body SearchKeyListBeanReq req, @Header("url_name") String urlName);
 
     @Headers({"Content-Type: application/json"})
     @POST("/wpflock/device/pwddelete")
-    Observable<DelKeyBeanRsp> delKey(@Header("token") String token, @Body DelKeyBeanReq req, @Header("url_name") String  urlName);
+    Observable<DelKeyBeanRsp> delKey(@Header("token") String token, @Body DelKeyBeanReq req, @Header("url_name") String urlName);
 
     @Headers({"Content-Type: application/json"})
     @POST("/wpflock/device/nicknameupdate")
-    Observable<ChangeKeyNickBeanRsp> changeKeyNickName(@Header("token") String token, @Body ChangeKeyNickBeanReq req, @Header("url_name") String  urlName);
+    Observable<ChangeKeyNickBeanRsp> changeKeyNickName(@Header("token") String token, @Body ChangeKeyNickBeanReq req, @Header("url_name") String urlName);
 
     @Headers({"Content-Type: application/json"})
     @POST("/wpflock/device/getNickname")
-    Observable<GetLockKeyNickBeanRsp> getKeyNickName(@Header("token") String token, @Body GetLockKeyNickBeanReq req, @Header("url_name") String  urlName);
+    Observable<GetLockKeyNickBeanRsp> getKeyNickName(@Header("token") String token, @Body GetLockKeyNickBeanReq req, @Header("url_name") String urlName);
 
     @Headers({"Content-Type: application/json"})
     @POST("/wpflock/device/updateMagneticStatus")
-    Observable<UpdateDoorSensorStateBeanRsp> updateDoorSensorState(@Header("token") String token, @Body UpdateDoorSensorStateBeanReq req, @Header("url_name") String  urlName);
+    Observable<UpdateDoorSensorStateBeanRsp> updateDoorSensorState(@Header("token") String token, @Body UpdateDoorSensorStateBeanReq req, @Header("url_name") String urlName);
 
     @Headers({"Content-Type: application/json"})
     @POST("/wpflock/device/findMagneticStatus")
-    Observable<CheckDoorSensorStateBeanRsp> checkDoorSensorState(@Header("token") String token, @Body CheckDoorSensorStateBeanReq req, @Header("url_name") String  urlName);
+    Observable<CheckDoorSensorStateBeanRsp> checkDoorSensorState(@Header("token") String token, @Body CheckDoorSensorStateBeanReq req, @Header("url_name") String urlName);
 
     @Headers({"Content-Type: application/json"})
     @POST("/wpflock/device/updateApproachParameters")
-    Observable<ChangeOpenLockParameterBeanRsp> changeOpenLockParameter(@Header("token") String token, @Body ChangeOpenLockParameterBeanReq req, @Header("url_name") String  urlName);
+    Observable<ChangeOpenLockParameterBeanRsp> changeOpenLockParameter(@Header("token") String token, @Body ChangeOpenLockParameterBeanReq req, @Header("url_name") String urlName);
 
     @Headers({"Content-Type: application/json"})
     @POST("/mail/sendemailtoken")
-    Observable<GetCodeBeanRsp> getCode(@Body GetCodeBeanReq req, @Header("url_name") String  urlName);
+    Observable<GetCodeBeanRsp> getCode(@Body GetCodeBeanReq req, @Header("url_name") String urlName);
 
     @Headers({"Content-Type: application/json"})
     @POST("/user/reg/putuserbyemail")
-    Observable<MailRegisterBeanRsp> register(@Body MailRegisterBeanReq req, @Header("url_name") String  urlName);
+    Observable<MailRegisterBeanRsp> register(@Body MailRegisterBeanReq req, @Header("url_name") String urlName);
 
     @Headers({"Content-Type: application/json"})
     @POST("/ota/checkUpgrade")
-    Observable<CheckOTABeanRsp> checkOtaVer(@Header("token") String token, @Body CheckOTABeanReq req, @Header("url_name") String  urlName);
+    Observable<CheckOTABeanRsp> checkOtaVer(@Header("token") String token, @Body CheckOTABeanReq req, @Header("url_name") String urlName);
 
     @Headers({"Content-Type: application/json"})
     @POST("/wifi/device/ota")
-    Observable<StartOTAUpdateBeanRsp> startOtaUpdate(@Header("token") String token, @Body StartOTAUpdateBeanReq req, @Header("url_name") String  urlName);
+    Observable<StartOTAUpdateBeanRsp> startOtaUpdate(@Header("token") String token, @Body StartOTAUpdateBeanReq req, @Header("url_name") String urlName);
 
     @Headers({"Content-Type: application/json"})
     @POST("/ota/multiCheckUpgrade")
-    Observable<CheckAllOTABeanRsp> checkAllOtaVer(@Header("token") String token, @Body CheckAllOTABeanReq req, @Header("url_name") String  urlName);
+    Observable<CheckAllOTABeanRsp> checkAllOtaVer(@Header("token") String token, @Body CheckAllOTABeanReq req, @Header("url_name") String urlName);
 
     @Headers({"Content-Type: application/json"})
     @POST("/wifi/device/multiOta")
-    Observable<StartAllOTAUpdateBeanRsp> startAllOtaUpdate(@Header("token") String token, @Body StartAllOTAUpdateBeanReq req, @Header("url_name") String  urlName);
+    Observable<StartAllOTAUpdateBeanRsp> startAllOtaUpdate(@Header("token") String token, @Body StartAllOTAUpdateBeanReq req, @Header("url_name") String urlName);
 
     @Headers({"Content-Type: application/json"})
     @POST("/user/edit/forgetPwd")
-    Observable<ForgotPwdRsp> forgotPwd(@Body ForgotPwdBeanReq req, @Header("url_name") String  urlName);
+    Observable<ForgotPwdRsp> forgotPwd(@Body ForgotPwdBeanReq req, @Header("url_name") String urlName);
 
     @Headers({"Content-Type: application/json"})
     @POST("/user/edit/postUserPwd")
-    Observable<ChangeUserPwdBeanRsp> changeUserPwd(@Header("token") String token, @Body ChangeUserPwdBeanReq req, @Header("url_name") String  urlName);
+    Observable<ChangeUserPwdBeanRsp> changeUserPwd(@Header("token") String token, @Body ChangeUserPwdBeanReq req, @Header("url_name") String urlName);
 
     @Headers({"Content-Type: application/json"})
     @POST("/wpflock/share/gainKey")
-    Observable<GainKeyBeanRsp> gainKey(@Header("token") String token, @Body GainKeyBeanReq req, @Header("url_name") String  urlName);
+    Observable<GainKeyBeanRsp> gainKey(@Header("token") String token, @Body GainKeyBeanReq req, @Header("url_name") String urlName);
 
     @Headers({"Content-Type: application/json"})
     @POST("/wpflock/share/list")
-    Observable<GetAllSharedUserFromLockBeanRsp> getAllSharedUserFromLock(@Header("token") String token, @Body GetAllSharedUserFromLockBeanReq req, @Header("url_name") String  urlName);
+    Observable<GetAllSharedUserFromLockBeanRsp> getAllSharedUserFromLock(@Header("token") String token, @Body GetAllSharedUserFromLockBeanReq req, @Header("url_name") String urlName);
 
     @Headers({"Content-Type: application/json"})
     @POST("/wpflock/share/updateNickName")
-    Observable<UpdateSharedUserNickNameBeanRsp> updateSharedUserNickName(@Header("token") String token, @Body UpdateSharedUserNickNameBeanReq req, @Header("url_name") String  urlName);
+    Observable<UpdateSharedUserNickNameBeanRsp> updateSharedUserNickName(@Header("token") String token, @Body UpdateSharedUserNickNameBeanReq req, @Header("url_name") String urlName);
 
     @Headers({"Content-Type: application/json"})
     @POST("/wpflock/share/delShareKey")
-    Observable<DelInvalidShareBeanRsp> delInvalidShare(@Header("token") String token, @Body DelInvalidShareBeanReq req, @Header("url_name") String  urlName);
+    Observable<DelInvalidShareBeanRsp> delInvalidShare(@Header("token") String token, @Body DelInvalidShareBeanReq req, @Header("url_name") String urlName);
 
     @Headers({"Content-Type: application/json"})
     @POST("/wpflock/share/updateEnable")
-    Observable<EnableSharedUserBeanRsp> enableSharedUser(@Header("token") String token, @Body EnableSharedUserBeanReq req, @Header("url_name") String  urlName);
+    Observable<EnableSharedUserBeanRsp> enableSharedUser(@Header("token") String token, @Body EnableSharedUserBeanReq req, @Header("url_name") String urlName);
 
     @Headers({"Content-Type: application/json"})
     @POST("/wpflock/share/delShareUser")
-    Observable<DelSharedUserBeanRsp> delSharedUser(@Header("token") String token, @Body DelSharedUserBeanReq req, @Header("url_name") String  urlName);
+    Observable<DelSharedUserBeanRsp> delSharedUser(@Header("token") String token, @Body DelSharedUserBeanReq req, @Header("url_name") String urlName);
 
     @Headers({"Content-Type: application/json"})
     @POST("/wpflock/share/updateUserType")
-    Observable<UpdateUserAuthorityTypeBeanRsp> updateUserAuthorityType(@Header("token") String token, @Body UpdateUserAuthorityTypeBeanReq req, @Header("url_name") String  urlName);
+    Observable<UpdateUserAuthorityTypeBeanRsp> updateUserAuthorityType(@Header("token") String token, @Body UpdateUserAuthorityTypeBeanReq req, @Header("url_name") String urlName);
 
     @Headers({"Content-Type: application/json"})
     @POST("/wpflock/share/userList")
-    Observable<GetAllSharedUserFromAdminUserBeanRsp> getAllSharedUserFromAdminUser(@Header("token") String token, @Body GetAllSharedUserFromAdminUserBeanReq req, @Header("url_name") String  urlName);
+    Observable<GetAllSharedUserFromAdminUserBeanRsp> getAllSharedUserFromAdminUser(@Header("token") String token, @Body GetAllSharedUserFromAdminUserBeanReq req, @Header("url_name") String urlName);
 
     @Headers({"Content-Type: application/json"})
     @POST("/wpflock/set/duressEmail")
-    Observable<SettingDuressPwdReceiveEMailBeanRsp> settingDuressPwdReceiveEMail(@Header("token") String token, @Body SettingDuressPwdReceiveEMailBeanReq req, @Header("url_name") String  urlName);
+    Observable<SettingDuressPwdReceiveEMailBeanRsp> settingDuressPwdReceiveEMail(@Header("token") String token, @Body SettingDuressPwdReceiveEMailBeanReq req, @Header("url_name") String urlName);
 
     @Headers({"Content-Type: application/json"})
     @POST("/wpflock/share/add")
-    Observable<AcceptShareBeanRsp> acceptShare(@Header("token") String token, @Body AcceptShareBeanReq req, @Header("url_name") String  urlName);
+    Observable<AcceptShareBeanRsp> acceptShare(@Header("token") String token, @Body AcceptShareBeanReq req, @Header("url_name") String urlName);
 
     @Headers({"Content-Type: application/json"})
     @POST("/user/logout")
-    Observable<LogoutBeanRsp> logout(@Header("token") String token, @Header("url_name") String  urlName);
+    Observable<LogoutBeanRsp> logout(@Header("token") String token, @Header("url_name") String urlName);
 
     @Headers({"Content-Type: application/json"})
     @POST("/user/edit/postUserName")
-    Observable<UpdateUserFirstLastNameBeanRsp> updateUserFirstLastName(@Header("token") String token, @Body UpdateUserFirstLastNameBeanReq req, @Header("url_name") String  urlName);
+    Observable<UpdateUserFirstLastNameBeanRsp> updateUserFirstLastName(@Header("token") String token, @Body UpdateUserFirstLastNameBeanReq req, @Header("url_name") String urlName);
 
-//    @Headers({"Content-Type: multipart/form-data"})
+    //    @Headers({"Content-Type: multipart/form-data"})
     @Multipart
     @POST("/user/edit/uploadUserAvatar")
-    Observable<UploadUserAvatarBeanRsp> uploadUserAvatar(@Header("token") String token, @Part List<MultipartBody.Part> partLis, @Header("url_name") String  urlName);
+    Observable<UploadUserAvatarBeanRsp> uploadUserAvatar(@Header("token") String token, @Part List<MultipartBody.Part> partLis, @Header("url_name") String urlName);
 
     @Headers({"Content-Type: application/json"})
     @POST("/wpflock/user/devList")
-    Observable<GetDevicesFromUidAndSharedUidBeanRsp> getDevicesFromUidAndSharedUid(@Header("token") String token, @Body GetDevicesFromUidAndSharedUidBeanReq req, @Header("url_name") String  urlName);
+    Observable<GetDevicesFromUidAndSharedUidBeanRsp> getDevicesFromUidAndSharedUid(@Header("token") String token, @Body GetDevicesFromUidAndSharedUidBeanReq req, @Header("url_name") String urlName);
 
     @Headers({"Content-Type: application/json"})
     @POST("/wpflock/operation/list")
-    Observable<LockRecordBeanRsp> getLockRecordList(@Header("token") String token, @Body LockRecordBeanReq req, @Header("url_name") String  urlName);
+    Observable<LockRecordBeanRsp> getLockRecordList(@Header("token") String token, @Body LockRecordBeanReq req, @Header("url_name") String urlName);
 
     @Headers({"Content-Type: application/json"})
     @POST("/wpflock/device/uploadOperationList")
-    Observable<UpdateLockRecordBeanRsp> updateLockRecordList(@Header("token") String token, @Body UpdateLockRecordBeanReq req, @Header("url_name") String  urlName);
+    Observable<UpdateLockRecordBeanRsp> updateLockRecordList(@Header("token") String token, @Body UpdateLockRecordBeanReq req, @Header("url_name") String urlName);
 
     @Headers({"Content-Type: application/json"})
     @POST("/suggest/putmsg")
-    Observable<FeedBackBeanRsp> feedback(@Header("token") String token, @Body FeedBackBeanReq req, @Header("url_name") String  urlName);
+    Observable<FeedBackBeanRsp> feedback(@Header("token") String token, @Body FeedBackBeanReq req, @Header("url_name") String urlName);
 
+    @Headers({"Content-type:application/json"})
+    @GET("/FAQ/list/{languageType}")
+    Observable<QuestionBeanRsp> faqList(@Header("token") String token, @Path("languageType") int languageType);
 }

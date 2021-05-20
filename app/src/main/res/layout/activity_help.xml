@@ -11,13 +11,10 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <com.revolo.lock.widget.SlideRecyclerView
-        android:id="@+id/rvMessage"
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rv_question_list"
         android:layout_width="match_parent"
-        android:layout_height="0pt"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/titleBar" />
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/titleBar" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

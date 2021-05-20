@@ -2,6 +2,7 @@ package com.revolo.lock.popup;
 
 import android.content.Context;
 import android.view.View;
+import android.view.WindowManager;
 import android.view.animation.Animation;
 
 import androidx.annotation.NonNull;

@@ -35,6 +35,7 @@ import com.revolo.lock.bean.request.LockRecordBeanReq;
 import com.revolo.lock.bean.request.MailLoginBeanReq;
 import com.revolo.lock.bean.request.MailRegisterBeanReq;
 import com.revolo.lock.bean.request.OpenDoorRecordSearchBeanReq;
+import com.revolo.lock.bean.request.QuestionBeanReq;
 import com.revolo.lock.bean.request.SearchAlarmRecordBeanReq;
 import com.revolo.lock.bean.request.SearchKeyListBeanReq;
 import com.revolo.lock.bean.request.SearchProductNoBeanReq;
@@ -82,6 +83,7 @@ import com.revolo.lock.bean.respone.LogoutBeanRsp;
 import com.revolo.lock.bean.respone.MailLoginBeanRsp;
 import com.revolo.lock.bean.respone.MailRegisterBeanRsp;
 import com.revolo.lock.bean.respone.OpenDoorRecordSearchBeanRsp;
+import com.revolo.lock.bean.respone.QuestionBeanRsp;
 import com.revolo.lock.bean.respone.SearchAlarmRecordBeanRsp;
 import com.revolo.lock.bean.respone.SearchKeyListBeanRsp;
 import com.revolo.lock.bean.respone.SearchProductNoBeanRsp;
@@ -125,9 +127,9 @@ public class HttpRequest {
     private static final String CHECK_OTA_HOST_TEST = "https://test1.juziwulian.com:9111";          // 国内服务器测试接口
     private static final String CHECK_OTA_HOST_ABROAD = "https://ota-global.juziwulian.com:9111";   // 海外服务器接口
     public static final String CHECK_OTA_HOST = CHECK_OTA_HOST_ABROAD;
-    
 
-  private static HttpRequest ourInstance;
+
+    private static HttpRequest ourInstance;
 
     public static HttpRequest getInstance() {
         if (ourInstance == null) {
@@ -192,91 +194,135 @@ public class HttpRequest {
 
     public Observable<LockIsBindBeanRsp> lockIsBind(String token, LockIsBindBeanReq req) {
         return service.lockIsBind(token, req, NORMAL);
-    };
+    }
 
-    public Observable<GetPwd1BeanRsp> getPwd1(String token, GetPwd1BeanReq req){
+    ;
+
+    public Observable<GetPwd1BeanRsp> getPwd1(String token, GetPwd1BeanReq req) {
         return service.getPwd1(token, req, NORMAL);
-    };
+    }
 
-    public Observable<AdminAddDeviceBeanRsp> adminAddDevice(String token, AdminAddDeviceBeanReq req){
+    ;
+
+    public Observable<AdminAddDeviceBeanRsp> adminAddDevice(String token, AdminAddDeviceBeanReq req) {
         return service.adminAddDevice(token, req, NORMAL);
-    };
+    }
 
-    public Observable<DeviceUnbindBeanRsp> unbindDevice(String token, DeviceUnbindBeanReq req){
+    ;
+
+    public Observable<DeviceUnbindBeanRsp> unbindDevice(String token, DeviceUnbindBeanReq req) {
         return service.unbindDevice(token, req, NORMAL);
-    };
+    }
 
-    public Observable<ChangeBleVerBeanRsp> changeBleVer(String token, ChangeBleVerBeanReq req){
+    ;
+
+    public Observable<ChangeBleVerBeanRsp> changeBleVer(String token, ChangeBleVerBeanReq req) {
         return service.changeBleVer(token, req, NORMAL);
-    };
+    }
 
-    public Observable<ChangeDeviceHardVerBeanRsp> changeDeviceHardVer(String token, ChangeDeviceHardVerBeanReq req){
+    ;
+
+    public Observable<ChangeDeviceHardVerBeanRsp> changeDeviceHardVer(String token, ChangeDeviceHardVerBeanReq req) {
         return service.changeDeviceHardVer(token, req, NORMAL);
-    };
+    }
 
-    public Observable<ChangeFeaturesBeanRsp> updateFunctionSet(String token, ChangeFeaturesBeanReq req){
+    ;
+
+    public Observable<ChangeFeaturesBeanRsp> updateFunctionSet(String token, ChangeFeaturesBeanReq req) {
         return service.updateFunctionSet(token, req, NORMAL);
-    };
+    }
 
-    public Observable<DelDeviceBeanRsp> delDevice(String token, DelDeviceBeanReq req){
+    ;
+
+    public Observable<DelDeviceBeanRsp> delDevice(String token, DelDeviceBeanReq req) {
         return service.delDevice(token, req, NORMAL);
-    };
+    }
 
-    public Observable<ChangeDeviceNameBeanRsp> changeDeviceNickName(String token, ChangeDeviceNameBeanReq req){
+    ;
+
+    public Observable<ChangeDeviceNameBeanRsp> changeDeviceNickName(String token, ChangeDeviceNameBeanReq req) {
         return service.changeDeviceNickName(token, req, NORMAL);
-    };
+    }
 
-    public Observable<SearchProductNoBeanRsp> searchDevice(String token, SearchProductNoBeanReq req){
+    ;
+
+    public Observable<SearchProductNoBeanRsp> searchDevice(String token, SearchProductNoBeanReq req) {
         return service.searchDevice(token, req, NORMAL);
-    };
+    }
 
-    public Observable<UploadOpenDoorRecordBeanRsp> uploadOpenDoorRecord(String token, UploadOpenDoorRecordBeanReq req){
+    ;
+
+    public Observable<UploadOpenDoorRecordBeanRsp> uploadOpenDoorRecord(String token, UploadOpenDoorRecordBeanReq req) {
         return service.uploadOpenDoorRecord(token, req, NORMAL);
-    };
+    }
 
-    public Observable<OpenDoorRecordSearchBeanRsp> searchOpenLockRecord(String token, OpenDoorRecordSearchBeanReq req){
+    ;
+
+    public Observable<OpenDoorRecordSearchBeanRsp> searchOpenLockRecord(String token, OpenDoorRecordSearchBeanReq req) {
         return service.searchOpenLockRecord(token, req, NORMAL);
-    };
+    }
 
-    public Observable<UploadAlarmRecordBeanRsp> uploadAlarmRecord(String token, UploadAlarmRecordBeanReq req){
+    ;
+
+    public Observable<UploadAlarmRecordBeanRsp> uploadAlarmRecord(String token, UploadAlarmRecordBeanReq req) {
         return service.uploadAlarmRecord(token, req, NORMAL);
-    };
+    }
 
-    public Observable<SearchAlarmRecordBeanRsp> searchAlarmRecord(String token, SearchAlarmRecordBeanReq req){
+    ;
+
+    public Observable<SearchAlarmRecordBeanRsp> searchAlarmRecord(String token, SearchAlarmRecordBeanReq req) {
         return service.searchAlarmRecord(token, req, NORMAL);
-    };
+    }
 
-    public Observable<LockKeyAddBeanRsp> addLockKey(String token, LockKeyAddBeanReq req){
+    ;
+
+    public Observable<LockKeyAddBeanRsp> addLockKey(String token, LockKeyAddBeanReq req) {
         return service.addLockKey(token, req, NORMAL);
-    };
+    }
 
-    public Observable<SearchKeyListBeanRsp> searchLockKey(String token, SearchKeyListBeanReq req){
+    ;
+
+    public Observable<SearchKeyListBeanRsp> searchLockKey(String token, SearchKeyListBeanReq req) {
         return service.searchLockKey(token, req, NORMAL);
-    };
+    }
 
-    public Observable<DelKeyBeanRsp> delKey(String token, DelKeyBeanReq req){
+    ;
+
+    public Observable<DelKeyBeanRsp> delKey(String token, DelKeyBeanReq req) {
         return service.delKey(token, req, NORMAL);
-    };
+    }
 
-    public Observable<ChangeKeyNickBeanRsp> changeKeyNickName(String token, ChangeKeyNickBeanReq req){
+    ;
+
+    public Observable<ChangeKeyNickBeanRsp> changeKeyNickName(String token, ChangeKeyNickBeanReq req) {
         return service.changeKeyNickName(token, req, NORMAL);
-    };
+    }
 
-    public Observable<GetLockKeyNickBeanRsp> getKeyNickName(String token, GetLockKeyNickBeanReq req){
+    ;
+
+    public Observable<GetLockKeyNickBeanRsp> getKeyNickName(String token, GetLockKeyNickBeanReq req) {
         return service.getKeyNickName(token, req, NORMAL);
-    };
+    }
 
-    public Observable<UpdateDoorSensorStateBeanRsp> updateDoorSensorState(String token, UpdateDoorSensorStateBeanReq req){
+    ;
+
+    public Observable<UpdateDoorSensorStateBeanRsp> updateDoorSensorState(String token, UpdateDoorSensorStateBeanReq req) {
         return service.updateDoorSensorState(token, req, NORMAL);
-    };
+    }
 
-    public Observable<CheckDoorSensorStateBeanRsp> checkDoorSensorState(String token, CheckDoorSensorStateBeanReq req){
+    ;
+
+    public Observable<CheckDoorSensorStateBeanRsp> checkDoorSensorState(String token, CheckDoorSensorStateBeanReq req) {
         return service.checkDoorSensorState(token, req, NORMAL);
-    };
+    }
 
-    public Observable<ChangeOpenLockParameterBeanRsp> changeOpenLockParameter(String token, ChangeOpenLockParameterBeanReq req){
+    ;
+
+    public Observable<ChangeOpenLockParameterBeanRsp> changeOpenLockParameter(String token, ChangeOpenLockParameterBeanReq req) {
         return service.changeOpenLockParameter(token, req, NORMAL);
-    };
+    }
+
+    ;
 
     public Observable<GetCodeBeanRsp> getCode(GetCodeBeanReq req) {
         return service.getCode(req, NORMAL);
@@ -320,35 +366,51 @@ public class HttpRequest {
 
     public Observable<UpdateSharedUserNickNameBeanRsp> updateSharedUserNickName(String token, UpdateSharedUserNickNameBeanReq req) {
         return service.updateSharedUserNickName(token, req, NORMAL);
-    };
+    }
+
+    ;
 
     public Observable<DelInvalidShareBeanRsp> delInvalidShare(String token, DelInvalidShareBeanReq req) {
         return service.delInvalidShare(token, req, NORMAL);
-    };
+    }
+
+    ;
 
     public Observable<EnableSharedUserBeanRsp> enableSharedUser(String token, EnableSharedUserBeanReq req) {
         return service.enableSharedUser(token, req, NORMAL);
-    };
+    }
+
+    ;
 
     public Observable<DelSharedUserBeanRsp> delSharedUser(String token, DelSharedUserBeanReq req) {
         return service.delSharedUser(token, req, NORMAL);
-    };
+    }
+
+    ;
 
     public Observable<UpdateUserAuthorityTypeBeanRsp> updateUserAuthorityType(String token, UpdateUserAuthorityTypeBeanReq req) {
         return service.updateUserAuthorityType(token, req, NORMAL);
-    };
+    }
+
+    ;
 
     public Observable<GetAllSharedUserFromAdminUserBeanRsp> getAllSharedUserFromAdminUser(String token, GetAllSharedUserFromAdminUserBeanReq req) {
         return service.getAllSharedUserFromAdminUser(token, req, NORMAL);
-    };
+    }
+
+    ;
 
     public Observable<SettingDuressPwdReceiveEMailBeanRsp> settingDuressPwdReceiveEMail(String token, SettingDuressPwdReceiveEMailBeanReq req) {
         return service.settingDuressPwdReceiveEMail(token, req, NORMAL);
-    };
+    }
+
+    ;
 
     public Observable<AcceptShareBeanRsp> acceptShare(String token, AcceptShareBeanReq req) {
         return service.acceptShare(token, req, NORMAL);
-    };
+    }
+
+    ;
 
     public Observable<LogoutBeanRsp> logout(String token) {
         return service.logout(token, NORMAL);
@@ -362,11 +424,11 @@ public class HttpRequest {
         //1.创建MultipartBody.Builder对象
         MultipartBody.Builder builder = new MultipartBody.Builder()
                 .setType(MultipartBody.FORM); //表单类型
-        RequestBody body = RequestBody.create(MediaType.parse("multipart/form-data"),file);//表单类型
+        RequestBody body = RequestBody.create(MediaType.parse("multipart/form-data"), file);//表单类型
 
         //3.调用MultipartBody.Builder的addFormDataPart()方法添加表单数据
         builder.addFormDataPart("uid", uid);//传入服务器需要的key，和相应value值
-        builder.addFormDataPart("file",file.getName(),body); //添加图片数据，body创建的请求体
+        builder.addFormDataPart("file", file.getName(), body); //添加图片数据，body创建的请求体
 
         //4.创建List<MultipartBody.Part> 集合，
         //  调用MultipartBody.Builder的build()方法会返回一个新创建的MultipartBody
@@ -389,6 +451,9 @@ public class HttpRequest {
 
     public Observable<FeedBackBeanRsp> feedback(String token, FeedBackBeanReq req) {
         return service.feedback(token, req, NORMAL);
-    };
+    }
 
+    public Observable<QuestionBeanRsp> faqList(String token, int languageType) {
+        return service.faqList(token, languageType);
+    }
 }

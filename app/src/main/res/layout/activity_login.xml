@@ -33,6 +33,7 @@
         android:paddingStart="15pt"
         android:paddingEnd="15pt"
         android:theme="@style/InputEditTextTheme"
+        android:text="zhouguimin@kaadas.com"
         android:layout_marginTop="60pt"
         android:hint="@string/hint_email_address"
         android:textColorHint="@color/cA5A4DA"

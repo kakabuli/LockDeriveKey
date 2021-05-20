@@ -13,6 +13,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.app.ActivityCompat;
 
 import com.blankj.utilcode.util.ConvertUtils;
@@ -73,6 +74,7 @@ public class GeoFenceUnlockActivity extends BaseActivity implements OnMapReadyCa
     private TextView mTvTime, mTvSensitivity;
     private BleDeviceLocal mBleDeviceLocal;
     private SeekBar mSeekBarTime, mSeekBarSensitivity;
+    private ConstraintLayout mConstraintLayout;
 
     private GoogleMap mMap;
     public float GEO_FENCE_RADIUS = 200;
@@ -80,7 +82,7 @@ public class GeoFenceUnlockActivity extends BaseActivity implements OnMapReadyCa
     @Override
     public void initData(@Nullable Bundle bundle) {
         mBleDeviceLocal = App.getInstance().getBleDeviceLocal();
-        if(mBleDeviceLocal == null) {
+        if (mBleDeviceLocal == null) {
             finish();
         }
     }
@@ -98,6 +100,7 @@ public class GeoFenceUnlockActivity extends BaseActivity implements OnMapReadyCa
         mTvSensitivity = findViewById(R.id.tvSensitivity);
         mSeekBarTime = findViewById(R.id.seekBarTime);
         mSeekBarSensitivity = findViewById(R.id.seekBarSensitivity);
+        mConstraintLayout = findViewById(R.id.constraintLayout);
         initLoading("Setting...");
         mSeekBarTime.setMax(230);
         mSeekBarTime.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
@@ -138,7 +141,7 @@ public class GeoFenceUnlockActivity extends BaseActivity implements OnMapReadyCa
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.mapFragment);
-        if(mapFragment != null) {
+        if (mapFragment != null) {
             mapFragment.getMapAsync(this);
         }
         FusedLocationProviderClient fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
@@ -157,10 +160,10 @@ public class GeoFenceUnlockActivity extends BaseActivity implements OnMapReadyCa
                     // Got last known location. In some rare situations this can be null.
                     if (location != null) {
                         // Logic to handle location object
-                        if(mBleDeviceLocal.isOpenElectricFence()) {
+                        if (mBleDeviceLocal.isOpenElectricFence()) {
                             double la = mBleDeviceLocal.getLatitude();
                             double lo = mBleDeviceLocal.getLongitude();
-                            if(mMap != null) {
+                            if (mMap != null) {
                                 mMap.clear();
                                 LatLng latLng = new LatLng(la, lo);
                                 mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 16));
@@ -176,19 +179,29 @@ public class GeoFenceUnlockActivity extends BaseActivity implements OnMapReadyCa
     public void doBusiness() {
         initDefaultValue();
         initTimeNSensitivityDataUI();
-        mIvGeoFenceUnlockEnable.setImageResource(mBleDeviceLocal.isOpenElectricFence()?R.drawable.ic_icon_switch_open:R.drawable.ic_icon_switch_close);
-        if(mBleDeviceLocal.getConnectedType() != LocalState.DEVICE_CONNECT_TYPE_WIFI) {
+        mIvGeoFenceUnlockEnable.setImageResource(mBleDeviceLocal.isOpenElectricFence() ? R.drawable.ic_icon_switch_open : R.drawable.ic_icon_switch_close);
+        if (mBleDeviceLocal.isOpenElectricFence()) {
+            mConstraintLayout.setVisibility(View.VISIBLE);
+        } else {
+            mConstraintLayout.setVisibility(View.GONE);
+        }
+        if (mBleDeviceLocal.getConnectedType() != LocalState.DEVICE_CONNECT_TYPE_WIFI) {
             initBleListener();
         }
     }
 
     @Override
     public void onDebouncingClick(@NonNull View view) {
-        if(view.getId() == R.id.ivGeoFenceUnlockEnable) {
-            if(mBleDeviceLocal.isOpenElectricFence()) {
+        if (view.getId() == R.id.ivGeoFenceUnlockEnable) {
+            if (mBleDeviceLocal.isOpenElectricFence()) {
                 mBleDeviceLocal.setOpenElectricFence(false);
                 AppDatabase.getInstance(this).bleDeviceDao().update(mBleDeviceLocal);
-                mIvGeoFenceUnlockEnable.setImageResource(mBleDeviceLocal.isOpenElectricFence()?R.drawable.ic_icon_switch_open:R.drawable.ic_icon_switch_close);
+                mIvGeoFenceUnlockEnable.setImageResource(mBleDeviceLocal.isOpenElectricFence() ? R.drawable.ic_icon_switch_open : R.drawable.ic_icon_switch_close);
+                if (mBleDeviceLocal.isOpenElectricFence()) {
+                    mConstraintLayout.setVisibility(View.VISIBLE);
+                } else {
+                    mConstraintLayout.setVisibility(View.GONE);
+                }
             } else {
                 Intent intent = new Intent(this, MapActivity.class);
                 startActivity(intent);
@@ -197,7 +210,7 @@ public class GeoFenceUnlockActivity extends BaseActivity implements OnMapReadyCa
 //            publishApproachOpen(mBleDeviceLocal.getEsn(), mBleDeviceLocal.getSetElectricFenceTime());
             return;
         }
-        if(view.getId() == R.id.clDistanceRangeSetting) {
+        if (view.getId() == R.id.clDistanceRangeSetting) {
             Intent intent = new Intent(this, MapActivity.class);
             startActivity(intent);
         }
@@ -207,27 +220,28 @@ public class GeoFenceUnlockActivity extends BaseActivity implements OnMapReadyCa
     private int mTime;
     private String mTimeStr;
 
-    private @BleCommandState.KnockDoorSensitivity int mSensitivity;
+    private @BleCommandState.KnockDoorSensitivity
+    int mSensitivity;
     private String mSensitivityStr;
 
     private void initDefaultValue() {
         mTime = mBleDeviceLocal.getSetElectricFenceTime();
         mSensitivity = mBleDeviceLocal.getSetElectricFenceSensitivity();
         boolean isNeedSave = false;
-        if(mTime == 0) {
-            mTime = 10*60;
+        if (mTime == 0) {
+            mTime = 10 * 60;
             mBleDeviceLocal.setSetElectricFenceTime(mTime);
             isNeedSave = true;
         }
-        if(mSensitivity == 0) {
+        if (mSensitivity == 0) {
             mSensitivity = KNOCK_DOOR_SENSITIVITY_MEDIUM;
             mBleDeviceLocal.setSetElectricFenceSensitivity(mSensitivity);
             isNeedSave = true;
         }
-        if(mBleDeviceLocal.isOpenElectricFence()) {
+        if (mBleDeviceLocal.isOpenElectricFence()) {
             double la = mBleDeviceLocal.getLatitude();
             double lo = mBleDeviceLocal.getLongitude();
-            if(mMap != null) {
+            if (mMap != null) {
                 mMap.clear();
                 LatLng latLng = new LatLng(la, lo);
                 mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 16));
@@ -235,7 +249,7 @@ public class GeoFenceUnlockActivity extends BaseActivity implements OnMapReadyCa
                 addCircle(latLng, GEO_FENCE_RADIUS);
             }
         }
-        if(isNeedSave) {
+        if (isNeedSave) {
             AppDatabase.getInstance(this).bleDeviceDao().update(mBleDeviceLocal);
         }
     }
@@ -256,20 +270,20 @@ public class GeoFenceUnlockActivity extends BaseActivity implements OnMapReadyCa
 
         mMap.addCircle(circleOptions);
     }
-    
+
     private void initTimeNSensitivityDataUI() {
-        for (int i=3; i<=30; i++) {
-            if(mTime == i*60) {
-                mTimeStr = i+"min";
+        for (int i = 3; i <= 30; i++) {
+            if (mTime == i * 60) {
+                mTimeStr = i + "min";
                 break;
             }
         }
         processStopTimeFromSeekBar(mSeekBarTime, false);
-        if(mSensitivity == KNOCK_DOOR_SENSITIVITY_LOW) {
+        if (mSensitivity == KNOCK_DOOR_SENSITIVITY_LOW) {
             mSensitivityStr = getString(R.string.low);
-        } else if(mSensitivity == KNOCK_DOOR_SENSITIVITY_MEDIUM) {
+        } else if (mSensitivity == KNOCK_DOOR_SENSITIVITY_MEDIUM) {
             mSensitivityStr = getString(R.string.medium);
-        } else if(mSensitivity == KNOCK_DOOR_SENSITIVITY_HIGH) {
+        } else if (mSensitivity == KNOCK_DOOR_SENSITIVITY_HIGH) {
             mSensitivityStr = getString(R.string.high);
         }
         mTvSensitivity.setText(mSensitivityStr);
@@ -277,17 +291,17 @@ public class GeoFenceUnlockActivity extends BaseActivity implements OnMapReadyCa
     }
 
     private void processChangeTimeFromSeekBar(int process) {
-        for (int i=1; i<=23; i++) {
-            if(process <= i*10) {
-                if(i==1) {
+        for (int i = 1; i <= 23; i++) {
+            if (process <= i * 10) {
+                if (i == 1) {
                     mTimeStr = "3min";
-                    mTime = 3*60;
-                } else if(i==2) {
+                    mTime = 3 * 60;
+                } else if (i == 2) {
                     mTimeStr = "5min";
-                    mTime = 5*60;
+                    mTime = 5 * 60;
                 } else {
-                    mTimeStr = (i+7) + "min";
-                    mTime = (i+7)*60;
+                    mTimeStr = (i + 7) + "min";
+                    mTime = (i + 7) * 60;
                 }
                 break;
             }
@@ -297,21 +311,21 @@ public class GeoFenceUnlockActivity extends BaseActivity implements OnMapReadyCa
 
     private void processStopTimeFromSeekBar(SeekBar seekBar, boolean isNeedToSave) {
         mTvTime.setText(mTimeStr);
-        for (int i=3; i<=30; i++) {
-            if(mTime == i*60) {
-                if(i == 3) {
+        for (int i = 3; i <= 30; i++) {
+            if (mTime == i * 60) {
+                if (i == 3) {
                     seekBar.setProgress(0);
-                } else if(i == 5) {
+                } else if (i == 5) {
                     seekBar.setProgress(11);
-                } else if(i == 30) {
+                } else if (i == 30) {
                     seekBar.setProgress(230);
                 } else {
-                    seekBar.setProgress(((i-8)*10)+1);
+                    seekBar.setProgress(((i - 8) * 10) + 1);
                 }
                 break;
             }
         }
-        if(isNeedToSave) {
+        if (isNeedToSave) {
             mBleDeviceLocal.setSetElectricFenceTime(mTime);
             AppDatabase.getInstance(this).bleDeviceDao().update(mBleDeviceLocal);
         }
@@ -327,10 +341,10 @@ public class GeoFenceUnlockActivity extends BaseActivity implements OnMapReadyCa
     }
 
     private void processChangeSensitivityFromSeekBar(int process) {
-        if(process <= 30) {
+        if (process <= 30) {
             mSensitivity = KNOCK_DOOR_SENSITIVITY_LOW;
             mSensitivityStr = getString(R.string.low);
-        } else if(process <= 70) {
+        } else if (process <= 70) {
             mSensitivity = KNOCK_DOOR_SENSITIVITY_MEDIUM;
             mSensitivityStr = getString(R.string.medium);
         } else {
@@ -342,15 +356,15 @@ public class GeoFenceUnlockActivity extends BaseActivity implements OnMapReadyCa
 
     private void processStopSensitivityFromSeekBar(SeekBar seekBar, boolean isSendCommand) {
         mTvSensitivity.setText(mSensitivityStr);
-        if(mSensitivity == KNOCK_DOOR_SENSITIVITY_LOW) {
+        if (mSensitivity == KNOCK_DOOR_SENSITIVITY_LOW) {
             seekBar.setProgress(0);
-        } else if(mSensitivity == KNOCK_DOOR_SENSITIVITY_MEDIUM) {
+        } else if (mSensitivity == KNOCK_DOOR_SENSITIVITY_MEDIUM) {
             seekBar.setProgress(50);
-        } else if(mSensitivity == KNOCK_DOOR_SENSITIVITY_HIGH) {
+        } else if (mSensitivity == KNOCK_DOOR_SENSITIVITY_HIGH) {
             seekBar.setProgress(100);
         }
-        if(isSendCommand) {
-            if(mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI) {
+        if (isSendCommand) {
+            if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI) {
                 publishSensitivity(mBleDeviceLocal.getEsn(), mSensitivity);
             } else {
                 setSensitivityFromBle();
@@ -360,19 +374,19 @@ public class GeoFenceUnlockActivity extends BaseActivity implements OnMapReadyCa
 
     private void setSensitivityFromBle() {
         BleBean bleBean = App.getInstance().getBleBeanFromMac(mBleDeviceLocal.getMac());
-        if(bleBean == null) {
+        if (bleBean == null) {
             Timber.e("setSensitivityFromBle bleBean == null");
             return;
         }
-        if(bleBean.getOKBLEDeviceImp() == null) {
+        if (bleBean.getOKBLEDeviceImp() == null) {
             Timber.e("setSensitivityFromBle bleBean.getOKBLEDeviceImp() == null");
             return;
         }
-        if(bleBean.getPwd1() == null) {
+        if (bleBean.getPwd1() == null) {
             Timber.e("setSensitivityFromBle bleBean.getPwd1() == null");
             return;
         }
-        if(bleBean.getPwd3() == null) {
+        if (bleBean.getPwd3() == null) {
             Timber.e("setSensitivityFromBle bleBean.getPwd3() == null");
             return;
         }
@@ -383,7 +397,7 @@ public class GeoFenceUnlockActivity extends BaseActivity implements OnMapReadyCa
 
     private void initBleListener() {
         BleBean bleBean = App.getInstance().getBleBeanFromMac(mBleDeviceLocal.getMac());
-        if(bleBean != null) {
+        if (bleBean != null) {
             bleBean.setOnBleDeviceListener(new OnBleDeviceListener() {
                 @Override
                 public void onConnected(@NotNull String mac) {
@@ -397,24 +411,24 @@ public class GeoFenceUnlockActivity extends BaseActivity implements OnMapReadyCa
 
                 @Override
                 public void onReceivedValue(@NotNull String mac, String uuid, byte[] value) {
-                    if(value == null) {
+                    if (value == null) {
                         Timber.e("initBleListener value == null");
                         return;
                     }
                     BleBean bleBean = App.getInstance().getBleBeanFromMac(mBleDeviceLocal.getMac());
-                    if(bleBean == null) {
+                    if (bleBean == null) {
                         Timber.e("initBleListener bleBean == null");
                         return;
                     }
-                    if(bleBean.getOKBLEDeviceImp() == null) {
+                    if (bleBean.getOKBLEDeviceImp() == null) {
                         Timber.e("initBleListener bleBean.getOKBLEDeviceImp() == null");
                         return;
                     }
-                    if(bleBean.getPwd1() == null) {
+                    if (bleBean.getPwd1() == null) {
                         Timber.e("initBleListener bleBean.getPwd1() == null");
                         return;
                     }
-                    if(bleBean.getPwd3() == null) {
+                    if (bleBean.getPwd3() == null) {
                         Timber.e("initBleListener bleBean.getPwd3() == null");
                         return;
                     }
@@ -439,7 +453,7 @@ public class GeoFenceUnlockActivity extends BaseActivity implements OnMapReadyCa
     }
 
     private final BleResultProcess.OnReceivedProcess mOnReceivedProcess = bleResultBean -> {
-        if(bleResultBean == null) {
+        if (bleResultBean == null) {
             Timber.e("mOnReceivedProcess bleResultBean == null");
             return;
         }
@@ -447,7 +461,7 @@ public class GeoFenceUnlockActivity extends BaseActivity implements OnMapReadyCa
     };
 
     private void processBleResult(BleResultBean bean) {
-        if(bean.getCMD() == CMD_SET_SENSITIVITY) {
+        if (bean.getCMD() == CMD_SET_SENSITIVITY) {
             processSetSensitivity(bean);
         }
     }
@@ -459,7 +473,7 @@ public class GeoFenceUnlockActivity extends BaseActivity implements OnMapReadyCa
 
     private void processSetSensitivity(BleResultBean bean) {
         byte state = bean.getPayload()[0];
-        if(state == 0x00) {
+        if (state == 0x00) {
             saveSensitivityToLocal();
         } else {
             Timber.e("处理失败原因 state：%1s", ConvertUtils.int2HexString(BleByteUtil.byteToInt(state)));
@@ -474,7 +488,7 @@ public class GeoFenceUnlockActivity extends BaseActivity implements OnMapReadyCa
     private Disposable mSensitivityDisposable;
 
     private void publishSensitivity(String wifiID, int sensitivity) {
-        if(mMQttService == null) {
+        if (mMQttService == null) {
             Timber.e("publishSensitivity mMQttService == null");
             return;
         }
@@ -502,11 +516,11 @@ public class GeoFenceUnlockActivity extends BaseActivity implements OnMapReadyCa
     }
 
     private void processSensitivity(MqttData mqttData) {
-        if(TextUtils.isEmpty(mqttData.getFunc())) {
+        if (TextUtils.isEmpty(mqttData.getFunc())) {
             Timber.e("publishSensitivity mqttData.getFunc() is empty");
             return;
         }
-        if(mqttData.getFunc().equals(MqttConstant.SET_LOCK_ATTR)) {
+        if (mqttData.getFunc().equals(MqttConstant.SET_LOCK_ATTR)) {
             dismissLoading();
             Timber.d("publishSensitivity 设置属性: %1s", mqttData);
             WifiLockSetLockAttrSensitivityRspBean bean;
@@ -516,17 +530,17 @@ public class GeoFenceUnlockActivity extends BaseActivity implements OnMapReadyCa
                 Timber.e(e);
                 return;
             }
-            if(bean == null) {
+            if (bean == null) {
                 Timber.e("publishSensitivity bean == null");
                 return;
             }
-            if(bean.getParams() == null) {
+            if (bean.getParams() == null) {
                 Timber.e("publishSensitivity bean.getParams() == null");
                 return;
             }
-            if(bean.getCode() != 200) {
+            if (bean.getCode() != 200) {
                 Timber.e("publishSensitivity code : %1d", bean.getCode());
-                if(bean.getCode() == 201) {
+                if (bean.getCode() == 201) {
                     // 设置失败了
                     ToastUtils.showShort(R.string.t_setting_sensitivity_fail);
                     initDefaultValue();
@@ -544,7 +558,7 @@ public class GeoFenceUnlockActivity extends BaseActivity implements OnMapReadyCa
      * This callback is triggered when the map is ready to be used.
      * This is where we can add markers or lines, add listeners or move the camera. In this case,
      * we just add a marker near Sydney, Australia.
-     *
+     * <p>
      * If Google Play services is not installed on the device, the user will be prompted to install`
      * it inside the SupportMapFragment. This method will only be triggered once the user has
      * installed Google Play services and returned to the app.

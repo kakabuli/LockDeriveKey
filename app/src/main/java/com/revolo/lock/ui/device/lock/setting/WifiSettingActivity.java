@@ -11,6 +11,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.constraintlayout.widget.ConstraintLayout;
 
 import com.a1anwang.okble.client.scan.BLEScanResult;
 import com.blankj.utilcode.util.ConvertUtils;
@@ -65,6 +66,7 @@ public class WifiSettingActivity extends BaseActivity {
 
     private SelectDialog mSelectDialog;
     private MessageDialog mPowerLowDialog;
+    private ConstraintLayout mCltip;
 
     @Override
     public void initData(@Nullable Bundle bundle) {
@@ -84,6 +86,7 @@ public class WifiSettingActivity extends BaseActivity {
         useCommonTitleBar(getString(R.string.title_wifi_setting));
         mIvWifiEnable = findViewById(R.id.ivWifiEnable);
         mTvWifiName = findViewById(R.id.tvWifiName);
+        mCltip = findViewById(R.id.clTip);
         initLoading("Setting...");
         applyDebouncingClickListener(mIvWifiEnable, findViewById(R.id.tvSettingTitle), findViewById(R.id.clTip));
 
@@ -439,6 +442,7 @@ public class WifiSettingActivity extends BaseActivity {
             String wifiName = mBleDeviceLocal.getConnectedWifiName();
             mTvWifiName.setText(TextUtils.isEmpty(wifiName) ? "" : wifiName);
             isWifiConnected = true;
+            mCltip.setVisibility(View.VISIBLE);
         });
     }
 
@@ -446,6 +450,7 @@ public class WifiSettingActivity extends BaseActivity {
         runOnUiThread(() -> {
             mIvWifiEnable.setImageResource(R.drawable.ic_icon_switch_close);
             isWifiConnected = false;
+            mCltip.setVisibility(View.GONE);
         });
     }
 

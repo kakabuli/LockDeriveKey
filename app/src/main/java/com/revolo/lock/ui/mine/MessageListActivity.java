@@ -16,6 +16,7 @@ import com.revolo.lock.R;
 import com.revolo.lock.adapter.MessageListAdapter;
 import com.revolo.lock.base.BaseActivity;
 import com.revolo.lock.bean.test.TestMessageBean;
+import com.revolo.lock.widget.SlideRecyclerView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -44,21 +45,21 @@ public class MessageListActivity extends BaseActivity {
     public void initView(@Nullable Bundle savedInstanceState, @Nullable View contentView) {
         useCommonTitleBar(getString(R.string.title_message));
 
-        RecyclerView rvMessage = findViewById(R.id.rvMessage);
+        SlideRecyclerView rvMessage = findViewById(R.id.rvMessage);
         rvMessage.setLayoutManager(new LinearLayoutManager(this));
         mMessageListAdapter = new MessageListAdapter(R.layout.item_message_rv);
-        mMessageListAdapter.setOnItemClickListener(new OnItemClickListener() {
-            @Override
-            public void onItemClick(@NonNull BaseQuickAdapter<?, ?> adapter, @NonNull View view, int position) {
-                if(position >= 0 && adapter.getItemCount() >= position && adapter.getItem(position) != null) {
-                    TestMessageBean testMessageBean = (TestMessageBean) adapter.getItem(position);
-                    Intent intent = new Intent(MessageListActivity.this, MessageDetailActivity.class);
-                    intent.putExtra(Constant.MESSAGE_DETAIL, testMessageBean);
-                    startActivity(intent);
-                }
+        mMessageListAdapter.setOnItemClickListener((adapter, view, position) -> {
+            if (position >= 0 && adapter.getItemCount() >= position && adapter.getItem(position) != null) {
+                TestMessageBean testMessageBean = (TestMessageBean) adapter.getItem(position);
+                Intent intent = new Intent(MessageListActivity.this, MessageDetailActivity.class);
+                intent.putExtra(Constant.MESSAGE_DETAIL, testMessageBean);
+                startActivity(intent);
             }
         });
         rvMessage.setAdapter(mMessageListAdapter);
+        mMessageListAdapter.setOnDeleteListener((v, position) -> {
+
+        });
     }
 
     @Override
@@ -72,7 +73,7 @@ public class MessageListActivity extends BaseActivity {
     }
 
     private void initTestData() {
-        if(mMessageListAdapter != null) {
+        if (mMessageListAdapter != null) {
             List<TestMessageBean> beanList = new ArrayList<>();
             TestMessageBean bean1 = new TestMessageBean("New year's day news", "      This is a message about the event，This is a message about the event，This is a message about the event.", 1610777058000L);
             beanList.add(bean1);

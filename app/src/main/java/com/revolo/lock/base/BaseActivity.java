@@ -18,14 +18,14 @@ import com.blankj.utilcode.util.AdaptScreenUtils;
 import com.blankj.utilcode.util.ClickUtils;
 import com.blankj.utilcode.util.NetworkUtils;
 import com.blankj.utilcode.util.ToastUtils;
+import com.revolo.lock.App;
+import com.revolo.lock.R;
+import com.revolo.lock.dialog.iosloading.CustomerLoadingDialog;
 import com.revolo.lock.mqtt.MqttService;
 import com.revolo.lock.shulan.KeepAliveManager;
 import com.revolo.lock.shulan.config.ForegroundNotification;
 import com.revolo.lock.shulan.config.ForegroundNotificationClickListener;
 import com.revolo.lock.shulan.config.RunMode;
-import com.revolo.lock.App;
-import com.revolo.lock.R;
-import com.revolo.lock.dialog.iosloading.CustomerLoadingDialog;
 import com.revolo.lock.ui.TitleBar;
 
 import org.jetbrains.annotations.NotNull;
@@ -49,7 +49,7 @@ public abstract class BaseActivity extends AppCompatActivity
     public CompositeDisposable mCompositeDisposable = new CompositeDisposable();
     public MqttService mMQttService = App.getInstance().getMQttService();
 
-    public View     mContentView;
+    public View mContentView;
     public Activity mActivity;
     private CustomerLoadingDialog mLoadingDialog;
 
@@ -59,11 +59,11 @@ public abstract class BaseActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         initData(getIntent().getExtras());
         setContentView();
-        if(mMQttService == null) {
+        if (mMQttService == null) {
             mMQttService = App.getInstance().getMQttService();
         }
-        if(mMQttService != null) {
-            if(mMQttService.getMqttClient() != null && !mMQttService.getMqttClient().isConnected()) {
+        if (mMQttService != null) {
+            if (mMQttService.getMqttClient() != null && !mMQttService.getMqttClient().isConnected()) {
                 mMQttService.mqttConnection();
             }
         }
@@ -88,8 +88,8 @@ public abstract class BaseActivity extends AppCompatActivity
 
     @Override
     protected void onDestroy() {
-        if(mLoadingDialog != null) {
-            if(mLoadingDialog.isShowing()) {
+        if (mLoadingDialog != null) {
+            if (mLoadingDialog.isShowing()) {
                 dismissLoading();
             }
         }
@@ -170,8 +170,8 @@ public abstract class BaseActivity extends AppCompatActivity
 
     public void showLoading(@NotNull String message) {
         runOnUiThread(() -> {
-            if(mLoadingDialog != null) {
-                if(mLoadingDialog.isShowing()) {
+            if (mLoadingDialog != null) {
+                if (mLoadingDialog.isShowing()) {
                     mLoadingDialog.dismiss();
                 }
             }
@@ -186,7 +186,7 @@ public abstract class BaseActivity extends AppCompatActivity
 
     public void showLoading() {
         runOnUiThread(() -> {
-            if(mLoadingDialog != null) {
+            if (mLoadingDialog != null) {
                 mLoadingDialog.show();
             }
         });
@@ -194,7 +194,7 @@ public abstract class BaseActivity extends AppCompatActivity
 
     public void dismissLoading() {
         runOnUiThread(() -> {
-            if(mLoadingDialog != null) {
+            if (mLoadingDialog != null) {
                 mLoadingDialog.dismiss();
             }
         });
@@ -207,10 +207,9 @@ public abstract class BaseActivity extends AppCompatActivity
     }
 
     public boolean checkNetConnectFail() {
-        if(!NetworkUtils.isConnected()) {
+        if (!NetworkUtils.isConnected()) {
             ToastUtils.showShort(R.string.connect_net_fail);
         }
         return NetworkUtils.isConnected();
     }
-
 }

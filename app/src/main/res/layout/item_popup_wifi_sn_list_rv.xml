@@ -3,10 +3,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/tvWifiSn"
     android:layout_width="match_parent"
-    android:layout_height="30pt"
+    android:layout_height="40pt"
     android:gravity="center_vertical"
     android:paddingStart="5pt"
     android:paddingEnd="5pt"
     android:textColor="@color/c333333"
-    android:textSize="15pt"
+    android:textSize="16pt"
     tools:text="wifi001_2.4G" />
