@@ -108,6 +108,10 @@ public class DeviceFragment extends Fragment {
                 mHomeLockListAdapter.addChildClickViewIds(R.id.ivLockState);
                 mHomeLockListAdapter.setOnItemChildClickListener((adapter, view, position) -> {
                     if (view.getId() == R.id.ivLockState) {
+                        @LocalState.LockState int mLockstate = mBleDeviceLocals.get(position).getLockState();
+                        if (mLockstate == LocalState.LOCK_STATE_PRIVATE) {
+                            return;
+                        }
                         @LocalState.LockState int state = mHomeLockListAdapter.getItem(position).getLockState();
                         if (mBleDeviceLocals.get(position).getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_BLE) {
                             openOrCloseDoorFromBle(position, state);
@@ -201,7 +205,7 @@ public class DeviceFragment extends Fragment {
                         || mqttData.getFunc().equals(MQttConstant.WF_EVENT))
                 .subscribe(mqttData -> {
                     baseActivity.toDisposable(mBindDevicesDisposable);
-                    if(mqttData.getFunc().equals(MQttConstant.GET_ALL_BIND_DEVICE)) {
+                    if (mqttData.getFunc().equals(MQttConstant.GET_ALL_BIND_DEVICE)) {
                         processDevices(mqttData);
                     }
                 }, Timber::e);
@@ -786,6 +790,12 @@ public class DeviceFragment extends Fragment {
             } else if (eventCode == 2 || eventCode == 0x09 || eventCode == 0x0E) {
                 // 开锁
                 setLockState(getPositionFromWifiId(bean.getWfId()), LocalState.LOCK_STATE_OPEN);
+            }
+        }else if(bean.getEventparams().getEventType()==3){
+            int eventCode = bean.getEventparams().getEventCode();
+            if(eventCode == 5){
+                // 上锁
+                setLockState(getPositionFromWifiId(bean.getWfId()), LocalState.LOCK_STATE_PRIVATE);
             }
         } else if (bean.getEventparams().getEventType() == 4) {
             // 传感器上报，门磁
