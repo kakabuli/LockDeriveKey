@@ -30,7 +30,7 @@ public class Constant {
     public static final String QR_RESULT = "QRResult";
 
     public static final String LOCK_DETAIL = "LockDetail";
-    public static final String PWD_DETAIL =  "PwdDetail";
+    public static final String PWD_DETAIL = "PwdDetail";
     public static final String USER_NAME = "UserName";
     public static final String MESSAGE_DETAIL = "MessageDetail";
     public static final String USER_INFO = "UserInfo";
@@ -67,7 +67,7 @@ public class Constant {
     public static final String USER_LOGIN_INFO = "UserLoginInfo";
 
     //SignSelect
-    public static final String SIGN_SELECT_MODE="sign_select_mode";
+    public static final String SIGN_SELECT_MODE = "sign_select_mode";
 
     /**
      * 在login界面，是否显示提示对话框key
@@ -76,5 +76,7 @@ public class Constant {
 
     // TODO: 2021/2/10 后续要整理
     public static final String IS_USE_BLE = "isUseBle";
+
+    public static boolean isShowDialog = false;
 
 }
