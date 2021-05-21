@@ -33,7 +33,8 @@
     <uses-permission android:name="android.permission.USE_FINGERPRINT" />
 
     <!--储存卡的读写权限-->
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        tools:ignore="ScopedStorage" />
 
     <application
         android:name=".App"
@@ -45,6 +46,7 @@
         android:requestLegacyExternalStorage="true"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
+        tools:ignore="AllowBackup,LockedOrientationActivity"
         android:theme="@style/Theme.RevoloLock">
 
         <!-- Mqtt Service -->
@@ -94,9 +96,7 @@
             android:name=".ui.MainActivity"
             android:configChanges="orientation|keyboardHidden"
             android:launchMode="singleTask"
-            android:screenOrientation="portrait" />
-            android:screenOrientation="portrait"
-            android:configChanges="orientation|keyboardHidden">
+            android:screenOrientation="portrait">
 
             <!--注册scheme-->
             <intent-filter android:label="alexa">

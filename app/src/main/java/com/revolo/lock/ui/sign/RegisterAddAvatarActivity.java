@@ -204,14 +204,10 @@ public class RegisterAddAvatarActivity extends BaseActivity implements EasyPermi
             url = avatarUrl;
         } else {
             File file = new File(avatarLocalPath);
-            if(file == null) {
-                url = avatarUrl;
+            if(file.exists()) {
+                url = avatarLocalPath;
             } else {
-                if(file.exists()) {
-                    url = avatarLocalPath;
-                } else {
-                    url = avatarUrl;
-                }
+                url = avatarUrl;
             }
         }
         RequestOptions requestOptions = RequestOptions.circleCropTransform()
