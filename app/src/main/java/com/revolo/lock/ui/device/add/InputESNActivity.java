@@ -3,6 +3,7 @@ package com.revolo.lock.ui.device.add;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.EditText;
 
@@ -49,7 +50,7 @@ public class InputESNActivity extends BaseActivity {
         if(view.getId() == R.id.btnNext) {
             String esn = ((EditText) findViewById(R.id.etESN)).getText().toString().trim();
             if(TextUtils.isEmpty(esn)) {
-                ToastUtils.showShort(R.string.t_please_input_product_esn);
+                ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_please_input_product_esn);
                 return;
             }
             // TODO: 2021/1/20 需要增加校验规则

@@ -91,6 +91,7 @@ public class RegisterAddAvatarActivity extends BaseActivity implements EasyPermi
             return;
         }
         if(view.getId() == R.id.btnPhotograph) {
+            rcSelectPicPermissions();
             if(!isCanUploadAvatar) {
                 return;
             }
@@ -102,6 +103,7 @@ public class RegisterAddAvatarActivity extends BaseActivity implements EasyPermi
             return;
         }
         if(view.getId() == R.id.btnAlbumAdd) {
+            rcSelectPicPermissions();
             if(!isCanUploadAvatar) {
                 return;
             }

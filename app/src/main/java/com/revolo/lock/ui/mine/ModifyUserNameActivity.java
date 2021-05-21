@@ -1,10 +1,10 @@
 package com.revolo.lock.ui.mine;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.text.TextUtils;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.EditText;
 
@@ -72,12 +72,12 @@ public class ModifyUserNameActivity extends BaseActivity {
         }
         String firstName = etFirstName.getText().toString().trim();
         if(TextUtils.isEmpty(firstName)) {
-            ToastUtils.showShort(R.string.t_please_input_your_first_name);
+            ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_please_input_your_first_name);
             return;
         }
         String lastName = etLastName.getText().toString().trim();
         if(TextUtils.isEmpty(lastName)) {
-            ToastUtils.showShort(R.string.t_please_input_your_last_name);
+            ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_please_input_your_last_name);
             return;
         }
         if(App.getInstance().getUserBean() == null) {
@@ -122,11 +122,11 @@ public class ModifyUserNameActivity extends BaseActivity {
                     String msg = updateUserFirstLastNameBeanRsp.getMsg();
                     Timber.e("updateFirstLastName code: %1s, msg: %2s", code, msg);
                     if(!TextUtils.isEmpty(msg)) {
-                        ToastUtils.showShort(msg);
+                        ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(msg);
                     }
                     return;
                 }
-                ToastUtils.showShort(R.string.t_success);
+                ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_success);
                 App.getInstance().getUser().setFirstName(firstName);
                 App.getInstance().getUser().setLastName(lastName);
                 AppDatabase.getInstance(getApplicationContext()).userDao().update(App.getInstance().getUser());

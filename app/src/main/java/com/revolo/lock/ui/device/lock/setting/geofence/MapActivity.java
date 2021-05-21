@@ -11,6 +11,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
+import android.view.Gravity;
 import android.view.View;
 
 import androidx.annotation.NonNull;
@@ -65,7 +66,7 @@ public class MapActivity extends BaseActivity implements OnMapReadyCallback, Goo
     @Override
     public void initData(@Nullable Bundle bundle) {
         mBleDeviceLocal = App.getInstance().getBleDeviceLocal();
-        if(mBleDeviceLocal == null) {
+        if (mBleDeviceLocal == null) {
             Timber.e("initData mBleDeviceLocal == null");
             return;
         }
@@ -104,13 +105,13 @@ public class MapActivity extends BaseActivity implements OnMapReadyCallback, Goo
                     // Got last known location. In some rare situations this can be null.
                     if (location != null) {
                         // Logic to handle location object
-                        if(mMap != null) {
+                        if (mMap != null) {
                             LatLng dhaka = new LatLng(location.getLatitude(), location.getLongitude());
                             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(dhaka, 16));
-                            if(mBleDeviceLocal.isOpenElectricFence()) {
+                            if (mBleDeviceLocal.isOpenElectricFence()) {
                                 double la = mBleDeviceLocal.getLatitude();
                                 double lo = mBleDeviceLocal.getLongitude();
-                                if(mMap != null) {
+                                if (mMap != null) {
                                     mMap.clear();
                                     LatLng latLng = new LatLng(la, lo);
                                     mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 16));
@@ -142,9 +143,9 @@ public class MapActivity extends BaseActivity implements OnMapReadyCallback, Goo
             } else {
                 if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_BACKGROUND_LOCATION)) {
                     //We show a dialog and ask for permission
-                    ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.ACCESS_BACKGROUND_LOCATION}, BACKGROUND_LOCATION_ACCESS_REQUEST_CODE);
+                    ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_BACKGROUND_LOCATION}, BACKGROUND_LOCATION_ACCESS_REQUEST_CODE);
                 } else {
-                    ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.ACCESS_BACKGROUND_LOCATION}, BACKGROUND_LOCATION_ACCESS_REQUEST_CODE);
+                    ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_BACKGROUND_LOCATION}, BACKGROUND_LOCATION_ACCESS_REQUEST_CODE);
                 }
             }
         } else {
@@ -224,10 +225,10 @@ public class MapActivity extends BaseActivity implements OnMapReadyCallback, Goo
         if (requestCode == BACKGROUND_LOCATION_ACCESS_REQUEST_CODE) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 //We have the permission
-                ToastUtils.showShort(R.string.t_you_can_add_geo_fences);
+                ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_you_can_add_geo_fences);
             } else {
                 //We do not have the permission..
-                ToastUtils.showShort(R.string.t_bg_loc_access_is_necessary_for_geo_fences_to_trigger);
+                ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_bg_loc_access_is_necessary_for_geo_fences_to_trigger);
             }
         }
     }

@@ -3,6 +3,7 @@ package com.revolo.lock.ui.device.add;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.LinearLayout;
 
@@ -10,6 +11,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.camera.view.PreviewView;
 
+import com.blankj.utilcode.util.ToastUtils;
 import com.king.zxing.CameraScan;
 import com.king.zxing.DefaultCameraScan;
 import com.revolo.lock.Constant;
@@ -57,12 +59,21 @@ public class AddDeviceQRCodeStep2Activity extends BaseActivity {
     }
 
     private void gotoBleConnectAct(String result) {
-        Timber.d("onScanQRCodeSuccess 扫描结果：%1s", result);
-        Intent intent = new Intent(AddDeviceQRCodeStep2Activity.this, AddDeviceStep2BleConnectActivity.class);
-        intent.putExtra(Constant.PRE_A, Constant.QR_CODE_A);
-        intent.putExtra(Constant.QR_RESULT, result);
-        startActivity(intent);
-        finish();
+        Timber.d("gotoBleConnectAct 扫描结果：%1s", result);
+        if (null != result && !"".equals(result)) {
+            // ESN=S420210110001&MAC=10:98:C3:72:C6:23
+            if (result.indexOf("ESN=") > -1 && result.indexOf("MAC") > -1 && result.indexOf("&") > -1) {
+                Intent intent = new Intent(AddDeviceQRCodeStep2Activity.this, AddDeviceStep2BleConnectActivity.class);
+                intent.putExtra(Constant.PRE_A, Constant.QR_CODE_A);
+                intent.putExtra(Constant.QR_RESULT, result);
+                startActivity(intent);
+                finish();
+            }else{
+                ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show("Abnormal QR code, please scan again");
+            }
+        } else {
+            return;
+        }
     }
 
     @Override
@@ -72,7 +83,7 @@ public class AddDeviceQRCodeStep2Activity extends BaseActivity {
 
     @Override
     public void onDebouncingClick(@NonNull View view) {
-        if(view.getId() == R.id.tvManualInput) {
+        if (view.getId() == R.id.tvManualInput) {
             startActivity(new Intent(this, InputESNActivity.class));
             return;
         }

@@ -203,6 +203,7 @@ public class UserPageActivity extends BaseActivity implements EasyPermissions.Pe
                     if(avatarFile == null) {
                         return;
                     }
+
                     mUser.setAvatarLocalPath(path);
                     uploadUserAvatar(avatarFile);
                     dismissPicSelect();

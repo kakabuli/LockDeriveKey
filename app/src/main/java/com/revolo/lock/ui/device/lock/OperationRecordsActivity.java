@@ -1,6 +1,6 @@
 package com.revolo.lock.ui.device.lock;
 
-import android.app.DatePickerDialog;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
@@ -12,38 +12,41 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 
-import com.blankj.utilcode.util.ThreadUtils;
+import com.bigkoo.pickerview.builder.TimePickerBuilder;
+import com.bigkoo.pickerview.view.TimePickerView;
 import com.blankj.utilcode.util.TimeUtils;
 import com.blankj.utilcode.util.ToastUtils;
+import com.contrarywind.view.WheelView;
 import com.revolo.lock.App;
 import com.revolo.lock.LocalState;
 import com.revolo.lock.R;
-
 import com.revolo.lock.adapter.OpRecordsAdapter;
 import com.revolo.lock.base.BaseActivity;
+import com.revolo.lock.bean.OperationRecords;
 import com.revolo.lock.bean.request.LockRecordBeanReq;
 import com.revolo.lock.bean.request.UpdateLockRecordBeanReq;
 import com.revolo.lock.bean.respone.LockRecordBeanRsp;
 import com.revolo.lock.bean.respone.UpdateLockRecordBeanRsp;
-import com.revolo.lock.bean.OperationRecords;
 import com.revolo.lock.ble.BleByteUtil;
-import com.revolo.lock.ble.bean.BleBean;
 import com.revolo.lock.ble.BleCommandFactory;
 import com.revolo.lock.ble.BleResultProcess;
 import com.revolo.lock.ble.OnBleDeviceListener;
+import com.revolo.lock.ble.bean.BleBean;
 import com.revolo.lock.ble.bean.BleResultBean;
 import com.revolo.lock.net.HttpRequest;
 import com.revolo.lock.net.ObservableDecorator;
 import com.revolo.lock.room.AppDatabase;
 import com.revolo.lock.room.entity.BleDeviceLocal;
 import com.revolo.lock.room.entity.LockRecord;
-import com.scwang.smart.refresh.footer.ClassicsFooter;
+import com.revolo.lock.ui.view.SmartClassicsFooterView;
 import com.scwang.smart.refresh.layout.api.RefreshLayout;
 import com.scwang.smart.refresh.layout.listener.OnLoadMoreListener;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -80,7 +83,7 @@ public class OperationRecordsActivity extends BaseActivity {
     @Override
     public void initData(@Nullable Bundle bundle) {
         mBleDeviceLocal = App.getInstance().getBleDeviceLocal();
-        if(mBleDeviceLocal == null) {
+        if (mBleDeviceLocal == null) {
             finish();
         }
         mBleBean = App.getInstance().getBleBeanFromMac(mBleDeviceLocal.getMac());
@@ -110,7 +113,7 @@ public class OperationRecordsActivity extends BaseActivity {
         mRefreshLayout = findViewById(R.id.refreshLayout);
         mRefreshLayout.setEnableRefresh(false);
 //        refreshLayout.setRefreshHeader(new ClassicsHeader(this));
-        mRefreshLayout.setRefreshFooter(new ClassicsFooter(this));
+        mRefreshLayout.setRefreshFooter(new SmartClassicsFooterView((this)));
 //        refreshLayout.setOnRefreshListener(new OnRefreshListener() {
 //            @Override
 //            public void onRefresh(RefreshLayout refreshlayout) {
@@ -120,7 +123,7 @@ public class OperationRecordsActivity extends BaseActivity {
         mRefreshLayout.setOnLoadMoreListener(new OnLoadMoreListener() {
             @Override
             public void onLoadMore(RefreshLayout refreshlayout) {
-                searchRecordFromNet(mPage, mPage==1);
+                searchRecordFromNet(mPage, mPage == 1);
             }
         });
     }
@@ -128,7 +131,7 @@ public class OperationRecordsActivity extends BaseActivity {
     @Override
     public void doBusiness() {
         showLoading();
-        if(mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI) {
+        if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI) {
             searchRecordFromNet(mPage, false);
         } else {
             initDevice();
@@ -163,19 +166,19 @@ public class OperationRecordsActivity extends BaseActivity {
 
         @Override
         public void onReceivedValue(@NotNull String mac, String uuid, byte[] value) {
-            if(value == null) {
+            if (value == null) {
                 Timber.e("mOnBleDeviceListener value == null");
                 return;
             }
-            if(mBleBean == null) {
+            if (mBleBean == null) {
                 Timber.e("mOnBleDeviceListener mBleBean == null");
                 return;
             }
-            if(mBleBean.getOKBLEDeviceImp() == null) {
+            if (mBleBean.getOKBLEDeviceImp() == null) {
                 Timber.e("mOnBleDeviceListener mBleBean.getOKBLEDeviceImp() == null");
                 return;
             }
-            if(!mBleDeviceLocal.getMac().equals(mac)) {
+            if (!mBleDeviceLocal.getMac().equals(mac)) {
                 Timber.e("mOnBleDeviceListener 蓝牙设备不匹配， mac: %1s, local mac: %2s", mac, mBleDeviceLocal.getMac());
                 return;
             }
@@ -196,17 +199,17 @@ public class OperationRecordsActivity extends BaseActivity {
     };
 
     private final BleResultProcess.OnReceivedProcess mOnReceivedProcess = bleResultBean -> {
-        if(bleResultBean == null) {
+        if (bleResultBean == null) {
             Timber.e("mOnReceivedProcess bleResultBean == null");
             return;
         }
-        if(bleResultBean.getCMD() == CMD_GET_ALL_RECORD) {
+        if (bleResultBean.getCMD() == CMD_GET_ALL_RECORD) {
             updateRecordFormBle(bleResultBean);
         }
     };
 
     private void initDevice() {
-        if(mBleBean == null) {
+        if (mBleBean == null) {
             Timber.e("initDevice mBleBean == null");
             return;
         }
@@ -217,7 +220,7 @@ public class OperationRecordsActivity extends BaseActivity {
     }
 
     private void searchRecordFromBle(short start, short end) {
-        if(mBleBean.getOKBLEDeviceImp() != null) {
+        if (mBleBean.getOKBLEDeviceImp() != null) {
             if (mBleBean.getOKBLEDeviceImp().isConnected()) {
                 // 因为shortToBytes转出来就是小端模式，所以调用直接使用小端模式的方法
                 App.getInstance().writeControlMsg(BleCommandFactory
@@ -233,14 +236,14 @@ public class OperationRecordsActivity extends BaseActivity {
     private static final short mWillAddCheckCount = 5;
 
     private void updateRecordFormBle(BleResultBean bean) {
-        if(!isNeedToReceiveRecord) {
+        if (!isNeedToReceiveRecord) {
             // 不再接收数据的标志位, 不再处理数据
             return;
         }
         byte[] total = new byte[2];
         System.arraycopy(bean.getPayload(), 0, total, 0, total.length);
         short totalShort = BleByteUtil.bytesToShortFromLittleEndian(total);
-        if(totalShort == 0) {
+        if (totalShort == 0) {
             // 数据是0条，不再处理
             return;
         }
@@ -258,8 +261,8 @@ public class OperationRecordsActivity extends BaseActivity {
         Timber.d("记录 total: %1d, index: %2d, eventType: %3d, eventSource: %4d, eventCode: %5d, userId: %6d, appId: %7d, time: %8d",
                 totalShort, indexShort, eventType, eventSource, eventCode, userId, appId, realTime * 1000);
 
-        if(mLatestCreateTime != 0) {
-            if(realTime == mLatestCreateTime) {
+        if (mLatestCreateTime != 0) {
+            if (realTime == mLatestCreateTime) {
                 cancelGetRecordFromBle();
                 return;
             }
@@ -274,11 +277,11 @@ public class OperationRecordsActivity extends BaseActivity {
         lockRecord.setEventType(eventType);
         mWillUploadRecord.add(lockRecord);
         // 因为index下标从0开始，所以要+1
-        if((totalShort - (indexShort+1)) > 0) {
-            if(indexShort == mBleSearchEnd) {
+        if ((totalShort - (indexShort + 1)) > 0) {
+            if (indexShort == mBleSearchEnd) {
                 // 当前下标的是预设最后的数据记录 预示着读取记录结束了, 开始下一次的记录读取
-                mBleSearchStart = (short) (mBleSearchStart+mWillAddCheckCount);
-                mBleSearchEnd = (totalShort-(indexShort+1))>=mWillAddCheckCount?((short)(mBleSearchEnd+mWillAddCheckCount)):((short)(totalShort-1));
+                mBleSearchStart = (short) (mBleSearchStart + mWillAddCheckCount);
+                mBleSearchEnd = (totalShort - (indexShort + 1)) >= mWillAddCheckCount ? ((short) (mBleSearchEnd + mWillAddCheckCount)) : ((short) (totalShort - 1));
                 searchRecordFromBle(mBleSearchStart, mBleSearchEnd);
             }
         } else {
@@ -308,10 +311,10 @@ public class OperationRecordsActivity extends BaseActivity {
                 .getInstance(this)
                 .lockRecordDao()
                 .findLockRecordsFromDeviceId(mBleDeviceLocal.getId(), num, page);
-        if(lockRecords == null) {
+        if (lockRecords == null) {
             return;
         }
-        if(lockRecords.isEmpty()) {
+        if (lockRecords.isEmpty()) {
             return;
         }
         mWillShowRecords.addAll(lockRecords);
@@ -327,10 +330,10 @@ public class OperationRecordsActivity extends BaseActivity {
                 .getInstance(this)
                 .lockRecordDao()
                 .findLockRecordsFromDeviceId(mBleDeviceLocal.getId());
-        if(lockRecords == null) {
+        if (lockRecords == null) {
             return;
         }
-        if(lockRecords.isEmpty()) {
+        if (lockRecords.isEmpty()) {
             return;
         }
         mWillShowRecords.addAll(lockRecords);
@@ -340,25 +343,25 @@ public class OperationRecordsActivity extends BaseActivity {
     /*--------------------------------- 服务器 -------------------------------------*/
 
     private void searchRecordFromNet(int page, boolean isNeedBleGetRecords) {
-        if(!checkNetConnectFail()) {
+        if (!checkNetConnectFail()) {
             return;
         }
-        if(App.getInstance().getUserBean()  == null) {
+        if (App.getInstance().getUserBean() == null) {
             Timber.e("searchRecordFromNet App.getInstance().getUserBean()  == null");
             return;
         }
         String token = App.getInstance().getUserBean().getToken();
-        if(TextUtils.isEmpty(token)) {
+        if (TextUtils.isEmpty(token)) {
             Timber.e("searchRecordFromNet token is empty");
             return;
         }
         String uid = App.getInstance().getUserBean().getUid();
-        if(TextUtils.isEmpty(uid)) {
+        if (TextUtils.isEmpty(uid)) {
             Timber.e("searchRecordFromNet uid is empty");
             return;
         }
         String esn = mBleDeviceLocal.getEsn();
-        if(TextUtils.isEmpty(esn)) {
+        if (TextUtils.isEmpty(esn)) {
             Timber.e("searchRecordFromNet esn is empty");
             return;
         }
@@ -378,18 +381,18 @@ public class OperationRecordsActivity extends BaseActivity {
             public void onNext(@NonNull LockRecordBeanRsp lockRecordBeanRsp) {
                 dismissLoading();
                 String code = lockRecordBeanRsp.getCode();
-                if(TextUtils.isEmpty(code)) {
+                if (TextUtils.isEmpty(code)) {
                     Timber.e("searchRecordFromNet code is empty");
                     return;
                 }
-                if(!code.equals("200")) {
-                    if(code.equals("444")) {
+                if (!code.equals("200")) {
+                    if (code.equals("444")) {
                         App.getInstance().logout(true, OperationRecordsActivity.this);
                         return;
                     }
                     String msg = lockRecordBeanRsp.getMsg();
-                    Timber.e("searchRecordFromNet code: %1s, msg: %2s", code,msg);
-                    if(!TextUtils.isEmpty(msg)) {
+                    Timber.e("searchRecordFromNet code: %1s, msg: %2s", code, msg);
+                    if (!TextUtils.isEmpty(msg)) {
                         ToastUtils.showShort(msg);
                     }
                     return;
@@ -413,12 +416,12 @@ public class OperationRecordsActivity extends BaseActivity {
 
     }
 
-    private long mLatestCreateTime  = 0L;
+    private long mLatestCreateTime = 0L;
     private final List<LockRecord> mWillShowRecords = new ArrayList<>();
 
     private void processRecordFromNet(boolean isNeedBleGetRecords, int page, List<LockRecordBeanRsp.DataBean> beans) {
-        if(isNeedBleGetRecords) {
-            if(!beans.isEmpty()) {
+        if (isNeedBleGetRecords) {
+            if (!beans.isEmpty()) {
                 mLatestCreateTime = beans.get(0).getTimesTamp();
             }
             // 开始检索, 每次检索5条
@@ -427,8 +430,8 @@ public class OperationRecordsActivity extends BaseActivity {
             searchRecordFromBle(mBleSearchStart, mBleSearchEnd);
         } else {
             // TODO: 2021/3/18 时间错误就不能存储
-            if(beans.isEmpty()) {
-                if(mRefreshLayout != null) {
+            if (beans.isEmpty()) {
+                if (mRefreshLayout != null) {
                     mRefreshLayout.finishLoadMore();
                 }
                 Timber.e("processRecordFromNet beans is empty");
@@ -456,29 +459,29 @@ public class OperationRecordsActivity extends BaseActivity {
     }
 
     private void uploadRecordsToService(List<LockRecord> records) {
-        if(!checkNetConnectFail()) {
+        if (!checkNetConnectFail()) {
             return;
         }
-        if(records.isEmpty()) {
+        if (records.isEmpty()) {
             Timber.e("updateLockRecord records is empty");
             return;
         }
-        if(App.getInstance().getUserBean() == null) {
+        if (App.getInstance().getUserBean() == null) {
             Timber.e("updateLockRecord App.getInstance().getUserBean() == null");
             return;
         }
         String token = App.getInstance().getUserBean().getToken();
-        if(TextUtils.isEmpty(token)) {
+        if (TextUtils.isEmpty(token)) {
             Timber.e("updateLockRecord token is empty");
             return;
         }
         String esn = mBleDeviceLocal.getEsn();
-        if(TextUtils.isEmpty(esn)) {
+        if (TextUtils.isEmpty(esn)) {
             Timber.e("updateLockRecord esn is empty");
             return;
         }
         String uid = App.getInstance().getUserBean().getUid();
-        if(TextUtils.isEmpty(uid)) {
+        if (TextUtils.isEmpty(uid)) {
             Timber.e("updateLockRecord uid is empty");
             return;
         }
@@ -509,18 +512,18 @@ public class OperationRecordsActivity extends BaseActivity {
             public void onNext(@NonNull UpdateLockRecordBeanRsp updateLockRecordBeanRsp) {
                 dismissLoading();
                 String code = updateLockRecordBeanRsp.getCode();
-                if(TextUtils.isEmpty(code)) {
+                if (TextUtils.isEmpty(code)) {
                     Timber.e("updateLockRecord code is empty");
                     return;
                 }
-                if(!code.equals("200")) {
-                    if(code.equals("444")) {
+                if (!code.equals("200")) {
+                    if (code.equals("444")) {
                         App.getInstance().logout(true, OperationRecordsActivity.this);
                         return;
                     }
                     String msg = updateLockRecordBeanRsp.getMsg();
                     Timber.d("updateLockRecord code: %1s, msg: %2s", code, msg);
-                    if(!TextUtils.isEmpty(msg)) {
+                    if (!TextUtils.isEmpty(msg)) {
                         ToastUtils.showShort(msg);
                     }
                     return;
@@ -546,7 +549,7 @@ public class OperationRecordsActivity extends BaseActivity {
 
     private void showOrDismissNoRecord(boolean isShow) {
         runOnUiThread(() -> {
-            if(isShow) {
+            if (isShow) {
                 mllNoRecord.setVisibility(View.VISIBLE);
             } else {
                 mllNoRecord.setVisibility(View.GONE);
@@ -556,7 +559,7 @@ public class OperationRecordsActivity extends BaseActivity {
 
     private void showOrDismissRecords(boolean isShow) {
         runOnUiThread(() -> {
-            if(isShow) {
+            if (isShow) {
                 mElOperationRecords.setVisibility(View.VISIBLE);
             } else {
                 mElOperationRecords.setVisibility(View.GONE);
@@ -568,7 +571,7 @@ public class OperationRecordsActivity extends BaseActivity {
 
     private void refreshUIFromFinalData() {
         // TODO: 2021/2/25 后面要做的是要代理处理的数据
-        if(mWillShowRecords.isEmpty()) {
+        if (mWillShowRecords.isEmpty()) {
             showOrDismissNoRecord(true);
             showOrDismissRecords(false);
             return;
@@ -583,7 +586,7 @@ public class OperationRecordsActivity extends BaseActivity {
             boolean isAlarmRecord = false;
             String message = "";
             @DrawableRes int drawableId = R.drawable.ic_home_log_icon__password;
-            if(lockRecord.getEventType() == 1) {
+            if (lockRecord.getEventType() == 1) {
                 // 操作类
                 switch (lockRecord.getEventCode()) {
                     case 0x07:
@@ -599,7 +602,7 @@ public class OperationRecordsActivity extends BaseActivity {
                     case 0x09:
                         // 机械钥匙开锁
                         message = "Unlocked by mechanical key";
-                        drawableId = R.drawable.ic_home_log_icon__password;
+                        drawableId = R.drawable.ic_home_log_icon__key;
                         break;
                     case 0x0A:
                         // 自动上锁
@@ -609,7 +612,7 @@ public class OperationRecordsActivity extends BaseActivity {
                     case 0x10:
                         // 敲击开锁
                         // TODO: 2021/3/29 通过编号识别对应用户, 下面记录还有
-                        message = lockRecord.getUserId() + " uses Geo-fence to unlock";
+                        message = (TextUtils.isEmpty(lockRecord.getLastName()) ? lockRecord.getUserId() : lockRecord.getLastName()) + " uses Geo-fence to unlock";
                         drawableId = R.drawable.ic_home_log_icon__geofence;
                         break;
                     case 0x11:
@@ -625,12 +628,12 @@ public class OperationRecordsActivity extends BaseActivity {
                     case 0x13:
                         // 门磁检测开门
                         message = "Detection of door opened";
-                        drawableId = R.drawable.ic_home_log_icon_door_lock;
+                        drawableId = R.drawable.ic_home_log_icon__door_open;
                         break;
                     case 0x14:
                         // 门磁检测关门
                         message = "Detection of closed door";
-                        drawableId = R.drawable.ic_home_log_icon_door_lock;
+                        drawableId = R.drawable.ic_home_log_icon__door_close;
                         break;
                     case 0x01:
                         // 上锁
@@ -638,7 +641,7 @@ public class OperationRecordsActivity extends BaseActivity {
                             case 0x08:
                                 // App
                                 // TODO: 2021/3/29 通过编号识别对应用户
-                                message = lockRecord.getUserId() + " locked the door by APP ";
+                                message = (TextUtils.isEmpty(lockRecord.getLastName()) ? lockRecord.getUserId() : lockRecord.getLastName()) + " locked the door by APP ";
                                 drawableId = R.drawable.ic_home_log_icon_door_lock;
                                 break;
                             default:
@@ -653,12 +656,12 @@ public class OperationRecordsActivity extends BaseActivity {
                             case 0x00:
                                 // 键盘
                                 message = "Unlocked by password";
-                                drawableId = R.drawable.ic_home_log_icon__door_open;
+                                drawableId = R.drawable.ic_home_log_icon__password;
                                 break;
                             case 0x08:
                                 // App
-                                message = lockRecord.getUserId() + " uses the APP to unlock";
-                                drawableId = R.drawable.ic_home_log_icon__password;
+                                message = (TextUtils.isEmpty(lockRecord.getLastName()) ? lockRecord.getUserId() : lockRecord.getLastName()) + " uses the APP to unlock";
+                                drawableId = R.drawable.ic_home_log_icon__iphone;
                                 break;
                             default:
                                 Timber.e("event code: %1d, event source: %2d",
@@ -670,17 +673,17 @@ public class OperationRecordsActivity extends BaseActivity {
                         Timber.e("event code: %1d", lockRecord.getEventCode());
                         break;
                 }
-            } else if(lockRecord.getEventType() == 2) {
+            } else if (lockRecord.getEventType() == 2) {
                 // 程序类
                 switch (lockRecord.getEventCode()) {
                     case 0x02:
                         // 密码添加
-                        message = lockRecord.getUserId() + " added a password";
+                        message = "The user added a password";
                         drawableId = R.drawable.ic_home_log_icon__password;
                         break;
                     case 0x03:
                         // 密码删除
-                        message = lockRecord.getUserId() + " deleted a password";
+                        message = "The user deleted a password";
                         drawableId = R.drawable.ic_home_log_icon__password;
                         break;
                     case 0x0f:
@@ -692,7 +695,7 @@ public class OperationRecordsActivity extends BaseActivity {
                         Timber.e("");
                         break;
                 }
-            } else if(lockRecord.getEventType() == 3) {
+            } else if (lockRecord.getEventType() == 3) {
                 // 报警类
                 switch (lockRecord.getEventCode()) {
                     case 0x01:
@@ -723,7 +726,7 @@ public class OperationRecordsActivity extends BaseActivity {
                     case 0x10:
                         // 低电压报警
                         message = "Low battery alarm";
-                        drawableId = R.drawable.ic_home_log_icon__alert;
+                        drawableId = R.drawable.ic_home_log_icon__battery;
                         break;
                     case 0x20:
                         // 锁体异常报警
@@ -747,13 +750,13 @@ public class OperationRecordsActivity extends BaseActivity {
                 Timber.e("");
             }
 
-            if(TextUtils.isEmpty(message)) {
+            if (TextUtils.isEmpty(message)) {
                 Timber.e("本地记录 eventType: %3d, eventSource: %4d, eventCode: %5d, userId: %6d, appId: %7d, time: %8d",
                         lockRecord.getEventType(), lockRecord.getEventSource(), lockRecord.getEventCode(),
                         lockRecord.getUserId(), lockRecord.getAppId(), lockRecord.getCreateTime() * 1000);
                 continue;
             }
-            record = new OperationRecords.OperationRecord(lockRecord.getCreateTime()*1000, message, drawableId, isAlarmRecord);
+            record = new OperationRecords.OperationRecord(lockRecord.getCreateTime() * 1000, message, drawableId, isAlarmRecord);
             records.add(record);
         }
         dismissLoading();
@@ -762,6 +765,7 @@ public class OperationRecordsActivity extends BaseActivity {
 
     /**
      * 使用 Map按key进行排序
+     *
      * @param map
      * @return
      */
@@ -808,7 +812,7 @@ public class OperationRecordsActivity extends BaseActivity {
         }
         runOnUiThread(() -> {
             initAdapter(recordsList);
-            if(mRefreshLayout != null) {
+            if (mRefreshLayout != null) {
                 mRefreshLayout.finishLoadMore();
             }
         });
@@ -817,43 +821,77 @@ public class OperationRecordsActivity extends BaseActivity {
     private void initAdapter(List<OperationRecords> recordsList) {
         mOpRecordsAdapter.setOperationRecords(recordsList);
         int count = mOpRecordsAdapter.getGroupCount();
-        for(int i=0; i<count; i++) {
+        for (int i = 0; i < count; i++) {
             mElOperationRecords.expandGroup(i);
         }
     }
 
     private void showDatePicker() {
-        DatePickerDialog datePickerDialog = new DatePickerDialog(this, R.style.MyTimePickerDialogTheme);
-        datePickerDialog.setOnDateSetListener((view, year, month, dayOfMonth) -> {
-            // TODO: 2021/2/4 date
-            showLoading();
-            month+=1;
-            String date = year+"-"+(month<10?"0"+month:month)+"-"+(dayOfMonth<10?"0"+dayOfMonth:dayOfMonth);
-            long startTime = TimeUtils.string2Millis(date+" 00:00:00");
-            long endTime = TimeUtils.string2Millis(date+" 23:59:59");
-            ThreadUtils.getSinglePool().execute(() -> {
-                searchRecordsFromDate(date, startTime, endTime);
-            });
 
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+
+        TimePickerBuilder timePickerBuilder = new TimePickerBuilder(this, (date, v) -> {
+            OperationRecordsActivity.this.showLoading();
+            String time = dateFormat.format(date);
+            long startTime = TimeUtils.string2Millis(time + " 00:00:00");
+            long endTime = TimeUtils.string2Millis(time + " 23:59:59");
+            searchRecordsFromDate(time, startTime, endTime);
         });
-        datePickerDialog.setCancelable(true);
-        datePickerDialog.show();
+
+        timePickerBuilder.setCancelColor(Color.parseColor("#999999"))
+                .setDividerColor(Color.parseColor("#f7f7f7"))
+                .setSubmitColor(Color.parseColor("#2c68ff"))
+                .setTitleColor(Color.parseColor("#333333"))
+                .setTextColorCenter(Color.parseColor("#333333"))
+                .setTextColorOut(Color.parseColor("#999999"))
+                .setDividerColor(Color.parseColor("#f7f7f7"))
+                .isCenterLabel(false).setCancelText("cancel")
+                .setSubmitText("confirm")
+                .setBgColor(Color.parseColor("#ffffff"))
+                .setItemVisibleCount(3).setContentTextSize(16)
+                .setTitleBgColor(Color.parseColor("#ffffff"))
+                .setLabel("", "", "", "", "", "")
+                .setLineSpacingMultiplier(3f)
+                .setDividerType(WheelView.DividerType.FILL)
+                .setTextXOffset(0, 0, 0, 0, 0, 0);
+
+
+        TimePickerView timePickerView = timePickerBuilder.build();
+        timePickerView.setDate(Calendar.getInstance());
+        timePickerView.setTitleText("Date");
+        timePickerView.show();
+
+
+//        DatePickerDialog datePickerDialog = new DatePickerDialog(this, R.style.MyTimePickerDialogTheme);
+//        datePickerDialog.setOnDateSetListener((view, year, month, dayOfMonth) -> {
+//            // TODO: 2021/2/4 date
+//            showLoading();
+//            month += 1;
+//            String date = year + "-" + (month < 10 ? "0" + month : month) + "-" + (dayOfMonth < 10 ? "0" + dayOfMonth : dayOfMonth);
+//            long startTime = TimeUtils.string2Millis(date + " 00:00:00");
+//            long endTime = TimeUtils.string2Millis(date + " 23:59:59");
+//            ThreadUtils.getSinglePool().execute(() -> {
+//                searchRecordsFromDate(date, startTime, endTime);
+//            });
+//
+//        });
+//        datePickerDialog.setCancelable(true);
+//        datePickerDialog.show();
     }
 
     private void searchRecordsFromDate(String date, long startTime, long endTime) {
         List<LockRecord> lockRecords = AppDatabase
                 .getInstance(OperationRecordsActivity.this)
                 .lockRecordDao()
-                .findLockRecordsFromDeviceIdAndDay(mBleDeviceLocal.getId(), startTime/1000, endTime/1000);
-        Timber.d("showDatePicker startDate 选择的日期%1s, startTime：%2d, endTime: %3d",date, startTime, endTime);
-//        mLockRecords.clear();
-//        if(lockRecords == null || lockRecords.isEmpty()) {
-//            dismissLoading();
-//            Timber.e("showDatePicker lockRecords is empty");
-//        } else {
-//            mLockRecords.addAll(lockRecords);
-//        }
-//        refreshUIFromFinalData();
+                .findLockRecordsFromDeviceIdAndDay(mBleDeviceLocal.getId(), startTime / 1000, endTime / 1000);
+        Timber.d("showDatePicker startDate 选择的日期%1s, startTime：%2d, endTime: %3d", date, startTime, endTime);
+        mWillShowRecords.clear();
+        if (lockRecords == null || lockRecords.isEmpty()) {
+            dismissLoading();
+            Timber.e("showDatePicker lockRecords is empty");
+        } else {
+            mWillShowRecords.addAll(lockRecords);
+        }
+        refreshUIFromFinalData();
     }
-
 }

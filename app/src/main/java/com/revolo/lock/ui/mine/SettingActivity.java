@@ -30,7 +30,7 @@ public class SettingActivity extends BaseActivity {
     private static final int REQUEST_CODE_OPEN_GESTURE_CODE = 1999;
     private static final int REQUEST_CODE_CLOSE_GESTURE_CODE = 1888;
 
-    private ConstraintLayout mClEnableTouchID, mClEnableFaceID;
+    private ConstraintLayout mClEnableTouchID, mClEnableFaceID,clChangeGesturePassword;
     private FingerprintUtils mFingerprintUtils;
 
     @Override
@@ -54,7 +54,8 @@ public class SettingActivity extends BaseActivity {
         ivEnableFaceIDEnable = findViewById(R.id.ivEnableFaceIDEnable);
         mClEnableFaceID = findViewById(R.id.clEnableFaceID);
         mClEnableTouchID = findViewById(R.id.clEnableTouchID);
-        applyDebouncingClickListener(ivGestureCodeEnable, ivEnableTouchIDEnable, ivEnableFaceIDEnable);
+        clChangeGesturePassword=findViewById(R.id.clChangeGesturePassword);
+        applyDebouncingClickListener(ivGestureCodeEnable, ivEnableTouchIDEnable, ivEnableFaceIDEnable,clChangeGesturePassword);
         mFingerprintUtils = new FingerprintUtils(new FingerprintManager.AuthenticationCallback() {
             @Override
             public void onAuthenticationError(int errorCode, CharSequence errString) {
@@ -100,13 +101,14 @@ public class SettingActivity extends BaseActivity {
                 startActivityForResult(intent, REQUEST_CODE_OPEN_GESTURE_CODE);
             }
             return;
-        }
-        if(view.getId() == R.id.ivEnableTouchIDEnable) {
+        }else if(view.getId() == R.id.ivEnableTouchIDEnable) {
             mFingerprintUtils.openFingerprintAuth();
             return;
-        }
-        if(view.getId() == R.id.ivEnableFaceIDEnable) {
+        }else if(view.getId() == R.id.ivEnableFaceIDEnable) {
             // TODO: 2021/3/19 faceId
+        }else if(view.getId()==R.id.clChangeGesturePassword){
+            Intent intent = new Intent(this, OpenDrawHandPwdActivity.class);
+            startActivityForResult(intent, REQUEST_CODE_OPEN_GESTURE_CODE);
         }
     }
 

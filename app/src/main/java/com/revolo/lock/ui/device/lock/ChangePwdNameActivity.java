@@ -3,6 +3,7 @@ package com.revolo.lock.ui.device.lock;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.EditText;
 
@@ -86,7 +87,7 @@ public class ChangePwdNameActivity extends BaseActivity {
         EditText etPwdName = findViewById(R.id.etPwdName);
         String pwdName = etPwdName.getText().toString().trim();
         if(TextUtils.isEmpty(pwdName)) {
-            ToastUtils.showShort(R.string.t_please_input_pwd_name);
+            ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_please_input_pwd_name);
             return;
         }
         if(App.getInstance().getUserBean() == null) {
@@ -130,11 +131,11 @@ public class ChangePwdNameActivity extends BaseActivity {
                     String msg = changeKeyNickBeanRsp.getMsg();
                     Timber.e("code: %1s, msg: %2s", changeKeyNickBeanRsp.getCode(), msg);
                     if(!TextUtils.isEmpty(msg)) {
-                        ToastUtils.showShort(msg);
+                        ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(msg);
                     }
                     return;
                 }
-                ToastUtils.showShort(R.string.t_success);
+                ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_success);
                 finishThisAct();
             }
 
@@ -158,7 +159,7 @@ public class ChangePwdNameActivity extends BaseActivity {
     }
 
     private void showAddFail() {
-        runOnUiThread(() -> ToastUtils.showShort(R.string.t_setting_fail));
+        runOnUiThread(() -> ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_setting_fail));
 
     }
 

@@ -3,6 +3,7 @@ package com.revolo.lock.ui.device.lock;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.EditText;
 
@@ -39,17 +40,17 @@ public class AddNewPwdNameActivity extends BaseActivity {
     @Override
     public void initData(@Nullable Bundle bundle) {
         Intent intent = getIntent();
-        if(intent.hasExtra(Constant.PWD_NUM)) {
+        if (intent.hasExtra(Constant.PWD_NUM)) {
             mPwdNum = intent.getIntExtra(Constant.PWD_NUM, -1);
         }
-        if(mPwdNum == -1) {
+        if (mPwdNum == -1) {
             finish();
             return;
         }
-        if(intent.hasExtra(Constant.LOCK_ESN)) {
+        if (intent.hasExtra(Constant.LOCK_ESN)) {
             mEsn = intent.getStringExtra(Constant.LOCK_ESN);
         }
-        if(TextUtils.isEmpty(mEsn)) {
+        if (TextUtils.isEmpty(mEsn)) {
             finish();
         }
     }
@@ -73,31 +74,31 @@ public class AddNewPwdNameActivity extends BaseActivity {
 
     @Override
     public void onDebouncingClick(@NonNull View view) {
-        if(view.getId() == R.id.btnComplete) {
+        if (view.getId() == R.id.btnComplete) {
             sendPwdDataToServiceAndLocal();
             return;
         }
-        if(view.getId() == R.id.tvAddNextTime) {
+        if (view.getId() == R.id.tvAddNextTime) {
             finish();
         }
     }
 
     private void sendPwdDataToServiceAndLocal() {
-        if(!checkNetConnectFail()) {
+        if (!checkNetConnectFail()) {
             return;
         }
         EditText etPwdName = findViewById(R.id.etPwdName);
         String pwdName = etPwdName.getText().toString().trim();
-        if(TextUtils.isEmpty(pwdName)) {
-            ToastUtils.showShort(R.string.t_please_input_pwd_name);
+        if (TextUtils.isEmpty(pwdName)) {
+            ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_please_input_pwd_name);
             return;
         }
-        if(App.getInstance().getUserBean() == null) {
+        if (App.getInstance().getUserBean() == null) {
             showAddFail();
             return;
         }
         String uid = App.getInstance().getUserBean().getUid();
-        if(TextUtils.isEmpty(uid)) {
+        if (TextUtils.isEmpty(uid)) {
             showAddFail();
             return;
         }
@@ -122,19 +123,19 @@ public class AddNewPwdNameActivity extends BaseActivity {
             public void onNext(@NonNull ChangeKeyNickBeanRsp changeKeyNickBeanRsp) {
                 dismissLoading();
                 String code = changeKeyNickBeanRsp.getCode();
-                if(TextUtils.isEmpty(code)) {
+                if (TextUtils.isEmpty(code)) {
                     Timber.e("changeKeyNickBeanRsp.getCode() is Empty");
                     return;
                 }
-                if(!code.equals("200")) {
-                    if(code.equals("444")) {
+                if (!code.equals("200")) {
+                    if (code.equals("444")) {
                         App.getInstance().logout(true, AddNewPwdNameActivity.this);
                         return;
                     }
                     String msg = changeKeyNickBeanRsp.getMsg();
                     Timber.e("code: %1s, msg: %2s", changeKeyNickBeanRsp.getCode(), msg);
-                    if(!TextUtils.isEmpty(msg)) {
-                        ToastUtils.showShort(msg);
+                    if (!TextUtils.isEmpty(msg)) {
+                        ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(msg);
                     }
                     return;
                 }
@@ -161,7 +162,7 @@ public class AddNewPwdNameActivity extends BaseActivity {
     }
 
     private void showAddFail() {
-        runOnUiThread(() -> ToastUtils.showShort(R.string.t_setting_fail));
+        runOnUiThread(() -> ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_setting_fail));
 
     }
 

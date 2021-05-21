@@ -3,6 +3,7 @@ package com.revolo.lock.ui.user;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.TextView;
 
@@ -170,7 +171,7 @@ public class AuthUserDetailActivity extends BaseActivity {
                     String msg = getDevicesFromUidAndSharedUidBeanRsp.getMsg();
                     Timber.e("searchUserDevice code: %1s, msg: %2s", code, msg);
                     if(!TextUtils.isEmpty(msg)) {
-                        ToastUtils.showShort(msg);
+                        ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(msg);
                     }
                     return;
                 }

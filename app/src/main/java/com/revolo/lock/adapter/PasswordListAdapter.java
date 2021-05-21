@@ -16,6 +16,7 @@ import com.revolo.lock.ble.BleByteUtil;
 import org.jetbrains.annotations.NotNull;
 
 import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.TimeZone;
 
 import static com.revolo.lock.ble.BleCommandState.KEY_SET_ATTRIBUTE_ALWAYS;
@@ -114,4 +115,54 @@ public class PasswordListAdapter extends BaseQuickAdapter<DevicePwdBean, BaseVie
         mZeroTimeZoneDateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
     }
 
+    /**
+     * 判断密码时间是否失效
+     */
+    private boolean isTimeInvalid(DevicePwdBean devicePwdBean) {
+
+        if (devicePwdBean.getAttribute() == 0) {
+            // 永久秘钥
+            return false;
+        }
+
+        if (devicePwdBean.getAttribute() == 1) {
+            // 时间策略秘钥
+            long startTime = devicePwdBean.getStartTime() * 1000;
+            long endTime = devicePwdBean.getEndTime() * 1000;
+            long nowTime = new Date().getTime();
+            if (startTime <= nowTime && nowTime <= endTime) {
+                return false;
+            } else {
+                return true;
+            }
+        }
+
+        if (devicePwdBean.getAttribute() == 2) {
+            // 胁迫秘钥
+            return false;
+        }
+
+        if (devicePwdBean.getAttribute() == 3) {
+            // 管理员秘钥
+            return false;
+        }
+
+        if (devicePwdBean.getAttribute() == 4) {
+            // 无权限秘钥
+            return false;
+        }
+
+        if (devicePwdBean.getAttribute() == 5) {
+            // 周策略秘钥
+            long startTime = devicePwdBean.getStartTime() * 1000;
+            long endTime = devicePwdBean.getEndTime() * 1000;
+            long nowTime = new Date().getTime();
+            if (startTime <= nowTime && nowTime <= endTime) {
+                return false;
+            } else {
+                return true;
+            }
+        }
+        return true;
+    }
 }

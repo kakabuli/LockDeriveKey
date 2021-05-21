@@ -1,26 +1,32 @@
 package com.revolo.lock.ui.sign;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.text.TextUtils;
+import android.view.KeyEvent;
 import android.view.View;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.blankj.utilcode.util.GsonUtils;
+import com.blankj.utilcode.util.SPUtils;
 import com.revolo.lock.App;
+import com.revolo.lock.Constant;
 import com.revolo.lock.R;
 import com.revolo.lock.base.BaseActivity;
-import com.revolo.lock.room.AppDatabase;
+import com.revolo.lock.bean.respone.MailLoginBeanRsp;
 import com.revolo.lock.room.entity.User;
+import com.revolo.lock.ui.MainActivity;
 import com.revolo.lock.ui.TitleBar;
 import com.revolo.lock.widget.handPwdUtil.GestureContentView;
 import com.revolo.lock.widget.handPwdUtil.GestureDrawline;
+
+import static com.revolo.lock.Constant.REVOLO_SP;
 
 /**
  * author :
@@ -66,11 +72,15 @@ public class DrawHandPwdAutoLoginActivity extends BaseActivity {
                 String code = user.getGestureCode();
                 if(inputCode.equals(code)) {
                     setResult(RESULT_OK);
-                    new Handler(Looper.getMainLooper()).postDelayed(() -> finish(), 50);
+                    autoLogin();
+                   // new Handler(Looper.getMainLooper()).postDelayed(() -> finish(), 50);
                 } else {
                     if(mCount == 0) {
                         setResult(RESULT_CANCELED);
-                        new Handler(Looper.getMainLooper()).postDelayed(() -> finish(), 50);
+                        Intent intent=new Intent(DrawHandPwdAutoLoginActivity.this,SignSelectActivity.class);
+                        startActivity(intent);
+                        finish();
+                        //new Handler(Looper.getMainLooper()).postDelayed(() -> finish(), 50);
                     } else {
                         tvDrawTip.setText("Wrong password");
                         mGestureContentView.clearDrawlineState(0L);
@@ -96,6 +106,18 @@ public class DrawHandPwdAutoLoginActivity extends BaseActivity {
     }
 
     @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if(keyCode==KeyEvent.KEYCODE_BACK&&event.getRepeatCount()==0){
+            Intent intent=new Intent(DrawHandPwdAutoLoginActivity.this,SignSelectActivity.class);
+            intent.putExtra(Constant.SIGN_SELECT_MODE,"draw");
+            startActivity(intent);
+            finish();
+            return true;
+        }
+        return super.onKeyDown(keyCode, event);
+    }
+
+    @Override
     public void doBusiness() {
 
     }
@@ -111,5 +133,27 @@ public class DrawHandPwdAutoLoginActivity extends BaseActivity {
         }
         return true;
     }
+    private void autoLogin() {
+        String loginJson = SPUtils.getInstance(REVOLO_SP).getString(Constant.USER_LOGIN_INFO);
+        if(TextUtils.isEmpty(loginJson)) {
+            return;
+        }
+        MailLoginBeanRsp.DataBean dataBean = GsonUtils.fromJson(loginJson, MailLoginBeanRsp.DataBean.class);
+        if(dataBean == null) {
+            return;
+        }
+        App.getInstance().setUserBean(dataBean);
+        User user = App.getInstance().getUser();
+        if(user == null) {
+            return;
+        }
+        new Handler(Looper.getMainLooper()).postDelayed(() -> {
+            Intent intent = new Intent(DrawHandPwdAutoLoginActivity.this, MainActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            intent.addCategory(Intent.CATEGORY_HOME);
 
+            startActivity(intent);
+            finish();
+        }, 50);
+    }
 }

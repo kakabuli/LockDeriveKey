@@ -3,6 +3,7 @@ package com.revolo.lock.ui.user;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -20,7 +21,6 @@ import com.revolo.lock.bean.respone.GainKeyBeanRsp;
 import com.revolo.lock.net.HttpRequest;
 import com.revolo.lock.net.ObservableDecorator;
 import com.revolo.lock.room.entity.BleDeviceLocal;
-import com.revolo.lock.ui.sign.ForgetThePwdActivity;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -147,7 +147,7 @@ public class SelectAuthorizedDeviceActivity extends BaseActivity {
                     }
                     String msg = gainKeyBeanRsp.getMsg();
                     if(!TextUtils.isEmpty(msg)) {
-                        ToastUtils.showShort(msg);
+                        ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(msg);
                     }
                     Timber.e("share code: %1s, msg: %2s", code, gainKeyBeanRsp.getMsg());
                     return;

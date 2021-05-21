@@ -42,7 +42,7 @@ public class AboutActivity extends BaseActivity {
         tvVersion.setText(getString(R.string.about_ver, AppUtils.getAppVersionName()));
         TextView tvContact = findViewById(R.id.tvContact);
         // TODO: 2021/3/8 后期从服务器获取
-        tvContact.setText("revolodeveloper@gmail.com");
+        tvContact.setText("service@irevolo.com");
         applyDebouncingClickListener(findViewById(R.id.clPrivacyAgreement), findViewById(R.id.clUserAgreement));
     }
 

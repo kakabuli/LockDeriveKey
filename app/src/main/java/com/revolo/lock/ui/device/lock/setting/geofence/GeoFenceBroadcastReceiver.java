@@ -3,6 +3,7 @@ package com.revolo.lock.ui.device.lock.setting.geofence;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.view.Gravity;
 
 import com.blankj.utilcode.util.ToastUtils;
 import com.google.android.gms.location.Geofence;
@@ -50,7 +51,7 @@ public class GeoFenceBroadcastReceiver extends BroadcastReceiver {
 
         switch (transitionType) {
             case Geofence.GEOFENCE_TRANSITION_ENTER:
-                ToastUtils.showShort(R.string.t_you_have_entered_the_range_of_the_geo_fence);
+                ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_you_have_entered_the_range_of_the_geo_fence);
                 notificationHelper.sendHighPriorityNotification(context.getString(R.string.n_geo_fence), context.getString(R.string.t_you_have_entered_the_range_of_the_geo_fence), MapActivity.class);
                 BleDeviceLocal deviceLocal = App.getInstance().getBleDeviceLocal();
                 if(deviceLocal == null) {
@@ -64,7 +65,7 @@ public class GeoFenceBroadcastReceiver extends BroadcastReceiver {
 //                notificationHelper.sendHighPriorityNotification("GEOFENCE_TRANSITION_DWELL", "", MapActivity.class);
                 break;
             case Geofence.GEOFENCE_TRANSITION_EXIT:
-                ToastUtils.showShort(R.string.t_you_have_exited_the_geo_fence);
+                ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_you_have_exited_the_geo_fence);
                 notificationHelper.sendHighPriorityNotification(context.getString(R.string.n_geo_fence), context.getString(R.string.t_you_have_exited_the_geo_fence), MapActivity.class);
                 break;
         }

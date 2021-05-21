@@ -53,14 +53,18 @@
 
         <TextView
             android:id="@+id/tvName"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginEnd="10pt"
             tools:text="Tester"
             android:textSize="14pt"
             android:textColor="@color/c333333"
+            android:singleLine="true"
+            app:layout_constraintLeft_toRightOf="@+id/textView21"
+            app:layout_constraintRight_toLeftOf="@+id/ivLockName"
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/ivLockName"
             app:layout_constraintTop_toTopOf="parent" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -97,14 +101,18 @@
 
         <TextView
             android:id="@+id/tvWifiName"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginEnd="10pt"
             tools:text="kaadas123"
             android:textSize="14pt"
+            android:singleLine="true"
             android:textColor="@color/c333333"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/imageView15"
+            app:layout_constraintLeft_toRightOf="@+id/textView22"
+            app:layout_constraintRight_toLeftOf="@+id/imageView15"
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp"
             app:layout_constraintTop_toTopOf="parent" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 

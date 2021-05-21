@@ -2,6 +2,7 @@ package com.revolo.lock.ui.mine;
 
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.TextView;
 
@@ -66,7 +67,7 @@ public class FeedbackActivity extends BaseActivity {
         }
         String feedbackStr = ((TextView) findViewById(R.id.etFeedback)).getText().toString().trim();
         if(TextUtils.isEmpty(feedbackStr)) {
-            ToastUtils.showShort(R.string.t_please_enter_feedback_content);
+            ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_please_enter_feedback_content);
             return;
         }
         if(App.getInstance().getUserBean() == null) {
@@ -110,11 +111,11 @@ public class FeedbackActivity extends BaseActivity {
                     String msg = feedBackBeanRsp.getMsg();
                     Timber.e("feedback code %1s, msg %2s", code, msg);
                     if(TextUtils.isEmpty(msg)) {
-                        ToastUtils.showShort(msg);
+                        ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(msg);
                     }
                     return;
                 }
-                ToastUtils.showShort(R.string.t_success);
+                ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_success);
                 finish();
             }
 

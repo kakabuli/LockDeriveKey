@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.text.InputType;
 import android.text.TextUtils;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -107,20 +108,20 @@ public class ModifyPasswordActivity extends BaseActivity {
         }
         String oldPwd = mEtOldPwd.getText().toString().trim();
         if(TextUtils.isEmpty(oldPwd)) {
-            ToastUtils.showShort(R.string.t_please_input_old_pwd);
+            ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_please_input_old_pwd);
             return;
         }
         if(!RegexUtils.isMatch("^(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{6,15}$", oldPwd)) {
-            ToastUtils.showShort(R.string.t_please_input_right_old_pwd);
+            ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_please_input_right_old_pwd);
             return;
         }
         String pwd = mEtPwd.getText().toString().trim();
         if(TextUtils.isEmpty(pwd)) {
-            ToastUtils.showShort(R.string.t_please_input_new_pwd);
+            ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_please_input_new_pwd);
             return;
         }
         if(!RegexUtils.isMatch("^(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{6,15}$", pwd)) {
-            ToastUtils.showShort(R.string.t_please_input_right_new_pwd);
+            ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_please_input_right_new_pwd);
             return;
         }
         if(App.getInstance().getUserBean() == null) {
@@ -164,12 +165,12 @@ public class ModifyPasswordActivity extends BaseActivity {
                     }
                     String msg = changeUserPwdBeanRsp.getMsg();
                     if(!TextUtils.isEmpty(msg)) {
-                        ToastUtils.showShort(msg);
+                        ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(msg);
                     }
                     Timber.e("changeUserPwd code: %1s, msg: %2s", code, changeUserPwdBeanRsp.getMsg());
                     return;
                 }
-                ToastUtils.showShort(R.string.t_update_pwd_suc);
+                ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_update_pwd_suc);
                 finish();
             }
 
@@ -192,11 +193,11 @@ public class ModifyPasswordActivity extends BaseActivity {
         }
         String mail = ((EditText) findViewById(R.id.etEmail)).getText().toString().trim();
         if(TextUtils.isEmpty(mail)) {
-            ToastUtils.showShort(R.string.err_tip_please_input_email);
+            ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.err_tip_please_input_email);
             return;
         }
         if(!RegexUtils.isEmail(mail)) {
-            ToastUtils.showShort(R.string.t_please_input_right_mail_address);
+            ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_please_input_right_mail_address);
             return;
         }
         GetCodeBeanReq req = new GetCodeBeanReq();
@@ -225,12 +226,12 @@ public class ModifyPasswordActivity extends BaseActivity {
                     }
                     String msg = getCodeBeanRsp.getMsg();
                     if(!TextUtils.isEmpty(msg)) {
-                        ToastUtils.showShort(msg);
+                        ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(msg);
                     }
                     Timber.e("code: %1s, msg: %2s", code, msg);
                     return;
                 }
-                ToastUtils.showShort(R.string.t_success);
+                ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_success);
             }
 
             @Override

@@ -63,7 +63,7 @@ public class AutoLockActivity extends BaseActivity {
     @Override
     public void initData(@Nullable Bundle bundle) {
         mBleDeviceLocal = App.getInstance().getBleDeviceLocal();
-        if(mBleDeviceLocal == null) {
+        if (mBleDeviceLocal == null) {
             finish();
         }
     }
@@ -313,13 +313,25 @@ public class AutoLockActivity extends BaseActivity {
 
     private void stopTrackingTouch(SeekBar seekBar) {
         int progress = seekBar.getProgress();
-        if(progress >= 0 && progress < 10) {
-            mTvTime.setText("0s");
-            mTime = 0;
-        } else if(progress >= 10 && progress < 20) {
-            mTvTime.setText("5s");
-            mTime = 5;
-        } else if(progress >= 20 && progress < 30) {
+        if (progress >= 0 && progress < 10) {
+            if (!mBleDeviceLocal.isOpenDoorSensor()) {
+                mTvTime.setText("10s");
+                mTime = 10;
+                seekBar.setProgress(20);
+            } else {
+                mTvTime.setText(getString(R.string.activity_auto_lock_immediately));
+                mTime = 0;
+            }
+        } else if (progress >= 10 && progress < 20) {
+            if (!mBleDeviceLocal.isOpenDoorSensor()) {
+                mTvTime.setText("10s");
+                mTime = 10;
+                seekBar.setProgress(20);
+            } else {
+                mTvTime.setText("5s");
+                mTime = 5;
+            }
+        } else if (progress >= 20 && progress < 30) {
             mTvTime.setText("10s");
             mTime = 10;
         } else if(progress >= 30 && progress < 40) {
@@ -421,9 +433,9 @@ public class AutoLockActivity extends BaseActivity {
     }
 
     private void progressChange(int progress) {
-        if(progress >= 0 && progress < 10) {
+        if (progress >= 0 && progress < 10) {
             mTvTime.setText("0s");
-        } else if(progress >= 10 && progress < 20) {
+        } else if (progress >= 10 && progress < 20) {
             mTvTime.setText("5s");
         } else if(progress >= 20 && progress < 30) {
             mTvTime.setText("10s");

@@ -13,15 +13,12 @@ import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.chad.library.adapter.base.listener.OnItemClickListener;
 import com.revolo.lock.App;
 import com.revolo.lock.Constant;
-import com.revolo.lock.LocalState;
 import com.revolo.lock.R;
 import com.revolo.lock.adapter.AuthUserDeviceAdapter;
 import com.revolo.lock.base.BaseActivity;
-import com.revolo.lock.bean.test.TestAuthDeviceBean;
 import com.revolo.lock.room.AppDatabase;
 import com.revolo.lock.room.entity.BleDeviceLocal;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import timber.log.Timber;

@@ -18,6 +18,7 @@ import android.text.TextUtils;
 
 import androidx.annotation.Nullable;
 
+import com.revolo.lock.shulan.KeepAliveAIDL;
 import com.revolo.lock.shulan.KeepAliveRunning;
 import com.revolo.lock.shulan.R;
 import com.revolo.lock.shulan.config.KeepAliveConfig;
@@ -27,8 +28,6 @@ import com.revolo.lock.shulan.receive.NotificationClickReceiver;
 import com.revolo.lock.shulan.receive.OnepxReceiver;
 import com.revolo.lock.shulan.utils.LogUtils;
 import com.revolo.lock.shulan.utils.SPUtils;
-
-import com.revolo.lock.shulan.KeepAliveAIDL;
 
 
 public class SLLocalService extends Service {

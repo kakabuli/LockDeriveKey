@@ -49,7 +49,7 @@
     <string name="get_code">Get code</string>
     <string name="verification_code">Verification code</string>
     <string name="complete">Complete</string>
-    
+
     <!-- HomeFragment -->
     <string name="tip_home_page">Welcome to use the\n Revolo smart door lock</string>
     <string name="title_my_devices">My devices</string>
@@ -84,7 +84,7 @@
     <string name="title_operation_records">Operation Records</string>
 
     <!-- AddNewPwdActivity -->
-    <string name="tip_you_can_set_4_12_valid_passwords">You can set 4&#8211;12 valid passwords</string>
+    <string name="tip_you_can_set_4_10_valid_passwords">You can set 4&#8211;10 valid passwords</string>
     <string name="hint_please_enter_password">Please enter password</string>
     <string name="title_add_password">Add password</string>
     <string name="select_permanent">Permanent</string>
@@ -282,6 +282,7 @@
 
     <!-- DoorCheckFailActivity -->
     <string name="door_sensor_cant_be_detected">Door sensor can\'t be detected.</string>
+    <string name="door_magnet_cant_be_detected">Door magnet can\'t be detected.</string>
     <string name="try_again">Try again</string>
 
     <!-- GeoFenceUnlockActivity -->
@@ -469,4 +470,28 @@
     <string name="rq_use_album_needs_write_permission">If you want to use photo album needs write storage permission</string>
     <string name="title_share_to">Share To</string>
 
+    <string name="t_add_input_new_pwd_full">Password library full</string>
+    <string name="t_open_wifi_tip_low_power">The battery power of door lock is low, please replace the battery in time.</string>
+    <string name="t_pass_word_list_nothing">No password yet~</string>
+    <string name="t_shared_users_list_nothing">No users shared yet~</string>
+    <string name="t_closed_wifi_connect_msg">WiFi disconnected. Reboot the WiFi will reallocate the network.</string>
+    <string name="activity_auto_lock_immediately">immediately</string>
+    <string name="smart_srl_header_failed">Refresh Failed</string>
+    <string name="smart_srl_header_finish">Refresh Success</string>
+    <string name="smart_srl_header_loading">Wait For Loading…</string>
+    <string name="smart_srl_header_pulling">Pull Down To Refresh</string>
+    <string name="smart_srl_header_refreshing">Refreshing…</string>
+    <string name="smart_srl_header_release">Release To Refresh</string>
+    <string name="smart_srl_header_secondary">Release To Second Floor</string>
+    <string name="smart_srl_header_update">\'Last Update\' M-d HH:mm</string>
+    <string name="smart_srl_footer_failed">Load Failed</string>
+    <string name="smart_srl_footer_finish">Load Success</string>
+    <string name="smart_srl_footer_loading">Loading…</string>
+    <string name="smart_srl_footer_nothing">No More Data</string>
+    <string name="smart_srl_footer_pulling">Pull Up To Load More</string>
+    <string name="smart_srl_footer_refreshing">Wait For Refreshing…</string>
+    <string name="smart_srl_footer_release">Release To Load More</string>
+    <string name="login_name_len_max_hint">The user name is limited to 2-30 characters</string>
+    <string name="pwd_open_camera_permission">Please turn on camera permissions in settings</string>
+    <string name="t_wifi_disconnected_tip">WiFi is Offline. \n Please approach the lock and turn on Phone Bluetooth, then enter setting.</string>
 </resources>

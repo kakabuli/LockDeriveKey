@@ -22,6 +22,7 @@ import com.revolo.lock.base.BaseActivity;
 public class AddNewShareUserInputNameActivity extends BaseActivity {
 
     private EditText mEtUserName;
+    private String mEsn;
 
     @Override
     public void initData(@Nullable Bundle bundle) {
@@ -38,6 +39,10 @@ public class AddNewShareUserInputNameActivity extends BaseActivity {
         useCommonTitleBar(getString(R.string.title_add_user));
         applyDebouncingClickListener(findViewById(R.id.btnAddUser));
         mEtUserName = findViewById(R.id.etEmail);
+        Intent intent = getIntent();
+        if(intent.hasExtra(Constant.LOCK_ESN)) {
+            mEsn = intent.getStringExtra(Constant.LOCK_ESN);
+        }
 
     }
 
@@ -55,6 +60,7 @@ public class AddNewShareUserInputNameActivity extends BaseActivity {
             }
             Intent intent = new Intent(this, AuthorizationManagementActivity.class);
             intent.putExtra(Constant.USER_NAME, userName);
+            intent.putExtra(Constant.LOCK_ESN, mEsn);
             startActivity(intent);
         }
     }

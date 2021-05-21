@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="com.revolo.lock">
 
     <!-- 打开手电筒需要的权限 -->
@@ -29,21 +30,22 @@
     <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
 
     <!-- 指纹权限 -->
-    <uses-permission android:name="android.permission.USE_FINGERPRINT"/>
+    <uses-permission android:name="android.permission.USE_FINGERPRINT" />
 
     <!--储存卡的读写权限-->
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <application
+        android:name=".App"
         android:allowBackup="true"
+        android:hardwareAccelerated="false"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
+        android:networkSecurityConfig="@xml/network_security_config"
+        android:requestLegacyExternalStorage="true"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.RevoloLock"
-        android:hardwareAccelerated="false"
-        android:name=".App"
-        android:requestLegacyExternalStorage="true" >
+        android:theme="@style/Theme.RevoloLock">
 
         <!-- Mqtt Service -->
         <service android:name="org.eclipse.paho.android.service.MqttService" />
@@ -64,7 +66,7 @@
         <receiver
             android:name=".ui.device.lock.setting.geofence.GeoFenceBroadcastReceiver"
             android:enabled="true"
-            android:exported="true"/>
+            android:exported="true" />
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"
@@ -74,6 +76,7 @@
             android:name=".ui.sign.SignSelectActivity"
             android:label="@string/app_name"
             android:screenOrientation="portrait">
+
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -89,6 +92,9 @@
             android:screenOrientation="portrait" />
         <activity
             android:name=".ui.MainActivity"
+            android:configChanges="orientation|keyboardHidden"
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait" />
             android:screenOrientation="portrait"
             android:configChanges="orientation|keyboardHidden">
 
@@ -136,7 +142,8 @@
             android:screenOrientation="portrait" />
         <activity
             android:name=".ui.sign.LoginActivity"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait"
+            android:launchMode="singleTask"/>
         <activity
             android:name=".ui.device.add.AddDeviceStep2BleConnectActivity"
             android:screenOrientation="portrait" />
@@ -300,16 +307,32 @@
                     android:scheme="app" />
             </intent-filter>
         </activity>
-        <activity android:name=".ui.device.lock.setting.geofence.MapActivity"
-            android:screenOrientation="portrait"/>
-        <activity android:name=".ui.mine.OpenDrawHandPwdActivity"
-            android:screenOrientation="portrait"/>
-        <activity android:name=".ui.sign.DrawHandPwdAutoLoginActivity"
-            android:screenOrientation="portrait"/>
-        <activity android:name=".ui.mine.CloseDrawHandPwdActivity"
-            android:screenOrientation="portrait"/>
+        <activity
+            android:name=".ui.device.lock.setting.geofence.MapActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.mine.OpenDrawHandPwdActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.sign.DrawHandPwdAutoLoginActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.mine.CloseDrawHandPwdActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.mine.HelpActivity"
+            android:screenOrientation="portrait" />
 
         <service android:name=".mqtt.MqttService" />
+
+        <receiver android:name=".reveiver.WifiStateReceiver">
+            <intent-filter>
+                <action android:name="android.net.wifi.STATE_CHANGE" />
+                <action android:name="android.net.wifi.WIFI_STATE_CHANGED" />
+                <action android:name="android.net.conn.CONNECTIVITY_CHANGE"
+                    tools:ignore="BatteryLife" />
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>

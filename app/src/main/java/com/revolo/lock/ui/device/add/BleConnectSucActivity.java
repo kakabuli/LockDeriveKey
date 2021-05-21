@@ -1,6 +1,5 @@
 package com.revolo.lock.ui.device.add;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -12,8 +11,6 @@ import com.blankj.utilcode.util.ActivityUtils;
 import com.revolo.lock.Constant;
 import com.revolo.lock.R;
 import com.revolo.lock.base.BaseActivity;
-
-import java.util.List;
 
 /**
  * author : Jack

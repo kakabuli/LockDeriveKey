@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.text.TextUtils;
+import android.view.Gravity;
 import android.view.View;
 
 import androidx.annotation.NonNull;
@@ -34,10 +35,11 @@ import com.revolo.lock.ble.BleResultProcess;
 import com.revolo.lock.ble.OnBleDeviceListener;
 import com.revolo.lock.ble.bean.BleBean;
 import com.revolo.lock.ble.bean.BleResultBean;
+import com.revolo.lock.dialog.MessageDialog;
 import com.revolo.lock.net.HttpRequest;
 import com.revolo.lock.net.ObservableDecorator;
 import com.revolo.lock.room.entity.BleDeviceLocal;
-import com.scwang.smart.refresh.header.ClassicsHeader;
+import com.revolo.lock.ui.view.SmartClassicsHeaderView;
 import com.scwang.smart.refresh.layout.api.RefreshLayout;
 
 import org.jetbrains.annotations.NotNull;
@@ -64,15 +66,15 @@ import static com.revolo.lock.ble.BleProtocolState.CMD_SY_KEY_STATE;
  * desc   : 密码列表界面
  */
 public class PasswordListActivity extends BaseActivity {
-
     private PasswordListAdapter mPasswordListAdapter;
     private BleDeviceLocal mBleDeviceLocal;
     private RefreshLayout mRefreshLayout;
+    private MessageDialog mPasswordFull;
 
     @Override
     public void initData(@Nullable Bundle bundle) {
         mBleDeviceLocal = App.getInstance().getBleDeviceLocal();
-        if(mBleDeviceLocal == null) {
+        if (mBleDeviceLocal == null) {
             finish();
         }
     }
@@ -84,12 +86,26 @@ public class PasswordListActivity extends BaseActivity {
 
     @Override
     public void initView(@Nullable Bundle savedInstanceState, @Nullable View contentView) {
+
+        mPasswordFull = new MessageDialog(this);
+        mPasswordFull.setMessage(getString(R.string.t_add_input_new_pwd_full));
+        mPasswordFull.setOnListener(v -> {
+            if (mPasswordFull != null) {
+                mPasswordFull.dismiss();
+            }
+        });
         useCommonTitleBar(getString(R.string.password))
                 .setRight(ContextCompat.getDrawable(this, R.drawable.ic_home_icon_add),
                         v -> {
-                    Intent intent = new Intent(this, AddInputNewPwdActivity.class);
-                    startActivity(intent);
-                });
+                            if (mPasswordListAdapter != null && mPasswordListAdapter.getItemCount() < 20) {
+                                Intent intent = new Intent(this, AddInputNewPwdActivity.class);
+                                startActivity(intent);
+                            } else {
+                                if (mPasswordFull != null) {
+                                    mPasswordFull.show();
+                                }
+                            }
+                        });
         RecyclerView rvPwdList = findViewById(R.id.rvPwdList);
         rvPwdList.setLayoutManager(new LinearLayoutManager(this));
         mPasswordListAdapter = new PasswordListAdapter(R.layout.item_pwd_list_rv);
@@ -103,11 +119,12 @@ public class PasswordListActivity extends BaseActivity {
             }
         });
         rvPwdList.setAdapter(mPasswordListAdapter);
+        mPasswordListAdapter.setEmptyView(R.layout.empty_view_password_list);
         initLoading("Loading...");
 
         mRefreshLayout = findViewById(R.id.refreshLayout);
         mRefreshLayout.setEnableLoadMore(false);
-        mRefreshLayout.setRefreshHeader(new ClassicsHeader(this));
+        mRefreshLayout.setRefreshHeader(new SmartClassicsHeaderView(this));
         mRefreshLayout.setOnRefreshListener(refreshLayout -> searchPwdListFromNET());
     }
 
@@ -201,7 +218,7 @@ public class PasswordListActivity extends BaseActivity {
             }
             String msg = searchKeyListBeanRsp.getMsg();
             if(!TextUtils.isEmpty(msg)) {
-                ToastUtils.showShort(msg);
+                ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(msg);
             }
             Timber.e("processKeyListFromNet code: %1s, msg: %2s", code, msg);
             return;
@@ -337,7 +354,7 @@ public class PasswordListActivity extends BaseActivity {
                     String msg = delKeyBeanRsp.getMsg();
                     Timber.e("delKeyFromService code: %1s msg: %2s", code, msg);
                     if(!TextUtils.isEmpty(msg)) {
-                        ToastUtils.showShort(msg);
+                        ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(msg);
                     }
                     return;
                 }
@@ -633,4 +650,10 @@ public class PasswordListActivity extends BaseActivity {
         mWillSearchList.remove(0);
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        mPasswordFull = null;
+    }
 }
