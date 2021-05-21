@@ -5,13 +5,11 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.text.TextUtils;
-import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
-import android.widget.LinearLayout;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -42,7 +40,6 @@ import com.revolo.lock.net.HttpRequest;
 import com.revolo.lock.net.ObservableDecorator;
 import com.revolo.lock.room.entity.BleDeviceLocal;
 import com.revolo.lock.ui.view.SmartClassicsHeaderView;
-import com.scwang.smart.refresh.header.ClassicsHeader;
 import com.scwang.smart.refresh.layout.api.RefreshLayout;
 
 import org.jetbrains.annotations.NotNull;
@@ -221,7 +218,7 @@ public class PasswordListActivity extends BaseActivity {
             }
             String msg = searchKeyListBeanRsp.getMsg();
             if(!TextUtils.isEmpty(msg)) {
-                ToastUtils.showShort(msg);
+                ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(msg);
             }
             Timber.e("processKeyListFromNet code: %1s, msg: %2s", code, msg);
             return;
@@ -357,7 +354,7 @@ public class PasswordListActivity extends BaseActivity {
                     String msg = delKeyBeanRsp.getMsg();
                     Timber.e("delKeyFromService code: %1s msg: %2s", code, msg);
                     if(!TextUtils.isEmpty(msg)) {
-                        ToastUtils.showShort(msg);
+                        ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(msg);
                     }
                     return;
                 }

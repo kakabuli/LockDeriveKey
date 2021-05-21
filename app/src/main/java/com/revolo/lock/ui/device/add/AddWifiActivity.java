@@ -1,6 +1,7 @@
 package com.revolo.lock.ui.device.add;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
@@ -10,7 +11,6 @@ import android.text.InputType;
 import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.View;
-import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.ImageView;
 
@@ -24,12 +24,12 @@ import com.revolo.lock.Constant;
 import com.revolo.lock.R;
 import com.revolo.lock.base.BaseActivity;
 import com.revolo.lock.ble.BleByteUtil;
-import com.revolo.lock.ble.bean.BleBean;
 import com.revolo.lock.ble.BleCommandFactory;
 import com.revolo.lock.ble.BleResultProcess;
 import com.revolo.lock.ble.OnBleDeviceListener;
-import com.revolo.lock.ble.bean.WifiSnBean;
+import com.revolo.lock.ble.bean.BleBean;
 import com.revolo.lock.ble.bean.BleResultBean;
+import com.revolo.lock.ble.bean.WifiSnBean;
 import com.revolo.lock.popup.WifiListPopup;
 import com.revolo.lock.room.AppDatabase;
 import com.revolo.lock.room.entity.BleDeviceLocal;
@@ -80,6 +80,7 @@ public class AddWifiActivity extends BaseActivity {
         mEtWifiName = findViewById(R.id.etWifiName);
         mEtPwd = findViewById(R.id.etPwd);
         mWifiListPopup = new WifiListPopup(this);
+        mWifiListPopup.setBackgroundColor(Color.TRANSPARENT);
         mWifiListPopup.setOnItemClickListener((adapter, view, position) -> {
             if (position < 0) {
                 return;
@@ -92,15 +93,6 @@ public class AddWifiActivity extends BaseActivity {
         initLoading("Loading...");
 
         mEtWifiName.setText(getConnectWifiSID());
-    }
-
-    private void setBackgroundAlpha(float bgAlpha) {
-        WindowManager.LayoutParams layoutParams = getWindow().getAttributes();
-        layoutParams.alpha = bgAlpha; //0.0-1.0
-
-        getWindow().addFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
-
-        getWindow().setAttributes(layoutParams);
     }
 
     @Override
@@ -148,7 +140,7 @@ public class AddWifiActivity extends BaseActivity {
     private void gotoWifiConnectAct() {
         String wifiSn = mEtWifiName.getText().toString().trim();
         if (TextUtils.isEmpty(wifiSn)) {
-            ToastUtils.showShort(R.string.t_please_input_wifi_name);
+            ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_please_input_wifi_name);
             return;
         }
         String wifiPwd = mEtPwd.getText().toString();
@@ -171,7 +163,6 @@ public class AddWifiActivity extends BaseActivity {
             } else {
                 mWifiListPopup.setPopupGravity(Gravity.BOTTOM);
                 mWifiListPopup.showPopupWindow(findViewById(R.id.ivDropdown));
-                setBackgroundAlpha(1f);
             }
         });
 
@@ -291,7 +282,7 @@ public class AddWifiActivity extends BaseActivity {
             getWifiList();
         } else {
             dismissLoading();
-            ToastUtils.showShort(R.string.t_low_battery_cant_pair_wifi);
+            ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_low_battery_cant_pair_wifi);
         }
     }
 

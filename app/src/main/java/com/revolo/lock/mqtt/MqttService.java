@@ -24,7 +24,6 @@ import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-
 import io.reactivex.Observable;
 import io.reactivex.subjects.PublishSubject;
 import timber.log.Timber;

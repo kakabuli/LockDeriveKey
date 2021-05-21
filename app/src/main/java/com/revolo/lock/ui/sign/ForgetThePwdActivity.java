@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.text.InputType;
 import android.text.TextUtils;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -104,11 +105,11 @@ public class ForgetThePwdActivity extends BaseActivity {
         }
         String mail = ((EditText) findViewById(R.id.etEmail)).getText().toString().trim();
         if(TextUtils.isEmpty(mail)) {
-            ToastUtils.showShort(R.string.err_tip_please_input_email);
+            ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.err_tip_please_input_email);
             return;
         }
         if(!RegexUtils.isEmail(mail)) {
-            ToastUtils.showShort(R.string.t_please_input_right_mail_address);
+            ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_please_input_right_mail_address);
             return;
         }
         showLoading();
@@ -127,7 +128,7 @@ public class ForgetThePwdActivity extends BaseActivity {
                 dismissLoading();
                 if(TextUtils.isEmpty(getCodeBeanRsp.getCode())) {
                     Timber.e("getCode getCodeBeanRsp.getCode() is null");
-                    ToastUtils.showShort(R.string.t_fail);
+                    ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_fail);
                     return;
                 }
                 if(!getCodeBeanRsp.getCode().equals("200")) {
@@ -136,15 +137,15 @@ public class ForgetThePwdActivity extends BaseActivity {
                             getCodeBeanRsp.getMsg());
                     String msg = getCodeBeanRsp.getMsg();
                     if(TextUtils.isEmpty(msg)) {
-                        ToastUtils.showShort(R.string.t_fail);
+                        ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_fail);
                     } else {
-                        ToastUtils.showShort(msg);
+                        ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(msg);
                     }
                     return;
                 }
                 isCountdown = true;
                 mCountDownTimer.start();
-                ToastUtils.showShort(R.string.t_success);
+                ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_success);
             }
 
             @Override
@@ -166,25 +167,25 @@ public class ForgetThePwdActivity extends BaseActivity {
         }
         String mail = ((EditText) findViewById(R.id.etEmail)).getText().toString().trim();
         if(TextUtils.isEmpty(mail)) {
-            ToastUtils.showShort(R.string.err_tip_please_input_email);
+            ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.err_tip_please_input_email);
             return;
         }
         if(!RegexUtils.isEmail(mail)) {
-            ToastUtils.showShort(R.string.t_please_input_right_mail_address);
+            ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_please_input_right_mail_address);
             return;
         }
         String tokens = ((EditText) findViewById(R.id.etCode)).getText().toString().trim();
         if(TextUtils.isEmpty(tokens)) {
-            ToastUtils.showShort(R.string.err_tip_please_input_verification_code);
+            ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.err_tip_please_input_verification_code);
             return;
         }
         String pwd = ((EditText) findViewById(R.id.etPwd)).getText().toString().trim();
         if(TextUtils.isEmpty(pwd)) {
-            ToastUtils.showShort(R.string.t_please_input_pwd);
+            ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_please_input_pwd);
             return;
         }
         if(!RegexUtils.isMatch("^(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{6,15}$", pwd)) {
-            ToastUtils.showShort(R.string.t_please_input_right_pwd);
+            ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_please_input_right_pwd);
             return;
         }
         showLoading();
@@ -204,20 +205,20 @@ public class ForgetThePwdActivity extends BaseActivity {
             public void onNext(@NonNull ForgotPwdRsp forgotPwdRsp) {
                 dismissLoading();
                 if(TextUtils.isEmpty(forgotPwdRsp.getCode())) {
-                    ToastUtils.showShort(R.string.t_fail);
+                    ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_fail);
                     return;
                 }
                 if(!forgotPwdRsp.getCode().equals("200")) {
                     Timber.e("forgetPwd code: %1s, msg: %2s", forgotPwdRsp.getCode(), forgotPwdRsp.getMsg());
                     String msg = forgotPwdRsp.getMsg();
                     if(TextUtils.isEmpty(msg)) {
-                        ToastUtils.showShort(R.string.t_fail);
+                        ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_fail);
                     } else {
-                        ToastUtils.showShort(msg);
+                        ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(msg);
                     }
                     return;
                 }
-                ToastUtils.showShort(R.string.t_success);
+                ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_success);
                 finish();
             }
 

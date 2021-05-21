@@ -2,6 +2,7 @@ package com.revolo.lock.ui.device.lock;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.EditText;
 
@@ -54,7 +55,7 @@ public class AddInputNewPwdActivity extends BaseActivity {
             if(RegexUtils.isMatch("(?:0(?=1)|1(?=2)|2(?=3)|3(?=4)|4(?=5)|5(?=6)|6(?=7)|7(?=8)|8(?=9)){3,10}\\d", pwd)
                     || RegexUtils.isMatch("(?:9(?=8)|8(?=7)|7(?=6)|6(?=5)|5(?=4)|4(?=3)|3(?=2)|2(?=1)|1(?=0)){3,10}\\d", pwd)
                     || RegexUtils.isMatch("([\\d])\\1{2,}", pwd)) {
-                ToastUtils.showShort(R.string.t_dont_enter_a_simple_pwd);
+                ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_dont_enter_a_simple_pwd);
                 return;
             }
             if(pwd.length() >= 4 && pwd.length() <= 12) {
@@ -63,7 +64,7 @@ public class AddInputNewPwdActivity extends BaseActivity {
                 startActivity(intent);
                 finish();
             } else {
-                ToastUtils.showShort(R.string.t_please_input_right_pwd);
+                ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_please_input_right_pwd);
             }
         }
     }

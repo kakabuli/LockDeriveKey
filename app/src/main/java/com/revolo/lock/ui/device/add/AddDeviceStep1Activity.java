@@ -1,12 +1,10 @@
 package com.revolo.lock.ui.device.add;
 
 import android.Manifest;
-import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.provider.Settings;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
 
 import androidx.annotation.NonNull;
@@ -152,7 +150,7 @@ public class AddDeviceStep1Activity extends BaseActivity implements EasyPermissi
             Timber.e("onPermissionsDenied 拒绝了扫描二维码需要的储存权限, requestCode: %1d", requestCode);
         } else if (perms.get(0).equals(Manifest.permission.CAMERA)) {
             Timber.e("onPermissionsDenied 拒绝了扫描二维码需要的相机权限, requestCode: %1d", requestCode);
-            ToastUtils.showShort(R.string.pwd_open_camera_permission);
+            ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.pwd_open_camera_permission);
         }
 
     }

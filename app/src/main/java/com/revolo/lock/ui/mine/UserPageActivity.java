@@ -2,12 +2,8 @@ package com.revolo.lock.ui.mine;
 
 import android.Manifest;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.ImageView;
@@ -36,14 +32,11 @@ import com.revolo.lock.popup.PicSelectPopup;
 import com.revolo.lock.room.AppDatabase;
 import com.revolo.lock.room.entity.User;
 import com.revolo.lock.ui.sign.LoginActivity;
-import com.revolo.lock.util.BitmapUtil;
 import com.revolo.lock.util.GlideEngine;
 
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.OutputStream;
 import java.util.List;
 
 import io.reactivex.Observable;

@@ -90,7 +90,7 @@ public class AddNewPwdNameActivity extends BaseActivity {
         EditText etPwdName = findViewById(R.id.etPwdName);
         String pwdName = etPwdName.getText().toString().trim();
         if (TextUtils.isEmpty(pwdName)) {
-            ToastUtils.showShort(R.string.t_please_input_pwd_name);
+            ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_please_input_pwd_name);
             return;
         }
         if (App.getInstance().getUserBean() == null) {
@@ -135,7 +135,7 @@ public class AddNewPwdNameActivity extends BaseActivity {
                     String msg = changeKeyNickBeanRsp.getMsg();
                     Timber.e("code: %1s, msg: %2s", changeKeyNickBeanRsp.getCode(), msg);
                     if (!TextUtils.isEmpty(msg)) {
-                        ToastUtils.showShort(msg);
+                        ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(msg);
                     }
                     return;
                 }
@@ -162,7 +162,7 @@ public class AddNewPwdNameActivity extends BaseActivity {
     }
 
     private void showAddFail() {
-        runOnUiThread(() -> ToastUtils.showShort(R.string.t_setting_fail));
+        runOnUiThread(() -> ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_setting_fail));
 
     }
 

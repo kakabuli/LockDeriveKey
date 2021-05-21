@@ -3,6 +3,7 @@ package com.revolo.lock.ui.user;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.EditText;
 
@@ -78,7 +79,7 @@ public class ChangeSharedUserNameActivity extends BaseActivity {
         }
         String name = etName.getText().toString().trim();
         if(TextUtils.isEmpty(name)) {
-            ToastUtils.showShort(R.string.t_please_input_the_new_name);
+            ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_please_input_the_new_name);
             return;
         }
         String token = App.getInstance().getUserBean().getToken();
@@ -118,12 +119,12 @@ public class ChangeSharedUserNameActivity extends BaseActivity {
                     }
                     String msg = updateSharedUserNickNameBeanRsp.getMsg();
                     if(!TextUtils.isEmpty(msg)) {
-                        ToastUtils.showShort(msg);
+                        ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(msg);
                     }
                     Timber.e("updateSharedUserName code: %1s, msg: %2s", code, msg);
                     return;
                 }
-                ToastUtils.showShort(R.string.t_success);
+                ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_success);
                 finish();
             }
 

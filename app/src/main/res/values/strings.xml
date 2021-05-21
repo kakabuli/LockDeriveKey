@@ -282,6 +282,7 @@
 
     <!-- DoorCheckFailActivity -->
     <string name="door_sensor_cant_be_detected">Door sensor can\'t be detected.</string>
+    <string name="door_magnet_cant_be_detected">Door magnet can\'t be detected.</string>
     <string name="try_again">Try again</string>
 
     <!-- GeoFenceUnlockActivity -->
@@ -492,4 +493,5 @@
     <string name="srl_footer_release">Release To Load More</string>
     <string name="login_name_len_max_hint">The user name is limited to 2-30 characters</string>
     <string name="pwd_open_camera_permission">Please turn on camera permissions in settings</string>
+    <string name="t_wifi_disconnected_tip">WiFi is Offline. \n Please approach the lock and turn on Phone Bluetooth, then enter setting.</string>
 </resources>

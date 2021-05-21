@@ -38,7 +38,6 @@ public class AddNewShareUserInputNameActivity extends BaseActivity {
         useCommonTitleBar(getString(R.string.title_add_user));
         applyDebouncingClickListener(findViewById(R.id.btnAddUser));
         mEtUserName = findViewById(R.id.etEmail);
-
     }
 
     @Override

@@ -3,6 +3,7 @@ package com.revolo.lock.ui.device.add;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.LinearLayout;
 
@@ -59,7 +60,7 @@ public class AddDeviceQRCodeStep2Activity extends BaseActivity {
                         startActivity(intent);
                         finish();
                     }else{
-                        ToastUtils.showShort("Abnormal QR code, please scan again");
+                        ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show("Abnormal QR code, please scan again");
                     }
                 } else {
                     return;

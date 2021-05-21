@@ -6,7 +6,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.View;
 
 import androidx.annotation.NonNull;
@@ -130,6 +129,8 @@ public class SignSelectActivity extends BaseActivity {
         if (isUseGestureCode) {
             Intent intent = new Intent(this, DrawHandPwdAutoLoginActivity.class);
             startActivity(intent);
+        } else {
+            autoLogin();
         }
     }
 

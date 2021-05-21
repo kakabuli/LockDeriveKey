@@ -24,7 +24,7 @@ public class DoorCheckFailActivity extends BaseActivity {
     @Override
     public void initData(@Nullable Bundle bundle) {
         Intent intent = getIntent();
-        if(intent.hasExtra(Constant.IS_GO_TO_ADD_WIFI)) {
+        if (intent.hasExtra(Constant.IS_GO_TO_ADD_WIFI)) {
             isGoToAddWifi = intent.getBooleanExtra(Constant.IS_GO_TO_ADD_WIFI, true);
         }
     }
@@ -47,11 +47,14 @@ public class DoorCheckFailActivity extends BaseActivity {
 
     @Override
     public void onDebouncingClick(@NonNull View view) {
-        if(view.getId() == R.id.btnCancel) {
+        if (view.getId() == R.id.btnCancel) {
+            Intent intent = new Intent(this, AddWifiActivity.class);
+            intent.putExtra(Constant.IS_GO_TO_ADD_WIFI, isGoToAddWifi);
+            startActivity(intent);
             finish();
             return;
         }
-        if(view.getId() == R.id.btnTryAgain) {
+        if (view.getId() == R.id.btnTryAgain) {
             Intent intent = new Intent(this, DoorSensorCheckActivity.class);
             intent.putExtra(Constant.IS_GO_TO_ADD_WIFI, isGoToAddWifi);
             startActivity(intent);

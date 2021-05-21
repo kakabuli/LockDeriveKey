@@ -13,7 +13,6 @@ import com.revolo.lock.room.dao.BleDeviceDao;
 import com.revolo.lock.room.dao.LockRecordDao;
 import com.revolo.lock.room.dao.UserDao;
 import com.revolo.lock.room.entity.BleDeviceLocal;
-import com.revolo.lock.bean.DevicePwdBean;
 import com.revolo.lock.room.entity.LockRecord;
 import com.revolo.lock.room.entity.User;
 

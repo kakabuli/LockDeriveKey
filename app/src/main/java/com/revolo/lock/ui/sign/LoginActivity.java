@@ -4,12 +4,9 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.text.Editable;
 import android.text.InputType;
 import android.text.TextUtils;
-import android.text.TextWatcher;
-import android.text.method.TextKeyListener;
-import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -26,6 +23,8 @@ import com.blankj.utilcode.util.TimeUtils;
 import com.blankj.utilcode.util.ToastUtils;
 import com.revolo.lock.App;
 import com.revolo.lock.Constant;
+import com.revolo.lock.R;
+import com.revolo.lock.base.BaseActivity;
 import com.revolo.lock.bean.request.MailLoginBeanReq;
 import com.revolo.lock.bean.respone.MailLoginBeanRsp;
 import com.revolo.lock.net.HttpRequest;
@@ -33,8 +32,6 @@ import com.revolo.lock.net.ObservableDecorator;
 import com.revolo.lock.room.AppDatabase;
 import com.revolo.lock.room.entity.User;
 import com.revolo.lock.ui.MainActivity;
-import com.revolo.lock.R;
-import com.revolo.lock.base.BaseActivity;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -152,15 +149,15 @@ public class LoginActivity extends BaseActivity {
         String pwd = mEtPwd.getText().toString();
         // TODO: 2021/1/26 提示语抽离同时修正
         if (TextUtils.isEmpty(mail)) {
-            ToastUtils.showShort(R.string.t_please_input_your_account);
+            ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_please_input_your_account);
             return;
         }
         if (!RegexUtils.isEmail(mail)) {
-            ToastUtils.showShort(R.string.t_please_input_right_account);
+            ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_please_input_right_account);
             return;
         }
         if (TextUtils.isEmpty(pwd)) {
-            ToastUtils.showShort(R.string.t_please_input_your_pwd);
+            ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_please_input_your_pwd);
             return;
         }
         showLoading();

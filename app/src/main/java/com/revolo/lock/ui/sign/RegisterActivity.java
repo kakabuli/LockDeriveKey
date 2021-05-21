@@ -10,6 +10,7 @@ import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -142,11 +143,11 @@ public class RegisterActivity extends BaseActivity {
         }
         String mail = ((EditText) findViewById(R.id.etEmail)).getText().toString().trim();
         if(TextUtils.isEmpty(mail)) {
-            ToastUtils.showShort(R.string.err_tip_please_input_email);
+            ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.err_tip_please_input_email);
             return;
         }
         if(!RegexUtils.isEmail(mail)) {
-            ToastUtils.showShort(R.string.t_please_input_right_mail_address);
+            ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_please_input_right_mail_address);
             return;
         }
         GetCodeBeanReq req = new GetCodeBeanReq();
@@ -171,11 +172,11 @@ public class RegisterActivity extends BaseActivity {
                     String msg = getCodeBeanRsp.getMsg();
                     Timber.e("code: %1s, msg: %2s", getCodeBeanRsp.getCode(), msg);
                     if(!TextUtils.isEmpty(msg)) {
-                        ToastUtils.showShort(msg);
+                        ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(msg);
                     }
                     return;
                 }
-                ToastUtils.showShort(R.string.t_success);
+                ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_success);
             }
 
             @Override
@@ -196,29 +197,29 @@ public class RegisterActivity extends BaseActivity {
         }
         String mail = ((EditText) findViewById(R.id.etEmail)).getText().toString().trim();
         if(TextUtils.isEmpty(mail)) {
-            ToastUtils.showShort(R.string.err_tip_please_input_email);
+            ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.err_tip_please_input_email);
             return;
         }
         if(!RegexUtils.isEmail(mail)) {
-            ToastUtils.showShort(R.string.t_please_input_right_mail_address);
+            ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_please_input_right_mail_address);
             return;
         }
         String tokens = ((EditText) findViewById(R.id.etVerification)).getText().toString().trim();
         if(TextUtils.isEmpty(tokens)) {
-            ToastUtils.showShort(R.string.err_tip_please_input_verification_code);
+            ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.err_tip_please_input_verification_code);
             return;
         }
         String pwd = ((EditText) findViewById(R.id.etPwd)).getText().toString().trim();
         if(TextUtils.isEmpty(pwd)) {
-            ToastUtils.showShort(R.string.t_please_input_pwd);
+            ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_please_input_pwd);
             return;
         }
         if(!RegexUtils.isMatch("^(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{6,15}$", pwd)) {
-            ToastUtils.showShort(R.string.t_please_input_right_pwd);
+            ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_please_input_right_pwd);
             return;
         }
         if(!isSelected) {
-            ToastUtils.showShort(R.string.t_please_agree_to_the_terms_of_use);
+            ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_please_agree_to_the_terms_of_use);
             return;
         }
         showLoading();
@@ -246,12 +247,12 @@ public class RegisterActivity extends BaseActivity {
                             mailRegisterBeanRsp.getCode(),
                             mailRegisterBeanRsp.getMsg());
                     if(mailRegisterBeanRsp.getMsg() != null) {
-                        ToastUtils.showShort(mailRegisterBeanRsp.getMsg());
+                        ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(mailRegisterBeanRsp.getMsg());
                     }
                     return;
                 }
                 addUserToLocal(mail);
-                ToastUtils.showShort(R.string.t_register_success);
+                ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_register_success);
                 // 注册成功, 然后登录再跳转
                 login(mail, pwd);
             }

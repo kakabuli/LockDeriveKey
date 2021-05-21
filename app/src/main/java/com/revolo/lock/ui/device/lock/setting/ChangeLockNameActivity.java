@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.text.TextUtils;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.EditText;
 
@@ -77,7 +78,7 @@ public class ChangeLockNameActivity extends BaseActivity {
         EditText etLockName = findViewById(R.id.etLockName);
         String name = etLockName.getText().toString().trim();
         if(TextUtils.isEmpty(name)) {
-            ToastUtils.showShort(R.string.t_please_input_name);
+            ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_please_input_name);
             return;
         }
         if(App.getInstance().getUserBean() == null) {
@@ -120,12 +121,12 @@ public class ChangeLockNameActivity extends BaseActivity {
                     String msg = changeDeviceNameBeanRsp.getMsg();
                     Timber.e("code: %1s, msg: %2s", changeDeviceNameBeanRsp.getCode(), msg);
                     if(!TextUtils.isEmpty(msg)) {
-                        ToastUtils.showShort(msg);
+                        ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(msg);
                     }
                     return;
                 }
                 updateNameToLocal(name);
-                ToastUtils.showShort(R.string.t_success);
+                ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_success);
                 new Handler(Looper.getMainLooper()).postDelayed(() -> finishThisAct(), 50);
             }
 

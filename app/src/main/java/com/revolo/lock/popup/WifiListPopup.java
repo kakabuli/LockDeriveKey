@@ -2,15 +2,11 @@ package com.revolo.lock.popup;
 
 import android.content.Context;
 import android.view.View;
-import android.view.WindowManager;
 import android.view.animation.Animation;
 
-import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.chad.library.adapter.base.BaseQuickAdapter;
-import com.chad.library.adapter.base.listener.OnItemChildClickListener;
 import com.chad.library.adapter.base.listener.OnItemClickListener;
 import com.revolo.lock.R;
 import com.revolo.lock.adapter.WifiSnListAdapter;
@@ -47,7 +43,7 @@ public class WifiListPopup extends BasePopupWindow {
     }
 
     public void setOnItemClickListener(OnItemClickListener onItemClickListener) {
-        if(mWifiSnListAdapter != null) {
+        if (mWifiSnListAdapter != null) {
             mWifiSnListAdapter.setOnItemClickListener(onItemClickListener);
         }
     }
@@ -68,5 +64,15 @@ public class WifiListPopup extends BasePopupWindow {
         return AnimationHelper.asAnimation()
                 .withScale(ScaleConfig.BOTTOM_TO_TOP)
                 .toDismiss();
+    }
+
+    @Override
+    public void dismiss() {
+        super.dismiss();
+    }
+
+    @Override
+    public void showPopupWindow(View anchorView) {
+        super.showPopupWindow(anchorView);
     }
 }

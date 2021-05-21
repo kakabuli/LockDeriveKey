@@ -12,7 +12,6 @@ import android.util.Pair;
 import android.view.MotionEvent;
 import android.view.View;
 
-
 import com.revolo.lock.R;
 
 import java.util.ArrayList;

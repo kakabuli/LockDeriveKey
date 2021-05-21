@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.os.Bundle;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Window;
@@ -19,6 +20,7 @@ import com.blankj.utilcode.util.ClickUtils;
 import com.blankj.utilcode.util.NetworkUtils;
 import com.blankj.utilcode.util.ToastUtils;
 import com.revolo.lock.App;
+import com.revolo.lock.LockAppManager;
 import com.revolo.lock.R;
 import com.revolo.lock.dialog.iosloading.CustomerLoadingDialog;
 import com.revolo.lock.mqtt.MqttService;
@@ -55,6 +57,8 @@ public abstract class BaseActivity extends AppCompatActivity
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
+        LockAppManager.getAppManager().addActivity(this);
         mActivity = this;
         super.onCreate(savedInstanceState);
         initData(getIntent().getExtras());
@@ -93,6 +97,7 @@ public abstract class BaseActivity extends AppCompatActivity
                 dismissLoading();
             }
         }
+        LockAppManager.getAppManager().finishActivity(this);
         super.onDestroy();
     }
 
@@ -208,7 +213,7 @@ public abstract class BaseActivity extends AppCompatActivity
 
     public boolean checkNetConnectFail() {
         if (!NetworkUtils.isConnected()) {
-            ToastUtils.showShort(R.string.connect_net_fail);
+            ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.connect_net_fail);
         }
         return NetworkUtils.isConnected();
     }
