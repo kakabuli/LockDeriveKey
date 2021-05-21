@@ -81,5 +81,4 @@ public class MessageListActivity extends BaseActivity {
             mMessageListAdapter.setList(beanList);
         }
     }
-
 }

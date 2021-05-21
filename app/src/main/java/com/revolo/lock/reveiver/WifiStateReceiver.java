@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.net.NetworkInfo;
 import android.net.wifi.WifiManager;
 
+import com.revolo.lock.Constant;
 import com.revolo.lock.LockAppManager;
 import com.revolo.lock.R;
 import com.revolo.lock.dialog.MessageDialog;
@@ -30,7 +31,8 @@ public class WifiStateReceiver extends BroadcastReceiver {
             } else if (state.equals(NetworkInfo.State.DISCONNECTED.name())) {
                 Timber.d("WiFi state 断开连接");
                 initDialog();
-                if (mMessageDialog != null && !mMessageDialog.isShowing()) {
+                if (mMessageDialog != null && !Constant.isShowDialog) {
+                    Constant.isShowDialog = true;
                     mMessageDialog.show();
                 }
             } else if (state.equals(NetworkInfo.State.DISCONNECTING.name())) {
@@ -52,6 +54,7 @@ public class WifiStateReceiver extends BroadcastReceiver {
         mMessageDialog.setOnListener(v -> {
             if (mMessageDialog != null) {
                 mMessageDialog.dismiss();
+                Constant.isShowDialog = false;
             }
         });
     }

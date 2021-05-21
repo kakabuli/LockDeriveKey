@@ -69,13 +69,13 @@ android {
         debug {
             keyAlias 'revolo'
             keyPassword 'Rev0l0&Ka66as'
-            storeFile file('D:/code/20201116code/revoloLock/revolo.jks')
+            storeFile file('../revolo.jks')
             storePassword 'Rev0l0&Ka66as'
         }
         release {
             keyAlias 'revolo'
             keyPassword 'Rev0l0&Ka66as'
-            storeFile file('D:/code/20201116code/revoloLock/revolo.jks')
+            storeFile file('../revolo.jks')
             storePassword 'Rev0l0&Ka66as'
         }
     }
