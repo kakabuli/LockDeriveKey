@@ -215,7 +215,10 @@ public class LoginActivity extends BaseActivity {
             saveLoginBeanToLocal(mailLoginBeanRsp);
             runOnUiThread(() -> new Handler(Looper.getMainLooper()).postDelayed(() -> {
                 ActivityUtils.finishActivity(SignSelectActivity.class);
-                startActivity(new Intent(LoginActivity.this, MainActivity.class));
+                Intent intent=new Intent(LoginActivity.this, MainActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                intent.addCategory(Intent.CATEGORY_HOME);
+                startActivity(intent);
                 finish();
             }, 50));
         });

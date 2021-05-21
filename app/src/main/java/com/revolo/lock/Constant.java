@@ -66,6 +66,9 @@ public class Constant {
     public static final String USER_TOKEN = "UserToken";
     public static final String USER_LOGIN_INFO = "UserLoginInfo";
 
+    //SignSelect
+    public static final String SIGN_SELECT_MODE="sign_select_mode";
+
     /**
      * 在login界面，是否显示提示对话框key
      */

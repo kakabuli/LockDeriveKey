@@ -319,7 +319,7 @@ public class AutoLockActivity extends BaseActivity {
                 mTime = 10;
                 seekBar.setProgress(20);
             } else {
-                mTvTime.setText("立刻");
+                mTvTime.setText(getString(R.string.activity_auto_lock_immediately));
                 mTime = 0;
             }
         } else if (progress >= 10 && progress < 20) {

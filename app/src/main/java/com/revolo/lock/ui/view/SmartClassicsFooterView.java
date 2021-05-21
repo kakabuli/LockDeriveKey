@@ -104,13 +104,13 @@ public class SmartClassicsFooterView extends ClassicsAbstract<ClassicsFooter> im
         }
 
 
-        mTextPulling = context.getString(R.string.srl_footer_pulling);
-        mTextRelease = context.getString(R.string.srl_footer_release);
-        mTextLoading = context.getString(R.string.srl_footer_loading);
-        mTextRefreshing = context.getString(R.string.srl_footer_refreshing);
-        mTextFinish = context.getString(R.string.srl_footer_finish);
-        mTextFailed = context.getString(R.string.srl_footer_failed);
-        mTextNothing = context.getString(R.string.srl_footer_nothing);
+        mTextPulling = context.getString(R.string.smart_srl_footer_pulling);
+        mTextRelease = context.getString(R.string.smart_srl_footer_release);
+        mTextLoading = context.getString(R.string.smart_srl_footer_loading);
+        mTextRefreshing = context.getString(R.string.smart_srl_footer_refreshing);
+        mTextFinish = context.getString(R.string.smart_srl_footer_finish);
+        mTextFailed = context.getString(R.string.smart_srl_footer_failed);
+        mTextNothing = context.getString(R.string.smart_srl_footer_nothing);
 
 
         ta.recycle();

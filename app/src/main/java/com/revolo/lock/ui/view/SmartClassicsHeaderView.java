@@ -141,14 +141,14 @@ public class SmartClassicsHeaderView extends ClassicsAbstract<ClassicsHeader> im
         if (ta.hasValue(R.styleable.ClassicsHeader_srlAccentColor)) {
             setAccentColor(ta.getColor(R.styleable.ClassicsHeader_srlAccentColor, 0));
         }
-        mTextPulling = context.getString(R.string.srl_header_pulling);
-        mTextLoading = context.getString(R.string.srl_header_loading);
-        mTextRelease = context.getString(R.string.srl_header_release);
-        mTextFinish = context.getString(R.string.srl_header_finish);
-        mTextFailed = context.getString(R.string.srl_header_failed);
-        mTextSecondary = context.getString(R.string.srl_header_secondary);
-        mTextRefreshing = context.getString(R.string.srl_header_refreshing);
-        mTextUpdate = context.getString(R.string.srl_header_update);
+        mTextPulling = context.getString(R.string.smart_srl_header_pulling);
+        mTextLoading = context.getString(R.string.smart_srl_header_loading);
+        mTextRelease = context.getString(R.string.smart_srl_header_release);
+        mTextFinish = context.getString(R.string.smart_srl_header_finish);
+        mTextFailed = context.getString(R.string.smart_srl_header_failed);
+        mTextSecondary = context.getString(R.string.smart_srl_header_secondary);
+        mTextRefreshing = context.getString(R.string.smart_srl_header_refreshing);
+        mTextUpdate = context.getString(R.string.smart_srl_header_update);
         mLastUpdateFormat = new SimpleDateFormat(mTextUpdate, Locale.getDefault());
 
         ta.recycle();

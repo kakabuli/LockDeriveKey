@@ -63,7 +63,7 @@ public class UserManagementActivity extends BaseActivity {
         useCommonTitleBar(getString(R.string.title_user_management))
                 .setRight(ContextCompat.getDrawable(this, R.drawable.ic_home_icon_add),
                         v -> {
-                            Intent intent = new Intent(this, AuthorizationManagementActivity.class);
+                            Intent intent = new Intent(this, AddNewShareUserInputNameActivity.class);
                             intent.putExtra(Constant.LOCK_ESN, mBleDeviceLocal.getEsn());
                             startActivity(intent);
                         });

@@ -75,7 +75,6 @@
         <activity
             android:name=".ui.sign.SignSelectActivity"
             android:label="@string/app_name"
-            android:launchMode="singleTask"
             android:screenOrientation="portrait">
 
             <intent-filter>
@@ -94,6 +93,7 @@
         <activity
             android:name=".ui.MainActivity"
             android:configChanges="orientation|keyboardHidden"
+            android:launchMode="singleTask"
             android:screenOrientation="portrait" />
         <activity
             android:name=".ui.sign.RegisterActivity"
@@ -121,7 +121,8 @@
             android:screenOrientation="portrait" />
         <activity
             android:name=".ui.sign.LoginActivity"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait"
+            android:launchMode="singleTask"/>
         <activity
             android:name=".ui.device.add.AddDeviceStep2BleConnectActivity"
             android:screenOrientation="portrait" />

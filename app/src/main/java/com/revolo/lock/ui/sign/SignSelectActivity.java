@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 
 import androidx.annotation.NonNull;
@@ -26,7 +27,7 @@ import com.revolo.lock.util.FingerprintUtils;
 import static com.revolo.lock.Constant.REVOLO_SP;
 
 public class SignSelectActivity extends BaseActivity {
-
+    private String signSelctMode = "";
     private static final int REQUEST_CODE_DRAW_GESTURE_CODE = 1999;
     private ConstraintLayout constraintLayout;
 
@@ -46,7 +47,10 @@ public class SignSelectActivity extends BaseActivity {
         setStatusBarColor(R.color.white);
         constraintLayout = findViewById(R.id.activity_sign_select_view);
         constraintLayout.setVisibility(View.GONE);
-        verification();
+        signSelctMode=getIntent().getStringExtra(Constant.SIGN_SELECT_MODE);
+        if(null==signSelctMode||"".equals(signSelctMode)){
+            verification();
+        }
     }
 
     @Override
@@ -68,6 +72,7 @@ public class SignSelectActivity extends BaseActivity {
         }
         if (view.getId() == R.id.btnSignIn) {
             startActivity(new Intent(this, LoginActivity.class));
+            finish();
         }
     }
 
@@ -129,6 +134,7 @@ public class SignSelectActivity extends BaseActivity {
         if (isUseGestureCode) {
             Intent intent = new Intent(this, DrawHandPwdAutoLoginActivity.class);
             startActivity(intent);
+            finish();
         } else {
             autoLogin();
         }
@@ -150,6 +156,8 @@ public class SignSelectActivity extends BaseActivity {
         }
         new Handler(Looper.getMainLooper()).postDelayed(() -> {
             Intent intent = new Intent(SignSelectActivity.this, MainActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            intent.addCategory(Intent.CATEGORY_HOME);
             startActivity(intent);
             finish();
         }, 50);

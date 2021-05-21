@@ -60,6 +60,9 @@ public class RegisterAddAvatarNextActivity extends BaseActivity {
     public void onDebouncingClick(@NonNull View view) {
         if(view.getId() == R.id.btnAddNextTime) {
             Intent intent = new Intent(this, MainActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            intent.addCategory(Intent.CATEGORY_HOME);
+
             startActivity(intent);
             finishPreAct();
             finish();
@@ -68,6 +71,9 @@ public class RegisterAddAvatarNextActivity extends BaseActivity {
         if(view.getId() == R.id.btnAddDevice) {
             Intent intent = new Intent(this, MainActivity.class);
             intent.putExtra(Constant.COMMAND, Constant.ADD_DEVICE);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            intent.addCategory(Intent.CATEGORY_HOME);
+
             startActivity(intent);
             finishPreAct();
             finish();
