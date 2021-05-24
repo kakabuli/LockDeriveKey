@@ -68,6 +68,7 @@
         android:drawablePadding="41pt"
         android:paddingStart="15pt"
         android:paddingEnd="15pt"
+        android:maxLength="15"
         style="@style/InputEditTextStyle"
         android:theme="@style/InputEditTextTheme"
         android:layout_marginTop="10pt"

@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -8,37 +7,53 @@
     android:layout_marginBottom="5pt"
     android:background="@color/white">
 
-    <ImageView
-        android:id="@+id/ivPwdState"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="15pt"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:srcCompat="@drawable/ic_home_icon_password" />
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/constraintLayout"
+        android:layout_width="match_parent"
+        android:layout_height="109pt"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageView
+            android:id="@+id/ivPwdState"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="15pt"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:srcCompat="@drawable/ic_home_icon_password" />
+
+        <TextView
+            android:id="@+id/tvPwdName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="25pt"
+            android:layout_marginTop="21pt"
+            android:textColor="@color/c333333"
+            android:textSize="16pt"
+            app:layout_constraintStart_toEndOf="@+id/ivPwdState"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="Password name" />
+
+        <TextView
+            android:id="@+id/tvDetail"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="25pt"
+            android:layout_marginTop="6pt"
+            app:layout_constraintStart_toEndOf="@+id/ivPwdState"
+            app:layout_constraintTop_toBottomOf="@+id/tvPwdName"
+            tools:text="Sun、Mon、Tues、Wed、Thure、Tir\n15:00-17:00" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
     <TextView
-        android:id="@+id/tvPwdName"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="25pt"
-        android:layout_marginTop="21pt"
-        tools:text="Password name"
-        android:textSize="16pt"
-        android:textColor="@color/c333333"
-        app:layout_constraintStart_toEndOf="@+id/ivPwdState"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <TextView
-        android:id="@+id/tvDetail"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="25pt"
-        android:layout_marginTop="6pt"
-        tools:text="Sun、Mon、Tues、Wed、Thure、Tir\n15:00-17:00"
-        app:layout_constraintStart_toEndOf="@+id/ivPwdState"
-        app:layout_constraintTop_toBottomOf="@+id/tvPwdName" />
-
-
+        android:id="@+id/tv_delete"
+        android:layout_width="60dp"
+        android:layout_height="match_parent"
+        android:background="#FFF55030"
+        android:gravity="center"
+        android:text="@string/delete"
+        android:textColor="#FFFFFFFF"
+        android:textSize="14sp"
+        app:layout_constraintLeft_toRightOf="@id/constraintLayout" />
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -286,6 +286,8 @@ public class DeviceFragment extends Fragment {
                 Timber.e("updateDataFromNet bleDeviceLocal == null");
                 bleDeviceLocal = createDeviceToLocal(wifiListBean);
             }
+            bleDeviceLocal.setAutoLock(wifiListBean.getAutoLock().equals("0"));
+            bleDeviceLocal.setSetAutoLockTime(wifiListBean.getOpenStatusTime());
             bleDeviceLocal.setName(wifiListBean.getLockNickname());
             String firmwareVer = wifiListBean.getLockFirmwareVersion();
             if (!TextUtils.isEmpty(firmwareVer)) {
@@ -320,6 +322,7 @@ public class DeviceFragment extends Fragment {
         bleDeviceLocal.setWifiVer(wifiListBean.getWifiVersion());
         bleDeviceLocal.setLockVer(wifiListBean.getLockFirmwareVersion());
         bleDeviceLocal.setName(wifiListBean.getLockNickname());
+        bleDeviceLocal.setMute(true);
 //        bleDeviceLocal.setOpenDoorSensor(wifiListBean.getDoorSensor()==1);
 //        bleDeviceLocal.setDoNotDisturbMode(wifiListBean.get);
 //        bleDeviceLocal.setSetAutoLockTime(wifiListBean.getAutoLockTime());
@@ -791,9 +794,9 @@ public class DeviceFragment extends Fragment {
                 // 开锁
                 setLockState(getPositionFromWifiId(bean.getWfId()), LocalState.LOCK_STATE_OPEN);
             }
-        }else if(bean.getEventparams().getEventType()==3){
+        } else if (bean.getEventparams().getEventType() == 3) {
             int eventCode = bean.getEventparams().getEventCode();
-            if(eventCode == 5){
+            if (eventCode == 5) {
                 // 上锁
                 setLockState(getPositionFromWifiId(bean.getWfId()), LocalState.LOCK_STATE_PRIVATE);
             }

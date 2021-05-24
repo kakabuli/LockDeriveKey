@@ -650,7 +650,8 @@ public class DeviceDetailActivity extends BaseActivity {
 //            if(mSignalWeakDialog != null) {
 //                mSignalWeakDialog.dismiss();
 //            }
-//        });
+//        });z.
+
 //        mSignalWeakDialog.setOnConfirmListener(v -> {
 //            if(mSignalWeakDialog != null) {
 //                mSignalWeakDialog.dismiss();
