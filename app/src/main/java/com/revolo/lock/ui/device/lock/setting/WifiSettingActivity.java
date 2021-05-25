@@ -1,6 +1,8 @@
 package com.revolo.lock.ui.device.lock.setting;
 
+import android.content.Context;
 import android.content.Intent;
+import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -12,6 +14,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.room.paging.LimitOffsetDataSource;
 
 import com.a1anwang.okble.client.scan.BLEScanResult;
 import com.blankj.utilcode.util.ConvertUtils;
@@ -119,7 +122,6 @@ public class WifiSettingActivity extends BaseActivity {
         if (mBleDeviceLocal.getConnectedType() != LocalState.DEVICE_CONNECT_TYPE_WIFI) {
             initBleListener();
         }
-
     }
 
     @Override
@@ -138,11 +140,14 @@ public class WifiSettingActivity extends BaseActivity {
                         mSelectDialog.show();
                     }
                 } else {
-                    String wifiName = mBleDeviceLocal.getConnectedWifiName();
-                    if (TextUtils.isEmpty(wifiName)) {
-                        gotoAddWifiAct();
-                    } else {
-                        openWifiFromBle();
+                    WifiManager wifiManager = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+                    if (wifiManager.isWifiEnabled()) { // WiFi状态为open
+                        String wifiName = mBleDeviceLocal.getConnectedWifiName();
+                        if (TextUtils.isEmpty(wifiName)) {
+                            gotoAddWifiAct();
+                        } else {
+                            openWifiFromBle();
+                        }
                     }
                 }
                 return;
@@ -160,6 +165,7 @@ public class WifiSettingActivity extends BaseActivity {
     }
 
     private void gotoAddWifiAct() {
+
         Intent intent = new Intent(this, AddWifiActivity.class);
         startActivity(intent);
     }
@@ -370,15 +376,15 @@ public class WifiSettingActivity extends BaseActivity {
                         bleScanResult,
                         ConvertUtils.hexString2Bytes(mBleDeviceLocal.getPwd1()),
                         ConvertUtils.hexString2Bytes(mBleDeviceLocal.getPwd2()),
-                        onBleDeviceListener,false);
+                        onBleDeviceListener, false);
                 bleBean.setEsn(mBleDeviceLocal.getEsn());
             } else {
                 // TODO: 2021/1/26 处理为空的情况
             }
         } else {
-            if(bleBean.getOKBLEDeviceImp() != null) {
+            if (bleBean.getOKBLEDeviceImp() != null) {
                 bleBean.setOnBleDeviceListener(onBleDeviceListener);
-                if(!bleBean.getOKBLEDeviceImp().isConnected()) {
+                if (!bleBean.getOKBLEDeviceImp().isConnected()) {
                     bleBean.getOKBLEDeviceImp().connect(true);
                 }
                 bleBean.setPwd1(ConvertUtils.hexString2Bytes(mBleDeviceLocal.getPwd1()));
@@ -393,21 +399,21 @@ public class WifiSettingActivity extends BaseActivity {
 
     private void openWifiFromBle() {
         BleBean bleBean = App.getInstance().getBleBeanFromMac(mBleDeviceLocal.getMac());
-        if(bleBean == null) {
+        if (bleBean == null) {
             Timber.e("openWifiFromBle bleBean == null");
             return;
         }
-        if(bleBean.getOKBLEDeviceImp() == null) {
+        if (bleBean.getOKBLEDeviceImp() == null) {
             Timber.e("openWifiFromBle bleBean.getOKBLEDeviceImp() == null");
             return;
         }
         byte[] pwd1 = bleBean.getPwd1();
         byte[] pwd3 = bleBean.getPwd3();
-        if(pwd1 == null) {
+        if (pwd1 == null) {
             Timber.e("openWifiFromBle pwd1 == null");
             return;
         }
-        if(pwd3 == null) {
+        if (pwd3 == null) {
             Timber.e("openWifiFromBle pwd3 == null");
             return;
         }
@@ -416,21 +422,21 @@ public class WifiSettingActivity extends BaseActivity {
 
     private void closeWifiFromBle() {
         BleBean bleBean = App.getInstance().getBleBeanFromMac(mBleDeviceLocal.getMac());
-        if(bleBean == null) {
+        if (bleBean == null) {
             Timber.e("closeWifiFromBle bleBean == null");
             return;
         }
-        if(bleBean.getOKBLEDeviceImp() == null) {
+        if (bleBean.getOKBLEDeviceImp() == null) {
             Timber.e("closeWifiFromBle bleBean.getOKBLEDeviceImp() == null");
             return;
         }
         byte[] pwd1 = bleBean.getPwd1();
         byte[] pwd3 = bleBean.getPwd3();
-        if(pwd1 == null) {
+        if (pwd1 == null) {
             Timber.e("closeWifiFromBle pwd1 == null");
             return;
         }
-        if(pwd3 == null) {
+        if (pwd3 == null) {
             Timber.e("closeWifiFromBle pwd3 == null");
             return;
         }
@@ -441,7 +447,7 @@ public class WifiSettingActivity extends BaseActivity {
         runOnUiThread(() -> {
             mIvWifiEnable.setImageResource(R.drawable.ic_icon_switch_open);
             String wifiName = mBleDeviceLocal.getConnectedWifiName();
-            mTvWifiName.setText(TextUtils.isEmpty(wifiName)?"":wifiName);
+            mTvWifiName.setText(TextUtils.isEmpty(wifiName) ? "" : wifiName);
             isWifiConnected = true;
             mCltip.setVisibility(View.VISIBLE);
         });
@@ -457,7 +463,7 @@ public class WifiSettingActivity extends BaseActivity {
 
     private void initBleListener() {
         BleBean bleBean = App.getInstance().getBleBeanFromMac(mBleDeviceLocal.getMac());
-        if(bleBean != null) {
+        if (bleBean != null) {
             bleBean.setOnBleDeviceListener(new OnBleDeviceListener() {
                 @Override
                 public void onConnected(@NotNull String mac) {
@@ -471,28 +477,28 @@ public class WifiSettingActivity extends BaseActivity {
 
                 @Override
                 public void onReceivedValue(@NotNull String mac, String uuid, byte[] value) {
-                    if(value == null) {
+                    if (value == null) {
                         Timber.e("initBleListener value == null");
                         return;
                     }
-                    if(!mBleDeviceLocal.getMac().equals(mac)) {
+                    if (!mBleDeviceLocal.getMac().equals(mac)) {
                         Timber.e("initBleListener mac: %1s, local mac：%2s", mac, mBleDeviceLocal.getMac());
                         return;
                     }
                     BleBean bleBean = App.getInstance().getBleBeanFromMac(mBleDeviceLocal.getMac());
-                    if(bleBean == null) {
+                    if (bleBean == null) {
                         Timber.e("initBleListener bleBean == null");
                         return;
                     }
-                    if(bleBean.getOKBLEDeviceImp() == null) {
+                    if (bleBean.getOKBLEDeviceImp() == null) {
                         Timber.e("initBleListener bleBean.getOKBLEDeviceImp() == null");
                         return;
                     }
-                    if(bleBean.getPwd1() == null) {
+                    if (bleBean.getPwd1() == null) {
                         Timber.e("initBleListener bleBean.getPwd1() == null");
                         return;
                     }
-                    if(bleBean.getPwd3() == null) {
+                    if (bleBean.getPwd3() == null) {
                         Timber.e("initBleListener bleBean.getPwd3() == null");
                         return;
                     }
@@ -518,7 +524,7 @@ public class WifiSettingActivity extends BaseActivity {
     }
 
     private final BleResultProcess.OnReceivedProcess mOnReceivedProcess = bleResultBean -> {
-        if(bleResultBean == null) {
+        if (bleResultBean == null) {
             Timber.e("mOnReceivedProcess bleResultBean == null");
             return;
         }
@@ -526,14 +532,14 @@ public class WifiSettingActivity extends BaseActivity {
     };
 
     private void processBleResult(BleResultBean bean) {
-        if(bean.getCMD() == CMD_WIFI_SWITCH) {
+        if (bean.getCMD() == CMD_WIFI_SWITCH) {
             processWifiSwitch(bean);
         }
     }
 
     private void processWifiSwitch(BleResultBean bean) {
         byte state = bean.getPayload()[0];
-        if(state == 0x00) {
+        if (state == 0x00) {
             refreshWifiConnectState();
             updateUI();
         } else {
@@ -543,7 +549,7 @@ public class WifiSettingActivity extends BaseActivity {
 
     private void refreshWifiConnectState() {
         isWifiConnected = !isWifiConnected;
-        mBleDeviceLocal.setConnectedType(isWifiConnected? LocalState.DEVICE_CONNECT_TYPE_WIFI:LocalState.DEVICE_CONNECT_TYPE_BLE);
+        mBleDeviceLocal.setConnectedType(isWifiConnected ? LocalState.DEVICE_CONNECT_TYPE_WIFI : LocalState.DEVICE_CONNECT_TYPE_BLE);
         AppDatabase.getInstance(this).bleDeviceDao().update(mBleDeviceLocal);
     }
 

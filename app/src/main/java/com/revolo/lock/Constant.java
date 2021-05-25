@@ -49,6 +49,7 @@ public class Constant {
     public static final String BLE_DEVICE = "BleDevice";
     public static final String KEY_PWD_NUM = "keyPwdNum";
     public static final String UNBIND_REQ = "UnbindReq";
+    public static final String START_TIME = "startTime";
 
     public static final String DEVICE_ID = "DeviceId";
     public static final String PWD_NUM = "PwdNum";

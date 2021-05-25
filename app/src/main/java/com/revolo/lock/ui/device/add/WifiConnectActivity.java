@@ -1,6 +1,8 @@
 package com.revolo.lock.ui.device.add;
 
 import android.content.Intent;
+import android.net.wifi.WifiInfo;
+import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -68,6 +70,8 @@ public class WifiConnectActivity extends BaseActivity {
         }
         mWifiName = intent.getStringExtra(Constant.WIFI_NAME);
         mWifiPwd = intent.getStringExtra(Constant.WIFI_PWD);
+
+
     }
 
     @Override
@@ -318,5 +322,4 @@ public class WifiConnectActivity extends BaseActivity {
         }
         mHandler.postDelayed(mWriteWifiPwdRunnable, 20);
     }
-
 }

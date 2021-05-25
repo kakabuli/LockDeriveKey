@@ -21,6 +21,8 @@ import com.revolo.lock.net.ObservableDecorator;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Date;
+
 import io.reactivex.Observable;
 import io.reactivex.Observer;
 import io.reactivex.disposables.Disposable;
@@ -40,15 +42,23 @@ public class AuthorizationManagementActivity extends BaseActivity {
     private int mCurrentUserType = 1;                // 1 Family  2 Guest
 
     private String mEsn;
+    private String mName;
+    private long mStartTime;
 
     @Override
     public void initData(@Nullable Bundle bundle) {
         Intent intent = getIntent();
-        if(intent.hasExtra(Constant.LOCK_ESN)) {
+        if (intent.hasExtra(Constant.LOCK_ESN)) {
             mEsn = intent.getStringExtra(Constant.LOCK_ESN);
         }
+        if (intent.hasExtra(Constant.USER_NAME)) {
+            mName = intent.getStringExtra(Constant.USER_NAME);
+        }
+        if (intent.hasExtra(Constant.START_TIME)) {
+            mStartTime = intent.getLongExtra(Constant.START_TIME, 0);
+        }
         // TODO: 2021/3/8 处理
-        if(TextUtils.isEmpty(mEsn)) {
+        if (TextUtils.isEmpty(mEsn)) {
             finish();
         }
     }
@@ -76,17 +86,17 @@ public class AuthorizationManagementActivity extends BaseActivity {
 
     @Override
     public void onDebouncingClick(@NonNull View view) {
-        if(view.getId() == R.id.btnShare) {
+        if (view.getId() == R.id.btnShare) {
             share();
             return;
         }
-        if(view.getId() == R.id.clFamily) {
+        if (view.getId() == R.id.clFamily) {
             mCurrentUserType = 1;
             mIvGuest.setImageResource(R.drawable.ic_home_password_icon_default);
             mIvFamily.setImageResource(R.drawable.ic_home_password_icon_selected);
             return;
         }
-        if(view.getId() == R.id.clGuest) {
+        if (view.getId() == R.id.clGuest) {
             mCurrentUserType = 2;
             mIvGuest.setImageResource(R.drawable.ic_home_password_icon_selected);
             mIvFamily.setImageResource(R.drawable.ic_home_password_icon_default);
@@ -94,20 +104,20 @@ public class AuthorizationManagementActivity extends BaseActivity {
     }
 
     private void share() {
-        if(!checkNetConnectFail()) {
+        if (!checkNetConnectFail()) {
             return;
         }
-        if(App.getInstance().getUserBean() == null) {
+        if (App.getInstance().getUserBean() == null) {
             Timber.e("share App.getInstance().getUserBean() == null");
             return;
         }
         String uid = App.getInstance().getUserBean().getUid();
-        if(TextUtils.isEmpty(uid)) {
+        if (TextUtils.isEmpty(uid)) {
             Timber.e("share uid is empty");
             return;
         }
         String token = App.getInstance().getUserBean().getToken();
-        if(TextUtils.isEmpty(token)) {
+        if (TextUtils.isEmpty(token)) {
             Timber.e("share token is empty");
             return;
         }
@@ -115,6 +125,9 @@ public class AuthorizationManagementActivity extends BaseActivity {
         req.setDeviceSN(mEsn);
         req.setShareUserType(mCurrentUserType);
         req.setUid(uid);
+        req.setEndTime(new Date().getTime());
+        req.setStartTime(mStartTime);
+        req.setShareNickName(mName);
         showLoading();
         Observable<GainKeyBeanRsp> observable = HttpRequest.getInstance().gainKey(token, req);
         ObservableDecorator.decorate(observable).safeSubscribe(new Observer<GainKeyBeanRsp>() {
@@ -127,24 +140,24 @@ public class AuthorizationManagementActivity extends BaseActivity {
             public void onNext(@NonNull GainKeyBeanRsp gainKeyBeanRsp) {
                 dismissLoading();
                 String code = gainKeyBeanRsp.getCode();
-                if(TextUtils.isEmpty(code)) {
+                if (TextUtils.isEmpty(code)) {
                     Timber.e("share code empty");
                     return;
                 }
-                if(!code.equals("200")) {
-                    if(code.equals("444")) {
+                if (!code.equals("200")) {
+                    if (code.equals("444")) {
                         App.getInstance().logout(true, AuthorizationManagementActivity.this);
                         return;
                     }
                     Timber.e("share code: %1s, msg: %2s", code, gainKeyBeanRsp.getMsg());
                     return;
                 }
-                if(gainKeyBeanRsp.getData() == null) {
+                if (gainKeyBeanRsp.getData() == null) {
                     Timber.e("share gainKeyBeanRsp.getData() == null");
                     return;
                 }
                 String url = gainKeyBeanRsp.getData().getUrl();
-                if(TextUtils.isEmpty(url)) {
+                if (TextUtils.isEmpty(url)) {
                     Timber.e("share url is empty");
                     return;
                 }

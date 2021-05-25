@@ -124,6 +124,9 @@ public class SelectAuthorizedDeviceActivity extends BaseActivity {
         req.setDeviceSN(mBleDeviceLocal.getEsn());
         req.setShareUserType(mCurrentUserType);
         req.setUid(uid);
+        req.setShareNickName(tvUserName.getText().toString().trim());
+        req.setStartTime(1);
+        req.setEndTime(2);
         showLoading();
         Observable<GainKeyBeanRsp> observable = HttpRequest.getInstance().gainKey(token, req);
         ObservableDecorator.decorate(observable).safeSubscribe(new Observer<GainKeyBeanRsp>() {

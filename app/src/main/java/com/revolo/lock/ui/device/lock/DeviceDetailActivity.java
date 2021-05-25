@@ -78,6 +78,16 @@ public class DeviceDetailActivity extends BaseActivity {
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        mBleDeviceLocal = App.getInstance().getBleDeviceLocal();
+        if (mBleDeviceLocal == null) {
+            // TODO: 2021/3/1 处理
+            finish();
+        }
+    }
+
+    @Override
     public int bindLayout() {
         return R.layout.activity_device_detail;
     }
