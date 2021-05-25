@@ -364,8 +364,10 @@ public class AddNewPwdSelectActivity extends BaseActivity {
     private long mTemEndDateTimeMill;
     private String mTemStartDateTimeStr = "10:00:00";
     private String mTemEndDateTimeStr = "14:00:00";
-    private String mTemStartDateStr = "2020-12-28";
-    private String mTemEndDateStr = "2020-12-28";
+    private final String mNowDateStr = TimeUtils.millis2String(TimeUtils.getNowMills(), TimeUtils.getSafeDateFormat("yyyy-MM-dd"));
+
+    private String mTemStartDateStr = mNowDateStr;
+    private String mTemEndDateStr = mNowDateStr;
 
     // 因为周策略的时间锁端用的是零时区时间设置的，所以需要转换为零时区时间设置
     private SimpleDateFormat mZeroTimeZoneDateFormat;
@@ -373,16 +375,16 @@ public class AddNewPwdSelectActivity extends BaseActivity {
     @SuppressLint("SimpleDateFormat")
     private void initZeroTimeZoneDate() {
         mZeroTimeZoneDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        mZeroTimeZoneDateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
+        mZeroTimeZoneDateFormat.setTimeZone(TimeZone.getTimeZone("GMT+0"));
     }
 
     private void initScheduleStartTimeMill() {
-        String date = "2000-01-01 00:00:00";
+        String date = mNowDateStr + " 00:00:00";
         mScheduleStartTimeMill = TimeUtils.string2Millis(date, mZeroTimeZoneDateFormat);
     }
 
     private void initScheduleEndTimeMill() {
-        String date = "2000-01-01 23:59:00";
+        String date = mNowDateStr + " 23:59:00";
         mScheduleEndTimeMill = TimeUtils.string2Millis(date, mZeroTimeZoneDateFormat);
     }
 
@@ -407,7 +409,7 @@ public class AddNewPwdSelectActivity extends BaseActivity {
                 (view, hourOfDay, minute) -> {
             String time = (hourOfDay<10?"0"+hourOfDay:hourOfDay)+":"+(minute<10?"0"+minute:minute);
             if(id == R.id.tvStartTime) {
-                long scheduleStartTimeMill = TimeUtils.string2Millis("2000-01-01 " + time + ":00", mZeroTimeZoneDateFormat);
+                long scheduleStartTimeMill = TimeUtils.string2Millis(mNowDateStr + " " + time + ":00", mZeroTimeZoneDateFormat);
                 if(scheduleStartTimeMill > mScheduleEndTimeMill) {
                     // 开始时间大于结束时间
                     ToastUtils.showShort(R.string.t_the_start_time_cannot_be_greater_than_the_end_time);
@@ -415,9 +417,9 @@ public class AddNewPwdSelectActivity extends BaseActivity {
                 }
                 mTvStartTime.setText(time);
                 mScheduleStartTimeMill = scheduleStartTimeMill;
-                Timber.d("startTime 选择的时间%1s, 时间流：%2d",time, mScheduleStartTimeMill);
+                Timber.d("startTime 选择的时间%1s, 时间流：%2d, 转换的时间：%3s",time, mScheduleStartTimeMill, TimeUtils.millis2String(mScheduleStartTimeMill, mZeroTimeZoneDateFormat));
             } else if(id == R.id.tvEndTime) {
-                long scheduleEndTimeMill = TimeUtils.string2Millis("2000-01-01 " + time + ":00", mZeroTimeZoneDateFormat);
+                long scheduleEndTimeMill = TimeUtils.string2Millis(mNowDateStr + " " + time + ":00", mZeroTimeZoneDateFormat);
                 if(scheduleEndTimeMill < mScheduleStartTimeMill) {
                     // 结束时间小于开始时间
                     ToastUtils.showShort(R.string.t_the_end_time_cannot_be_less_than_the_start_time);
@@ -425,7 +427,7 @@ public class AddNewPwdSelectActivity extends BaseActivity {
                 }
                 mTvEndTime.setText(time);
                 mScheduleEndTimeMill = scheduleEndTimeMill;
-                Timber.d("endTime 选择的时间%1s, 时间流：%2d",time, mScheduleEndTimeMill);
+                Timber.d("endTime 选择的时间%1s, 时间流：%2d, 转换的时间：%3s",time, mScheduleEndTimeMill, TimeUtils.millis2String(mScheduleEndTimeMill, mZeroTimeZoneDateFormat));
             } else if(id == R.id.tvEndDateTime) {
                 long temEndDateTimeMill = TimeUtils.string2Millis(mTemEndDateStr + " " + time + ":00");
                 if(temEndDateTimeMill < mTemStartDateTimeMill) {

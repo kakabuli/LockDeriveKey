@@ -734,6 +734,7 @@ public class WifiLockGetAllBindDeviceRspBean {
             private String systemID;
             private String userNickname;
             private String wifiStatus;
+            private int autoLockTime;
 
             public String get_id() {
                 return _id;
@@ -1135,6 +1136,14 @@ public class WifiLockGetAllBindDeviceRspBean {
                 this.wifiStatus = wifiStatus;
             }
 
+            public int getAutoLockTime() {
+                return autoLockTime;
+            }
+
+            public void setAutoLockTime(int autoLockTime) {
+                this.autoLockTime = autoLockTime;
+            }
+
             public static class SwitchBean implements Parcelable {
                 /**
                  * createTime : 154148973342
@@ -1393,6 +1402,7 @@ public class WifiLockGetAllBindDeviceRspBean {
                 dest.writeString(this.systemID);
                 dest.writeString(this.userNickname);
                 dest.writeString(this.wifiStatus);
+                dest.writeInt(this.autoLockTime);
             }
 
             public WifiListBean() {
@@ -1449,6 +1459,7 @@ public class WifiLockGetAllBindDeviceRspBean {
                 this.systemID = in.readString();
                 this.userNickname = in.readString();
                 this.wifiStatus = in.readString();
+                this.autoLockTime = in.readInt();
             }
 
             public static final Creator<WifiListBean> CREATOR = new Creator<WifiListBean>() {

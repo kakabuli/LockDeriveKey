@@ -134,9 +134,6 @@ public class RegisterAddAvatarActivity extends BaseActivity implements EasyPermi
                         return;
                     }
                     File avatarFile = new File(path);
-                    if(avatarFile == null) {
-                        return;
-                    }
                     mUser.setAvatarLocalPath(path);
                     uploadUserAvatar(avatarFile);
 

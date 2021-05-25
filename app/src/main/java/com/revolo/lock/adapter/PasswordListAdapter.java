@@ -112,7 +112,7 @@ public class PasswordListAdapter extends BaseQuickAdapter<DevicePwdBean, BaseVie
     @SuppressLint("SimpleDateFormat")
     private void initZeroTimeZoneDate() {
         mZeroTimeZoneDateFormat = new SimpleDateFormat("HH:mm");
-        mZeroTimeZoneDateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
+        mZeroTimeZoneDateFormat.setTimeZone(TimeZone.getTimeZone("GMT+0"));
     }
 
     /**

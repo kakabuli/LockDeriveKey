@@ -48,7 +48,6 @@ import com.scwang.smart.refresh.layout.SmartRefreshLayout;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
@@ -417,7 +416,7 @@ public class App extends Application {
                 if (service instanceof MqttService.MyBinder) {
                     MqttService.MyBinder binder = (MqttService.MyBinder) service;
                     mMQttService = binder.getService();
-                    Timber.d("attachView service启动" + (mMQttService == null));
+                    Timber.d("attachView service启动 %1b", (mMQttService == null));
                 }
             }
 

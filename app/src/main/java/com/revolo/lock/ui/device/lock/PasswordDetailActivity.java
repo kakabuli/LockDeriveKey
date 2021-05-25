@@ -523,7 +523,7 @@ public class PasswordDetailActivity extends BaseActivity {
     @SuppressLint("SimpleDateFormat")
     private void initZeroTimeZoneDate() {
         mZeroTimeZoneDateFormat = new SimpleDateFormat("HH:mm");
-        mZeroTimeZoneDateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
+        mZeroTimeZoneDateFormat.setTimeZone(TimeZone.getTimeZone("GMT+0"));
     }
 
 }
