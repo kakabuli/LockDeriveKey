@@ -42,6 +42,7 @@ import com.revolo.lock.bean.request.SettingDuressPwdReceiveEMailBeanReq;
 import com.revolo.lock.bean.request.StartAllOTAUpdateBeanReq;
 import com.revolo.lock.bean.request.StartOTAUpdateBeanReq;
 import com.revolo.lock.bean.request.UpdateDoorSensorStateBeanReq;
+import com.revolo.lock.bean.request.UpdateLockInfoReq;
 import com.revolo.lock.bean.request.UpdateLockRecordBeanReq;
 import com.revolo.lock.bean.request.UpdateSharedUserNickNameBeanReq;
 import com.revolo.lock.bean.request.UpdateUserAuthorityTypeBeanReq;
@@ -90,6 +91,7 @@ import com.revolo.lock.bean.respone.SettingDuressPwdReceiveEMailBeanRsp;
 import com.revolo.lock.bean.respone.StartAllOTAUpdateBeanRsp;
 import com.revolo.lock.bean.respone.StartOTAUpdateBeanRsp;
 import com.revolo.lock.bean.respone.UpdateDoorSensorStateBeanRsp;
+import com.revolo.lock.bean.respone.UpdateLockInfoRsp;
 import com.revolo.lock.bean.respone.UpdateLockRecordBeanRsp;
 import com.revolo.lock.bean.respone.UpdateSharedUserNickNameBeanRsp;
 import com.revolo.lock.bean.respone.UpdateUserAuthorityTypeBeanRsp;
@@ -455,5 +457,9 @@ public class HttpRequest {
 
     public Observable<QuestionBeanRsp> faqList(String token, int languageType) {
         return service.faqList(token, languageType);
+    }
+
+    public Observable<UpdateLockInfoRsp> updateLockInfo(String token, UpdateLockInfoReq req) {
+        return service.updateLockInfo(token, req, NORMAL);
     }
 }

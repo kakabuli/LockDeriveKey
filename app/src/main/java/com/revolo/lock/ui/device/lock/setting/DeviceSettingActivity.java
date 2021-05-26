@@ -25,7 +25,9 @@ import com.revolo.lock.LocalState;
 import com.revolo.lock.R;
 import com.revolo.lock.base.BaseActivity;
 import com.revolo.lock.bean.request.DeviceUnbindBeanReq;
+import com.revolo.lock.bean.request.UpdateLockInfoReq;
 import com.revolo.lock.bean.respone.DeviceUnbindBeanRsp;
+import com.revolo.lock.bean.respone.UpdateLockInfoRsp;
 import com.revolo.lock.ble.BleByteUtil;
 import com.revolo.lock.ble.BleCommandFactory;
 import com.revolo.lock.ble.BleProtocolState;
@@ -329,16 +331,13 @@ public class DeviceSettingActivity extends BaseActivity {
     private void processMute(BleResultBean bean) {
         if(bean.getPayload()[0] == 0x00) {
             saveMuteStateToLocal(mBleDeviceLocal.isMute()?LocalState.VOLUME_STATE_OPEN:LocalState.VOLUME_STATE_MUTE);
-            refreshMuteEnable();
         } else {
             ToastUtils.showShort(R.string.t_setting_mute_fail);
         }
     }
 
     private void refreshMuteEnable() {
-        runOnUiThread(() -> {
-            mIvMuteEnable.setImageResource(mBleDeviceLocal.isMute()?R.drawable.ic_icon_switch_open:R.drawable.ic_icon_switch_close);
-        });
+        runOnUiThread(() -> mIvMuteEnable.setImageResource(mBleDeviceLocal.isMute()?R.drawable.ic_icon_switch_open:R.drawable.ic_icon_switch_close));
     }
 
     private void saveMuteStateToLocal(@LocalState.VolumeState int mute) {
@@ -350,6 +349,7 @@ public class DeviceSettingActivity extends BaseActivity {
             AppDatabase.getInstance(this).bleDeviceDao().update(mBleDeviceLocal);
         }
         refreshMuteEnable();
+        updateLockInfoToService();
     }
 
     private void lockUpdateInfo(BleResultBean bean) {
@@ -484,5 +484,69 @@ public class DeviceSettingActivity extends BaseActivity {
         Timber.d("publishSetVolume %1s", mqttData.toString());
     }
 
+    /**
+     * 更新锁服务器存储的数据
+     */
+    private void updateLockInfoToService() {
+        if(App.getInstance().getUserBean() == null) {
+            Timber.e("updateLockInfoToService App.getInstance().getUserBean() == null");
+            return;
+        }
+        String uid = App.getInstance().getUserBean().getUid();
+        if(TextUtils.isEmpty(uid)) {
+            Timber.e("updateLockInfoToService uid is empty");
+            return;
+        }
+        String token = App.getInstance().getUserBean().getToken();
+        if(TextUtils.isEmpty(token)) {
+            Timber.e("updateLockInfoToService token is empty");
+            return;
+        }
+        showLoading();
+
+        UpdateLockInfoReq req = new UpdateLockInfoReq();
+        req.setSn(mBleDeviceLocal.getEsn());
+        req.setWifiName(mBleDeviceLocal.getConnectedWifiName());
+        req.setSafeMode(0);   // 没有使用这个
+        req.setLanguage("en"); // 暂时也没使用这个
+        req.setVolume(mBleDeviceLocal.isMute()?0:1);
+        req.setAmMode(mBleDeviceLocal.isAutoLock()?0:1);
+        req.setDuress(mBleDeviceLocal.isDuress()?0:1);
+        req.setDoorSensor(mBleDeviceLocal.getDoorSensor());
+        req.setElecFence(mBleDeviceLocal.isOpenElectricFence()?0:1);
+        req.setAutoLockTime(mBleDeviceLocal.getSetAutoLockTime());
+        req.setElecFenceTime(mBleDeviceLocal.getSetElectricFenceTime());
+        req.setElecFenceSensitivity(mBleDeviceLocal.getSetElectricFenceSensitivity());
+
+        Observable<UpdateLockInfoRsp> observable = HttpRequest.getInstance().updateLockInfo(token, req);
+        ObservableDecorator.decorate(observable).safeSubscribe(new Observer<UpdateLockInfoRsp>() {
+            @Override
+            public void onSubscribe(@NotNull Disposable d) {
+
+            }
+
+            @Override
+            public void onNext(@NotNull UpdateLockInfoRsp updateLockInfoRsp) {
+                dismissLoading();
+                String code = updateLockInfoRsp.getCode();
+                if(!code.equals("200")) {
+                    String msg = updateLockInfoRsp.getMsg();
+                    Timber.e("updateLockInfoToService code: %1s, msg: %2s", code, msg);
+                    if(!TextUtils.isEmpty(msg)) ToastUtils.showShort(msg);
+                }
+            }
+
+            @Override
+            public void onError(@NotNull Throwable e) {
+                dismissLoading();
+                Timber.e(e);
+            }
+
+            @Override
+            public void onComplete() {
+
+            }
+        });
+    }
 
 }

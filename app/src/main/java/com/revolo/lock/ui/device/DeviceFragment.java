@@ -283,6 +283,9 @@ public class DeviceFragment extends Fragment {
                 bleDeviceLocal = createDeviceToLocal(wifiListBean);
             }
             bleDeviceLocal.setName(wifiListBean.getLockNickname());
+            bleDeviceLocal.setAutoLock(wifiListBean.getAmMode()==0);
+            bleDeviceLocal.setSetAutoLockTime(wifiListBean.getAutoLockTime());
+            bleDeviceLocal.setMute(wifiListBean.getVolume()==0);
             String firmwareVer = wifiListBean.getLockFirmwareVersion();
             if (!TextUtils.isEmpty(firmwareVer)) {
                 bleDeviceLocal.setLockVer(firmwareVer);
@@ -327,7 +330,7 @@ public class DeviceFragment extends Fragment {
 //        bleDeviceLocal.setSetElectricFenceSensitivity();
 //        bleDeviceLocal.setSetElectricFenceTime();
 //        bleDeviceLocal.setDetectionLock();
-//        bleDeviceLocal.setAutoLock();
+        bleDeviceLocal.setAutoLock(wifiListBean.getAmMode()==0);
 //        bleDeviceLocal.setDuress();
         bleDeviceLocal.setConnectedWifiName(wifiListBean.getWifiName());
         bleDeviceLocal.setCreateTime(wifiListBean.getCreateTime());
