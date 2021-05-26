@@ -381,7 +381,7 @@ public class AddWifiActivity extends BaseActivity {
                 if (mWifiSnList.isEmpty()) {
                     return;
                 }
-                mEtWifiName.setText(mWifiSnList.get(0));
+                mEtWifiName.setText(getConnectWifiSID());
             }
         });
 

@@ -92,5 +92,4 @@ public abstract class AppDatabase extends RoomDatabase {
             database.execSQL("ALTER TABLE LockRecord ADD COLUMN lr_last_name TEXT");
         }
     };
-
 }

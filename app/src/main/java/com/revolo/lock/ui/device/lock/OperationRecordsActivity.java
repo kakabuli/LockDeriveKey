@@ -112,7 +112,6 @@ public class OperationRecordsActivity extends BaseActivity {
 
         mRefreshLayout = findViewById(R.id.refreshLayout);
         mRefreshLayout.setEnableRefresh(false);
-//        refreshLayout.setRefreshHeader(new ClassicsHeader(this));
         mRefreshLayout.setRefreshFooter(new SmartClassicsFooterView((this)));
 //        refreshLayout.setOnRefreshListener(new OnRefreshListener() {
 //            @Override
@@ -120,17 +119,11 @@ public class OperationRecordsActivity extends BaseActivity {
 //                refreshlayout.finishRefresh(2000/*,false*/);//传入false表示刷新失败
 //            }
 //        });
-        mRefreshLayout.setOnLoadMoreListener(new OnLoadMoreListener() {
-            @Override
-            public void onLoadMore(RefreshLayout refreshlayout) {
-                searchRecordFromNet(mPage, mPage == 1);
-            }
-        });
+        mRefreshLayout.setOnLoadMoreListener(refreshLayout -> searchRecordFromNet(mPage, mPage == 1));
     }
 
     @Override
     public void doBusiness() {
-        showLoading();
         if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI) {
             searchRecordFromNet(mPage, false);
         } else {

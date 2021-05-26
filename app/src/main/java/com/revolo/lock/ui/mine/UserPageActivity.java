@@ -12,6 +12,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.blankj.utilcode.util.SPUtils;
 import com.blankj.utilcode.util.ToastUtils;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
@@ -21,6 +22,7 @@ import com.luck.picture.lib.config.PictureConfig;
 import com.luck.picture.lib.config.PictureMimeType;
 import com.luck.picture.lib.entity.LocalMedia;
 import com.revolo.lock.App;
+import com.revolo.lock.Constant;
 import com.revolo.lock.R;
 import com.revolo.lock.base.BaseActivity;
 import com.revolo.lock.bean.respone.LogoutBeanRsp;
@@ -45,6 +47,8 @@ import io.reactivex.disposables.Disposable;
 import pub.devrel.easypermissions.AfterPermissionGranted;
 import pub.devrel.easypermissions.EasyPermissions;
 import timber.log.Timber;
+
+import static com.revolo.lock.Constant.REVOLO_SP;
 
 /**
  * author : Jack
@@ -97,7 +101,7 @@ public class UserPageActivity extends BaseActivity implements EasyPermissions.Pe
 
     private void dismissPicSelect() {
         runOnUiThread(() -> {
-            if(mPicSelectPopup != null) {
+            if (mPicSelectPopup != null) {
                 mPicSelectPopup.dismiss();
             }
         });
@@ -105,14 +109,14 @@ public class UserPageActivity extends BaseActivity implements EasyPermissions.Pe
 
     private void refreshUserUI() {
         runOnUiThread(() -> {
-            if(mUser != null) {
+            if (mUser != null) {
                 TextView tvUserName = findViewById(R.id.tvUserName);
                 TextView tvEmailAddress = findViewById(R.id.tvEmailAddress);
                 String userName = mUser.getFirstName() + " " + mUser.getLastName();
                 // TODO: 2021/3/7 名字后面需要更改其他显示
-                tvUserName.setText(TextUtils.isEmpty(userName)?"":userName);
+                tvUserName.setText(TextUtils.isEmpty(userName) ? "" : userName);
                 String email = mUser.getMail();
-                tvEmailAddress.setText(TextUtils.isEmpty(email)?"":email);
+                tvEmailAddress.setText(TextUtils.isEmpty(email) ? "" : email);
                 refreshAvatar();
             }
         });
@@ -122,14 +126,14 @@ public class UserPageActivity extends BaseActivity implements EasyPermissions.Pe
         String avatarUrl = mUser.getAvatarUrl();
         String avatarLocalPath = mUser.getAvatarLocalPath();
         String url;
-        if(TextUtils.isEmpty(avatarLocalPath)) {
+        if (TextUtils.isEmpty(avatarLocalPath)) {
             url = avatarUrl;
         } else {
             File file = new File(avatarLocalPath);
-            if(file == null) {
+            if (file == null) {
                 url = avatarUrl;
             } else {
-                if(file.exists()) {
+                if (file.exists()) {
                     url = avatarLocalPath;
                 } else {
                     url = avatarUrl;
@@ -155,26 +159,26 @@ public class UserPageActivity extends BaseActivity implements EasyPermissions.Pe
 
     @Override
     public void onDebouncingClick(@NonNull View view) {
-        if(view.getId() == R.id.clUserName) {
+        if (view.getId() == R.id.clUserName) {
             Intent intent = new Intent(this, ModifyUserNameActivity.class);
             startActivity(intent);
             return;
         }
-        if(view.getId() == R.id.clChangePwd) {
+        if (view.getId() == R.id.clChangePwd) {
             startActivity(new Intent(this, ModifyPasswordActivity.class));
             return;
         }
-        if(view.getId() == R.id.btnLogout) {
+        if (view.getId() == R.id.btnLogout) {
             showLogoutDialog();
             return;
         }
-        if(view.getId() == R.id.ivAvatar) {
+        if (view.getId() == R.id.ivAvatar) {
             rcSelectPicPermissions();
         }
     }
 
     private void showSelectPopup() {
-        if(mPicSelectPopup != null) {
+        if (mPicSelectPopup != null) {
             mPicSelectPopup.setPopupGravity(Gravity.BOTTOM);
             mPicSelectPopup.showPopupWindow();
         }
@@ -189,18 +193,18 @@ public class UserPageActivity extends BaseActivity implements EasyPermissions.Pe
                 case PictureConfig.REQUEST_CAMERA:
                     // 结果回调
                     List<LocalMedia> selectList = PictureSelector.obtainMultipleResult(data);
-                    if(selectList == null) {
+                    if (selectList == null) {
                         return;
                     }
-                    if(selectList.isEmpty()) {
+                    if (selectList.isEmpty()) {
                         return;
                     }
                     String path = selectList.get(0).getRealPath();
-                    if(TextUtils.isEmpty(path)) {
+                    if (TextUtils.isEmpty(path)) {
                         return;
                     }
                     File avatarFile = new File(path);
-                    if(avatarFile == null) {
+                    if (avatarFile == null) {
                         return;
                     }
 
@@ -224,30 +228,30 @@ public class UserPageActivity extends BaseActivity implements EasyPermissions.Pe
 
     @Override
     public void onPermissionsGranted(int requestCode, @NonNull List<String> perms) {
-        if(perms.isEmpty()) {
+        if (perms.isEmpty()) {
             Timber.e("onPermissionsGranted 返回的权限不存在数据 perms size: %1d", perms.size());
             return;
         }
-        if(requestCode == RC_QR_CODE_PERMISSIONS) {
-            if(perms.size() == 2) {
+        if (requestCode == RC_QR_CODE_PERMISSIONS) {
+            if (perms.size() == 2) {
                 Timber.d("onPermissionsGranted 同时两条权限都请求成功");
                 showSelectPopup();
-            } else if(perms.get(0).equals(Manifest.permission.CAMERA)) {
+            } else if (perms.get(0).equals(Manifest.permission.CAMERA)) {
                 Timber.d("onPermissionsGranted 只有相机权限成功");
-                if(hasWriteExternalStoragePermission()) {
+                if (hasWriteExternalStoragePermission()) {
                     showSelectPopup();
                 } else {
                     rcWriteStoragePermission();
                 }
-            } else if(perms.get(0).equals(Manifest.permission.READ_EXTERNAL_STORAGE)) {
+            } else if (perms.get(0).equals(Manifest.permission.READ_EXTERNAL_STORAGE)) {
                 Timber.d("onPermissionsGranted 只有存储权限成功");
-                if(hasCameraPermission()) {
+                if (hasCameraPermission()) {
                     showSelectPopup();
                 } else {
                     rcCameraPermission();
                 }
             }
-        } else if(requestCode == RC_CAMERA_PERMISSIONS || requestCode == RC_WRITE_EXTERNAL_STORAGE_PERMISSIONS) {
+        } else if (requestCode == RC_CAMERA_PERMISSIONS || requestCode == RC_WRITE_EXTERNAL_STORAGE_PERMISSIONS) {
             Timber.d("onPermissionsGranted 请求剩下的权限成功");
             showSelectPopup();
         }
@@ -255,30 +259,30 @@ public class UserPageActivity extends BaseActivity implements EasyPermissions.Pe
 
     @Override
     public void onPermissionsDenied(int requestCode, @NonNull List<String> perms) {
-        if(perms.get(0).equals(Manifest.permission.READ_EXTERNAL_STORAGE)) {
+        if (perms.get(0).equals(Manifest.permission.READ_EXTERNAL_STORAGE)) {
             Timber.e("onPermissionsDenied 拒绝了打开图库需要的储存权限, requestCode: %1d", requestCode);
-        } else if(perms.get(0).equals(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+        } else if (perms.get(0).equals(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
             Timber.e("onPermissionsDenied 拒绝了打开图库需要的写入权限, requestCode: %1d", requestCode);
-        } else if(perms.get(0).equals(Manifest.permission.CAMERA)) {
+        } else if (perms.get(0).equals(Manifest.permission.CAMERA)) {
             Timber.e("onPermissionsDenied 拒绝了打开相机需要的相机权限, requestCode: %1d", requestCode);
         }
     }
 
     private void uploadUserAvatar(@NotNull File avatarFile) {
-        if(!checkNetConnectFail()) {
+        if (!checkNetConnectFail()) {
             return;
         }
-        if(App.getInstance().getUserBean() == null) {
+        if (App.getInstance().getUserBean() == null) {
             Timber.e("uploadUserAvatar App.getInstance().getUserBean() == null");
             return;
         }
         String token = App.getInstance().getUserBean().getToken();
-        if(TextUtils.isEmpty(token)) {
+        if (TextUtils.isEmpty(token)) {
             Timber.e("uploadUserAvatar token is empty");
             return;
         }
         String uid = App.getInstance().getUserBean().getUid();
-        if(TextUtils.isEmpty(uid)) {
+        if (TextUtils.isEmpty(uid)) {
             Timber.e("uploadUserAvatar uid is empty");
             return;
         }
@@ -296,24 +300,24 @@ public class UserPageActivity extends BaseActivity implements EasyPermissions.Pe
             public void onNext(@NonNull UploadUserAvatarBeanRsp uploadUserAvatarBeanRsp) {
                 dismissLoading();
                 String code = uploadUserAvatarBeanRsp.getCode();
-                if(TextUtils.isEmpty(code)) {
+                if (TextUtils.isEmpty(code)) {
                     Timber.e("uploadUserAvatar code is empty");
                     return;
                 }
-                if(!code.equals("200")) {
-                    if(code.equals("444")) {
+                if (!code.equals("200")) {
+                    if (code.equals("444")) {
                         App.getInstance().logout(true, UserPageActivity.this);
                         return;
                     }
                     String msg = uploadUserAvatarBeanRsp.getMsg();
                     Timber.e("uploadUserAvatar code: %1s, msg: %2s", code, msg);
-                    if(!TextUtils.isEmpty(msg)) {
+                    if (!TextUtils.isEmpty(msg)) {
                         ToastUtils.showShort(msg);
                     }
                     return;
                 }
                 String avatarUrl = uploadUserAvatarBeanRsp.getData().getPath();
-                if(TextUtils.isEmpty(avatarUrl)) {
+                if (TextUtils.isEmpty(avatarUrl)) {
                     Timber.e("avatarUrl is empty");
                     return;
                 }
@@ -338,7 +342,7 @@ public class UserPageActivity extends BaseActivity implements EasyPermissions.Pe
 
     @AfterPermissionGranted(RC_QR_CODE_PERMISSIONS)
     private void rcSelectPicPermissions() {
-        String[] perms = new String[] {Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE};
+        String[] perms = new String[]{Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE};
         if (!EasyPermissions.hasPermissions(this, perms)) {
             EasyPermissions.requestPermissions(this, getString(R.string.rq_use_fun_need_camera_n_write_permission),
                     RC_QR_CODE_PERMISSIONS, perms);
@@ -349,15 +353,15 @@ public class UserPageActivity extends BaseActivity implements EasyPermissions.Pe
 
     @AfterPermissionGranted(RC_CAMERA_PERMISSIONS)
     private void rcCameraPermission() {
-        if(!hasCameraPermission()) {
+        if (!hasCameraPermission()) {
             EasyPermissions.requestPermissions(this, getString(R.string.rq_use_the_camera_needs_camera_permission),
                     RC_CAMERA_PERMISSIONS, Manifest.permission.CAMERA);
         }
     }
 
     @AfterPermissionGranted(RC_WRITE_EXTERNAL_STORAGE_PERMISSIONS)
-    private void rcWriteStoragePermission(){
-        if(!hasWriteExternalStoragePermission()) {
+    private void rcWriteStoragePermission() {
+        if (!hasWriteExternalStoragePermission()) {
             EasyPermissions.requestPermissions(this, getString(R.string.rq_use_album_needs_write_permission),
                     RC_WRITE_EXTERNAL_STORAGE_PERMISSIONS, Manifest.permission.READ_EXTERNAL_STORAGE);
         }
@@ -383,14 +387,14 @@ public class UserPageActivity extends BaseActivity implements EasyPermissions.Pe
     }
 
     private void logout() {
-        if(!checkNetConnectFail()) {
+        if (!checkNetConnectFail()) {
             return;
         }
-        if(App.getInstance().getUserBean() == null) {
+        if (App.getInstance().getUserBean() == null) {
             return;
         }
         String token = App.getInstance().getUserBean().getToken();
-        if(TextUtils.isEmpty(token)) {
+        if (TextUtils.isEmpty(token)) {
             return;
         }
         showLoading("Logging out...");
@@ -405,24 +409,26 @@ public class UserPageActivity extends BaseActivity implements EasyPermissions.Pe
             public void onNext(@NonNull LogoutBeanRsp logoutBeanRsp) {
                 dismissLoading();
                 String code = logoutBeanRsp.getCode();
-                if(TextUtils.isEmpty(code)) {
+                if (TextUtils.isEmpty(code)) {
                     Timber.e("code is empty");
                     return;
                 }
-                if(!code.equals("200")) {
-                    if(code.equals("444")) {
+                if (!code.equals("200")) {
+                    if (code.equals("444")) {
                         App.getInstance().logout(true, UserPageActivity.this);
                         return;
                     }
                     String msg = logoutBeanRsp.getMsg();
                     Timber.e("code: %1s, msg: %2s", code, msg);
-                    if(!TextUtils.isEmpty(msg)) {
+                    if (!TextUtils.isEmpty(msg)) {
                         ToastUtils.showShort(msg);
                         return;
                     }
                 }
+                App.getInstance().getUserBean().setToken(""); // 清空token
+                SPUtils.getInstance(REVOLO_SP).put(Constant.USER_LOGIN_INFO, ""); // 清空登录信息
                 // TODO: 2021/3/30 退出操作
-                if(App.getInstance().getMainActivity() != null) {
+                if (App.getInstance().getMainActivity() != null) {
                     App.getInstance().getMainActivity().finish();
                 }
                 finish();

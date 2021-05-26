@@ -13,6 +13,8 @@ import com.revolo.lock.Constant;
 import com.revolo.lock.R;
 import com.revolo.lock.base.BaseActivity;
 
+import java.util.Date;
+
 /**
  * author : Jack
  * time   : 2021/1/14
@@ -40,7 +42,7 @@ public class AddNewShareUserInputNameActivity extends BaseActivity {
         applyDebouncingClickListener(findViewById(R.id.btnAddUser));
         mEtUserName = findViewById(R.id.etEmail);
         Intent intent = getIntent();
-        if(intent.hasExtra(Constant.LOCK_ESN)) {
+        if (intent.hasExtra(Constant.LOCK_ESN)) {
             mEsn = intent.getStringExtra(Constant.LOCK_ESN);
         }
 
@@ -53,14 +55,15 @@ public class AddNewShareUserInputNameActivity extends BaseActivity {
 
     @Override
     public void onDebouncingClick(@NonNull View view) {
-        if(view.getId() == R.id.btnAddUser) {
+        if (view.getId() == R.id.btnAddUser) {
             String userName = mEtUserName.getText().toString().trim();
-            if(TextUtils.isEmpty(userName)) {
+            if (TextUtils.isEmpty(userName)) {
                 return;
             }
             Intent intent = new Intent(this, AuthorizationManagementActivity.class);
             intent.putExtra(Constant.USER_NAME, userName);
             intent.putExtra(Constant.LOCK_ESN, mEsn);
+            intent.putExtra(Constant.START_TIME, new Date().getTime());
             startActivity(intent);
         }
     }

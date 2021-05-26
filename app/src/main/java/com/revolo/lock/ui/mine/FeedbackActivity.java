@@ -70,6 +70,10 @@ public class FeedbackActivity extends BaseActivity {
             ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_please_enter_feedback_content);
             return;
         }
+        if(feedbackStr.length()<20){
+            ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_please_enter_feedback_less);
+            return;
+        }
         if(App.getInstance().getUserBean() == null) {
             Timber.e("feedback App.getInstance().getUserBean() == null");
             return;

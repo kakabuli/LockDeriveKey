@@ -37,7 +37,6 @@ public class HelpQuestionListAdapter extends BaseQuickAdapter<QuestionBeanReq, B
             } else {
                 constraintLayout.setVisibility(View.GONE);
             }
-            notifyDataSetChanged();
         });
     }
 }

@@ -78,6 +78,16 @@ public class DeviceDetailActivity extends BaseActivity {
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        mBleDeviceLocal = App.getInstance().getBleDeviceLocal();
+        if (mBleDeviceLocal == null) {
+            // TODO: 2021/3/1 处理
+            finish();
+        }
+    }
+
+    @Override
     public int bindLayout() {
         return R.layout.activity_device_detail;
     }
@@ -316,7 +326,11 @@ public class DeviceDetailActivity extends BaseActivity {
             if (eventType == 0x01) {
                 if (eventCode == 0x01) {
                     // 上锁
-                    setLockState(LocalState.LOCK_STATE_CLOSE);
+                    if(eventSource==8){
+                        setLockState(LocalState.LOCK_STATE_PRIVATE);
+                    }else{
+                        setLockState(LocalState.LOCK_STATE_CLOSE);
+                    }
                 } else if (eventCode == 0x02) {
                     // 开锁
                     setLockState(LocalState.LOCK_STATE_OPEN);
@@ -439,6 +453,9 @@ public class DeviceDetailActivity extends BaseActivity {
 
     private void openDoor() {
         @LocalState.LockState int state = mBleDeviceLocal.getLockState();
+        if(state==LocalState.LOCK_STATE_PRIVATE){
+            return;
+        }
         if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI) {
             // TODO: 2021/4/1 主编号是0，分享用户再使用分享用户的编号
             publishOpenOrCloseLock(
@@ -643,7 +660,8 @@ public class DeviceDetailActivity extends BaseActivity {
 //            if(mSignalWeakDialog != null) {
 //                mSignalWeakDialog.dismiss();
 //            }
-//        });
+//        });z.
+
 //        mSignalWeakDialog.setOnConfirmListener(v -> {
 //            if(mSignalWeakDialog != null) {
 //                mSignalWeakDialog.dismiss();
