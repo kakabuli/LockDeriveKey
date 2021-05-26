@@ -2,32 +2,27 @@
 <androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@android:color/darker_gray">
 
-    <androidx.camera.view.PreviewView
-        android:id="@+id/previewView"
-        android:layout_width="260pt"
-        android:layout_height="260pt"
-        android:layout_marginTop="10pt"
-        app:layout_constraintEnd_toEndOf="parent"
+    <cn.bingoogolapple.qrcode.zbar.ZBarView
+        android:id="@+id/zBarView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView68" />
-
-    <com.king.zxing.ViewfinderView
-        android:id="@+id/viewfinderView"
-        android:layout_width="260pt"
-        android:layout_height="260pt"
-        android:layout_marginTop="10pt"
-        app:cornerColor="@color/c2C68FF"
-        app:frameHeight="260pt"
-        app:frameWidth="260pt"
-        app:laserColor="@color/c2C68FF"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView68" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:qrcv_animTime="1000"
+        app:qrcv_borderColor="@color/transparent"
+        app:qrcv_borderSize="1dp"
+        app:qrcv_cornerColor="@color/c2C68FF"
+        app:qrcv_cornerLength="20dp"
+        app:qrcv_cornerSize="1dp"
+        app:qrcv_isShowDefaultScanLineDrawable="true"
+        app:qrcv_maskColor="@color/transparent"
+        app:qrcv_rectWidth="300dp"
+        app:qrcv_scanLineColor="@color/c2C68FF"
+        app:qrcv_topOffset="90dp" />
 
     <include
         android:id="@+id/include12"

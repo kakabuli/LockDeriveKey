@@ -28,6 +28,7 @@ import com.revolo.lock.ble.BleResultProcess;
 import com.revolo.lock.ble.OnBleDeviceListener;
 import com.revolo.lock.ble.bean.BleBean;
 import com.revolo.lock.ble.bean.BleResultBean;
+import com.revolo.lock.dialog.MessageDialog;
 import com.revolo.lock.mqtt.MqttCommandFactory;
 import com.revolo.lock.mqtt.MQttConstant;
 import com.revolo.lock.mqtt.bean.MqttData;
@@ -101,6 +102,16 @@ public class DoorSensorCheckActivity extends BaseActivity {
         mTvSkip = findViewById(R.id.tvSkip);
         mTvStep = findViewById(R.id.tvStep);
         applyDebouncingClickListener(mBtnNext, mTvSkip);
+
+        mPowerLowDialog = new MessageDialog(this);
+        mPowerLowDialog.setMessage(getString(R.string.t_open_wifi_tip_low_power));
+        mPowerLowDialog.setOnListener(v -> {
+            if (mPowerLowDialog != null) {
+                mPowerLowDialog.dismiss();
+                finish();
+            }
+        });
+
         initLoading("Loading...");
     }
 
@@ -190,14 +201,23 @@ public class DoorSensorCheckActivity extends BaseActivity {
 
     /*------------------------------------ UI -----------------------------------*/
 
+    private MessageDialog mPowerLowDialog;
+
     private void gotoAddWifi() {
-        mBleDeviceLocal.setOpenDoorSensor(true);
-        AppDatabase.getInstance(this).bleDeviceDao().update(mBleDeviceLocal);
-        new Handler(Looper.getMainLooper()).postDelayed(() -> {
-            Intent intent = new Intent(DoorSensorCheckActivity.this, AddWifiActivity.class);
-            startActivity(intent);
-            finish();
-        }, 50);
+        if (mBleDeviceLocal.getLockPower() <= 20) {
+            // 低电量
+            if (mPowerLowDialog != null) {
+                mPowerLowDialog.show();
+            }
+        }else {
+            mBleDeviceLocal.setOpenDoorSensor(true);
+            AppDatabase.getInstance(this).bleDeviceDao().update(mBleDeviceLocal);
+            new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                Intent intent = new Intent(DoorSensorCheckActivity.this, AddWifiActivity.class);
+                startActivity(intent);
+                finish();
+            }, 50);
+        }
     }
 
     private boolean isOpenAgain = false;

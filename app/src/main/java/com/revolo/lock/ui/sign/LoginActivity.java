@@ -222,7 +222,6 @@ public class LoginActivity extends BaseActivity {
                 finish();
             }, 50));
         });
-
     }
 
     private void saveLoginBeanToLocal(@NonNull MailLoginBeanRsp mailLoginBeanRsp) {
@@ -238,13 +237,14 @@ public class LoginActivity extends BaseActivity {
             user.setFirstName(rsp.getFirstName());
             user.setLastName(rsp.getLastName());
             user.setRegisterTime(TimeUtils.string2Millis(rsp.getInsertTime()) / 1000);
+            user.setAvatarUrl(rsp.getAvatarPath());
             AppDatabase.getInstance(this).userDao().insert(user);
         } else {
             user.setFirstName(rsp.getFirstName());
             user.setLastName(rsp.getLastName());
             user.setRegisterTime(TimeUtils.string2Millis(rsp.getInsertTime()) / 1000);
+            user.setAvatarUrl(rsp.getAvatarPath());
             AppDatabase.getInstance(this).userDao().update(user);
         }
     }
-
 }

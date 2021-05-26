@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.text.TextUtils;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -128,7 +129,6 @@ public class WifiSettingActivity extends BaseActivity {
     public void onDebouncingClick(@NonNull View view) {
         if (view.getId() == R.id.ivWifiEnable) {
 
-            int i = mBleDeviceLocal.getLockPower();
             if (mBleDeviceLocal.getLockPower() <= 20) {
                 // 低电量
                 if (mPowerLowDialog != null) {
@@ -140,14 +140,11 @@ public class WifiSettingActivity extends BaseActivity {
                         mSelectDialog.show();
                     }
                 } else {
-                    WifiManager wifiManager = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
-                    if (wifiManager.isWifiEnabled()) { // WiFi状态为open
-                        String wifiName = mBleDeviceLocal.getConnectedWifiName();
-                        if (TextUtils.isEmpty(wifiName)) {
-                            gotoAddWifiAct();
-                        } else {
-                            openWifiFromBle();
-                        }
+                    String wifiName = mBleDeviceLocal.getConnectedWifiName();
+                    if (TextUtils.isEmpty(wifiName)) {
+                        gotoAddWifiAct();
+                    } else {
+                        openWifiFromBle();
                     }
                 }
                 return;
@@ -160,7 +157,6 @@ public class WifiSettingActivity extends BaseActivity {
             } else {
                 gotoAddWifiAct();
             }
-
         }
     }
 

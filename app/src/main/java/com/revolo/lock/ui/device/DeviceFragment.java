@@ -451,6 +451,7 @@ public class DeviceFragment extends Fragment {
             return;
         }
         getActivity().runOnUiThread(() -> {
+
             if (eventType == 0x01) {
                 if (eventCode == 0x01) {
                     // 上锁
@@ -497,6 +498,7 @@ public class DeviceFragment extends Fragment {
             Timber.d("setLockState wifiId: %1s %2s", local.getEsn(), state == LocalState.LOCK_STATE_OPEN ? "锁开了" : "锁关了");
             AppDatabase.getInstance(getContext()).bleDeviceDao().update(local);
             mHomeLockListAdapter.notifyDataSetChanged();
+            dismissLoading();
         });
     }
 
@@ -515,6 +517,7 @@ public class DeviceFragment extends Fragment {
             local.setDoorSensor(state);
             AppDatabase.getInstance(getContext()).bleDeviceDao().update(local);
             mHomeLockListAdapter.notifyDataSetChanged();
+            dismissLoading();
         });
     }
 
@@ -819,7 +822,6 @@ public class DeviceFragment extends Fragment {
     }
 
     private void processSetLock(@NotNull MqttData mqttData) {
-        dismissLoading();
         WifiLockDoorOptResponseBean bean;
         try {
             bean = GsonUtils.fromJson(mqttData.getPayload(), WifiLockDoorOptResponseBean.class);

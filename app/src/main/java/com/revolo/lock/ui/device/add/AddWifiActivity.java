@@ -189,6 +189,8 @@ public class AddWifiActivity extends BaseActivity {
             mBleBean.setOnBleDeviceListener(mOnBleDeviceListener);
             checkBattery();
         }
+
+
     }
 
     private final OnBleDeviceListener mOnBleDeviceListener = new OnBleDeviceListener() {
@@ -225,9 +227,13 @@ public class AddWifiActivity extends BaseActivity {
                 Timber.e("initBleListener bleBean.getPwd3() == null");
                 return;
             }
-            BleResultProcess.setOnReceivedProcess(mOnReceivedProcess);
-            BleResultProcess.processReceivedData(value, mBleBean.getPwd1(), mBleBean.getPwd3(),
-                    mBleBean.getOKBLEDeviceImp().getBleScanResult());
+            if (mOnReceivedProcess == null) {
+                    AddWifiActivity.this.finish();
+            } else {
+                BleResultProcess.setOnReceivedProcess(mOnReceivedProcess);
+                BleResultProcess.processReceivedData(value, mBleBean.getPwd1(), mBleBean.getPwd3(),
+                        mBleBean.getOKBLEDeviceImp().getBleScanResult());
+            }
         }
 
         @Override
@@ -265,12 +271,12 @@ public class AddWifiActivity extends BaseActivity {
                         .checkLockBaseInfoCommand(mBleBean.getPwd1(), mBleBean.getPwd3()),
                 mBleBean.getOKBLEDeviceImp());
         // 临时加一个6秒后执行取消loading
-        new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                dismissLoading();
-            }
-        }, 6000);
+//        new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
+//            @Override
+//            public void run() {
+//                dismissLoading();
+//            }
+//        }, 6000);
     }
 
     private void receiveLockBaseInfo(BleResultBean bleResultBean) {
