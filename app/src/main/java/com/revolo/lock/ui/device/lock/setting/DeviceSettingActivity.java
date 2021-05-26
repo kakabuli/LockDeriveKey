@@ -181,7 +181,7 @@ public class DeviceSettingActivity extends BaseActivity {
                 publishSetVolume(mBleDeviceLocal.getEsn(),
                         mBleDeviceLocal.isMute() ? LocalState.VOLUME_STATE_OPEN : LocalState.VOLUME_STATE_MUTE);
             } else {
-                mute(mBleDeviceLocal.isMute() ? LocalState.VOLUME_STATE_MUTE : LocalState.VOLUME_STATE_OPEN);
+                mute();
             }
             return;
         }
