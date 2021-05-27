@@ -328,6 +328,7 @@ public class App extends Application {
             .WriteOperationListener() {
         @Override
         public void onWriteValue(byte[] value) {
+
         }
 
         @Override
@@ -394,6 +395,13 @@ public class App extends Application {
 
                         }
                     });
+        }
+    }
+
+    public void openPairNotify(OKBLEDeviceImp deviceImp, OKBLEOperation.NotifyOrIndicateOperationListener listener) {
+        if (deviceImp != null) {
+            deviceImp.addNotifyOrIndicateOperation(sPairNotifyCharacteristicUUID,
+                    true, listener);
         }
     }
 

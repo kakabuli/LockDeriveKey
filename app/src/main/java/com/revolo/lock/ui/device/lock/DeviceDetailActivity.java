@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.text.TextUtils;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -16,6 +17,7 @@ import androidx.core.content.ContextCompat;
 import com.a1anwang.okble.client.scan.BLEScanResult;
 import com.blankj.utilcode.util.ConvertUtils;
 import com.blankj.utilcode.util.GsonUtils;
+import com.blankj.utilcode.util.ToastUtils;
 import com.google.gson.JsonSyntaxException;
 import com.revolo.lock.App;
 import com.revolo.lock.Constant;
@@ -523,9 +525,11 @@ public class DeviceDetailActivity extends BaseActivity {
                     mCount = 0;
                     toDisposable(mOpenOrCloseLockDisposable);
                     processOpenOrClose(mqttData);
+                    dismissLoading();
                 }, e -> {
                     dismissLoading();
                     if (e instanceof TimeoutException) {
+                        ToastUtils.make().setGravity(Gravity.CENTER,0,0).show(doorOpt == LocalState.DOOR_STATE_OPEN?"Locking Failed":"Unlocking Failed");
                         if (mCount == 3) {
                             // 3次机会,超时失败开始连接蓝牙
                             mCount = 0;

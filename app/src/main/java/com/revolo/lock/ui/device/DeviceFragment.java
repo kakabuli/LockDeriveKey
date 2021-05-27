@@ -6,6 +6,7 @@ import android.os.CountDownTimer;
 import android.os.Handler;
 import android.os.Looper;
 import android.text.TextUtils;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,6 +22,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.a1anwang.okble.client.scan.BLEScanResult;
 import com.blankj.utilcode.util.ConvertUtils;
 import com.blankj.utilcode.util.GsonUtils;
+import com.blankj.utilcode.util.ToastUtils;
 import com.google.gson.JsonSyntaxException;
 import com.revolo.lock.App;
 import com.revolo.lock.Constant;
@@ -287,11 +289,9 @@ public class DeviceFragment extends Fragment {
                 bleDeviceLocal = createDeviceToLocal(wifiListBean);
             }
             bleDeviceLocal.setAutoLock(wifiListBean.getAutoLock().equals("0"));
-            bleDeviceLocal.setSetAutoLockTime(wifiListBean.getOpenStatusTime());
             bleDeviceLocal.setName(wifiListBean.getLockNickname());
-            bleDeviceLocal.setAutoLock(wifiListBean.getAmMode()==0);
-            bleDeviceLocal.setSetAutoLockTime(wifiListBean.getAutoLockTime());
-            bleDeviceLocal.setMute(wifiListBean.getVolume()==0);
+            bleDeviceLocal.setAutoLock(wifiListBean.getAmMode() == 0);
+            bleDeviceLocal.setMute(wifiListBean.getVolume() == 0);
             String firmwareVer = wifiListBean.getLockFirmwareVersion();
             if (!TextUtils.isEmpty(firmwareVer)) {
                 bleDeviceLocal.setLockVer(firmwareVer);
@@ -337,7 +337,7 @@ public class DeviceFragment extends Fragment {
 //        bleDeviceLocal.setSetElectricFenceSensitivity();
 //        bleDeviceLocal.setSetElectricFenceTime();
 //        bleDeviceLocal.setDetectionLock();
-        bleDeviceLocal.setAutoLock(wifiListBean.getAmMode()==0);
+        bleDeviceLocal.setAutoLock(wifiListBean.getAmMode() == 0);
 //        bleDeviceLocal.setDuress();
         bleDeviceLocal.setConnectedWifiName(wifiListBean.getWifiName());
         bleDeviceLocal.setCreateTime(wifiListBean.getCreateTime());
@@ -735,6 +735,7 @@ public class DeviceFragment extends Fragment {
                 }, e -> {
                     dismissLoading();
                     if (e instanceof TimeoutException) {
+                        ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(doorOpt == LocalState.DOOR_STATE_OPEN ? "Locking Failed" : "Unlocking Failed");
                         if (mCount == 3) {
                             // 3次机会,超时失败开始连接蓝牙
                             mCount = 0;

@@ -176,6 +176,7 @@ public class BleResultProcess {
             Timber.e("getCmd 接收的数据长度不对，不进行解析 length : %1d", receivedData.length);
             return;
         }
+
         boolean isEncrypt = (receivedData[0] == CONTROL_ENCRYPTION);
         byte[] payload = new byte[16];
         System.arraycopy(receivedData, 4, payload, 0, payload.length);

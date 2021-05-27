@@ -53,18 +53,18 @@ public class WifiConnectActivity extends BaseActivity {
     @Override
     public void initData(@Nullable Bundle bundle) {
         Intent intent = getIntent();
-        if(!intent.hasExtra(Constant.WIFI_NAME)) {
+        if (!intent.hasExtra(Constant.WIFI_NAME)) {
             // TODO: 2021/1/22 没有输入wifi name
             finish();
             return;
         }
-        if(!intent.hasExtra(Constant.WIFI_PWD)) {
+        if (!intent.hasExtra(Constant.WIFI_PWD)) {
             // TODO: 2021/1/22 没有输入wifi pwd
             finish();
             return;
         }
         mBleDeviceLocal = App.getInstance().getBleDeviceLocal();
-        if(mBleDeviceLocal == null) {
+        if (mBleDeviceLocal == null) {
             finish();
             return;
         }
@@ -98,7 +98,7 @@ public class WifiConnectActivity extends BaseActivity {
 
     private void initDevice() {
         mBleBean = App.getInstance().getBleBeanFromMac(mBleDeviceLocal.getMac());
-        if(mBleBean == null) {
+        if (mBleBean == null) {
             Timber.e("initDevice mBleBean == null");
             return;
         }
@@ -122,15 +122,15 @@ public class WifiConnectActivity extends BaseActivity {
 
         @Override
         public void onReceivedValue(@NotNull String mac, String uuid, byte[] value) {
-            if(value == null) {
+            if (value == null) {
                 Timber.e("mOnBleDeviceListener value == null");
                 return;
             }
-            if(mBleBean == null) {
+            if (mBleBean == null) {
                 Timber.e("mOnBleDeviceListener mBleBean == null");
                 return;
             }
-            if(mBleBean.getOKBLEDeviceImp() == null) {
+            if (mBleBean.getOKBLEDeviceImp() == null) {
                 Timber.e("mOnBleDeviceListener mBleBean.getOKBLEDeviceImp() == null");
                 return;
             }
@@ -153,27 +153,27 @@ public class WifiConnectActivity extends BaseActivity {
     };
 
     private final BleResultProcess.OnReceivedProcess mOnReceivedProcess = bleResultBean -> {
-        if(bleResultBean == null) {
+        if (bleResultBean == null) {
             Timber.e("mOnReceivedProcess bleResultBean == null");
             return;
         }
         Timber.d("cmd: %1s, payload: %2s",
                 ConvertUtils.int2HexString(bleResultBean.getCMD()), ConvertUtils.bytes2HexString(bleResultBean.getPayload()));
-        if(bleResultBean.getCMD() == BleProtocolState.CMD_SS_ID_ACK) {
+        if (bleResultBean.getCMD() == BleProtocolState.CMD_SS_ID_ACK) {
             writeWifiSn();
-        } else if(bleResultBean.getCMD() == BleProtocolState.CMD_PWD_ACK) {
+        } else if (bleResultBean.getCMD() == BleProtocolState.CMD_PWD_ACK) {
             writeWifiPwd();
-        } else if(bleResultBean.getCMD() == BleProtocolState.CMD_UPLOAD_PAIR_NETWORK_STATE) {
-            if(bleResultBean.getPayload()[0] == 0x00) {
+        } else if (bleResultBean.getCMD() == BleProtocolState.CMD_UPLOAD_PAIR_NETWORK_STATE) {
+            if (bleResultBean.getPayload()[0] == 0x00) {
                 // 连接wifi成功
                 changeValue(80);
-            } else if(bleResultBean.getPayload()[0] == 0x01) {
+            } else if (bleResultBean.getPayload()[0] == 0x01) {
                 // 配网失败
                 gotoWifiPairFail();
             }
-        } else if(bleResultBean.getCMD() == BleProtocolState.CMD_BLE_UPLOAD_PAIR_NETWORK_STATE) {
+        } else if (bleResultBean.getCMD() == BleProtocolState.CMD_BLE_UPLOAD_PAIR_NETWORK_STATE) {
             // 连接MQTT成功
-            if(bleResultBean.getPayload()[0] == 0x00) {
+            if (bleResultBean.getPayload()[0] == 0x00) {
                 // 连接wifi成功
                 changeValue(100);
                 App.getInstance().removeConnectedBleBeanAndDisconnect(mBleBean);
@@ -185,7 +185,7 @@ public class WifiConnectActivity extends BaseActivity {
                     startActivity(new Intent(WifiConnectActivity.this, AddWifiSucActivity.class));
                     finish();
                 }, 50));
-            } else if(bleResultBean.getPayload()[0] == 0x01) {
+            } else if (bleResultBean.getPayload()[0] == 0x01) {
                 // 配网失败
                 gotoWifiPairFail();
             }
@@ -239,7 +239,7 @@ public class WifiConnectActivity extends BaseActivity {
         byte[] wifiSnBytes = mWifiName.getBytes(StandardCharsets.UTF_8);
         Timber.d("startSendWifiInfo WifiSn: %1s\n", ConvertUtils.bytes2HexString(wifiSnBytes));
         mWifiSnLen = wifiSnBytes.length;
-        for (int i=0; i<mWifiSnLen; i=i+14) {
+        for (int i = 0; i < mWifiSnLen; i = i + 14) {
             int maxIndex = Math.min((mWifiSnLen - i), 14);
             byte[] data = new byte[maxIndex];
             System.arraycopy(wifiSnBytes, i, data, 0, data.length);
@@ -250,11 +250,11 @@ public class WifiConnectActivity extends BaseActivity {
 
     private void splitWifiPwd() {
         byte[] wifiPwdBytes;
-        if(TextUtils.isEmpty(mWifiPwd)) {
+        if (TextUtils.isEmpty(mWifiPwd)) {
             // 密码为空的时候，都设置为0xff
             // TODO: 2021/2/7 需要验证没有密码的情况
             wifiPwdBytes = new byte[14];
-            for (int i=0; i<14; i++) {
+            for (int i = 0; i < 14; i++) {
                 wifiPwdBytes[i] = (byte) 0xff;
             }
         } else {
@@ -262,7 +262,7 @@ public class WifiConnectActivity extends BaseActivity {
         }
         Timber.d("startSendWifiInfo WifiPwd: %1s\n", ConvertUtils.bytes2HexString(wifiPwdBytes));
         mWifiPwdLen = wifiPwdBytes.length;
-        for (int i=0; i<mWifiPwdLen; i=i+14) {
+        for (int i = 0; i < mWifiPwdLen; i = i + 14) {
             int maxIndex = Math.min((mWifiPwdLen - i), 14);
             byte[] data = new byte[maxIndex];
             System.arraycopy(wifiPwdBytes, i, data, 0, data.length);
@@ -272,11 +272,11 @@ public class WifiConnectActivity extends BaseActivity {
     }
 
     private final Runnable mWriteWifiSnRunnable = () -> {
-        if(mBleBean == null) {
+        if (mBleBean == null) {
             Timber.e("mWriteWifiSnRunnable mBleBean == null");
             return;
         }
-        if(mBleBean.getOKBLEDeviceImp() == null) {
+        if (mBleBean.getOKBLEDeviceImp() == null) {
             Timber.e("mWriteWifiSnRunnable mBleBean.getOKBLEDeviceImp() == null");
             return;
         }
@@ -288,11 +288,11 @@ public class WifiConnectActivity extends BaseActivity {
     };
 
     private final Runnable mWriteWifiPwdRunnable = () -> {
-        if(mBleBean == null) {
+        if (mBleBean == null) {
             Timber.e("mWriteWifiPwdRunnable mBleBean == null");
             return;
         }
-        if(mBleBean.getOKBLEDeviceImp() == null) {
+        if (mBleBean.getOKBLEDeviceImp() == null) {
             Timber.e("mWriteWifiPwdRunnable mBleBean.getOKBLEDeviceImp() == null");
             return;
         }
@@ -304,8 +304,8 @@ public class WifiConnectActivity extends BaseActivity {
     };
 
     private void writeWifiSn() {
-        if(mWifiSnDataList.isEmpty()) {
-            if(isStartSend) {
+        if (mWifiSnDataList.isEmpty()) {
+            if (isStartSend) {
                 changeValue(25);
                 writeWifiPwd();
             }
@@ -315,7 +315,7 @@ public class WifiConnectActivity extends BaseActivity {
     }
 
     private void writeWifiPwd() {
-        if(mWifiPwdDataList.isEmpty()) {
+        if (mWifiPwdDataList.isEmpty()) {
             isStartSend = false;
             changeValue(50);
             return;
