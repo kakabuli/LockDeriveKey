@@ -286,7 +286,9 @@ public class DeviceFragment extends Fragment {
                 Timber.e("updateDataFromNet bleDeviceLocal == null");
                 bleDeviceLocal = createDeviceToLocal(wifiListBean);
             }
-            bleDeviceLocal.setAutoLock(wifiListBean.getAutoLock().equals("0"));
+            if(!TextUtils.isEmpty(wifiListBean.getAutoLock())) {
+                bleDeviceLocal.setAutoLock(wifiListBean.getAutoLock().equals("0"));
+            }
             bleDeviceLocal.setSetAutoLockTime(wifiListBean.getOpenStatusTime());
             bleDeviceLocal.setName(wifiListBean.getLockNickname());
             bleDeviceLocal.setAutoLock(wifiListBean.getAmMode()==0);
