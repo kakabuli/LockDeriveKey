@@ -6,7 +6,7 @@ package com.revolo.lock.mqtt.bean.publishbean;
  * E-mail : wengmaowei@kaadas.com
  * desc   :
  */
-public class WifiLockAddPwdPublishBean {
+public class WifiLockAddPwdPublishBean extends WifiLockBasePublishBean{
 
 
     /**
@@ -19,7 +19,6 @@ public class WifiLockAddPwdPublishBean {
      * timestamp : 13433333333
      */
 
-    private String msgtype;
     private int msgId;
     private String userId;
     private String wfId;
@@ -28,7 +27,7 @@ public class WifiLockAddPwdPublishBean {
     private String timestamp;
 
     public WifiLockAddPwdPublishBean(String msgtype, int msgId, String userId, String wfId, String func, ParamsBean params, String timestamp) {
-        this.msgtype = msgtype;
+        this.setMsgtype(msgtype);
         this.msgId = msgId;
         this.userId = userId;
         this.wfId = wfId;
@@ -37,13 +36,6 @@ public class WifiLockAddPwdPublishBean {
         this.timestamp = timestamp;
     }
 
-    public String getMsgtype() {
-        return msgtype;
-    }
-
-    public void setMsgtype(String msgtype) {
-        this.msgtype = msgtype;
-    }
 
     public int getMsgId() {
         return msgId;

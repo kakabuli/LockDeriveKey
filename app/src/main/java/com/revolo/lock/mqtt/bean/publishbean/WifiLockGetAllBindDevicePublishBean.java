@@ -1,6 +1,6 @@
 package com.revolo.lock.mqtt.bean.publishbean;
 
-public class WifiLockGetAllBindDevicePublishBean {
+public class WifiLockGetAllBindDevicePublishBean extends WifiLockBasePublishBean{
     /**
      * msgId : 123456
      * msgtype : request
@@ -9,7 +9,6 @@ public class WifiLockGetAllBindDevicePublishBean {
      */
 
     private int msgId;
-    private String msgtype;
     private String func;
     private String uid;
     /**
@@ -20,7 +19,7 @@ public class WifiLockGetAllBindDevicePublishBean {
 
     public WifiLockGetAllBindDevicePublishBean(int msgId, String msgtype, String func, String uid, int modelSearchType) {
         this.msgId = msgId;
-        this.msgtype = msgtype;
+        this.setMsgtype(msgtype);
         this.func = func;
         this.uid = uid;
         this.modelSearchType = modelSearchType;
@@ -38,13 +37,6 @@ public class WifiLockGetAllBindDevicePublishBean {
         this.msgId = msgId;
     }
 
-    public String getMsgtype() {
-        return msgtype;
-    }
-
-    public void setMsgtype(String msgtype) {
-        this.msgtype = msgtype;
-    }
 
     public String getFunc() {
         return func;

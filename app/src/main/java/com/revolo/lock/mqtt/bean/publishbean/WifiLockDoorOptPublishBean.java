@@ -1,10 +1,10 @@
 package com.revolo.lock.mqtt.bean.publishbean;
 
-public class WifiLockDoorOptPublishBean {
+public class WifiLockDoorOptPublishBean extends WifiLockBasePublishBean{
 
 
     public WifiLockDoorOptPublishBean(String msgtype, Integer msgId, String userId, String wfId, String func, ParamsBean params, String timestamp) {
-        this.msgtype = msgtype;
+        this.setMsgtype(msgtype);
         this.msgId = msgId;
         this.userId = userId;
         this.wfId = wfId;
@@ -23,7 +23,6 @@ public class WifiLockDoorOptPublishBean {
      * timestamp : 13433333333
      */
 
-    private String msgtype;
     private Integer msgId;
     private String userId;
     private String wfId;
@@ -31,13 +30,6 @@ public class WifiLockDoorOptPublishBean {
     private ParamsBean params;
     private String timestamp;
 
-    public String getMsgtype() {
-        return msgtype;
-    }
-
-    public void setMsgtype(String msgtype) {
-        this.msgtype = msgtype;
-    }
 
     public Integer getMsgId() {
         return msgId;

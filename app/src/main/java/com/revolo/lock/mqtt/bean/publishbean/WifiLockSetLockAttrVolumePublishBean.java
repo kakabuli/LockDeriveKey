@@ -8,7 +8,7 @@ import com.revolo.lock.mqtt.bean.publishbean.attrparams.VolumeParams;
  * E-mail : wengmaowei@kaadas.com
  * desc   :
  */
-public class WifiLockSetLockAttrVolumePublishBean {
+public class WifiLockSetLockAttrVolumePublishBean extends WifiLockBasePublishBean{
 
 
     /**
@@ -20,8 +20,7 @@ public class WifiLockSetLockAttrVolumePublishBean {
      * timestamp : 13433333333
      */
 
-    private String msgtype;
-    private int msgId;
+     private int msgId;
     private String userId;
     private String wfId;
     private String func;
@@ -29,7 +28,7 @@ public class WifiLockSetLockAttrVolumePublishBean {
     private String timestamp;
 
     public WifiLockSetLockAttrVolumePublishBean(String msgtype, int msgId, String userId, String wfId, String func, VolumeParams volumeParams, String timestamp) {
-        this.msgtype = msgtype;
+        this.setMsgtype(msgtype);
         this.msgId = msgId;
         this.userId = userId;
         this.wfId = wfId;
@@ -38,13 +37,6 @@ public class WifiLockSetLockAttrVolumePublishBean {
         this.timestamp = timestamp;
     }
 
-    public String getMsgtype() {
-        return msgtype;
-    }
-
-    public void setMsgtype(String msgtype) {
-        this.msgtype = msgtype;
-    }
 
     public int getMsgId() {
         return msgId;

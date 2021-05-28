@@ -1,6 +1,6 @@
 package com.revolo.lock.mqtt.bean.publishresultbean;
 
-public class WifiLockDeviceStatusBean {
+public class WifiLockDeviceStatusBean extends WifiLockBaseResponseBean{
 
     /**
      * msgtype : event
@@ -14,9 +14,7 @@ public class WifiLockDeviceStatusBean {
      * timestamp : 1541468973342
      */
 
-    private String msgtype;
-    private String func;
-    private int msgId;
+
     private String devtype;
     private String eventtype;
     private String state;
@@ -24,29 +22,6 @@ public class WifiLockDeviceStatusBean {
     private String wfId;
     private String timestamp;
 
-    public String getMsgtype() {
-        return msgtype;
-    }
-
-    public void setMsgtype(String msgtype) {
-        this.msgtype = msgtype;
-    }
-
-    public String getFunc() {
-        return func;
-    }
-
-    public void setFunc(String func) {
-        this.func = func;
-    }
-
-    public int getMsgId() {
-        return msgId;
-    }
-
-    public void setMsgId(int msgId) {
-        this.msgId = msgId;
-    }
 
     public String getDevtype() {
         return devtype;
@@ -102,9 +77,9 @@ public class WifiLockDeviceStatusBean {
     @Override
     public String toString() {
         return "WifiLockDeviceStatusBean{" +
-                "msgtype='" + msgtype + '\'' +
-                ", func='" + func + '\'' +
-                ", msgId=" + msgId +
+                "msgtype='" + getMsgtype() + '\'' +
+                ", func='" + getFunc() + '\'' +
+                ", msgId=" + getMsgId() +
                 ", devtype='" + devtype + '\'' +
                 ", eventtype='" + eventtype + '\'' +
                 ", state='" + state + '\'' +

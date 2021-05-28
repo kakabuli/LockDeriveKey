@@ -8,7 +8,7 @@ import com.revolo.lock.mqtt.bean.publishbean.attrparams.AmModeParams;
  * E-mail : wengmaowei@kaadas.com
  * desc   :
  */
-public class WifiLockSetLockAttrAmModePublishBean {
+public class WifiLockSetLockAttrAmModePublishBean extends WifiLockBasePublishBean{
 
 
     /**
@@ -20,7 +20,6 @@ public class WifiLockSetLockAttrAmModePublishBean {
      * timestamp : 13433333333
      */
 
-    private String msgtype;
     private int msgId;
     private String userId;
     private String wfId;
@@ -29,7 +28,7 @@ public class WifiLockSetLockAttrAmModePublishBean {
     private String timestamp;
 
     public WifiLockSetLockAttrAmModePublishBean(String msgtype, int msgId, String userId, String wfId, String func, AmModeParams amModeParams, String timestamp) {
-        this.msgtype = msgtype;
+        this.setMsgtype(msgtype);
         this.msgId = msgId;
         this.userId = userId;
         this.wfId = wfId;
@@ -38,13 +37,6 @@ public class WifiLockSetLockAttrAmModePublishBean {
         this.timestamp = timestamp;
     }
 
-    public String getMsgtype() {
-        return msgtype;
-    }
-
-    public void setMsgtype(String msgtype) {
-        this.msgtype = msgtype;
-    }
 
     public int getMsgId() {
         return msgId;

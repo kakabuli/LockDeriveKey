@@ -8,7 +8,7 @@ import com.revolo.lock.mqtt.bean.publishbean.attrparams.VolumeParams;
  * E-mail : wengmaowei@kaadas.com
  * desc   :
  */
-public class WifiLockSetLockAttrVolumeRspBean {
+public class WifiLockSetLockAttrVolumeRspBean extends WifiLockBaseResponseBean{
 
 
     /**
@@ -22,62 +22,11 @@ public class WifiLockSetLockAttrVolumeRspBean {
      * timestamp : 13433333333
      */
 
-    private String msgtype;
-    private int msgId;
-    private String userId;
-    private String wfId;
-    private String func;
-    private int code;
+
     private VolumeParams params;
     private String timestamp;
 
-    public String getMsgtype() {
-        return msgtype;
-    }
 
-    public void setMsgtype(String msgtype) {
-        this.msgtype = msgtype;
-    }
-
-    public int getMsgId() {
-        return msgId;
-    }
-
-    public void setMsgId(int msgId) {
-        this.msgId = msgId;
-    }
-
-    public String getUserId() {
-        return userId;
-    }
-
-    public void setUserId(String userId) {
-        this.userId = userId;
-    }
-
-    public String getWfId() {
-        return wfId;
-    }
-
-    public void setWfId(String wfId) {
-        this.wfId = wfId;
-    }
-
-    public String getFunc() {
-        return func;
-    }
-
-    public void setFunc(String func) {
-        this.func = func;
-    }
-
-    public int getCode() {
-        return code;
-    }
-
-    public void setCode(int code) {
-        this.code = code;
-    }
 
     public VolumeParams getParams() {
         return params;
@@ -96,5 +45,19 @@ public class WifiLockSetLockAttrVolumeRspBean {
     }
 
     public static class ParamsBean {
+    }
+
+    @Override
+    public String toString() {
+        return "WifiLockSetLockAttrVolumeRspBean{" +
+                "msgtype='" +getMsgtype() + '\'' +
+                ", msgId=" + getMsgId() +
+                ", userId='" + getUserId() + '\'' +
+                ", wfId='" + getWfId() + '\'' +
+                ", func='" + getFunc() + '\'' +
+                ", code=" + getCode() +
+                ", params=" + params +
+                ", timestamp='" + timestamp + '\'' +
+                '}';
     }
 }

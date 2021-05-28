@@ -1,6 +1,6 @@
 package com.revolo.lock.mqtt.bean.publishbean;
 
-public class WifiLockCloseWifiPublishBean {
+public class WifiLockCloseWifiPublishBean extends WifiLockBasePublishBean{
     /**
      * msgtype : request
      * msgId : 4
@@ -11,7 +11,6 @@ public class WifiLockCloseWifiPublishBean {
      * timestamp : 13433333333
      */
 
-    private String msgtype;
     private int msgId;
     private String userId;
     private String wfId;
@@ -20,7 +19,7 @@ public class WifiLockCloseWifiPublishBean {
     private String timestamp;
 
     public WifiLockCloseWifiPublishBean(String msgtype, int msgId, String userId, String wfId, String func, ParamsBean params, String timestamp) {
-        this.msgtype = msgtype;
+        this.setMsgtype(msgtype);
         this.msgId = msgId;
         this.userId = userId;
         this.wfId = wfId;
@@ -29,13 +28,6 @@ public class WifiLockCloseWifiPublishBean {
         this.timestamp = timestamp;
     }
 
-    public String getMsgtype() {
-        return msgtype;
-    }
-
-    public void setMsgtype(String msgtype) {
-        this.msgtype = msgtype;
-    }
 
     public int getMsgId() {
         return msgId;
@@ -91,7 +83,7 @@ public class WifiLockCloseWifiPublishBean {
     @Override
     public String toString() {
         return "WifiLockCloseWifiPublishBean{" +
-                "msgtype='" + msgtype + '\'' +
+                "msgtype='" + getMsgtype() + '\'' +
                 ", msgId=" + msgId +
                 ", userId='" + userId + '\'' +
                 ", wfId='" + wfId + '\'' +

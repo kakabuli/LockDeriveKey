@@ -8,7 +8,7 @@ import com.revolo.lock.mqtt.bean.publishbean.attrparams.AutoLockTimeParams;
  * E-mail : wengmaowei@kaadas.com
  * desc   :
  */
-public class WifiLockSetLockAttrAutoLockTimePublishBean {
+public class WifiLockSetLockAttrAutoLockTimePublishBean extends WifiLockBasePublishBean{
 
 
     /**
@@ -20,8 +20,7 @@ public class WifiLockSetLockAttrAutoLockTimePublishBean {
      * timestamp : 13433333333
      */
 
-    private String msgtype;
-    private int msgId;
+     private int msgId;
     private String userId;
     private String wfId;
     private String func;
@@ -29,7 +28,7 @@ public class WifiLockSetLockAttrAutoLockTimePublishBean {
     private String timestamp;
 
     public WifiLockSetLockAttrAutoLockTimePublishBean(String msgtype, int msgId, String userId, String wfId, String func, AutoLockTimeParams baseParamsBean, String timestamp) {
-        this.msgtype = msgtype;
+        this.setMsgtype(msgtype);
         this.msgId = msgId;
         this.userId = userId;
         this.wfId = wfId;
@@ -38,13 +37,6 @@ public class WifiLockSetLockAttrAutoLockTimePublishBean {
         this.timestamp = timestamp;
     }
 
-    public String getMsgtype() {
-        return msgtype;
-    }
-
-    public void setMsgtype(String msgtype) {
-        this.msgtype = msgtype;
-    }
 
     public int getMsgId() {
         return msgId;

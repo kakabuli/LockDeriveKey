@@ -3,7 +3,9 @@ package com.revolo.lock.mqtt.bean.publishresultbean;
 import org.eclipse.paho.client.mqttv3.IMqttToken;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 
-public class PublishResult {
+import java.io.Serializable;
+
+public class PublishResult implements Serializable {
 
     private boolean isPublishSuccess;
     private IMqttToken asyncActionToken;
