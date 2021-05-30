@@ -32,7 +32,6 @@ import com.revolo.lock.ble.BleResultProcess;
 import com.revolo.lock.ble.OnBleDeviceListener;
 import com.revolo.lock.ble.bean.BleBean;
 import com.revolo.lock.ble.bean.BleResultBean;
-import com.revolo.lock.manager.LockAppService;
 import com.revolo.lock.mqtt.MqttCommandFactory;
 import com.revolo.lock.mqtt.MQttConstant;
 import com.revolo.lock.mqtt.MqttService;
@@ -96,8 +95,7 @@ public class App extends Application {
     }
 
     protected MqttService mMQttService;
-
-    private Intent mLockAppService;
+    private LockAppService lockAppService;
 
     @Override
     public void onCreate() {
@@ -106,17 +104,8 @@ public class App extends Application {
         if (BuildConfig.DEBUG) {
             Timber.plant(new Timber.DebugTree());
         }
-        initMQttService();
-
-//        mLockAppService = new Intent(this, LockAppService.class);
-//        startService(mLockAppService);
-    }
-
-    @Override
-    public void onTerminate() {
-        super.onTerminate();
-        // 程序终止时执行
-//        stopService(mLockAppService);
+        //initMQttService();
+        initLockAppService();
     }
 
     // TODO: 2021/3/8 临时存个MainActivity 后期删除
@@ -446,6 +435,44 @@ public class App extends Application {
 
             }
         }, Context.BIND_AUTO_CREATE);
+    }
+
+    /**
+     * 初始化LockAppService
+     */
+    private void initLockAppService() {
+        Intent intent = new Intent(this, LockAppService.class);
+        bindService(intent, new ServiceConnection() {
+            @Override
+            public void onServiceConnected(ComponentName name, IBinder service) {
+                if (service instanceof LockAppService.lockBinder) {
+                    LockAppService.lockBinder binder = (LockAppService.lockBinder) service;
+                    lockAppService = binder.getService();
+                    Timber.d("attachView service启动 %1b", (lockAppService == null));
+                }
+            }
+
+            @Override
+            public void onServiceDisconnected(ComponentName name) {
+                lockAppService = null;
+            }
+        }, Context.BIND_AUTO_CREATE);
+    }
+
+    public LockAppService getLockAppService() {
+        return lockAppService;
+    }
+
+    /**
+     * 获取用户设备列表
+     *
+     * @return
+     */
+    public List<BleDeviceLocal> getDeviceLists() {
+        if (null != lockAppService) {
+            return lockAppService.getUserDeviceList();
+        }
+        return new ArrayList<>();
     }
 
     public MqttService getMQttService() {

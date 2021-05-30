@@ -33,6 +33,8 @@ import com.revolo.lock.ble.BleResultProcess;
 import com.revolo.lock.ble.OnBleDeviceListener;
 import com.revolo.lock.ble.bean.BleBean;
 import com.revolo.lock.ble.bean.BleResultBean;
+import com.revolo.lock.manager.LockMessageCode;
+import com.revolo.lock.manager.LockMessageRes;
 import com.revolo.lock.net.HttpRequest;
 import com.revolo.lock.net.ObservableDecorator;
 import com.revolo.lock.room.AppDatabase;
@@ -42,6 +44,8 @@ import com.revolo.lock.ui.view.SmartClassicsFooterView;
 import com.scwang.smart.refresh.layout.api.RefreshLayout;
 import com.scwang.smart.refresh.layout.listener.OnLoadMoreListener;
 
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 import org.jetbrains.annotations.NotNull;
 
 import java.text.SimpleDateFormat;
@@ -120,6 +124,25 @@ public class OperationRecordsActivity extends BaseActivity {
 //            }
 //        });
         mRefreshLayout.setOnLoadMoreListener(refreshLayout -> searchRecordFromNet(mPage, mPage == 1));
+        onRegisterEventBus();
+    }
+    @Subscribe(threadMode = ThreadMode.MAIN, sticky = true)
+    public void getEventBus(LockMessageRes lockMessage) {
+        if (lockMessage == null) {
+            return;
+        }
+        if (lockMessage.getMessgaeType() == LockMessageCode.MSG_LOCK_MESSAGE_USER) {
+
+        } else if (lockMessage.getMessgaeType() == LockMessageCode.MSG_LOCK_MESSAGE_BLE) {
+            //蓝牙消息
+            if (null != lockMessage.getBleResultBea()) {
+                if (lockMessage.getBleResultBea().getCMD() == CMD_GET_ALL_RECORD) {
+                    updateRecordFormBle(lockMessage.getBleResultBea());
+                }
+            }
+        } else {
+            //MQTT
+        }
     }
 
     @Override
@@ -145,62 +168,6 @@ public class OperationRecordsActivity extends BaseActivity {
 
     /*------------------------------ 蓝牙 -----------------------------------*/
 
-    // TODO: 2021/3/18 丢包的处理，超时
-    private final OnBleDeviceListener mOnBleDeviceListener = new OnBleDeviceListener() {
-        @Override
-        public void onConnected(@NotNull String mac) {
-
-        }
-
-        @Override
-        public void onDisconnected(@NotNull String mac) {
-
-        }
-
-        @Override
-        public void onReceivedValue(@NotNull String mac, String uuid, byte[] value) {
-            if (value == null) {
-                Timber.e("mOnBleDeviceListener value == null");
-                return;
-            }
-            if (mBleBean == null) {
-                Timber.e("mOnBleDeviceListener mBleBean == null");
-                return;
-            }
-            if (mBleBean.getOKBLEDeviceImp() == null) {
-                Timber.e("mOnBleDeviceListener mBleBean.getOKBLEDeviceImp() == null");
-                return;
-            }
-            if (!mBleDeviceLocal.getMac().equals(mac)) {
-                Timber.e("mOnBleDeviceListener 蓝牙设备不匹配， mac: %1s, local mac: %2s", mac, mBleDeviceLocal.getMac());
-                return;
-            }
-            BleResultProcess.setOnReceivedProcess(mOnReceivedProcess);
-            BleResultProcess.processReceivedData(value, mBleBean.getPwd1(), mBleBean.getPwd3(),
-                    mBleBean.getOKBLEDeviceImp().getBleScanResult());
-        }
-
-        @Override
-        public void onWriteValue(@NotNull String mac, String uuid, byte[] value, boolean success) {
-
-        }
-
-        @Override
-        public void onAuthSuc(@NotNull String mac) {
-
-        }
-    };
-
-    private final BleResultProcess.OnReceivedProcess mOnReceivedProcess = bleResultBean -> {
-        if (bleResultBean == null) {
-            Timber.e("mOnReceivedProcess bleResultBean == null");
-            return;
-        }
-        if (bleResultBean.getCMD() == CMD_GET_ALL_RECORD) {
-            updateRecordFormBle(bleResultBean);
-        }
-    };
-
     private void initDevice() {
         if (mBleBean == null) {
             Timber.e("initDevice mBleBean == null");
@@ -208,8 +175,7 @@ public class OperationRecordsActivity extends BaseActivity {
         }
         if (mBleBean.getOKBLEDeviceImp() != null) {
             App.getInstance().openPairNotify(mBleBean.getOKBLEDeviceImp());
-            mBleBean.setOnBleDeviceListener(mOnBleDeviceListener);
-        }
+       }
     }
 
     private void searchRecordFromBle(short start, short end) {

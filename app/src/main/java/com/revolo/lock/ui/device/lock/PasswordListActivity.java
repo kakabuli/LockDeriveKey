@@ -38,6 +38,8 @@ import com.revolo.lock.ble.OnBleDeviceListener;
 import com.revolo.lock.ble.bean.BleBean;
 import com.revolo.lock.ble.bean.BleResultBean;
 import com.revolo.lock.dialog.MessageDialog;
+import com.revolo.lock.manager.LockMessageCode;
+import com.revolo.lock.manager.LockMessageRes;
 import com.revolo.lock.mqtt.MQttConstant;
 import com.revolo.lock.mqtt.MqttCommandFactory;
 import com.revolo.lock.mqtt.bean.MqttData;
@@ -49,6 +51,8 @@ import com.revolo.lock.room.entity.BleDeviceLocal;
 import com.revolo.lock.ui.view.SmartClassicsHeaderView;
 import com.scwang.smart.refresh.layout.api.RefreshLayout;
 
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -97,7 +101,7 @@ public class PasswordListActivity extends BaseActivity {
 
     @Override
     public void initView(@Nullable Bundle savedInstanceState, @Nullable View contentView) {
-
+        onRegisterEventBus();
         mPasswordFull = new MessageDialog(this);
         mPasswordFull.setMessage(getString(R.string.t_add_input_new_pwd_full));
         mPasswordFull.setOnListener(v -> {
@@ -133,12 +137,13 @@ public class PasswordListActivity extends BaseActivity {
         mPasswordListAdapter.setEmptyView(R.layout.empty_view_password_list);
         mPasswordListAdapter.setOnDeletePassWordListener((view, position) -> {
 
-        if (mPasswordListAdapter != null) {
-            DevicePwdBean item = mPasswordListAdapter.getItem(position);
-            if (item != null) {
-                delPwd(item);
+            if (mPasswordListAdapter != null) {
+                DevicePwdBean item = mPasswordListAdapter.getItem(position);
+                if (item != null) {
+                    delPwd(item);
+                }
             }
-    }});
+        });
         initLoading("Loading...");
 
         mRefreshLayout = findViewById(R.id.refreshLayout);
@@ -150,13 +155,30 @@ public class PasswordListActivity extends BaseActivity {
         initFailMessageDialog();
     }
 
+    @Subscribe(threadMode = ThreadMode.MAIN, sticky = true)
+    public void getEventBus(LockMessageRes lockMessage) {
+        if (lockMessage == null) {
+            return;
+        }
+        if (lockMessage.getMessgaeType() == LockMessageCode.MSG_LOCK_MESSAGE_USER) {
+
+        } else if (lockMessage.getMessgaeType() == LockMessageCode.MSG_LOCK_MESSAGE_BLE) {
+            //蓝牙消息
+            if (null != lockMessage.getBleResultBea()) {
+                //密钥数据从锁端蓝牙获取
+                getPwdListFormBle(lockMessage.getBleResultBea());
+            }
+        } else {
+            //MQTT
+        }
+    }
+
     @Override
     public void doBusiness() {
         if (mBleDeviceLocal.getConnectedType() != LocalState.DEVICE_CONNECT_TYPE_WIFI) {
             BleBean bleBean = App.getInstance().getBleBeanFromMac(mBleDeviceLocal.getMac());
             if (bleBean != null) {
                 showLoading();
-                bleBean.setOnBleDeviceListener(mOnBleDeviceListener);
                 new Handler(Looper.getMainLooper()).postDelayed(this::checkHadPwdFromBle, 20);
             }
         } else {
@@ -426,70 +448,6 @@ public class PasswordListActivity extends BaseActivity {
             }
         }
     }
-
-    /*-------------------------------- 密钥数据从锁端蓝牙获取 ---------------------------------*/
-
-    private final BleResultProcess.OnReceivedProcess mOnReceivedProcess = bleResultBean -> {
-        if (bleResultBean == null) {
-            Timber.e("mOnReceivedProcess bleResultBean == null");
-            return;
-        }
-        getPwdListFormBle(bleResultBean);
-    };
-
-    private final OnBleDeviceListener mOnBleDeviceListener = new OnBleDeviceListener() {
-
-        @Override
-        public void onConnected(@NotNull String mac) {
-
-        }
-
-        @Override
-        public void onDisconnected(@NotNull String mac) {
-
-        }
-
-        @Override
-        public void onReceivedValue(@NotNull String mac, String uuid, byte[] value) {
-            if (value == null) {
-                Timber.e("initBleListener value == null");
-                return;
-            }
-            BleBean bleBean = App.getInstance().getBleBeanFromMac(mBleDeviceLocal.getMac());
-            if (bleBean == null) {
-                Timber.e("initBleListener bleBean == null");
-                return;
-            }
-            if (bleBean.getOKBLEDeviceImp() == null) {
-                Timber.e("initBleListener bleBean.getOKBLEDeviceImp() == null");
-                return;
-            }
-            if (bleBean.getPwd1() == null) {
-                Timber.e("initBleListener bleBean.getPwd1() == null");
-                return;
-            }
-            if (bleBean.getPwd3() == null) {
-                Timber.e("initBleListener bleBean.getPwd3() == null");
-                return;
-            }
-            BleResultProcess.setOnReceivedProcess(mOnReceivedProcess);
-            BleResultProcess.processReceivedData(value,
-                    bleBean.getPwd1(),
-                    bleBean.getPwd3(),
-                    bleBean.getOKBLEDeviceImp().getBleScanResult());
-        }
-
-        @Override
-        public void onWriteValue(@NotNull String mac, String uuid, byte[] value, boolean success) {
-
-        }
-
-        @Override
-        public void onAuthSuc(@NotNull String mac) {
-
-        }
-
-    };
 
     private void checkHadPwdFromBle() {
         new Handler(Looper.getMainLooper()).postDelayed(() -> {

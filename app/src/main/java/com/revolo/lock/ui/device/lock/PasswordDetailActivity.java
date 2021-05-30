@@ -33,6 +33,8 @@ import com.revolo.lock.ble.bean.BleBean;
 import com.revolo.lock.ble.bean.BleResultBean;
 import com.revolo.lock.dialog.MessageDialog;
 import com.revolo.lock.dialog.SelectDialog;
+import com.revolo.lock.manager.LockMessageCode;
+import com.revolo.lock.manager.LockMessageRes;
 import com.revolo.lock.mqtt.MqttCommandFactory;
 import com.revolo.lock.mqtt.MQttConstant;
 import com.revolo.lock.mqtt.bean.MqttData;
@@ -42,6 +44,8 @@ import com.revolo.lock.net.ObservableDecorator;
 import com.revolo.lock.room.AppDatabase;
 import com.revolo.lock.room.entity.BleDeviceLocal;
 
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 import org.jetbrains.annotations.NotNull;
 
 import java.text.SimpleDateFormat;
@@ -116,17 +120,28 @@ public class PasswordDetailActivity extends BaseActivity {
         initSucMessageDialog();
         initFailMessageDialog();
         initLoading("Deleting...");
+        onRegisterEventBus();
+    }
+    @Subscribe(threadMode = ThreadMode.MAIN, sticky = true)
+    public void getEventBus(LockMessageRes lockMessage) {
+        if (lockMessage == null) {
+            return;
+        }
+        if (lockMessage.getMessgaeType() == LockMessageCode.MSG_LOCK_MESSAGE_BLE) {
+            //蓝牙消息
+            if (null != lockMessage.getBleResultBea()) {
+                if(lockMessage.getBleResultBea().getCMD() == CMD_KEY_ATTRIBUTES_SET) {
+                    delServiceAndLocalKey(lockMessage.getBleResultBea());
+                }
+            }
+        } else {
+            //MQTT
+        }
     }
 
     @Override
     public void doBusiness() {
         initDetail();
-        if(mBleDeviceLocal.getConnectedType() != LocalState.DEVICE_CONNECT_TYPE_WIFI) {
-            BleBean bleBean = App.getInstance().getBleBeanFromMac(mBleDeviceLocal.getMac());
-            if(bleBean != null) {
-                bleBean.setOnBleDeviceListener(mOnBleDeviceListener);
-            }
-        }
     }
 
     @Override
@@ -306,16 +321,6 @@ public class PasswordDetailActivity extends BaseActivity {
         }
     }
 
-    private final BleResultProcess.OnReceivedProcess mOnReceivedProcess = bleResultBean -> {
-        if(bleResultBean == null) {
-            Timber.e("mOnReceivedProcess bleResultBean == null");
-            return;
-        }
-        if(bleResultBean.getCMD() == CMD_KEY_ATTRIBUTES_SET) {
-            delServiceAndLocalKey(bleResultBean);
-        }
-    };
-
     private void delServiceAndLocalKey(BleResultBean bleResultBean) {
         runOnUiThread(() -> {
             if(bleResultBean.getPayload()[0] == 0x00) {
@@ -380,50 +385,6 @@ public class PasswordDetailActivity extends BaseActivity {
         });
 
     }
-
-    private final OnBleDeviceListener mOnBleDeviceListener = new OnBleDeviceListener() {
-        @Override
-        public void onConnected(@NotNull String mac) {
-
-        }
-
-        @Override
-        public void onDisconnected(@NotNull String mac) {
-
-        }
-
-        @Override
-        public void onReceivedValue(@NotNull String mac, String uuid, byte[] value) {
-            if(value == null) {
-                return;
-            }
-            BleBean bleBean = App.getInstance().getBleBeanFromMac(mac);
-            if(bleBean == null) {
-                Timber.e("initBleListener bleBean == null");
-                return;
-            }
-            if(bleBean.getOKBLEDeviceImp() == null) {
-                Timber.e("initBleListener bleBean.getOKBLEDeviceImp() == null");
-                return;
-            }
-            BleResultProcess.setOnReceivedProcess(mOnReceivedProcess);
-            BleResultProcess.processReceivedData(value,
-                    bleBean.getPwd1(),
-                    bleBean.getPwd3(),
-                    bleBean.getOKBLEDeviceImp().getBleScanResult());
-        }
-
-        @Override
-        public void onWriteValue(@NotNull String mac, String uuid, byte[] value, boolean success) {
-
-        }
-
-        @Override
-        public void onAuthSuc(@NotNull String mac) {
-
-        }
-    };
-
     private void delKeyFromService() {
         if(!checkNetConnectFail()) {
             return;

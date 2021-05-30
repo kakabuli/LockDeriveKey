@@ -12,13 +12,14 @@ import java.io.Serializable;
  */
 public class LockMessage implements Serializable {
 
-    private int index;
-    private int sendFrequency = 0;
-    public String sn;
-    public String mac;
-    private int messageType;
-    private MqttMessage mqttMessage;
-    private byte[] bytes;
+    private int index;  //消息id
+    private int sendFrequency = 0;//发送次数
+    public String sn;  //设备sn 码
+    public String mac;  //蓝牙mac
+    private int messageType;  //消息类型
+    private MqttMessage mqttMessage;   //mqtt消息数据
+    private byte[] bytes;   //ble消息数据
+    private int messageCode;
 
     public void addSendFre() {
         sendFrequency++;
@@ -78,5 +79,13 @@ public class LockMessage implements Serializable {
 
     public void setSendFrequency(int sendFrequency) {
         this.sendFrequency = sendFrequency;
+    }
+
+    public int getMessageCode() {
+        return messageCode;
+    }
+
+    public void setMessageCode(int messageCode) {
+        this.messageCode = messageCode;
     }
 }

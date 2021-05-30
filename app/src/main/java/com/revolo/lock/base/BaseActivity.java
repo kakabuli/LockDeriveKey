@@ -23,6 +23,7 @@ import com.revolo.lock.App;
 import com.revolo.lock.LockAppManager;
 import com.revolo.lock.R;
 import com.revolo.lock.dialog.iosloading.CustomerLoadingDialog;
+import com.revolo.lock.manager.LockConnected;
 import com.revolo.lock.mqtt.MqttService;
 import com.revolo.lock.shulan.KeepAliveManager;
 import com.revolo.lock.shulan.config.ForegroundNotification;
@@ -64,6 +65,11 @@ public abstract class BaseActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         initData(getIntent().getExtras());
         setContentView();
+        LockConnected bleConnected = new LockConnected();
+        bleConnected.setConnectType(0);
+        EventBus.getDefault().post(bleConnected);
+
+
         if (mMQttService == null) {
             mMQttService = App.getInstance().getMQttService();
         }
@@ -75,6 +81,13 @@ public abstract class BaseActivity extends AppCompatActivity
         initView(savedInstanceState, mContentView);
 
 //        startKeepAlive();
+    }
+
+    public void onRegisterEventBus() {
+        boolean registered = EventBus.getDefault().isRegistered(this);
+        if (!registered) {
+            EventBus.getDefault().register(this);
+        }
     }
 
     @Override
@@ -99,6 +112,10 @@ public abstract class BaseActivity extends AppCompatActivity
             }
         }
         LockAppManager.getAppManager().finishActivity(this);
+        boolean registered = EventBus.getDefault().isRegistered(this);
+        if (registered) {
+            EventBus.getDefault().unregister(this);
+        }
         super.onDestroy();
     }
 

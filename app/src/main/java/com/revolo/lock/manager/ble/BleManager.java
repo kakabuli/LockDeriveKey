@@ -2,6 +2,7 @@ package com.revolo.lock.manager.ble;
 
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Log;
 
 import com.a1anwang.okble.client.core.OKBLEDeviceImp;
 import com.a1anwang.okble.client.core.OKBLEDeviceListener;
@@ -21,6 +22,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.List;
 
 import timber.log.Timber;
 
@@ -62,11 +64,14 @@ public class BleManager {
     }
 
     /*-------------------------------- 蓝牙搜索 end --------------------------------*/
-    public BleBean connectDevice(BLEScanResult bleScanResult, byte[] pwd1, byte[] pwd2, boolean isAppPair) {
+    public BleBean connectDevice(String sn, BLEScanResult bleScanResult, byte[] pwd1, byte[] pwd2, boolean isAppPair) {
         OKBLEDeviceImp deviceImp = new OKBLEDeviceImp(App.getInstance().getApplicationContext(), bleScanResult);
+        Log.e("test_ble:", bleScanResult.getMacAddress());
+        deviceImp.setDeviceTAG(bleScanResult.getMacAddress().toLowerCase());
         BleBean bleBean = new BleBean(deviceImp);
         bleBean.setPwd1(pwd1);
         bleBean.setPwd2(pwd2);
+        bleBean.setEsn(sn);
         bleBean.setOnBleDeviceListener(onBleDeviceListener);
         bleBean.setAppPair(isAppPair);
         bleBean.setAuth(false);
@@ -122,6 +127,10 @@ public class BleManager {
         }
     }
 
+    public List<BleBean> getBleBeans() {
+        return mConnectedBleBeanList;
+    }
+
     public BleBean getBleBeanFromMac(@NotNull String mac) {
         for (BleBean bleBean : mConnectedBleBeanList) {
             if (bleBean.getOKBLEDeviceImp().getMacAddress().equals(mac)) {
@@ -130,6 +139,7 @@ public class BleManager {
         }
         return null;
     }
+
     public boolean getBleBeanCoonectedState(@NotNull String mac) {
         for (BleBean bleBean : mConnectedBleBeanList) {
             if (bleBean.getOKBLEDeviceImp().getMacAddress().equals(mac)) {
@@ -143,6 +153,8 @@ public class BleManager {
     OKBLEDeviceListener okbleDeviceListener = new OKBLEDeviceListener() {
         @Override
         public void onConnected(String deviceTAG) {
+            if (null != deviceTAG)
+                deviceTAG = deviceTAG.toUpperCase();
             Timber.d("onConnected deviceTAG: %1s", deviceTAG);
             BleBean bleBean = getBleBeanFromMac(deviceTAG);
             if (null != bleBean) {
@@ -154,16 +166,28 @@ public class BleManager {
                 }
                 // 连接后都走自动鉴权流程
                 bleBean.setAuth(true);
-                new Handler(Looper.getMainLooper()).postDelayed(() -> writeControlMsg(BleCommandFactory
-                                .authCommand(bleBean.getPwd1(), bleBean.getPwd2(), bleBean.getEsn().getBytes(StandardCharsets.UTF_8)),
-                        bleBean.getOKBLEDeviceImp()), 50);
-
+                if (null == bleBean.getPwd2()) {
+                    //发送配网指令，并校验ESN
+                    new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                        if (null != bleBean.getOKBLEDeviceImp()) {
+                            Timber.d("%1s 发送配网指令，并校验ESN", bleBean.getOKBLEDeviceImp());
+                        }
+                        writeControlMsg(BleCommandFactory
+                                .pairCommand(bleBean.getPwd1(), bleBean.getEsn().getBytes(StandardCharsets.UTF_8)), bleBean.getOKBLEDeviceImp());
+                    }, 100);
+                } else {
+                    new Handler(Looper.getMainLooper()).postDelayed(() -> writeControlMsg(BleCommandFactory
+                                    .authCommand(bleBean.getPwd1(), bleBean.getPwd2(), bleBean.getEsn().getBytes(StandardCharsets.UTF_8)),
+                            bleBean.getOKBLEDeviceImp()), 50);
+                }
                 bleConnectedCallback(bleBean, bleBean.getOKBLEDeviceImp().getMacAddress());
             }
         }
 
         @Override
         public void onDisconnected(String deviceTAG) {
+            if (null != deviceTAG)
+                deviceTAG = deviceTAG.toUpperCase();
             Timber.d("onDisconnected deviceTAG: %1s", deviceTAG);
             BleBean bleBean = getBleBeanFromMac(deviceTAG);
             if (null != bleBean) {
@@ -179,10 +203,14 @@ public class BleManager {
 
         @Override
         public void onReadBattery(String deviceTAG, int battery) {
+            if (null != deviceTAG)
+                deviceTAG = deviceTAG.toUpperCase();
         }
 
         @Override
         public void onReceivedValue(String deviceTAG, String uuid, byte[] value) {
+            if (null != deviceTAG)
+                deviceTAG = deviceTAG.toUpperCase();
             Timber.d("onReceivedValue value: %1s", ConvertUtils.bytes2HexString(value));
             BleBean bleBean = getBleBeanFromMac(deviceTAG);
             if (null != bleBean) {
@@ -201,6 +229,8 @@ public class BleManager {
 
         @Override
         public void onWriteValue(String deviceTAG, String uuid, byte[] value, boolean success) {
+            if (null != deviceTAG)
+                deviceTAG = deviceTAG.toUpperCase();
             Timber.d("onWriteValue uuid: %1s, value: %2s, success: %3b",
                     uuid, ConvertUtils.bytes2HexString(value), success);
             BleBean bleBean = getBleBeanFromMac(deviceTAG);
@@ -215,10 +245,14 @@ public class BleManager {
 
         @Override
         public void onReadValue(String deviceTAG, String uuid, byte[] value, boolean success) {
+            if (null != deviceTAG)
+                deviceTAG = deviceTAG.toUpperCase();
         }
 
         @Override
         public void onNotifyOrIndicateComplete(String deviceTAG, String uuid, boolean enable, boolean success) {
+            if (null != deviceTAG)
+                deviceTAG = deviceTAG.toUpperCase();
         }
     };
 
@@ -231,28 +265,42 @@ public class BleManager {
     }
 
     private void authProcess(byte[] value, @NotNull BleBean bleBean, @NotNull String mac) {
-        byte[] pwd1 = bleBean.getPwd1();
-        byte[] pwd2Or3 = bleBean.isAuth() ? bleBean.getPwd2() : bleBean.getPwd3();
-        boolean isEncrypt = (value[0] == CONTROL_ENCRYPTION);
-        byte[] payload = new byte[16];
-        System.arraycopy(value, 4, payload, 0, payload.length);
-        byte[] decryptPayload = isEncrypt ? pwdDecrypt(payload, pwd1, pwd2Or3) : payload;
-        byte sum = checksum(decryptPayload);
-        if (value[2] != sum) {
-            Timber.d("authProcess 校验和失败，接收数据中的校验和：%1s，\n接收数据后计算的校验和：%2s",
-                    ConvertUtils.int2HexString(value[2]), ConvertUtils.int2HexString(sum));
-            return;
-        }
-        int cmd = BleByteUtil.byteToInt(value[3]);
-        if (decryptPayload[0] == 0x02) {
-            if (bleBean.getOnBleDeviceListener() != null) {
-                bleBean.getOnBleDeviceListener().onAuthSuc(mac);
+        if (value[0] == 0x01) {
+            byte[] mPwd2 = new byte[4];
+            System.arraycopy(value, 1, mPwd2, 0, mPwd2.length);
+            // TODO: 2021/1/21 打包数据上传到服务器后再发送确认指令
+            bleBean.setPwd2_copy(mPwd2);
+            Timber.e("getPwd2AndSendAuthCommand 延时发送鉴权指令, pwd2: %1s\n", ConvertUtils.bytes2HexString(mPwd2) + ";;;;;;SN:" + bleBean.getEsn());
+          /* new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                Timber.d("getPwd2AndSendAuthCommand 延时发送鉴权指令, pwd2: %1s\n", ConvertUtils.bytes2HexString(mPwd2));
+                writeControlMsg(BleCommandFactory
+                        .authCommand(bleBean.getPwd1(), bleBean.getPwd2(), bleBean.getEsn().getBytes(StandardCharsets.UTF_8)), bleBean.getOKBLEDeviceImp());
+            }, 50);*/
+        } else if (value[0] == 0x02) {
+            bleBean.setPwd2(bleBean.getPwd2_copy());
+            byte[] pwd1 = bleBean.getPwd1();
+            byte[] pwd2Or3 = bleBean.isAuth() ? bleBean.getPwd2() : bleBean.getPwd3();
+            boolean isEncrypt = (value[0] == CONTROL_ENCRYPTION);
+            byte[] payload = new byte[16];
+            System.arraycopy(value, 4, payload, 0, payload.length);
+            byte[] decryptPayload = isEncrypt ? pwdDecrypt(payload, pwd1, pwd2Or3) : payload;
+            byte sum = checksum(decryptPayload);
+            if (value[2] != sum) {
+                Timber.d("authProcess 校验和失败，接收数据中的校验和：%1s，\n接收数据后计算的校验和：%2s",
+                        ConvertUtils.int2HexString(value[2]), ConvertUtils.int2HexString(sum));
+                return;
             }
-            // 获取pwd3
-            getPwd3(BleCommandFactory.ackCommand(BleByteUtil.byteToInt(value[1]), (byte) 0x00, cmd), decryptPayload, bleBean);
-            bleBean.setAuth(false);
-            // 鉴权成功后，同步当前时间
-            syNowTime(bleBean);
+            int cmd = BleByteUtil.byteToInt(value[3]);
+            if (decryptPayload[0] == 0x02) {
+                if (bleBean.getOnBleDeviceListener() != null) {
+                    bleBean.getOnBleDeviceListener().onAuthSuc(mac);
+                }
+                // 获取pwd3
+                getPwd3(BleCommandFactory.ackCommand(BleByteUtil.byteToInt(value[1]), (byte) 0x00, cmd), decryptPayload, bleBean);
+                bleBean.setAuth(false);
+                // 鉴权成功后，同步当前时间
+                syNowTime(bleBean);
+            }
         }
     }
 
@@ -296,10 +344,11 @@ public class BleManager {
 
         }
     };
-    public void write(String mac,byte[] bytes){
-        BleBean bleBean=getBleBeanFromMac(mac);
-        if(null!=bleBean&&null!=bleBean.getOKBLEDeviceImp()){
-            writeControlMsg(bytes,bleBean.getOKBLEDeviceImp());
+
+    public void write(String mac, byte[] bytes) {
+        BleBean bleBean = getBleBeanFromMac(mac);
+        if (null != bleBean && null != bleBean.getOKBLEDeviceImp()) {
+            writeControlMsg(bytes, bleBean.getOKBLEDeviceImp());
         }
 
     }

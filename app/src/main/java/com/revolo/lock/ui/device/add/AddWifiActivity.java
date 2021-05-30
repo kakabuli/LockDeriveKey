@@ -31,10 +31,15 @@ import com.revolo.lock.ble.OnBleDeviceListener;
 import com.revolo.lock.ble.bean.BleBean;
 import com.revolo.lock.ble.bean.BleResultBean;
 import com.revolo.lock.ble.bean.WifiSnBean;
+import com.revolo.lock.manager.LockMessageCode;
+import com.revolo.lock.manager.LockMessageRes;
 import com.revolo.lock.popup.WifiListPopup;
 import com.revolo.lock.room.AppDatabase;
 import com.revolo.lock.room.entity.BleDeviceLocal;
 
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -94,6 +99,28 @@ public class AddWifiActivity extends BaseActivity {
         initLoading("Loading...");
 
         mEtWifiName.setText(getConnectWifiSID());
+        onRegisterEventBus();
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN, sticky = true)
+    public void getEventBus(LockMessageRes lockMessage) {
+        if (lockMessage == null) {
+            return;
+        }
+        if (lockMessage.getMessgaeType() == LockMessageCode.MSG_LOCK_MESSAGE_USER) {
+
+        } else if (lockMessage.getMessgaeType() == LockMessageCode.MSG_LOCK_MESSAGE_BLE) {
+            //蓝牙消息
+            if (null != lockMessage.getBleResultBea()) {
+                if (lockMessage.getBleResultBea().getCMD() == CMD_LOCK_INFO) {
+                    receiveLockBaseInfo(lockMessage.getBleResultBea());
+                } else if (lockMessage.getBleResultBea().getCMD() == CMD_WIFI_LIST_CHECK) {
+                    receiveWifiList(lockMessage.getBleResultBea());
+                }
+            }
+        } else {
+            //MQTT
+        }
     }
 
     @Override
@@ -187,7 +214,6 @@ public class AddWifiActivity extends BaseActivity {
         }
         if (mBleBean.getOKBLEDeviceImp() != null) {
             App.getInstance().openPairNotify(mBleBean.getOKBLEDeviceImp(), mNotifyOrIndicateOperationListener);
-            mBleBean.setOnBleDeviceListener(mOnBleDeviceListener);
             checkBattery();
         }
 
@@ -210,73 +236,6 @@ public class AddWifiActivity extends BaseActivity {
         @Override
         public void onExecuteSuccess(OKBLEOperation.OperationType type) {
 
-        }
-    };
-
-    private final OnBleDeviceListener mOnBleDeviceListener = new OnBleDeviceListener() {
-        @Override
-        public void onConnected(@NotNull String mac) {
-
-        }
-
-        @Override
-        public void onDisconnected(@NotNull String mac) {
-
-        }
-
-        @Override
-        public void onReceivedValue(@NotNull String mac, String uuid, byte[] value) {
-            if (value == null) {
-                Timber.e("initBleListener value == null");
-                return;
-            }
-            BleBean bleBean = App.getInstance().getBleBeanFromMac(mBleDeviceLocal.getMac());
-            if (bleBean == null) {
-                Timber.e("initBleListener bleBean == null");
-                return;
-            }
-            if (bleBean.getOKBLEDeviceImp() == null) {
-                Timber.e("initBleListener bleBean.getOKBLEDeviceImp() == null");
-                return;
-            }
-            if (bleBean.getPwd1() == null) {
-                Timber.e("initBleListener bleBean.getPwd1() == null");
-                return;
-            }
-            if (bleBean.getPwd3() == null) {
-                Timber.e("initBleListener bleBean.getPwd3() == null");
-                return;
-            }
-            if (mOnReceivedProcess == null) {
-                AddWifiActivity.this.finish();
-            } else {
-                BleResultProcess.setOnReceivedProcess(mOnReceivedProcess);
-                BleResultProcess.processReceivedData(value, mBleBean.getPwd1(), mBleBean.getPwd3(),
-                        mBleBean.getOKBLEDeviceImp().getBleScanResult());
-            }
-        }
-
-        @Override
-        public void onWriteValue(@NotNull String mac, String uuid, byte[] value, boolean success) {
-
-        }
-
-        @Override
-        public void onAuthSuc(@NotNull String mac) {
-
-        }
-
-    };
-
-    private final BleResultProcess.OnReceivedProcess mOnReceivedProcess = bleResultBean -> {
-        if (bleResultBean == null) {
-            Timber.e("mOnReceivedProcess bleResultBean == null");
-            return;
-        }
-        if (bleResultBean.getCMD() == CMD_LOCK_INFO) {
-            receiveLockBaseInfo(bleResultBean);
-        } else if (bleResultBean.getCMD() == CMD_WIFI_LIST_CHECK) {
-            receiveWifiList(bleResultBean);
         }
     };
 

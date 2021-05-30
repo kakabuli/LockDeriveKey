@@ -1,10 +1,12 @@
 package com.revolo.lock.manager.mqtt;
 
 import android.text.TextUtils;
+import android.util.Log;
 
 import com.blankj.utilcode.util.GsonUtils;
 import com.revolo.lock.App;
 import com.revolo.lock.LocalState;
+import com.revolo.lock.manager.LockMessage;
 import com.revolo.lock.mqtt.MQttConstant;
 import com.revolo.lock.mqtt.bean.MqttData;
 import com.revolo.lock.mqtt.bean.publishresultbean.WifiLockApproachOpenResponseBean;

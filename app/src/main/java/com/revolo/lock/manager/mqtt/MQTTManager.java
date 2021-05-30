@@ -125,6 +125,15 @@ public class MQTTManager {
      * 连接
      */
     public void mqttConnection() {
+        if (null != mqttClient) {
+            if (mqttClient.isConnected()) {
+                Timber.d("mqttConnection  mqtt已连接");
+                if (null != mqttDataLinstener) {
+                    mqttDataLinstener.MQTTException(MQTTErrCode.MQTT_CONNECTION_CODE);
+                }
+                return;
+            }
+        }
         if (App.getInstance().getUserBean() == null) {
             if (null != mqttDataLinstener) {
                 mqttDataLinstener.MQTTException(MQTTErrCode.MQTT_USER_ERR);
@@ -210,7 +219,6 @@ public class MQTTManager {
                     Timber.d("connectionLost 用户id或者token为空无法重连");
                     return;
                 }
-                App.getInstance().getMQttService().mqttConnection();
                 if (null != mqttDataLinstener) {
                     mqttDataLinstener.connectionLost(cause);
                 }
@@ -456,6 +464,7 @@ public class MQTTManager {
 
     /**
      * 获取当前MQTT连接的状态
+     *
      * @return
      */
     public boolean onGetMQTTConnectedState() {

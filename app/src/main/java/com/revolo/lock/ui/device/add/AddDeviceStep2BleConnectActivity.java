@@ -34,15 +34,20 @@ import com.revolo.lock.ble.BleByteUtil;
 import com.revolo.lock.ble.BleCommandFactory;
 import com.revolo.lock.ble.BleProtocolState;
 import com.revolo.lock.ble.BleResultProcess;
-import com.revolo.lock.ble.OnBleDeviceListener;
 import com.revolo.lock.ble.bean.BleBean;
 import com.revolo.lock.ble.bean.BleResultBean;
+import com.revolo.lock.manager.LockConnected;
+import com.revolo.lock.manager.LockMessageCode;
+import com.revolo.lock.manager.LockMessageRes;
 import com.revolo.lock.net.HttpRequest;
 import com.revolo.lock.net.ObservableDecorator;
 import com.revolo.lock.room.AppDatabase;
 import com.revolo.lock.room.entity.BleDeviceLocal;
 import com.revolo.lock.room.entity.User;
 
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 import org.jetbrains.annotations.NotNull;
 
 import java.nio.charset.StandardCharsets;
@@ -112,8 +117,33 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
     @Override
     public void initView(@Nullable Bundle savedInstanceState, @Nullable View contentView) {
         useCommonTitleBar(getString(R.string.add_device));
-
+        onRegisterEventBus();
     }
+
+    @Subscribe(threadMode = ThreadMode.MAIN, sticky = true)
+    public void getEventBus(LockMessageRes lockMessage) {
+        if (lockMessage == null) {
+            return;
+        }
+        if (lockMessage.getMessgaeType() == LockMessageCode.MSG_LOCK_MESSAGE_USER) {
+
+        } else if (lockMessage.getMessgaeType() == LockMessageCode.MSG_LOCK_MESSAGE_BLE) {
+            //蓝牙消息
+            if (null != lockMessage.getBleResultBea()) {
+               // processRecValue(lockMessage.getBleResultBea().getPayload());
+                //auth(lockMessage.getBleResultBea());
+            } else {
+                //蓝牙异常
+            }
+        } else {
+            //MQTT
+        }
+    }
+    @Subscribe(threadMode = ThreadMode.MAIN, sticky = true)
+    public void getEventBus(BleResultBean bleResultBean) {
+      addDeviceToService(bleResultBean);
+    }
+
 
     @Override
     public void doBusiness() {
@@ -155,20 +185,15 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
     }
 
     private void checkDeviceIsBind() {
-        if (!checkNetConnectFail()) {
-            return;
-        }
-        if (App.getInstance() == null) {
-            Timber.e("App.getInstance()  == null");
-            return;
-        }
-        if (App.getInstance().getUserBean() == null) {
+        if (!checkNetConnectFail() || App.getInstance() == null || App.getInstance().getUserBean() == null) {
             Timber.e("App.getInstance().getUserBean() == null");
+            gotoBleConnectFail();
             return;
         }
         String uid = App.getInstance().getUserBean().getUid();
         if (TextUtils.isEmpty(uid)) {
             Timber.e("uid is empty");
+            gotoBleConnectFail();
             return;
         }
         LockIsBindBeanReq req = new LockIsBindBeanReq();
@@ -492,32 +517,6 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
         finish();
     }
 
-    private final OnBleDeviceListener mOnBleDeviceListener = new OnBleDeviceListener() {
-        @Override
-        public void onConnected(@NotNull String mac) {
-            processDeviceConnected(mac);
-        }
-
-        @Override
-        public void onDisconnected(@NotNull String mac) {
-
-        }
-
-        @Override
-        public void onReceivedValue(@NotNull String mac, String uuid, byte[] value) {
-            processRecValue(value);
-        }
-
-        @Override
-        public void onWriteValue(@NotNull String mac, String uuid, byte[] value, boolean success) {
-
-        }
-
-        @Override
-        public void onAuthSuc(@NotNull String mac) {
-
-        }
-    };
 
     private void processDeviceConnected(@NotNull String mac) {
         BleBean bleBean = App.getInstance().getBleBeanFromMac(mac);
@@ -641,7 +640,14 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
             mScanManager.stopScan();
             mScanResult = device;
             mMac = device.getMacAddress();
-            App.getInstance().connectDevice(device, mPwd1, mPwd2, mOnBleDeviceListener, true);
+            LockConnected bleConnected = new LockConnected();
+            bleConnected.setConnectType(1);
+            bleConnected.setAppPair(true);
+            bleConnected.setPwd1(mPwd1);
+            bleConnected.setPwd2(mPwd2);
+            bleConnected.setmEsn(mEsn);
+            bleConnected.setBleScanResult(device);
+            EventBus.getDefault().post(bleConnected);
         }
     }
 
@@ -651,7 +657,14 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
             mScanManager.stopScan();
             Timber.d("connectBleFromQRCode 扫描到设备");
             mScanResult = device;
-            App.getInstance().connectDevice(device, mPwd1, mPwd2, mOnBleDeviceListener, true);
+            LockConnected bleConnected = new LockConnected();
+            bleConnected.setAppPair(true);
+            bleConnected.setPwd1(mPwd1);
+            bleConnected.setPwd2(mPwd2);
+            bleConnected.setConnectType(1);
+            bleConnected.setmEsn(mEsn);
+            bleConnected.setBleScanResult(device);
+            EventBus.getDefault().post(bleConnected);
         }
     }
 

@@ -29,6 +29,8 @@ import com.revolo.lock.ble.OnBleDeviceListener;
 import com.revolo.lock.ble.bean.BleBean;
 import com.revolo.lock.ble.bean.BleResultBean;
 import com.revolo.lock.dialog.MessageDialog;
+import com.revolo.lock.manager.LockMessageCode;
+import com.revolo.lock.manager.LockMessageRes;
 import com.revolo.lock.mqtt.MqttCommandFactory;
 import com.revolo.lock.mqtt.MQttConstant;
 import com.revolo.lock.mqtt.bean.MqttData;
@@ -36,6 +38,8 @@ import com.revolo.lock.mqtt.bean.publishresultbean.WifiLockSetMagneticResponseBe
 import com.revolo.lock.room.AppDatabase;
 import com.revolo.lock.room.entity.BleDeviceLocal;
 
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.concurrent.TimeUnit;
@@ -45,13 +49,15 @@ import timber.log.Timber;
 
 import static com.revolo.lock.Constant.DEFAULT_TIMEOUT_SEC_VALUE;
 import static com.revolo.lock.ble.BleProtocolState.CMD_DOOR_SENSOR_CALIBRATION;
+import static com.revolo.lock.ble.BleProtocolState.CMD_LOCK_INFO;
+import static com.revolo.lock.ble.BleProtocolState.CMD_WIFI_LIST_CHECK;
 
 /**
  * author : Jack
  * time   : 2020/12/29
  * E-mail : wengmaowei@kaadas.com
  * desc   : 门磁校验
- *          步骤：关闭门磁->开门->关门->开门->虚掩->开启门磁
+ * 步骤：关闭门磁->开门->关门->开门->虚掩->开启门磁
  */
 public class DoorSensorCheckActivity extends BaseActivity {
 
@@ -62,7 +68,9 @@ public class DoorSensorCheckActivity extends BaseActivity {
     private boolean isGoToAddWifi = true;
 
     @IntDef(value = {DOOR_OPEN, DOOR_CLOSE, DOOR_HALF, DOOR_SUC, DOOR_FAIL, DOOR_OPEN_AGAIN})
-    private @interface DoorState{}
+    private @interface DoorState {
+    }
+
     private static final int DOOR_OPEN = 1;
     private static final int DOOR_CLOSE = 2;
     private static final int DOOR_HALF = 3;
@@ -79,12 +87,30 @@ public class DoorSensorCheckActivity extends BaseActivity {
     @Override
     public void initData(@Nullable Bundle bundle) {
         Intent intent = getIntent();
-        if(intent.hasExtra(Constant.IS_GO_TO_ADD_WIFI)) {
+        if (intent.hasExtra(Constant.IS_GO_TO_ADD_WIFI)) {
             isGoToAddWifi = intent.getBooleanExtra(Constant.IS_GO_TO_ADD_WIFI, true);
         }
         mBleDeviceLocal = App.getInstance().getBleDeviceLocal();
-        if(mBleDeviceLocal == null) {
+        if (mBleDeviceLocal == null) {
             finish();
+        }
+        onRegisterEventBus();
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN, sticky = true)
+    public void getEventBus(LockMessageRes lockMessage) {
+        if (lockMessage == null) {
+            return;
+        }
+        if (lockMessage.getMessgaeType() == LockMessageCode.MSG_LOCK_MESSAGE_USER) {
+
+        } else if (lockMessage.getMessgaeType() == LockMessageCode.MSG_LOCK_MESSAGE_BLE) {
+            //蓝牙消息
+            if (null != lockMessage.getBleResultBea()) {
+                changedDoor(lockMessage.getBleResultBea());
+            }
+        } else {
+            //MQTT
         }
     }
 
@@ -117,13 +143,9 @@ public class DoorSensorCheckActivity extends BaseActivity {
 
     @Override
     public void doBusiness() {
-        if(mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI) {
+        if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI) {
             publishSetMagnetic(mBleDeviceLocal.getEsn(), BleCommandState.DOOR_CALIBRATION_STATE_CLOSE_SE);
         } else {
-            BleBean bleBean = App.getInstance().getBleBeanFromMac(mBleDeviceLocal.getMac());
-            if(bleBean != null) {
-                bleBean.setOnBleDeviceListener(mOnBleDeviceListener);
-            }
             sendCommand(BleCommandState.DOOR_CALIBRATION_STATE_CLOSE_SE);
         }
         // 初始化默认第一步执行开门
@@ -134,15 +156,15 @@ public class DoorSensorCheckActivity extends BaseActivity {
     @Override
     public void onBackPressed() {
         // 步骤：关闭门磁->开门->关门->开门->虚掩->开启门磁
-        if(mDoorState == DOOR_OPEN || mDoorState == DOOR_SUC) {
+        if (mDoorState == DOOR_OPEN || mDoorState == DOOR_SUC) {
             super.onBackPressed();
         } else {
-            if(mDoorState == DOOR_CLOSE) {
+            if (mDoorState == DOOR_CLOSE) {
                 isOpenAgain = false;
                 refreshOpenTheDoor();
-            } else if(mDoorState == DOOR_OPEN_AGAIN) {
+            } else if (mDoorState == DOOR_OPEN_AGAIN) {
                 refreshCloseTheDoor();
-            } else if(mDoorState == DOOR_HALF) {
+            } else if (mDoorState == DOOR_HALF) {
                 isOpenAgain = true;
                 refreshOpenTheDoor();
             }
@@ -151,32 +173,32 @@ public class DoorSensorCheckActivity extends BaseActivity {
 
     @Override
     public void onDebouncingClick(@NonNull View view) {
-        if(view.getId() == R.id.btnNext) {
+        if (view.getId() == R.id.btnNext) {
             switch (mDoorState) {
                 case DOOR_OPEN:
                 case DOOR_OPEN_AGAIN:
-                    if(mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI) {
+                    if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI) {
                         publishSetMagnetic(mBleDeviceLocal.getEsn(), BleCommandState.DOOR_CALIBRATION_STATE_OPEN);
                     } else {
                         sendCommand(BleCommandState.DOOR_CALIBRATION_STATE_OPEN);
                     }
                     break;
                 case DOOR_CLOSE:
-                    if(mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI) {
+                    if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI) {
                         publishSetMagnetic(mBleDeviceLocal.getEsn(), BleCommandState.DOOR_CALIBRATION_STATE_CLOSE);
                     } else {
                         sendCommand(BleCommandState.DOOR_CALIBRATION_STATE_CLOSE);
                     }
                     break;
                 case DOOR_HALF:
-                    if(mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI) {
+                    if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI) {
                         publishSetMagnetic(mBleDeviceLocal.getEsn(), BleCommandState.DOOR_CALIBRATION_STATE_HALF);
                     } else {
                         sendCommand(BleCommandState.DOOR_CALIBRATION_STATE_HALF);
                     }
                     break;
                 case DOOR_SUC:
-                    if(isGoToAddWifi) {
+                    if (isGoToAddWifi) {
                         gotoAddWifi();
                     } else {
                         mBleDeviceLocal.setOpenDoorSensor(true);
@@ -190,8 +212,8 @@ public class DoorSensorCheckActivity extends BaseActivity {
             }
             return;
         }
-        if(view.getId() == R.id.tvSkip) {
-            if(isGoToAddWifi) {
+        if (view.getId() == R.id.tvSkip) {
+            if (isGoToAddWifi) {
                 gotoAddWifi();
             } else {
                 finish();
@@ -209,7 +231,7 @@ public class DoorSensorCheckActivity extends BaseActivity {
             if (mPowerLowDialog != null) {
                 mPowerLowDialog.show();
             }
-        }else {
+        } else {
             mBleDeviceLocal.setOpenDoorSensor(true);
             AppDatabase.getInstance(this).bleDeviceDao().update(mBleDeviceLocal);
             new Handler(Looper.getMainLooper()).postDelayed(() -> {
@@ -228,8 +250,8 @@ public class DoorSensorCheckActivity extends BaseActivity {
         mBtnNext.setText(getString(R.string.next));
         mTvStep.setText(getString(R.string.open_door_step_1_3_tip));
         mTvStep.setVisibility(View.VISIBLE);
-        mDoorState = isOpenAgain?DOOR_OPEN_AGAIN:DOOR_OPEN;
-        mTvSkip.setVisibility(isOpenAgain?View.GONE:View.VISIBLE);
+        mDoorState = isOpenAgain ? DOOR_OPEN_AGAIN : DOOR_OPEN;
+        mTvSkip.setVisibility(isOpenAgain ? View.GONE : View.VISIBLE);
     }
 
     private void refreshCloseTheDoor() {
@@ -255,7 +277,7 @@ public class DoorSensorCheckActivity extends BaseActivity {
     private void refreshDoorSuc() {
         mIvDoorState.setImageResource(R.drawable.ic_equipment_img_magnetic_door_success);
         mTvTip.setText(getString(R.string.door_check_suc_tip));
-        mBtnNext.setText(isGoToAddWifi?getString(R.string.connect_wifi):getString(R.string.complete));
+        mBtnNext.setText(isGoToAddWifi ? getString(R.string.connect_wifi) : getString(R.string.complete));
         mTvSkip.setVisibility(View.GONE);
         mTvStep.setText("");
         mTvStep.setVisibility(View.INVISIBLE);
@@ -294,7 +316,7 @@ public class DoorSensorCheckActivity extends BaseActivity {
 
     public void publishSetMagnetic(String wifiID, @BleCommandState.DoorCalibrationState int mode) {
         showLoading();
-        if(mMQttService == null) {
+        if (mMQttService == null) {
             Timber.e("publishSetMagnetic mMQttService == null");
             return;
         }
@@ -316,11 +338,11 @@ public class DoorSensorCheckActivity extends BaseActivity {
 
     private void refreshDoorSensor(@BleCommandState.DoorCalibrationState int mode, MqttData mqttData) {
         toDisposable(mSetMagneticDisposable);
-        if(TextUtils.isEmpty(mqttData.getFunc())) {
+        if (TextUtils.isEmpty(mqttData.getFunc())) {
             Timber.e("publishSetMagnetic mqttData.getFunc() is empty");
             return;
         }
-        if(mqttData.getFunc().equals(MQttConstant.SET_MAGNETIC)) {
+        if (mqttData.getFunc().equals(MQttConstant.SET_MAGNETIC)) {
             dismissLoading();
             Timber.d("publishSetMagnetic 设置门磁: %1s", mqttData);
             WifiLockSetMagneticResponseBean bean;
@@ -330,22 +352,22 @@ public class DoorSensorCheckActivity extends BaseActivity {
                 Timber.e(e);
                 return;
             }
-            if(bean == null) {
+            if (bean == null) {
                 Timber.e("publishSetMagnetic bean == null");
                 return;
             }
-            if(bean.getMsgId() == mLastMsgId) {
+            if (bean.getMsgId() == mLastMsgId) {
                 Timber.e("publishSetMagnetic 过滤重复数据ID， msgId: %1d, lastMsgId: %2d", bean.getMsgId(), mLastMsgId);
                 return;
             }
             mLastMsgId = bean.getMsgId();
-            if(bean.getParams() == null) {
+            if (bean.getParams() == null) {
                 Timber.e("publishSetMagnetic bean.getParams() == null");
                 return;
             }
-            if(bean.getCode() != 200) {
+            if (bean.getCode() != 200) {
                 Timber.e("publishSetMagnetic code : %1d", bean.getCode());
-                if(bean.getCode() == 201) {
+                if (bean.getCode() == 201) {
                     // 门磁校验失败
                     gotoFailAct();
                 }
@@ -353,14 +375,14 @@ public class DoorSensorCheckActivity extends BaseActivity {
             }
             saveDoorSensorStateToLocal(mode);
             // 排除掉第一次发送禁用门磁指令的状态反馈
-            if(bean.getParams().getMode() == BleCommandState.DOOR_CALIBRATION_STATE_CLOSE_SE) {
+            if (bean.getParams().getMode() == BleCommandState.DOOR_CALIBRATION_STATE_CLOSE_SE) {
                 return;
             }
-            if(bean.getParams().getMode() == BleCommandState.DOOR_CALIBRATION_STATE_HALF) {
+            if (bean.getParams().getMode() == BleCommandState.DOOR_CALIBRATION_STATE_HALF) {
                 publishSetMagnetic(mBleDeviceLocal.getEsn(), BleCommandState.DOOR_CALIBRATION_STATE_START_SE);
                 return;
             }
-            if(bean.getParams().getMode() == BleCommandState.DOOR_CALIBRATION_STATE_START_SE) {
+            if (bean.getParams().getMode() == BleCommandState.DOOR_CALIBRATION_STATE_START_SE) {
                 mDoorState = DOOR_SUC;
             }
             refreshCurrentUI();
@@ -372,19 +394,19 @@ public class DoorSensorCheckActivity extends BaseActivity {
 
     private void sendCommand(@BleCommandState.DoorCalibrationState int doorState) {
         BleBean bleBean = App.getInstance().getBleBeanFromMac(mBleDeviceLocal.getMac());
-        if(bleBean == null) {
+        if (bleBean == null) {
             Timber.e("sendCommand bleBean == null");
             return;
         }
-        if(bleBean.getOKBLEDeviceImp() == null) {
+        if (bleBean.getOKBLEDeviceImp() == null) {
             Timber.e("sendCommand bleBean.getOKBLEDeviceImp() == null");
             return;
         }
-        if(bleBean.getPwd1() == null) {
+        if (bleBean.getPwd1() == null) {
             Timber.e("sendCommand bleBean.getPwd1() == null");
             return;
         }
-        if(bleBean.getPwd3() == null) {
+        if (bleBean.getPwd3() == null) {
             Timber.e("sendCommand bleBean.getPwd3() == null");
             return;
         }
@@ -394,85 +416,19 @@ public class DoorSensorCheckActivity extends BaseActivity {
                         .doorCalibration(doorState, bleBean.getPwd1(), bleBean.getPwd3()), bleBean.getOKBLEDeviceImp());
     }
 
-    private final BleResultProcess.OnReceivedProcess mOnReceivedProcess = bleResultBean -> {
-        if(bleResultBean == null) {
-            Timber.e("mOnReceivedProcess bleResultBean == null");
-            return;
-        }
-        changedDoor(bleResultBean);
-    };
-
-    private final OnBleDeviceListener mOnBleDeviceListener = new OnBleDeviceListener() {
-        @Override
-        public void onConnected(@NotNull String mac) {
-
-        }
-
-        @Override
-        public void onDisconnected(@NotNull String mac) {
-
-        }
-
-        @Override
-        public void onReceivedValue(@NotNull String mac, String uuid, byte[] value) {
-            if(value == null) {
-                Timber.e("initBleListener value == null");
-                return;
-            }
-            if(!mac.equals(mBleDeviceLocal.getMac())) {
-                Timber.e("initBleListener 传输过来的蓝牙mac地址与当前的不匹配，mac: %1s, local mac: %2s",
-                        mac, mBleDeviceLocal.getMac());
-                return;
-            }
-            BleBean bleBean = App.getInstance().getBleBeanFromMac(mac);
-            if(bleBean == null) {
-                Timber.e("initBleListener bleBean == null");
-                return;
-            }
-            if(bleBean.getOKBLEDeviceImp() == null) {
-                Timber.e("initBleListener bleBean.getOKBLEDeviceImp() == null");
-                return;
-            }
-            if(bleBean.getPwd1() == null) {
-                Timber.e("initBleListener bleBean.getPwd1() == null");
-                return;
-            }
-            if(bleBean.getPwd3() == null) {
-                Timber.e("initBleListener bleBean.getPwd3() == null");
-                return;
-            }
-            BleResultProcess.setOnReceivedProcess(mOnReceivedProcess);
-            BleResultProcess.processReceivedData(value,
-                    bleBean.getPwd1(),
-                    bleBean.getPwd3(),
-                    bleBean.getOKBLEDeviceImp().getBleScanResult());
-        }
-
-        @Override
-        public void onWriteValue(@NotNull String mac, String uuid, byte[] value, boolean success) {
-
-        }
-
-        @Override
-        public void onAuthSuc(@NotNull String mac) {
-
-        }
-
-    };
-    
     private void changedDoor(BleResultBean bleResultBean) {
-        if(bleResultBean.getCMD() == CMD_DOOR_SENSOR_CALIBRATION) {
-            if(bleResultBean.getPayload()[0] == 0x00) {
+        if (bleResultBean.getCMD() == CMD_DOOR_SENSOR_CALIBRATION) {
+            if (bleResultBean.getPayload()[0] == 0x00) {
                 saveDoorSensorStateToLocal(mCalibrationState);
                 // 排除掉第一次发送禁用门磁指令的状态反馈
-                if(mCalibrationState == BleCommandState.DOOR_CALIBRATION_STATE_CLOSE_SE) {
+                if (mCalibrationState == BleCommandState.DOOR_CALIBRATION_STATE_CLOSE_SE) {
                     return;
                 }
-                if(mCalibrationState == BleCommandState.DOOR_CALIBRATION_STATE_HALF) {
+                if (mCalibrationState == BleCommandState.DOOR_CALIBRATION_STATE_HALF) {
                     sendCommand(BleCommandState.DOOR_CALIBRATION_STATE_START_SE);
                     return;
                 }
-                if(mCalibrationState == BleCommandState.DOOR_CALIBRATION_STATE_START_SE) {
+                if (mCalibrationState == BleCommandState.DOOR_CALIBRATION_STATE_START_SE) {
                     mDoorState = DOOR_SUC;
                 }
                 refreshCurrentUI();
@@ -483,10 +439,10 @@ public class DoorSensorCheckActivity extends BaseActivity {
     }
 
     private void saveDoorSensorStateToLocal(@BleCommandState.DoorCalibrationState int state) {
-        if(state == BleCommandState.DOOR_CALIBRATION_STATE_CLOSE_SE) {
+        if (state == BleCommandState.DOOR_CALIBRATION_STATE_CLOSE_SE) {
             mBleDeviceLocal.setOpenDoorSensor(false);
             AppDatabase.getInstance(this).bleDeviceDao().update(mBleDeviceLocal);
-        } else if(state == BleCommandState.DOOR_CALIBRATION_STATE_START_SE) {
+        } else if (state == BleCommandState.DOOR_CALIBRATION_STATE_START_SE) {
             mBleDeviceLocal.setOpenDoorSensor(true);
             AppDatabase.getInstance(this).bleDeviceDao().update(mBleDeviceLocal);
         }

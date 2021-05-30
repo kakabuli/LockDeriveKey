@@ -37,6 +37,9 @@ import com.revolo.lock.ble.OnBleDeviceListener;
 import com.revolo.lock.ble.bean.BleBean;
 import com.revolo.lock.ble.bean.BleResultBean;
 import com.revolo.lock.dialog.UnbindLockDialog;
+import com.revolo.lock.manager.LockMessage;
+import com.revolo.lock.manager.LockMessageCode;
+import com.revolo.lock.manager.LockMessageRes;
 import com.revolo.lock.mqtt.MqttCommandFactory;
 import com.revolo.lock.mqtt.MQttConstant;
 import com.revolo.lock.mqtt.bean.MqttData;
@@ -48,6 +51,9 @@ import com.revolo.lock.room.AppDatabase;
 import com.revolo.lock.room.entity.BleDeviceLocal;
 import com.revolo.lock.ui.device.lock.DeviceDetailActivity;
 
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.concurrent.TimeUnit;
@@ -59,6 +65,8 @@ import timber.log.Timber;
 
 import static com.revolo.lock.Constant.DEFAULT_TIMEOUT_SEC_VALUE;
 import static com.revolo.lock.ble.BleProtocolState.CMD_LOCK_PARAMETER_CHANGED;
+import static com.revolo.lock.manager.LockMessageCode.MSG_LOCK_MESSAGE_REMOVE_DEVICE;
+import static com.revolo.lock.manager.LockMessageCode.MSG_LOCK_MESSAGE_USER;
 
 /**
  * author : Jack
@@ -96,7 +104,7 @@ public class DeviceSettingActivity extends BaseActivity {
 
     @Override
     public void initView(@Nullable Bundle savedInstanceState, @Nullable View contentView) {
-        useCommonTitleBar(getString(R.string.title_setting));
+       useCommonTitleBar(getString(R.string.title_setting));
         mTvName = findViewById(R.id.tvName);
         mTvWifiName = findViewById(R.id.tvWifiName);
         mIvMuteEnable = findViewById(R.id.ivMuteEnable);
@@ -108,18 +116,26 @@ public class DeviceSettingActivity extends BaseActivity {
                 mIvDoNotDisturbModeEnable, findViewById(R.id.ivLockName));
         mIvDoNotDisturbModeEnable.setImageResource(mBleDeviceLocal.isDoNotDisturbMode() ? R.drawable.ic_icon_switch_open : R.drawable.ic_icon_switch_close);
         mIvMuteEnable.setImageResource(mBleDeviceLocal.isMute() ? R.drawable.ic_icon_switch_open : R.drawable.ic_icon_switch_close);
+        onRegisterEventBus();
+    }
+    @Subscribe(threadMode = ThreadMode.MAIN, sticky = true)
+    public void getEventBus(LockMessageRes lockMessage) {
+        if (lockMessage == null) {
+            return;
+        }
+        if (lockMessage.getMessgaeType() == LockMessageCode.MSG_LOCK_MESSAGE_BLE) {
+            //蓝牙消息
+            if (null != lockMessage.getBleResultBea()) {
+                processBleResult(lockMessage.getBleResultBea());
+            }
+        } else {
+            //MQTT
+        }
     }
 
     @Override
     public void doBusiness() {
         initData();
-        if (mBleDeviceLocal.getConnectedType() != LocalState.DEVICE_CONNECT_TYPE_WIFI) {
-            BleBean bleBean = App.getInstance().getBleBeanFromMac(mBleDeviceLocal.getMac());
-            if (bleBean != null) {
-                bleBean.setOnBleDeviceListener(mOnBleDeviceListener);
-                // TODO: 2021/2/8 查询一下当前设置
-            }
-        }
     }
 
     @Override
@@ -292,6 +308,13 @@ public class DeviceSettingActivity extends BaseActivity {
                         && bleBean.getOKBLEDeviceImp().isConnected()) {
                     App.getInstance().removeConnectedBleBeanAndDisconnect(bleBean);
                 }
+                //清理service中的缓存数据
+                LockMessage message=new LockMessage();
+                message.setMessageType(MSG_LOCK_MESSAGE_USER);
+                message.setMessageCode(MSG_LOCK_MESSAGE_REMOVE_DEVICE);
+                message.setMac(mBleDeviceLocal.getMac().toUpperCase());
+                EventBus.getDefault().post(message);
+
                 App.getInstance().removeBleDeviceLocalFromMac(mBleDeviceLocal.getEsn());
                 AppDatabase.getInstance(getApplicationContext()).bleDeviceDao().delete(mBleDeviceLocal);
                 ToastUtils.showShort(R.string.t_unbind_success);
@@ -313,14 +336,6 @@ public class DeviceSettingActivity extends BaseActivity {
             }
         });
     }
-
-    private final BleResultProcess.OnReceivedProcess mOnReceivedProcess = bleResultBean -> {
-        if (bleResultBean == null) {
-            Timber.e("mOnReceivedProcess bleResultBean == null");
-            return;
-        }
-        processBleResult(bleResultBean);
-    };
 
     private void processBleResult(BleResultBean bean) {
         // TODO: 2021/2/7 需要初始化设置和设置各种参数的回调
@@ -368,60 +383,6 @@ public class DeviceSettingActivity extends BaseActivity {
         Timber.d("CMD: %1d, eventType: %2d, eventSource: %3d, eventCode: %4d, userID: %5d, time: %6d",
                 bean.getCMD(), eventType, eventSource, eventCode, userID, realTime);
     }
-
-    private final OnBleDeviceListener mOnBleDeviceListener = new OnBleDeviceListener() {
-        @Override
-        public void onConnected(@NotNull String mac) {
-
-        }
-
-        @Override
-        public void onDisconnected(@NotNull String mac) {
-
-        }
-
-        @Override
-        public void onReceivedValue(@NotNull String mac, String uuid, byte[] value) {
-            if (value == null) {
-                Timber.e("initBleListener value == null");
-                return;
-            }
-            if (!mac.equals(mBleDeviceLocal.getMac())) {
-                Timber.e("initBleListener mac: %1s, local mac: %2s", mac, mBleDeviceLocal.getMac());
-                return;
-            }
-            BleBean bleBean = App.getInstance().getBleBeanFromMac(mBleDeviceLocal.getMac());
-            if (bleBean == null) {
-                Timber.e("initBleListener bleBean == null");
-                return;
-            }
-            if (bleBean.getOKBLEDeviceImp() == null) {
-                Timber.e("initBleListener bleBean.getOKBLEDeviceImp() == null");
-                return;
-            }
-            if (bleBean.getPwd1() == null) {
-                Timber.e("initBleListener bleBean.getPwd1() == null");
-                return;
-            }
-            if (bleBean.getPwd3() == null) {
-                Timber.e("initBleListener bleBean.getPwd3() == null");
-                return;
-            }
-            BleResultProcess.setOnReceivedProcess(mOnReceivedProcess);
-            BleResultProcess.processReceivedData(value, bleBean.getPwd1(), bleBean.getPwd3(), bleBean.getOKBLEDeviceImp().getBleScanResult());
-        }
-
-        @Override
-        public void onWriteValue(@NotNull String mac, String uuid, byte[] value, boolean success) {
-
-        }
-
-        @Override
-        public void onAuthSuc(@NotNull String mac) {
-
-        }
-    };
-
     private Disposable mSetVolumeDisposable;
 
     /**

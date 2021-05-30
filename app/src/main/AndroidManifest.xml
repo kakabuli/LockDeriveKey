@@ -324,8 +324,8 @@
             android:name=".ui.mine.HelpActivity"
             android:screenOrientation="portrait" />
 
-        <service android:name=".mqtt.MqttService" />
-<!--        <service android:name=".manager.LockAppService" />-->
+     <!--   <service android:name=".mqtt.MqttService" />-->
+        <service android:name=".manager.LockAppService"/>
 
         <receiver android:name=".reveiver.WifiStateReceiver">
             <intent-filter>

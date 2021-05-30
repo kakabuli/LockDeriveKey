@@ -1,15 +1,11 @@
 package com.revolo.lock.manager;
 
 import android.app.Service;
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.os.Binder;
 import android.os.Handler;
 import android.os.IBinder;
+import android.os.Looper;
 import android.os.Message;
 
 import androidx.annotation.NonNull;
@@ -40,10 +36,14 @@ import com.revolo.lock.room.entity.BleDeviceLocal;
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.IMqttToken;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -54,8 +54,8 @@ import java.util.concurrent.locks.ReentrantLock;
 import timber.log.Timber;
 
 import static com.revolo.lock.Constant.DEFAULT_TIMEOUT_SEC_VALUE;
-import static com.revolo.lock.LocalState.DEVICE_CONNECT_TYPE_BLE;
-import static com.revolo.lock.LocalState.DEVICE_CONNECT_TYPE_WIFI;
+import static com.revolo.lock.manager.LockMessageCode.MSG_LOCK_MESSAGE_REMOVE_DEVICE;
+import static com.revolo.lock.manager.LockMessageCode.MSG_LOCK_MESSAGE_USER;
 
 /**
  * 1、MQTT 通讯模块管理
@@ -101,6 +101,7 @@ public class LockAppService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
+        onRegisterEventBus();
         //服务创建时，初始化MQTT Ble
         initMode();
         //registerNetReceive();
@@ -128,6 +129,25 @@ public class LockAppService extends Service {
         System.exit(0);
     }
 
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void getEventBus(LockMessage lockMessage) {
+        if (lockMessage == null) {
+            return;
+        }
+        if (lockMessage.getMessageType() == MSG_LOCK_MESSAGE_USER) {
+            switch (lockMessage.getMessageCode()) {
+                case MSG_LOCK_MESSAGE_REMOVE_DEVICE:
+                    //解绑
+                    removeDevice(lockMessage.getSn(), lockMessage.getMac());
+                    break;
+            }
+
+        } else {
+            sendMessage(lockMessage);
+        }
+    }
+
+
     public static final int MSG_MESSAGE_SEND_OUT_TIME = 234;//发送message超时
     private int messageIndex = 0;
 
@@ -146,6 +166,25 @@ public class LockAppService extends Service {
             }
         }
     };
+
+    public void onRegisterEventBus() {
+        boolean registered = EventBus.getDefault().isRegistered(this);
+        if (!registered) {
+            EventBus.getDefault().register(this);
+        }
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN, sticky = true)
+    public void getConnected(LockConnected bleConnected) {
+        if (null != bleConnected) {
+            if (bleConnected.getConnectType() == 0) {
+                connectMQTT();
+            } else {
+                onBleConnect(bleConnected.getmEsn(), bleConnected.getBleScanResult(), bleConnected.getPwd1(), bleConnected.getPwd2());
+            }
+
+        }
+    }
 
 
     //*****************************************************网络监听**********************************************************************
@@ -191,10 +230,11 @@ public class LockAppService extends Service {
 
     /**
      * 获取当前的设备状态
+     *
      * @return
      */
-    public List<BleDeviceLocal> getUserDeviceList(){
-        return mDeviceLists;
+    public List<BleDeviceLocal> getUserDeviceList() {
+        return null != mDeviceLists ? mDeviceLists : new ArrayList<>();
     }
 
     /**
@@ -221,6 +261,7 @@ public class LockAppService extends Service {
             mDeviceLists.add(bleDeviceLocal);
         }
         lock.unlock();
+        EventBus.getDefault().post(200);
     }
 
     /**
@@ -253,13 +294,14 @@ public class LockAppService extends Service {
         lock.lock();
         if (null != mDeviceLists) {
             for (int i = 0; i < mDeviceLists.size(); i++) {
-                if (esn.equals(mDeviceLists.get(i).getEsn()) || mac.equals(mDeviceLists.get(i).getMac())) {
+                if (null != esn && esn.equals(mDeviceLists.get(i).getEsn()) || null != mac && mac.equals(mDeviceLists.get(i).getMac())) {
                     mDeviceLists.remove(i);
                     break;
                 }
             }
         }
         lock.unlock();
+
     }
 
     /**
@@ -374,7 +416,7 @@ public class LockAppService extends Service {
         }
         for (BleDeviceLocal local : mDeviceLists) {
             //判断蓝牙mac和sn码
-            if (esn.equals(local.getEsn()) || mac.equals(local.getMac())) {
+            if (null != esn && esn.equals(local.getEsn()) || null != mac && mac.equals(local.getMac())) {
                 return local;
             }
         }
@@ -403,13 +445,13 @@ public class LockAppService extends Service {
      * @param pwd1
      * @param pwd2
      */
-    public void onBleConnect(BLEScanResult bleScanResult, byte[] pwd1, byte[] pwd2) {
+    public void onBleConnect(String sn, BLEScanResult bleScanResult, byte[] pwd1, byte[] pwd2) {
         //isAppPair 设备列表中有当前连接设备 isAppPair是true,则isAppPair=false  用于配网操作
         String mac = bleScanResult.getBluetoothDevice().getAddress();
         if (null != getDevice("", mac)) {
-            BleManager.getInstance().connectDevice(bleScanResult, pwd1, pwd2, true);
+            BleManager.getInstance().connectDevice(sn, bleScanResult, pwd1, pwd2, true);
         } else {
-            BleManager.getInstance().connectDevice(bleScanResult, pwd1, pwd2, false);
+            BleManager.getInstance().connectDevice(sn, bleScanResult, pwd1, pwd2, false);
         }
 
     }
@@ -435,16 +477,20 @@ public class LockAppService extends Service {
 
     BleResultAnalysis.OnReceivedProcess receivedProcess = new BleResultAnalysis.OnReceivedProcess() {
         @Override
-        public void processResult(String mac,BleResultBean bleResultBean) {
+        public void processResult(String mac, BleResultBean bleResultBean) {
             //蓝牙收到回复，做相应的处理或是上报UI
+            LockMessageRes messageRes = new LockMessageRes(1, mac, bleResultBean);
+            EventBus.getDefault().post(messageRes);
             switch (bleResultBean.getCMD()) {
                 case BleProtocolState.CMD_LOCK_OPEN_RECORD:// 0x04;                // 锁开锁记录查询响应
                     break;
                 case BleProtocolState.CMD_LOCK_UPLOAD:// 0x05;                     // 锁操作上报
                     break;
                 case BleProtocolState.CMD_LOCK_ALARM_UPLOAD:// 0x07;               // 锁报警上报
+
                     break;
                 case BleProtocolState.CMD_ENCRYPT_KEY_UPLOAD:// 0x08;              // 加密密钥上报
+                    processKey(bleResultBean);
                     break;
                 case BleProtocolState.CMD_USER_TYPE:// 0x0A;                       // 用户类型查询
                     break;
@@ -539,6 +585,42 @@ public class LockAppService extends Service {
         }
     };
 
+    /**
+     * 秘钥上报
+     *
+     * @param bleResultBean
+     */
+    private void processKey(BleResultBean bleResultBean) {
+        byte[] data = bleResultBean.getPayload();
+        String mMac = bleResultBean.getScanResult().getMacAddress();
+        BleBean bleBean = BleManager.getInstance().getBleBeanFromMac(mMac);
+        if (bleBean == null) {
+            Timber.e("processKey bleBean == null");
+            return;
+        }
+        if (data[0] == 0x01) {
+            // 入网时
+            // 获取pwd2
+            // bleBean.setPwd2(bleBean.getPwd2_copy());
+            Timber.e("getPwd2AndSendAuthCommand 延时发送鉴权指令, pwd23: %1s\n", ConvertUtils.bytes2HexString(bleBean.getPwd2_copy()));
+            BleManager.getInstance().writeControlMsg(BleCommandFactory
+                    .ackCommand(bleResultBean.getTSN(), (byte) 0x00, bleResultBean.getCMD()), bleBean.getOKBLEDeviceImp());
+            new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                Timber.d("getPwd2AndSendAuthCommand 延时发送鉴权指令, pwd2: %1s\n", ConvertUtils.bytes2HexString(bleBean.getPwd2()));
+                BleManager.getInstance().writeControlMsg(BleCommandFactory
+                        .authCommand(bleBean.getPwd1(), bleBean.getPwd2(), bleBean.getEsn().getBytes(StandardCharsets.UTF_8)), bleBean.getOKBLEDeviceImp());
+            }, 50);
+        } else if (data[0] == 0x02) {
+            // 获取pwd3
+            Timber.d("getPwd2AndSendAuthCommand 延时发送鉴权指令, pwd2222: %1s\n", ConvertUtils.bytes2HexString(bleBean.getPwd2()));
+            BleManager.getInstance().writeControlMsg(BleCommandFactory
+                    .ackCommand(bleResultBean.getTSN(), (byte) 0x00, bleResultBean.getCMD()), bleBean.getOKBLEDeviceImp());
+
+            EventBus.getDefault().post(bleResultBean);
+        }
+    }
+
+
     //蓝牙状态监听
     OnBleDeviceListener onBleDeviceListener = new OnBleDeviceListener() {
         @Override
@@ -561,7 +643,7 @@ public class LockAppService extends Service {
             if (value == null) {
                 return;
             }
-            BleBean bleBean = App.getInstance().getBleBeanFromMac(mac);
+            BleBean bleBean = BleManager.getInstance().getBleBeanFromMac(mac);
             if (bleBean == null) {
                 return;
             }
@@ -572,9 +654,11 @@ public class LockAppService extends Service {
                 return;
             }
             if (bleBean.getPwd2() == null) {
+                BleResultAnalysis.processReceivedData(bleBean.getOKBLEDeviceImp().getMacAddress(), value, bleBean.getPwd1(),
+                        null, bleBean.getOKBLEDeviceImp().getBleScanResult());
                 return;
             }
-
+            Timber.e("getPwd2AndSendAuthCommand 延时发送鉴权指令., pwd2: %1s\n", ConvertUtils.bytes2HexString(bleBean.getPwd2()) + ";;;;;;SN:" + bleBean.getEsn());
             BleResultAnalysis.processReceivedData(
                     bleBean.getOKBLEDeviceImp().getMacAddress(),
                     value,
@@ -650,6 +734,11 @@ public class LockAppService extends Service {
              *mqtt 连接失败
              */
             updateAllDevice();
+            LockMessage lockMessage = new LockMessage();
+            lockMessage.setMqttMessage(MqttCommandFactory.getAllBindDevices(App.getInstance().getUserBean().getUid()));
+            lockMessage.setSn("");
+            lockMessage.setBytes(null);
+            EventBus.getDefault().post(lockMessage);
         }
 
         @Override
@@ -731,21 +820,25 @@ public class LockAppService extends Service {
         String mac = message.getMac();
         //获取当前信息的sn
         String sn = message.getSn();
+        //MQTT 分用户信息命令、设备命令
         BleDeviceLocal bleDeviceLocal = getDevice(sn, mac);
-        if (null == bleDeviceLocal) {
-            //数据发送异常
+        if (("".equals(sn) || null == sn) && null != message.getMqttMessage()) {
+            sendMessage(message, LOCK_MESSAGE_MQTT);
         } else {
-
-
-            if (bleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI_BLE
-                    || bleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI) {//wifi}
-                sendMessage(message, LOCK_MESSAGE_MQTT);
-            } else if (bleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_BLE) {//ble
-                sendMessage(message, LOCK_MESSAGE_BLE);
+            if (null == bleDeviceLocal) {
+                //数据发送异常
             } else {
-                //设备断开  掉线
+                if (bleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI_BLE
+                        || bleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI) {//wifi}
+                    sendMessage(message, LOCK_MESSAGE_MQTT);
+                } else if (bleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_BLE) {//ble
+                    sendMessage(message, LOCK_MESSAGE_BLE);
+                } else {
+                    //设备断开  掉线
+                }
             }
         }
+
     }
 
     /**
@@ -862,17 +955,31 @@ public class LockAppService extends Service {
      */
     private void sendMessageMQTT(LockMessage message) {
         message.addSendFre();
-        MQTTManager.getInstance().mqttPublish(MQttConstant.getCallTopic(App.getInstance().getUserBean().getUid()), message.getMqttMessage()
-        )
-                .filter(mqttData -> mqttData.getFunc().equals(MQttConstant.SET_LOCK))
+       /* MQTTManager.getInstance().mqttPublish(MQttConstant.getCallTopic(App.getInstance().getUserBean().getUid()),
+                message.getMqttMessage())
+                .filter(mqttData -> mqttData.getFunc().equals(MQttConstant.SET_LOCK_ATTR))
                 .timeout(DEFAULT_TIMEOUT_SEC_VALUE, TimeUnit.SECONDS)
                 .subscribe(mqttData -> {
-
+                    toDisposable(mAutoLockTimeDisposable);
+                    processAutoLockTime(mqttData);
                 }, e -> {
-                    if (e instanceof TimeoutException) {
-                    }
+                    // TODO: 2021/3/3 错误处理
+                    // 超时或者其他错误
+                    dismissLoading();
                     Timber.e(e);
-                });
+                });*/
+
+
+        MQTTManager.getInstance().mqttPublish(MQttConstant.PUBLISH_TO_SERVER,
+                MqttCommandFactory.getAllBindDevices(App.getInstance().getUserBean().getUid()))
+                .filter(mqttData -> mqttData.getFunc().equals(MQttConstant.GET_ALL_BIND_DEVICE)
+                        || mqttData.getFunc().equals(MQttConstant.WF_EVENT))
+                .subscribe(mqttData -> {
+
+                }, Timber::e);
+        // baseActivity.mCompositeDisposable.add(mBindDevicesDisposable);
+
+
         mHandler.sendEmptyMessageDelayed(MSG_MESSAGE_SEND_OUT_TIME, 500);
     }
 
