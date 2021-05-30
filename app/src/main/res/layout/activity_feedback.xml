@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
@@ -16,31 +15,42 @@
         android:id="@+id/etFeedback"
         android:layout_width="match_parent"
         android:layout_height="213pt"
+        android:layout_marginStart="15pt"
         android:layout_marginTop="7pt"
         android:layout_marginEnd="15pt"
-        android:layout_marginStart="15pt"
-        android:textColor="@color/c999999"
-        android:inputType="textMultiLine"
-        android:gravity="top"
-        android:paddingTop="8pt"
-        android:paddingBottom="8pt"
-        android:paddingStart="20pt"
-        android:paddingEnd="20pt"
-        android:textSize="16pt"
-        android:maxLength="200"
-        android:hint="@string/please_enter_your_feedback"
         android:background="@drawable/shape_feedback_bg"
+        android:gravity="top"
+        android:hint="@string/please_enter_your_feedback"
+        android:inputType="textMultiLine"
+        android:maxLength="200"
+        android:paddingStart="20pt"
+        android:paddingTop="8pt"
+        android:paddingEnd="20pt"
+        android:paddingBottom="8pt"
+        android:textColor="@color/c999999"
+        android:textSize="16pt"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/titleBar" />
+
+    <TextView
+        android:id="@+id/tvCount"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginRight="16dp"
+        android:layout_marginTop="8dp"
+        android:textColor="@color/picture_color_grey"
+        android:textSize="12sp"
+        app:layout_constraintTop_toBottomOf="@+id/etFeedback"
+        app:layout_constraintRight_toRightOf="@id/etFeedback" />
 
     <android.widget.Button
         android:id="@+id/btnSubmit"
         style="@style/ButtonStyle"
         android:layout_width="223pt"
         android:layout_height="44pt"
-        android:text="@string/submit"
         android:layout_marginBottom="136pt"
+        android:text="@string/submit"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="@+id/titleBar"
         app:layout_constraintStart_toStartOf="parent" />

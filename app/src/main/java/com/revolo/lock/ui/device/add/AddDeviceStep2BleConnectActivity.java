@@ -211,7 +211,7 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
         if (code.equals("202")) {
             // 提示已绑定，并退出
             // TODO: 2021/2/6 修改显示方式
-            ToastUtils.showLong(R.string.t_the_device_is_already_bound);
+            ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_the_device_is_already_bound);
             finishPreAct();
             finish();
             return;

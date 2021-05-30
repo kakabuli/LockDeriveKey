@@ -32,6 +32,7 @@ import com.revolo.lock.ble.BleResultProcess;
 import com.revolo.lock.ble.OnBleDeviceListener;
 import com.revolo.lock.ble.bean.BleBean;
 import com.revolo.lock.ble.bean.BleResultBean;
+import com.revolo.lock.manager.LockAppService;
 import com.revolo.lock.mqtt.MqttCommandFactory;
 import com.revolo.lock.mqtt.MQttConstant;
 import com.revolo.lock.mqtt.MqttService;
@@ -96,6 +97,8 @@ public class App extends Application {
 
     protected MqttService mMQttService;
 
+    private Intent mLockAppService;
+
     @Override
     public void onCreate() {
         super.onCreate();
@@ -104,6 +107,16 @@ public class App extends Application {
             Timber.plant(new Timber.DebugTree());
         }
         initMQttService();
+
+//        mLockAppService = new Intent(this, LockAppService.class);
+//        startService(mLockAppService);
+    }
+
+    @Override
+    public void onTerminate() {
+        super.onTerminate();
+        // 程序终止时执行
+//        stopService(mLockAppService);
     }
 
     // TODO: 2021/3/8 临时存个MainActivity 后期删除
@@ -473,6 +486,19 @@ public class App extends Application {
 
     public void logout(boolean isShowDialog, Activity act) {
         // TODO: 2021/3/30 logout的数据操作
+        User user = App.getInstance().getUser();
+        user.setUseFaceId(false);
+        user.setUseTouchId(false);
+        user.setUseGesturePassword(false);
+        user.setGestureCode("");
+        AppDatabase.getInstance(getApplicationContext()).userDao().update(user);
+        AppDatabase.getInstance(getApplicationContext()).userDao().delete(user);
+        App.getInstance().getUserBean().setToken(""); // 清空token
+        SPUtils.getInstance(REVOLO_SP).put(Constant.USER_LOGIN_INFO, ""); // 清空登录信息
+        // TODO: 2021/3/30 退出操作
+        if (App.getInstance().getMainActivity() != null) {
+            App.getInstance().getMainActivity().finish();
+        }
         act.startActivity(new Intent(act, LoginActivity.class));
         act.finish();
     }

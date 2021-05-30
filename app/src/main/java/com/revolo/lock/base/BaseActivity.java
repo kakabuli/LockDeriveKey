@@ -30,6 +30,7 @@ import com.revolo.lock.shulan.config.ForegroundNotificationClickListener;
 import com.revolo.lock.shulan.config.RunMode;
 import com.revolo.lock.ui.TitleBar;
 
+import org.greenrobot.eventbus.EventBus;
 import org.jetbrains.annotations.NotNull;
 
 import io.reactivex.disposables.CompositeDisposable;

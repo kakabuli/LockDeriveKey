@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.text.TextUtils;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -163,6 +164,8 @@ public class DeviceSettingActivity extends BaseActivity {
             if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI) {
                 Intent intent = new Intent(this, GeoFenceUnlockActivity.class);
                 startActivity(intent);
+            } else {
+                ToastUtils.make().setGravity(Gravity.CENTER,0,0).show("Please set to WiFi connection mode");
             }
             return;
         }
@@ -233,7 +236,7 @@ public class DeviceSettingActivity extends BaseActivity {
         // 0x01：Low Volume低音量
         // 0x02：High Volume高音量
         byte[] value = new byte[1];
-        value[0] = (byte) (mBleDeviceLocal.isMute()?LocalState.VOLUME_STATE_OPEN:LocalState.VOLUME_STATE_MUTE);
+        value[0] = (byte) (mBleDeviceLocal.isMute() ? LocalState.VOLUME_STATE_OPEN : LocalState.VOLUME_STATE_MUTE);
         App.getInstance().writeControlMsg(BleCommandFactory.lockParameterModificationCommand((byte) 0x02,
                 (byte) 0x01, value, bleBean.getPwd1(), bleBean.getPwd3()), bleBean.getOKBLEDeviceImp());
     }
@@ -258,7 +261,7 @@ public class DeviceSettingActivity extends BaseActivity {
         ObservableDecorator.decorate(observable).safeSubscribe(new Observer<DeviceUnbindBeanRsp>() {
             @Override
             public void onSubscribe(@NonNull Disposable d) {
-                
+
             }
 
             @Override
@@ -337,7 +340,7 @@ public class DeviceSettingActivity extends BaseActivity {
     }
 
     private void refreshMuteEnable() {
-        runOnUiThread(() -> mIvMuteEnable.setImageResource(mBleDeviceLocal.isMute()?R.drawable.ic_icon_switch_open:R.drawable.ic_icon_switch_close));
+        runOnUiThread(() -> mIvMuteEnable.setImageResource(mBleDeviceLocal.isMute() ? R.drawable.ic_icon_switch_open : R.drawable.ic_icon_switch_close));
     }
 
     private void saveMuteStateToLocal(@LocalState.VolumeState int mute) {
@@ -489,17 +492,17 @@ public class DeviceSettingActivity extends BaseActivity {
      * 更新锁服务器存储的数据
      */
     private void updateLockInfoToService() {
-        if(App.getInstance().getUserBean() == null) {
+        if (App.getInstance().getUserBean() == null) {
             Timber.e("updateLockInfoToService App.getInstance().getUserBean() == null");
             return;
         }
         String uid = App.getInstance().getUserBean().getUid();
-        if(TextUtils.isEmpty(uid)) {
+        if (TextUtils.isEmpty(uid)) {
             Timber.e("updateLockInfoToService uid is empty");
             return;
         }
         String token = App.getInstance().getUserBean().getToken();
-        if(TextUtils.isEmpty(token)) {
+        if (TextUtils.isEmpty(token)) {
             Timber.e("updateLockInfoToService token is empty");
             return;
         }
@@ -510,11 +513,11 @@ public class DeviceSettingActivity extends BaseActivity {
         req.setWifiName(mBleDeviceLocal.getConnectedWifiName());
         req.setSafeMode(0);   // 没有使用这个
         req.setLanguage("en"); // 暂时也没使用这个
-        req.setVolume(mBleDeviceLocal.isMute()?0:1);
-        req.setAmMode(mBleDeviceLocal.isAutoLock()?0:1);
-        req.setDuress(mBleDeviceLocal.isDuress()?0:1);
+        req.setVolume(mBleDeviceLocal.isMute() ? 0 : 1);
+        req.setAmMode(mBleDeviceLocal.isAutoLock() ? 0 : 1);
+        req.setDuress(mBleDeviceLocal.isDuress() ? 0 : 1);
         req.setDoorSensor(mBleDeviceLocal.getDoorSensor());
-        req.setElecFence(mBleDeviceLocal.isOpenElectricFence()?0:1);
+        req.setElecFence(mBleDeviceLocal.isOpenElectricFence() ? 0 : 1);
         req.setAutoLockTime(mBleDeviceLocal.getSetAutoLockTime());
         req.setElecFenceTime(mBleDeviceLocal.getSetElectricFenceTime());
         req.setElecFenceSensitivity(mBleDeviceLocal.getSetElectricFenceSensitivity());
@@ -530,10 +533,10 @@ public class DeviceSettingActivity extends BaseActivity {
             public void onNext(@NotNull UpdateLockInfoRsp updateLockInfoRsp) {
                 dismissLoading();
                 String code = updateLockInfoRsp.getCode();
-                if(!code.equals("200")) {
+                if (!code.equals("200")) {
                     String msg = updateLockInfoRsp.getMsg();
                     Timber.e("updateLockInfoToService code: %1s, msg: %2s", code, msg);
-                    if(!TextUtils.isEmpty(msg)) ToastUtils.showShort(msg);
+                    if (!TextUtils.isEmpty(msg)) ToastUtils.showShort(msg);
                 }
             }
 
