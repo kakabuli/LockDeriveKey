@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -16,11 +17,37 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/titleBar">
+        app:layout_constraintTop_toBottomOf="@id/titleBar"
+        app:layout_constraintVertical_bias="0.0"
+        tools:layout_editor_absoluteX="-28dp">
 
         <com.revolo.lock.widget.SlideRecyclerView
             android:id="@+id/rvMessage"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
+
     </com.scwang.smart.refresh.layout.SmartRefreshLayout>
+
+    <ImageView
+        android:id="@+id/ivNoMessage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="40pt"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/titleBar"
+        app:srcCompat="@drawable/mine_message_nothing" />
+
+    <TextView
+        android:id="@+id/tvNoMessage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="34pt"
+        android:text="@string/no_message_yet"
+        android:textSize="15pt"
+        android:textColor="@color/c666666"
+        app:layout_constraintEnd_toEndOf="@+id/ivNoMessage"
+        app:layout_constraintStart_toStartOf="@+id/ivNoMessage"
+        app:layout_constraintTop_toBottomOf="@+id/ivNoMessage" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

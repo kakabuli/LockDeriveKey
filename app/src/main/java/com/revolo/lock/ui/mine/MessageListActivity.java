@@ -4,6 +4,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -40,6 +42,9 @@ public class MessageListActivity extends BaseActivity {
 
     private int page = 1;
 
+    private ImageView mIvNoMessage;
+    private TextView mTvNoMessage;
+
     @Override
     public void initData(@Nullable Bundle bundle) {
 
@@ -55,6 +60,8 @@ public class MessageListActivity extends BaseActivity {
         useCommonTitleBar(getString(R.string.title_message));
 
         mSmartRefreshLayout = findViewById(R.id.smartRefresh);
+        mIvNoMessage = findViewById(R.id.ivNoMessage);
+        mTvNoMessage = findViewById(R.id.tvNoMessage);
         SlideRecyclerView rvMessage = findViewById(R.id.rvMessage);
         rvMessage.setLayoutManager(new LinearLayoutManager(this));
         mMessageListAdapter = new MessageListAdapter(R.layout.item_message_rv);

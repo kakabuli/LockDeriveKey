@@ -14,7 +14,6 @@ import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -93,9 +92,7 @@ public class DeviceFragment extends Fragment {
 
             // 有设备的时候控件UI
             if (getContext() != null) {
-                new TitleBar(root).setTitle(getString(R.string.title_my_devices))
-                        .setRight(ContextCompat.getDrawable(getContext(), R.drawable.ic_home_icon_add),
-                                v -> startActivity(new Intent(getContext(), AddDeviceActivity.class)));
+                initTitleBar();
                 RecyclerView rvLockList = root.findViewById(R.id.rvLockList);
                 rvLockList.setLayoutManager(new LinearLayoutManager(getContext()));
                 mHomeLockListAdapter = new HomeLockListAdapter(R.layout.item_home_lock_list_rv);
@@ -142,6 +139,12 @@ public class DeviceFragment extends Fragment {
             });
         }
         return root;
+    }
+
+    private void initTitleBar() {
+        new TitleBar(root).setTitle(getString(R.string.title_my_devices))
+                .setRight(R.drawable.ic_home_icon_add,
+                        v -> startActivity(new Intent(getContext(), AddDeviceActivity.class)));
     }
 
     @Override
@@ -553,6 +556,7 @@ public class DeviceFragment extends Fragment {
     }
 
     private void initData(List<BleDeviceLocal> bleDeviceLocals) {
+        initTitleBar();
         if (bleDeviceLocals == null) {
             Timber.e("initData bleDeviceLocals == null");
             return;
