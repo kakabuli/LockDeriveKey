@@ -2,21 +2,30 @@ package com.revolo.lock.ui.mine;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
+import com.revolo.lock.App;
 import com.revolo.lock.Constant;
 import com.revolo.lock.R;
 import com.revolo.lock.adapter.MessageListAdapter;
 import com.revolo.lock.base.BaseActivity;
+import com.revolo.lock.bean.request.SystemMessageListReq;
+import com.revolo.lock.bean.respone.SystemMessageListBeanRsp;
 import com.revolo.lock.bean.test.TestMessageBean;
+import com.revolo.lock.net.HttpRequest;
 import com.revolo.lock.widget.SlideRecyclerView;
+import com.scwang.smart.refresh.layout.SmartRefreshLayout;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import io.reactivex.Observable;
+import timber.log.Timber;
 
 /**
  * author : Jack
@@ -27,6 +36,9 @@ import java.util.List;
 public class MessageListActivity extends BaseActivity {
 
     private MessageListAdapter mMessageListAdapter;
+    private SmartRefreshLayout mSmartRefreshLayout;
+
+    private int page = 1;
 
     @Override
     public void initData(@Nullable Bundle bundle) {
@@ -42,6 +54,7 @@ public class MessageListActivity extends BaseActivity {
     public void initView(@Nullable Bundle savedInstanceState, @Nullable View contentView) {
         useCommonTitleBar(getString(R.string.title_message));
 
+        mSmartRefreshLayout = findViewById(R.id.smartRefresh);
         SlideRecyclerView rvMessage = findViewById(R.id.rvMessage);
         rvMessage.setLayoutManager(new LinearLayoutManager(this));
         mMessageListAdapter = new MessageListAdapter(R.layout.item_message_rv);
@@ -62,6 +75,8 @@ public class MessageListActivity extends BaseActivity {
     @Override
     public void doBusiness() {
         // initTestData();
+
+        getSystemMessageList();
     }
 
     @Override
@@ -80,5 +95,17 @@ public class MessageListActivity extends BaseActivity {
             beanList.add(bean3);
             mMessageListAdapter.setList(beanList);
         }
+    }
+
+    private void getSystemMessageList() {
+
+        String token = App.getInstance().getUserBean().getToken();
+        if (TextUtils.isEmpty(token)) {
+            Timber.e("updateLockInfoToService token is empty");
+            return;
+        }
+
+        SystemMessageListReq messageListReq = new SystemMessageListReq();
+        Observable<SystemMessageListBeanRsp> observable = HttpRequest.getInstance().systemMessageList("", messageListReq);
     }
 }

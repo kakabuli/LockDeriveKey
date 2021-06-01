@@ -747,5 +747,4 @@ public class DeviceDetailActivity extends BaseActivity {
             }
         }
     };
-
 }

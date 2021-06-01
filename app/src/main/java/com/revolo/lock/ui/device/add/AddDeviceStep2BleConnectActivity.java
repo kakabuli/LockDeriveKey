@@ -2,6 +2,7 @@ package com.revolo.lock.ui.device.add;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.os.Handler;
 import android.os.Looper;
 import android.text.TextUtils;
@@ -69,6 +70,7 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
     private int mPreA = mDefault;
     private String mEsn;
     private String mMac;
+    private boolean isRestartConnectingBle = true;
 
     @Override
     public void initData(@Nullable Bundle bundle) {
@@ -117,12 +119,28 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
 
     @Override
     public void doBusiness() {
+        mCountDownTimer.start();
         if (mPreA == mQRPre || mPreA == mESNPre) {
             checkDeviceIsBind();
         } else {
             gotoBleConnectFail();
         }
     }
+
+    private final CountDownTimer mCountDownTimer = new CountDownTimer(60000, 1000) {
+        @Override
+        public void onTick(long millisUntilFinished) {
+            if (!isRestartConnectingBle) {
+                mCountDownTimer.cancel();
+            }
+        }
+
+        @Override
+        public void onFinish() {
+            isRestartConnectingBle = false;
+            gotoBleConnectFail();
+        }
+    };
 
     @Override
     public void onDebouncingClick(@NonNull View view) {
@@ -150,6 +168,9 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
         BleBean bleBean = App.getInstance().getBleBeanFromMac(mMac);
         if (bleBean != null) {
             bleBean.setAppPair(false);
+        }
+        if (mCountDownTimer != null) {
+            mCountDownTimer.cancel();
         }
         super.onDestroy();
     }
@@ -345,6 +366,7 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
                 // 鉴权成功后，同步当前时间
                 syNowTime(bleBean);
                 addDeviceToService(bleResultBean);
+                isRestartConnectingBle = false;
             }
         }
     }
@@ -565,6 +587,7 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
             @Override
             public void onFailed(int code) {
                 bleScanFailed(code);
+                gotoBleConnectFail();
             }
 
             @Override
@@ -596,9 +619,9 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
         String preA = preIntent.getStringExtra(Constant.PRE_A);
         intent.putExtra(Constant.PRE_A, preA);
         if (preA.equals(Constant.INPUT_ESN_A)) {
-            preIntent.putExtra(Constant.ESN, intent.getStringExtra(Constant.ESN));
+            intent.putExtra(Constant.ESN, preIntent.getStringExtra(Constant.ESN));
         } else if (preA.equals(Constant.QR_CODE_A)) {
-            preIntent.putExtra(Constant.QR_RESULT, intent.getStringExtra(Constant.QR_RESULT));
+            intent.putExtra(Constant.QR_RESULT, preIntent.getStringExtra(Constant.QR_RESULT));
         }
         BleBean bleBean = App.getInstance().getBleBeanFromMac(mMac);
         App.getInstance().removeConnectedBleBeanAndDisconnect(bleBean);
