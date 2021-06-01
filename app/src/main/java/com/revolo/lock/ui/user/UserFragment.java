@@ -10,7 +10,6 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 
 import androidx.annotation.NonNull;
-import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -53,7 +52,7 @@ public class UserFragment extends Fragment {
         View root = inflater.inflate(R.layout.fragment_user, container, false);
         if(getContext() != null) {
             new TitleBar(root).setTitle(getString(R.string.title_user))
-                    .setRight(ContextCompat.getDrawable(getContext(), R.drawable.ic_home_icon_add), v -> {
+                    .setRight(R.drawable.ic_home_icon_add, v -> {
                         Intent intent = new Intent(getContext(), AddDeviceForSharedUserActivity.class);
                         startActivity(intent);
                     });

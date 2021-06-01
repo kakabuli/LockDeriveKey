@@ -9,14 +9,11 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.blankj.utilcode.util.StringUtils;
 import com.blankj.utilcode.util.ToastUtils;
-import com.chad.library.adapter.base.BaseQuickAdapter;
-import com.chad.library.adapter.base.listener.OnItemClickListener;
 import com.revolo.lock.App;
 import com.revolo.lock.Constant;
 import com.revolo.lock.R;
@@ -68,33 +65,27 @@ public class AuthUserDetailActivity extends BaseActivity {
     @Override
     public void initView(@Nullable Bundle savedInstanceState, @Nullable View contentView) {
         useCommonTitleBar(getString(R.string.title_authorization_users))
-                .setRight(ContextCompat.getDrawable(this, R.drawable.ic_home_icon_add), new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(AuthUserDetailActivity.this, AddDeviceForSharedUserActivity.class);
-                startActivity(intent);
-            }
-        });
+                .setRight(R.drawable.ic_home_icon_add, v -> {
+                    Intent intent = new Intent(AuthUserDetailActivity.this, AddDeviceForSharedUserActivity.class);
+                    startActivity(intent);
+                });
         RecyclerView rvLockList = findViewById(R.id.rvLockList);
         mTvDeviceNum = findViewById(R.id.tvDeviceNum);
         mTvUserName = findViewById(R.id.tvUserName);
         mTvAccount = findViewById(R.id.tvAccount);
         mDevicesAdapter = new AuthUserDetailDevicesAdapter(R.layout.item_user_devices_rv);
-        mDevicesAdapter.setOnItemClickListener(new OnItemClickListener() {
-            @Override
-            public void onItemClick(@NonNull BaseQuickAdapter<?, ?> adapter, @NonNull View view, int position) {
-                if(position >= 0 && adapter.getItem(position) != null) {
-                    TestAuthUserBean.TestDeviceBean bean = (TestAuthUserBean.TestDeviceBean) adapter.getItem(position);
-                    if(bean.getState() == 1 || bean.getState() == 2) {
-                        // TODO: 2021/1/15 弹出分享链接重新邀请
-                    } else {
-                        Intent intent = new Intent(AuthUserDetailActivity.this, SharedUserDetailActivity.class);
-                        intent.putExtra(Constant.PRE_A, Constant.AUTH_USER_DETAIL_A);
-                        startActivity(intent);
-                    }
+        mDevicesAdapter.setOnItemClickListener((adapter, view, position) -> {
+            if(position >= 0 && adapter.getItem(position) != null) {
+                TestAuthUserBean.TestDeviceBean bean = (TestAuthUserBean.TestDeviceBean) adapter.getItem(position);
+                if(bean.getState() == 1 || bean.getState() == 2) {
+                    // TODO: 2021/1/15 弹出分享链接重新邀请
+                } else {
+                    Intent intent = new Intent(AuthUserDetailActivity.this, SharedUserDetailActivity.class);
+                    intent.putExtra(Constant.PRE_A, Constant.AUTH_USER_DETAIL_A);
+                    startActivity(intent);
                 }
-                
             }
+
         });
         rvLockList.setLayoutManager(new LinearLayoutManager(this));
         rvLockList.setAdapter(mDevicesAdapter);

@@ -5,6 +5,8 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.annotation.DrawableRes;
+
 import com.revolo.lock.R;
 
 /**
@@ -57,6 +59,15 @@ public class TitleBar {
         if(mIvRight!= null) {
             mIvRight.setVisibility(View.VISIBLE);
             mIvRight.setImageDrawable(drawable);
+            mIvRight.setOnClickListener(onClickListener);
+        }
+        return this;
+    }
+
+    public TitleBar setRight(@DrawableRes int drawableId, View.OnClickListener onClickListener) {
+        if(mIvRight!= null) {
+            mIvRight.setVisibility(View.VISIBLE);
+            mIvRight.setImageResource(drawableId);
             mIvRight.setOnClickListener(onClickListener);
         }
         return this;

@@ -9,7 +9,6 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -61,7 +60,7 @@ public class UserManagementActivity extends BaseActivity {
     @Override
     public void initView(@Nullable Bundle savedInstanceState, @Nullable View contentView) {
         useCommonTitleBar(getString(R.string.title_user_management))
-                .setRight(ContextCompat.getDrawable(this, R.drawable.ic_home_icon_add),
+                .setRight(R.drawable.ic_home_icon_add,
                         v -> {
                             Intent intent = new Intent(this, AddNewShareUserInputNameActivity.class);
                             intent.putExtra(Constant.LOCK_ESN, mBleDeviceLocal.getEsn());

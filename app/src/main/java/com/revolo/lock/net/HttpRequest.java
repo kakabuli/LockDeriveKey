@@ -142,6 +142,7 @@ public class HttpRequest {
 
     public static HttpRequest getInstance() {
         if (ourInstance == null) {
+
             synchronized (HttpRequest.class) {
                 if (ourInstance == null) {
                     ourInstance = new HttpRequest();
