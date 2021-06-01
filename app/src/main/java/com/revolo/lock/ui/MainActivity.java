@@ -46,6 +46,7 @@ public class MainActivity extends BaseActivity {
             isGotoAddDeviceAct = command.equals(Constant.ADD_DEVICE);
         }
         getAlexaIntent(getIntent());
+
     }
 
     @Override

@@ -180,11 +180,11 @@ public class GeoFenceUnlockActivity extends BaseActivity implements OnMapReadyCa
         initDefaultValue();
         initTimeNSensitivityDataUI();
         mIvGeoFenceUnlockEnable.setImageResource(mBleDeviceLocal.isOpenElectricFence() ? R.drawable.ic_icon_switch_open : R.drawable.ic_icon_switch_close);
-        if (mBleDeviceLocal.isOpenElectricFence()) {
-            mConstraintLayout.setVisibility(View.VISIBLE);
-        } else {
-            mConstraintLayout.setVisibility(View.GONE);
-        }
+//        if (mBleDeviceLocal.isOpenElectricFence()) {
+//            mConstraintLayout.setVisibility(View.VISIBLE);
+//        } else {
+//            mConstraintLayout.setVisibility(View.GONE);
+//        }
         if (mBleDeviceLocal.getConnectedType() != LocalState.DEVICE_CONNECT_TYPE_WIFI) {
             initBleListener();
         }
@@ -197,11 +197,11 @@ public class GeoFenceUnlockActivity extends BaseActivity implements OnMapReadyCa
                 mBleDeviceLocal.setOpenElectricFence(false);
                 AppDatabase.getInstance(this).bleDeviceDao().update(mBleDeviceLocal);
                 mIvGeoFenceUnlockEnable.setImageResource(mBleDeviceLocal.isOpenElectricFence() ? R.drawable.ic_icon_switch_open : R.drawable.ic_icon_switch_close);
-                if (mBleDeviceLocal.isOpenElectricFence()) {
-                    mConstraintLayout.setVisibility(View.VISIBLE);
-                } else {
-                    mConstraintLayout.setVisibility(View.GONE);
-                }
+//                if (mBleDeviceLocal.isOpenElectricFence()) {
+//                    mConstraintLayout.setVisibility(View.VISIBLE);
+//                } else {
+//                    mConstraintLayout.setVisibility(View.GONE);
+//                }
             } else {
                 Intent intent = new Intent(this, MapActivity.class);
                 startActivity(intent);

@@ -13,7 +13,7 @@ import java.util.List;
  * E-mail : wengmaowei@kaadas.com
  * desc   :
  */
-public class WifiLockGetAllBindDeviceRspBean {
+public class WifiLockGetAllBindDeviceRspBean extends WifiLockBaseResponseBean{
 
 
     /**
@@ -28,39 +28,14 @@ public class WifiLockGetAllBindDeviceRspBean {
      * data : {"gwList":[{"deviceSN":"GW01182510163","relayType":0,"deviceNickName":"GW01182510163","adminuid":"5c4fe492dc93897aa7d8600b","adminName":"8618954359822","adminNickname":"8618954359822","isAdmin":1,"shareFlag":1,"meUsername":"17c830b7267a4d208029c217fbb6b7c5","mePwd":"1456dfc75ba34d5191399bcc6473b85a","meBindState":1,"deviceType":"wifi","wifiPwdNum":"05","wifiPwdNickname":"nickName","wifiPwdkey":"523121","deviceList":[{"ipaddr":"192.168.168.235","macaddr":"0C:9A:42:B7:8C:F5","SW":"orangecat-1.3.4","event_str":"offline","device_type":"kdscateye","deviceId":"CH01183910242","shareFlag":1,"pushSwitch":1,"lockversion":"20190716","time":"2019-04-02 09:13:57.481"}]}],"devList":[{"_id":"5c8f5563dc938989e2f5429d","lockName":"BT123456","lockNickName":"BT123456","macLock":"123456","open_purview":"3","is_admin":"1","center_latitude":"0","center_longitude":"0","circle_radius":"0","auto_lock":"0","password1":"123456","password2":"654321","deviceSN":"ZG01191810001","peripheralId":"5c70ac053c554639ea931111","bleVersion":"1","softwareVersion":"1.1.0","model":"","functionSet":"01","keyString":"dfsadgfdsagfdsgsd","localName":"KDS0CB2B73FA663"}],"wifiList":[{"_id":"5de4c32a33cc1949441265ca","wifiSN":"WF132231004","isAdmin":1,"adminUid":"5c4fe492dc93897aa7d8600b","adminName":"8618954359822","productSN":"s10001192910010","productModel":"k8","appId":1,"lockNickname":"wode","lockSoftwareVersion":"22222","functionSet":"00","uid":"5c4fe492dc93897aa7d8600b","uname":"8618954359822","pushSwitch":1,"amMode":1,"safeMode":1,"defences":0,"language":"zh","operatingMode":0,"volume":1,"faceStatus":1,"powerSave":1,"bleVersion":"33333","wifiVersion":"44444","mqttVersion":"55555","faceVersion":"66666","lockFirmwareVersion":"11111","randomCode":"randomCode666","distributionNetwork":1,"wifiName":"wodewifi","power":55,"updateTime":1577176575,"createTime":1577176575,"openStatus":2,"openStatusTime":1541468973,"switch":{"createTime":"154148973342","mac":"112233445566","switchEn":1,"total":1,"switchArray":[{"type":1,"timeEn":0,"startTime":0,"stopTime":0,"week":0,"nickname":"第一个开关昵称"}]}}],"productInfoList":[{"_id":"5d66619c497ecf326f25469b","developmentModel":"1","productModel":"k8","snHead":"WF1","adminUrl":"47.106.94.189/deviceModelFiles/1566990166590/android_admin_xxx.png","deviceListUrl":"47.106.94.189/deviceModelFiles/1566990488685/android_device_list_xxx.png","authUrl":"47.106.94.189/deviceModelFiles/1566990492106/android_auth_xxx.png","adminUrl@1x":"47.106.94.189/deviceModelFiles/1566990495762/ios_admin_xxx@1x.png","deviceListUrl@1x":"47.106.94.189/deviceModelFiles/1566990500347/ios_device_list_xxx@1x.png","authUrl@1x":"47.106.94.189/deviceModelFiles/1566990503571/ios_auth_xxx@1x.png","adminUrl@2x":"47.106.94.189/deviceModelFiles/1566990506856/ios_admin_xxx@2x.png","deviceListUrl@2x":"47.106.94.189/deviceModelFiles/1566990510246/ios_device_list_xxx@2x.png","authUrl@2x":"47.106.94.189/deviceModelFiles/1566990513628/ios_auth_xxx@2x.png","adminUrl@3x":"47.106.94.189/deviceModelFiles/1566990518026/ios_admin_xxx@3x.png","deviceListUrl@3x":"47.106.94.189/deviceModelFiles/1566990522179/ios_device_list_xxx@3x.png","authUrl@3x":"47.106.94.189/deviceModelFiles/1566990530690/ios_auth_xxx@3x.png","createTime":"2019-08-28 19:12:28.060"}]}
      */
 
-    private int msgId;
-    private String msgtype;
-    private String userId;
+
+
     private String gwId;
     private String deviceId;
-    private String func;
-    private String code;
+
     private String timestamp;
     private DataBean data;
 
-    public int getMsgId() {
-        return msgId;
-    }
-
-    public void setMsgId(int msgId) {
-        this.msgId = msgId;
-    }
-
-    public String getMsgtype() {
-        return msgtype;
-    }
-
-    public void setMsgtype(String msgtype) {
-        this.msgtype = msgtype;
-    }
-
-    public String getUserId() {
-        return userId;
-    }
-
-    public void setUserId(String userId) {
-        this.userId = userId;
-    }
 
     public String getGwId() {
         return gwId;
@@ -76,22 +51,6 @@ public class WifiLockGetAllBindDeviceRspBean {
 
     public void setDeviceId(String deviceId) {
         this.deviceId = deviceId;
-    }
-
-    public String getFunc() {
-        return func;
-    }
-
-    public void setFunc(String func) {
-        this.func = func;
-    }
-
-    public String getCode() {
-        return code;
-    }
-
-    public void setCode(String code) {
-        this.code = code;
     }
 
     public String getTimestamp() {

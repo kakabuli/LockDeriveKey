@@ -8,7 +8,7 @@ import com.revolo.lock.mqtt.bean.publishbean.attrparams.ElecFenceSensitivityPara
  * E-mail : wengmaowei@kaadas.com
  * desc   :
  */
-public class WifiLockSetLockAttrSensitivityPublishBean {
+public class WifiLockSetLockAttrSensitivityPublishBean extends WifiLockBasePublishBean{
 
 
     /**
@@ -20,8 +20,7 @@ public class WifiLockSetLockAttrSensitivityPublishBean {
      * timestamp : 13433333333
      */
 
-    private String msgtype;
-    private int msgId;
+     private int msgId;
     private String userId;
     private String wfId;
     private String func;
@@ -29,7 +28,7 @@ public class WifiLockSetLockAttrSensitivityPublishBean {
     private String timestamp;
 
     public WifiLockSetLockAttrSensitivityPublishBean(String msgtype, int msgId, String userId, String wfId, String func, ElecFenceSensitivityParams elecFenceSensitivityParams, String timestamp) {
-        this.msgtype = msgtype;
+        this.setMsgtype(msgtype);
         this.msgId = msgId;
         this.userId = userId;
         this.wfId = wfId;
@@ -38,13 +37,6 @@ public class WifiLockSetLockAttrSensitivityPublishBean {
         this.timestamp = timestamp;
     }
 
-    public String getMsgtype() {
-        return msgtype;
-    }
-
-    public void setMsgtype(String msgtype) {
-        this.msgtype = msgtype;
-    }
 
     public int getMsgId() {
         return msgId;

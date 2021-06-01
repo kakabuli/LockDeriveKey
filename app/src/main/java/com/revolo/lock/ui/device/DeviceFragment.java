@@ -6,6 +6,7 @@ import android.os.CountDownTimer;
 import android.os.Handler;
 import android.os.Looper;
 import android.text.TextUtils;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,6 +22,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.a1anwang.okble.client.scan.BLEScanResult;
 import com.blankj.utilcode.util.ConvertUtils;
 import com.blankj.utilcode.util.GsonUtils;
+import com.blankj.utilcode.util.ToastUtils;
 import com.google.gson.JsonSyntaxException;
 import com.revolo.lock.App;
 import com.revolo.lock.Constant;
@@ -56,6 +58,7 @@ import com.scwang.smart.refresh.layout.api.RefreshLayout;
 import org.jetbrains.annotations.NotNull;
 
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -146,9 +149,8 @@ public class DeviceFragment extends Fragment {
         super.onResume();
         refreshGetAllBindDevicesFromMQTT();
         initBaseData();
-        initSignalWeakDialog();
         initData(mBleDeviceLocals);
-        mHomeLockListAdapter.setList(mBleDeviceLocals);
+        initSignalWeakDialog();
         initWfEven();
 //        mDeviceViewModel.refreshGetAllBindDevicesFromMQTT();
     }
@@ -205,6 +207,9 @@ public class DeviceFragment extends Fragment {
                         || mqttData.getFunc().equals(MQttConstant.WF_EVENT))
                 .subscribe(mqttData -> {
                     baseActivity.toDisposable(mBindDevicesDisposable);
+                    if (mRefreshLayout != null) {
+                        mRefreshLayout.finishRefresh();
+                    }
                     if (mqttData.getFunc().equals(MQttConstant.GET_ALL_BIND_DEVICE)) {
                         processDevices(mqttData);
                     }
@@ -266,15 +271,17 @@ public class DeviceFragment extends Fragment {
         }
         if (bean.getData().getWifiList().isEmpty()) {
             Timber.e("WifiLockGetAllBindDeviceRspBean..getData().getWifiList().isEmpty()");
+            ArrayList<BleDeviceLocal> bleDeviceLocals = new ArrayList<>();
+            mHomeLockListAdapter.setList(bleDeviceLocals);
+            mClNoDevice.setVisibility(View.VISIBLE);
+            mClHadDevice.setVisibility(View.GONE);
+
             return;
         }
         updateDataFromNet(bean.getData().getWifiList());
     }
 
     private void updateDataFromNet(List<WifiLockGetAllBindDeviceRspBean.DataBean.WifiListBean> wifiListBeans) {
-        if (mRefreshLayout != null) {
-            mRefreshLayout.finishRefresh();
-        }
         mBleDeviceLocals.clear();
         for (WifiLockGetAllBindDeviceRspBean.DataBean.WifiListBean wifiListBean : wifiListBeans) {
             // TODO: 2021/2/26 后期再考虑是否需要多条件合并查询
@@ -291,9 +298,9 @@ public class DeviceFragment extends Fragment {
             }
             bleDeviceLocal.setSetAutoLockTime(wifiListBean.getOpenStatusTime());
             bleDeviceLocal.setName(wifiListBean.getLockNickname());
-            bleDeviceLocal.setAutoLock(wifiListBean.getAmMode()==0);
+            bleDeviceLocal.setAutoLock(wifiListBean.getAmMode() == 0);
             bleDeviceLocal.setSetAutoLockTime(wifiListBean.getAutoLockTime());
-            bleDeviceLocal.setMute(wifiListBean.getVolume()==0);
+            bleDeviceLocal.setMute(wifiListBean.getVolume() == 0);
             String firmwareVer = wifiListBean.getLockFirmwareVersion();
             if (!TextUtils.isEmpty(firmwareVer)) {
                 bleDeviceLocal.setLockVer(firmwareVer);
@@ -329,31 +336,31 @@ public class DeviceFragment extends Fragment {
         bleDeviceLocal.setWifiVer(wifiListBean.getWifiVersion());
         bleDeviceLocal.setLockVer(wifiListBean.getLockFirmwareVersion());
         bleDeviceLocal.setName(wifiListBean.getLockNickname());
-        bleDeviceLocal.setMute(true);
-//        bleDeviceLocal.setOpenDoorSensor(wifiListBean.getDoorSensor()==1);
-//        bleDeviceLocal.setDoNotDisturbMode(wifiListBean.get);
-//        bleDeviceLocal.setSetAutoLockTime(wifiListBean.getAutoLockTime());
-//        bleDeviceLocal.setMute();
+        bleDeviceLocal.setMute(wifiListBean.getVolume() == 0);
         // TODO: 2021/3/18 修改为从服务器获取数据
         bleDeviceLocal.setConnectedType(LocalState.DEVICE_CONNECT_TYPE_WIFI);
-//        bleDeviceLocal.setLockPower();
         bleDeviceLocal.setLockState(wifiListBean.getOpenStatus());
-//        bleDeviceLocal.setSetElectricFenceSensitivity();
-//        bleDeviceLocal.setSetElectricFenceTime();
-//        bleDeviceLocal.setDetectionLock();
-        bleDeviceLocal.setAutoLock(wifiListBean.getAmMode()==0);
-//        bleDeviceLocal.setDuress();
+        bleDeviceLocal.setAutoLock(wifiListBean.getAmMode() == 0);
         bleDeviceLocal.setConnectedWifiName(wifiListBean.getWifiName());
         bleDeviceLocal.setCreateTime(wifiListBean.getCreateTime());
         bleDeviceLocal.setPwd2(wifiListBean.getPassword2());
         bleDeviceLocal.setPwd1(wifiListBean.getPassword1());
         bleDeviceLocal.setMac(wifiListBean.getBleMac());
         bleDeviceLocal.setEsn(wifiListBean.getWifiSN());
+        bleDeviceLocal.setType(wifiListBean.getModel());
+        bleDeviceLocal.setUserId(App.getInstance().getUser().getId());
+//        bleDeviceLocal.setOpenDoorSensor(wifiListBean.getDoorSensor()==1);
+//        bleDeviceLocal.setDoNotDisturbMode(wifiListBean.get);
+//        bleDeviceLocal.setSetAutoLockTime(wifiListBean.getAutoLockTime());
+//        bleDeviceLocal.setMute();
+//        bleDeviceLocal.setLockPower();
+//        bleDeviceLocal.setSetElectricFenceSensitivity();
+//        bleDeviceLocal.setSetElectricFenceTime();
+//        bleDeviceLocal.setDetectionLock();
+//        bleDeviceLocal.setDuress();
 //        bleDeviceLocal.setDoorSensor();
 //        bleDeviceLocal.setFunctionSet();
 //        bleDeviceLocal.setOpenElectricFence();
-        bleDeviceLocal.setType(wifiListBean.getModel());
-        bleDeviceLocal.setUserId(App.getInstance().getUser().getId());
         long id = AppDatabase.getInstance(getContext()).bleDeviceDao().insert(bleDeviceLocal);
         bleDeviceLocal.setId(id);
         return bleDeviceLocal;
@@ -455,6 +462,7 @@ public class DeviceFragment extends Fragment {
             return;
         }
         getActivity().runOnUiThread(() -> {
+
             if (eventType == 0x01) {
                 if (eventCode == 0x01) {
                     // 上锁
@@ -501,6 +509,7 @@ public class DeviceFragment extends Fragment {
             Timber.d("setLockState wifiId: %1s %2s", local.getEsn(), state == LocalState.LOCK_STATE_OPEN ? "锁开了" : "锁关了");
             AppDatabase.getInstance(getContext()).bleDeviceDao().update(local);
             mHomeLockListAdapter.notifyDataSetChanged();
+            dismissLoading();
         });
     }
 
@@ -519,6 +528,7 @@ public class DeviceFragment extends Fragment {
             local.setDoorSensor(state);
             AppDatabase.getInstance(getContext()).bleDeviceDao().update(local);
             mHomeLockListAdapter.notifyDataSetChanged();
+            dismissLoading();
         });
     }
 
@@ -736,6 +746,7 @@ public class DeviceFragment extends Fragment {
                 }, e -> {
                     dismissLoading();
                     if (e instanceof TimeoutException) {
+                        ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(doorOpt == LocalState.DOOR_STATE_OPEN ? "Locking Failed" : "Unlocking Failed");
                         if (mCount == 3) {
                             // 3次机会,超时失败开始连接蓝牙
                             mCount = 0;
@@ -823,7 +834,6 @@ public class DeviceFragment extends Fragment {
     }
 
     private void processSetLock(@NotNull MqttData mqttData) {
-        dismissLoading();
         WifiLockDoorOptResponseBean bean;
         try {
             bean = GsonUtils.fromJson(mqttData.getPayload(), WifiLockDoorOptResponseBean.class);

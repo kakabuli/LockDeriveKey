@@ -49,6 +49,7 @@ import pub.devrel.easypermissions.EasyPermissions;
 import timber.log.Timber;
 
 import static com.revolo.lock.Constant.REVOLO_SP;
+import static com.revolo.lock.Constant.USER_MAIL;
 
 /**
  * author : Jack
@@ -425,6 +426,13 @@ public class UserPageActivity extends BaseActivity implements EasyPermissions.Pe
                         return;
                     }
                 }
+                User user = App.getInstance().getUser();
+                user.setUseFaceId(false);
+                user.setUseTouchId(false);
+                user.setUseGesturePassword(false);
+                user.setGestureCode("");
+                AppDatabase.getInstance(getApplicationContext()).userDao().update(user);
+                AppDatabase.getInstance(getApplicationContext()).userDao().delete(user);
                 App.getInstance().getUserBean().setToken(""); // 清空token
                 SPUtils.getInstance(REVOLO_SP).put(Constant.USER_LOGIN_INFO, ""); // 清空登录信息
                 // TODO: 2021/3/30 退出操作

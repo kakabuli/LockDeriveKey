@@ -33,7 +33,8 @@
     <uses-permission android:name="android.permission.USE_FINGERPRINT" />
 
     <!--储存卡的读写权限-->
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+    <uses-permission
+        android:name="android.permission.WRITE_EXTERNAL_STORAGE"
         tools:ignore="ScopedStorage" />
 
     <application
@@ -46,8 +47,8 @@
         android:requestLegacyExternalStorage="true"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        tools:ignore="AllowBackup,LockedOrientationActivity"
-        android:theme="@style/Theme.RevoloLock">
+        android:theme="@style/Theme.RevoloLock"
+        tools:ignore="AllowBackup,LockedOrientationActivity">
 
         <!-- Mqtt Service -->
         <service android:name="org.eclipse.paho.android.service.MqttService" />
@@ -289,8 +290,8 @@
                 <!--声明自定义scheme，类似于http, https-->
                 <data
                     android:host="test.irevolo.com"
-                    android:scheme="https"
-                    android:pathPrefix="/share/"/>
+                    android:pathPrefix="/share/"
+                    android:scheme="https" />
             </intent-filter>
             <intent-filter android:label="test_app">
                 <!--必有项-->
@@ -324,6 +325,7 @@
             android:screenOrientation="portrait" />
 
         <service android:name=".mqtt.MqttService" />
+<!--        <service android:name=".manager.LockAppService" />-->
 
         <receiver android:name=".reveiver.WifiStateReceiver">
             <intent-filter>

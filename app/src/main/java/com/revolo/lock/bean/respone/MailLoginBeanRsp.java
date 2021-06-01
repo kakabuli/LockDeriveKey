@@ -67,7 +67,7 @@ public class MailLoginBeanRsp implements Parcelable {
         private String insertTime;                 // 存储时间
         private String firstName;                  // 名
         private String lastName;                   // 姓
-        private String userHead;                   // 用户头像地址 todo 确认字段名是否变化了
+        private String avatarPath;                   // 用户头像地址 todo 确认字段名是否变化了
 
 
         public String getUid() {
@@ -110,12 +110,12 @@ public class MailLoginBeanRsp implements Parcelable {
             this.lastName = lastName;
         }
 
-        public String getUserHead() {
-            return userHead;
+        public String getAvatarPath() {
+            return avatarPath;
         }
 
-        public void setUserHead(String userHead) {
-            this.userHead = userHead;
+        public void setAvatarPath(String userHead) {
+            this.avatarPath = userHead;
         }
 
 
@@ -131,7 +131,7 @@ public class MailLoginBeanRsp implements Parcelable {
             dest.writeString(this.insertTime);
             dest.writeString(this.firstName);
             dest.writeString(this.lastName);
-            dest.writeString(this.userHead);
+            dest.writeString(this.avatarPath);
         }
 
         public DataBean() {
@@ -143,7 +143,7 @@ public class MailLoginBeanRsp implements Parcelable {
             this.insertTime = in.readString();
             this.firstName = in.readString();
             this.lastName = in.readString();
-            this.userHead = in.readString();
+            this.avatarPath = in.readString();
         }
 
         public static final Creator<DataBean> CREATOR = new Creator<DataBean>() {

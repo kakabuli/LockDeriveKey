@@ -98,9 +98,13 @@ public class LoginActivity extends BaseActivity {
         }
         String mail = SPUtils.getInstance(REVOLO_SP).getString(USER_MAIL);
         if (!TextUtils.isEmpty(mail)) {
-            emailName=mail;
+            emailName = mail;
             mEtEmail.setText(mail);
+        } else {
+            emailName = "zhouguimin@kaadas.com";
+            mEtEmail.setText("zhouguimin@kaadas.com");
         }
+        mEtPwd.setText("zgm123456");
         initLoading("Loading...");
     }
 
@@ -215,14 +219,13 @@ public class LoginActivity extends BaseActivity {
             saveLoginBeanToLocal(mailLoginBeanRsp);
             runOnUiThread(() -> new Handler(Looper.getMainLooper()).postDelayed(() -> {
                 ActivityUtils.finishActivity(SignSelectActivity.class);
-                Intent intent=new Intent(LoginActivity.this, MainActivity.class);
+                Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 intent.addCategory(Intent.CATEGORY_HOME);
                 startActivity(intent);
                 finish();
             }, 50));
         });
-
     }
 
     private void saveLoginBeanToLocal(@NonNull MailLoginBeanRsp mailLoginBeanRsp) {
@@ -238,13 +241,14 @@ public class LoginActivity extends BaseActivity {
             user.setFirstName(rsp.getFirstName());
             user.setLastName(rsp.getLastName());
             user.setRegisterTime(TimeUtils.string2Millis(rsp.getInsertTime()) / 1000);
+            user.setAvatarUrl(rsp.getAvatarPath());
             AppDatabase.getInstance(this).userDao().insert(user);
         } else {
             user.setFirstName(rsp.getFirstName());
             user.setLastName(rsp.getLastName());
             user.setRegisterTime(TimeUtils.string2Millis(rsp.getInsertTime()) / 1000);
+            user.setAvatarUrl(rsp.getAvatarPath());
             AppDatabase.getInstance(this).userDao().update(user);
         }
     }
-
 }

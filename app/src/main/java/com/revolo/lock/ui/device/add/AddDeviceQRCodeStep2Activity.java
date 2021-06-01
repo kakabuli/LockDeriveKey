@@ -9,15 +9,14 @@ import android.widget.LinearLayout;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.camera.view.PreviewView;
 
 import com.blankj.utilcode.util.ToastUtils;
-import com.king.zxing.CameraScan;
-import com.king.zxing.DefaultCameraScan;
 import com.revolo.lock.Constant;
 import com.revolo.lock.R;
 import com.revolo.lock.base.BaseActivity;
 
+import cn.bingoogolapple.qrcode.core.QRCodeView;
+import cn.bingoogolapple.qrcode.zbar.ZBarView;
 import timber.log.Timber;
 
 /**
@@ -28,7 +27,9 @@ import timber.log.Timber;
  */
 public class AddDeviceQRCodeStep2Activity extends BaseActivity {
 
-    private CameraScan mCameraScan;
+    private ZBarView mZBarView;
+    private LinearLayout mLlLight;
+    private boolean isOpenFlashLight = false;
 
     @Override
     public void initData(@Nullable Bundle bundle) {
@@ -43,37 +44,44 @@ public class AddDeviceQRCodeStep2Activity extends BaseActivity {
     @Override
     public void initView(@Nullable Bundle savedInstanceState, @Nullable View contentView) {
         useCommonTitleBar(getString(R.string.add_device)).getTvTitle().setTextColor(Color.WHITE);
-        LinearLayout llLight = findViewById(R.id.llLight);
-        applyDebouncingClickListener(findViewById(R.id.tvManualInput), llLight);
-
-        PreviewView previewView = findViewById(R.id.previewView);
-        mCameraScan = new DefaultCameraScan(this, previewView);
-        mCameraScan.setOnScanResultCallback(result -> {
-            gotoBleConnectAct(result.getText());
-            return false;
-        })
-                .bindFlashlightView(llLight)
-                .setVibrate(true)
-                .startCamera();
-
-    }
-
-    private void gotoBleConnectAct(String result) {
-        Timber.d("gotoBleConnectAct 扫描结果：%1s", result);
-        if (null != result && !"".equals(result)) {
-            // ESN=S420210110001&MAC=10:98:C3:72:C6:23
-            if (result.indexOf("ESN=") > -1 && result.indexOf("MAC") > -1 && result.indexOf("&") > -1) {
-                Intent intent = new Intent(AddDeviceQRCodeStep2Activity.this, AddDeviceStep2BleConnectActivity.class);
-                intent.putExtra(Constant.PRE_A, Constant.QR_CODE_A);
-                intent.putExtra(Constant.QR_RESULT, result);
-                startActivity(intent);
-                finish();
-            }else{
-                ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show("Abnormal QR code, please scan again");
+        mLlLight = findViewById(R.id.llLight);
+        applyDebouncingClickListener(findViewById(R.id.tvManualInput), mLlLight);
+        mZBarView = findViewById(R.id.zBarView);
+        mZBarView.setDelegate(new QRCodeView.Delegate() {
+            @Override
+            public void onScanQRCodeSuccess(String result) {
+                Timber.d("onScanQRCodeSuccess 扫描结果：%1s", result);
+                if (null != result && !"".equals(result)) {
+                    // ESN=S420210110001&MAC=10:98:C3:72:C6:23
+                    if (result.indexOf("ESN=") > -1 && result.indexOf("MAC") > -1 && result.indexOf("&") > -1) {
+                        Intent intent = new Intent(AddDeviceQRCodeStep2Activity.this, AddDeviceStep2BleConnectActivity.class);
+                        intent.putExtra(Constant.PRE_A, Constant.QR_CODE_A);
+                        intent.putExtra(Constant.QR_RESULT, result);
+                        startActivity(intent);
+                        finish();
+                    }else{
+                        ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show("Abnormal QR code, please scan again");
+                    }
+                } else {
+                    return;
+                }
             }
-        } else {
-            return;
-        }
+
+            @Override
+            public void onCameraAmbientBrightnessChanged(boolean isDark) {
+                if (isOpenFlashLight) {
+                    mLlLight.setVisibility(View.VISIBLE);
+                } else {
+                    mLlLight.setVisibility(isDark ? View.VISIBLE : View.INVISIBLE);
+                }
+            }
+
+            @Override
+            public void onScanQRCodeOpenCameraError() {
+                Timber.e("onScanQRCodeOpenCameraError 打开相机出错了");
+            }
+        });
+
     }
 
     @Override
@@ -87,34 +95,42 @@ public class AddDeviceQRCodeStep2Activity extends BaseActivity {
             startActivity(new Intent(this, InputESNActivity.class));
             return;
         }
-        if(view.getId() == R.id.llLight) {
-            if(mCameraScan != null) {
-                mCameraScan.enableTorch(!mCameraScan.isTorchEnabled());
+        if (view.getId() == R.id.llLight) {
+            if (isOpenFlashLight) {
+                mZBarView.openFlashlight();
+            } else {
+                mZBarView.closeFlashlight();
             }
+            isOpenFlashLight = !isOpenFlashLight;
+
         }
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-        if(mCameraScan != null) {
-            mCameraScan.startCamera();
+        if (mZBarView != null) {
+            // 打开后置摄像头开始预览，但是并未开始识别
+            mZBarView.startCamera();
+            // 显示扫描框，并开始识别
+            mZBarView.startSpotAndShowRect();
         }
     }
 
     @Override
     protected void onStop() {
-        if(mCameraScan != null) {
-            mCameraScan.stopCamera();
+        if (mZBarView != null) {
+            mZBarView.stopCamera(); // 关闭摄像头预览，并且隐藏扫描框
+            mZBarView.closeFlashlight();
         }
         super.onStop();
     }
 
     @Override
     protected void onDestroy() {
-        if(mCameraScan != null) {
-            mCameraScan.enableTorch(false);
-            mCameraScan.release();
+        if (mZBarView != null) {
+            mZBarView.onDestroy(); // 销毁二维码扫描控件
+            mZBarView.closeFlashlight();
         }
         super.onDestroy();
     }

@@ -2,10 +2,12 @@ package com.revolo.lock.ui.device.add;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.os.Handler;
 import android.os.Looper;
 import android.text.TextUtils;
 import android.util.SparseArray;
+import android.view.Gravity;
 import android.view.View;
 
 import androidx.annotation.NonNull;
@@ -29,6 +31,7 @@ import com.revolo.lock.bean.request.LockIsBindBeanReq;
 import com.revolo.lock.bean.respone.AdminAddDeviceBeanRsp;
 import com.revolo.lock.bean.respone.GetPwd1BeanRsp;
 import com.revolo.lock.bean.respone.LockIsBindBeanRsp;
+import com.revolo.lock.ble.BleByteUtil;
 import com.revolo.lock.ble.BleCommandFactory;
 import com.revolo.lock.ble.BleProtocolState;
 import com.revolo.lock.ble.BleResultProcess;
@@ -67,27 +70,28 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
     private int mPreA = mDefault;
     private String mEsn;
     private String mMac;
+    private boolean isRestartConnectingBle = true;
 
     @Override
     public void initData(@Nullable Bundle bundle) {
         Intent intent = getIntent();
-        if(!intent.hasExtra(Constant.PRE_A)) return;
+        if (!intent.hasExtra(Constant.PRE_A)) return;
         String preA = intent.getStringExtra(Constant.PRE_A);
-        if(preA.equals(Constant.INPUT_ESN_A)) {
+        if (preA.equals(Constant.INPUT_ESN_A)) {
             initDataFromEsnPre(intent);
-        } else if(preA.equals(Constant.QR_CODE_A)) {
+        } else if (preA.equals(Constant.QR_CODE_A)) {
             initDataFromQRPre(intent);
         }
     }
 
     private void initDataFromQRPre(Intent intent) {
         mPreA = mQRPre;
-        if(!intent.hasExtra(Constant.QR_RESULT)) return;
+        if (!intent.hasExtra(Constant.QR_RESULT)) return;
         String qrResult = intent.getStringExtra(Constant.QR_RESULT);
-        if(TextUtils.isEmpty(qrResult)) return;
+        if (TextUtils.isEmpty(qrResult)) return;
         String[] list = qrResult.split("&");
         Timber.d("initData QR Code: %1s", qrResult);
-        if(list.length == 2) {
+        if (list.length == 2) {
             // 分成两份是正确的
             // ESN=S420210110001&MAC=10:98:C3:72:C6:23
             mEsn = list[0].substring(4).trim();
@@ -98,7 +102,7 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
 
     private void initDataFromEsnPre(Intent intent) {
         mPreA = mESNPre;
-        if(!intent.hasExtra(Constant.ESN)) return;
+        if (!intent.hasExtra(Constant.ESN)) return;
         mEsn = intent.getStringExtra(Constant.ESN);
     }
 
@@ -115,12 +119,28 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
 
     @Override
     public void doBusiness() {
-        if(mPreA == mQRPre || mPreA == mESNPre) {
+        mCountDownTimer.start();
+        if (mPreA == mQRPre || mPreA == mESNPre) {
             checkDeviceIsBind();
         } else {
             gotoBleConnectFail();
         }
     }
+
+    private final CountDownTimer mCountDownTimer = new CountDownTimer(60000, 1000) {
+        @Override
+        public void onTick(long millisUntilFinished) {
+            if (!isRestartConnectingBle) {
+                mCountDownTimer.cancel();
+            }
+        }
+
+        @Override
+        public void onFinish() {
+            isRestartConnectingBle = false;
+            gotoBleConnectFail();
+        }
+    };
 
     @Override
     public void onDebouncingClick(@NonNull View view) {
@@ -130,14 +150,14 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        if(mScanManager != null && !mScanManager.isScanning()) {
+        if (mScanManager != null && !mScanManager.isScanning()) {
             mScanManager.startScan();
         }
     }
 
     @Override
     protected void onPause() {
-        if(mScanManager != null) {
+        if (mScanManager != null) {
             mScanManager.stopScan();
         }
         super.onPause();
@@ -146,26 +166,29 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
     @Override
     protected void onDestroy() {
         BleBean bleBean = App.getInstance().getBleBeanFromMac(mMac);
-        if(bleBean != null) {
+        if (bleBean != null) {
             bleBean.setAppPair(false);
+        }
+        if (mCountDownTimer != null) {
+            mCountDownTimer.cancel();
         }
         super.onDestroy();
     }
 
     private void checkDeviceIsBind() {
-        if(!checkNetConnectFail()) {
+        if (!checkNetConnectFail()) {
             return;
         }
-        if(App.getInstance()  == null) {
+        if (App.getInstance() == null) {
             Timber.e("App.getInstance()  == null");
             return;
         }
-        if(App.getInstance().getUserBean() == null) {
+        if (App.getInstance().getUserBean() == null) {
             Timber.e("App.getInstance().getUserBean() == null");
             return;
         }
         String uid = App.getInstance().getUserBean().getUid();
-        if(TextUtils.isEmpty(uid)) {
+        if (TextUtils.isEmpty(uid)) {
             Timber.e("uid is empty");
             return;
         }
@@ -199,22 +222,22 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
 
     private void processBindDevice(@NonNull LockIsBindBeanRsp lockIsBindBeanRsp) {
         String code = lockIsBindBeanRsp.getCode();
-        if(code == null) {
+        if (code == null) {
             return;
         }
-        if(code.equals("444")) {
+        if (code.equals("444")) {
             App.getInstance().logout(true, AddDeviceStep2BleConnectActivity.this);
             return;
         }
-        if(code.equals("202")) {
+        if (code.equals("202")) {
             // 提示已绑定，并退出
             // TODO: 2021/2/6 修改显示方式
-            ToastUtils.showLong(R.string.t_the_device_is_already_bound);
+            ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_the_device_is_already_bound);
             finishPreAct();
             finish();
             return;
         }
-        if(code.equals("201")) {
+        if (code.equals("201")) {
             getPwd1FromNet();
             return;
         }
@@ -230,7 +253,7 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
     private byte[] mPwd1;
 
     private void getPwd1FromNet() {
-        if(!checkNetConnectFail()) {
+        if (!checkNetConnectFail()) {
             return;
         }
         GetPwd1BeanReq req = new GetPwd1BeanReq();
@@ -264,31 +287,31 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
     private void processGetPwd1(@NonNull GetPwd1BeanRsp getPwd1BeanRsp) {
         // TODO: 2021/1/26 添加错误操作
         String code = getPwd1BeanRsp.getCode();
-        if(!code.equals("200")) {
-            if(code.equals("444")) {
+        if (!code.equals("200")) {
+            if (code.equals("444")) {
                 App.getInstance().logout(true, AddDeviceStep2BleConnectActivity.this);
                 return;
             }
             String msg = getPwd1BeanRsp.getMsg();
             Timber.e("getPwd1FromNet code: %1s, msg: %2s", getPwd1BeanRsp.getCode(), msg);
-            if(!TextUtils.isEmpty(msg)) {
+            if (!TextUtils.isEmpty(msg)) {
                 ToastUtils.showShort(msg);
             }
             gotoBleConnectFail();
             return;
         }
-        if(getPwd1BeanRsp.getData() == null) {
+        if (getPwd1BeanRsp.getData() == null) {
             Timber.e("getPwd1FromNet getPwd1BeanRsp.getData() == null");
             gotoBleConnectFail();
             return;
         }
-        if(TextUtils.isEmpty(getPwd1BeanRsp.getData().getPassword1())) {
+        if (TextUtils.isEmpty(getPwd1BeanRsp.getData().getPassword1())) {
             Timber.e("getPwd1FromNet getPwd1BeanRsp.getData().getPassword1() is empty");
             gotoBleConnectFail();
             return;
         }
         byte[] bytes = ConvertUtils.hexString2Bytes(getPwd1BeanRsp.getData().getPassword1());
-        if(bytes.length != 12) {
+        if (bytes.length != 12) {
             Timber.e("getPwd1FromNet bytes.length != 12");
             return;
         }
@@ -297,13 +320,15 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
         initScanManager();
     }
 
-    /**               蓝牙               **/
+    /**
+     * 蓝牙
+     **/
 
     private boolean isHavePwd2Or3 = false;
     private byte[] mPwd2;
     private byte[] mPwd3;
     private final BleResultProcess.OnReceivedProcess mOnReceivedProcess = bleResultBean -> {
-        if(bleResultBean == null) {
+        if (bleResultBean == null) {
             Timber.e("mOnReceivedProcess bleResultBean == null");
             return;
         }
@@ -311,8 +336,8 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
     };
 
     private void auth(BleResultBean bleResultBean) {
-        if(bleResultBean.getCMD() == BleProtocolState.CMD_PAIR_ACK) {
-            if(bleResultBean.getPayload()[0] != 0x00) {
+        if (bleResultBean.getCMD() == BleProtocolState.CMD_PAIR_ACK) {
+            if (bleResultBean.getPayload()[0] != 0x00) {
                 // 校验失败
                 Timber.e("校验失败 CMD: %1s, 回复的数据：%2s",
                         ConvertUtils.int2HexString(bleResultBean.getCMD()), ConvertUtils.bytes2HexString(bleResultBean.getPayload()));
@@ -324,41 +349,42 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
     }
 
     private void processKey(BleResultBean bleResultBean) {
-        if(bleResultBean.getCMD() == BleProtocolState.CMD_ENCRYPT_KEY_UPLOAD) {
+        if (bleResultBean.getCMD() == BleProtocolState.CMD_ENCRYPT_KEY_UPLOAD) {
             byte[] data = bleResultBean.getPayload();
             BleBean bleBean = App.getInstance().getBleBeanFromMac(mMac);
-            if(bleBean == null) {
+            if (bleBean == null) {
                 Timber.e("processKey bleBean == null");
                 return;
             }
-            if(data[0] == 0x01) {
+            if (data[0] == 0x01) {
                 // 入网时
                 // 获取pwd2
                 getPwd2AndSendAuthCommand(bleResultBean, data, bleBean);
-            } else if(data[0] == 0x02) {
+            } else if (data[0] == 0x02) {
                 // 获取pwd3
                 getPwd3(bleResultBean, data, bleBean);
                 // 鉴权成功后，同步当前时间
                 syNowTime(bleBean);
-                addDeviceToService();
+                addDeviceToService(bleResultBean);
+                isRestartConnectingBle = false;
             }
         }
     }
 
     private void syNowTime(@NotNull BleBean bleBean) {
-        if(bleBean.getOKBLEDeviceImp() == null) {
+        if (bleBean.getOKBLEDeviceImp() == null) {
             Timber.e("syNowTime bleBean.getOKBLEDeviceImp() == null");
             return;
         }
         new Handler(Looper.getMainLooper()).postDelayed(() -> {
-            long nowTime = TimeUtils.getNowMills()/1000;
+            long nowTime = TimeUtils.getNowMills() / 1000;
             App.getInstance().writeControlMsg(BleCommandFactory
                     .syLockTime(nowTime, mPwd1, mPwd3), bleBean.getOKBLEDeviceImp());
         }, 20);
     }
 
     private void getPwd3(BleResultBean bleResultBean, byte[] data, @NotNull BleBean bleBean) {
-        if(bleBean.getOKBLEDeviceImp() == null) {
+        if (bleBean.getOKBLEDeviceImp() == null) {
             Timber.e("getPwd3 bleBean.getOKBLEDeviceImp() == null");
             return;
         }
@@ -369,16 +395,16 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
         bleBean.setPwd1(mPwd1);
         bleBean.setPwd3(mPwd3);
         App.getInstance().writeControlMsg(BleCommandFactory
-                .ackCommand(bleResultBean.getTSN(), (byte)0x00, bleResultBean.getCMD()), bleBean.getOKBLEDeviceImp());
+                .ackCommand(bleResultBean.getTSN(), (byte) 0x00, bleResultBean.getCMD()), bleBean.getOKBLEDeviceImp());
     }
 
-    private void addDeviceToLocal(@NotNull String esn,
+    private void addDeviceToLocal(int power, @NotNull String esn,
                                   @NotNull String mac,
                                   @NotNull String pwd1,
                                   @NotNull String pwd2,
                                   @NotNull BLEScanResult scanResultJson) {
         User user = App.getInstance().getUser();
-        if(user != null) {
+        if (user != null) {
             BleDeviceLocal bleDeviceLocal = new BleDeviceLocal();
             bleDeviceLocal.setEsn(esn);
             bleDeviceLocal.setMac(mac);
@@ -390,9 +416,12 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
             bleDeviceLocal.setUserId(user.getId());
             bleDeviceLocal.setConnectedType(LocalState.DEVICE_CONNECT_TYPE_BLE);
             bleDeviceLocal.setLockState(LocalState.LOCK_STATE_CLOSE);
+            bleDeviceLocal.setMute(true);
+            bleDeviceLocal.setLockPower(power);
+            bleDeviceLocal.setAutoLock(true);
             bleDeviceLocal.setScanResultJson(ConvertUtils.parcelable2Bytes(scanResultJson));
             // 统一使用秒，所以毫秒要除以1000
-            bleDeviceLocal.setCreateTime(TimeUtils.getNowMills()/1000);
+            bleDeviceLocal.setCreateTime(TimeUtils.getNowMills() / 1000);
             long deviceId = AppDatabase.getInstance(this).bleDeviceDao().insert(bleDeviceLocal);
             BleDeviceLocal deviceLocal = AppDatabase.getInstance(this).bleDeviceDao().findBleDeviceFromId(deviceId);
             App.getInstance().setBleDeviceLocal(deviceLocal);
@@ -401,7 +430,7 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
     }
 
     private void getPwd2AndSendAuthCommand(BleResultBean bleResultBean, byte[] data, @NotNull BleBean bleBean) {
-        if(bleBean.getOKBLEDeviceImp() == null) {
+        if (bleBean.getOKBLEDeviceImp() == null) {
             Timber.e("getPwd2AndSendAuthCommand bleBean.getOKBLEDeviceImp() == null");
             return;
         }
@@ -412,7 +441,7 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
         bleBean.setPwd2(mPwd2);
         bleBean.setEsn(mEsn);
         App.getInstance().writeControlMsg(BleCommandFactory
-                .ackCommand(bleResultBean.getTSN(), (byte)0x00, bleResultBean.getCMD()), bleBean.getOKBLEDeviceImp());
+                .ackCommand(bleResultBean.getTSN(), (byte) 0x00, bleResultBean.getCMD()), bleBean.getOKBLEDeviceImp());
         new Handler(Looper.getMainLooper()).postDelayed(() -> {
             Timber.d("getPwd2AndSendAuthCommand 延时发送鉴权指令, pwd2: %1s\n", ConvertUtils.bytes2HexString(mPwd2));
             App.getInstance().writeControlMsg(BleCommandFactory
@@ -420,12 +449,13 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
         }, 50);
     }
 
-    private void addDeviceToService()  {
-        if(!checkNetConnectFail()) {
+    private void addDeviceToService(BleResultBean bleResultBean) {
+        if (!checkNetConnectFail()) {
             return;
         }
         // 本地存储
-        addDeviceToLocal(mEsn, mMac, ConvertUtils.bytes2HexString(mPwd1), ConvertUtils.bytes2HexString(mPwd2), mScanResult);
+        int power = BleByteUtil.byteToInt(bleResultBean.getPayload()[11]);
+        addDeviceToLocal(power, mEsn, mMac, ConvertUtils.bytes2HexString(mPwd1), ConvertUtils.bytes2HexString(mPwd2), mScanResult);
         AdminAddDeviceBeanReq req = new AdminAddDeviceBeanReq();
         req.setDevmac(mMac);
         req.setDeviceSN(mEsn);
@@ -465,12 +495,12 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
 
     private void processAddDevice(@NonNull AdminAddDeviceBeanRsp adminAddDeviceBeanRsp) {
         String code = adminAddDeviceBeanRsp.getCode();
-        if(code == null) {
+        if (code == null) {
             gotoBleConnectFail();
             return;
         }
-        if(!code.equals("200")) {
-            if(code.equals("444")) {
+        if (!code.equals("200")) {
+            if (code.equals("444")) {
                 App.getInstance().logout(true, AddDeviceStep2BleConnectActivity.this);
                 return;
             }
@@ -513,11 +543,11 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
 
     private void processDeviceConnected(@NotNull String mac) {
         BleBean bleBean = App.getInstance().getBleBeanFromMac(mac);
-        if(bleBean == null) {
+        if (bleBean == null) {
             Timber.e("initBleListener bleBean == null");
             return;
         }
-        if(bleBean.getOKBLEDeviceImp() == null) {
+        if (bleBean.getOKBLEDeviceImp() == null) {
             Timber.e("initBleListener bleBean.getOKBLEDeviceImp() == null");
             return;
         }
@@ -529,21 +559,21 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
     }
 
     private void processRecValue(byte[] value) {
-        if(value == null) {
+        if (value == null) {
             return;
         }
         BleResultProcess.setOnReceivedProcess(mOnReceivedProcess);
         byte[] pwd2Or3 = null;
-        if(isHavePwd2Or3) {
-            if(mPwd3 == null) {
-                if(mPwd2 != null) {
+        if (isHavePwd2Or3) {
+            if (mPwd3 == null) {
+                if (mPwd2 != null) {
                     pwd2Or3 = mPwd2;
                 }
             } else {
                 pwd2Or3 = mPwd3;
             }
         }
-        BleResultProcess.processReceivedData(value, mPwd1, isHavePwd2Or3?pwd2Or3:null, mScanResult);
+        BleResultProcess.processReceivedData(value, mPwd1, isHavePwd2Or3 ? pwd2Or3 : null, mScanResult);
     }
 
     private void initScanManager() {
@@ -557,6 +587,7 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
             @Override
             public void onFailed(int code) {
                 bleScanFailed(code);
+                gotoBleConnectFail();
             }
 
             @Override
@@ -568,12 +599,12 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
     }
 
     private void filterAndConnectBle(BLEScanResult device) {
-        if(!TextUtils.isEmpty(device.getCompleteLocalName())&&device.getCompleteLocalName().contains("Rev")) {
+        if (!TextUtils.isEmpty(device.getCompleteLocalName()) && device.getCompleteLocalName().contains("Rev")) {
             Timber.d(" scan: name:%1s  mac: %2s",
-                    device.getCompleteLocalName(),  device.getMacAddress());
-            if(mPreA == mQRPre) {
+                    device.getCompleteLocalName(), device.getMacAddress());
+            if (mPreA == mQRPre) {
                 connectBleFromQRCode(device);
-            } else if(mPreA == mESNPre) {
+            } else if (mPreA == mESNPre) {
                 connectBleFromInputEsn(device);
             } else {
                 gotoBleConnectFail();
@@ -584,13 +615,13 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
     private void gotoBleConnectFail() {
         Intent intent = new Intent(this, BleConnectFailActivity.class);
         Intent preIntent = getIntent();
-        if(!preIntent.hasExtra(Constant.PRE_A)) return;
+        if (!preIntent.hasExtra(Constant.PRE_A)) return;
         String preA = preIntent.getStringExtra(Constant.PRE_A);
         intent.putExtra(Constant.PRE_A, preA);
-        if(preA.equals(Constant.INPUT_ESN_A)) {
-            preIntent.putExtra(Constant.ESN, intent.getStringExtra(Constant.ESN));
-        } else if(preA.equals(Constant.QR_CODE_A)) {
-            preIntent.putExtra(Constant.QR_RESULT, intent.getStringExtra(Constant.QR_RESULT));
+        if (preA.equals(Constant.INPUT_ESN_A)) {
+            intent.putExtra(Constant.ESN, preIntent.getStringExtra(Constant.ESN));
+        } else if (preA.equals(Constant.QR_CODE_A)) {
+            intent.putExtra(Constant.QR_RESULT, preIntent.getStringExtra(Constant.QR_RESULT));
         }
         BleBean bleBean = App.getInstance().getBleBeanFromMac(mMac);
         App.getInstance().removeConnectedBleBeanAndDisconnect(bleBean);
@@ -599,44 +630,51 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
     }
 
     private void bleScanFailed(int code) {
-        switch (code){
+        switch (code) {
             case DeviceScanCallBack.SCAN_FAILED_BLE_NOT_SUPPORT:
+                // TODO 2021/1/22 设备不支持
                 Timber.e("该设备不支持BLE");
+                ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show("The device does not support Bluetooth");
+                finish();
                 break;
             case DeviceScanCallBack.SCAN_FAILED_BLUETOOTH_DISABLE:
-                Timber.e("请打开手机蓝牙");
                 // TODO: 2021/1/22 打开手机蓝牙
-                ToastUtils.showShort(R.string.t_please_open_bluetooth);
+                Timber.e("请打开手机蓝牙");
+                ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_please_open_bluetooth);
+                finish();
                 break;
             case DeviceScanCallBack.SCAN_FAILED_LOCATION_PERMISSION_DISABLE:
-                Timber.e("请授予位置权限以扫描周围的蓝牙设备");
                 // TODO: 2021/1/22 请求位置权限
-                ToastUtils.showShort(R.string.t_please_open_location);
+                Timber.e("请授予位置权限以扫描周围的蓝牙设备");
+                ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_please_open_location);
+                finish();
                 break;
             case DeviceScanCallBack.SCAN_FAILED_LOCATION_PERMISSION_DISABLE_FOREVER:
-                Timber.e("位置权限被您永久拒绝,请在设置里授予位置权限以扫描周围的蓝牙设备");
                 // TODO: 2021/1/22 跳转到授予位置权限的页面
+                Timber.e("位置权限被您永久拒绝,请在设置里授予位置权限以扫描周围的蓝牙设备");
+                ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show("Please open location permission");
+                finish();
                 break;
         }
     }
 
     private void connectBleFromInputEsn(BLEScanResult device) {
-        if(TextUtils.isEmpty(mEsn)) return;
-        if(isDeviceEsnEqualsInputEsn(device, mEsn)) {
+        if (TextUtils.isEmpty(mEsn)) return;
+        if (isDeviceEsnEqualsInputEsn(device, mEsn)) {
             mScanManager.stopScan();
             mScanResult = device;
             mMac = device.getMacAddress();
-            App.getInstance().connectDevice(device, mPwd1, mPwd2, mOnBleDeviceListener,true);
+            App.getInstance().connectDevice(device, mPwd1, mPwd2, mOnBleDeviceListener, true);
         }
     }
 
     private void connectBleFromQRCode(BLEScanResult device) {
-        if(TextUtils.isEmpty(mMac)) return;
-        if(device.getMacAddress().equalsIgnoreCase(mMac)) {
+        if (TextUtils.isEmpty(mMac)) return;
+        if (device.getMacAddress().equalsIgnoreCase(mMac)) {
             mScanManager.stopScan();
             Timber.d("connectBleFromQRCode 扫描到设备");
             mScanResult = device;
-            App.getInstance().connectDevice(device, mPwd1, mPwd2, mOnBleDeviceListener,true);
+            App.getInstance().connectDevice(device, mPwd1, mPwd2, mOnBleDeviceListener, true);
         }
     }
 
@@ -644,7 +682,7 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
         String modeType = "";
         //返回Manufacture ID之后的data
         SparseArray<byte[]> hex16 = result.getManufacturerSpecificData();
-        if(hex16 != null && hex16.size() > 0) {
+        if (hex16 != null && hex16.size() > 0) {
             byte[] value = hex16.valueAt(0);
             //过滤无用蓝牙广播数据
             if (value.length < 16) return modeType;
@@ -663,7 +701,7 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
         // TODO: 2021/2/8 判断长度
         //返回Manufacture ID之后的data
         SparseArray<byte[]> hex16 = device.getManufacturerSpecificData();
-        if(hex16 != null && hex16.size() > 0) {
+        if (hex16 != null && hex16.size() > 0) {
             byte[] value = hex16.valueAt(0);
             //过滤无用蓝牙广播数据
             if (value.length < 16) return false;

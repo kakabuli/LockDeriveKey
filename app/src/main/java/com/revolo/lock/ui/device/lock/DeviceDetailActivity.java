@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.text.TextUtils;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -16,6 +17,7 @@ import androidx.core.content.ContextCompat;
 import com.a1anwang.okble.client.scan.BLEScanResult;
 import com.blankj.utilcode.util.ConvertUtils;
 import com.blankj.utilcode.util.GsonUtils;
+import com.blankj.utilcode.util.ToastUtils;
 import com.google.gson.JsonSyntaxException;
 import com.revolo.lock.App;
 import com.revolo.lock.Constant;
@@ -95,10 +97,10 @@ public class DeviceDetailActivity extends BaseActivity {
     @Override
     public void initView(@Nullable Bundle savedInstanceState, @Nullable View contentView) {
         // TODO: 2021/4/6 抽离文字
-        BleDeviceLocal mBleDeviceLocal=App.getInstance().getBleDeviceLocal();
-        if(null!=mBleDeviceLocal&&null!=mBleDeviceLocal.getName()&&!"".equals(mBleDeviceLocal.getName())){
+        BleDeviceLocal mBleDeviceLocal = App.getInstance().getBleDeviceLocal();
+        if (null != mBleDeviceLocal && null != mBleDeviceLocal.getName() && !"".equals(mBleDeviceLocal.getName())) {
             useCommonTitleBar(mBleDeviceLocal.getName());
-        }else{
+        } else {
             useCommonTitleBar("Homepage");
         }
         initSignalWeakDialog();
@@ -295,6 +297,7 @@ public class DeviceDetailActivity extends BaseActivity {
     }
 
     private void setLockState(@LocalState.LockState int state) {
+        dismissLoading();
         mBleDeviceLocal.setLockState(state);
         Timber.d("setLockState wifiId: %1s %2s", mBleDeviceLocal.getEsn(), state == LocalState.LOCK_STATE_OPEN ? "锁开了" : "锁关了");
         AppDatabase.getInstance(this).bleDeviceDao().update(mBleDeviceLocal);
@@ -302,6 +305,7 @@ public class DeviceDetailActivity extends BaseActivity {
     }
 
     private void setDoorState(@LocalState.DoorSensor int door) {
+        dismissLoading();
         mBleDeviceLocal.setDoorSensor(door);
         Timber.d("setDoorState wifiId: %1s %2s", mBleDeviceLocal.getEsn(), door == LocalState.DOOR_SENSOR_OPEN ? "开门了" : "关门了");
         AppDatabase.getInstance(this).bleDeviceDao().update(mBleDeviceLocal);
@@ -326,9 +330,9 @@ public class DeviceDetailActivity extends BaseActivity {
             if (eventType == 0x01) {
                 if (eventCode == 0x01) {
                     // 上锁
-                    if(eventSource==8){
+                    if (eventSource == 8) {
                         setLockState(LocalState.LOCK_STATE_PRIVATE);
-                    }else{
+                    } else {
                         setLockState(LocalState.LOCK_STATE_CLOSE);
                     }
                 } else if (eventCode == 0x02) {
@@ -453,7 +457,7 @@ public class DeviceDetailActivity extends BaseActivity {
 
     private void openDoor() {
         @LocalState.LockState int state = mBleDeviceLocal.getLockState();
-        if(state==LocalState.LOCK_STATE_PRIVATE){
+        if (state == LocalState.LOCK_STATE_PRIVATE) {
             return;
         }
         if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI) {
@@ -521,19 +525,20 @@ public class DeviceDetailActivity extends BaseActivity {
                     mCount = 0;
                     toDisposable(mOpenOrCloseLockDisposable);
                     processOpenOrClose(mqttData);
+                    dismissLoading();
                 }, e -> {
                     dismissLoading();
                     if (e instanceof TimeoutException) {
-//                        if(mCount == 3) {
-                        // 3次机会,超时失败开始连接蓝牙
-                        mCount = 0;
-                        runOnUiThread(() -> {
-                            if (mMessageDialog != null) {
-                                mMessageDialog.show();
-                            }
-                        });
-
-//                        }
+                        ToastUtils.make().setGravity(Gravity.CENTER,0,0).show(doorOpt == LocalState.DOOR_STATE_OPEN?"Locking Failed":"Unlocking Failed");
+                        if (mCount == 3) {
+                            // 3次机会,超时失败开始连接蓝牙
+                            mCount = 0;
+                            runOnUiThread(() -> {
+                                if (mMessageDialog != null) {
+                                    mMessageDialog.show();
+                                }
+                            });
+                        }
                     }
                     Timber.e(e);
                 });
@@ -629,7 +634,6 @@ public class DeviceDetailActivity extends BaseActivity {
     }
 
     private void processSetLock(@NotNull MqttData mqttData) {
-        dismissLoading();
         WifiLockDoorOptResponseBean bean;
         try {
             bean = GsonUtils.fromJson(mqttData.getPayload(), WifiLockDoorOptResponseBean.class);
@@ -660,7 +664,7 @@ public class DeviceDetailActivity extends BaseActivity {
 //            if(mSignalWeakDialog != null) {
 //                mSignalWeakDialog.dismiss();
 //            }
-//        });z.
+//        });
 
 //        mSignalWeakDialog.setOnConfirmListener(v -> {
 //            if(mSignalWeakDialog != null) {
@@ -674,6 +678,7 @@ public class DeviceDetailActivity extends BaseActivity {
         mMessageDialog.setOnListener(v -> {
             if (mMessageDialog != null) {
                 mMessageDialog.dismiss();
+                connectBle();
             }
         });
     }
@@ -742,5 +747,4 @@ public class DeviceDetailActivity extends BaseActivity {
             }
         }
     };
-
 }

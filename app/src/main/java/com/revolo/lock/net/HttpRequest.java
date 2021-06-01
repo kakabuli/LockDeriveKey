@@ -41,6 +41,7 @@ import com.revolo.lock.bean.request.SearchProductNoBeanReq;
 import com.revolo.lock.bean.request.SettingDuressPwdReceiveEMailBeanReq;
 import com.revolo.lock.bean.request.StartAllOTAUpdateBeanReq;
 import com.revolo.lock.bean.request.StartOTAUpdateBeanReq;
+import com.revolo.lock.bean.request.SystemMessageListReq;
 import com.revolo.lock.bean.request.UpdateDoorSensorStateBeanReq;
 import com.revolo.lock.bean.request.UpdateLockInfoReq;
 import com.revolo.lock.bean.request.UpdateLockRecordBeanReq;
@@ -90,6 +91,7 @@ import com.revolo.lock.bean.respone.SearchProductNoBeanRsp;
 import com.revolo.lock.bean.respone.SettingDuressPwdReceiveEMailBeanRsp;
 import com.revolo.lock.bean.respone.StartAllOTAUpdateBeanRsp;
 import com.revolo.lock.bean.respone.StartOTAUpdateBeanRsp;
+import com.revolo.lock.bean.respone.SystemMessageListBeanRsp;
 import com.revolo.lock.bean.respone.UpdateDoorSensorStateBeanRsp;
 import com.revolo.lock.bean.respone.UpdateLockInfoRsp;
 import com.revolo.lock.bean.respone.UpdateLockRecordBeanRsp;
@@ -462,5 +464,9 @@ public class HttpRequest {
 
     public Observable<UpdateLockInfoRsp> updateLockInfo(String token, UpdateLockInfoReq req) {
         return service.updateLockInfo(token, req, NORMAL);
+    }
+
+    public Observable<SystemMessageListBeanRsp> systemMessageList(String token, SystemMessageListReq req) {
+        return service.systemMessageList(token, req);
     }
 }

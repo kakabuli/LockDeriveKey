@@ -17,6 +17,7 @@ import android.widget.ImageView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.a1anwang.okble.client.core.OKBLEOperation;
 import com.blankj.utilcode.util.ActivityUtils;
 import com.blankj.utilcode.util.ToastUtils;
 import com.revolo.lock.App;
@@ -185,11 +186,32 @@ public class AddWifiActivity extends BaseActivity {
             return;
         }
         if (mBleBean.getOKBLEDeviceImp() != null) {
-            App.getInstance().openPairNotify(mBleBean.getOKBLEDeviceImp());
+            App.getInstance().openPairNotify(mBleBean.getOKBLEDeviceImp(), mNotifyOrIndicateOperationListener);
             mBleBean.setOnBleDeviceListener(mOnBleDeviceListener);
             checkBattery();
         }
+
     }
+
+    private final OKBLEOperation.NotifyOrIndicateOperationListener mNotifyOrIndicateOperationListener = new OKBLEOperation.NotifyOrIndicateOperationListener() {
+        @Override
+        public void onNotifyOrIndicateComplete() {
+            Timber.d("openControlNotify onNotifyOrIndicateComplete 打开配网通知成功");
+        }
+
+        @Override
+        public void onFail(int code, String errMsg) {
+            Timber.e("openControlNotify onFail errMsg: %1s", errMsg);
+            // TODO 暂定
+            ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show("Please turn on Bluetooth");
+            finish();
+        }
+
+        @Override
+        public void onExecuteSuccess(OKBLEOperation.OperationType type) {
+
+        }
+    };
 
     private final OnBleDeviceListener mOnBleDeviceListener = new OnBleDeviceListener() {
         @Override
@@ -225,9 +247,13 @@ public class AddWifiActivity extends BaseActivity {
                 Timber.e("initBleListener bleBean.getPwd3() == null");
                 return;
             }
-            BleResultProcess.setOnReceivedProcess(mOnReceivedProcess);
-            BleResultProcess.processReceivedData(value, mBleBean.getPwd1(), mBleBean.getPwd3(),
-                    mBleBean.getOKBLEDeviceImp().getBleScanResult());
+            if (mOnReceivedProcess == null) {
+                AddWifiActivity.this.finish();
+            } else {
+                BleResultProcess.setOnReceivedProcess(mOnReceivedProcess);
+                BleResultProcess.processReceivedData(value, mBleBean.getPwd1(), mBleBean.getPwd3(),
+                        mBleBean.getOKBLEDeviceImp().getBleScanResult());
+            }
         }
 
         @Override
@@ -265,12 +291,12 @@ public class AddWifiActivity extends BaseActivity {
                         .checkLockBaseInfoCommand(mBleBean.getPwd1(), mBleBean.getPwd3()),
                 mBleBean.getOKBLEDeviceImp());
         // 临时加一个6秒后执行取消loading
-        new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                dismissLoading();
-            }
-        }, 6000);
+//        new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
+//            @Override
+//            public void run() {
+//                dismissLoading();
+//            }
+//        }, 6000);
     }
 
     private void receiveLockBaseInfo(BleResultBean bleResultBean) {
@@ -392,6 +418,6 @@ public class AddWifiActivity extends BaseActivity {
     private String getConnectWifiSID() {
         WifiManager wifiManager = (WifiManager) getSystemService(WIFI_SERVICE);
         WifiInfo wifiInfo = wifiManager.getConnectionInfo();
-        return wifiInfo.getSSID();
+        return wifiInfo.getSSID().replaceAll("\\\"", "");
     }
 }

@@ -1,9 +1,12 @@
 package com.revolo.lock.ui.mine;
 
 import android.os.Bundle;
+import android.text.Editable;
 import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.view.Gravity;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -31,6 +34,9 @@ import timber.log.Timber;
  */
 public class FeedbackActivity extends BaseActivity {
 
+    private TextView mFontCount;
+    private EditText mEtFeed;
+
     @Override
     public void initData(@Nullable Bundle bundle) {
 
@@ -47,6 +53,28 @@ public class FeedbackActivity extends BaseActivity {
         applyDebouncingClickListener(findViewById(R.id.btnSubmit));
 
         initLoading("Feedback...");
+
+        mFontCount = findViewById(R.id.tvCount);
+        mEtFeed = findViewById(R.id.etFeedback);
+
+        mFontCount.setText("0/200");
+        mEtFeed.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                int length = s.length();
+                mFontCount.setText(length + "/" + 200);
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
     }
 
     @Override
@@ -56,35 +84,35 @@ public class FeedbackActivity extends BaseActivity {
 
     @Override
     public void onDebouncingClick(@NonNull View view) {
-        if(view.getId() == R.id.btnSubmit) {
+        if (view.getId() == R.id.btnSubmit) {
             feedback();
         }
     }
 
     private void feedback() {
-        if(!checkNetConnectFail()) {
+        if (!checkNetConnectFail()) {
             return;
         }
-        String feedbackStr = ((TextView) findViewById(R.id.etFeedback)).getText().toString().trim();
-        if(TextUtils.isEmpty(feedbackStr)) {
+        String feedbackStr = mEtFeed.getText().toString().trim();
+        if (TextUtils.isEmpty(feedbackStr)) {
             ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_please_enter_feedback_content);
             return;
         }
-        if(feedbackStr.length()<20){
+        if (feedbackStr.length() < 20) {
             ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_please_enter_feedback_less);
             return;
         }
-        if(App.getInstance().getUserBean() == null) {
+        if (App.getInstance().getUserBean() == null) {
             Timber.e("feedback App.getInstance().getUserBean() == null");
             return;
         }
         String uid = App.getInstance().getUserBean().getUid();
-        if(TextUtils.isEmpty(uid)) {
+        if (TextUtils.isEmpty(uid)) {
             Timber.e("feedback uid is empty");
             return;
         }
         String token = App.getInstance().getUserBean().getToken();
-        if(TextUtils.isEmpty(token)) {
+        if (TextUtils.isEmpty(token)) {
             Timber.e("feedback token is empty");
             return;
         }
@@ -103,18 +131,18 @@ public class FeedbackActivity extends BaseActivity {
             public void onNext(@NonNull FeedBackBeanRsp feedBackBeanRsp) {
                 dismissLoading();
                 String code = feedBackBeanRsp.getCode();
-                if(TextUtils.isEmpty(code)) {
+                if (TextUtils.isEmpty(code)) {
                     Timber.e("feedback code is empty");
                     return;
                 }
-                if(!code.equals("200")) {
-                    if(code.equals("444")) {
+                if (!code.equals("200")) {
+                    if (code.equals("444")) {
                         App.getInstance().logout(true, FeedbackActivity.this);
                         return;
                     }
                     String msg = feedBackBeanRsp.getMsg();
                     Timber.e("feedback code %1s, msg %2s", code, msg);
-                    if(TextUtils.isEmpty(msg)) {
+                    if (TextUtils.isEmpty(msg)) {
                         ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(msg);
                     }
                     return;
