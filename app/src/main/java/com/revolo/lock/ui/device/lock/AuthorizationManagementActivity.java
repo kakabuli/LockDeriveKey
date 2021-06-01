@@ -10,6 +10,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.blankj.utilcode.util.ActivityUtils;
 import com.revolo.lock.App;
 import com.revolo.lock.Constant;
 import com.revolo.lock.R;
@@ -177,6 +178,21 @@ public class AuthorizationManagementActivity extends BaseActivity {
         });
     }
 
+    private final int SHARE_REQ = 7512;
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(requestCode == SHARE_REQ) {
+            if(resultCode ==  RESULT_OK) {
+                ActivityUtils.finishActivity(AddNewShareUserInputNameActivity.class);
+                ActivityUtils.finishActivity(UserManagementActivity.class);
+                ActivityUtils.finishActivity(DeviceDetailActivity.class);
+                finish();
+            }
+        }
+    }
+
     private void shareUrlToOtherApp(@NotNull String url) {
         Intent intent = new Intent(Intent.ACTION_SEND);
         intent.setType("text/plain");
@@ -184,7 +200,7 @@ public class AuthorizationManagementActivity extends BaseActivity {
         intent.putExtra(Intent.EXTRA_SUBJECT, "Share To");
         intent.putExtra(Intent.EXTRA_TEXT, url);//extraText为文本的内容
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);//为Activity新建一个任务栈
-        startActivity(intent);
+        startActivityForResult(intent, SHARE_REQ);
     }
 
 }

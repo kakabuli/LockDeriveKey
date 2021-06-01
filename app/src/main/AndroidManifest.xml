@@ -290,7 +290,7 @@
                 <data
                     android:host="test.irevolo.com"
                     android:scheme="https"
-                    android:pathPrefix="/test"/>
+                    android:pathPrefix="/share/"/>
             </intent-filter>
             <intent-filter android:label="test_app">
                 <!--必有项-->
