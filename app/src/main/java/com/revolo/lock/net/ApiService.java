@@ -2,6 +2,8 @@ package com.revolo.lock.net;
 
 import com.revolo.lock.bean.request.AcceptShareBeanReq;
 import com.revolo.lock.bean.request.AdminAddDeviceBeanReq;
+import com.revolo.lock.bean.request.AlexaAppUrlAndWebUrlReq;
+import com.revolo.lock.bean.request.AlexaSkillEnableReq;
 import com.revolo.lock.bean.request.ChangeBleVerBeanReq;
 import com.revolo.lock.bean.request.ChangeDeviceHardVerBeanReq;
 import com.revolo.lock.bean.request.ChangeDeviceNameBeanReq;
@@ -16,6 +18,7 @@ import com.revolo.lock.bean.request.DelDeviceBeanReq;
 import com.revolo.lock.bean.request.DelInvalidShareBeanReq;
 import com.revolo.lock.bean.request.DelKeyBeanReq;
 import com.revolo.lock.bean.request.DelSharedUserBeanReq;
+import com.revolo.lock.bean.request.DeleteSystemMessageReq;
 import com.revolo.lock.bean.request.DeviceUnbindBeanReq;
 import com.revolo.lock.bean.request.EnableSharedUserBeanReq;
 import com.revolo.lock.bean.request.FeedBackBeanReq;
@@ -50,6 +53,8 @@ import com.revolo.lock.bean.request.UploadAlarmRecordBeanReq;
 import com.revolo.lock.bean.request.UploadOpenDoorRecordBeanReq;
 import com.revolo.lock.bean.respone.AcceptShareBeanRsp;
 import com.revolo.lock.bean.respone.AdminAddDeviceBeanRsp;
+import com.revolo.lock.bean.respone.AlexaAppUrlAndWebUrlBeanRsp;
+import com.revolo.lock.bean.respone.AlexaSkillEnableBeanRsp;
 import com.revolo.lock.bean.respone.ChangeBleVerBeanRsp;
 import com.revolo.lock.bean.respone.ChangeDeviceHardVerBeanRsp;
 import com.revolo.lock.bean.respone.ChangeDeviceNameBeanRsp;
@@ -661,6 +666,36 @@ public interface ApiService {
      * @param req   请求实体
      */
     @Headers({"Content-Type: application/json"})
-    @POST("/wpflock/device/systemMessageList")
+    @POST("/systemMessage/list")
     Observable<SystemMessageListBeanRsp> systemMessageList(@Header("token") String token, @Body SystemMessageListReq req);
+
+    /**
+     * 系统消息删除
+     *
+     * @param token 用户权限码
+     * @param req   请求实体
+     */
+    @Headers({"Content-Type: application/json"})
+    @POST("/systemMessage/delete")
+    Observable<SystemMessageListBeanRsp> systemMessageDelete(@Header("token") String token, @Body DeleteSystemMessageReq req);
+
+    /**
+     * 获取Alexa App和LWA Web登陆url
+     *
+     * @param token 用户权限码
+     * @param req   请求实体
+     */
+    @Headers({"Content-Type: multipart/form-data"})
+    @POST("/user/edit/getAppUrlAndWebUrl")
+    Observable<AlexaAppUrlAndWebUrlBeanRsp> getAppUrlAndWebUrl(@Header("token") String token, @Body AlexaAppUrlAndWebUrlReq req);
+
+    /**
+     * 关联AlexaSkill并启用技能
+     *
+     * @param token 用户权限码
+     * @param req   请求实体
+     */
+    @Headers({"Content-Type: multipart/form-data"})
+    @POST("/zetark-oauth2-server/skillEnable")
+    Observable<AlexaSkillEnableBeanRsp> skillEnable(@Header("token") String token, @Body AlexaSkillEnableReq req);
 }

@@ -32,6 +32,10 @@ public class BleResultBean implements Parcelable {
         mScanResult = scanResult;
     }
 
+    public BleResultBean() {
+
+    }
+
     public int getControl() {
         return mControl;
     }

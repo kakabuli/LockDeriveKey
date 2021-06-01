@@ -32,9 +32,8 @@ import com.revolo.lock.ble.BleResultProcess;
 import com.revolo.lock.ble.OnBleDeviceListener;
 import com.revolo.lock.ble.bean.BleBean;
 import com.revolo.lock.ble.bean.BleResultBean;
-import com.revolo.lock.manager.LockAppService;
-import com.revolo.lock.mqtt.MqttCommandFactory;
 import com.revolo.lock.mqtt.MQttConstant;
+import com.revolo.lock.mqtt.MqttCommandFactory;
 import com.revolo.lock.mqtt.MqttService;
 import com.revolo.lock.mqtt.bean.MqttData;
 import com.revolo.lock.mqtt.bean.publishresultbean.WifiLockApproachOpenResponseBean;
@@ -97,8 +96,6 @@ public class App extends Application {
 
     protected MqttService mMQttService;
 
-    private Intent mLockAppService;
-
     @Override
     public void onCreate() {
         super.onCreate();
@@ -108,15 +105,12 @@ public class App extends Application {
         }
         initMQttService();
 
-//        mLockAppService = new Intent(this, LockAppService.class);
-//        startService(mLockAppService);
     }
 
     @Override
     public void onTerminate() {
         super.onTerminate();
         // 程序终止时执行
-//        stopService(mLockAppService);
     }
 
     // TODO: 2021/3/8 临时存个MainActivity 后期删除
@@ -275,9 +269,9 @@ public class App extends Application {
             public void onNotifyOrIndicateComplete(String deviceTAG, String uuid, boolean enable, boolean success) {
             }
         };
-        deviceImp.addDeviceListener(okbleDeviceListener);
         // 自动重连
         deviceImp.connect(true);
+        deviceImp.addDeviceListener(okbleDeviceListener);
         return bleBean;
     }
 
@@ -766,7 +760,7 @@ public class App extends Application {
     }
 
 
-    private final CountDownTimer mCountDownTimer = new CountDownTimer(600000, 1000) {
+    private final CountDownTimer mCountDownTimer = new CountDownTimer(60000, 1000) {
         @Override
         public void onTick(long millisUntilFinished) {
             if (mGeoFenceBleBean != null) {

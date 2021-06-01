@@ -4,6 +4,8 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.revolo.lock.bean.request.AcceptShareBeanReq;
 import com.revolo.lock.bean.request.AdminAddDeviceBeanReq;
+import com.revolo.lock.bean.request.AlexaAppUrlAndWebUrlReq;
+import com.revolo.lock.bean.request.AlexaSkillEnableReq;
 import com.revolo.lock.bean.request.ChangeBleVerBeanReq;
 import com.revolo.lock.bean.request.ChangeDeviceHardVerBeanReq;
 import com.revolo.lock.bean.request.ChangeDeviceNameBeanReq;
@@ -18,6 +20,7 @@ import com.revolo.lock.bean.request.DelDeviceBeanReq;
 import com.revolo.lock.bean.request.DelInvalidShareBeanReq;
 import com.revolo.lock.bean.request.DelKeyBeanReq;
 import com.revolo.lock.bean.request.DelSharedUserBeanReq;
+import com.revolo.lock.bean.request.DeleteSystemMessageReq;
 import com.revolo.lock.bean.request.DeviceUnbindBeanReq;
 import com.revolo.lock.bean.request.EnableSharedUserBeanReq;
 import com.revolo.lock.bean.request.FeedBackBeanReq;
@@ -52,6 +55,8 @@ import com.revolo.lock.bean.request.UploadAlarmRecordBeanReq;
 import com.revolo.lock.bean.request.UploadOpenDoorRecordBeanReq;
 import com.revolo.lock.bean.respone.AcceptShareBeanRsp;
 import com.revolo.lock.bean.respone.AdminAddDeviceBeanRsp;
+import com.revolo.lock.bean.respone.AlexaAppUrlAndWebUrlBeanRsp;
+import com.revolo.lock.bean.respone.AlexaSkillEnableBeanRsp;
 import com.revolo.lock.bean.respone.ChangeBleVerBeanRsp;
 import com.revolo.lock.bean.respone.ChangeDeviceHardVerBeanRsp;
 import com.revolo.lock.bean.respone.ChangeDeviceNameBeanRsp;
@@ -467,5 +472,17 @@ public class HttpRequest {
 
     public Observable<SystemMessageListBeanRsp> systemMessageList(String token, SystemMessageListReq req) {
         return service.systemMessageList(token, req);
+    }
+
+    public Observable<SystemMessageListBeanRsp> deleteSystemMessage(String token, DeleteSystemMessageReq req) {
+        return service.systemMessageDelete(token, req);
+    }
+
+    public Observable<AlexaAppUrlAndWebUrlBeanRsp> getAppUrlAndWebUrl(String token, AlexaAppUrlAndWebUrlReq req) {
+        return service.getAppUrlAndWebUrl(token, req);
+    }
+
+    public Observable<AlexaSkillEnableBeanRsp> skillEnable(String token, AlexaSkillEnableReq req) {
+        return service.skillEnable(token, req);
     }
 }
