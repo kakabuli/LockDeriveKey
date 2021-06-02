@@ -685,7 +685,7 @@ public interface ApiService {
      * @param token 用户权限码
      * @param req   请求实体
      */
-    @Headers({"Content-Type: multipart/form-data"})
+    @Headers({"Content-Type: application/json"})
     @POST("/user/edit/getAppUrlAndWebUrl")
     Observable<AlexaAppUrlAndWebUrlBeanRsp> getAppUrlAndWebUrl(@Header("token") String token, @Body AlexaAppUrlAndWebUrlReq req);
 
@@ -695,7 +695,7 @@ public interface ApiService {
      * @param token 用户权限码
      * @param req   请求实体
      */
-    @Headers({"Content-Type: multipart/form-data"})
+    @Headers({"Content-Type: application/json"})
     @POST("/zetark-oauth2-server/skillEnable")
     Observable<AlexaSkillEnableBeanRsp> skillEnable(@Header("token") String token, @Body AlexaSkillEnableReq req);
 }

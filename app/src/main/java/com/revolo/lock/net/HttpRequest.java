@@ -131,7 +131,7 @@ public class HttpRequest {
 
     private static final String HOST_TEST = "https://internal.irevolo.com:8090";                    // 国内服务器测试接口
     private static final String ABROAD_HOST = "https://test.irevolo.com:8090";                      // 海外服务器测试接口
-    private static final String LOCAL_HOST = "https://192.168.8.252:443";                           // 长沙本地服务器测试接口
+    private static final String LOCAL_HOST = "https://192.168.118.84:443";                           // 长沙本地服务器测试接口
     public static final String HOST = ABROAD_HOST;
     private static final String CHECK_OTA_HOST_TEST = "https://test1.juziwulian.com:9111";          // 国内服务器测试接口
     private static final String CHECK_OTA_HOST_ABROAD = "https://ota-global.juziwulian.com:9111";   // 海外服务器接口
@@ -142,7 +142,6 @@ public class HttpRequest {
 
     public static HttpRequest getInstance() {
         if (ourInstance == null) {
-
             synchronized (HttpRequest.class) {
                 if (ourInstance == null) {
                     ourInstance = new HttpRequest();

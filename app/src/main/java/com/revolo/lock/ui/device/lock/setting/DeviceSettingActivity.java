@@ -1,7 +1,14 @@
 package com.revolo.lock.ui.device.lock.setting;
 
+import android.app.Activity;
+import android.app.Notification;
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.content.res.Resources;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -25,8 +32,10 @@ import com.revolo.lock.Constant;
 import com.revolo.lock.LocalState;
 import com.revolo.lock.R;
 import com.revolo.lock.base.BaseActivity;
+import com.revolo.lock.bean.request.AlexaAppUrlAndWebUrlReq;
 import com.revolo.lock.bean.request.DeviceUnbindBeanReq;
 import com.revolo.lock.bean.request.UpdateLockInfoReq;
+import com.revolo.lock.bean.respone.AlexaAppUrlAndWebUrlBeanRsp;
 import com.revolo.lock.bean.respone.DeviceUnbindBeanRsp;
 import com.revolo.lock.bean.respone.UpdateLockInfoRsp;
 import com.revolo.lock.ble.BleByteUtil;
@@ -50,6 +59,8 @@ import com.revolo.lock.ui.device.lock.DeviceDetailActivity;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import io.reactivex.Observable;
@@ -105,7 +116,7 @@ public class DeviceSettingActivity extends BaseActivity {
                 findViewById(R.id.clDuressCode), findViewById(R.id.clDoorLockInformation),
                 findViewById(R.id.clGeoFenceLock), findViewById(R.id.clDoorMagneticSwitch),
                 findViewById(R.id.clUnbind), findViewById(R.id.clMute), findViewById(R.id.clWifi),
-                mIvDoNotDisturbModeEnable, findViewById(R.id.ivLockName));
+                mIvDoNotDisturbModeEnable, findViewById(R.id.ivLockName), findViewById(R.id.clJoinAlexa));
         mIvDoNotDisturbModeEnable.setImageResource(mBleDeviceLocal.isDoNotDisturbMode() ? R.drawable.ic_icon_switch_open : R.drawable.ic_icon_switch_close);
         mIvMuteEnable.setImageResource(mBleDeviceLocal.isMute() ? R.drawable.ic_icon_switch_open : R.drawable.ic_icon_switch_close);
     }
@@ -160,12 +171,16 @@ public class DeviceSettingActivity extends BaseActivity {
             startActivity(intent);
             return;
         }
+        if (view.getId() == R.id.clJoinAlexa) {
+            joinAlexa();
+            return;
+        }
         if (view.getId() == R.id.clGeoFenceLock) {
             if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI) {
                 Intent intent = new Intent(this, GeoFenceUnlockActivity.class);
                 startActivity(intent);
             } else {
-                ToastUtils.make().setGravity(Gravity.CENTER,0,0).show("Please set to WiFi connection mode");
+                ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show("Please set to WiFi connection mode");
             }
             return;
         }
@@ -553,4 +568,83 @@ public class DeviceSettingActivity extends BaseActivity {
         });
     }
 
+    private void joinAlexa() {
+
+        String token = App.getInstance().getUserBean().getToken();
+        if (TextUtils.isEmpty(token)) {
+            Timber.e("token is empty");
+            return;
+        }
+
+        String userMail = App.getInstance().getUser().getMail();
+        if (TextUtils.isEmpty(userMail)) {
+            Timber.e("userMail is empty");
+            return;
+        }
+
+        AlexaAppUrlAndWebUrlReq urlReq = new AlexaAppUrlAndWebUrlReq();
+        urlReq.setType(1);
+        urlReq.setUserMail(userMail);
+        Observable<AlexaAppUrlAndWebUrlBeanRsp> appUrlAndWebUrl = HttpRequest.getInstance().getAppUrlAndWebUrl(token, urlReq);
+        ObservableDecorator.decorate(appUrlAndWebUrl).safeSubscribe(new Observer<AlexaAppUrlAndWebUrlBeanRsp>() {
+            @Override
+            public void onSubscribe(@io.reactivex.annotations.NonNull Disposable d) {
+
+            }
+
+            @Override
+            public void onNext(@io.reactivex.annotations.NonNull AlexaAppUrlAndWebUrlBeanRsp alexaAppUrlAndWebUrlBeanRsp) {
+                if (alexaAppUrlAndWebUrlBeanRsp != null && alexaAppUrlAndWebUrlBeanRsp.getCode().equals("200")) {
+                    if (alexaAppUrlAndWebUrlBeanRsp.getData() != null) {
+                        AlexaAppUrlAndWebUrlBeanRsp.DataBean data = alexaAppUrlAndWebUrlBeanRsp.getData();
+                        String appUrl = data.getAppUrl();
+                        String webFallbackUrl = data.getWebFallbackUrl();
+                        String packageName = "com.amazon.dee.app";
+                        runOnUiThread(() -> {
+                            if (isAppInstalled(packageName)) {
+                                Intent launchIntentForPackage = getPackageManager().getLaunchIntentForPackage(packageName);
+                                String className = launchIntentForPackage.getComponent().getClassName();
+                                Intent intent = new Intent();
+                                intent.setAction(Intent.ACTION_MAIN);
+                                intent.setData(Uri.parse(appUrl));
+                                intent.addCategory(Intent.CATEGORY_LAUNCHER);
+                                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
+                                intent.setComponent(new ComponentName(packageName, className));
+                                startActivity(intent);
+                            } else {
+                                Intent intent = new Intent();
+                                intent.setAction(Intent.ACTION_VIEW);
+                                Uri uri = Uri.parse(webFallbackUrl);
+                                intent.setData(uri);
+                                startActivity(intent);
+                            }
+                        });
+                    }
+                }
+            }
+
+            @Override
+            public void onError(@io.reactivex.annotations.NonNull Throwable e) {
+
+            }
+
+            @Override
+            public void onComplete() {
+
+            }
+        });
+    }
+
+    public boolean isAppInstalled(String packageName) {
+        final PackageManager packageManager = getPackageManager();
+        List<PackageInfo> packageInfo = packageManager.getInstalledPackages(0);
+        List<String> pName = new ArrayList<>();
+        if (packageInfo != null) {
+            for (int i = 0; i < packageInfo.size(); i++) {
+                String pn = packageInfo.get(i).packageName;
+                pName.add(pn);
+            }
+        }
+        return pName.contains(packageName);
+    }
 }

@@ -114,7 +114,6 @@
         android:id="@+id/clEnableFaceID"
         android:layout_width="match_parent"
         android:layout_height="51pt"
-        android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"

@@ -2,7 +2,9 @@ package com.revolo.lock.ui.mine;
 
 import android.content.Intent;
 import android.hardware.fingerprint.FingerprintManager;
+import android.media.FaceDetector;
 import android.os.Bundle;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.ImageView;
 
@@ -10,6 +12,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
 
+import com.blankj.utilcode.util.ToastUtils;
 import com.revolo.lock.App;
 import com.revolo.lock.R;
 import com.revolo.lock.base.BaseActivity;
@@ -30,13 +33,13 @@ public class SettingActivity extends BaseActivity {
     private static final int REQUEST_CODE_OPEN_GESTURE_CODE = 1999;
     private static final int REQUEST_CODE_CLOSE_GESTURE_CODE = 1888;
 
-    private ConstraintLayout mClEnableTouchID, mClEnableFaceID,clChangeGesturePassword;
+    private ConstraintLayout mClEnableTouchID, mClEnableFaceID, clChangeGesturePassword;
     private FingerprintUtils mFingerprintUtils;
 
     @Override
     public void initData(@Nullable Bundle bundle) {
         mUser = App.getInstance().getUser();
-        if(mUser == null) {
+        if (mUser == null) {
             finish();
         }
     }
@@ -54,8 +57,8 @@ public class SettingActivity extends BaseActivity {
         ivEnableFaceIDEnable = findViewById(R.id.ivEnableFaceIDEnable);
         mClEnableFaceID = findViewById(R.id.clEnableFaceID);
         mClEnableTouchID = findViewById(R.id.clEnableTouchID);
-        clChangeGesturePassword=findViewById(R.id.clChangeGesturePassword);
-        applyDebouncingClickListener(ivGestureCodeEnable, ivEnableTouchIDEnable, ivEnableFaceIDEnable,clChangeGesturePassword);
+        clChangeGesturePassword = findViewById(R.id.clChangeGesturePassword);
+        applyDebouncingClickListener(ivGestureCodeEnable, ivEnableTouchIDEnable, ivEnableFaceIDEnable, clChangeGesturePassword);
         mFingerprintUtils = new FingerprintUtils(new FingerprintManager.AuthenticationCallback() {
             @Override
             public void onAuthenticationError(int errorCode, CharSequence errString) {
@@ -92,8 +95,8 @@ public class SettingActivity extends BaseActivity {
 
     @Override
     public void onDebouncingClick(@NonNull View view) {
-        if(view.getId() == R.id.ivGestureCodeEnable) {
-            if(mUser.isUseGesturePassword()) {
+        if (view.getId() == R.id.ivGestureCodeEnable) {
+            if (mUser.isUseGesturePassword()) {
                 Intent intent = new Intent(this, CloseDrawHandPwdActivity.class);
                 startActivityForResult(intent, REQUEST_CODE_CLOSE_GESTURE_CODE);
             } else {
@@ -101,28 +104,33 @@ public class SettingActivity extends BaseActivity {
                 startActivityForResult(intent, REQUEST_CODE_OPEN_GESTURE_CODE);
             }
             return;
-        }else if(view.getId() == R.id.ivEnableTouchIDEnable) {
+        } else if (view.getId() == R.id.ivEnableTouchIDEnable) {
             mFingerprintUtils.openFingerprintAuth();
             return;
-        }else if(view.getId() == R.id.ivEnableFaceIDEnable) {
+        } else if (view.getId() == R.id.ivEnableFaceIDEnable) {
             // TODO: 2021/3/19 faceId
-        }else if(view.getId()==R.id.clChangeGesturePassword){
-            Intent intent = new Intent(this, OpenDrawHandPwdActivity.class);
-            startActivityForResult(intent, REQUEST_CODE_OPEN_GESTURE_CODE);
+            faceId();
+        } else if (view.getId() == R.id.clChangeGesturePassword) {
+            if (mUser.isUseGesturePassword()) {
+                Intent intent = new Intent(this, OpenDrawHandPwdActivity.class);
+                startActivityForResult(intent, REQUEST_CODE_OPEN_GESTURE_CODE);
+            } else {
+                ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show("Please open Gesture password!");
+            }
         }
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if(requestCode == REQUEST_CODE_OPEN_GESTURE_CODE) {
-            if(resultCode == RESULT_OK) {
+        if (requestCode == REQUEST_CODE_OPEN_GESTURE_CODE) {
+            if (resultCode == RESULT_OK) {
                 mUser.setUseGesturePassword(true);
                 AppDatabase.getInstance(this).userDao().update(mUser);
                 refreshUI();
             }
-        } else if(requestCode == REQUEST_CODE_CLOSE_GESTURE_CODE) {
-            if(resultCode == RESULT_OK) {
+        } else if (requestCode == REQUEST_CODE_CLOSE_GESTURE_CODE) {
+            if (resultCode == RESULT_OK) {
                 mUser.setUseGesturePassword(false);
                 AppDatabase.getInstance(this).userDao().update(mUser);
                 refreshUI();
@@ -132,10 +140,14 @@ public class SettingActivity extends BaseActivity {
 
     private void refreshUI() {
         runOnUiThread(() -> {
-            ivGestureCodeEnable.setImageResource(mUser.isUseGesturePassword()?R.drawable.ic_icon_switch_open:R.drawable.ic_icon_switch_close);
-            ivEnableTouchIDEnable.setImageResource(mUser.isUseTouchId()?R.drawable.ic_icon_switch_open:R.drawable.ic_icon_switch_close);
-            ivEnableFaceIDEnable.setImageResource(mUser.isUseFaceId()?R.drawable.ic_icon_switch_open:R.drawable.ic_icon_switch_close);
+            ivGestureCodeEnable.setImageResource(mUser.isUseGesturePassword() ? R.drawable.ic_icon_switch_open : R.drawable.ic_icon_switch_close);
+            ivEnableTouchIDEnable.setImageResource(mUser.isUseTouchId() ? R.drawable.ic_icon_switch_open : R.drawable.ic_icon_switch_close);
+            ivEnableFaceIDEnable.setImageResource(mUser.isUseFaceId() ? R.drawable.ic_icon_switch_open : R.drawable.ic_icon_switch_close);
         });
+    }
+
+    private void faceId() {
+
     }
 
 }

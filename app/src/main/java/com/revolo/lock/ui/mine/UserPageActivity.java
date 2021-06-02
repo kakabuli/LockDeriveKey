@@ -208,8 +208,6 @@ public class UserPageActivity extends BaseActivity implements EasyPermissions.Pe
                     if (avatarFile == null) {
                         return;
                     }
-
-                    mUser.setAvatarLocalPath(path);
                     uploadUserAvatar(avatarFile);
                     dismissPicSelect();
 
@@ -323,14 +321,18 @@ public class UserPageActivity extends BaseActivity implements EasyPermissions.Pe
                     return;
                 }
                 mUser.setAvatarUrl(avatarUrl);
+                mUser.setAvatarLocalPath(avatarFile.getPath());
                 AppDatabase.getInstance(UserPageActivity.this).userDao().update(mUser);
                 refreshUserUI();
+                ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show("Change Success");
             }
 
             @Override
             public void onError(@NonNull Throwable e) {
                 dismissLoading();
                 Timber.e(e);
+                ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show("Change Failed");
+                mUser.setAvatarLocalPath("");
             }
 
             @Override

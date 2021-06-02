@@ -15,9 +15,12 @@
 
     <TextView
         android:id="@+id/tvDrawTip"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginLeft="16pt"
         android:layout_marginTop="43pt"
+        android:layout_marginRight="16pt"
+        android:gravity="center_horizontal"
         android:text="@string/draw_gesture_pwd"
         android:textColor="@color/c333333"
         android:textSize="15pt"
