@@ -28,6 +28,9 @@
     <!-- Required only when requesting background location access on
        Android 10 (API level 29) and higher. -->
     <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
+    <!-- google推送权限 -->
+    <uses-permission android:name="com.revolo.lock.permission.C2D_MESSAGE" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
 
     <!-- 指纹权限 -->
     <uses-permission android:name="android.permission.USE_FINGERPRINT" />
@@ -325,7 +328,7 @@
             android:screenOrientation="portrait" />
 
         <service android:name=".mqtt.MqttService" />
-<!--        <service android:name=".manager.LockAppService" />-->
+        <!--        <service android:name=".manager.LockAppService" />-->
 
         <receiver android:name=".reveiver.WifiStateReceiver">
             <intent-filter>

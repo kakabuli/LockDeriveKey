@@ -20,6 +20,7 @@
         android:layout_marginTop="45pt"
         android:hint="@string/hint_first_name"
         android:inputType="textPersonName"
+        android:maxLength="50"
         android:textColorHint="@color/cA5A4DA"
         android:theme="@style/InputEditTextTheme"
         app:layout_constraintEnd_toEndOf="parent"
@@ -28,16 +29,17 @@
 
     <EditText
         android:id="@+id/etLastName"
+        style="@style/InputEditTextStyle"
         android:layout_width="300pt"
         android:layout_height="44pt"
-        style="@style/InputEditTextStyle"
-        android:theme="@style/InputEditTextTheme"
         android:layout_marginTop="10pt"
         android:hint="@string/hint_last_name"
+        android:inputType="textPersonName"
+        android:maxLength="50"
+        android:theme="@style/InputEditTextTheme"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/etFirstName"
-        android:inputType="textPersonName"/>
+        app:layout_constraintTop_toBottomOf="@+id/etFirstName" />
 
 
     <android.widget.Button
@@ -45,8 +47,8 @@
         style="@style/ButtonStyle"
         android:layout_width="223pt"
         android:layout_height="44pt"
-        android:text="@string/complete"
         android:layout_marginBottom="128pt"
+        android:text="@string/complete"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />

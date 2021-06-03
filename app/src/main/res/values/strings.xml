@@ -271,6 +271,7 @@
 
     <!-- DoorSensorCheckActivity -->
     <string name="title_door_sensor_alignment">Door sensor alignment</string>
+    <string name="title_door_sensor_alignment_failed">Gate magnet Alignment</string>
     <string name="close_the_door">Close the door</string>
     <string name="open_the_door">Open the door</string>
     <string name="half_close_the_door">Half close the door</string>

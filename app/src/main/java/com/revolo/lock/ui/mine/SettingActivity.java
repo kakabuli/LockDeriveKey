@@ -2,7 +2,6 @@ package com.revolo.lock.ui.mine;
 
 import android.content.Intent;
 import android.hardware.fingerprint.FingerprintManager;
-import android.media.FaceDetector;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.View;
@@ -10,6 +9,7 @@ import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.biometric.BiometricManager;
 import androidx.constraintlayout.widget.ConstraintLayout;
 
 import com.blankj.utilcode.util.ToastUtils;
@@ -19,6 +19,8 @@ import com.revolo.lock.base.BaseActivity;
 import com.revolo.lock.room.AppDatabase;
 import com.revolo.lock.room.entity.User;
 import com.revolo.lock.util.FingerprintUtils;
+
+import timber.log.Timber;
 
 /**
  * author : Jack
@@ -32,6 +34,7 @@ public class SettingActivity extends BaseActivity {
     private User mUser;
     private static final int REQUEST_CODE_OPEN_GESTURE_CODE = 1999;
     private static final int REQUEST_CODE_CLOSE_GESTURE_CODE = 1888;
+    private int mFaceIDCode = -1;
 
     private ConstraintLayout mClEnableTouchID, mClEnableFaceID, clChangeGesturePassword;
     private FingerprintUtils mFingerprintUtils;
@@ -86,6 +89,8 @@ public class SettingActivity extends BaseActivity {
                 //指纹验证失败，指纹识别失败，可再验，错误原因为：该指纹不是系统录入的指纹。
             }
         });
+
+        initFaceID();
     }
 
     @Override
@@ -105,11 +110,15 @@ public class SettingActivity extends BaseActivity {
             }
             return;
         } else if (view.getId() == R.id.ivEnableTouchIDEnable) {
-            mFingerprintUtils.openFingerprintAuth();
+            if (android.os.Build.VERSION.SDK_INT > 27) {
+                biometricSet(false);
+            } else {
+                mFingerprintUtils.openFingerprintAuth();
+            }
             return;
         } else if (view.getId() == R.id.ivEnableFaceIDEnable) {
             // TODO: 2021/3/19 faceId
-            faceId();
+            biometricSet(true);
         } else if (view.getId() == R.id.clChangeGesturePassword) {
             if (mUser.isUseGesturePassword()) {
                 Intent intent = new Intent(this, OpenDrawHandPwdActivity.class);
@@ -146,8 +155,58 @@ public class SettingActivity extends BaseActivity {
         });
     }
 
-    private void faceId() {
+    /**
+     * 生物识别设置
+     */
+    private void biometricSet(boolean isFace) {
 
+        if (isFace){
+            ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show("Device not Support!");
+            return;
+        }
+
+        switch (mFaceIDCode) {
+            case 0:
+                if (mUser.isUseTouchId()) {
+                    mUser.setUseTouchId(false);
+                } else {
+                    mUser.setUseTouchId(true);
+                }
+                AppDatabase.getInstance(this).userDao().update(mUser);
+                refreshUI();
+                break;
+            case 1:
+            case -1:
+            case 2:
+                ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show("Device not Support!");
+                break;
+            case 3:
+                ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show("Device not find FaceID!");
+                break;
+        }
+    }
+
+    private void initFaceID() {
+        BiometricManager biometricManager = BiometricManager.from(this);
+        switch (biometricManager.canAuthenticate()) {
+            case BiometricManager.BIOMETRIC_SUCCESS:
+                Timber.d("允许生物识别");
+                mFaceIDCode = 0;
+                break;
+            case BiometricManager.BIOMETRIC_ERROR_HW_UNAVAILABLE:
+                Timber.d("不允许生物识别");
+                mFaceIDCode = 1;
+                break;
+            case BiometricManager.BIOMETRIC_ERROR_NO_HARDWARE:
+                Timber.d("没有可用的生物特征功能");
+                mFaceIDCode = 2;
+                break;
+            case BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED:
+                Timber.d("没有录入生物识别数据");
+                mFaceIDCode = 3;
+                break;
+
+        }
     }
 
 }

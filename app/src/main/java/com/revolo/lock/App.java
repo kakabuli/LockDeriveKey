@@ -480,15 +480,16 @@ public class App extends Application {
 
     public void logout(boolean isShowDialog, Activity act) {
         // TODO: 2021/3/30 logout的数据操作
-        User user = App.getInstance().getUser();
-        user.setUseFaceId(false);
-        user.setUseTouchId(false);
-        user.setUseGesturePassword(false);
-        user.setGestureCode("");
-        AppDatabase.getInstance(getApplicationContext()).userDao().update(user);
-        AppDatabase.getInstance(getApplicationContext()).userDao().delete(user);
-        App.getInstance().getUserBean().setToken(""); // 清空token
-        SPUtils.getInstance(REVOLO_SP).put(Constant.USER_LOGIN_INFO, ""); // 清空登录信息
+        new Thread(){
+            @Override
+            public void run() {
+                super.run();
+                User user = App.getInstance().getUser();
+                AppDatabase.getInstance(getApplicationContext()).userDao().delete(user);
+                App.getInstance().getUserBean().setToken(""); // 清空token
+                SPUtils.getInstance(REVOLO_SP).put(Constant.USER_LOGIN_INFO, ""); // 清空登录信息
+            }
+        }.start();
         // TODO: 2021/3/30 退出操作
         if (App.getInstance().getMainActivity() != null) {
             App.getInstance().getMainActivity().finish();

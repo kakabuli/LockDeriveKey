@@ -33,7 +33,7 @@ android {
         }
 
         // Inject the Maps API key into the manifest
-        manifestPlaceholders = [ mapsApiKey : properties.getProperty("MAPS_API_KEY", "") ]
+        manifestPlaceholders = [mapsApiKey: properties.getProperty("MAPS_API_KEY", "")]
     }
 
     buildTypes {
@@ -55,11 +55,11 @@ android {
 
     android.applicationVariants.all { variant ->
         variant.outputs.all {
-            def date = new Date().format("yyyyMMdd" , TimeZone.getDefault())
-            if(variant.buildType.name == 'debug'){
+            def date = new Date().format("yyyyMMdd", TimeZone.getDefault())
+            if (variant.buildType.name == 'debug') {
                 outputFileName = "revolo_debug${date}_${versionName}.apk"
             }
-            if(variant.buildType.name == 'release'){
+            if (variant.buildType.name == 'release') {
                 outputFileName = "revolo${versionCode}_${versionName}_release.apk"
             }
         }
@@ -92,6 +92,7 @@ dependencies {
     implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.2.0'
     implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.3.0'
     implementation 'com.google.android.gms:play-services-maps:17.0.0'
+    implementation 'androidx.biometric:biometric:1.2.0-alpha03'
     implementation project(path: ':keep_alive')
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
@@ -161,11 +162,13 @@ dependencies {
     // google map
     implementation 'com.google.android.gms:play-services-maps:17.0.0'
     implementation 'com.google.android.gms:play-services-location:17.1.0'
+    //noinspection GradleCompatible
+    implementation 'com.google.android.gms:play-services-gcm:17.0.0'
 
     // 下拉刷新和上拉加载
-    implementation  'com.scwang.smart:refresh-layout-kernel:2.0.3'      //核心必须依赖
-    implementation  'com.scwang.smart:refresh-header-classics:2.0.3'    //经典刷新头
-    implementation  'com.scwang.smart:refresh-footer-classics:2.0.3'    //经典加载
+    implementation 'com.scwang.smart:refresh-layout-kernel:2.0.3'      //核心必须依赖
+    implementation 'com.scwang.smart:refresh-header-classics:2.0.3'    //经典刷新头
+    implementation 'com.scwang.smart:refresh-footer-classics:2.0.3'    //经典加载
 
     // 图片选择
     implementation 'com.github.LuckSiege.PictureSelector:picture_library:v2.6.0'
