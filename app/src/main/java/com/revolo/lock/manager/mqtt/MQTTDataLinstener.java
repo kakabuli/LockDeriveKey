@@ -12,6 +12,8 @@ public interface MQTTDataLinstener {
      * MQTT异常
      *
      * @param exceptionCode
+     *
+     *
      */
     void MQTTException(int exceptionCode);
 

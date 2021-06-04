@@ -6,6 +6,8 @@ import android.text.TextUtils;
  * 用来标注MQTT模块中报错code及原因
  */
 public class MQTTErrCode {
+
+
     public static final int MQTT_USER_ERR=0;//用户信息错误
     /**
      * token==null
