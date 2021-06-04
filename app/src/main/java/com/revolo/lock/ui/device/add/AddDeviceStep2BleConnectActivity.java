@@ -28,9 +28,11 @@ import com.revolo.lock.base.BaseActivity;
 import com.revolo.lock.bean.request.AdminAddDeviceBeanReq;
 import com.revolo.lock.bean.request.GetPwd1BeanReq;
 import com.revolo.lock.bean.request.LockIsBindBeanReq;
+import com.revolo.lock.bean.request.UpdateLockInfoReq;
 import com.revolo.lock.bean.respone.AdminAddDeviceBeanRsp;
 import com.revolo.lock.bean.respone.GetPwd1BeanRsp;
 import com.revolo.lock.bean.respone.LockIsBindBeanRsp;
+import com.revolo.lock.bean.respone.UpdateLockInfoRsp;
 import com.revolo.lock.ble.BleByteUtil;
 import com.revolo.lock.ble.BleCommandFactory;
 import com.revolo.lock.ble.BleProtocolState;
@@ -430,6 +432,75 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
         }
     }
 
+    /**
+     * 更新锁服务器存储的数据
+     */
+    private void addDeviceInfoToService(BleDeviceLocal bleDeviceLocal) {
+        if(App.getInstance().getUserBean() == null) {
+            Timber.e("updateLockInfoToService App.getInstance().getUserBean() == null");
+            return;
+        }
+        String uid = App.getInstance().getUserBean().getUid();
+        if(TextUtils.isEmpty(uid)) {
+            Timber.e("updateLockInfoToService uid is empty");
+            return;
+        }
+        String token = App.getInstance().getUserBean().getToken();
+        if(TextUtils.isEmpty(token)) {
+            Timber.e("updateLockInfoToService token is empty");
+            return;
+        }
+        showLoading();
+        UpdateLockInfoReq req = new UpdateLockInfoReq();
+        req.setSn(bleDeviceLocal.getEsn());
+        req.setWifiName(bleDeviceLocal.getConnectedWifiName());
+        req.setSafeMode(0);   // 没有使用这个
+        req.setLanguage("en"); // 暂时也没使用这个
+        req.setVolume(bleDeviceLocal.isMute()?0:1);
+        req.setAmMode(bleDeviceLocal.isAutoLock()?0:1);
+        req.setDuress(bleDeviceLocal.isDuress()?0:1);
+        req.setDoorSensor(bleDeviceLocal.getDoorSensor());
+        req.setElecFence(bleDeviceLocal.isOpenElectricFence()?0:1);
+        req.setAutoLockTime(bleDeviceLocal.getSetAutoLockTime());
+        req.setElecFenceTime(bleDeviceLocal.getSetElectricFenceTime());
+        req.setElecFenceSensitivity(bleDeviceLocal.getSetElectricFenceSensitivity());
+
+        Observable<UpdateLockInfoRsp> observable = HttpRequest.getInstance().updateLockInfo(token, req);
+        ObservableDecorator.decorate(observable).safeSubscribe(new Observer<UpdateLockInfoRsp>() {
+            @Override
+            public void onSubscribe(@NotNull Disposable d) {
+
+            }
+
+            @Override
+            public void onNext(@NotNull UpdateLockInfoRsp updateLockInfoRsp) {
+                dismissLoading();
+                String code = updateLockInfoRsp.getCode();
+                if(!code.equals("200")) {
+                    String msg = updateLockInfoRsp.getMsg();
+                    Timber.e("updateLockInfoToService code: %1s, msg: %2s", code, msg);
+                    if(!TextUtils.isEmpty(msg)) ToastUtils.showShort(msg);
+                    return;
+                }
+                Timber.d("addDeviceInfoToService 更新设备数据到服务器成功");
+                Intent intent = new Intent(AddDeviceStep2BleConnectActivity.this, BleConnectSucActivity.class);
+                startActivity(intent);
+                finish();
+            }
+
+            @Override
+            public void onError(@NotNull Throwable e) {
+                dismissLoading();
+                Timber.e(e);
+            }
+
+            @Override
+            public void onComplete() {
+
+            }
+        });
+    }
+
     private void getPwd2AndSendAuthCommand(BleResultBean bleResultBean, byte[] data, @NotNull BleBean bleBean) {
         if (bleBean.getOKBLEDeviceImp() == null) {
             Timber.e("getPwd2AndSendAuthCommand bleBean.getOKBLEDeviceImp() == null");
@@ -508,11 +579,9 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
             Timber.e("code: %1s, msg: %2s", adminAddDeviceBeanRsp.getCode(), adminAddDeviceBeanRsp.getMsg());
             return;
         }
-        Timber.d("addDeviceToService 添加设备成功");
+        Timber.d("addDeviceToService 添加设备到服务器成功");
         Timber.d("rsp: %1s", adminAddDeviceBeanRsp.toString());
-        Intent intent = new Intent(AddDeviceStep2BleConnectActivity.this, BleConnectSucActivity.class);
-        startActivity(intent);
-        finish();
+        addDeviceInfoToService(App.getInstance().getBleDeviceLocal());
     }
 
     private final OnBleDeviceListener mOnBleDeviceListener = new OnBleDeviceListener() {
