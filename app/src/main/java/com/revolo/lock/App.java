@@ -193,6 +193,18 @@ public class App extends Application {
         return null;
     }
 
+    private void clearAndDisconnectAllDevice() {
+        if(mConnectedBleBeanList.isEmpty()) {
+            return;
+        }
+        for (BleBean ble : mConnectedBleBeanList) {
+            if(ble.getOKBLEDeviceImp() != null) {
+                ble.getOKBLEDeviceImp().disConnect(false);
+            }
+        }
+        mConnectedBleBeanList.clear();
+    }
+
     public BleBean connectDevice(BLEScanResult bleScanResult, byte[] pwd1, byte[] pwd2, OnBleDeviceListener onBleDeviceListener, boolean isAppPair) {
         OKBLEDeviceImp deviceImp = new OKBLEDeviceImp(getApplicationContext(), bleScanResult);
         BleBean bleBean = new BleBean(deviceImp);
@@ -480,13 +492,12 @@ public class App extends Application {
 
     public void logout(boolean isShowDialog, Activity act) {
         // TODO: 2021/3/30 logout的数据操作
+        clearAndDisconnectAllDevice();
         new Thread(){
             @Override
             public void run() {
                 super.run();
-                User user = App.getInstance().getUser();
-                AppDatabase.getInstance(getApplicationContext()).userDao().delete(user);
-                App.getInstance().getUserBean().setToken(""); // 清空token
+                // 不要删除用户数据，你只做更新
                 SPUtils.getInstance(REVOLO_SP).put(Constant.USER_LOGIN_INFO, ""); // 清空登录信息
             }
         }.start();

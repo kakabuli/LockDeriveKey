@@ -141,6 +141,7 @@ public class AutoLockActivity extends BaseActivity {
 
     private void initUI() {
         runOnUiThread(() -> {
+            Timber.d("initUI mTime: %1d, AutoTime: %2d", mTime, mBleDeviceLocal.getSetAutoLockTime());
             mIvAutoLockEnable.setImageResource(mBleDeviceLocal.isAutoLock() ? R.drawable.ic_icon_switch_open : R.drawable.ic_icon_switch_close);
             mTvDetectionLock.setVisibility(mBleDeviceLocal.isAutoLock() ? View.VISIBLE : View.GONE);
             mIvDetectionLockEnable.setVisibility(mBleDeviceLocal.isAutoLock() ? View.VISIBLE : View.GONE);

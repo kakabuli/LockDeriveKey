@@ -424,6 +424,7 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
             bleDeviceLocal.setCreateTime(TimeUtils.getNowMills() / 1000);
             long deviceId = AppDatabase.getInstance(this).bleDeviceDao().insert(bleDeviceLocal);
             BleDeviceLocal deviceLocal = AppDatabase.getInstance(this).bleDeviceDao().findBleDeviceFromId(deviceId);
+            Timber.d("addDeviceToLocal autoTime: %1d", bleDeviceLocal.getSetAutoLockTime());
             App.getInstance().setBleDeviceLocal(deviceLocal);
             App.getInstance().addBleDeviceLocal(deviceLocal);
         }
