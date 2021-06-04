@@ -100,8 +100,13 @@ public class BleResultProcess {
             return new byte[16];
         }
         if (pwd1.length != 16) {
-            Timber.e("pwdDecrypt pwd1 key的长度错误，请检查输入的数据 size: %1d", pwd1.length);
-            return new byte[16];
+            if(pwd1.length != 12) {
+                Timber.e("pwdDecrypt pwd1 key的长度错误，请检查输入的数据 size: %1d", pwd1.length);
+                return new byte[16];
+            }
+            byte[] pwdTemp = new byte[16];
+            System.arraycopy(pwd1, 0, pwdTemp, 0, pwd1.length);
+            pwd1 = pwdTemp;
         }
         // 只使用pwd1来解密
         if (pwd2Or3 == null) {

@@ -340,7 +340,14 @@ public class DeviceFragment extends Fragment {
         bleDeviceLocal.setName(wifiListBean.getLockNickname());
         bleDeviceLocal.setMute(wifiListBean.getVolume() == 0);
         // TODO: 2021/3/18 修改为从服务器获取数据
-        bleDeviceLocal.setConnectedType(LocalState.DEVICE_CONNECT_TYPE_WIFI);
+        // 0 锁端wifi没有与服务器连接   1 锁端wifi与服务器连接成功
+        if(!TextUtils.isEmpty(wifiListBean.getWifiStatus())) {
+            boolean isWifiConnected = (wifiListBean.getWifiStatus().equals("1"));
+            bleDeviceLocal.setConnectedType(isWifiConnected ?
+                    LocalState.DEVICE_CONNECT_TYPE_WIFI : LocalState.DEVICE_CONNECT_TYPE_BLE);
+        } else {
+            bleDeviceLocal.setConnectedType(LocalState.DEVICE_CONNECT_TYPE_WIFI);
+        }
         bleDeviceLocal.setLockState(wifiListBean.getOpenStatus());
         bleDeviceLocal.setAutoLock(wifiListBean.getAmMode() == 0);
         bleDeviceLocal.setConnectedWifiName(wifiListBean.getWifiName());
@@ -635,7 +642,16 @@ public class DeviceFragment extends Fragment {
                                 onBleDeviceListener, false);
                         bleBean.setEsn(local.getEsn());
                     } else {
-                        // TODO: 2021/1/26 处理为空的情况
+                        App.getInstance()
+                                .scanAndConnectDevice(local.getMac(),
+                                        ConvertUtils.hexString2Bytes(local.getPwd1()),
+                                        ConvertUtils.hexString2Bytes(local.getPwd2()),
+                                        onBleDeviceListener,
+                                        (ble, scanResult) -> {
+                                            local.setScanResultJson(ConvertUtils.parcelable2Bytes(scanResult));
+                                            AppDatabase.getInstance(getContext()).bleDeviceDao().update(local);
+                                            ble.setEsn(local.getEsn());
+                                        });
                     }
                 } else {
                     if (bleBean.getOKBLEDeviceImp() != null) {
