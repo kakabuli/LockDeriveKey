@@ -19,7 +19,7 @@ public class BleResultAnalysis {
 
     private BleResultAnalysis() {
     }
-    
+
 
     public static final byte CONTROL_ENCRYPTION = 0x01;
     public static final byte CONTROL_NORMAL = 0x00;

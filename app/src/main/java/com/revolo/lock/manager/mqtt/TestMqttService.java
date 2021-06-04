@@ -6,8 +6,8 @@ import org.eclipse.paho.android.service.MqttAndroidClient;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 
 public class TestMqttService{
-    /*//客户端
-    private MqttAndroidClient client;
+    //客户端
+   /* private MqttAndroidClient client;
     //连接选项
     private MqttConnectOptions mqttConnectOptions;
 
@@ -303,6 +303,6 @@ public class TestMqttService{
         }
         client = null;
         iMqttCallBack = null;
-    }
-*/
+    }*/
+
 }
