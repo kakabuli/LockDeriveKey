@@ -33,6 +33,7 @@ import com.revolo.lock.ble.BleResultProcess;
 import com.revolo.lock.ble.OnBleDeviceListener;
 import com.revolo.lock.ble.bean.BleBean;
 import com.revolo.lock.ble.bean.BleResultBean;
+import com.revolo.lock.manager.LockMessage;
 import com.revolo.lock.manager.LockMessageCode;
 import com.revolo.lock.manager.LockMessageRes;
 import com.revolo.lock.net.HttpRequest;
@@ -44,6 +45,7 @@ import com.revolo.lock.ui.view.SmartClassicsFooterView;
 import com.scwang.smart.refresh.layout.api.RefreshLayout;
 import com.scwang.smart.refresh.layout.listener.OnLoadMoreListener;
 
+import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 import org.jetbrains.annotations.NotNull;
@@ -90,7 +92,7 @@ public class OperationRecordsActivity extends BaseActivity {
         if (mBleDeviceLocal == null) {
             finish();
         }
-        mBleBean = App.getInstance().getBleBeanFromMac(mBleDeviceLocal.getMac());
+        mBleBean = App.getInstance().getUserBleBean(mBleDeviceLocal.getMac());
 //        if(mBleBean == null) {
 //            finish();
 //        }
@@ -174,7 +176,8 @@ public class OperationRecordsActivity extends BaseActivity {
             return;
         }
         if (mBleBean.getOKBLEDeviceImp() != null) {
-            App.getInstance().openPairNotify(mBleBean.getOKBLEDeviceImp());
+            //替换
+           // App.getInstance().openPairNotify(mBleBean.getOKBLEDeviceImp());
        }
     }
 
@@ -182,9 +185,16 @@ public class OperationRecordsActivity extends BaseActivity {
         if (mBleBean.getOKBLEDeviceImp() != null) {
             if (mBleBean.getOKBLEDeviceImp().isConnected()) {
                 // 因为shortToBytes转出来就是小端模式，所以调用直接使用小端模式的方法
-                App.getInstance().writeControlMsg(BleCommandFactory
+                LockMessage message=new LockMessage();
+                message.setBytes(BleCommandFactory
                         .readAllRecordFromSmallEndian(BleByteUtil.shortToBytes(start), BleByteUtil.shortToBytes(end),
-                                mBleBean.getPwd1(), mBleBean.getPwd3()), mBleBean.getOKBLEDeviceImp());
+                                mBleBean.getPwd1(), mBleBean.getPwd3()));
+                message.setMac(mBleBean.getOKBLEDeviceImp().getMacAddress());
+                message.setMessageType(3);
+                EventBus.getDefault().post(message);
+               /* App.getInstance().writeControlMsg(BleCommandFactory
+                        .readAllRecordFromSmallEndian(BleByteUtil.shortToBytes(start), BleByteUtil.shortToBytes(end),
+                                mBleBean.getPwd1(), mBleBean.getPwd3()), mBleBean.getOKBLEDeviceImp());*/
             } else {
                 // TODO: 2021/1/26 没有连接上，需要连接上才能发送指令
             }

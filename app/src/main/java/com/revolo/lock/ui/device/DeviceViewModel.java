@@ -11,11 +11,13 @@ import androidx.lifecycle.ViewModel;
 import com.blankj.utilcode.util.GsonUtils;
 import com.google.gson.JsonSyntaxException;
 import com.revolo.lock.App;
+import com.revolo.lock.manager.LockMessage;
 import com.revolo.lock.mqtt.MqttCommandFactory;
 import com.revolo.lock.mqtt.MQttConstant;
 import com.revolo.lock.mqtt.bean.MqttData;
 import com.revolo.lock.mqtt.bean.publishresultbean.WifiLockGetAllBindDeviceRspBean;
 
+import org.greenrobot.eventbus.EventBus;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -32,14 +34,19 @@ public class DeviceViewModel extends ViewModel {
     public DeviceViewModel() {
 
         mWifiListBean = new MutableLiveData<>();
-        new Handler(Looper.getMainLooper()).postDelayed(this::refreshGetAllBindDevicesFromMQTT, 200);
+      //  new Handler(Looper.getMainLooper()).postDelayed(this::refreshGetAllBindDevicesFromMQTT, 200);
 
     }
 
-    public void refreshGetAllBindDevicesFromMQTT() {
+    /*public void refreshGetAllBindDevicesFromMQTT() {
         if(App.getInstance().getUserBean() == null) {
             return;
         }
+        LockMessage message=new LockMessage();
+        message.setMessageType(2);
+        message.setMqtt_topic(MQttConstant.PUBLISH_TO_SERVER);
+        message.setMqttMessage( MqttCommandFactory.getAllBindDevices(App.getInstance().getUserBean().getUid()));
+        EventBus.getDefault().post(message);
         Timber.d("执行获取设备信息");
         App.getInstance().getMQttService()
                 .mqttPublish(MQttConstant.PUBLISH_TO_SERVER,
@@ -101,7 +108,7 @@ public class DeviceViewModel extends ViewModel {
 
                     }
                 });
-    }
+    }*/
 
     public LiveData<List<WifiLockGetAllBindDeviceRspBean.DataBean.WifiListBean>> getWifiListBeans() { return mWifiListBean; }
 

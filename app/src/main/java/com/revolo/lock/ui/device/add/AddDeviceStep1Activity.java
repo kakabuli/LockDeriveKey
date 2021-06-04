@@ -59,7 +59,6 @@ public class AddDeviceStep1Activity extends BaseActivity implements EasyPermissi
     @Override
     public void onDebouncingClick(@NonNull View view) {
         if (view.getId() == R.id.btnNext) {
-            Log.e("dasgag", "R.id.btnNext");
             //rcQRCodePermissions();
             if (!hasCameraPermission()) {
                 LockEasyPermissions.requestPermissions(this, getString(R.string.tip_scan_qr_code_need_camera_permission),

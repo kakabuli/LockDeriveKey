@@ -7,13 +7,18 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
 import android.os.Message;
+import android.text.TextUtils;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 
 import com.a1anwang.okble.client.scan.BLEScanResult;
 import com.blankj.utilcode.util.ActivityUtils;
 import com.blankj.utilcode.util.ConvertUtils;
+import com.blankj.utilcode.util.GsonUtils;
 import com.blankj.utilcode.util.LogUtils;
+import com.blankj.utilcode.util.TimeUtils;
+import com.google.gson.JsonSyntaxException;
 import com.revolo.lock.App;
 import com.revolo.lock.LocalState;
 import com.revolo.lock.ble.BleCommandFactory;
@@ -31,6 +36,7 @@ import com.revolo.lock.manager.mqtt.MQTTReply;
 import com.revolo.lock.mqtt.MQttConstant;
 import com.revolo.lock.mqtt.MqttCommandFactory;
 import com.revolo.lock.mqtt.bean.MqttData;
+import com.revolo.lock.mqtt.bean.publishresultbean.WifiLockBaseResponseBean;
 import com.revolo.lock.room.entity.BleDeviceLocal;
 
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
@@ -51,9 +57,13 @@ import java.util.concurrent.TimeoutException;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+import io.reactivex.disposables.Disposable;
 import timber.log.Timber;
 
 import static com.revolo.lock.Constant.DEFAULT_TIMEOUT_SEC_VALUE;
+import static com.revolo.lock.manager.LockMessageCode.MSG_LOCK_MESSAGE_ADD_DEVICE_SERVICE;
+import static com.revolo.lock.manager.LockMessageCode.MSG_LOCK_MESSAGE_BLE;
+import static com.revolo.lock.manager.LockMessageCode.MSG_LOCK_MESSAGE_CODE_SUCCESS;
 import static com.revolo.lock.manager.LockMessageCode.MSG_LOCK_MESSAGE_REMOVE_DEVICE;
 import static com.revolo.lock.manager.LockMessageCode.MSG_LOCK_MESSAGE_USER;
 
@@ -105,6 +115,7 @@ public class LockAppService extends Service {
         //服务创建时，初始化MQTT Ble
         initMode();
         //registerNetReceive();
+        startSendThread();
         Timber.d("attachView   mqtt 启动了");
     }
 
@@ -123,14 +134,16 @@ public class LockAppService extends Service {
     public void onDestroy() {
         super.onDestroy();
         //unRegisterNetReceive();
+        stopSendThread();
         Timber.d("mqtt MqttService 被杀死");
         //System.exit(0); 退出并没finish activity 因此增加了这一步
         ActivityUtils.finishAllActivities();
         System.exit(0);
     }
 
-    @Subscribe(threadMode = ThreadMode.MAIN)
+    @Subscribe(threadMode = ThreadMode.ASYNC)
     public void getEventBus(LockMessage lockMessage) {
+        Timber.e("service 执行获取设备信息");
         if (lockMessage == null) {
             return;
         }
@@ -149,6 +162,8 @@ public class LockAppService extends Service {
 
 
     public static final int MSG_MESSAGE_SEND_OUT_TIME = 234;//发送message超时
+    public static final int MSG_MESSAGE_SEND_BLE = 235;
+    public static final int MSG_MESSAGE_NEXT_SEND = 236;
     private int messageIndex = 0;
 
     private int getMessageIndex() {
@@ -162,6 +177,19 @@ public class LockAppService extends Service {
                 case MSG_MESSAGE_SEND_OUT_TIME:
                     //发送message超时
                     outTimeNextMessage();
+                   /* if (null != message) {
+                        if (message.getMessageType() == 2) {
+                            pushErrMessage(message.getMqtt_message_code());
+                        } else if (message.getMessageType() == 3) {
+
+                        }
+                    }*/
+                    break;
+                case MSG_MESSAGE_SEND_BLE:
+                    sendMessageBle((LockMessage) msg.obj);
+                    break;
+                case MSG_MESSAGE_NEXT_SEND:
+                    nextMessage();
                     break;
             }
         }
@@ -236,6 +264,20 @@ public class LockAppService extends Service {
     public List<BleDeviceLocal> getUserDeviceList() {
         return null != mDeviceLists ? mDeviceLists : new ArrayList<>();
     }
+    /*
+     * 获取BLe当前的设备状态*/
+
+    public BleBean getUserBleBean(String mac) {
+        return BleManager.getInstance().getBleBeanFromMac(mac);
+    }
+
+    public void add(List<BleDeviceLocal> bleDeviceLocalList) {
+        if (null != bleDeviceLocalList) {
+            for (BleDeviceLocal local : bleDeviceLocalList) {
+                addDevice(local);
+            }
+        }
+    }
 
     /**
      * 添加设备
@@ -261,7 +303,12 @@ public class LockAppService extends Service {
             mDeviceLists.add(bleDeviceLocal);
         }
         lock.unlock();
-        EventBus.getDefault().post(200);
+        Timber.e("getEventBus send");
+        LockMessageRes lockMessageRes = new LockMessageRes();
+        lockMessageRes.setMessgaeType(LockMessageCode.MSG_LOCK_MESSAGE_MQTT);//蓝牙消息
+        lockMessageRes.setResultCode(MSG_LOCK_MESSAGE_CODE_SUCCESS);
+        lockMessageRes.setMessageCode(LockMessageCode.MSG_LOCK_MESSAGE_ADD_DEVICE);//添加到设备到主页
+        EventBus.getDefault().post(lockMessageRes);
     }
 
     /**
@@ -479,7 +526,9 @@ public class LockAppService extends Service {
         @Override
         public void processResult(String mac, BleResultBean bleResultBean) {
             //蓝牙收到回复，做相应的处理或是上报UI
+            Timber.e("processResult 解析完成 mac: %1s\n", mac);
             LockMessageRes messageRes = new LockMessageRes(1, mac, bleResultBean);
+            messageRes.setResultCode(LockMessageCode.MSG_LOCK_MESSAGE_CODE_SUCCESS);
             EventBus.getDefault().post(messageRes);
             switch (bleResultBean.getCMD()) {
                 case BleProtocolState.CMD_LOCK_OPEN_RECORD:// 0x04;                // 锁开锁记录查询响应
@@ -590,7 +639,7 @@ public class LockAppService extends Service {
      *
      * @param bleResultBean
      */
-    private void processKey(BleResultBean bleResultBean) {
+  /*  private void processKey(BleResultBean bleResultBean) {
         byte[] data = bleResultBean.getPayload();
         String mMac = bleResultBean.getScanResult().getMacAddress();
         BleBean bleBean = BleManager.getInstance().getBleBeanFromMac(mMac);
@@ -618,8 +667,87 @@ public class LockAppService extends Service {
 
             EventBus.getDefault().post(bleResultBean);
         }
+    }*/
+    private void processKey(BleResultBean bleResultBean) {
+        if (bleResultBean.getCMD() == BleProtocolState.CMD_ENCRYPT_KEY_UPLOAD) {
+            byte[] data = bleResultBean.getPayload();
+            String mMac = bleResultBean.getScanResult().getMacAddress();
+            BleBean bleBean = BleManager.getInstance().getBleBeanFromMac(mMac);
+            if (bleBean == null) {
+                Timber.e("processKey bleBean == null");
+                return;
+            }
+            if (data[0] == 0x01) {
+                // 入网时
+                Timber.e("processKey data[0]==0x01:%1s\n", ConvertUtils.bytes2HexString(data));
+                // 获取pwd2
+                getPwd2AndSendAuthCommand(bleResultBean, data, bleBean);
+            } else if (data[0] == 0x02) {
+                // 获取pwd3
+                Timber.e("processKey data[0]==0x02:%1s\n", ConvertUtils.bytes2HexString(data));
+                getPwd3(bleResultBean, data, bleBean);
+                // 鉴权成功后，同步当前时间
+                syNowTime(bleBean);
+                //鉴权成功后，将设备添加到服务器端中
+                LockMessageRes message = new LockMessageRes();
+                message.setMessgaeType(MSG_LOCK_MESSAGE_BLE);//蓝牙消息
+                message.setResultCode(MSG_LOCK_MESSAGE_CODE_SUCCESS);//操作成功
+                message.setMessageCode(MSG_LOCK_MESSAGE_ADD_DEVICE_SERVICE);//添加设备到服务端
+                message.setBleResultBea(bleResultBean);
+                message.setMac(bleBean.getOKBLEDeviceImp().getMacAddress());
+                EventBus.getDefault().post(message);
+                Timber.e("processKey EventBus.getDefault().post:%1s\n", ConvertUtils.bytes2HexString(data));
+                //  addDeviceToService(bleResultBean);
+            }
+        }
     }
 
+    private void getPwd2AndSendAuthCommand(BleResultBean bleResultBean, byte[] data, @NotNull BleBean bleBean) {
+        if (bleBean.getOKBLEDeviceImp() == null) {
+            Timber.e("getPwd2AndSendAuthCommand bleBean.getOKBLEDeviceImp() == null");
+            return;
+        }
+        byte[] mPwd2 = new byte[4];
+        System.arraycopy(data, 1, mPwd2, 0, mPwd2.length);
+        // TODO: 2021/1/21 打包数据上传到服务器后再发送确认指令
+        bleBean.setHavePwd2Or3(true);
+        bleBean.setPwd2(mPwd2);
+        // bleBean.setEsn(mEsn);
+        BleManager.getInstance().writeControlMsg(BleCommandFactory
+                .ackCommand(bleResultBean.getTSN(), (byte) 0x00, bleResultBean.getCMD()), bleBean.getOKBLEDeviceImp());
+        new Handler(Looper.getMainLooper()).postDelayed(() -> {
+            Timber.d("getPwd2AndSendAuthCommand 延时发送鉴权指令, pwd2: %1s\n", ConvertUtils.bytes2HexString(mPwd2));
+            BleManager.getInstance().writeControlMsg(BleCommandFactory
+                    .authCommand(bleBean.getPwd1(), mPwd2, bleBean.getEsn().getBytes(StandardCharsets.UTF_8)), bleBean.getOKBLEDeviceImp());
+        }, 50);
+    }
+
+    private void getPwd3(BleResultBean bleResultBean, byte[] data, @NotNull BleBean bleBean) {
+        if (bleBean.getOKBLEDeviceImp() == null) {
+            Timber.e("getPwd3 bleBean.getOKBLEDeviceImp() == null");
+            return;
+        }
+        byte[] mPwd3 = new byte[4];
+        System.arraycopy(data, 1, mPwd3, 0, mPwd3.length);
+        Timber.d("getPwd3 鉴权成功, pwd3: %1s\n", ConvertUtils.bytes2HexString(mPwd3));
+        // 内存存储
+        //bleBean.setPwd1(mPwd1);
+        bleBean.setPwd3(mPwd3);
+        BleManager.getInstance().writeControlMsg(BleCommandFactory
+                .ackCommand(bleResultBean.getTSN(), (byte) 0x00, bleResultBean.getCMD()), bleBean.getOKBLEDeviceImp());
+    }
+
+    private void syNowTime(@NotNull BleBean bleBean) {
+        if (bleBean.getOKBLEDeviceImp() == null) {
+            Timber.e("syNowTime bleBean.getOKBLEDeviceImp() == null");
+            return;
+        }
+        new Handler(Looper.getMainLooper()).postDelayed(() -> {
+            long nowTime = TimeUtils.getNowMills() / 1000;
+            BleManager.getInstance().writeControlMsg(BleCommandFactory
+                    .syLockTime(nowTime, bleBean.getPwd1(), bleBean.getPwd3()), bleBean.getOKBLEDeviceImp());
+        }, 20);
+    }
 
     //蓝牙状态监听
     OnBleDeviceListener onBleDeviceListener = new OnBleDeviceListener() {
@@ -640,6 +768,9 @@ public class LockAppService extends Service {
 
         @Override
         public void onReceivedValue(@NotNull String mac, String uuid, byte[] value) {
+            mHandler.removeMessages(MSG_MESSAGE_SEND_OUT_TIME);
+            mHandler.sendEmptyMessage(MSG_MESSAGE_NEXT_SEND);
+            Timber.e("onReceivedValue Value: %1s\n", ConvertUtils.bytes2HexString(value));
             if (value == null) {
                 return;
             }
@@ -647,18 +778,52 @@ public class LockAppService extends Service {
             if (bleBean == null) {
                 return;
             }
-            if (bleBean.getOKBLEDeviceImp() == null) {
+            if (null == bleBean.getOKBLEDeviceImp() || bleBean.getPwd1() == null) {
+                LockMessageRes message = new LockMessageRes();
+                message.setMessgaeType(MSG_LOCK_MESSAGE_BLE);//蓝牙消息
+                message.setResultCode(LockMessageReplyErrCode.LOCK_BLE_ERR_CODE_BLE_VALUE_ERR);//值错误
+                EventBus.getDefault().post(message);
                 return;
             }
-            if (bleBean.getPwd1() == null) {
+            byte[] pwd2Or3 = null;
+            if (bleBean.isHavePwd2Or3()) {
+                if (bleBean.getPwd3() == null) {
+                    if (bleBean.getPwd2() != null) {
+                        pwd2Or3 = bleBean.getPwd2();
+                    }
+                } else {
+                    pwd2Or3 = bleBean.getPwd3();
+                }
+            }
+            Timber.e("onReceivedValue pwd1: %1s\n", ConvertUtils.bytes2HexString(bleBean.getPwd1()));
+            if (bleBean.getPwd2() == null) {
+                Timber.e("onReceivedValue pwd2=null");
+            } else {
+                Timber.e("onReceivedValue pwd2: %1s\n", ConvertUtils.bytes2HexString(bleBean.getPwd2()));
+            }
+            if (bleBean.getPwd3() == null) {
+                Timber.e("onReceivedValue pwd3=null");
+            } else {
+                Timber.e("onReceivedValue pwd3: %1s\n", ConvertUtils.bytes2HexString(bleBean.getPwd3()));
+            }
+            if (null != pwd2Or3) {
+                Timber.e("onReceivedValue pwd2Or3: %1s\n", ConvertUtils.bytes2HexString(pwd2Or3));
+            } else {
+                Timber.e("onReceivedValue pwd2Or3=null");
+            }
+            Timber.e("onReceivedValue bleBean.isHavePwd2Or3():" + bleBean.isHavePwd2Or3());
+            BleResultAnalysis.processReceivedData(bleBean.getOKBLEDeviceImp().getMacAddress(), value, bleBean.getPwd1(), bleBean.isHavePwd2Or3() ? pwd2Or3 : null, bleBean.getOKBLEDeviceImp().getBleScanResult());
+
+            if (true) {
                 return;
             }
             if (bleBean.getPwd2() == null) {
+                Timber.e("onReceivedValue pwd2=null");
                 BleResultAnalysis.processReceivedData(bleBean.getOKBLEDeviceImp().getMacAddress(), value, bleBean.getPwd1(),
                         null, bleBean.getOKBLEDeviceImp().getBleScanResult());
                 return;
             }
-            Timber.e("getPwd2AndSendAuthCommand 延时发送鉴权指令., pwd2: %1s\n", ConvertUtils.bytes2HexString(bleBean.getPwd2()) + ";;;;;;SN:" + bleBean.getEsn());
+            Timber.e("onReceivedValue pwd2: %1s\n", ConvertUtils.bytes2HexString(bleBean.getPwd2()));
             BleResultAnalysis.processReceivedData(
                     bleBean.getOKBLEDeviceImp().getMacAddress(),
                     value,
@@ -722,10 +887,17 @@ public class LockAppService extends Service {
 
         @Override
         public void connectComplete(boolean reconnect, String serverURI) {
-            /**
-             *mqtt 连接完成"
-             */
+            /**mqtt 连接完成"**/
             updateAllDevice();
+            //获取用户绑定列表
+            LockMessage lockMessage = new LockMessage();
+            lockMessage.setMqtt_topic(MQttConstant.PUBLISH_TO_SERVER);
+            lockMessage.setMqtt_message_code(MQttConstant.GET_ALL_BIND_DEVICE);
+            lockMessage.setMessageType(2);
+            lockMessage.setMqttMessage(MqttCommandFactory.getAllBindDevices(App.getInstance().getUserBean().getUid()));
+            lockMessage.setSn("");
+            lockMessage.setBytes(null);
+            sendMessage(lockMessage);
         }
 
         @Override
@@ -734,11 +906,7 @@ public class LockAppService extends Service {
              *mqtt 连接失败
              */
             updateAllDevice();
-            LockMessage lockMessage = new LockMessage();
-            lockMessage.setMqttMessage(MqttCommandFactory.getAllBindDevices(App.getInstance().getUserBean().getUid()));
-            lockMessage.setSn("");
-            lockMessage.setBytes(null);
-            EventBus.getDefault().post(lockMessage);
+
         }
 
         @Override
@@ -751,6 +919,12 @@ public class LockAppService extends Service {
         @Override
         public void messageArrived(String topic, MqttMessage message) {
             //MQTT 收到消息  ，做相应处理或是上报ui
+            if (null != mAppMqttMessage) {
+                toDisposable(mAppMqttMessage);
+                mAppMqttMessage = null;
+            }
+            mHandler.removeMessages(MSG_MESSAGE_SEND_OUT_TIME);
+            mHandler.sendEmptyMessage(MSG_MESSAGE_NEXT_SEND);
             try {
                 String payload = new String(message.getPayload());
                 Timber.d("收到MQtt消息" + payload + "---topic" + topic + "  messageID  " + message.getId());
@@ -821,6 +995,15 @@ public class LockAppService extends Service {
         //获取当前信息的sn
         String sn = message.getSn();
         //MQTT 分用户信息命令、设备命令
+
+        if (message.getMessageType() == 2) {
+            sendMessage(message, LOCK_MESSAGE_MQTT);
+        } else if (message.getMessageType() == 3) {
+            sendMessage(message, LOCK_MESSAGE_BLE);
+        }
+        if (true) {
+            return;
+        }
         BleDeviceLocal bleDeviceLocal = getDevice(sn, mac);
         if (("".equals(sn) || null == sn) && null != message.getMqttMessage()) {
             sendMessage(message, LOCK_MESSAGE_MQTT);
@@ -905,12 +1088,15 @@ public class LockAppService extends Service {
     }
 
     private void nextMessage() {
+        //LockMessage message = null;
         messageLock.lock();
         if (lockMessageList.size() > 0) {
+            // message = new LockMessage(lockMessageList.get(0));
             lockMessageList.remove(0);
         }
         messageLock.unlock();
         nextSendMessage();
+        // return message;
     }
 
     private void outTimeNextMessage() {
@@ -941,10 +1127,69 @@ public class LockAppService extends Service {
 
     private void nextSendMessage() {
         if (lockMessageList.size() > 0) {
+            //addSendMessage(lockMessageList.get(0));
             if (LOCK_MESSAGE_MQTT == lockMessageList.get(0).getMessageType()) {
                 sendMessageMQTT(lockMessageList.get(0));
             } else if (LOCK_MESSAGE_BLE == lockMessageList.get(0).getMessageType()) {
-                sendMessageBle(lockMessageList.get(0));
+                mHandler.obtainMessage(MSG_MESSAGE_SEND_BLE, lockMessageList.get(0)).sendToTarget();
+                //sendMessageBle(lockMessageList.get(0));
+            }
+        }
+    }
+
+    public void addSendMessage(LockMessage message) {
+        if (null != sendMqttThread) {
+            sendMqttThread.addMessage(message);
+        }
+    }
+
+    private SendMqttThread sendMqttThread;
+
+    private void startSendThread() {
+       /* stopSendThread();
+        if (null == sendMqttThread) {
+            sendMqttThread = new SendMqttThread();
+        }
+        sendMqttThread.start();*/
+    }
+
+    private void stopSendThread() {
+        if (null != sendMqttThread) {
+            sendMqttThread.isRun = false;
+            sendMqttThread.interrupt();
+            sendMqttThread = null;
+        }
+    }
+
+    public class SendMqttThread extends Thread {
+        private boolean isRun = true;
+        private List<LockMessage> sendMqttList = new ArrayList<>();
+        private Lock sendLock = new ReentrantLock();
+
+        public void addMessage(LockMessage message) {
+            sendLock.lock();
+            sendMqttList.add(message);
+            sendLock.unlock();
+        }
+
+        public void setRun(boolean run) {
+            isRun = run;
+        }
+
+        @Override
+        public void run() {
+            while (isRun) {
+                sendLock.lock();
+                if (sendMqttList.size() > 0) {
+                    if (LOCK_MESSAGE_MQTT == sendMqttList.get(0).getMessageType()) {
+                        sendMessageMQTT(sendMqttList.get(0));
+                    } else if (LOCK_MESSAGE_BLE == sendMqttList.get(0).getMessageType()) {
+                        mHandler.obtainMessage(MSG_MESSAGE_SEND_BLE, sendMqttList.get(0)).sendToTarget();
+                        //sendMessageBle(lockMessageList.get(0));
+                    }
+                    sendMqttList.remove(0);
+                }
+                sendLock.unlock();
             }
         }
     }
@@ -953,35 +1198,97 @@ public class LockAppService extends Service {
      * 发送 MQTT
      * @param message
      */
+    Disposable mAppMqttMessage = null;
+
     private void sendMessageMQTT(LockMessage message) {
         message.addSendFre();
-       /* MQTTManager.getInstance().mqttPublish(MQttConstant.getCallTopic(App.getInstance().getUserBean().getUid()),
+      /* MQTTManager.getInstance().mqttPublish(message.getMqtt_topic(),
                 message.getMqttMessage())
-                .filter(mqttData -> mqttData.getFunc().equals(MQttConstant.SET_LOCK_ATTR))
-                .timeout(DEFAULT_TIMEOUT_SEC_VALUE, TimeUnit.SECONDS)
                 .subscribe(mqttData -> {
-                    toDisposable(mAutoLockTimeDisposable);
-                    processAutoLockTime(mqttData);
-                }, e -> {
-                    // TODO: 2021/3/3 错误处理
-                    // 超时或者其他错误
-                    dismissLoading();
-                    Timber.e(e);
-                });*/
-
-
-        MQTTManager.getInstance().mqttPublish(MQttConstant.PUBLISH_TO_SERVER,
-                MqttCommandFactory.getAllBindDevices(App.getInstance().getUserBean().getUid()))
-                .filter(mqttData -> mqttData.getFunc().equals(MQttConstant.GET_ALL_BIND_DEVICE)
-                        || mqttData.getFunc().equals(MQttConstant.WF_EVENT))
-                .subscribe(mqttData -> {
-
                 }, Timber::e);
-        // baseActivity.mCompositeDisposable.add(mBindDevicesDisposable);
+       */
+        mHandler.sendEmptyMessageDelayed(MSG_MESSAGE_SEND_OUT_TIME, 3000);
 
 
-        mHandler.sendEmptyMessageDelayed(MSG_MESSAGE_SEND_OUT_TIME, 500);
+        mAppMqttMessage = MQTTManager.getInstance().mqttPublish(message.getMqtt_topic(),
+                message.getMqttMessage())
+                .timeout(3, TimeUnit.SECONDS)
+                .subscribe(mqttData -> {
+                    if (null != mAppMqttMessage) {
+                        toDisposable(mAppMqttMessage);
+                        mAppMqttMessage = null;
+                    }
+                }, e -> {
+                   pushErrMessage(message.getMqtt_message_code());
+                    if (null != mAppMqttMessage) {
+                        toDisposable(mAppMqttMessage);
+                        mAppMqttMessage = null;
+                    }
+                    Timber.e(e);
+
+
+                });
+
+
     }
+
+    public void toDisposable(Disposable disposable) {
+        if (disposable != null && !disposable.isDisposed()) {
+            disposable.dispose();
+        }
+    }
+
+    private void pushErrMessage(String messageCode) {
+        if (MQttConstant.GET_ALL_BIND_DEVICE.equals(messageCode)) {
+            //获取所有绑定的设备接口
+
+        } else if (MQttConstant.SET_MAGNETIC.equals(messageCode)) {
+            // 设置门磁
+            postMessage(LockMessageCode.MSG_LOCK_MESSAGE_SET_MAGNETIC, LockMessageCode.MSG_LOCK_MESSAGE_SET_MAGNETIC, null);
+        } else if (MQttConstant.APP_ROACH_OPEN.equals(messageCode)) {
+            // 无感开门
+            postMessage(LockMessageCode.MSG_LOCK_MESSAGE_APP_ROACH_OPEN, LockMessageCode.MSG_LOCK_MESSAGE_APP_ROACH_OPEN, null);
+        } else if (MQttConstant.CLOSE_WIFI.equals(messageCode)) {
+            // 关闭wifi
+            postMessage(LockMessageCode.MSG_LOCK_MESSAGE_CLOSE_WIFI, LockMessageCode.MSG_LOCK_MESSAGE_CLOSE_WIFI, null);
+        } else if (MQttConstant.SET_LOCK.equals(messageCode)) {
+            // 开关门指令
+            postMessage(LockMessageCode.MSG_LOCK_MESSAGE_SET_LOCK, LockMessageCode.MSG_LOCK_MESSAGE_SET_LOCK, null);
+        } else if (MQttConstant.CREATE_PWD.equals(messageCode)) {
+            postMessage(LockMessageCode.MSG_LOCK_MESSAGE_CREATE_PWD, LockMessageCode.MSG_LOCK_MESSAGE_CREATE_PWD, null);
+        } else if (MQttConstant.ADD_PWD.equals(messageCode)) {
+            // 秘钥属性添加
+            postMessage(LockMessageCode.MSG_LOCK_MESSAGE_ADD_PWD, LockMessageCode.MSG_LOCK_MESSAGE_ADD_PWD, null);
+        } else if (MQttConstant.UPDATE_PWD.equals(messageCode)) {
+            // 秘钥属性修改
+            postMessage(LockMessageCode.MSG_LOCK_MESSAGE_UPDATE_PWD, LockMessageCode.MSG_LOCK_MESSAGE_UPDATE_PWD, null);
+        } else if (MQttConstant.REMOVE_PWD.equals(messageCode)) {
+            // 秘钥属性删除
+            postMessage(LockMessageCode.MSG_LOCK_MESSAGE_REMOVE_PWD, LockMessageCode.MSG_LOCK_MESSAGE_REMOVE_PWD, null);
+        } else if (MQttConstant.GATEWAY_STATE.equals(messageCode)) {
+            // 获取网关状态
+            // postMessage(LockMessageCode.MSG_LOCK_MESSAGE_GATEWAY_STATE, );
+        } else if (MQttConstant.SET_LOCK_ATTR.equals(messageCode)) {
+            // 设置门锁属性
+            postMessage(LockMessageCode.MSG_LOCK_MESSAGE_SET_LOCK, LockMessageCode.MSG_LOCK_MESSAGE_SET_LOCK, null);
+        } else if (MQttConstant.WF_EVENT.equals(messageCode)) {
+            // 操作事件
+            postMessage(LockMessageCode.MSG_LOCK_MESSAGE_WF_EVEN, LockMessageCode.MSG_LOCK_MESSAGE_WF_EVEN, null);
+        } else if (MQttConstant.RECORD.equals(messageCode)) {
+            // 记录
+            postMessage(LockMessageCode.MSG_LOCK_MESSAGE_RECORD, LockMessageCode.MSG_LOCK_MESSAGE_RECORD, null);
+        }
+    }
+
+    public void postMessage(int resultCode, int messageCode, WifiLockBaseResponseBean bean) {
+        LockMessageRes messageRes = new LockMessageRes();
+        messageRes.setResultCode(resultCode);//操作完成
+        messageRes.setMessgaeType(LockMessageCode.MSG_LOCK_MESSAGE_MQTT);
+        messageRes.setMessageCode(messageCode);
+        messageRes.setWifiLockBaseResponseBean(bean);
+        EventBus.getDefault().post(messageRes);
+    }
+
 
     /**
      * 发送ble

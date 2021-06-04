@@ -42,6 +42,7 @@ import com.revolo.lock.ble.bean.BleBean;
 import com.revolo.lock.ble.bean.BleResultBean;
 import com.revolo.lock.dialog.AddPwdFailDialog;
 import com.revolo.lock.dialog.MessageDialog;
+import com.revolo.lock.manager.LockMessage;
 import com.revolo.lock.manager.LockMessageCode;
 import com.revolo.lock.manager.LockMessageRes;
 import com.revolo.lock.mqtt.MqttCommandFactory;
@@ -55,6 +56,7 @@ import com.revolo.lock.net.HttpRequest;
 import com.revolo.lock.net.ObservableDecorator;
 import com.revolo.lock.room.entity.BleDeviceLocal;
 
+import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 import org.jetbrains.annotations.NotNull;
@@ -128,7 +130,7 @@ public class AddNewPwdSelectActivity extends BaseActivity {
             finish();
         }
         if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_BLE) {
-            mBleBean = App.getInstance().getBleBeanFromMac(mBleDeviceLocal.getMac());
+            mBleBean = App.getInstance().getUserBleBean(mBleDeviceLocal.getMac());
             if (mBleBean == null) {
                 finish();
             }
@@ -178,8 +180,29 @@ public class AddNewPwdSelectActivity extends BaseActivity {
                     Timber.e("设置密钥属性失败，state: %1s", BleByteUtil.byteToInt(state));
                 }
             }
-        } else {
+        } else if (lockMessage.getMessgaeType() == LockMessageCode.MSG_LOCK_MESSAGE_MQTT) {
             //MQTT
+            if (lockMessage.getResultCode() == LockMessageCode.MSG_LOCK_MESSAGE_CODE_SUCCESS) {
+                switch (lockMessage.getMessageCode()) {
+                    case LockMessageCode.MSG_LOCK_MESSAGE_CREATE_PWD:
+                        processAddPwd((WifiLockAddPwdRspBean) lockMessage.getWifiLockBaseResponseBean());
+                        break;
+                    case LockMessageCode.MSG_LOCK_MESSAGE_ADD_PWD:
+                        setPwdAttrCallback((WifiLockAddPwdAttrResponseBean)lockMessage.getWifiLockBaseResponseBean());
+                        break;
+                }
+            } else {
+                switch (lockMessage.getResultCode()) {
+                    case LockMessageCode.MSG_LOCK_MESSAGE_CREATE_PWD:
+                        dismissLoading();
+                        break;
+                    case LockMessageCode.MSG_LOCK_MESSAGE_ADD_PWD:
+                        dismissLoading();
+                        break;
+                }
+            }
+        } else {
+
         }
     }
 
@@ -341,9 +364,14 @@ public class AddNewPwdSelectActivity extends BaseActivity {
                 Timber.e("nextStep mBleBean.getPwd3() == null");
                 return;
             }
-            App.getInstance().writeControlMsg(BleCommandFactory.addKey(KEY_SET_KEY_TYPE_PWD,
-                    mKey.getBytes(StandardCharsets.UTF_8), mBleBean.getPwd1(), mBleBean.getPwd3()),
-                    mBleBean.getOKBLEDeviceImp());
+            LockMessage message = new LockMessage();
+            message.setMessageType(3);
+             message.setBytes(BleCommandFactory.addKey(KEY_SET_KEY_TYPE_PWD,
+                    mKey.getBytes(StandardCharsets.UTF_8), mBleBean.getPwd1(), mBleBean.getPwd3()));
+            message.setMac(mBleBean.getOKBLEDeviceImp().getMacAddress());
+            EventBus.getDefault().post(message);/*
+            App.getInstance().writeControlMsg(,
+                    mBleBean.getOKBLEDeviceImp());*/
             // TODO: 2021/1/29 需要做超时操作
         }
     }
@@ -567,9 +595,9 @@ public class AddNewPwdSelectActivity extends BaseActivity {
     private void dismissLoadingAndShowAddFail() {
         dismissLoading();
         runOnUiThread(() -> {
-            if (mAddPwdDisposable != null) {
-                mAddPwdFailDialog.show();
-            }
+            //     if (mAddPwdDisposable != null) {
+            mAddPwdFailDialog.show();
+            //  }
         });
     }
 
@@ -587,7 +615,21 @@ public class AddNewPwdSelectActivity extends BaseActivity {
                     mTemEndDateTimeMill / 1000,
                     0);
         } else {
-            App.getInstance()
+            LockMessage message = new LockMessage();
+            message.setMac(mBleBean.getOKBLEDeviceImp().getMacAddress());
+            message.setBytes(BleCommandFactory
+                    .keyAttributesSet(KEY_SET_KEY_OPTION_ADD_OR_CHANGE,
+                            KEY_SET_KEY_TYPE_PWD,
+                            (byte) mNum,
+                            KEY_SET_ATTRIBUTE_TIME_KEY,
+                            (byte) 0x00,
+                            mTemStartDateTimeMill / 1000,
+                            mTemEndDateTimeMill / 1000,
+                            mBleBean.getPwd1(),
+                            mBleBean.getPwd3()));
+            message.setMessageType(3);
+            EventBus.getDefault().post(message);
+           /* App.getInstance()
                     .writeControlMsg(BleCommandFactory
                             .keyAttributesSet(KEY_SET_KEY_OPTION_ADD_OR_CHANGE,
                                     KEY_SET_KEY_TYPE_PWD,
@@ -597,7 +639,7 @@ public class AddNewPwdSelectActivity extends BaseActivity {
                                     mTemStartDateTimeMill / 1000,
                                     mTemEndDateTimeMill / 1000,
                                     mBleBean.getPwd1(),
-                                    mBleBean.getPwd3()), mBleBean.getOKBLEDeviceImp());
+                                    mBleBean.getPwd3()), mBleBean.getOKBLEDeviceImp());*/
         }
 
     }
@@ -632,7 +674,21 @@ public class AddNewPwdSelectActivity extends BaseActivity {
                     mScheduleEndTimeMill / 1000,
                     week);
         } else {
-            App.getInstance()
+            LockMessage message = new LockMessage();
+            message.setMessageType(3);
+            message.setMac(mBleBean.getOKBLEDeviceImp().getMacAddress());
+            message.setBytes(BleCommandFactory
+                    .keyAttributesSet(KEY_SET_KEY_OPTION_ADD_OR_CHANGE,
+                            KEY_SET_KEY_TYPE_PWD,
+                            (byte) mNum,
+                            KEY_SET_ATTRIBUTE_WEEK_KEY,
+                            week,
+                            mScheduleStartTimeMill / 1000,
+                            mScheduleEndTimeMill / 1000,
+                            mBleBean.getPwd1(),
+                            mBleBean.getPwd3()));
+            EventBus.getDefault().post(message);
+          /*  App.getInstance()
                     .writeControlMsg(BleCommandFactory
                             .keyAttributesSet(KEY_SET_KEY_OPTION_ADD_OR_CHANGE,
                                     KEY_SET_KEY_TYPE_PWD,
@@ -642,7 +698,7 @@ public class AddNewPwdSelectActivity extends BaseActivity {
                                     mScheduleStartTimeMill / 1000,
                                     mScheduleEndTimeMill / 1000,
                                     mBleBean.getPwd1(),
-                                    mBleBean.getPwd3()), mBleBean.getOKBLEDeviceImp());
+                                    mBleBean.getPwd3()), mBleBean.getOKBLEDeviceImp());*/
         }
 
     }
@@ -679,11 +735,12 @@ public class AddNewPwdSelectActivity extends BaseActivity {
             Timber.e("initDevice mBleBean == null || mBleBean.getOKBLEDeviceImp() == null");
             return;
         }
-        App.getInstance().openPairNotify(mBleBean.getOKBLEDeviceImp());
+        //替换
+        //App.getInstance().openPairNotify(mBleBean.getOKBLEDeviceImp());
     }
 
-    private Disposable mAddPwdDisposable;
-    private Disposable mSetPwdAttrDisposable;
+    // private Disposable mAddPwdDisposable;
+    //private Disposable mSetPwdAttrDisposable;
 
     private void publishAddPwd(String wifiId, String key) {
         String uid = App.getInstance().getUserBean().getUid();
@@ -691,16 +748,30 @@ public class AddNewPwdSelectActivity extends BaseActivity {
             Timber.e("publishAddPwd uid is empty");
             return;
         }
-        if (mMQttService == null) {
+        /*if (mMQttService == null) {
             Timber.e("publishAddPwd mMQttService == null");
             return;
-        }
+        }*/
         showLoading();
         WifiLockAddPwdPublishBean.ParamsBean paramsBean = new WifiLockAddPwdPublishBean.ParamsBean();
         paramsBean.setKey(key);
         // TODO: 2021/3/17 后期修改密钥属性
         paramsBean.setKeyType(0);
-        toDisposable(mAddPwdDisposable);
+
+        LockMessage message = new LockMessage();
+        message.setMqtt_message_code(MQttConstant.CREATE_PWD);
+        message.setMqtt_topic(MQttConstant.getCallTopic(uid));
+        message.setMqttMessage(MqttCommandFactory.addPwd(
+                wifiId,
+                paramsBean,
+                BleCommandFactory.getPwd(
+                        ConvertUtils.hexString2Bytes(mBleDeviceLocal.getPwd1()),
+                        ConvertUtils.hexString2Bytes(mBleDeviceLocal.getPwd2())
+                )));
+        message.setMessageType(2);
+        EventBus.getDefault().post(message);
+
+       /* toDisposable(mAddPwdDisposable);
         mAddPwdDisposable = mMQttService.mqttPublish(MQttConstant.getCallTopic(uid),
                 MqttCommandFactory.addPwd(
                         wifiId,
@@ -715,61 +786,61 @@ public class AddNewPwdSelectActivity extends BaseActivity {
                     dismissLoading();
                     Timber.e(e);
                 });
-        mCompositeDisposable.add(mAddPwdDisposable);
+        mCompositeDisposable.add(mAddPwdDisposable);*/
     }
 
-    private void processAddPwd(MqttData mqttData) {
-        toDisposable(mAddPwdDisposable);
+    private void processAddPwd(WifiLockAddPwdRspBean bean) {
+        // toDisposable(mAddPwdDisposable);
         dismissLoading();
-        if (TextUtils.isEmpty(mqttData.getFunc())) {
+        /*if (TextUtils.isEmpty(mqttData.getFunc())) {
             return;
-        }
-        if (mqttData.getFunc().equals(MQttConstant.CREATE_PWD)) {
-            Timber.d("创建密码: %1s", mqttData);
-            WifiLockAddPwdRspBean bean;
+        }*/
+       /* if (mqttData.getFunc().equals(MQttConstant.CREATE_PWD)) {
+            Timber.d("创建密码: %1s", mqttData);*/
+            /*WifiLockAddPwdRspBean bean;
             try {
                 bean = GsonUtils.fromJson(mqttData.getPayload(), WifiLockAddPwdRspBean.class);
             } catch (JsonSyntaxException e) {
                 Timber.e(e);
                 return;
-            }
-            if (bean == null) {
-                Timber.e("processAddPwd bean == null");
-                return;
-            }
-            if (bean.getCode() != 200) {
-                Timber.e("processAddPwd code : %1d", bean.getCode());
-                if (bean.getCode() == 201) {
-                    ToastUtils.showShort(R.string.t_add_pwd_fail);
-                }
-                return;
-            }
-            if (bean.getParams() == null) {
-                Timber.e("processAddPwd bean.getParams() == null");
-                return;
-            }
-            mNum = bean.getParams().getKeyNum();
-            mDevicePwdBean.setPwdNum(mNum);
-            // 使用秒存储，所以除以1000
-            mDevicePwdBean.setCreateTime(TimeUtils.getNowMills() / 1000);
-            mDevicePwdBean.setDeviceId(mBleDeviceLocal.getId());
-            mDevicePwdBean.setAttribute(BleCommandState.KEY_SET_ATTRIBUTE_ALWAYS);
-            if (mSelectedPwdState == PERMANENT_STATE) {
-                savePwdToService(mDevicePwdBean);
-            } else if (mSelectedPwdState == SCHEDULE_STATE) {
-                setSchedulePwd();
-            } else if (mSelectedPwdState == TEMPORARY_STATE) {
-                setTimePwd();
-            }
+            }*/
+        if (bean == null) {
+            Timber.e("processAddPwd bean == null");
+            return;
         }
-        Timber.d("%1s", mqttData.toString());
+        if (bean.getCode() != 200) {
+            Timber.e("processAddPwd code : %1d", bean.getCode());
+            if (bean.getCode() == 201) {
+                ToastUtils.showShort(R.string.t_add_pwd_fail);
+            }
+            return;
+        }
+        if (bean.getParams() == null) {
+            Timber.e("processAddPwd bean.getParams() == null");
+            return;
+        }
+        mNum = bean.getParams().getKeyNum();
+        mDevicePwdBean.setPwdNum(mNum);
+        // 使用秒存储，所以除以1000
+        mDevicePwdBean.setCreateTime(TimeUtils.getNowMills() / 1000);
+        mDevicePwdBean.setDeviceId(mBleDeviceLocal.getId());
+        mDevicePwdBean.setAttribute(BleCommandState.KEY_SET_ATTRIBUTE_ALWAYS);
+        if (mSelectedPwdState == PERMANENT_STATE) {
+            savePwdToService(mDevicePwdBean);
+        } else if (mSelectedPwdState == SCHEDULE_STATE) {
+            setSchedulePwd();
+        } else if (mSelectedPwdState == TEMPORARY_STATE) {
+            setTimePwd();
+        }
+      /*  }
+        Timber.d("%1s", mqttData.toString());*/
     }
 
     private void publishAddPwdAttr(String wifiId, int attribute, int keyNum, long startTime, long endTime, int week) {
-        if (mMQttService == null) {
+        /*if (mMQttService == null) {
             Timber.e("publishAddPwdAttr mMQttService == null");
             return;
-        }
+        }*/
         WifiLockAddPwdAttrPublishBean.ParamsBean paramsBean = new WifiLockAddPwdAttrPublishBean.ParamsBean();
         paramsBean.setAttribute(attribute);
         paramsBean.setEndTime(endTime);
@@ -778,8 +849,23 @@ public class AddNewPwdSelectActivity extends BaseActivity {
         paramsBean.setWeek(week);
         // TODO: 2021/3/17 后期修改密钥属性
         paramsBean.setKeyType(0);
-        toDisposable(mSetPwdAttrDisposable);
-        mSetPwdAttrDisposable = mMQttService.mqttPublish(MQttConstant.getCallTopic(App.getInstance().getUserBean().getUid()),
+        //toDisposable(mSetPwdAttrDisposable);
+
+        LockMessage message=new LockMessage();
+        message.setMessageType(2);
+       message.setMqtt_message_code(MQttConstant.ADD_PWD);
+        message.setMqtt_topic(MQttConstant.getCallTopic(App.getInstance().getUserBean().getUid()));
+        message.setMqttMessage(  MqttCommandFactory.addPwdAttr(
+                wifiId,
+                paramsBean,
+                BleCommandFactory.getPwd(
+                        ConvertUtils.hexString2Bytes(mBleDeviceLocal.getPwd1()),
+                        ConvertUtils.hexString2Bytes(mBleDeviceLocal.getPwd2())
+                )));
+        EventBus.getDefault().post(message);
+
+
+       /* mSetPwdAttrDisposable = mMQttService.mqttPublish(MQttConstant.getCallTopic(App.getInstance().getUserBean().getUid()),
                 MqttCommandFactory.addPwdAttr(
                         wifiId,
                         paramsBean,
@@ -792,26 +878,26 @@ public class AddNewPwdSelectActivity extends BaseActivity {
                 .subscribe(this::setPwdAttrCallback, e -> {
                     dismissLoading();
                     Timber.e(e);
-                });
-        mCompositeDisposable.add(mSetPwdAttrDisposable);
+                });*/
+      //  mCompositeDisposable.add(mSetPwdAttrDisposable);
     }
 
-    private void setPwdAttrCallback(MqttData mqttData) {
-        toDisposable(mSetPwdAttrDisposable);
-        if (TextUtils.isEmpty(mqttData.getFunc())) {
+    private void setPwdAttrCallback(WifiLockAddPwdAttrResponseBean bean) {
+      //  toDisposable(mSetPwdAttrDisposable);
+        /*if (TextUtils.isEmpty(mqttData.getFunc())) {
             return;
-        }
+        }*/
         // TODO: 2021/3/3 处理开关门的回调信息
-        if (mqttData.getFunc().equals(MQttConstant.ADD_PWD)) {
+       /* if (mqttData.getFunc().equals(MQttConstant.ADD_PWD)) {*/
             dismissLoading();
-            Timber.d("publishAddPwdAttr 添加密码属性: %1s", mqttData);
+            /*Timber.d("publishAddPwdAttr 添加密码属性: %1s", mqttData);
             WifiLockAddPwdAttrResponseBean bean;
             try {
                 bean = GsonUtils.fromJson(mqttData.getPayload(), WifiLockAddPwdAttrResponseBean.class);
             } catch (JsonSyntaxException e) {
                 Timber.e(e);
                 return;
-            }
+            }*/
             if (bean == null) {
                 Timber.e("publishAddPwdAttr bean == null");
                 return;
@@ -825,8 +911,8 @@ public class AddNewPwdSelectActivity extends BaseActivity {
                 return;
             }
             savePwdToService(mDevicePwdBean);
-        }
-        Timber.d("%1s", mqttData.toString());
+    /*    }
+        Timber.d("%1s", mqttData.toString());*/
     }
 
     // TODO: 2021/2/4 要做后面时间不能超过前面时间的判断和逻辑处理

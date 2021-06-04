@@ -4,6 +4,7 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import com.blankj.utilcode.util.GsonUtils;
+import com.blankj.utilcode.util.LogUtils;
 import com.revolo.lock.App;
 import com.revolo.lock.LocalState;
 import com.revolo.lock.mqtt.MQttConstant;
@@ -125,6 +126,7 @@ public class MQTTManager {
      * 连接
      */
     public void mqttConnection() {
+        Timber.e("mqttConnection");
         if (null != mqttClient) {
             if (mqttClient.isConnected()) {
                 Timber.d("mqttConnection  mqtt已连接");
@@ -230,7 +232,7 @@ public class MQTTManager {
                     mqttDataLinstener.messageArrived(topic, message);
                 }
 
-                // TODO: 2021/3/31 消息处理机制存在问题，需要修复,这种分发机制会导致使用超时的话一直都超时
+              // TODO: 2021/3/31 消息处理机制存在问题，需要修复,这种分发机制会导致使用超时的话一直都超时
                 if (message == null) {
                     return;
                 }
@@ -348,17 +350,18 @@ public class MQTTManager {
     public Observable<MqttData> mqttPublish(String topic, MqttMessage mqttMessage) {
         try {
             if (mqttClient != null && mqttClient.isConnected()) {
-                Timber.d("发布mqtt消息 " + "topic: " + topic + "  mqttMessage: " + mqttMessage.toString());
+                Timber.e("发布mqtt消息 :" +mqttMessage.toString());
+                Timber.e("发布mqtt消息 " + "topic: " + topic + "  mqttMessage: " + mqttMessage.toString());
                 mqttClient.publish(topic, mqttMessage, null, new IMqttActionListener() {
                     @Override
                     public void onSuccess(IMqttToken asyncActionToken) {
-//                        LogUtils.e("发布消息成功  ", topic + "  消息Id  " + mqttMessage.getId() );
+                        LogUtils.e("发布消息成功  ", topic + "  消息Id  " + mqttMessage.getId() );
                         publishObservable.onNext(new PublishResult(true, asyncActionToken, mqttMessage));
                     }
 
                     @Override
                     public void onFailure(IMqttToken asyncActionToken, Throwable exception) {
-                        Timber.d("发布消息失败 " + topic + "    fail");
+                        Timber.e("发布消息失败 " + topic + "    fail");
                         MqttExceptionHandle.onFail(MqttExceptionHandle.PublishException, asyncActionToken, exception);
                         publishObservable.onNext(new PublishResult(false, asyncActionToken, mqttMessage));
                     }
@@ -368,6 +371,7 @@ public class MQTTManager {
             }
         } catch (MqttException e) {
             e.printStackTrace();
+
         }
         return onReceiverDataObservable;
     }

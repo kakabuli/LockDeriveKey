@@ -41,7 +41,7 @@ public class MqttCommandFactory {
     }
 
     //MessageId
-    public static int MESSAGE_ID = 0;
+    public static int MESSAGE_ID = 10;
 
 
     public synchronized static int getMessageId() {

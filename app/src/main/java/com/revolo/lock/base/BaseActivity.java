@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -50,8 +51,8 @@ public abstract class BaseActivity extends AppCompatActivity
         implements IBaseView {
 
     private final View.OnClickListener mClickListener = this::onDebouncingClick;
-    public CompositeDisposable mCompositeDisposable = new CompositeDisposable();
-    public MqttService mMQttService = App.getInstance().getMQttService();
+    //public CompositeDisposable mCompositeDisposable = new CompositeDisposable();
+    //public MqttService mMQttService = App.getInstance().getMQttService();
 
     public View mContentView;
     public Activity mActivity;
@@ -70,14 +71,14 @@ public abstract class BaseActivity extends AppCompatActivity
         EventBus.getDefault().post(bleConnected);
 
 
-        if (mMQttService == null) {
+      /*  if (mMQttService == null) {
             mMQttService = App.getInstance().getMQttService();
         }
         if (mMQttService != null) {
             if (mMQttService.getMqttClient() != null && !mMQttService.getMqttClient().isConnected()) {
                 mMQttService.mqttConnection();
             }
-        }
+        }*/
         initView(savedInstanceState, mContentView);
 
 //        startKeepAlive();
@@ -98,9 +99,9 @@ public abstract class BaseActivity extends AppCompatActivity
 
     @Override
     protected void onStop() {
-        if (mCompositeDisposable != null) {
+       /* if (mCompositeDisposable != null) {
             mCompositeDisposable.clear();
-        }
+        }*/
         super.onStop();
     }
 

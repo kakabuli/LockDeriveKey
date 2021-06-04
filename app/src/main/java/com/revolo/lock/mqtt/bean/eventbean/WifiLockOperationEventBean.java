@@ -1,6 +1,8 @@
 package com.revolo.lock.mqtt.bean.eventbean;
 
-public class WifiLockOperationEventBean {
+import com.revolo.lock.mqtt.bean.publishresultbean.WifiLockBaseResponseBean;
+
+public class WifiLockOperationEventBean extends WifiLockBaseResponseBean {
 
     /**
      {
@@ -55,7 +57,7 @@ public class WifiLockOperationEventBean {
      * 0x05:	反锁模式
      * 0x06:	布防模式
      * 0x07:	节能模式
-     *
+     * <p>
      * ④　"userID"如下：
      * 有用户编号的时候填入编号，没有时填入0xFF.
      * 标准密码：0~9
@@ -72,14 +74,11 @@ public class WifiLockOperationEventBean {
      * APP用户编码：0-99
      */
 
-    private String  msgtype;
-    private String func;
-    private int msgId;
+
     private String devtype;
     private String lockId;
     private String eventtype;
     private EventparamsBean eventparams;
-    private String wfId;
     private String timestamp;
 
     public static class EventparamsBean {
@@ -141,29 +140,6 @@ public class WifiLockOperationEventBean {
         }
     }
 
-    public String getMsgtype() {
-        return msgtype;
-    }
-
-    public void setMsgtype(String msgtype) {
-        this.msgtype = msgtype;
-    }
-
-    public String getFunc() {
-        return func;
-    }
-
-    public void setFunc(String func) {
-        this.func = func;
-    }
-
-    public int getMsgId() {
-        return msgId;
-    }
-
-    public void setMsgId(int msgId) {
-        this.msgId = msgId;
-    }
 
     public String getDevtype() {
         return devtype;
@@ -197,14 +173,6 @@ public class WifiLockOperationEventBean {
         this.eventparams = eventparams;
     }
 
-    public String getWfId() {
-        return wfId;
-    }
-
-    public void setWfId(String wfId) {
-        this.wfId = wfId;
-    }
-
     public String getTimestamp() {
         return timestamp;
     }
@@ -216,14 +184,14 @@ public class WifiLockOperationEventBean {
     @Override
     public String toString() {
         return "WifiLockRecordResult{" +
-                "msgtype='" + msgtype + '\'' +
-                ", func='" + func + '\'' +
-                ", msgId=" + msgId +
+                "msgtype='" + getMsgtype() + '\'' +
+                ", func='" + getFunc() + '\'' +
+                ", msgId=" + getMsgId() +
                 ", devtype='" + devtype + '\'' +
                 ", lockId='" + lockId + '\'' +
                 ", eventtype='" + eventtype + '\'' +
                 ", eventparams=" + eventparams +
-                ", wfId='" + wfId + '\'' +
+                ", wfId='" + getWfId() + '\'' +
                 ", timestamp='" + timestamp + '\'' +
                 '}';
     }

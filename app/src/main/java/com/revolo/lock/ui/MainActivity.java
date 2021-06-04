@@ -52,17 +52,10 @@ public class MainActivity extends BaseActivity {
         }
         getAlexaIntent(getIntent());
 
-        onRegisterEventBus();
+        //onRegisterEventBus();
     }
 
-    @Subscribe(threadMode = ThreadMode.MAIN,sticky = true)
-    public void getEventBus(LockMessage lockMessage){
-        if (lockMessage == null){
-            return;
-        }
 
-        Log.e("a","a");
-    }
 
     @Override
     protected void onNewIntent(Intent intent) {

@@ -24,12 +24,14 @@ import com.revolo.lock.ble.BleResultProcess;
 import com.revolo.lock.ble.OnBleDeviceListener;
 import com.revolo.lock.ble.bean.BleBean;
 import com.revolo.lock.ble.bean.BleResultBean;
+import com.revolo.lock.manager.LockMessage;
 import com.revolo.lock.manager.LockMessageCode;
 import com.revolo.lock.manager.LockMessageRes;
 import com.revolo.lock.room.AppDatabase;
 import com.revolo.lock.room.entity.BleDeviceLocal;
 import com.revolo.lock.widget.WifiCircleProgress;
 
+import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 import org.jetbrains.annotations.NotNull;
@@ -121,7 +123,9 @@ public class WifiConnectActivity extends BaseActivity {
                     if (bleResultBean.getPayload()[0] == 0x00) {
                         // 连接wifi成功
                         changeValue(100);
-                        App.getInstance().removeConnectedBleBeanAndDisconnect(mBleBean);
+                        App.getInstance().removeConnectedBleDisconnect(mBleBean);
+                        /*替换
+                        App.getInstance().removeConnectedBleBeanAndDisconnect(mBleBean);*/
                         // 设置为wifi模式
                         mBleDeviceLocal.setConnectedType(LocalState.DEVICE_CONNECT_TYPE_WIFI);
                         mBleDeviceLocal.setConnectedWifiName(mWifiName);
@@ -138,8 +142,18 @@ public class WifiConnectActivity extends BaseActivity {
                     // TODO: 2021/1/22 走其他流程
                 }
             }
-        } else {
+        } else if (lockMessage.getMessgaeType() == LockMessageCode.MSG_LOCK_MESSAGE_MQTT) {
             //MQTT
+            if (lockMessage.getResultCode() == LockMessageCode.MSG_LOCK_MESSAGE_CODE_SUCCESS) {
+                switch (lockMessage.getMessageCode()) {
+                }
+            } else {
+                switch (lockMessage.getResultCode()) {
+
+                }
+            }
+        } else {
+
         }
     }
 
@@ -155,13 +169,16 @@ public class WifiConnectActivity extends BaseActivity {
     }
 
     private void initDevice() {
-        mBleBean = App.getInstance().getBleBeanFromMac(mBleDeviceLocal.getMac());
+        mBleBean = App.getInstance().getUserBleBean(mBleDeviceLocal.getMac());
+       /* 替换
+        mBleBean = App.getInstance().getBleBeanFromMac(mBleDeviceLocal.getMac());*/
         if (mBleBean == null) {
             Timber.e("initDevice mBleBean == null");
             return;
         }
         if (mBleBean.getOKBLEDeviceImp() != null) {
-            App.getInstance().openPairNotify(mBleBean.getOKBLEDeviceImp());
+            //替换
+            //App.getInstance().openPairNotify(mBleBean.getOKBLEDeviceImp());
             startSendWifiInfo();
         }
     }
@@ -254,7 +271,14 @@ public class WifiConnectActivity extends BaseActivity {
         }
         byte[] data = mWifiSnDataList.get(0);
         Timber.d("mWriteWifiSnRunnable data %1s", ConvertUtils.bytes2HexString(data));
-        App.getInstance().writePairMsg(BleCommandFactory.sendSSIDCommand((byte) mWifiSnLen, (byte) mWifiSnCount, data), mBleBean.getOKBLEDeviceImp());
+        LockMessage lockMessage = new LockMessage();
+        lockMessage.setBytes(BleCommandFactory.sendSSIDCommand((byte) mWifiSnLen, (byte) mWifiSnCount, data));
+        lockMessage.setMac(mBleBean.getOKBLEDeviceImp().getMacAddress());
+        lockMessage.setMessageType(3);
+        lockMessage.setBleChr(1);
+        EventBus.getDefault().post(lockMessage);
+     /*   替换
+        App.getInstance().writePairMsg(BleCommandFactory.sendSSIDCommand((byte) mWifiSnLen, (byte) mWifiSnCount, data), mBleBean.getOKBLEDeviceImp());*/
         mWifiSnCount++;
         mWifiSnDataList.remove(0);
     };
@@ -270,7 +294,14 @@ public class WifiConnectActivity extends BaseActivity {
         }
         byte[] data = mWifiPwdDataList.get(0);
         Timber.d("mWriteWifiPwdRunnable data %1s", ConvertUtils.bytes2HexString(data));
-        App.getInstance().writePairMsg(BleCommandFactory.sendSSIDPwdCommand((byte) mWifiPwdLen, (byte) mWifiPwdCount, data), mBleBean.getOKBLEDeviceImp());
+        LockMessage lockMessage = new LockMessage();
+         lockMessage.setBytes(BleCommandFactory.sendSSIDPwdCommand((byte) mWifiPwdLen, (byte) mWifiPwdCount, data));
+        lockMessage.setMac(mBleBean.getOKBLEDeviceImp().getMacAddress());
+        lockMessage.setMessageType(3);
+        lockMessage.setBleChr(1);
+        EventBus.getDefault().post(lockMessage);
+       /* 替换
+        App.getInstance().writePairMsg(BleCommandFactory.sendSSIDPwdCommand((byte) mWifiPwdLen, (byte) mWifiPwdCount, data), mBleBean.getOKBLEDeviceImp());*/
         mWifiPwdCount++;
         mWifiPwdDataList.remove(0);
     };

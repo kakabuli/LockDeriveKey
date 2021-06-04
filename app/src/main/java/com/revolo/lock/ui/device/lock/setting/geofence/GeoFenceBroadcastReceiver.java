@@ -5,13 +5,21 @@ import android.content.Context;
 import android.content.Intent;
 import android.view.Gravity;
 
+import com.blankj.utilcode.util.ConvertUtils;
 import com.blankj.utilcode.util.ToastUtils;
 import com.google.android.gms.location.Geofence;
 import com.google.android.gms.location.GeofencingEvent;
 import com.revolo.lock.App;
 import com.revolo.lock.R;
+import com.revolo.lock.ble.BleCommandFactory;
+import com.revolo.lock.manager.LockMessage;
+import com.revolo.lock.mqtt.MQttConstant;
+import com.revolo.lock.mqtt.MqttCommandFactory;
 import com.revolo.lock.room.entity.BleDeviceLocal;
 
+import org.greenrobot.eventbus.EventBus;
+
+import java.security.spec.ECField;
 import java.util.List;
 
 import timber.log.Timber;
@@ -57,7 +65,7 @@ public class GeoFenceBroadcastReceiver extends BroadcastReceiver {
                 if(deviceLocal == null) {
                     return;
                 }
-                App.getInstance().publishApproachOpen(deviceLocal.getEsn(), deviceLocal.getSetElectricFenceTime());
+               /* App.getInstance().publishApproachOpen(*/pushMessage(deviceLocal.getEsn(), deviceLocal.getSetElectricFenceTime());
                 break;
             case Geofence.GEOFENCE_TRANSITION_DWELL:
                 // TODO: 2021/4/23 停留
@@ -69,6 +77,24 @@ public class GeoFenceBroadcastReceiver extends BroadcastReceiver {
                 notificationHelper.sendHighPriorityNotification(context.getString(R.string.n_geo_fence), context.getString(R.string.t_you_have_exited_the_geo_fence), MapActivity.class);
                 break;
         }
+    }
+    private void pushMessage(String wifiID, int broadcastTime){
+        BleDeviceLocal deviceLocal = App.getInstance().getBleDeviceLocal();
+        if (deviceLocal == null) {
+            Timber.e("publishApproachOpen deviceLocal == null");
+            return;
+        }
+        App.getInstance().setUsingGeoFenceBleDeviceLocal(deviceLocal);
+        LockMessage lockMessage=new LockMessage();
+        lockMessage.setMqttMessage( MqttCommandFactory.approachOpen(wifiID, broadcastTime,
+                BleCommandFactory.getPwd(
+                        ConvertUtils.hexString2Bytes(deviceLocal.getPwd1()),
+                        ConvertUtils.hexString2Bytes(deviceLocal.getPwd2()))));
+        lockMessage.setMqtt_topic(MQttConstant.getCallTopic(App.getInstance().getUserBean().getUid()));
+        lockMessage.setMessageType(2);
+        lockMessage.setMqtt_message_code(MQttConstant.APP_ROACH_OPEN);
+        EventBus.getDefault().post(lockMessage);
+
     }
 
 

@@ -17,7 +17,10 @@ import com.revolo.lock.ble.BleByteUtil;
 import com.revolo.lock.ble.BleCommandFactory;
 import com.revolo.lock.ble.OnBleDeviceListener;
 import com.revolo.lock.ble.bean.BleBean;
+import com.revolo.lock.manager.LockMessageReplyErrCode;
+import com.revolo.lock.manager.LockMessageRes;
 
+import org.greenrobot.eventbus.EventBus;
 import org.jetbrains.annotations.NotNull;
 
 import java.nio.charset.StandardCharsets;
@@ -30,6 +33,7 @@ import static com.revolo.lock.ble.BleProtocolState.CMD_ENCRYPT_KEY_UPLOAD;
 import static com.revolo.lock.ble.BleResultProcess.CONTROL_ENCRYPTION;
 import static com.revolo.lock.ble.BleResultProcess.checksum;
 import static com.revolo.lock.ble.BleResultProcess.pwdDecrypt;
+import static com.revolo.lock.manager.LockMessageCode.MSG_LOCK_MESSAGE_BLE;
 
 public class BleManager {
     private final ArrayList<BleBean> mConnectedBleBeanList = new ArrayList<>();
@@ -66,7 +70,6 @@ public class BleManager {
     /*-------------------------------- 蓝牙搜索 end --------------------------------*/
     public BleBean connectDevice(String sn, BLEScanResult bleScanResult, byte[] pwd1, byte[] pwd2, boolean isAppPair) {
         OKBLEDeviceImp deviceImp = new OKBLEDeviceImp(App.getInstance().getApplicationContext(), bleScanResult);
-        Log.e("test_ble:", bleScanResult.getMacAddress());
         deviceImp.setDeviceTAG(bleScanResult.getMacAddress().toLowerCase());
         BleBean bleBean = new BleBean(deviceImp);
         bleBean.setPwd1(pwd1);
@@ -133,6 +136,9 @@ public class BleManager {
 
     public BleBean getBleBeanFromMac(@NotNull String mac) {
         for (BleBean bleBean : mConnectedBleBeanList) {
+            if(null==bleBean.getOKBLEDeviceImp()||null==bleBean.getOKBLEDeviceImp().getMacAddress()){
+                continue;
+            }
             if (bleBean.getOKBLEDeviceImp().getMacAddress().equals(mac)) {
                 return bleBean;
             }
@@ -142,6 +148,9 @@ public class BleManager {
 
     public boolean getBleBeanCoonectedState(@NotNull String mac) {
         for (BleBean bleBean : mConnectedBleBeanList) {
+            if(null==bleBean.getOKBLEDeviceImp()||null==bleBean.getOKBLEDeviceImp().getMacAddress()){
+                continue;
+            }
             if (bleBean.getOKBLEDeviceImp().getMacAddress().equals(mac)) {
                 return bleBean.getOKBLEDeviceImp().isConnected();
             }
@@ -166,20 +175,14 @@ public class BleManager {
                 }
                 // 连接后都走自动鉴权流程
                 bleBean.setAuth(true);
-                if (null == bleBean.getPwd2()) {
-                    //发送配网指令，并校验ESN
-                    new Handler(Looper.getMainLooper()).postDelayed(() -> {
-                        if (null != bleBean.getOKBLEDeviceImp()) {
-                            Timber.d("%1s 发送配网指令，并校验ESN", bleBean.getOKBLEDeviceImp());
-                        }
-                        writeControlMsg(BleCommandFactory
-                                .pairCommand(bleBean.getPwd1(), bleBean.getEsn().getBytes(StandardCharsets.UTF_8)), bleBean.getOKBLEDeviceImp());
-                    }, 100);
-                } else {
-                    new Handler(Looper.getMainLooper()).postDelayed(() -> writeControlMsg(BleCommandFactory
-                                    .authCommand(bleBean.getPwd1(), bleBean.getPwd2(), bleBean.getEsn().getBytes(StandardCharsets.UTF_8)),
-                            bleBean.getOKBLEDeviceImp()), 50);
-                }
+                //发送配网指令，并校验ESN
+                new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                    if (null != bleBean.getOKBLEDeviceImp()) {
+                        Timber.d("%1s 发送配网指令，并校验ESN", bleBean.getOKBLEDeviceImp());
+                    }
+                    writeControlMsg(BleCommandFactory
+                            .pairCommand(bleBean.getPwd1(), bleBean.getEsn().getBytes(StandardCharsets.UTF_8)), bleBean.getOKBLEDeviceImp());
+                }, 100);
                 bleConnectedCallback(bleBean, bleBean.getOKBLEDeviceImp().getMacAddress());
             }
         }
@@ -198,6 +201,12 @@ public class BleManager {
                 bleBean.getOKBLEDeviceImp().remove();
                 removeConnectedBleBeanAndDisconnect(deviceTAG);//清理当前队列中的连接ble对象
                 bleBean.getOnBleDeviceListener().onDisconnected(bleBean.getOKBLEDeviceImp().getMacAddress());
+
+                LockMessageRes message = new LockMessageRes();
+                message.setMessgaeType(MSG_LOCK_MESSAGE_BLE);//蓝牙消息
+                message.setResultCode(LockMessageReplyErrCode.LOCK_BLE_ERR_CODE_BLE_DIS_ERR);//校验和失败
+                EventBus.getDefault().post(message);
+
             }
         }
 
@@ -265,17 +274,47 @@ public class BleManager {
     }
 
     private void authProcess(byte[] value, @NotNull BleBean bleBean, @NotNull String mac) {
+        byte[] pwd1 = bleBean.getPwd1();
+        byte[] pwd2Or3 = bleBean.isAuth() ? bleBean.getPwd2() : bleBean.getPwd3();
+        boolean isEncrypt = (value[0] == CONTROL_ENCRYPTION);
+        byte[] payload = new byte[16];
+        System.arraycopy(value, 4, payload, 0, payload.length);
+        byte[] decryptPayload = isEncrypt ? pwdDecrypt(payload, pwd1, pwd2Or3) : payload;
+        byte sum = checksum(decryptPayload);
+        if (value[2] != sum) {
+            Timber.d("authProcess 校验和失败，接收数据中的校验和：%1s，\n接收数据后计算的校验和：%2s",
+                    ConvertUtils.int2HexString(value[2]), ConvertUtils.int2HexString(sum));
+            LockMessageRes message = new LockMessageRes();
+            message.setMessgaeType(MSG_LOCK_MESSAGE_BLE);//蓝牙消息
+            message.setResultCode(LockMessageReplyErrCode.LOCK_BLE_ERR_CODE_DATA_CHECK_ERR);//校验和失败
+            EventBus.getDefault().post(message);
+            return;
+        }
+        int cmd = BleByteUtil.byteToInt(value[3]);
+        if (decryptPayload[0] == 0x02) {
+            if (bleBean.getOnBleDeviceListener() != null) {
+                bleBean.getOnBleDeviceListener().onAuthSuc(mac);
+            }
+            // 获取pwd3
+            getPwd3(BleCommandFactory.ackCommand(BleByteUtil.byteToInt(value[1]), (byte) 0x00, cmd), decryptPayload, bleBean);
+            bleBean.setAuth(false);
+            // 鉴权成功后，同步当前时间
+            syNowTime(bleBean);
+        }
+    }
+
+    /*private void authProcess(byte[] value, @NotNull BleBean bleBean, @NotNull String mac) {
         if (value[0] == 0x01) {
             byte[] mPwd2 = new byte[4];
             System.arraycopy(value, 1, mPwd2, 0, mPwd2.length);
             // TODO: 2021/1/21 打包数据上传到服务器后再发送确认指令
             bleBean.setPwd2_copy(mPwd2);
             Timber.e("getPwd2AndSendAuthCommand 延时发送鉴权指令, pwd2: %1s\n", ConvertUtils.bytes2HexString(mPwd2) + ";;;;;;SN:" + bleBean.getEsn());
-          /* new Handler(Looper.getMainLooper()).postDelayed(() -> {
+          *//* new Handler(Looper.getMainLooper()).postDelayed(() -> {
                 Timber.d("getPwd2AndSendAuthCommand 延时发送鉴权指令, pwd2: %1s\n", ConvertUtils.bytes2HexString(mPwd2));
                 writeControlMsg(BleCommandFactory
                         .authCommand(bleBean.getPwd1(), bleBean.getPwd2(), bleBean.getEsn().getBytes(StandardCharsets.UTF_8)), bleBean.getOKBLEDeviceImp());
-            }, 50);*/
+            }, 50);*//*
         } else if (value[0] == 0x02) {
             bleBean.setPwd2(bleBean.getPwd2_copy());
             byte[] pwd1 = bleBean.getPwd1();
@@ -303,14 +342,14 @@ public class BleManager {
             }
         }
     }
-
+*/
     private void getPwd3(byte[] bytes, byte[] decryptPayload, @NotNull BleBean bleBean) {
         byte[] pwd3 = new byte[4];
         System.arraycopy(decryptPayload, 1, pwd3, 0, pwd3.length);
         Timber.d("鉴权成功, pwd3: %1s\n", ConvertUtils.bytes2HexString(pwd3));
         bleBean.getOnBleDeviceListener().onConnected(bleBean.getOKBLEDeviceImp().getMacAddress());
         // 内存存储
-        bleBean.setPwd3(pwd3);
+        //bleBean.setPwd3(pwd3);
         writeControlMsg(bytes, bleBean.getOKBLEDeviceImp());
 
     }
@@ -336,7 +375,11 @@ public class BleManager {
 
         @Override
         public void onFail(int code, String errMsg) {
-            Timber.e("onFail errMsg: %1s", errMsg);
+            Timber.e("onFail errMsg: %1s", (errMsg + ";code:" + code));
+            LockMessageRes message = new LockMessageRes();
+            message.setMessgaeType(MSG_LOCK_MESSAGE_BLE);//蓝牙消息
+            message.setResultCode(LockMessageReplyErrCode.LOCK_BLE_ERR_CODE_DATA_WRITE_ERR);//校验和失败
+            EventBus.getDefault().post(message);
         }
 
         @Override
@@ -377,6 +420,10 @@ public class BleManager {
                         @Override
                         public void onFail(int code, String errMsg) {
                             Timber.e("openControlNotify onFail errMsg: %1s", errMsg);
+                            LockMessageRes message = new LockMessageRes();
+                            message.setMessgaeType(MSG_LOCK_MESSAGE_BLE);//蓝牙消息
+                            message.setResultCode(LockMessageReplyErrCode.LOCK_BLE_ERR_CODE_DATA_NOTIFY_ERR);//校验和失败
+                            EventBus.getDefault().post(message);
                         }
 
                         @Override

@@ -80,6 +80,8 @@ public class DeviceSettingActivity extends BaseActivity {
     private DeviceUnbindBeanReq mReq;
     private ImageView mIvMuteEnable, mIvDoNotDisturbModeEnable;
     private BleDeviceLocal mBleDeviceLocal;
+    private @LocalState.VolumeState
+    int lockMute;
 
     @Override
     public void initData(@Nullable Bundle bundle) {
@@ -104,7 +106,7 @@ public class DeviceSettingActivity extends BaseActivity {
 
     @Override
     public void initView(@Nullable Bundle savedInstanceState, @Nullable View contentView) {
-       useCommonTitleBar(getString(R.string.title_setting));
+        useCommonTitleBar(getString(R.string.title_setting));
         mTvName = findViewById(R.id.tvName);
         mTvWifiName = findViewById(R.id.tvWifiName);
         mIvMuteEnable = findViewById(R.id.ivMuteEnable);
@@ -118,6 +120,7 @@ public class DeviceSettingActivity extends BaseActivity {
         mIvMuteEnable.setImageResource(mBleDeviceLocal.isMute() ? R.drawable.ic_icon_switch_open : R.drawable.ic_icon_switch_close);
         onRegisterEventBus();
     }
+
     @Subscribe(threadMode = ThreadMode.MAIN, sticky = true)
     public void getEventBus(LockMessageRes lockMessage) {
         if (lockMessage == null) {
@@ -128,8 +131,24 @@ public class DeviceSettingActivity extends BaseActivity {
             if (null != lockMessage.getBleResultBea()) {
                 processBleResult(lockMessage.getBleResultBea());
             }
-        } else {
+        } else if (lockMessage.getMessgaeType() == LockMessageCode.MSG_LOCK_MESSAGE_MQTT) {
             //MQTT
+            if (lockMessage.getResultCode() == LockMessageCode.MSG_LOCK_MESSAGE_CODE_SUCCESS) {
+                switch (lockMessage.getMessageCode()) {
+                    case LockMessageCode.MSG_LOCK_MESSAGE_SET_LOCK:
+                        processSetVolume((WifiLockSetLockAttrVolumeRspBean) lockMessage.getWifiLockBaseResponseBean(), lockMute);
+                        break;
+
+                }
+            } else {
+                switch (lockMessage.getResultCode()) {
+                    case LockMessageCode.MSG_LOCK_MESSAGE_SET_LOCK:
+                        dismissLoading();
+                        break;
+                }
+            }
+        } else {
+
         }
     }
 
@@ -181,7 +200,7 @@ public class DeviceSettingActivity extends BaseActivity {
                 Intent intent = new Intent(this, GeoFenceUnlockActivity.class);
                 startActivity(intent);
             } else {
-                ToastUtils.make().setGravity(Gravity.CENTER,0,0).show("Please set to WiFi connection mode");
+                ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show("Please set to WiFi connection mode");
             }
             return;
         }
@@ -231,7 +250,9 @@ public class DeviceSettingActivity extends BaseActivity {
     }
 
     private void mute() {
-        BleBean bleBean = App.getInstance().getBleBeanFromMac(mBleDeviceLocal.getMac());
+        BleBean bleBean = App.getInstance().getUserBleBean(mBleDeviceLocal.getMac());
+        //替换
+        //BleBean bleBean = App.getInstance().getBleBeanFromMac(mBleDeviceLocal.getMac());
         if (bleBean == null) {
             Timber.e("mute bleBean == null");
             return;
@@ -253,8 +274,14 @@ public class DeviceSettingActivity extends BaseActivity {
         // 0x02：High Volume高音量
         byte[] value = new byte[1];
         value[0] = (byte) (mBleDeviceLocal.isMute() ? LocalState.VOLUME_STATE_OPEN : LocalState.VOLUME_STATE_MUTE);
-        App.getInstance().writeControlMsg(BleCommandFactory.lockParameterModificationCommand((byte) 0x02,
-                (byte) 0x01, value, bleBean.getPwd1(), bleBean.getPwd3()), bleBean.getOKBLEDeviceImp());
+        LockMessage ms = new LockMessage();
+        ms.setMessageType(3);
+        ms.setMac(bleBean.getOKBLEDeviceImp().getMacAddress());
+        ms.setBytes(BleCommandFactory.lockParameterModificationCommand((byte) 0x02,
+                (byte) 0x01, value, bleBean.getPwd1(), bleBean.getPwd3()));
+        EventBus.getDefault().post(ms);
+        /*App.getInstance().writeControlMsg(BleCommandFactory.lockParameterModificationCommand((byte) 0x02,
+                (byte) 0x01, value, bleBean.getPwd1(), bleBean.getPwd3()), bleBean.getOKBLEDeviceImp());*/
     }
 
     private void showUnbindDialog() {
@@ -301,15 +328,22 @@ public class DeviceSettingActivity extends BaseActivity {
                     return;
                 }
                 // 如果是蓝牙，断开蓝牙连接
-                BleBean bleBean = App.getInstance().getBleBeanFromMac(mBleDeviceLocal.getMac());
+                //替换
+                //BleBean bleBean = App.getInstance().getBleBeanFromMac(mBleDeviceLocal.getMac());
+                BleBean bleBean = App.getInstance().getUserBleBean(mBleDeviceLocal.getMac());
+                if (null != bleBean) {
+                    App.getInstance().removeConnectedBleDisconnect(bleBean);
+                }
                 if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_BLE
                         && bleBean != null
                         && bleBean.getOKBLEDeviceImp() != null
                         && bleBean.getOKBLEDeviceImp().isConnected()) {
-                    App.getInstance().removeConnectedBleBeanAndDisconnect(bleBean);
+
+                    /*//替换
+                    App.getInstance().removeConnectedBleBeanAndDisconnect(bleBean);*/
                 }
                 //清理service中的缓存数据
-                LockMessage message=new LockMessage();
+                LockMessage message = new LockMessage();
                 message.setMessageType(MSG_LOCK_MESSAGE_USER);
                 message.setMessageCode(MSG_LOCK_MESSAGE_REMOVE_DEVICE);
                 message.setMac(mBleDeviceLocal.getMac().toUpperCase());
@@ -383,7 +417,8 @@ public class DeviceSettingActivity extends BaseActivity {
         Timber.d("CMD: %1d, eventType: %2d, eventSource: %3d, eventCode: %4d, userID: %5d, time: %6d",
                 bean.getCMD(), eventType, eventSource, eventCode, userID, realTime);
     }
-    private Disposable mSetVolumeDisposable;
+
+    // private Disposable mSetVolumeDisposable;
 
     /**
      * 设置是否静音
@@ -391,11 +426,23 @@ public class DeviceSettingActivity extends BaseActivity {
      * @param mute 0语音模式 1静音模式
      */
     private void publishSetVolume(String wifiID, @LocalState.VolumeState int mute) {
-        if (mMQttService == null) {
+        /*if (mMQttService == null) {
             Timber.e("publishSetVolume mMQttService == null");
             return;
-        }
+        }*/
+        lockMute = mute;
         VolumeParams volumeParams = new VolumeParams();
+        volumeParams.setVolume(mute);
+        LockMessage message = new LockMessage();
+        message.setMessageType(2);
+        message.setMqtt_message_code(MQttConstant.SET_LOCK_ATTR);
+        message.setMqtt_topic(MQttConstant.getCallTopic(App.getInstance().getUserBean().getUid()));
+        message.setMqttMessage(MqttCommandFactory.setLockAttr(wifiID, volumeParams,
+                BleCommandFactory.getPwd(
+                        ConvertUtils.hexString2Bytes(mBleDeviceLocal.getPwd1()),
+                        ConvertUtils.hexString2Bytes(mBleDeviceLocal.getPwd2()))));
+        EventBus.getDefault().post(message);
+       /* VolumeParams volumeParams = new VolumeParams();
         volumeParams.setVolume(mute);
         toDisposable(mSetVolumeDisposable);
         mSetVolumeDisposable = mMQttService.mqttPublish(MQttConstant.getCallTopic(App.getInstance().getUserBean().getUid()),
@@ -414,39 +461,40 @@ public class DeviceSettingActivity extends BaseActivity {
                     dismissLoading();
                     Timber.e(e);
                 });
-        mCompositeDisposable.add(mSetVolumeDisposable);
+        mCompositeDisposable.add(mSetVolumeDisposable);*/
     }
 
-    private void processSetVolume(MqttData mqttData, @LocalState.VolumeState int mute) {
-        if (TextUtils.isEmpty(mqttData.getFunc())) {
+    private void processSetVolume(WifiLockSetLockAttrVolumeRspBean bean, @LocalState.VolumeState int mute) {
+     /*   if (TextUtils.isEmpty(mqttData.getFunc())) {
             Timber.e("publishSetVolume mqttData.getFunc() is empty");
             return;
         }
-        if (mqttData.getFunc().equals(MQttConstant.SET_LOCK_ATTR)) {
-            dismissLoading();
-            Timber.d("设置属性: %1s", mqttData);
+        if (mqttData.getFunc().equals(MQttConstant.SET_LOCK_ATTR)) {*/
+        dismissLoading();
+           /* Timber.d("设置属性: %1s", mqttData);
             WifiLockSetLockAttrVolumeRspBean bean;
             try {
                 bean = GsonUtils.fromJson(mqttData.getPayload(), WifiLockSetLockAttrVolumeRspBean.class);
             } catch (JsonSyntaxException e) {
                 Timber.e(e);
                 return;
-            }
-            if (bean == null) {
-                Timber.e("publishSetVolume bean == null");
-                return;
-            }
-            if (bean.getParams() == null) {
-                Timber.e("publishSetVolume bean.getParams() == null");
-                return;
-            }
-            if (bean.getCode() != 200) {
-                Timber.e("publishSetVolume code : %1d", bean.getCode());
-                return;
-            }
-            saveMuteStateToLocal(mute);
+            }*/
+        if (bean == null) {
+            Timber.e("publishSetVolume bean == null");
+            return;
         }
+        if (bean.getParams() == null) {
+            Timber.e("publishSetVolume bean.getParams() == null");
+            return;
+        }
+        if (bean.getCode() != 200) {
+            Timber.e("publishSetVolume code : %1d", bean.getCode());
+            return;
+        }
+        saveMuteStateToLocal(mute);
+       /* }
         Timber.d("publishSetVolume %1s", mqttData.toString());
+    }*/
     }
 
     /**

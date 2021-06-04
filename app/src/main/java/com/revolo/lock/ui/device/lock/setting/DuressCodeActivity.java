@@ -28,16 +28,23 @@ import com.revolo.lock.ble.BleResultProcess;
 import com.revolo.lock.ble.OnBleDeviceListener;
 import com.revolo.lock.ble.bean.BleBean;
 import com.revolo.lock.ble.bean.BleResultBean;
+import com.revolo.lock.manager.LockMessage;
+import com.revolo.lock.manager.LockMessageCode;
+import com.revolo.lock.manager.LockMessageRes;
 import com.revolo.lock.mqtt.MqttCommandFactory;
 import com.revolo.lock.mqtt.MQttConstant;
 import com.revolo.lock.mqtt.bean.MqttData;
 import com.revolo.lock.mqtt.bean.publishbean.attrparams.DuressParams;
+import com.revolo.lock.mqtt.bean.publishresultbean.WifiLockSetLockAttrAutoRspBean;
 import com.revolo.lock.mqtt.bean.publishresultbean.WifiLockSetLockAttrDuressRspBean;
 import com.revolo.lock.net.HttpRequest;
 import com.revolo.lock.net.ObservableDecorator;
 import com.revolo.lock.room.AppDatabase;
 import com.revolo.lock.room.entity.BleDeviceLocal;
 
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.concurrent.TimeUnit;
@@ -68,7 +75,7 @@ public class DuressCodeActivity extends BaseActivity {
     @Override
     public void initData(@Nullable Bundle bundle) {
         mBleDeviceLocal = App.getInstance().getBleDeviceLocal();
-        if(mBleDeviceLocal == null) {
+        if (mBleDeviceLocal == null) {
             finish();
         }
     }
@@ -87,50 +94,82 @@ public class DuressCodeActivity extends BaseActivity {
         initLoading("Setting...");
         initUI();
         applyDebouncingClickListener(findViewById(R.id.ivDuressCodeEnable), findViewById(R.id.btnSave));
+        onRegisterEventBus();
     }
+
+    @Subscribe(threadMode = ThreadMode.MAIN, sticky = true)
+    public void getEventBus(LockMessageRes lockMessage) {
+        if (lockMessage == null) {
+            return;
+        }
+        if (lockMessage.getMessgaeType() == LockMessageCode.MSG_LOCK_MESSAGE_BLE) {
+            //蓝牙消息
+            if (null != lockMessage.getBleResultBea()) {
+                processBleResult(lockMessage.getBleResultBea());
+            }
+        } else if (lockMessage.getMessgaeType() == LockMessageCode.MSG_LOCK_MESSAGE_MQTT) {
+            //MQTT
+            if (lockMessage.getResultCode() == LockMessageCode.MSG_LOCK_MESSAGE_CODE_SUCCESS) {
+                switch (lockMessage.getMessageCode()) {
+                    case LockMessageCode.MSG_LOCK_MESSAGE_SET_LOCK:
+                        //当前分两种
+                        processOpenOrCloseDuressPwd((WifiLockSetLockAttrDuressRspBean) lockMessage.getWifiLockBaseResponseBean());
+                        break;
+                }
+            } else {
+                switch (lockMessage.getResultCode()) {
+                    case LockMessageCode.MSG_LOCK_MESSAGE_SET_LOCK:
+                        //当前分两种
+                        dismissLoading();
+                        break;
+                }
+            }
+        } else {
+
+        }
+    }
+
 
     @Override
     public void doBusiness() {
-        if(mBleDeviceLocal.getConnectedType() != LocalState.DEVICE_CONNECT_TYPE_WIFI) {
-            initBleListener();
-        }
+
     }
 
     @Override
     public void onDebouncingClick(@NonNull View view) {
-        if(view.getId() == R.id.ivDuressCodeEnable) {
-            if(mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI) {
+        if (view.getId() == R.id.ivDuressCodeEnable) {
+            if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI) {
                 publishOpenOrCloseDuressPwd(mBleDeviceLocal.getEsn());
             } else {
                 openOrCloseDuressPwd();
             }
             return;
         }
-        if(view.getId() == R.id.btnSave) {
+        if (view.getId() == R.id.btnSave) {
             settingDuressReceiveMail();
         }
     }
 
     private void settingDuressReceiveMail() {
-        if(!checkNetConnectFail()) {
+        if (!checkNetConnectFail()) {
             return;
         }
         String mail = mEtEmail.getText().toString().trim();
-        if(TextUtils.isEmpty(mail)) {
+        if (TextUtils.isEmpty(mail)) {
             ToastUtils.showShort(R.string.err_tip_please_input_email);
             return;
         }
-        if(!RegexUtils.isEmail(mail)) {
+        if (!RegexUtils.isEmail(mail)) {
             ToastUtils.showShort(R.string.t_please_input_right_mail_address);
             return;
         }
         String token = App.getInstance().getUserBean().getToken();
-        if(TextUtils.isEmpty(token)) {
+        if (TextUtils.isEmpty(token)) {
             Timber.e("settingDuressReceiveMail token is empty");
             return;
         }
         String uid = App.getInstance().getUserBean().getUid();
-        if(TextUtils.isEmpty(uid)) {
+        if (TextUtils.isEmpty(uid)) {
             Timber.e("settingDuressReceiveMail uid is empty");
             return;
         }
@@ -151,17 +190,17 @@ public class DuressCodeActivity extends BaseActivity {
             public void onNext(@NonNull SettingDuressPwdReceiveEMailBeanRsp settingDuressPwdReceiveEMailBeanRsp) {
                 dismissLoading();
                 String code = settingDuressPwdReceiveEMailBeanRsp.getCode();
-                if(TextUtils.isEmpty(code)) {
+                if (TextUtils.isEmpty(code)) {
                     Timber.e("settingDuressReceiveMail code is empty");
                     return;
                 }
-                if(!code.equals("200")) {
-                    if(code.equals("444")) {
+                if (!code.equals("200")) {
+                    if (code.equals("444")) {
                         App.getInstance().logout(true, DuressCodeActivity.this);
                         return;
                     }
                     String msg = settingDuressPwdReceiveEMailBeanRsp.getMsg();
-                    if(TextUtils.isEmpty(msg)) {
+                    if (TextUtils.isEmpty(msg)) {
                         ToastUtils.showShort(msg);
                     }
                     Timber.e("settingDuressReceiveMail code: %1s, msg: %2s", code, settingDuressPwdReceiveEMailBeanRsp.getMsg());
@@ -184,18 +223,28 @@ public class DuressCodeActivity extends BaseActivity {
         });
     }
 
-    private Disposable mOpenOrCloseDuressPwdDisposable;
+    //private Disposable mOpenOrCloseDuressPwdDisposable;
 
     private void publishOpenOrCloseDuressPwd(String wifiID) {
-        if(mMQttService == null) {
+        /*if(mMQttService == null) {
             Timber.e("publishOpenOrCloseDuressPwd mMQttService == null");
             return;
-        }
-        @LocalState.DuressState int mute = mBleDeviceLocal.isDuress()?LocalState.DURESS_STATE_CLOSE:LocalState.DURESS_STATE_OPEN;
+        }*/
+        @LocalState.DuressState int mute = mBleDeviceLocal.isDuress() ? LocalState.DURESS_STATE_CLOSE : LocalState.DURESS_STATE_OPEN;
         showLoading();
         DuressParams duressParams = new DuressParams();
         duressParams.setDuress(mute);
-        toDisposable(mOpenOrCloseDuressPwdDisposable);
+
+        LockMessage lockMessage = new LockMessage();
+        lockMessage.setMessageType(2);
+        lockMessage.setMqtt_message_code(MQttConstant.SET_LOCK_ATTR);
+        lockMessage.setMqttMessage(MqttCommandFactory.setLockAttr(wifiID, duressParams,
+                BleCommandFactory.getPwd(
+                        ConvertUtils.hexString2Bytes(mBleDeviceLocal.getPwd1()),
+                        ConvertUtils.hexString2Bytes(mBleDeviceLocal.getPwd2()))));
+        lockMessage.setMqtt_topic(MQttConstant.getCallTopic(App.getInstance().getUserBean().getUid()));
+
+       /* toDisposable(mOpenOrCloseDuressPwdDisposable);
         mOpenOrCloseDuressPwdDisposable = mMQttService.mqttPublish(MQttConstant.getCallTopic(App.getInstance().getUserBean().getUid()),
                 MqttCommandFactory.setLockAttr(wifiID, duressParams,
                         BleCommandFactory.getPwd(
@@ -212,147 +261,87 @@ public class DuressCodeActivity extends BaseActivity {
                     dismissLoading();
                     Timber.e(e);
                 });
-        mCompositeDisposable.add(mOpenOrCloseDuressPwdDisposable);
+        mCompositeDisposable.add(mOpenOrCloseDuressPwdDisposable);*/
     }
 
-    private void processOpenOrCloseDuressPwd(MqttData mqttData) {
-        if(TextUtils.isEmpty(mqttData.getFunc())) {
+    private void processOpenOrCloseDuressPwd(WifiLockSetLockAttrDuressRspBean bean) {
+        /*if(TextUtils.isEmpty(mqttData.getFunc())) {
             Timber.e("publishOpenOrCloseDuressPwd mqttData.getFunc() is empty");
             return;
         }
-        if(mqttData.getFunc().equals(MQttConstant.SET_LOCK_ATTR)) {
-            dismissLoading();
-            Timber.d("publishOpenOrCloseDuressPwd 设置属性: %1s", mqttData);
+        if(mqttData.getFunc().equals(MQttConstant.SET_LOCK_ATTR)) {*/
+        dismissLoading();
+          /*  Timber.d("publishOpenOrCloseDuressPwd 设置属性: %1s", mqttData);
             WifiLockSetLockAttrDuressRspBean bean;
             try {
                 bean = GsonUtils.fromJson(mqttData.getPayload(), WifiLockSetLockAttrDuressRspBean.class);
             } catch (JsonSyntaxException e) {
                 Timber.e(e);
                 return;
-            }
-            if(bean == null) {
-                Timber.e("publishOpenOrCloseDuressPwd bean == null");
-                return;
-            }
-            if(bean.getParams() == null) {
-                Timber.e("publishOpenOrCloseDuressPwd bean.getParams() == null");
-                return;
-            }
-            if(bean.getCode() != 200) {
-                Timber.e("publishOpenOrCloseDuressPwd code : %1d", bean.getCode());
-                return;
-            }
-            saveDuressToLocal();
-            initUI();
+            }*/
+        if (bean == null) {
+            Timber.e("publishOpenOrCloseDuressPwd bean == null");
+            return;
         }
-        Timber.d("publishOpenOrCloseDuressPwd %1s", mqttData.toString());
+        if (bean.getParams() == null) {
+            Timber.e("publishOpenOrCloseDuressPwd bean.getParams() == null");
+            return;
+        }
+        if (bean.getCode() != 200) {
+            Timber.e("publishOpenOrCloseDuressPwd code : %1d", bean.getCode());
+            return;
+        }
+        saveDuressToLocal();
+        initUI();
+     /*   }
+        Timber.d("publishOpenOrCloseDuressPwd %1s", mqttData.toString());*/
     }
 
     private void initUI() {
         runOnUiThread(() -> {
-            mIvDuressCodeEnable.setImageResource(mBleDeviceLocal.isDuress()?R.drawable.ic_icon_switch_open:R.drawable.ic_icon_switch_close);
-            mClInputEmail.setVisibility(mBleDeviceLocal.isDuress()?View.VISIBLE:View.GONE);
+            mIvDuressCodeEnable.setImageResource(mBleDeviceLocal.isDuress() ? R.drawable.ic_icon_switch_open : R.drawable.ic_icon_switch_close);
+            mClInputEmail.setVisibility(mBleDeviceLocal.isDuress() ? View.VISIBLE : View.GONE);
         });
     }
 
     private void openOrCloseDuressPwd() {
-        BleBean bleBean = App.getInstance().getBleBeanFromMac(mBleDeviceLocal.getMac());
-        if(bleBean == null) {
+        BleBean bleBean = App.getInstance().getUserBleBean(mBleDeviceLocal.getMac());
+        if (bleBean == null) {
             Timber.e("openOrCloseDuressPwd bleBean == null");
             return;
         }
-        if(bleBean.getOKBLEDeviceImp() == null) {
+        if (bleBean.getOKBLEDeviceImp() == null) {
             Timber.e("openOrCloseDuressPwd bleBean.getOKBLEDeviceImp() == null");
             return;
         }
         byte[] pwd1 = bleBean.getPwd1();
         byte[] pwd3 = bleBean.getPwd3();
-        if(pwd1 == null) {
+        if (pwd1 == null) {
             Timber.e("openOrCloseDuressPwd pwd1 == null");
             return;
         }
-        if(pwd3 == null) {
+        if (pwd3 == null) {
             Timber.e("openOrCloseDuressPwd pwd3 == null");
             return;
         }
-        int control = mBleDeviceLocal.isDuress()? BleCommandState.DURESS_PWD_CLOSE:BleCommandState.DURESS_PWD_OPEN;
-        App.getInstance().writeControlMsg(BleCommandFactory.duressPwdSwitch(control, pwd1, pwd3), bleBean.getOKBLEDeviceImp());
+        int control = mBleDeviceLocal.isDuress() ? BleCommandState.DURESS_PWD_CLOSE : BleCommandState.DURESS_PWD_OPEN;
+        LockMessage message = new LockMessage();
+        message.setBytes(BleCommandFactory.duressPwdSwitch(control, pwd1, pwd3));
+        message.setMac(bleBean.getOKBLEDeviceImp().getMacAddress());
+        message.setMessageType(3);
+        EventBus.getDefault().post(message);
+        // App.getInstance().writeControlMsg(BleCommandFactory.duressPwdSwitch(control, pwd1, pwd3), bleBean.getOKBLEDeviceImp());
     }
-
-    private void initBleListener() {
-        BleBean bleBean = App.getInstance().getBleBeanFromMac(mBleDeviceLocal.getMac());
-        if(bleBean != null) {
-            bleBean.setOnBleDeviceListener(new OnBleDeviceListener() {
-                @Override
-                public void onConnected(@NotNull String mac) {
-
-                }
-
-                @Override
-                public void onDisconnected(@NotNull String mac) {
-
-                }
-
-                @Override
-                public void onReceivedValue(@NotNull String mac, String uuid, byte[] value) {
-                    if(value == null) {
-                        Timber.e("initBleListener value == null");
-                        return;
-                    }
-                    BleBean bleBean = App.getInstance().getBleBeanFromMac(mBleDeviceLocal.getMac());
-                    if(bleBean == null) {
-                        Timber.e("initBleListener bleBean == null");
-                        return;
-                    }
-                    if(bleBean.getOKBLEDeviceImp() == null) {
-                        Timber.e("initBleListener bleBean.getOKBLEDeviceImp() == null");
-                        return;
-                    }
-                    if(bleBean.getPwd1() == null) {
-                        Timber.e("initBleListener bleBean.getPwd1() == null");
-                        return;
-                    }
-                    if(bleBean.getPwd3() == null) {
-                        Timber.e("initBleListener bleBean.getPwd3() == null");
-                        return;
-                    }
-                    BleResultProcess.setOnReceivedProcess(mOnReceivedProcess);
-                    BleResultProcess.processReceivedData(value, bleBean.getPwd1(), bleBean.getPwd3(),
-                            bleBean.getOKBLEDeviceImp().getBleScanResult());
-                }
-
-                @Override
-                public void onWriteValue(@NotNull String mac, String uuid, byte[] value, boolean success) {
-
-                }
-
-                @Override
-                public void onAuthSuc(@NotNull String mac) {
-
-                }
-
-            });
-            // TODO: 2021/2/8 查询一下当前设置
-        }
-    }
-
-    private final BleResultProcess.OnReceivedProcess mOnReceivedProcess = bleResultBean -> {
-        if(bleResultBean == null) {
-            Timber.e("mOnReceivedProcess bleResultBean == null");
-            return;
-        }
-        processBleResult(bleResultBean);
-    };
 
     private void processBleResult(BleResultBean bean) {
-        if(bean.getCMD() == CMD_DURESS_PWD_SWITCH) {
+        if (bean.getCMD() == CMD_DURESS_PWD_SWITCH) {
             processDuress(bean);
         }
     }
 
     private void processDuress(BleResultBean bean) {
         byte state = bean.getPayload()[0];
-        if(state == 0x00) {
+        if (state == 0x00) {
             saveDuressToLocal();
             initUI();
         } else {
