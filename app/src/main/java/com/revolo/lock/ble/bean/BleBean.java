@@ -21,6 +21,8 @@ public class BleBean implements Serializable {
     private boolean isAuth;
     private OKBLEDeviceImp mOKBLEDeviceImp;
     private OnBleDeviceListener mOnBleDeviceListener;
+    private byte[] pwd2_copy;
+    private boolean isHavePwd2Or3=false;
 
     public byte[] getPwd1() {
         return pwd1;
@@ -94,6 +96,19 @@ public class BleBean implements Serializable {
         mOKBLEDeviceImp = OKBLEDeviceImp;
     }
 
+    public byte[] getPwd2_copy() {
+        return pwd2_copy;
+    }
 
+    public void setPwd2_copy(byte[] pwd2_copy) {
+        this.pwd2_copy = pwd2_copy;
+    }
 
+    public boolean isHavePwd2Or3() {
+        return isHavePwd2Or3;
+    }
+
+    public void setHavePwd2Or3(boolean havePwd2Or3) {
+        isHavePwd2Or3 = havePwd2Or3;
+    }
 }

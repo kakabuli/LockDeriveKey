@@ -40,6 +40,9 @@ import com.revolo.lock.ble.BleResultProcess;
 import com.revolo.lock.ble.OnBleDeviceListener;
 import com.revolo.lock.ble.bean.BleBean;
 import com.revolo.lock.ble.bean.BleResultBean;
+import com.revolo.lock.manager.LockMessage;
+import com.revolo.lock.manager.LockMessageCode;
+import com.revolo.lock.manager.LockMessageRes;
 import com.revolo.lock.mqtt.MqttCommandFactory;
 import com.revolo.lock.mqtt.MQttConstant;
 import com.revolo.lock.mqtt.bean.MqttData;
@@ -49,6 +52,9 @@ import com.revolo.lock.room.AppDatabase;
 import com.revolo.lock.room.entity.BleDeviceLocal;
 import com.revolo.lock.ui.device.lock.setting.geofence.MapActivity;
 
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.concurrent.TimeUnit;
@@ -173,21 +179,45 @@ public class GeoFenceUnlockActivity extends BaseActivity implements OnMapReadyCa
                         }
                     }
                 });
+        onRegisterEventBus();
     }
+
+    @Subscribe(threadMode = ThreadMode.MAIN, sticky = true)
+    public void getEventBus(LockMessageRes lockMessage) {
+        if (lockMessage == null) {
+            return;
+        }
+        if (lockMessage.getMessgaeType() == LockMessageCode.MSG_LOCK_MESSAGE_BLE) {
+            //蓝牙消息
+            if (null != lockMessage.getBleResultBea()) {
+                processBleResult(lockMessage.getBleResultBea());
+            }
+        } else if (lockMessage.getMessgaeType() == LockMessageCode.MSG_LOCK_MESSAGE_MQTT) {
+            //MQTT
+            if (lockMessage.getResultCode() == LockMessageCode.MSG_LOCK_MESSAGE_CODE_SUCCESS) {
+                switch (lockMessage.getMessageCode()) {
+                    case LockMessageCode.MSG_LOCK_MESSAGE_SET_LOCK:
+                        processSensitivity((WifiLockSetLockAttrSensitivityRspBean)lockMessage.getWifiLockBaseResponseBean());
+                        break;
+                }
+            } else {
+                switch (lockMessage.getResultCode()) {
+                    case LockMessageCode.MSG_LOCK_MESSAGE_SET_LOCK:
+                        dismissLoading();
+                        break;
+                }
+            }
+        } else {
+
+        }
+    }
+
 
     @Override
     public void doBusiness() {
         initDefaultValue();
         initTimeNSensitivityDataUI();
         mIvGeoFenceUnlockEnable.setImageResource(mBleDeviceLocal.isOpenElectricFence() ? R.drawable.ic_icon_switch_open : R.drawable.ic_icon_switch_close);
-//        if (mBleDeviceLocal.isOpenElectricFence()) {
-//            mConstraintLayout.setVisibility(View.VISIBLE);
-//        } else {
-//            mConstraintLayout.setVisibility(View.GONE);
-//        }
-        if (mBleDeviceLocal.getConnectedType() != LocalState.DEVICE_CONNECT_TYPE_WIFI) {
-            initBleListener();
-        }
     }
 
     @Override
@@ -373,7 +403,7 @@ public class GeoFenceUnlockActivity extends BaseActivity implements OnMapReadyCa
     }
 
     private void setSensitivityFromBle() {
-        BleBean bleBean = App.getInstance().getBleBeanFromMac(mBleDeviceLocal.getMac());
+        BleBean bleBean = App.getInstance().getUserBleBean(mBleDeviceLocal.getMac());
         if (bleBean == null) {
             Timber.e("setSensitivityFromBle bleBean == null");
             return;
@@ -390,75 +420,17 @@ public class GeoFenceUnlockActivity extends BaseActivity implements OnMapReadyCa
             Timber.e("setSensitivityFromBle bleBean.getPwd3() == null");
             return;
         }
-        App.getInstance()
+        LockMessage message = new LockMessage();
+        message.setMessageType(3);
+        message.setMac(bleBean.getOKBLEDeviceImp().getMacAddress());
+        message.setBytes(BleCommandFactory
+                .setSensitivity(mSensitivity, bleBean.getPwd1(), bleBean.getPwd3()));
+        EventBus.getDefault().post(message);
+       /* App.getInstance()
                 .writeControlMsg(BleCommandFactory
-                        .setSensitivity(mSensitivity, bleBean.getPwd1(), bleBean.getPwd3()), bleBean.getOKBLEDeviceImp());
+                        .setSensitivity(mSensitivity, bleBean.getPwd1(), bleBean.getPwd3()), bleBean.getOKBLEDeviceImp());*/
     }
 
-    private void initBleListener() {
-        BleBean bleBean = App.getInstance().getBleBeanFromMac(mBleDeviceLocal.getMac());
-        if (bleBean != null) {
-            bleBean.setOnBleDeviceListener(new OnBleDeviceListener() {
-                @Override
-                public void onConnected(@NotNull String mac) {
-
-                }
-
-                @Override
-                public void onDisconnected(@NotNull String mac) {
-
-                }
-
-                @Override
-                public void onReceivedValue(@NotNull String mac, String uuid, byte[] value) {
-                    if (value == null) {
-                        Timber.e("initBleListener value == null");
-                        return;
-                    }
-                    BleBean bleBean = App.getInstance().getBleBeanFromMac(mBleDeviceLocal.getMac());
-                    if (bleBean == null) {
-                        Timber.e("initBleListener bleBean == null");
-                        return;
-                    }
-                    if (bleBean.getOKBLEDeviceImp() == null) {
-                        Timber.e("initBleListener bleBean.getOKBLEDeviceImp() == null");
-                        return;
-                    }
-                    if (bleBean.getPwd1() == null) {
-                        Timber.e("initBleListener bleBean.getPwd1() == null");
-                        return;
-                    }
-                    if (bleBean.getPwd3() == null) {
-                        Timber.e("initBleListener bleBean.getPwd3() == null");
-                        return;
-                    }
-                    BleResultProcess.setOnReceivedProcess(mOnReceivedProcess);
-                    BleResultProcess.processReceivedData(value, bleBean.getPwd1(), bleBean.getPwd3(),
-                            bleBean.getOKBLEDeviceImp().getBleScanResult());
-                }
-
-                @Override
-                public void onWriteValue(@NotNull String mac, String uuid, byte[] value, boolean success) {
-
-                }
-
-                @Override
-                public void onAuthSuc(@NotNull String mac) {
-
-                }
-
-            });
-            // TODO: 2021/2/8 查询一下当前设置
-        }
-    }
-
-    private final BleResultProcess.OnReceivedProcess mOnReceivedProcess = bleResultBean -> {
-        if (bleResultBean == null) {
-            Timber.e("mOnReceivedProcess bleResultBean == null");
-            return;
-        }
-        processBleResult(bleResultBean);
-    };
 
     private void processBleResult(BleResultBean bean) {
         if (bean.getCMD() == CMD_SET_SENSITIVITY) {
@@ -485,17 +457,28 @@ public class GeoFenceUnlockActivity extends BaseActivity implements OnMapReadyCa
         AppDatabase.getInstance(this).bleDeviceDao().update(mBleDeviceLocal);
     }
 
-    private Disposable mSensitivityDisposable;
+    // private Disposable mSensitivityDisposable;
 
     private void publishSensitivity(String wifiID, int sensitivity) {
-        if (mMQttService == null) {
+        /*if (mMQttService == null) {
             Timber.e("publishSensitivity mMQttService == null");
             return;
-        }
+        }*/
         showLoading();
         ElecFenceSensitivityParams autoLockTimeParams = new ElecFenceSensitivityParams();
         autoLockTimeParams.setElecFenceSensitivity(sensitivity);
-        toDisposable(mSensitivityDisposable);
+        LockMessage lockMessage = new LockMessage();
+        lockMessage.setMqtt_topic(MQttConstant.getCallTopic(App.getInstance().getUserBean().getUid()));
+        lockMessage.setMqtt_message_code(MQttConstant.SET_LOCK_ATTR);
+        lockMessage.setMessageType(2);
+        lockMessage.setMqttMessage(MqttCommandFactory.setLockAttr(wifiID, autoLockTimeParams,
+                BleCommandFactory.getPwd(
+                        ConvertUtils.hexString2Bytes(mBleDeviceLocal.getPwd1()),
+                        ConvertUtils.hexString2Bytes(mBleDeviceLocal.getPwd2()))));
+        EventBus.getDefault().post(lockMessage);
+
+
+      /*  toDisposable(mSensitivityDisposable);
         mSensitivityDisposable = mMQttService.mqttPublish(MQttConstant.getCallTopic(App.getInstance().getUserBean().getUid()),
                 MqttCommandFactory.setLockAttr(wifiID, autoLockTimeParams,
                         BleCommandFactory.getPwd(
@@ -512,45 +495,45 @@ public class GeoFenceUnlockActivity extends BaseActivity implements OnMapReadyCa
                     dismissLoading();
                     Timber.e(e);
                 });
-        mCompositeDisposable.add(mSensitivityDisposable);
+        mCompositeDisposable.add(mSensitivityDisposable);*/
     }
 
-    private void processSensitivity(MqttData mqttData) {
-        if (TextUtils.isEmpty(mqttData.getFunc())) {
+    private void processSensitivity(WifiLockSetLockAttrSensitivityRspBean bean) {
+       /* if (TextUtils.isEmpty(mqttData.getFunc())) {
             Timber.e("publishSensitivity mqttData.getFunc() is empty");
             return;
         }
-        if (mqttData.getFunc().equals(MQttConstant.SET_LOCK_ATTR)) {
-            dismissLoading();
-            Timber.d("publishSensitivity 设置属性: %1s", mqttData);
+        if (mqttData.getFunc().equals(MQttConstant.SET_LOCK_ATTR)) {*/
+        dismissLoading();
+          /*  Timber.d("publishSensitivity 设置属性: %1s", mqttData);
             WifiLockSetLockAttrSensitivityRspBean bean;
             try {
                 bean = GsonUtils.fromJson(mqttData.getPayload(), WifiLockSetLockAttrSensitivityRspBean.class);
             } catch (JsonSyntaxException e) {
                 Timber.e(e);
                 return;
-            }
-            if (bean == null) {
-                Timber.e("publishSensitivity bean == null");
-                return;
-            }
-            if (bean.getParams() == null) {
-                Timber.e("publishSensitivity bean.getParams() == null");
-                return;
-            }
-            if (bean.getCode() != 200) {
-                Timber.e("publishSensitivity code : %1d", bean.getCode());
-                if (bean.getCode() == 201) {
-                    // 设置失败了
-                    ToastUtils.showShort(R.string.t_setting_sensitivity_fail);
-                    initDefaultValue();
-                    initTimeNSensitivityDataUI();
-                }
-                return;
-            }
-            saveSensitivityToLocal();
+            }*/
+        if (bean == null) {
+            Timber.e("publishSensitivity bean == null");
+            return;
         }
-        Timber.d("publishSensitivity %1s", mqttData.toString());
+        if (bean.getParams() == null) {
+            Timber.e("publishSensitivity bean.getParams() == null");
+            return;
+        }
+        if (bean.getCode() != 200) {
+            Timber.e("publishSensitivity code : %1d", bean.getCode());
+            if (bean.getCode() == 201) {
+                // 设置失败了
+                ToastUtils.showShort(R.string.t_setting_sensitivity_fail);
+                initDefaultValue();
+                initTimeNSensitivityDataUI();
+            }
+            return;
+        }
+        saveSensitivityToLocal();
+       /* }
+        Timber.d("publishSensitivity %1s", mqttData.toString());*/
     }
 
     /**

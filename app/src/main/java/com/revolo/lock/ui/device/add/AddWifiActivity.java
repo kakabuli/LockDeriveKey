@@ -32,10 +32,16 @@ import com.revolo.lock.ble.OnBleDeviceListener;
 import com.revolo.lock.ble.bean.BleBean;
 import com.revolo.lock.ble.bean.BleResultBean;
 import com.revolo.lock.ble.bean.WifiSnBean;
+import com.revolo.lock.manager.LockMessage;
+import com.revolo.lock.manager.LockMessageCode;
+import com.revolo.lock.manager.LockMessageRes;
 import com.revolo.lock.popup.WifiListPopup;
 import com.revolo.lock.room.AppDatabase;
 import com.revolo.lock.room.entity.BleDeviceLocal;
 
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -95,6 +101,44 @@ public class AddWifiActivity extends BaseActivity {
         initLoading("Loading...");
 
         mEtWifiName.setText(getConnectWifiSID());
+        onRegisterEventBus();
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN, sticky = true)
+    public void getEventBus(LockMessageRes lockMessage) {
+        if (lockMessage == null) {
+            return;
+        }
+        if (lockMessage.getMessgaeType() == LockMessageCode.MSG_LOCK_MESSAGE_USER) {
+            if (lockMessage.getResultCode() == LockMessageCode.MSG_LOCK_MESSAGE_CODE_SUCCESS) {
+
+            } else {
+                switch (lockMessage.getResultCode()) {
+
+                }
+            }
+        } else if (lockMessage.getMessgaeType() == LockMessageCode.MSG_LOCK_MESSAGE_BLE) {
+            //蓝牙消息
+            if (null != lockMessage.getBleResultBea()) {
+                if (lockMessage.getBleResultBea().getCMD() == CMD_LOCK_INFO) {
+                    receiveLockBaseInfo(lockMessage.getBleResultBea());
+                } else if (lockMessage.getBleResultBea().getCMD() == CMD_WIFI_LIST_CHECK) {
+                    receiveWifiList(lockMessage.getBleResultBea());
+                }
+            }
+        } else if (lockMessage.getMessgaeType() == LockMessageCode.MSG_LOCK_MESSAGE_MQTT) {
+            //MQTT
+            if (lockMessage.getResultCode() == LockMessageCode.MSG_LOCK_MESSAGE_CODE_SUCCESS) {
+                switch (lockMessage.getMessageCode()) {
+                }
+            } else {
+                dismissLoading();
+                switch (lockMessage.getResultCode()) {
+                }
+            }
+        } else {
+
+        }
     }
 
     @Override
@@ -180,15 +224,17 @@ public class AddWifiActivity extends BaseActivity {
     }
 
     private void initDevice() {
+        mBleBean = App.getInstance().getUserBleBean(mBleDeviceLocal.getMac());
+        /*替换
         mBleBean = App.getInstance().getBleBeanFromMac(mBleDeviceLocal.getMac());
-        // TODO: 2021/3/7 初始化有问题做处理
+        */// TODO: 2021/3/7 初始化有问题做处理
         if (mBleBean == null) {
             Timber.e("initDevice mBleBean == null");
             return;
         }
         if (mBleBean.getOKBLEDeviceImp() != null) {
-            App.getInstance().openPairNotify(mBleBean.getOKBLEDeviceImp(), mNotifyOrIndicateOperationListener);
-            mBleBean.setOnBleDeviceListener(mOnBleDeviceListener);
+            mBleBean.getOKBLEDeviceImp().addNotifyOrIndicateOperation("FFC6", true, mNotifyOrIndicateOperationListener);
+            // App.getInstance().openPairNotify(mBleBean.getOKBLEDeviceImp(), mNotifyOrIndicateOperationListener);
             checkBattery();
         }
 
@@ -214,83 +260,25 @@ public class AddWifiActivity extends BaseActivity {
         }
     };
 
-    private final OnBleDeviceListener mOnBleDeviceListener = new OnBleDeviceListener() {
-        @Override
-        public void onConnected(@NotNull String mac) {
-
-        }
-
-        @Override
-        public void onDisconnected(@NotNull String mac) {
-
-        }
-
-        @Override
-        public void onReceivedValue(@NotNull String mac, String uuid, byte[] value) {
-            if (value == null) {
-                Timber.e("initBleListener value == null");
-                return;
-            }
-            BleBean bleBean = App.getInstance().getBleBeanFromMac(mBleDeviceLocal.getMac());
-            if (bleBean == null) {
-                Timber.e("initBleListener bleBean == null");
-                return;
-            }
-            if (bleBean.getOKBLEDeviceImp() == null) {
-                Timber.e("initBleListener bleBean.getOKBLEDeviceImp() == null");
-                return;
-            }
-            if (bleBean.getPwd1() == null) {
-                Timber.e("initBleListener bleBean.getPwd1() == null");
-                return;
-            }
-            if (bleBean.getPwd3() == null) {
-                Timber.e("initBleListener bleBean.getPwd3() == null");
-                return;
-            }
-            if (mOnReceivedProcess == null) {
-                AddWifiActivity.this.finish();
-            } else {
-                BleResultProcess.setOnReceivedProcess(mOnReceivedProcess);
-                BleResultProcess.processReceivedData(value, mBleBean.getPwd1(), mBleBean.getPwd3(),
-                        mBleBean.getOKBLEDeviceImp().getBleScanResult());
-            }
-        }
-
-        @Override
-        public void onWriteValue(@NotNull String mac, String uuid, byte[] value, boolean success) {
-
-        }
-
-        @Override
-        public void onAuthSuc(@NotNull String mac) {
-
-        }
-
-    };
-
-    private final BleResultProcess.OnReceivedProcess mOnReceivedProcess = bleResultBean -> {
-        if (bleResultBean == null) {
-            Timber.e("mOnReceivedProcess bleResultBean == null");
-            return;
-        }
-        if (bleResultBean.getCMD() == CMD_LOCK_INFO) {
-            receiveLockBaseInfo(bleResultBean);
-        } else if (bleResultBean.getCMD() == CMD_WIFI_LIST_CHECK) {
-            receiveWifiList(bleResultBean);
-        }
-    };
-
     private void checkBattery() {
-        if (mBleBean == null) {
+        if (mBleBean == null || null == mBleBean.getOKBLEDeviceImp()) {
             Timber.e("checkBattery mBleBean == null");
             return;
         }
         showLoading();
         // wifi配网前记得查询电量
+        LockMessage lockMessage = new LockMessage();
+        lockMessage.setMessageType(3);
+        lockMessage.setBytes(BleCommandFactory
+                .checkLockBaseInfoCommand(mBleBean.getPwd1(), mBleBean.getPwd3()));
+        lockMessage.setMac(mBleBean.getOKBLEDeviceImp().getMacAddress());
+        EventBus.getDefault().post(lockMessage);
+
+        /*替换WiFi配网前记得查询电量
         App.getInstance().writeControlMsg(BleCommandFactory
                         .checkLockBaseInfoCommand(mBleBean.getPwd1(), mBleBean.getPwd3()),
-                mBleBean.getOKBLEDeviceImp());
+                mBleBean.getOKBLEDeviceImp());*/
+
         // 临时加一个6秒后执行取消loading
 //        new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
 //            @Override
@@ -324,7 +312,14 @@ public class AddWifiActivity extends BaseActivity {
             Timber.e("getWifiList mBleBean.getOKBLEDeviceImp() == null");
             return;
         }
-        App.getInstance().writePairMsg(BleCommandFactory.wifiListSearchCommand(), mBleBean.getOKBLEDeviceImp());
+        LockMessage lockMessage = new LockMessage();
+        lockMessage.setBytes(BleCommandFactory.wifiListSearchCommand());
+        lockMessage.setMac(mBleBean.getOKBLEDeviceImp().getMacAddress());
+        lockMessage.setMessageType(3);
+        lockMessage.setBleChr(1);
+        EventBus.getDefault().post(lockMessage);
+        /*替换
+        App.getInstance().writePairMsg(BleCommandFactory.wifiListSearchCommand(), mBleBean.getOKBLEDeviceImp());*/
     }
 
     private int mWifiTotalNum = 0;
@@ -378,6 +373,7 @@ public class AddWifiActivity extends BaseActivity {
 
     private void processWifi() {
         if (!mWifiHashMap.isEmpty()) {
+            mWifiSnList.clear();
             for (int i = 0; i < mWifiTotalNum; i++) {
                 WifiSnBean wifiSnBean = mWifiHashMap.get(i);
                 if (wifiSnBean != null) {

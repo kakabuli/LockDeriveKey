@@ -17,19 +17,17 @@ import com.blankj.utilcode.util.AdaptScreenUtils;
 import com.blankj.utilcode.util.ClickUtils;
 import com.blankj.utilcode.util.NetworkUtils;
 import com.blankj.utilcode.util.ToastUtils;
-import com.revolo.lock.App;
 import com.revolo.lock.LockAppManager;
 import com.revolo.lock.R;
 import com.revolo.lock.dialog.iosloading.CustomerLoadingDialog;
-import com.revolo.lock.mqtt.MqttService;
+import com.revolo.lock.manager.LockConnected;
 import com.revolo.lock.shulan.KeepAliveManager;
 import com.revolo.lock.shulan.config.ForegroundNotification;
 import com.revolo.lock.shulan.config.RunMode;
 import com.revolo.lock.ui.TitleBar;
 
+import org.greenrobot.eventbus.EventBus;
 import org.jetbrains.annotations.NotNull;
-
-import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
 import timber.log.Timber;
 
@@ -45,8 +43,8 @@ public abstract class BaseActivity extends AppCompatActivity
         implements IBaseView {
 
     private final View.OnClickListener mClickListener = this::onDebouncingClick;
-    public CompositeDisposable mCompositeDisposable = new CompositeDisposable();
-    public MqttService mMQttService = App.getInstance().getMQttService();
+    //public CompositeDisposable mCompositeDisposable = new CompositeDisposable();
+    //public MqttService mMQttService = App.getInstance().getMQttService();
 
     public View mContentView;
     public Activity mActivity;
@@ -60,17 +58,29 @@ public abstract class BaseActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         initData(getIntent().getExtras());
         setContentView();
-        if (mMQttService == null) {
+        LockConnected bleConnected = new LockConnected();
+        bleConnected.setConnectType(0);
+        EventBus.getDefault().post(bleConnected);
+
+
+      /*  if (mMQttService == null) {
             mMQttService = App.getInstance().getMQttService();
         }
         if (mMQttService != null) {
             if (mMQttService.getMqttClient() != null && !mMQttService.getMqttClient().isConnected()) {
                 mMQttService.mqttConnection();
             }
-        }
+        }*/
         initView(savedInstanceState, mContentView);
 
 //        startKeepAlive();
+    }
+
+    public void onRegisterEventBus() {
+        boolean registered = EventBus.getDefault().isRegistered(this);
+        if (!registered) {
+            EventBus.getDefault().register(this);
+        }
     }
 
     @Override
@@ -81,9 +91,9 @@ public abstract class BaseActivity extends AppCompatActivity
 
     @Override
     protected void onStop() {
-        if (mCompositeDisposable != null) {
+       /* if (mCompositeDisposable != null) {
             mCompositeDisposable.clear();
-        }
+        }*/
         super.onStop();
     }
 
@@ -95,6 +105,10 @@ public abstract class BaseActivity extends AppCompatActivity
             }
         }
         LockAppManager.getAppManager().finishActivity(this);
+        boolean registered = EventBus.getDefault().isRegistered(this);
+        if (registered) {
+            EventBus.getDefault().unregister(this);
+        }
         super.onDestroy();
     }
 

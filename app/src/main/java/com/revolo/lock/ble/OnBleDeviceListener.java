@@ -1,5 +1,7 @@
 package com.revolo.lock.ble;
 
+import com.revolo.lock.ble.bean.BleBean;
+
 import org.jetbrains.annotations.NotNull;
 
 /**

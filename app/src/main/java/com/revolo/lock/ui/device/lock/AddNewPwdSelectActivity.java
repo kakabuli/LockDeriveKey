@@ -41,6 +41,10 @@ import com.revolo.lock.ble.bean.BleBean;
 import com.revolo.lock.ble.bean.BleResultBean;
 import com.revolo.lock.dialog.AddPwdFailDialog;
 import com.revolo.lock.dialog.MessageDialog;
+import com.revolo.lock.manager.LockMessage;
+import com.revolo.lock.manager.LockMessageCode;
+import com.revolo.lock.manager.LockMessageRes;
+import com.revolo.lock.mqtt.MqttCommandFactory;
 import com.revolo.lock.mqtt.MQttConstant;
 import com.revolo.lock.mqtt.MqttCommandFactory;
 import com.revolo.lock.mqtt.bean.MqttData;
@@ -52,6 +56,9 @@ import com.revolo.lock.net.HttpRequest;
 import com.revolo.lock.net.ObservableDecorator;
 import com.revolo.lock.room.entity.BleDeviceLocal;
 
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 import org.jetbrains.annotations.NotNull;
 
 import java.nio.charset.StandardCharsets;
@@ -99,7 +106,8 @@ public class AddNewPwdSelectActivity extends BaseActivity {
     private boolean isSelectedSat = true;
 
     @IntDef(value = {PERMANENT_STATE, SCHEDULE_STATE, TEMPORARY_STATE})
-    private @interface AttributeState{}
+    private @interface AttributeState {
+    }
 
     private static final int PERMANENT_STATE = 1;
     private static final int SCHEDULE_STATE = 2;
@@ -113,17 +121,17 @@ public class AddNewPwdSelectActivity extends BaseActivity {
     @Override
     public void initData(@Nullable Bundle bundle) {
         Intent intent = getIntent();
-        if(intent.hasExtra(Constant.USER_PWD)) {
+        if (intent.hasExtra(Constant.USER_PWD)) {
             mKey = intent.getStringExtra(Constant.USER_PWD);
         }
         mBleDeviceLocal = App.getInstance().getBleDeviceLocal();
-        if(mBleDeviceLocal == null) {
+        if (mBleDeviceLocal == null) {
             // TODO: 2021/2/21 或者有其他方法
             finish();
         }
-        if(mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_BLE) {
-            mBleBean = App.getInstance().getBleBeanFromMac(mBleDeviceLocal.getMac());
-            if(mBleBean == null) {
+        if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_BLE) {
+            mBleBean = App.getInstance().getUserBleBean(mBleDeviceLocal.getMac());
+            if (mBleBean == null) {
                 finish();
             }
         }
@@ -142,6 +150,59 @@ public class AddNewPwdSelectActivity extends BaseActivity {
         initLoading("password generating");
         mAddPwdFailDialog = new AddPwdFailDialog(this);
         initSucMessageDialog();
+        onRegisterEventBus();
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN, sticky = true)
+    public void getEventBus(LockMessageRes lockMessage) {
+        if (lockMessage == null) {
+            return;
+        }
+        if (lockMessage.getMessgaeType() == LockMessageCode.MSG_LOCK_MESSAGE_USER) {
+
+        } else if (lockMessage.getMessgaeType() == LockMessageCode.MSG_LOCK_MESSAGE_BLE) {
+            //蓝牙消息
+            BleResultBean bleResultBean = lockMessage.getBleResultBea();
+            if (bleResultBean == null) {
+                Timber.e("mOnReceivedProcess bleResultBean == null");
+                dismissLoadingAndShowAddFail();
+                return;
+            }
+            if (bleResultBean.getCMD() == BleProtocolState.CMD_KEY_ADD) {
+                addKey(bleResultBean);
+            } else if (bleResultBean.getCMD() == CMD_KEY_ATTRIBUTES_SET) {
+                byte state = bleResultBean.getPayload()[0];
+                if (state == 0x00) {
+                    savePwdToService(mDevicePwdBean);
+                } else {
+                    dismissLoadingAndShowAddFail();
+                    Timber.e("设置密钥属性失败，state: %1s", BleByteUtil.byteToInt(state));
+                }
+            }
+        } else if (lockMessage.getMessgaeType() == LockMessageCode.MSG_LOCK_MESSAGE_MQTT) {
+            //MQTT
+            if (lockMessage.getResultCode() == LockMessageCode.MSG_LOCK_MESSAGE_CODE_SUCCESS) {
+                switch (lockMessage.getMessageCode()) {
+                    case LockMessageCode.MSG_LOCK_MESSAGE_CREATE_PWD:
+                        processAddPwd((WifiLockAddPwdRspBean) lockMessage.getWifiLockBaseResponseBean());
+                        break;
+                    case LockMessageCode.MSG_LOCK_MESSAGE_ADD_PWD:
+                        setPwdAttrCallback((WifiLockAddPwdAttrResponseBean)lockMessage.getWifiLockBaseResponseBean());
+                        break;
+                }
+            } else {
+                switch (lockMessage.getResultCode()) {
+                    case LockMessageCode.MSG_LOCK_MESSAGE_CREATE_PWD:
+                        dismissLoading();
+                        break;
+                    case LockMessageCode.MSG_LOCK_MESSAGE_ADD_PWD:
+                        dismissLoading();
+                        break;
+                }
+            }
+        } else {
+
+        }
     }
 
     private void initApplyClick() {
@@ -196,88 +257,88 @@ public class AddNewPwdSelectActivity extends BaseActivity {
         initScheduleEndTimeMill();
         initTemStartDateTimeMill();
         initTemEndDateTimeMill();
-        if(mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_BLE) {
+        if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_BLE) {
             initBleListener();
         }
     }
 
     @Override
     public void onDebouncingClick(@NonNull View view) {
-        if(view.getId() == R.id.rlPermanent) {
+        if (view.getId() == R.id.rlPermanent) {
             permanentSwitch();
             showPermanentState();
             return;
         }
-        if(view.getId() == R.id.rlSchedule) {
+        if (view.getId() == R.id.rlSchedule) {
             scheduleSwitch();
             showSchedule();
             return;
         }
-        if(view.getId() == R.id.rlTemporary) {
+        if (view.getId() == R.id.rlTemporary) {
             temporarySwitch();
             showTemporary();
             return;
         }
-        if(view.getId() == R.id.btnNext) {
+        if (view.getId() == R.id.btnNext) {
             nextStep();
             return;
         }
-        if(view.getId() == R.id.tvSun) {
+        if (view.getId() == R.id.tvSun) {
             isSelectedSun = !isSelectedSun;
-            mVSun.setVisibility(isSelectedSun?View.VISIBLE:View.GONE);
+            mVSun.setVisibility(isSelectedSun ? View.VISIBLE : View.GONE);
             return;
         }
-        if(view.getId() == R.id.tvMon) {
+        if (view.getId() == R.id.tvMon) {
             isSelectedMon = !isSelectedMon;
-            mVMon.setVisibility(isSelectedMon?View.VISIBLE:View.GONE);
+            mVMon.setVisibility(isSelectedMon ? View.VISIBLE : View.GONE);
             return;
         }
-        if(view.getId() == R.id.tvTues) {
+        if (view.getId() == R.id.tvTues) {
             isSelectedTues = !isSelectedTues;
-            mVTues.setVisibility(isSelectedTues?View.VISIBLE:View.GONE);
+            mVTues.setVisibility(isSelectedTues ? View.VISIBLE : View.GONE);
             return;
         }
-        if(view.getId() == R.id.tvWed) {
+        if (view.getId() == R.id.tvWed) {
             isSelectedWed = !isSelectedWed;
-            mVWed.setVisibility(isSelectedWed?View.VISIBLE:View.GONE);
+            mVWed.setVisibility(isSelectedWed ? View.VISIBLE : View.GONE);
             return;
         }
-        if(view.getId() == R.id.tvThur) {
+        if (view.getId() == R.id.tvThur) {
             isSelectedThur = !isSelectedThur;
-            mVThur.setVisibility(isSelectedThur?View.VISIBLE:View.GONE);
+            mVThur.setVisibility(isSelectedThur ? View.VISIBLE : View.GONE);
             return;
         }
-        if(view.getId() == R.id.tvFri) {
+        if (view.getId() == R.id.tvFri) {
             isSelectedFri = !isSelectedFri;
-            mVFri.setVisibility(isSelectedFri?View.VISIBLE:View.GONE);
+            mVFri.setVisibility(isSelectedFri ? View.VISIBLE : View.GONE);
             return;
         }
-        if(view.getId() == R.id.tvSat) {
+        if (view.getId() == R.id.tvSat) {
             isSelectedSat = !isSelectedSat;
-            mVSat.setVisibility(isSelectedSat?View.VISIBLE:View.GONE);
+            mVSat.setVisibility(isSelectedSat ? View.VISIBLE : View.GONE);
             return;
         }
-        if(view.getId() == R.id.tvStartTime) {
+        if (view.getId() == R.id.tvStartTime) {
             showTimePicker(R.id.tvStartTime);
             return;
         }
-        if(view.getId() == R.id.tvEndTime) {
+        if (view.getId() == R.id.tvEndTime) {
             showTimePicker(R.id.tvEndTime);
             return;
         }
-        if(view.getId() == R.id.tvStartDate) {
+        if (view.getId() == R.id.tvStartDate) {
             showDatePicker(R.id.tvStartDate);
             return;
         }
-        if(view.getId() == R.id.tvStartDateTime) {
+        if (view.getId() == R.id.tvStartDateTime) {
             showTimePicker(R.id.tvStartDateTime);
             return;
         }
-        if(view.getId() == R.id.tvEndDate) {
+        if (view.getId() == R.id.tvEndDate) {
             showDatePicker(R.id.tvEndDate);
             return;
         }
-        if(view.getId() == R.id.tvEndDateTime) {
+        if (view.getId() == R.id.tvEndDateTime) {
             showTimePicker(R.id.tvEndDateTime);
         }
     }
@@ -290,29 +351,34 @@ public class AddNewPwdSelectActivity extends BaseActivity {
     }
 
     private void nextStep() {
-        if(mKey == null) {
+        if (mKey == null) {
             // TODO: 2021/1/29 处理密码为空的情况
             return;
         }
         showLoading();
-        if(mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI) {
+        if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI) {
             publishAddPwd(mBleDeviceLocal.getEsn(), mKey);
         } else {
-            if(mBleBean == null) {
+            if (mBleBean == null) {
                 Timber.e("nextStep mBleBean == null");
                 return;
             }
-            if(mBleBean.getPwd1() == null) {
+            if (mBleBean.getPwd1() == null) {
                 Timber.e("nextStep mBleBean.getPwd1() == null");
                 return;
             }
-            if(mBleBean.getPwd3() == null) {
+            if (mBleBean.getPwd3() == null) {
                 Timber.e("nextStep mBleBean.getPwd3() == null");
                 return;
             }
-            App.getInstance().writeControlMsg(BleCommandFactory.addKey(KEY_SET_KEY_TYPE_PWD,
-                    mKey.getBytes(StandardCharsets.UTF_8), mBleBean.getPwd1(), mBleBean.getPwd3()),
-                    mBleBean.getOKBLEDeviceImp());
+            LockMessage message = new LockMessage();
+            message.setMessageType(3);
+             message.setBytes(BleCommandFactory.addKey(KEY_SET_KEY_TYPE_PWD,
+                    mKey.getBytes(StandardCharsets.UTF_8), mBleBean.getPwd1(), mBleBean.getPwd3()));
+            message.setMac(mBleBean.getOKBLEDeviceImp().getMacAddress());
+            EventBus.getDefault().post(message);/*
+            App.getInstance().writeControlMsg(,
+                    mBleBean.getOKBLEDeviceImp());*/
             // TODO: 2021/1/29 需要做超时操作
         }
     }
@@ -362,7 +428,9 @@ public class AddNewPwdSelectActivity extends BaseActivity {
         mIvTemporary.setImageResource(R.drawable.ic_home_password_icon_selected);
     }
 
-    /**                     时间和日期的选择器                         **/
+    /**
+     * 时间和日期的选择器
+     **/
 
     private long mScheduleStartTimeMill;
     private long mScheduleEndTimeMill;
@@ -404,63 +472,64 @@ public class AddNewPwdSelectActivity extends BaseActivity {
     private void showTimePicker(@IdRes int id) {
         TimePickerDialog timePickerDialog = new TimePickerDialog(this, R.style.MyTimePickerDialogTheme,
                 (view, hourOfDay, minute) -> {
-            String time = (hourOfDay<10?"0"+hourOfDay:hourOfDay)+":"+(minute<10?"0"+minute:minute);
-            if(id == R.id.tvStartTime) {
-                long scheduleStartTimeMill = TimeUtils.string2Millis(mNowDateStr + " " + time + ":00");
-                if(scheduleStartTimeMill > mScheduleEndTimeMill) {
-                    // 开始时间大于结束时间
-                    ToastUtils.showShort(R.string.t_the_start_time_cannot_be_greater_than_the_end_time);
-                    return;
-                }
-                mTvStartTime.setText(time);
-                mScheduleStartTimeMill = scheduleStartTimeMill;
-                Timber.d("startTime 选择的时间%1s, 时间流：%2d, 转换的时间：%3s",time, mScheduleStartTimeMill, TimeUtils.millis2String(mScheduleStartTimeMill));
-            } else if(id == R.id.tvEndTime) {
-                long scheduleEndTimeMill = TimeUtils.string2Millis(mNowDateStr + " " + time + ":00");
-                if(scheduleEndTimeMill < mScheduleStartTimeMill) {
-                    // 结束时间小于开始时间
-                    ToastUtils.showShort(R.string.t_the_end_time_cannot_be_less_than_the_start_time);
-                    return;
-                }
-                mTvEndTime.setText(time);
-                mScheduleEndTimeMill = scheduleEndTimeMill;
-                Timber.d("endTime 选择的时间%1s, 时间流：%2d, 转换的时间：%3s",time, mScheduleEndTimeMill, TimeUtils.millis2String(mScheduleEndTimeMill));
-            } else if(id == R.id.tvEndDateTime) {
-                long temEndDateTimeMill = TimeUtils.string2Millis(mTemEndDateStr + " " + time + ":00");
-                if(temEndDateTimeMill < mTemStartDateTimeMill) {
-                    // 结束时间小于开始时间
-                    ToastUtils.showShort(R.string.t_the_end_time_cannot_be_less_than_the_start_time);
-                    return;
-                }
-                mTvEndDateTime.setText(time);
-                mTemEndDateTimeStr = time;
-                mTemEndDateTimeMill = temEndDateTimeMill;
-                Timber.d("endDateTime 选择的时间%1s, 时间流：%2d",time, mTemEndDateTimeMill);
-            } else if(id == R.id.tvStartDateTime) {
-                long temStartDateTimeMill = TimeUtils.string2Millis(mTemStartDateStr + " " + time + ":00");
-                if(temStartDateTimeMill > mTemEndDateTimeMill) {
-                    // 开始时间大于结束时间
-                    ToastUtils.showShort(R.string.t_the_start_time_cannot_be_greater_than_the_end_time);
-                    return;
-                }
-                mTvStartDateTime.setText(time);
-                mTemStartDateTimeStr = time;
-                mTemStartDateTimeMill = temStartDateTimeMill;
-                Timber.d("startDateTime 选择的时间%1s, 时间流：%2d",time, mTemStartDateTimeMill);
-            }
-        }, 0,0, true);
+                    String time = (hourOfDay<10?"0"+hourOfDay:hourOfDay)+":"+(minute<10?"0"+minute:minute);
+                    if(id == R.id.tvStartTime) {
+                        long scheduleStartTimeMill = TimeUtils.string2Millis(mNowDateStr + " " + time + ":00");
+                        if(scheduleStartTimeMill > mScheduleEndTimeMill) {
+                            // 开始时间大于结束时间
+                            ToastUtils.showShort(R.string.t_the_start_time_cannot_be_greater_than_the_end_time);
+                            return;
+                        }
+                        mTvStartTime.setText(time);
+                        mScheduleStartTimeMill = scheduleStartTimeMill;
+                        Timber.d("startTime 选择的时间%1s, 时间流：%2d, 转换的时间：%3s",time, mScheduleStartTimeMill, TimeUtils.millis2String(mScheduleStartTimeMill));
+                    } else if(id == R.id.tvEndTime) {
+                        long scheduleEndTimeMill = TimeUtils.string2Millis(mNowDateStr + " " + time + ":00");
+                        if(scheduleEndTimeMill < mScheduleStartTimeMill) {
+                            // 结束时间小于开始时间
+                            ToastUtils.showShort(R.string.t_the_end_time_cannot_be_less_than_the_start_time);
+                            return;
+                        }
+                        mTvEndTime.setText(time);
+                        mScheduleEndTimeMill = scheduleEndTimeMill;
+                        Timber.d("endTime 选择的时间%1s, 时间流：%2d, 转换的时间：%3s",time, mScheduleEndTimeMill, TimeUtils.millis2String(mScheduleEndTimeMill));
+                    } else if(id == R.id.tvEndDateTime) {
+                        long temEndDateTimeMill = TimeUtils.string2Millis(mTemEndDateStr + " " + time + ":00");
+                        if(temEndDateTimeMill < mTemStartDateTimeMill) {
+                            // 结束时间小于开始时间
+                            ToastUtils.showShort(R.string.t_the_end_time_cannot_be_less_than_the_start_time);
+                            return;
+                        }
+                        mTvEndDateTime.setText(time);
+                        mTemEndDateTimeStr = time;
+                        mTemEndDateTimeMill = temEndDateTimeMill;
+                        Timber.d("endDateTime 选择的时间%1s, 时间流：%2d",time, mTemEndDateTimeMill);
+                    } else if(id == R.id.tvStartDateTime) {
+                        long temStartDateTimeMill = TimeUtils.string2Millis(mTemStartDateStr + " " + time + ":00");
+                        if(temStartDateTimeMill > mTemEndDateTimeMill) {
+                            // 开始时间大于结束时间
+                            ToastUtils.showShort(R.string.t_the_start_time_cannot_be_greater_than_the_end_time);
+                            return;
+                        }
+                        mTvStartDateTime.setText(time);
+                        mTemStartDateTimeStr = time;
+                        mTemStartDateTimeMill = temStartDateTimeMill;
+                        Timber.d("startDateTime 选择的时间%1s, 时间流：%2d",time, mTemStartDateTimeMill);
+                    }
+                }, 0,0, true);
         timePickerDialog.show();
     }
+
 
     private void showDatePicker(@IdRes int id) {
         DatePickerDialog datePickerDialog = new DatePickerDialog(this, R.style.MyTimePickerDialogTheme);
         datePickerDialog.setOnDateSetListener((view, year, month, dayOfMonth) -> {
             // 月份需要加1
-            month+=1;
-            String date = year+"-"+(month<10?"0"+month:month)+"-"+(dayOfMonth<10?"0"+dayOfMonth:dayOfMonth);
-            if(id == R.id.tvStartDate) {
+            month += 1;
+            String date = year + "-" + (month < 10 ? "0" + month : month) + "-" + (dayOfMonth < 10 ? "0" + dayOfMonth : dayOfMonth);
+            if (id == R.id.tvStartDate) {
                 long temStartDateTimeMill = TimeUtils.string2Millis(date + " " + mTemStartDateTimeStr);
-                if(temStartDateTimeMill > mTemEndDateTimeMill) {
+                if (temStartDateTimeMill > mTemEndDateTimeMill) {
                     // 开始时间大于结束时间
                     ToastUtils.showShort(R.string.t_the_start_time_cannot_be_greater_than_the_end_time);
                     return;
@@ -468,10 +537,10 @@ public class AddNewPwdSelectActivity extends BaseActivity {
                 mTemStartDateStr = date;
                 mTemStartDateTimeMill = temStartDateTimeMill;
                 mTvStartDate.setText(mTemStartDateStr);
-                Timber.d("startDate 选择的日期%1s, 时间流：%2d",date, mTemStartDateTimeMill);
-            } else if(id == R.id.tvEndDate) {
+                Timber.d("startDate 选择的日期%1s, 时间流：%2d", date, mTemStartDateTimeMill);
+            } else if (id == R.id.tvEndDate) {
                 long temEndDateTimeMill = TimeUtils.string2Millis(date + " " + mTemEndDateTimeStr);
-                if(temEndDateTimeMill < mTemStartDateTimeMill) {
+                if (temEndDateTimeMill < mTemStartDateTimeMill) {
                     // 开始时间大于结束时间
                     ToastUtils.showShort(R.string.t_the_end_time_cannot_be_less_than_the_start_time);
                     return;
@@ -479,74 +548,24 @@ public class AddNewPwdSelectActivity extends BaseActivity {
                 mTemEndDateStr = date;
                 mTemEndDateTimeMill = temEndDateTimeMill;
                 mTvEndDate.setText(mTemEndDateStr);
-                Timber.d("startDate 选择的日期%1s, 时间流：%2d",date, mTemStartDateTimeMill);
+                Timber.d("startDate 选择的日期%1s, 时间流：%2d", date, mTemStartDateTimeMill);
             }
         });
         datePickerDialog.setCancelable(true);
         datePickerDialog.show();
     }
 
-    /**                  蓝牙指令与处理               **/
+    /**
+     * 蓝牙指令与处理
+     **/
     private int mNum;
     private final DevicePwdBean mDevicePwdBean = new DevicePwdBean();
-
-    private final OnBleDeviceListener mOnBleDeviceListener = new OnBleDeviceListener() {
-        @Override
-        public void onConnected(@NotNull String mac) {
-
-        }
-
-        @Override
-        public void onDisconnected(@NotNull String mac) {
-
-        }
-
-        @Override
-        public void onReceivedValue(@NotNull String mac, String uuid, byte[] value) {
-            if(value == null) {
-                return;
-            }
-            BleResultProcess.setOnReceivedProcess(mOnReceivedProcess);
-            BleResultProcess.processReceivedData(value, mBleBean.getPwd1(), mBleBean.getPwd3(),
-                    mBleBean.getOKBLEDeviceImp().getBleScanResult());
-        }
-
-        @Override
-        public void onWriteValue(@NotNull String mac, String uuid, byte[] value, boolean success) {
-
-        }
-
-        @Override
-        public void onAuthSuc(@NotNull String mac) {
-
-        }
-
-    };
-
-    private final BleResultProcess.OnReceivedProcess mOnReceivedProcess = bleResultBean -> {
-        if(bleResultBean == null) {
-            Timber.e("mOnReceivedProcess bleResultBean == null");
-            dismissLoadingAndShowAddFail();
-            return;
-        }
-        if(bleResultBean.getCMD() == BleProtocolState.CMD_KEY_ADD) {
-            addKey(bleResultBean);
-        } else if(bleResultBean.getCMD() == CMD_KEY_ATTRIBUTES_SET) {
-            byte state = bleResultBean.getPayload()[0];
-            if(state == 0x00) {
-                savePwdToService(mDevicePwdBean);
-            } else {
-                dismissLoadingAndShowAddFail();
-                Timber.e("设置密钥属性失败，state: %1s", BleByteUtil.byteToInt(state));
-            }
-        }
-    };
 
     private void addKey(BleResultBean bleResultBean) {
         // TODO: 2021/2/4 添加的时候需要判断后时间不能少于前时间
         // 添加密钥
         byte state = bleResultBean.getPayload()[0];
-        if(state == 0x00) {
+        if (state == 0x00) {
             savePwd(bleResultBean);
         } else {
             dismissLoadingAndShowAddFail();
@@ -558,14 +577,14 @@ public class AddNewPwdSelectActivity extends BaseActivity {
         mNum = bleResultBean.getPayload()[1];
         mDevicePwdBean.setPwdNum(mNum);
         // 使用秒存储，所以除以1000
-        mDevicePwdBean.setCreateTime(TimeUtils.getNowMills()/1000);
+        mDevicePwdBean.setCreateTime(TimeUtils.getNowMills() / 1000);
         mDevicePwdBean.setDeviceId(mBleDeviceLocal.getId());
         mDevicePwdBean.setAttribute(BleCommandState.KEY_SET_ATTRIBUTE_ALWAYS);
-        if(mSelectedPwdState == PERMANENT_STATE) {
+        if (mSelectedPwdState == PERMANENT_STATE) {
             savePwdToService(mDevicePwdBean);
-        } else if(mSelectedPwdState == SCHEDULE_STATE) {
+        } else if (mSelectedPwdState == SCHEDULE_STATE) {
             setSchedulePwd();
-        } else if(mSelectedPwdState == TEMPORARY_STATE) {
+        } else if (mSelectedPwdState == TEMPORARY_STATE) {
             setTimePwd();
         }
     }
@@ -575,37 +594,51 @@ public class AddNewPwdSelectActivity extends BaseActivity {
     private void dismissLoadingAndShowAddFail() {
         dismissLoading();
         runOnUiThread(() -> {
-            if(mAddPwdDisposable != null) {
-                mAddPwdFailDialog.show();
-            }
+            //     if (mAddPwdDisposable != null) {
+            mAddPwdFailDialog.show();
+            //  }
         });
     }
 
     private void setTimePwd() {
         Timber.d("num: %1s, startTime: %2d, endTime: %3d",
-                mNum, mTemStartDateTimeMill/1000, mTemEndDateTimeMill/1000);
-        mDevicePwdBean.setStartTime(mTemStartDateTimeMill/1000);
-        mDevicePwdBean.setEndTime(mTemEndDateTimeMill/1000);
+                mNum, mTemStartDateTimeMill / 1000, mTemEndDateTimeMill / 1000);
+        mDevicePwdBean.setStartTime(mTemStartDateTimeMill / 1000);
+        mDevicePwdBean.setEndTime(mTemEndDateTimeMill / 1000);
         mDevicePwdBean.setAttribute(KEY_SET_ATTRIBUTE_TIME_KEY);
-        if(mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI) {
+        if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI) {
             publishAddPwdAttr(mBleDeviceLocal.getEsn(),
                     KEY_SET_ATTRIBUTE_TIME_KEY,
                     mNum,
-                    mTemStartDateTimeMill/1000,
-                    mTemEndDateTimeMill/1000,
+                    mTemStartDateTimeMill / 1000,
+                    mTemEndDateTimeMill / 1000,
                     0);
         } else {
-            App.getInstance()
+            LockMessage message = new LockMessage();
+            message.setMac(mBleBean.getOKBLEDeviceImp().getMacAddress());
+            message.setBytes(BleCommandFactory
+                    .keyAttributesSet(KEY_SET_KEY_OPTION_ADD_OR_CHANGE,
+                            KEY_SET_KEY_TYPE_PWD,
+                            (byte) mNum,
+                            KEY_SET_ATTRIBUTE_TIME_KEY,
+                            (byte) 0x00,
+                            mTemStartDateTimeMill / 1000,
+                            mTemEndDateTimeMill / 1000,
+                            mBleBean.getPwd1(),
+                            mBleBean.getPwd3()));
+            message.setMessageType(3);
+            EventBus.getDefault().post(message);
+           /* App.getInstance()
                     .writeControlMsg(BleCommandFactory
                             .keyAttributesSet(KEY_SET_KEY_OPTION_ADD_OR_CHANGE,
                                     KEY_SET_KEY_TYPE_PWD,
-                                    (byte)mNum,
+                                    (byte) mNum,
                                     KEY_SET_ATTRIBUTE_TIME_KEY,
                                     (byte) 0x00,
-                                    mTemStartDateTimeMill/1000,
-                                    mTemEndDateTimeMill/1000,
+                                    mTemStartDateTimeMill / 1000,
+                                    mTemEndDateTimeMill / 1000,
                                     mBleBean.getPwd1(),
-                                    mBleBean.getPwd3()), mBleBean.getOKBLEDeviceImp());
+                                    mBleBean.getPwd3()), mBleBean.getOKBLEDeviceImp());*/
         }
 
     }
@@ -614,13 +647,13 @@ public class AddNewPwdSelectActivity extends BaseActivity {
         // 周策略 BIT:   7   6   5   4   3   2   1   0
         // 星期：      保留  六  五  四  三  二  一  日
         byte[] weekBit = new byte[8];
-        weekBit[0] = (byte) (isSelectedSun?0x01:0x00);
-        weekBit[1] = (byte) (isSelectedMon?0x01:0x00);
-        weekBit[2] = (byte) (isSelectedTues?0x01:0x00);
-        weekBit[3] = (byte) (isSelectedWed?0x01:0x00);
-        weekBit[4] = (byte) (isSelectedThur?0x01:0x00);
-        weekBit[5] = (byte) (isSelectedFri?0x01:0x00);
-        weekBit[6] = (byte) (isSelectedSat?0x01:0x00);
+        weekBit[0] = (byte) (isSelectedSun ? 0x01 : 0x00);
+        weekBit[1] = (byte) (isSelectedMon ? 0x01 : 0x00);
+        weekBit[2] = (byte) (isSelectedTues ? 0x01 : 0x00);
+        weekBit[3] = (byte) (isSelectedWed ? 0x01 : 0x00);
+        weekBit[4] = (byte) (isSelectedThur ? 0x01 : 0x00);
+        weekBit[5] = (byte) (isSelectedFri ? 0x01 : 0x00);
+        weekBit[6] = (byte) (isSelectedSat ? 0x01 : 0x00);
         byte week = BleByteUtil.bitToByte(weekBit);
         Timber.d("sun: %1b, mon: %2b, tues: %3b, wed: %4b, thur: %5b, fri: %6b, sat: %7b",
                 isSelectedSun, isSelectedMon, isSelectedTues, isSelectedWed,
@@ -640,17 +673,31 @@ public class AddNewPwdSelectActivity extends BaseActivity {
                     mScheduleEndTimeMill/1000,
                     week);
         } else {
-            App.getInstance()
+            LockMessage message = new LockMessage();
+            message.setMessageType(3);
+            message.setMac(mBleBean.getOKBLEDeviceImp().getMacAddress());
+            message.setBytes(BleCommandFactory
+                    .keyAttributesSet(KEY_SET_KEY_OPTION_ADD_OR_CHANGE,
+                            KEY_SET_KEY_TYPE_PWD,
+                            (byte) mNum,
+                            KEY_SET_ATTRIBUTE_WEEK_KEY,
+                            week,
+                            mScheduleStartTimeMill / 1000,
+                            mScheduleEndTimeMill / 1000,
+                            mBleBean.getPwd1(),
+                            mBleBean.getPwd3()));
+            EventBus.getDefault().post(message);
+          /*  App.getInstance()
                     .writeControlMsg(BleCommandFactory
                             .keyAttributesSet(KEY_SET_KEY_OPTION_ADD_OR_CHANGE,
                                     KEY_SET_KEY_TYPE_PWD,
-                                    (byte)mNum,
+                                    (byte) mNum,
                                     KEY_SET_ATTRIBUTE_WEEK_KEY,
                                     week,
-                                    mScheduleStartTimeMill/1000,
-                                    mScheduleEndTimeMill/1000,
+                                    mScheduleStartTimeMill / 1000,
+                                    mScheduleEndTimeMill / 1000,
                                     mBleBean.getPwd1(),
-                                    mBleBean.getPwd3()), mBleBean.getOKBLEDeviceImp());
+                                    mBleBean.getPwd3()), mBleBean.getOKBLEDeviceImp());*/
         }
 
     }
@@ -682,17 +729,17 @@ public class AddNewPwdSelectActivity extends BaseActivity {
     }
 
     private void initBleListener() {
-        if(mBleBean == null || mBleBean.getOKBLEDeviceImp() == null) {
+        if (mBleBean == null || mBleBean.getOKBLEDeviceImp() == null) {
             // TODO: 2021/1/30 做对应的处理
             Timber.e("initDevice mBleBean == null || mBleBean.getOKBLEDeviceImp() == null");
             return;
         }
-        App.getInstance().openPairNotify(mBleBean.getOKBLEDeviceImp());
-        mBleBean.setOnBleDeviceListener(mOnBleDeviceListener);
+        //替换
+        //App.getInstance().openPairNotify(mBleBean.getOKBLEDeviceImp());
     }
 
-    private Disposable mAddPwdDisposable;
-    private Disposable mSetPwdAttrDisposable;
+    // private Disposable mAddPwdDisposable;
+    //private Disposable mSetPwdAttrDisposable;
 
     private void publishAddPwd(String wifiId, String key) {
         String uid = App.getInstance().getUserBean().getUid();
@@ -700,16 +747,30 @@ public class AddNewPwdSelectActivity extends BaseActivity {
             Timber.e("publishAddPwd uid is empty");
             return;
         }
-        if(mMQttService == null) {
+        /*if (mMQttService == null) {
             Timber.e("publishAddPwd mMQttService == null");
             return;
-        }
+        }*/
         showLoading();
         WifiLockAddPwdPublishBean.ParamsBean paramsBean = new WifiLockAddPwdPublishBean.ParamsBean();
         paramsBean.setKey(key);
         // TODO: 2021/3/17 后期修改密钥属性
         paramsBean.setKeyType(0);
-        toDisposable(mAddPwdDisposable);
+
+        LockMessage message = new LockMessage();
+        message.setMqtt_message_code(MQttConstant.CREATE_PWD);
+        message.setMqtt_topic(MQttConstant.getCallTopic(uid));
+        message.setMqttMessage(MqttCommandFactory.addPwd(
+                wifiId,
+                paramsBean,
+                BleCommandFactory.getPwd(
+                        ConvertUtils.hexString2Bytes(mBleDeviceLocal.getPwd1()),
+                        ConvertUtils.hexString2Bytes(mBleDeviceLocal.getPwd2())
+                )));
+        message.setMessageType(2);
+        EventBus.getDefault().post(message);
+
+       /* toDisposable(mAddPwdDisposable);
         mAddPwdDisposable = mMQttService.mqttPublish(MQttConstant.getCallTopic(uid),
                 MqttCommandFactory.addPwd(
                         wifiId,
@@ -724,61 +785,61 @@ public class AddNewPwdSelectActivity extends BaseActivity {
                     dismissLoading();
                     Timber.e(e);
                 });
-        mCompositeDisposable.add(mAddPwdDisposable);
+        mCompositeDisposable.add(mAddPwdDisposable);*/
     }
 
-    private void processAddPwd(MqttData mqttData) {
-        toDisposable(mAddPwdDisposable);
+    private void processAddPwd(WifiLockAddPwdRspBean bean) {
+        // toDisposable(mAddPwdDisposable);
         dismissLoading();
-        if(TextUtils.isEmpty(mqttData.getFunc())) {
+        /*if (TextUtils.isEmpty(mqttData.getFunc())) {
             return;
-        }
-        if(mqttData.getFunc().equals(MQttConstant.CREATE_PWD)) {
-            Timber.d("创建密码: %1s", mqttData);
-            WifiLockAddPwdRspBean bean;
+        }*/
+       /* if (mqttData.getFunc().equals(MQttConstant.CREATE_PWD)) {
+            Timber.d("创建密码: %1s", mqttData);*/
+            /*WifiLockAddPwdRspBean bean;
             try {
                 bean = GsonUtils.fromJson(mqttData.getPayload(), WifiLockAddPwdRspBean.class);
             } catch (JsonSyntaxException e) {
                 Timber.e(e);
                 return;
-            }
-            if(bean == null) {
-                Timber.e("processAddPwd bean == null");
-                return;
-            }
-            if(bean.getCode() != 200) {
-                Timber.e("processAddPwd code : %1d", bean.getCode());
-                if(bean.getCode() == 201) {
-                    ToastUtils.showShort(R.string.t_add_pwd_fail);
-                }
-                return;
-            }
-            if(bean.getParams() == null) {
-                Timber.e("processAddPwd bean.getParams() == null");
-                return;
-            }
-            mNum = bean.getParams().getKeyNum();
-            mDevicePwdBean.setPwdNum(mNum);
-            // 使用秒存储，所以除以1000
-            mDevicePwdBean.setCreateTime(TimeUtils.getNowMills()/1000);
-            mDevicePwdBean.setDeviceId(mBleDeviceLocal.getId());
-            mDevicePwdBean.setAttribute(BleCommandState.KEY_SET_ATTRIBUTE_ALWAYS);
-            if(mSelectedPwdState == PERMANENT_STATE) {
-                savePwdToService(mDevicePwdBean);
-            } else if(mSelectedPwdState == SCHEDULE_STATE) {
-                setSchedulePwd();
-            } else if(mSelectedPwdState == TEMPORARY_STATE) {
-                setTimePwd();
-            }
+            }*/
+        if (bean == null) {
+            Timber.e("processAddPwd bean == null");
+            return;
         }
-        Timber.d("%1s", mqttData.toString());
+        if (bean.getCode() != 200) {
+            Timber.e("processAddPwd code : %1d", bean.getCode());
+            if (bean.getCode() == 201) {
+                ToastUtils.showShort(R.string.t_add_pwd_fail);
+            }
+            return;
+        }
+        if (bean.getParams() == null) {
+            Timber.e("processAddPwd bean.getParams() == null");
+            return;
+        }
+        mNum = bean.getParams().getKeyNum();
+        mDevicePwdBean.setPwdNum(mNum);
+        // 使用秒存储，所以除以1000
+        mDevicePwdBean.setCreateTime(TimeUtils.getNowMills() / 1000);
+        mDevicePwdBean.setDeviceId(mBleDeviceLocal.getId());
+        mDevicePwdBean.setAttribute(BleCommandState.KEY_SET_ATTRIBUTE_ALWAYS);
+        if (mSelectedPwdState == PERMANENT_STATE) {
+            savePwdToService(mDevicePwdBean);
+        } else if (mSelectedPwdState == SCHEDULE_STATE) {
+            setSchedulePwd();
+        } else if (mSelectedPwdState == TEMPORARY_STATE) {
+            setTimePwd();
+        }
+      /*  }
+        Timber.d("%1s", mqttData.toString());*/
     }
 
     private void publishAddPwdAttr(String wifiId, int attribute, int keyNum, long startTime, long endTime, int week) {
-        if(mMQttService == null) {
+        /*if (mMQttService == null) {
             Timber.e("publishAddPwdAttr mMQttService == null");
             return;
-        }
+        }*/
         WifiLockAddPwdAttrPublishBean.ParamsBean paramsBean = new WifiLockAddPwdAttrPublishBean.ParamsBean();
         paramsBean.setAttribute(attribute);
         paramsBean.setEndTime(endTime);
@@ -787,8 +848,23 @@ public class AddNewPwdSelectActivity extends BaseActivity {
         paramsBean.setWeek(week);
         // TODO: 2021/3/17 后期修改密钥属性
         paramsBean.setKeyType(0);
-        toDisposable(mSetPwdAttrDisposable);
-        mSetPwdAttrDisposable = mMQttService.mqttPublish(MQttConstant.getCallTopic(App.getInstance().getUserBean().getUid()),
+        //toDisposable(mSetPwdAttrDisposable);
+
+        LockMessage message=new LockMessage();
+        message.setMessageType(2);
+       message.setMqtt_message_code(MQttConstant.ADD_PWD);
+        message.setMqtt_topic(MQttConstant.getCallTopic(App.getInstance().getUserBean().getUid()));
+        message.setMqttMessage(  MqttCommandFactory.addPwdAttr(
+                wifiId,
+                paramsBean,
+                BleCommandFactory.getPwd(
+                        ConvertUtils.hexString2Bytes(mBleDeviceLocal.getPwd1()),
+                        ConvertUtils.hexString2Bytes(mBleDeviceLocal.getPwd2())
+                )));
+        EventBus.getDefault().post(message);
+
+
+       /* mSetPwdAttrDisposable = mMQttService.mqttPublish(MQttConstant.getCallTopic(App.getInstance().getUserBean().getUid()),
                 MqttCommandFactory.addPwdAttr(
                         wifiId,
                         paramsBean,
@@ -801,41 +877,41 @@ public class AddNewPwdSelectActivity extends BaseActivity {
                 .subscribe(this::setPwdAttrCallback, e -> {
                     dismissLoading();
                     Timber.e(e);
-                });
-        mCompositeDisposable.add(mSetPwdAttrDisposable);
+                });*/
+      //  mCompositeDisposable.add(mSetPwdAttrDisposable);
     }
 
-    private void setPwdAttrCallback(MqttData mqttData) {
-        toDisposable(mSetPwdAttrDisposable);
-        if(TextUtils.isEmpty(mqttData.getFunc())) {
+    private void setPwdAttrCallback(WifiLockAddPwdAttrResponseBean bean) {
+      //  toDisposable(mSetPwdAttrDisposable);
+        /*if (TextUtils.isEmpty(mqttData.getFunc())) {
             return;
-        }
+        }*/
         // TODO: 2021/3/3 处理开关门的回调信息
-        if(mqttData.getFunc().equals(MQttConstant.ADD_PWD)) {
+       /* if (mqttData.getFunc().equals(MQttConstant.ADD_PWD)) {*/
             dismissLoading();
-            Timber.d("publishAddPwdAttr 添加密码属性: %1s", mqttData);
+            /*Timber.d("publishAddPwdAttr 添加密码属性: %1s", mqttData);
             WifiLockAddPwdAttrResponseBean bean;
             try {
                 bean = GsonUtils.fromJson(mqttData.getPayload(), WifiLockAddPwdAttrResponseBean.class);
             } catch (JsonSyntaxException e) {
                 Timber.e(e);
                 return;
-            }
-            if(bean == null) {
+            }*/
+            if (bean == null) {
                 Timber.e("publishAddPwdAttr bean == null");
                 return;
             }
-            if(bean.getCode() != 200) {
+            if (bean.getCode() != 200) {
                 Timber.e("publishAddPwdAttr code : %1d", bean.getCode());
                 return;
             }
-            if(bean.getParams() == null) {
+            if (bean.getParams() == null) {
                 Timber.e("publishAddPwdAttr bean.getParams() == null");
                 return;
             }
             savePwdToService(mDevicePwdBean);
-        }
-        Timber.d("%1s", mqttData.toString());
+    /*    }
+        Timber.d("%1s", mqttData.toString());*/
     }
 
     // TODO: 2021/2/4 要做后面时间不能超过前面时间的判断和逻辑处理
@@ -845,15 +921,15 @@ public class AddNewPwdSelectActivity extends BaseActivity {
         List<LockKeyAddBeanReq.PwdListBean> pwdListBeans = new ArrayList<>();
         LockKeyAddBeanReq.PwdListBean pwdListBean = new LockKeyAddBeanReq.PwdListBean();
         pwdListBean.setNum(devicePwdBean.getPwdNum());
-        pwdListBean.setNickName(devicePwdBean.getPwdNum()+"");
+        pwdListBean.setNickName(devicePwdBean.getPwdNum() + "");
         pwdListBean.setPwdType(1);
-        if(devicePwdBean.getAttribute() == BleCommandState.KEY_SET_ATTRIBUTE_ALWAYS) {
+        if (devicePwdBean.getAttribute() == BleCommandState.KEY_SET_ATTRIBUTE_ALWAYS) {
             pwdListBean.setType(BleCommandState.KEY_SET_ATTRIBUTE_ALWAYS);
-        } else if(devicePwdBean.getAttribute() == KEY_SET_ATTRIBUTE_TIME_KEY) {
+        } else if (devicePwdBean.getAttribute() == KEY_SET_ATTRIBUTE_TIME_KEY) {
             pwdListBean.setType(KEY_SET_ATTRIBUTE_TIME_KEY);
             pwdListBean.setStartTime(devicePwdBean.getStartTime());
             pwdListBean.setEndTime(devicePwdBean.getEndTime());
-        } else if(devicePwdBean.getAttribute() == KEY_SET_ATTRIBUTE_WEEK_KEY) {
+        } else if (devicePwdBean.getAttribute() == KEY_SET_ATTRIBUTE_WEEK_KEY) {
             pwdListBean.setType(KEY_SET_ATTRIBUTE_WEEK_KEY);
             pwdListBean.setStartTime(devicePwdBean.getStartTime());
             pwdListBean.setEndTime(devicePwdBean.getEndTime());
@@ -863,13 +939,13 @@ public class AddNewPwdSelectActivity extends BaseActivity {
         LockKeyAddBeanReq req = new LockKeyAddBeanReq();
         req.setPwdList(pwdListBeans);
         req.setSn(mBleDeviceLocal.getEsn());
-        if(App.getInstance().getUserBean() == null) {
+        if (App.getInstance().getUserBean() == null) {
             Timber.e("savePwdToService App.getInstance().getUserBean() is null");
             dismissLoadingAndShowAddFail();
             return;
         }
         String uid = App.getInstance().getUserBean().getUid();
-        if(TextUtils.isEmpty(uid)) {
+        if (TextUtils.isEmpty(uid)) {
             Timber.e("savePwdToService uid is Empty");
             dismissLoadingAndShowAddFail();
             return;
@@ -877,7 +953,7 @@ public class AddNewPwdSelectActivity extends BaseActivity {
         req.setUid(uid);
 
         String token = App.getInstance().getUserBean().getToken();
-        if(TextUtils.isEmpty(token)) {
+        if (TextUtils.isEmpty(token)) {
             Timber.e("savePwdToService token is Empty");
             dismissLoadingAndShowAddFail();
             return;
@@ -888,7 +964,7 @@ public class AddNewPwdSelectActivity extends BaseActivity {
     private void dataRequestService(@NotNull DevicePwdBean devicePwdBean,
                                     @NotNull LockKeyAddBeanReq req,
                                     @NotNull String token) {
-        if(!checkNetConnectFail()) {
+        if (!checkNetConnectFail()) {
             return;
         }
         Observable<LockKeyAddBeanRsp> observable = HttpRequest.getInstance().addLockKey(token, req);
@@ -902,24 +978,24 @@ public class AddNewPwdSelectActivity extends BaseActivity {
             public void onNext(@NonNull LockKeyAddBeanRsp lockKeyAddBeanRsp) {
                 // TODO: 2021/2/24 处理异常情况
                 String code = lockKeyAddBeanRsp.getCode();
-                if(TextUtils.isEmpty(code)) {
+                if (TextUtils.isEmpty(code)) {
                     Timber.e("savePwdToService lockKeyAddBeanRsp.getCode() is Empty");
                     dismissLoadingAndShowAddFail();
                     return;
                 }
-                if(!code.equals("200")) {
-                    if(code.equals("444")) {
+                if (!code.equals("200")) {
+                    if (code.equals("444")) {
                         App.getInstance().logout(true, AddNewPwdSelectActivity.this);
                         return;
                     }
-                    if(!TextUtils.isEmpty(lockKeyAddBeanRsp.getMsg())) {
+                    if (!TextUtils.isEmpty(lockKeyAddBeanRsp.getMsg())) {
                         ToastUtils.showShort(lockKeyAddBeanRsp.getMsg());
                     }
                     Timber.e("savePwdToService code: %1s, msg: %2s", lockKeyAddBeanRsp.getCode(), lockKeyAddBeanRsp.getMsg());
                     dismissLoadingAndShowAddFail();
                     return;
                 }
-                if(lockKeyAddBeanRsp.getData() == null) {
+                if (lockKeyAddBeanRsp.getData() == null) {
                     Timber.e("savePwdToService lockKeyAddBeanRsp.getData() == null");
                     dismissLoadingAndShowAddFail();
                     return;
@@ -953,10 +1029,10 @@ public class AddNewPwdSelectActivity extends BaseActivity {
         if(isSelectedTues) {
             list.add("2");
         }
-        if(isSelectedWed) {
+        if (isSelectedWed) {
             list.add("3");
         }
-        if(isSelectedThur) {
+        if (isSelectedThur) {
             list.add("4");
         }
         if(isSelectedFri) {

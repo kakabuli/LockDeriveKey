@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
 import android.os.Looper;
+import android.os.Message;
 import android.text.TextUtils;
 import android.util.SparseArray;
 import android.view.Gravity;
@@ -37,15 +38,21 @@ import com.revolo.lock.ble.BleByteUtil;
 import com.revolo.lock.ble.BleCommandFactory;
 import com.revolo.lock.ble.BleProtocolState;
 import com.revolo.lock.ble.BleResultProcess;
-import com.revolo.lock.ble.OnBleDeviceListener;
 import com.revolo.lock.ble.bean.BleBean;
 import com.revolo.lock.ble.bean.BleResultBean;
+import com.revolo.lock.manager.LockConnected;
+import com.revolo.lock.manager.LockMessageCode;
+import com.revolo.lock.manager.LockMessageReplyErrCode;
+import com.revolo.lock.manager.LockMessageRes;
 import com.revolo.lock.net.HttpRequest;
 import com.revolo.lock.net.ObservableDecorator;
 import com.revolo.lock.room.AppDatabase;
 import com.revolo.lock.room.entity.BleDeviceLocal;
 import com.revolo.lock.room.entity.User;
 
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 import org.jetbrains.annotations.NotNull;
 
 import java.nio.charset.StandardCharsets;
@@ -62,7 +69,9 @@ import timber.log.Timber;
  * desc   : 连接蓝牙或者搜寻到对应的蓝牙连接
  */
 public class AddDeviceStep2BleConnectActivity extends BaseActivity {
-
+    private static final int MSG_BLE_SCAN_OUT_TIME = 103;//搜索超时
+    private static final int MSG_BLE_DATA_VALUE_ERR = 104;//sn错误或是mac错误
+    private static final int MSG_BLE_SCAN_TIME = 20000;//搜索时间
     private OKBLEScanManager mScanManager;
     private BLEScanResult mScanResult;
 
@@ -116,8 +125,55 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
     @Override
     public void initView(@Nullable Bundle savedInstanceState, @Nullable View contentView) {
         useCommonTitleBar(getString(R.string.add_device));
-
+        onRegisterEventBus();
     }
+
+    private Handler handler = new Handler() {
+        @Override
+        public void handleMessage(@NonNull Message msg) {
+            switch (msg.what) {
+                case MSG_BLE_SCAN_OUT_TIME:
+                case MSG_BLE_DATA_VALUE_ERR:
+                    //搜索超时
+                    gotoBleConnectFail();
+                    break;
+            }
+        }
+    };
+
+    @Subscribe(threadMode = ThreadMode.MAIN, sticky = true)
+    public void getEventBus(LockMessageRes lockMessage) {
+        if (lockMessage == null) {
+            return;
+        }
+        if (lockMessage.getMessgaeType() == LockMessageCode.MSG_LOCK_MESSAGE_USER) {
+            //user 操作
+        } else if (lockMessage.getMessgaeType() == LockMessageCode.MSG_LOCK_MESSAGE_BLE) {
+            //蓝牙消息
+            if (lockMessage.getResultCode() == LockMessageCode.MSG_LOCK_MESSAGE_CODE_SUCCESS) {
+                //成功
+                if (lockMessage.getMessageCode() == LockMessageCode.MSG_LOCK_MESSAGE_ADD_DEVICE_SERVICE) {
+                    Timber.d("addDevice getEventBus");
+                    addDeviceToService(lockMessage.getBleResultBea());
+                }
+            } else {
+                //异常
+                switch (lockMessage.getResultCode()) {
+                    case LockMessageReplyErrCode.LOCK_BLE_ERR_CODE_CONNECT_OUT_TIME://连接超时
+                    case LockMessageReplyErrCode.LOCK_BLE_ERR_CODE_DATA_CHECK_ERR://校验失败
+                    case LockMessageReplyErrCode.LOCK_BLE_ERR_CODE_DATA_WRITE_ERR://写入失败
+                    case LockMessageReplyErrCode.LOCK_BLE_ERR_CODE_DATA_NOTIFY_ERR://通知失败
+                    case LockMessageReplyErrCode.LOCK_BLE_ERR_CODE_BLE_DIS_ERR://蓝牙断开失败
+                    case LockMessageReplyErrCode.LOCK_BLE_ERR_CODE_BLE_VALUE_ERR://蓝牙蓝牙数据错误
+                        gotoBleConnectFail();
+                        break;
+                }
+            }
+        } else {
+            //MQTT
+        }
+    }
+
 
     @Override
     public void doBusiness() {
@@ -167,7 +223,9 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
 
     @Override
     protected void onDestroy() {
-        BleBean bleBean = App.getInstance().getBleBeanFromMac(mMac);
+        BleBean bleBean = App.getInstance().getUserBleBean(mMac);
+        //替换
+        //BleBean bleBean = App.getInstance().getBleBeanFromMac(mMac);
         if (bleBean != null) {
             bleBean.setAppPair(false);
         }
@@ -178,20 +236,15 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
     }
 
     private void checkDeviceIsBind() {
-        if (!checkNetConnectFail()) {
-            return;
-        }
-        if (App.getInstance() == null) {
-            Timber.e("App.getInstance()  == null");
-            return;
-        }
-        if (App.getInstance().getUserBean() == null) {
+        if (!checkNetConnectFail() || App.getInstance() == null || App.getInstance().getUserBean() == null) {
             Timber.e("App.getInstance().getUserBean() == null");
+            gotoBleConnectFail();
             return;
         }
         String uid = App.getInstance().getUserBean().getUid();
         if (TextUtils.isEmpty(uid)) {
             Timber.e("uid is empty");
+            gotoBleConnectFail();
             return;
         }
         LockIsBindBeanReq req = new LockIsBindBeanReq();
@@ -322,83 +375,6 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
         initScanManager();
     }
 
-    /**
-     * 蓝牙
-     **/
-
-    private boolean isHavePwd2Or3 = false;
-    private byte[] mPwd2;
-    private byte[] mPwd3;
-    private final BleResultProcess.OnReceivedProcess mOnReceivedProcess = bleResultBean -> {
-        if (bleResultBean == null) {
-            Timber.e("mOnReceivedProcess bleResultBean == null");
-            return;
-        }
-        auth(bleResultBean);
-    };
-
-    private void auth(BleResultBean bleResultBean) {
-        if (bleResultBean.getCMD() == BleProtocolState.CMD_PAIR_ACK) {
-            if (bleResultBean.getPayload()[0] != 0x00) {
-                // 校验失败
-                Timber.e("校验失败 CMD: %1s, 回复的数据：%2s",
-                        ConvertUtils.int2HexString(bleResultBean.getCMD()), ConvertUtils.bytes2HexString(bleResultBean.getPayload()));
-                gotoBleConnectFail();
-            }
-            return;
-        }
-        processKey(bleResultBean);
-    }
-
-    private void processKey(BleResultBean bleResultBean) {
-        if (bleResultBean.getCMD() == BleProtocolState.CMD_ENCRYPT_KEY_UPLOAD) {
-            byte[] data = bleResultBean.getPayload();
-            BleBean bleBean = App.getInstance().getBleBeanFromMac(mMac);
-            if (bleBean == null) {
-                Timber.e("processKey bleBean == null");
-                return;
-            }
-            if (data[0] == 0x01) {
-                // 入网时
-                // 获取pwd2
-                getPwd2AndSendAuthCommand(bleResultBean, data, bleBean);
-            } else if (data[0] == 0x02) {
-                // 获取pwd3
-                getPwd3(bleResultBean, data, bleBean);
-                // 鉴权成功后，同步当前时间
-                syNowTime(bleBean);
-                addDeviceToService(bleResultBean);
-                isRestartConnectingBle = false;
-            }
-        }
-    }
-
-    private void syNowTime(@NotNull BleBean bleBean) {
-        if (bleBean.getOKBLEDeviceImp() == null) {
-            Timber.e("syNowTime bleBean.getOKBLEDeviceImp() == null");
-            return;
-        }
-        new Handler(Looper.getMainLooper()).postDelayed(() -> {
-            long nowTime = TimeUtils.getNowMills() / 1000;
-            App.getInstance().writeControlMsg(BleCommandFactory
-                    .syLockTime(nowTime, mPwd1, mPwd3), bleBean.getOKBLEDeviceImp());
-        }, 20);
-    }
-
-    private void getPwd3(BleResultBean bleResultBean, byte[] data, @NotNull BleBean bleBean) {
-        if (bleBean.getOKBLEDeviceImp() == null) {
-            Timber.e("getPwd3 bleBean.getOKBLEDeviceImp() == null");
-            return;
-        }
-        mPwd3 = new byte[4];
-        System.arraycopy(data, 1, mPwd3, 0, mPwd3.length);
-        Timber.d("getPwd3 鉴权成功, pwd3: %1s\n", ConvertUtils.bytes2HexString(mPwd3));
-        // 内存存储
-        bleBean.setPwd1(mPwd1);
-        bleBean.setPwd3(mPwd3);
-        App.getInstance().writeControlMsg(BleCommandFactory
-                .ackCommand(bleResultBean.getTSN(), (byte) 0x00, bleResultBean.getCMD()), bleBean.getOKBLEDeviceImp());
-    }
 
     private void addDeviceToLocal(int power, @NotNull String esn,
                                   @NotNull String mac,
@@ -428,140 +404,58 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
             BleDeviceLocal deviceLocal = AppDatabase.getInstance(this).bleDeviceDao().findBleDeviceFromId(deviceId);
             Timber.d("addDeviceToLocal autoTime: %1d", bleDeviceLocal.getSetAutoLockTime());
             App.getInstance().setBleDeviceLocal(deviceLocal);
-            App.getInstance().addBleDeviceLocal(deviceLocal);
+          //  App.getInstance().addBleDeviceLocal(deviceLocal);
         }
-    }
-
-    /**
-     * 更新锁服务器存储的数据
-     */
-    private void addDeviceInfoToService(BleDeviceLocal bleDeviceLocal) {
-        if(App.getInstance().getUserBean() == null) {
-            Timber.e("updateLockInfoToService App.getInstance().getUserBean() == null");
-            return;
-        }
-        String uid = App.getInstance().getUserBean().getUid();
-        if(TextUtils.isEmpty(uid)) {
-            Timber.e("updateLockInfoToService uid is empty");
-            return;
-        }
-        String token = App.getInstance().getUserBean().getToken();
-        if(TextUtils.isEmpty(token)) {
-            Timber.e("updateLockInfoToService token is empty");
-            return;
-        }
-        showLoading();
-        UpdateLockInfoReq req = new UpdateLockInfoReq();
-        req.setSn(bleDeviceLocal.getEsn());
-        req.setWifiName(bleDeviceLocal.getConnectedWifiName());
-        req.setSafeMode(0);   // 没有使用这个
-        req.setLanguage("en"); // 暂时也没使用这个
-        req.setVolume(bleDeviceLocal.isMute()?0:1);
-        req.setAmMode(bleDeviceLocal.isAutoLock()?0:1);
-        req.setDuress(bleDeviceLocal.isDuress()?0:1);
-        req.setDoorSensor(bleDeviceLocal.getDoorSensor());
-        req.setElecFence(bleDeviceLocal.isOpenElectricFence()?0:1);
-        req.setAutoLockTime(bleDeviceLocal.getSetAutoLockTime());
-        req.setElecFenceTime(bleDeviceLocal.getSetElectricFenceTime());
-        req.setElecFenceSensitivity(bleDeviceLocal.getSetElectricFenceSensitivity());
-
-        Observable<UpdateLockInfoRsp> observable = HttpRequest.getInstance().updateLockInfo(token, req);
-        ObservableDecorator.decorate(observable).safeSubscribe(new Observer<UpdateLockInfoRsp>() {
-            @Override
-            public void onSubscribe(@NotNull Disposable d) {
-
-            }
-
-            @Override
-            public void onNext(@NotNull UpdateLockInfoRsp updateLockInfoRsp) {
-                dismissLoading();
-                String code = updateLockInfoRsp.getCode();
-                if(!code.equals("200")) {
-                    String msg = updateLockInfoRsp.getMsg();
-                    Timber.e("updateLockInfoToService code: %1s, msg: %2s", code, msg);
-                    if(!TextUtils.isEmpty(msg)) ToastUtils.showShort(msg);
-                    return;
-                }
-                Timber.d("addDeviceInfoToService 更新设备数据到服务器成功");
-                Intent intent = new Intent(AddDeviceStep2BleConnectActivity.this, BleConnectSucActivity.class);
-                startActivity(intent);
-                finish();
-            }
-
-            @Override
-            public void onError(@NotNull Throwable e) {
-                dismissLoading();
-                Timber.e(e);
-            }
-
-            @Override
-            public void onComplete() {
-
-            }
-        });
-    }
-
-    private void getPwd2AndSendAuthCommand(BleResultBean bleResultBean, byte[] data, @NotNull BleBean bleBean) {
-        if (bleBean.getOKBLEDeviceImp() == null) {
-            Timber.e("getPwd2AndSendAuthCommand bleBean.getOKBLEDeviceImp() == null");
-            return;
-        }
-        mPwd2 = new byte[4];
-        System.arraycopy(data, 1, mPwd2, 0, mPwd2.length);
-        // TODO: 2021/1/21 打包数据上传到服务器后再发送确认指令
-        isHavePwd2Or3 = true;
-        bleBean.setPwd2(mPwd2);
-        bleBean.setEsn(mEsn);
-        App.getInstance().writeControlMsg(BleCommandFactory
-                .ackCommand(bleResultBean.getTSN(), (byte) 0x00, bleResultBean.getCMD()), bleBean.getOKBLEDeviceImp());
-        new Handler(Looper.getMainLooper()).postDelayed(() -> {
-            Timber.d("getPwd2AndSendAuthCommand 延时发送鉴权指令, pwd2: %1s\n", ConvertUtils.bytes2HexString(mPwd2));
-            App.getInstance().writeControlMsg(BleCommandFactory
-                    .authCommand(mPwd1, mPwd2, mEsn.getBytes(StandardCharsets.UTF_8)), bleBean.getOKBLEDeviceImp());
-        }, 50);
     }
 
     private void addDeviceToService(BleResultBean bleResultBean) {
         if (!checkNetConnectFail()) {
+            gotoBleConnectFail();
             return;
         }
-        // 本地存储
-        int power = BleByteUtil.byteToInt(bleResultBean.getPayload()[11]);
-        addDeviceToLocal(power, mEsn, mMac, ConvertUtils.bytes2HexString(mPwd1), ConvertUtils.bytes2HexString(mPwd2), mScanResult);
-        AdminAddDeviceBeanReq req = new AdminAddDeviceBeanReq();
-        req.setDevmac(mMac);
-        req.setDeviceSN(mEsn);
-        req.setModel(getModeTypeFromBleManufacturerSpecificData(mScanResult));
-        req.setUser_id(App.getInstance().getUserBean().getUid());
-        // 正确的是12位pwd1,因为在内存里的pwd1是补0了，所以是16位，但是传输到服务器的需要移除0
-        byte[] realPwd1 = new byte[12];
-        System.arraycopy(mPwd1, 0, realPwd1, 0, realPwd1.length);
-        req.setPassword1(ConvertUtils.bytes2HexString(realPwd1));
-        req.setPassword2(ConvertUtils.bytes2HexString(mPwd2));
-        Timber.d("addDeviceToService req: %1s", req.toString());
-        Observable<AdminAddDeviceBeanRsp> observable = HttpRequest
-                .getInstance().adminAddDevice(App.getInstance().getUserBean().getToken(), req);
-        ObservableDecorator.decorate(observable).safeSubscribe(new Observer<AdminAddDeviceBeanRsp>() {
-            @Override
-            public void onSubscribe(@NonNull Disposable d) {
+        BleBean bleBean = App.getInstance().getUserBleBean(bleResultBean.getScanResult().getMacAddress());
+        if (null != bleBean) {
+            // 本地存储
+            int power = BleByteUtil.byteToInt(bleResultBean.getPayload()[11]);
+            addDeviceToLocal(power, mEsn, mMac, ConvertUtils.bytes2HexString(mPwd1), ConvertUtils.bytes2HexString(bleBean.getPwd2()), mScanResult);
+            AdminAddDeviceBeanReq req = new AdminAddDeviceBeanReq();
+            req.setDevmac(mMac);
+            req.setDeviceSN(mEsn);
+            req.setModel(getModeTypeFromBleManufacturerSpecificData(mScanResult));
+            req.setUser_id(App.getInstance().getUserBean().getUid());
+            // 正确的是12位pwd1,因为在内存里的pwd1是补0了，所以是16位，但是传输到服务器的需要移除0
+            byte[] realPwd1 = new byte[12];
+            System.arraycopy(mPwd1, 0, realPwd1, 0, realPwd1.length);
+            req.setPassword1(ConvertUtils.bytes2HexString(realPwd1));
+            req.setPassword2(ConvertUtils.bytes2HexString(bleBean.getPwd2()));
+            Timber.d("addDeviceToService req: %1s", req.toString());
+            Observable<AdminAddDeviceBeanRsp> observable = HttpRequest
+                    .getInstance().adminAddDevice(App.getInstance().getUserBean().getToken(), req);
+            ObservableDecorator.decorate(observable).safeSubscribe(new Observer<AdminAddDeviceBeanRsp>() {
+                @Override
+                public void onSubscribe(@NonNull Disposable d) {
 
-            }
+                }
 
-            @Override
-            public void onNext(@NonNull AdminAddDeviceBeanRsp adminAddDeviceBeanRsp) {
-                processAddDevice(adminAddDeviceBeanRsp);
-            }
+                @Override
+                public void onNext(@NonNull AdminAddDeviceBeanRsp adminAddDeviceBeanRsp) {
+                    processAddDevice(adminAddDeviceBeanRsp);
+                }
 
-            @Override
-            public void onError(@NonNull Throwable e) {
-                Timber.e(e);
-            }
+                @Override
+                public void onError(@NonNull Throwable e) {
+                    Timber.e(e);
+                }
 
-            @Override
-            public void onComplete() {
+                @Override
+                public void onComplete() {
 
-            }
-        });
+                }
+            });
+        } else {
+            //异常
+        }
+
 
     }
 
@@ -579,71 +473,11 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
             Timber.e("code: %1s, msg: %2s", adminAddDeviceBeanRsp.getCode(), adminAddDeviceBeanRsp.getMsg());
             return;
         }
-        Timber.d("addDeviceToService 添加设备到服务器成功");
+        Timber.d("addDeviceToService 添加设备成功");
         Timber.d("rsp: %1s", adminAddDeviceBeanRsp.toString());
-        addDeviceInfoToService(App.getInstance().getBleDeviceLocal());
-    }
-
-    private final OnBleDeviceListener mOnBleDeviceListener = new OnBleDeviceListener() {
-        @Override
-        public void onConnected(@NotNull String mac) {
-            processDeviceConnected(mac);
-        }
-
-        @Override
-        public void onDisconnected(@NotNull String mac) {
-
-        }
-
-        @Override
-        public void onReceivedValue(@NotNull String mac, String uuid, byte[] value) {
-            processRecValue(value);
-        }
-
-        @Override
-        public void onWriteValue(@NotNull String mac, String uuid, byte[] value, boolean success) {
-
-        }
-
-        @Override
-        public void onAuthSuc(@NotNull String mac) {
-
-        }
-    };
-
-    private void processDeviceConnected(@NotNull String mac) {
-        BleBean bleBean = App.getInstance().getBleBeanFromMac(mac);
-        if (bleBean == null) {
-            Timber.e("initBleListener bleBean == null");
-            return;
-        }
-        if (bleBean.getOKBLEDeviceImp() == null) {
-            Timber.e("initBleListener bleBean.getOKBLEDeviceImp() == null");
-            return;
-        }
-        new Handler(Looper.getMainLooper()).postDelayed(() -> {
-            Timber.d("%1s 发送配网指令，并校验ESN", mac);
-            App.getInstance().writeControlMsg(BleCommandFactory
-                    .pairCommand(mPwd1, mEsn.getBytes(StandardCharsets.UTF_8)), bleBean.getOKBLEDeviceImp());
-        }, 100);
-    }
-
-    private void processRecValue(byte[] value) {
-        if (value == null) {
-            return;
-        }
-        BleResultProcess.setOnReceivedProcess(mOnReceivedProcess);
-        byte[] pwd2Or3 = null;
-        if (isHavePwd2Or3) {
-            if (mPwd3 == null) {
-                if (mPwd2 != null) {
-                    pwd2Or3 = mPwd2;
-                }
-            } else {
-                pwd2Or3 = mPwd3;
-            }
-        }
-        BleResultProcess.processReceivedData(value, mPwd1, isHavePwd2Or3 ? pwd2Or3 : null, mScanResult);
+        Intent intent = new Intent(AddDeviceStep2BleConnectActivity.this, BleConnectSucActivity.class);
+        startActivity(intent);
+        finish();
     }
 
     private void initScanManager() {
@@ -666,6 +500,7 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
         };
         App.getInstance().setScanCallBack(scanCallBack);
         mScanManager.startScan();
+        handler.sendEmptyMessageDelayed(MSG_BLE_SCAN_OUT_TIME, MSG_BLE_SCAN_TIME);
     }
 
     private void filterAndConnectBle(BLEScanResult device) {
@@ -683,18 +518,24 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
     }
 
     private void gotoBleConnectFail() {
+        handler.removeMessages(MSG_BLE_SCAN_OUT_TIME);
         Intent intent = new Intent(this, BleConnectFailActivity.class);
         Intent preIntent = getIntent();
         if (!preIntent.hasExtra(Constant.PRE_A)) return;
         String preA = preIntent.getStringExtra(Constant.PRE_A);
         intent.putExtra(Constant.PRE_A, preA);
         if (preA.equals(Constant.INPUT_ESN_A)) {
-            intent.putExtra(Constant.ESN, preIntent.getStringExtra(Constant.ESN));
+            preIntent.putExtra(Constant.ESN, intent.getStringExtra(Constant.ESN));
         } else if (preA.equals(Constant.QR_CODE_A)) {
-            intent.putExtra(Constant.QR_RESULT, preIntent.getStringExtra(Constant.QR_RESULT));
+            preIntent.putExtra(Constant.QR_RESULT, intent.getStringExtra(Constant.QR_RESULT));
         }
-        BleBean bleBean = App.getInstance().getBleBeanFromMac(mMac);
-        App.getInstance().removeConnectedBleBeanAndDisconnect(bleBean);
+        BleBean bleBean = App.getInstance().getUserBleBean(mMac);
+        if (null != bleBean) {
+            App.getInstance().removeConnectedBleDisconnect(bleBean);
+        }
+        //替换
+       /* BleBean bleBean = App.getInstance().getBleBeanFromMac(mMac);
+        App.getInstance().removeConnectedBleBeanAndDisconnect(bleBean);*/
         startActivity(intent);
         finish();
     }
@@ -729,22 +570,44 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
     }
 
     private void connectBleFromInputEsn(BLEScanResult device) {
-        if (TextUtils.isEmpty(mEsn)) return;
+        if (TextUtils.isEmpty(mEsn)) {
+            handler.sendEmptyMessage(MSG_BLE_DATA_VALUE_ERR);
+            return;
+        }
         if (isDeviceEsnEqualsInputEsn(device, mEsn)) {
+            handler.removeMessages(MSG_BLE_SCAN_OUT_TIME);
             mScanManager.stopScan();
             mScanResult = device;
             mMac = device.getMacAddress();
-            App.getInstance().connectDevice(device, mPwd1, mPwd2, mOnBleDeviceListener, true);
+            LockConnected bleConnected = new LockConnected();
+            bleConnected.setConnectType(1);
+            bleConnected.setAppPair(true);
+            bleConnected.setPwd1(mPwd1);
+            bleConnected.setPwd2(null);
+            bleConnected.setmEsn(mEsn);
+            bleConnected.setBleScanResult(device);
+            EventBus.getDefault().post(bleConnected);
         }
     }
 
     private void connectBleFromQRCode(BLEScanResult device) {
-        if (TextUtils.isEmpty(mMac)) return;
+        if (TextUtils.isEmpty(mMac)) {
+            handler.sendEmptyMessage(MSG_BLE_DATA_VALUE_ERR);
+            return;
+        }
         if (device.getMacAddress().equalsIgnoreCase(mMac)) {
+            handler.removeMessages(MSG_BLE_SCAN_OUT_TIME);
             mScanManager.stopScan();
             Timber.d("connectBleFromQRCode 扫描到设备");
             mScanResult = device;
-            App.getInstance().connectDevice(device, mPwd1, mPwd2, mOnBleDeviceListener, true);
+            LockConnected bleConnected = new LockConnected();
+            bleConnected.setAppPair(true);
+            bleConnected.setPwd1(mPwd1);
+            bleConnected.setPwd2(null);
+            bleConnected.setConnectType(1);
+            bleConnected.setmEsn(mEsn);
+            bleConnected.setBleScanResult(device);
+            EventBus.getDefault().post(bleConnected);
         }
     }
 

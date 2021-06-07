@@ -27,21 +27,22 @@ public class HomeLockListAdapter extends BaseQuickAdapter<BleDeviceLocal, BaseVi
 
     @Override
     protected void convert(@NotNull BaseViewHolder baseViewHolder, BleDeviceLocal deviceLocal) {
-        if(deviceLocal == null) {
+        if (deviceLocal == null) {
             return;
         }
-        if(deviceLocal.getLockState() == LocalState.LOCK_STATE_PRIVATE) {
+        if (deviceLocal.getLockState() == LocalState.LOCK_STATE_PRIVATE) {
             baseViewHolder.setImageResource(R.id.ivLockState, R.drawable.ic_home_img_lock_privacymodel);
             baseViewHolder.setText(R.id.tvDoorState, getContext().getString(R.string.tip_private_mode));
             baseViewHolder.setGone(R.id.ivDoorState, true);
         } else {
+
             baseViewHolder.setGone(R.id.ivDoorState, false);
             boolean isUseDoorSensor = deviceLocal.isOpenDoorSensor();
             ImageView ivDoorState = baseViewHolder.getView(R.id.ivDoorState);
             TextView tvDoorState = baseViewHolder.getView(R.id.tvDoorState);
-            if(deviceLocal.getLockState() == LocalState.LOCK_STATE_OPEN) {
+            if (deviceLocal.getLockState() == LocalState.LOCK_STATE_OPEN) {
                 baseViewHolder.setImageResource(R.id.ivLockState, R.drawable.ic_home_img_lock_open);
-                if(isUseDoorSensor) {
+                if (isUseDoorSensor) {
                     switch (deviceLocal.getDoorSensor()) {
                         case LocalState.DOOR_SENSOR_CLOSE:
                             doorClose(ivDoorState, tvDoorState);
@@ -56,9 +57,9 @@ public class HomeLockListAdapter extends BaseQuickAdapter<BleDeviceLocal, BaseVi
                 } else {
                     doorOpen(ivDoorState, tvDoorState);
                 }
-            } else if(deviceLocal.getLockState() == LocalState.LOCK_STATE_CLOSE) {
+            } else if (deviceLocal.getLockState() == LocalState.LOCK_STATE_CLOSE) {
                 baseViewHolder.setImageResource(R.id.ivLockState, R.drawable.ic_home_img_lock_close);
-                if(isUseDoorSensor) {
+                if (isUseDoorSensor) {
                     switch (deviceLocal.getDoorSensor()) {
                         case LocalState.DOOR_SENSOR_CLOSE:
                         case LocalState.DOOR_SENSOR_EXCEPTION:
@@ -75,17 +76,20 @@ public class HomeLockListAdapter extends BaseQuickAdapter<BleDeviceLocal, BaseVi
                 }
             }
         }
-        if(deviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI) {
+        if (deviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI) {
             baseViewHolder.setImageResource(R.id.ivNetState, R.drawable.ic_home_icon_wifi);
-        } else if(deviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_BLE) {
+        } else if (deviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_BLE) {
             baseViewHolder.setImageResource(R.id.ivNetState, R.drawable.ic_home_icon_bluetooth);
-        } else {
+        } else if (deviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI_BLE) {//WiFi和ble同时存在连接
+            baseViewHolder.setImageResource(R.id.ivNetState, R.drawable.ic_home_icon_wifi);
+        } else if (deviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_DIS) {//掉线模式else {
             // TODO: 2021/3/2 其他处理
+            baseViewHolder.setImageResource(R.id.ivLockState, R.drawable.ic_home_img_lock_privacymodel);
         }
         String name = deviceLocal.getName();
-        baseViewHolder.setText(R.id.tvLockName, TextUtils.isEmpty(name)?
-                (TextUtils.isEmpty(deviceLocal.getEsn())?"":deviceLocal.getEsn())
-                :name);
+        baseViewHolder.setText(R.id.tvLockName, TextUtils.isEmpty(name) ?
+                (TextUtils.isEmpty(deviceLocal.getEsn()) ? "" : deviceLocal.getEsn())
+                : name);
     }
 
     private void doorClose(ImageView ivDoorState, TextView tvDoorState) {

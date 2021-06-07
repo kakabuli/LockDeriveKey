@@ -19,6 +19,7 @@ public class BleResultBean implements Parcelable {
     private int mControl;
     private int mTSN;
     private int mCMD;
+    private String mMac;
     private byte[] mSrcPayload;
     private byte[] mPayload;
     private BLEScanResult mScanResult;
@@ -84,6 +85,13 @@ public class BleResultBean implements Parcelable {
         mScanResult = scanResult;
     }
 
+    public String getmMac() {
+        return mMac;
+    }
+
+    public void setmMac(String mMac) {
+        this.mMac = mMac;
+    }
 
     @Override
     public int describeContents() {

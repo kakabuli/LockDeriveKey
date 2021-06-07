@@ -3,6 +3,7 @@ package com.revolo.lock.ui;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 
 import androidx.annotation.NonNull;
@@ -16,10 +17,14 @@ import com.revolo.lock.App;
 import com.revolo.lock.Constant;
 import com.revolo.lock.R;
 import com.revolo.lock.base.BaseActivity;
+import com.revolo.lock.manager.LockMessage;
 import com.revolo.lock.ui.device.DeviceFragment;
 import com.revolo.lock.ui.device.add.AddDeviceActivity;
 import com.revolo.lock.ui.mine.MineFragment;
 import com.revolo.lock.ui.user.UserFragment;
+
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -47,7 +52,10 @@ public class MainActivity extends BaseActivity {
         }
         getAlexaIntent(getIntent());
 
+        //onRegisterEventBus();
     }
+
+
 
     @Override
     protected void onNewIntent(Intent intent) {

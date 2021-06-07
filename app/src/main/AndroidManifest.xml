@@ -5,6 +5,7 @@
 
     <!-- 打开手电筒需要的权限 -->
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.FLASHLIGHT" />
     <!-- 扫描QR Code -->
@@ -327,8 +328,8 @@
             android:name=".ui.mine.HelpActivity"
             android:screenOrientation="portrait" />
 
-        <service android:name=".mqtt.MqttService" />
-        <!--        <service android:name=".manager.LockAppService" />-->
+     <!--   <service android:name=".mqtt.MqttService" />-->
+        <service android:name=".manager.LockAppService"/>
 
         <receiver android:name=".reveiver.WifiStateReceiver">
             <intent-filter>

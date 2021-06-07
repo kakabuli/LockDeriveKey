@@ -32,10 +32,12 @@ import com.revolo.lock.ble.OnBleDeviceListener;
 import com.revolo.lock.ble.bean.BleBean;
 import com.revolo.lock.ble.bean.BleResultBean;
 import com.revolo.lock.dialog.SelectDialog;
+import com.revolo.lock.manager.LockMessage;
 import com.revolo.lock.net.HttpRequest;
 import com.revolo.lock.net.ObservableDecorator;
 import com.revolo.lock.room.entity.BleDeviceLocal;
 
+import org.greenrobot.eventbus.EventBus;
 import org.jetbrains.annotations.NotNull;
 
 import java.nio.charset.StandardCharsets;
@@ -195,7 +197,7 @@ public class DoorLockInformationActivity extends BaseActivity {
     }
 
     private void initBleListener() {
-        BleBean bleBean = App.getInstance().getBleBeanFromMac(mBleDeviceLocal.getMac());
+        BleBean bleBean = App.getInstance().getUserBleBean(mBleDeviceLocal.getMac());
         if(bleBean == null) {
             Timber.e("initBleListener bleBean == null");
             return;
@@ -247,18 +249,38 @@ public class DoorLockInformationActivity extends BaseActivity {
 //                .lockParameterCheckCommand((byte) 0x03,
 //                        bleBean.getPwd1(), bleBean.getPwd3()), bleBean.getOKBLEDeviceImp()), 50);
         // 查询前板的版本信息
-        new Handler(Looper.getMainLooper()).postDelayed(() -> App.getInstance().writeControlMsg(BleCommandFactory
-                .checkHardVer(HARD_TYPE_FRONT_PANEL,
-                        bleBean.getPwd1(),
-                        bleBean.getPwd3()),
-                bleBean.getOKBLEDeviceImp()),
+        new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                    LockMessage message=new LockMessage();
+                    message.setMac(bleBean.getOKBLEDeviceImp().getMacAddress());
+                    message.setBytes(BleCommandFactory
+                            .checkHardVer(HARD_TYPE_FRONT_PANEL,
+                                    bleBean.getPwd1(),
+                                    bleBean.getPwd3()));
+                    message.setMessageType(3);
+                    EventBus.getDefault().post(message);
+                  /*  App.getInstance().writeControlMsg(BleCommandFactory
+                                    .checkHardVer(HARD_TYPE_FRONT_PANEL,
+                                            bleBean.getPwd1(),
+                                            bleBean.getPwd3()),
+                            bleBean.getOKBLEDeviceImp())*/
+                },
                 50);
         // 查询wifi的版本信息
-        new Handler(Looper.getMainLooper()).postDelayed(() -> App.getInstance().writeControlMsg(BleCommandFactory
-                        .checkHardVer(HARD_TYPE_WIFI_LOCK,
-                                bleBean.getPwd1(),
-                                bleBean.getPwd3()),
-                bleBean.getOKBLEDeviceImp()),
+        new Handler(Looper.getMainLooper()).postDelayed(() ->{
+            LockMessage message=new LockMessage();
+            message.setMessageType(3);
+            message.setMac(bleBean.getOKBLEDeviceImp().getMacAddress());
+            message.setBytes(BleCommandFactory
+                    .checkHardVer(HARD_TYPE_WIFI_LOCK,
+                            bleBean.getPwd1(),
+                            bleBean.getPwd3()));
+            EventBus.getDefault().post(message);
+                   /* App.getInstance().writeControlMsg(BleCommandFactory
+                                    .checkHardVer(HARD_TYPE_WIFI_LOCK,
+                                            bleBean.getPwd1(),
+                                            bleBean.getPwd3()),
+                            bleBean.getOKBLEDeviceImp())*/
+                },
                 100);
     }
 
