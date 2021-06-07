@@ -113,7 +113,7 @@ public class PasswordListActivity extends BaseActivity {
             }
         });
         useCommonTitleBar(getString(R.string.password))
-                .setRight(ContextCompat.getDrawable(this, R.drawable.ic_home_icon_add),
+                .setRight(R.drawable.ic_home_icon_add,
                         v -> {
                             if (mPasswordListAdapter != null && mPasswordListAdapter.getItemCount() < 20) {
                                 Intent intent = new Intent(this, AddInputNewPwdActivity.class);

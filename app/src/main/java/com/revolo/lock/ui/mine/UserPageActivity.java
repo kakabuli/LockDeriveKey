@@ -208,8 +208,6 @@ public class UserPageActivity extends BaseActivity implements EasyPermissions.Pe
                     if (avatarFile == null) {
                         return;
                     }
-
-                    mUser.setAvatarLocalPath(path);
                     uploadUserAvatar(avatarFile);
                     dismissPicSelect();
 
@@ -323,14 +321,18 @@ public class UserPageActivity extends BaseActivity implements EasyPermissions.Pe
                     return;
                 }
                 mUser.setAvatarUrl(avatarUrl);
+                mUser.setAvatarLocalPath(avatarFile.getPath());
                 AppDatabase.getInstance(UserPageActivity.this).userDao().update(mUser);
                 refreshUserUI();
+                ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show("Change Success");
             }
 
             @Override
             public void onError(@NonNull Throwable e) {
                 dismissLoading();
                 Timber.e(e);
+                ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show("Change Failed");
+                mUser.setAvatarLocalPath("");
             }
 
             @Override
@@ -426,15 +428,17 @@ public class UserPageActivity extends BaseActivity implements EasyPermissions.Pe
                         return;
                     }
                 }
-                User user = App.getInstance().getUser();
-                user.setUseFaceId(false);
-                user.setUseTouchId(false);
-                user.setUseGesturePassword(false);
-                user.setGestureCode("");
-                AppDatabase.getInstance(getApplicationContext()).userDao().update(user);
-                AppDatabase.getInstance(getApplicationContext()).userDao().delete(user);
-                App.getInstance().getUserBean().setToken(""); // 清空token
-                SPUtils.getInstance(REVOLO_SP).put(Constant.USER_LOGIN_INFO, ""); // 清空登录信息
+
+                new Thread(){
+                    @Override
+                    public void run() {
+                        super.run();
+                        User user = App.getInstance().getUser();
+                        AppDatabase.getInstance(getApplicationContext()).userDao().delete(user);
+                        App.getInstance().getUserBean().setToken(""); // 清空token
+                        SPUtils.getInstance(REVOLO_SP).put(Constant.USER_LOGIN_INFO, ""); // 清空登录信息
+                    }
+                }.start();
                 // TODO: 2021/3/30 退出操作
                 if (App.getInstance().getMainActivity() != null) {
                     App.getInstance().getMainActivity().finish();

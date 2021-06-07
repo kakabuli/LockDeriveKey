@@ -271,6 +271,7 @@
 
     <!-- DoorSensorCheckActivity -->
     <string name="title_door_sensor_alignment">Door sensor alignment</string>
+    <string name="title_door_sensor_alignment_failed">Gate magnet Alignment</string>
     <string name="close_the_door">Close the door</string>
     <string name="open_the_door">Open the door</string>
     <string name="half_close_the_door">Half close the door</string>
@@ -495,4 +496,5 @@
     <string name="login_name_len_max_hint">The user name is limited to 2-30 characters</string>
     <string name="pwd_open_camera_permission">Please turn on camera permissions in settings</string>
     <string name="t_wifi_disconnected_tip">WiFi is Offline. \n Please approach the lock and turn on Phone Bluetooth, then enter setting.</string>
+    <string name="no_message_yet">No message yet~</string>
 </resources>

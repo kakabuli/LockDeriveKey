@@ -19,6 +19,7 @@ import androidx.annotation.Nullable;
 
 import com.a1anwang.okble.client.core.OKBLEOperation;
 import com.blankj.utilcode.util.ActivityUtils;
+import com.blankj.utilcode.util.ConvertUtils;
 import com.blankj.utilcode.util.ToastUtils;
 import com.revolo.lock.App;
 import com.revolo.lock.Constant;
@@ -325,7 +326,7 @@ public class AddWifiActivity extends BaseActivity {
     private final List<String> mWifiSnList = new ArrayList<>();
 
     private void receiveWifiList(BleResultBean bleResultBean) {
-//        Timber.d("receiveWifiList 接收信息：%1s", ConvertUtils.int2HexString(bleResultBean.getCMD()));
+        Timber.d("receiveWifiList 接收信息：%1s", ConvertUtils.int2HexString(bleResultBean.getCMD()));
         if (bleResultBean.getCMD() == CMD_WIFI_LIST_CHECK) {
             byte[] payload = bleResultBean.getPayload();
             mWifiTotalNum = payload[0];

@@ -15,7 +15,6 @@ import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -66,6 +65,7 @@ import org.greenrobot.eventbus.ThreadMode;
 import org.jetbrains.annotations.NotNull;
 
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -101,9 +101,7 @@ public class DeviceFragment extends Fragment {
 
             // 有设备的时候控件UI
             if (getContext() != null) {
-                new TitleBar(root).setTitle(getString(R.string.title_my_devices))
-                        .setRight(ContextCompat.getDrawable(getContext(), R.drawable.ic_home_icon_add),
-                                v -> startActivity(new Intent(getContext(), AddDeviceActivity.class)));
+                initTitleBar();
                 RecyclerView rvLockList = root.findViewById(R.id.rvLockList);
                 rvLockList.setLayoutManager(new LinearLayoutManager(getContext()));
                 mHomeLockListAdapter = new HomeLockListAdapter(R.layout.item_home_lock_list_rv);
@@ -152,12 +150,27 @@ public class DeviceFragment extends Fragment {
         }
         return root;
     }
-
     public void onRegisterEventBus() {
         boolean registered = EventBus.getDefault().isRegistered(this);
         if (!registered) {
             EventBus.getDefault().register(this);
         }
+    }
+    private void initTitleBar() {
+        new TitleBar(root).setTitle(getString(R.string.title_my_devices))
+                .setRight(R.drawable.ic_home_icon_add,
+                        v -> startActivity(new Intent(getContext(), AddDeviceActivity.class)));
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        refreshGetAllBindDevicesFromMQTT();
+        initBaseData();
+        initData(mBleDeviceLocals);
+        initSignalWeakDialog();
+        initWfEven();
+//        mDeviceViewModel.refreshGetAllBindDevicesFromMQTT();
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)

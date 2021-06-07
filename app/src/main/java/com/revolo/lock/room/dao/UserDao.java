@@ -52,5 +52,4 @@ public interface UserDao {
 
     @Query("SELECT * FROM User WHERE u_id in(:ids)")
     List<User> findUsersFromIds(long... ids);
-
 }

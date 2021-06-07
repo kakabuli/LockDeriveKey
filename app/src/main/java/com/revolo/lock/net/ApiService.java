@@ -2,6 +2,8 @@ package com.revolo.lock.net;
 
 import com.revolo.lock.bean.request.AcceptShareBeanReq;
 import com.revolo.lock.bean.request.AdminAddDeviceBeanReq;
+import com.revolo.lock.bean.request.AlexaAppUrlAndWebUrlReq;
+import com.revolo.lock.bean.request.AlexaSkillEnableReq;
 import com.revolo.lock.bean.request.ChangeBleVerBeanReq;
 import com.revolo.lock.bean.request.ChangeDeviceHardVerBeanReq;
 import com.revolo.lock.bean.request.ChangeDeviceNameBeanReq;
@@ -16,6 +18,7 @@ import com.revolo.lock.bean.request.DelDeviceBeanReq;
 import com.revolo.lock.bean.request.DelInvalidShareBeanReq;
 import com.revolo.lock.bean.request.DelKeyBeanReq;
 import com.revolo.lock.bean.request.DelSharedUserBeanReq;
+import com.revolo.lock.bean.request.DeleteSystemMessageReq;
 import com.revolo.lock.bean.request.DeviceUnbindBeanReq;
 import com.revolo.lock.bean.request.EnableSharedUserBeanReq;
 import com.revolo.lock.bean.request.FeedBackBeanReq;
@@ -39,6 +42,7 @@ import com.revolo.lock.bean.request.SearchProductNoBeanReq;
 import com.revolo.lock.bean.request.SettingDuressPwdReceiveEMailBeanReq;
 import com.revolo.lock.bean.request.StartAllOTAUpdateBeanReq;
 import com.revolo.lock.bean.request.StartOTAUpdateBeanReq;
+import com.revolo.lock.bean.request.SystemMessageListReq;
 import com.revolo.lock.bean.request.UpdateDoorSensorStateBeanReq;
 import com.revolo.lock.bean.request.UpdateLockInfoReq;
 import com.revolo.lock.bean.request.UpdateLockRecordBeanReq;
@@ -49,6 +53,8 @@ import com.revolo.lock.bean.request.UploadAlarmRecordBeanReq;
 import com.revolo.lock.bean.request.UploadOpenDoorRecordBeanReq;
 import com.revolo.lock.bean.respone.AcceptShareBeanRsp;
 import com.revolo.lock.bean.respone.AdminAddDeviceBeanRsp;
+import com.revolo.lock.bean.respone.AlexaAppUrlAndWebUrlBeanRsp;
+import com.revolo.lock.bean.respone.AlexaSkillEnableBeanRsp;
 import com.revolo.lock.bean.respone.ChangeBleVerBeanRsp;
 import com.revolo.lock.bean.respone.ChangeDeviceHardVerBeanRsp;
 import com.revolo.lock.bean.respone.ChangeDeviceNameBeanRsp;
@@ -88,6 +94,7 @@ import com.revolo.lock.bean.respone.SearchProductNoBeanRsp;
 import com.revolo.lock.bean.respone.SettingDuressPwdReceiveEMailBeanRsp;
 import com.revolo.lock.bean.respone.StartAllOTAUpdateBeanRsp;
 import com.revolo.lock.bean.respone.StartOTAUpdateBeanRsp;
+import com.revolo.lock.bean.respone.SystemMessageListBeanRsp;
 import com.revolo.lock.bean.respone.UpdateDoorSensorStateBeanRsp;
 import com.revolo.lock.bean.respone.UpdateLockInfoRsp;
 import com.revolo.lock.bean.respone.UpdateLockRecordBeanRsp;
@@ -115,8 +122,9 @@ public interface ApiService {
 
     /**
      * 邮箱登录
-     * @param req        请求实体
-     * @param urlName    用于区分，可能后期替换不一样的接口
+     *
+     * @param req     请求实体
+     * @param urlName 用于区分，可能后期替换不一样的接口
      */
     @Headers({"Content-Type: application/json"})
     @POST("/user/login/getuserbymail")
@@ -124,9 +132,10 @@ public interface ApiService {
 
     /**
      * 判断锁是否被绑定
-     * @param token       用户登录获取到的token值
-     * @param req         请求实体
-     * @param urlName     用于区分，可能后期替换不一样的接口
+     *
+     * @param token   用户登录获取到的token值
+     * @param req     请求实体
+     * @param urlName 用于区分，可能后期替换不一样的接口
      */
     @Headers({"Content-Type: application/json"})
     @POST("/wpflock/device/checkadmindev")
@@ -134,9 +143,10 @@ public interface ApiService {
 
     /**
      * 获取pwd1
-     * @param token      用户权限码
-     * @param req        请求实体
-     * @param urlName    用于区分，可能后期替换不一样的接口
+     *
+     * @param token   用户权限码
+     * @param req     请求实体
+     * @param urlName 用于区分，可能后期替换不一样的接口
      */
     @Headers({"Content-Type: application/json"})
     @POST("/model/getpwdBySN")
@@ -144,9 +154,10 @@ public interface ApiService {
 
     /**
      * 管理员添加设备
-     * @param token        用户权限码
-     * @param req          请求实体
-     * @param urlName      用于区分，可能后期替换不一样的接口
+     *
+     * @param token   用户权限码
+     * @param req     请求实体
+     * @param urlName 用于区分，可能后期替换不一样的接口
      */
     @Headers({"Content-Type: application/json"})
     @POST("/wpflock/device/createadmindev")
@@ -154,9 +165,10 @@ public interface ApiService {
 
     /**
      * 设备解绑
-     * @param token        用户权限码
-     * @param req          请求实体
-     * @param urlName      用于区分，可能后期替换不一样的接口
+     *
+     * @param token   用户权限码
+     * @param req     请求实体
+     * @param urlName 用于区分，可能后期替换不一样的接口
      */
     @Headers({"Content-Type: application/json"})
     @POST("/wpflock/device/unbind")
@@ -164,9 +176,10 @@ public interface ApiService {
 
     /**
      * 修改蓝牙版本类型
-     * @param token       用户权限码
-     * @param req         请求实体
-     * @param urlName     用于区分，可能后期替换不一样的接口
+     *
+     * @param token   用户权限码
+     * @param req     请求实体
+     * @param urlName 用于区分，可能后期替换不一样的接口
      */
     @Headers({"Content-Type: application/json"})
     @POST("/wpflock/device/updateBleVersionType")
@@ -174,9 +187,10 @@ public interface ApiService {
 
     /**
      * 修改设备固件版本
-     * @param token      用户权限码
-     * @param req        请求实体
-     * @param urlName    用于区分，可能后期替换不一样的接口
+     *
+     * @param token   用户权限码
+     * @param req     请求实体
+     * @param urlName 用于区分，可能后期替换不一样的接口
      */
     @Headers({"Content-Type: application/json"})
     @POST("/wpflock/device/updateBleVersion")
@@ -184,9 +198,10 @@ public interface ApiService {
 
     /**
      * 修改功能集
-     * @param token      用户权限码
-     * @param req        请求实体
-     * @param urlName    用于区分，可能后期替换不一样的接口
+     *
+     * @param token   用户权限码
+     * @param req     请求实体
+     * @param urlName 用于区分，可能后期替换不一样的接口
      */
     @Headers({"Content-Type: application/json"})
     @POST("/wpflock/device/updateFunctionSet")
@@ -194,9 +209,10 @@ public interface ApiService {
 
     /**
      * 删除设备 todo 存疑，解绑可以达到同种效果，似无必要，联调时确定
-     * @param token      用户权限码
-     * @param req        请求实体
-     * @param urlName    用于区分，可能后期替换不一样的接口
+     *
+     * @param token   用户权限码
+     * @param req     请求实体
+     * @param urlName 用于区分，可能后期替换不一样的接口
      */
     @Headers({"Content-Type: application/json"})
     @POST("/wpflock/device/deleteadmindev")
@@ -204,9 +220,10 @@ public interface ApiService {
 
     /**
      * 修改设备昵称
-     * @param token      用户权限码
-     * @param req        请求实体
-     * @param urlName    用于区分，可能后期替换不一样的接口
+     *
+     * @param token   用户权限码
+     * @param req     请求实体
+     * @param urlName 用于区分，可能后期替换不一样的接口
      */
     @Headers({"Content-Type: application/json"})
     @POST("/wpflock/device/updateAdminlockNickName")
@@ -214,9 +231,10 @@ public interface ApiService {
 
     /**
      * 搜索设备型号（模糊查询）
-     * @param token      用户权限码
-     * @param req        请求实体
-     * @param urlName    用于区分，可能后期替换不一样的接口
+     *
+     * @param token   用户权限码
+     * @param req     请求实体
+     * @param urlName 用于区分，可能后期替换不一样的接口
      */
     @Headers({"Content-Type: application/json"})
     @POST("/deviceModel/search")
@@ -224,9 +242,10 @@ public interface ApiService {
 
     /**
      * 上传开门记录
-     * @param token      用户权限码
-     * @param req        请求实体
-     * @param urlName    用于区分，可能后期替换不一样的接口
+     *
+     * @param token   用户权限码
+     * @param req     请求实体
+     * @param urlName 用于区分，可能后期替换不一样的接口
      */
     @Headers({"Content-Type: application/json"})
     @POST("/wpflock/device/uploadopenlocklist")
@@ -234,9 +253,10 @@ public interface ApiService {
 
     /**
      * 开门记录查询
-     * @param token     用户权限码
-     * @param req       请求实体
-     * @param urlName   用于区分，可能后期替换不一样的接口
+     *
+     * @param token   用户权限码
+     * @param req     请求实体
+     * @param urlName 用于区分，可能后期替换不一样的接口
      */
     @Headers({"Content-Type: application/json"})
     @POST("/wpflock/device/findopenlockrecord")
@@ -244,9 +264,10 @@ public interface ApiService {
 
     /**
      * 上传报警记录
-     * @param token      用户权限码
-     * @param req        请求实体
-     * @param urlName    用于区分，可能后期替换不一样的接口
+     *
+     * @param token   用户权限码
+     * @param req     请求实体
+     * @param urlName 用于区分，可能后期替换不一样的接口
      */
     @Headers({"Content-Type: application/json"})
     @POST("/wpflock/device/uploadalarmlist")
@@ -254,9 +275,10 @@ public interface ApiService {
 
     /**
      * 查询报警记录
-     * @param token     用户权限码
-     * @param req       请求实体
-     * @param urlName   用于区分，可能后期替换不一样的接口
+     *
+     * @param token   用户权限码
+     * @param req     请求实体
+     * @param urlName 用于区分，可能后期替换不一样的接口
      */
     @Headers({"Content-Type: application/json"})
     @POST("/wifi/alarm/list")
@@ -264,9 +286,10 @@ public interface ApiService {
 
     /**
      * 门锁秘钥添加
-     * @param token      用户权限码
-     * @param req        请求实体
-     * @param urlName    用于区分，可能后期替换不一样的接口
+     *
+     * @param token   用户权限码
+     * @param req     请求实体
+     * @param urlName 用于区分，可能后期替换不一样的接口
      */
     @Headers({"Content-Type: application/json"})
     @POST("/wpflock/device/pwdadd")
@@ -274,9 +297,10 @@ public interface ApiService {
 
     /**
      * 查询密钥列表
-     * @param token        用户权限码
-     * @param req          请求实体
-     * @param urlName      用于区分，可能后期替换不一样的接口
+     *
+     * @param token   用户权限码
+     * @param req     请求实体
+     * @param urlName 用于区分，可能后期替换不一样的接口
      */
     @Headers({"Content-Type: application/json"})
     @POST("/wpflock/device/pwdlist")
@@ -284,9 +308,10 @@ public interface ApiService {
 
     /**
      * 删除秘钥
-     * @param token       用户权限码
-     * @param req         请求实体
-     * @param urlName     用于区分，可能后期替换不一样的接口
+     *
+     * @param token   用户权限码
+     * @param req     请求实体
+     * @param urlName 用于区分，可能后期替换不一样的接口
      */
     @Headers({"Content-Type: application/json"})
     @POST("/wpflock/device/pwddelete")
@@ -294,9 +319,10 @@ public interface ApiService {
 
     /**
      * 修改秘钥昵称
-     * @param token       用户权限码
-     * @param req         请求实体
-     * @param urlName     用于区分，可能后期替换不一样的接口
+     *
+     * @param token   用户权限码
+     * @param req     请求实体
+     * @param urlName 用于区分，可能后期替换不一样的接口
      */
     @Headers({"Content-Type: application/json"})
     @POST("/wpflock/device/nicknameupdate")
@@ -304,9 +330,10 @@ public interface ApiService {
 
     /**
      * 获取门锁秘钥昵称(单个)
-     * @param token       用户权限码
-     * @param req         请求实体
-     * @param urlName     用于区分，可能后期替换不一样的接口
+     *
+     * @param token   用户权限码
+     * @param req     请求实体
+     * @param urlName 用于区分，可能后期替换不一样的接口
      */
     @Headers({"Content-Type: application/json"})
     @POST("/wpflock/device/getNickname")
@@ -314,9 +341,10 @@ public interface ApiService {
 
     /**
      * 更新门磁状态
-     * @param token      用户权限码
-     * @param req        请求实体
-     * @param urlName    用于区分，可能后期替换不一样的接口
+     *
+     * @param token   用户权限码
+     * @param req     请求实体
+     * @param urlName 用于区分，可能后期替换不一样的接口
      */
     @Headers({"Content-Type: application/json"})
     @POST("/wpflock/device/updateMagneticStatus")
@@ -324,9 +352,10 @@ public interface ApiService {
 
     /**
      * 查询门磁状态
-     * @param token             用户权限码
-     * @param req               请求实体
-     * @param urlName           用于区分，可能后期替换不一样的接口
+     *
+     * @param token   用户权限码
+     * @param req     请求实体
+     * @param urlName 用于区分，可能后期替换不一样的接口
      */
     @Headers({"Content-Type: application/json"})
     @POST("/wpflock/device/findMagneticStatus")
@@ -334,9 +363,10 @@ public interface ApiService {
 
     /**
      * 修改无感开锁参数
-     * @param token       用户权限码
-     * @param req         请求实体
-     * @param urlName     用于区分，可能后期替换不一样的接口
+     *
+     * @param token   用户权限码
+     * @param req     请求实体
+     * @param urlName 用于区分，可能后期替换不一样的接口
      */
     @Headers({"Content-Type: application/json"})
     @POST("/wpflock/device/updateApproachParameters")
@@ -344,8 +374,9 @@ public interface ApiService {
 
     /**
      * 发送邮箱验证码
-     * @param req       请求实体
-     * @param urlName   用于区分，可能后期替换不一样的接口
+     *
+     * @param req     请求实体
+     * @param urlName 用于区分，可能后期替换不一样的接口
      */
     @Headers({"Content-Type: application/json"})
     @POST("/mail/sendemailtoken")
@@ -353,8 +384,9 @@ public interface ApiService {
 
     /**
      * 邮箱注册
-     * @param req          请求实体
-     * @param urlName      用于区分，可能后期替换不一样的接口
+     *
+     * @param req     请求实体
+     * @param urlName 用于区分，可能后期替换不一样的接口
      */
     @Headers({"Content-Type: application/json"})
     @POST("/user/reg/putuserbyemail")
@@ -362,9 +394,10 @@ public interface ApiService {
 
     /**
      * 检测升级文件（单组件）
-     * @param token         用户权限码
-     * @param req           请求实体
-     * @param urlName       用于区分，可能后期替换不一样的接口
+     *
+     * @param token   用户权限码
+     * @param req     请求实体
+     * @param urlName 用于区分，可能后期替换不一样的接口
      */
     @Headers({"Content-Type: application/json"})
     @POST("/ota/checkUpgrade")
@@ -372,9 +405,10 @@ public interface ApiService {
 
     /**
      * 确认升级（单设备单组件）
-     * @param token       用户权限码
-     * @param req         请求实体
-     * @param urlName     用于区分，可能后期替换不一样的接口
+     *
+     * @param token   用户权限码
+     * @param req     请求实体
+     * @param urlName 用于区分，可能后期替换不一样的接口
      */
     @Headers({"Content-Type: application/json"})
     @POST("/wifi/device/ota")
@@ -382,9 +416,10 @@ public interface ApiService {
 
     /**
      * 用户检查升级（多组件）
-     * @param token        用户权限码
-     * @param req          请求实体
-     * @param urlName      用于区分，可能后期替换不一样的接口
+     *
+     * @param token   用户权限码
+     * @param req     请求实体
+     * @param urlName 用于区分，可能后期替换不一样的接口
      */
     @Headers({"Content-Type: application/json"})
     @POST("/ota/multiCheckUpgrade")
@@ -392,9 +427,10 @@ public interface ApiService {
 
     /**
      * 确认升级（多组件）
-     * @param token      用户权限码
-     * @param req        请求实体
-     * @param urlName    用于区分，可能后期替换不一样的接口
+     *
+     * @param token   用户权限码
+     * @param req     请求实体
+     * @param urlName 用于区分，可能后期替换不一样的接口
      */
     @Headers({"Content-Type: application/json"})
     @POST("/wifi/device/multiOta")
@@ -402,8 +438,9 @@ public interface ApiService {
 
     /**
      * 忘记密码
-     * @param req           请求实体
-     * @param urlName       用于区分，可能后期替换不一样的接口
+     *
+     * @param req     请求实体
+     * @param urlName 用于区分，可能后期替换不一样的接口
      */
     @Headers({"Content-Type: application/json"})
     @POST("/user/edit/forgetPwd")
@@ -411,9 +448,10 @@ public interface ApiService {
 
     /**
      * 修改密码
-     * @param token     用户权限码
-     * @param req       请求实体
-     * @param urlName   用于区分，可能后期替换不一样的接口
+     *
+     * @param token   用户权限码
+     * @param req     请求实体
+     * @param urlName 用于区分，可能后期替换不一样的接口
      */
     @Headers({"Content-Type: application/json"})
     @POST("/user/edit/postUserPwd")
@@ -421,9 +459,10 @@ public interface ApiService {
 
     /**
      * 创建分享链接
-     * @param token      用户权限码
-     * @param req        请求实体
-     * @param urlName    用于区分，可能后期替换不一样的接口
+     *
+     * @param token   用户权限码
+     * @param req     请求实体
+     * @param urlName 用于区分，可能后期替换不一样的接口
      */
     @Headers({"Content-Type: application/json"})
     @POST("/wpflock/share/gainKey")
@@ -431,9 +470,10 @@ public interface ApiService {
 
     /**
      * 获取锁下的所有分享用户列表
-     * @param token     用户权限码
-     * @param req       请求实体
-     * @param urlName   用于区分，可能后期替换不一样的接口
+     *
+     * @param token   用户权限码
+     * @param req     请求实体
+     * @param urlName 用于区分，可能后期替换不一样的接口
      */
     @Headers({"Content-Type: application/json"})
     @POST("/wpflock/share/list")
@@ -441,9 +481,10 @@ public interface ApiService {
 
     /**
      * 修改分享用户昵称
-     * @param token     用户权限码
-     * @param req       请求实体
-     * @param urlName   用于区分，可能后期替换不一样的接口
+     *
+     * @param token   用户权限码
+     * @param req     请求实体
+     * @param urlName 用于区分，可能后期替换不一样的接口
      */
     @Headers({"Content-Type: application/json"})
     @POST("/wpflock/share/updateNickName")
@@ -451,9 +492,10 @@ public interface ApiService {
 
     /**
      * 删除无效分享链接
-     * @param token       用户权限码
-     * @param req         请求实体
-     * @param urlName     用于区分，可能后期替换不一样的接口
+     *
+     * @param token   用户权限码
+     * @param req     请求实体
+     * @param urlName 用于区分，可能后期替换不一样的接口
      */
     @Headers({"Content-Type: application/json"})
     @POST("/wpflock/share/delShareKey")
@@ -461,9 +503,10 @@ public interface ApiService {
 
     /**
      * 启用/禁用分享用户权限
-     * @param token       用户权限码
-     * @param req         请求实体
-     * @param urlName     用于区分，可能后期替换不一样的接口
+     *
+     * @param token   用户权限码
+     * @param req     请求实体
+     * @param urlName 用于区分，可能后期替换不一样的接口
      */
     @Headers({"Content-Type: application/json"})
     @POST("/wpflock/share/updateEnable")
@@ -471,9 +514,10 @@ public interface ApiService {
 
     /**
      * 删除分享用户
-     * @param token       用户权限码
-     * @param req         请求实体
-     * @param urlName     用于区分，可能后期替换不一样的接口
+     *
+     * @param token   用户权限码
+     * @param req     请求实体
+     * @param urlName 用于区分，可能后期替换不一样的接口
      */
     @Headers({"Content-Type: application/json"})
     @POST("/wpflock/share/delShareUser")
@@ -481,9 +525,10 @@ public interface ApiService {
 
     /**
      * 修改邀请用户类型
-     * @param token       用户权限码
-     * @param req         请求实体
-     * @param urlName     用于区分，可能后期替换不一样的接口
+     *
+     * @param token   用户权限码
+     * @param req     请求实体
+     * @param urlName 用于区分，可能后期替换不一样的接口
      */
     @Headers({"Content-Type: application/json"})
     @POST("/wpflock/share/updateUserType")
@@ -491,9 +536,10 @@ public interface ApiService {
 
     /**
      * 获取管理员下的所有分享用户
-     * @param token     用户权限码
-     * @param req       请求实体
-     * @param urlName   用于区分，可能后期替换不一样的接口
+     *
+     * @param token   用户权限码
+     * @param req     请求实体
+     * @param urlName 用于区分，可能后期替换不一样的接口
      */
     @Headers({"Content-Type: application/json"})
     @POST("/wpflock/share/userList")
@@ -501,9 +547,10 @@ public interface ApiService {
 
     /**
      * 设置胁迫密码邮箱
-     * @param token      用户权限码
-     * @param req        请求实体
-     * @param urlName    用于区分，可能后期替换不一样的接口
+     *
+     * @param token   用户权限码
+     * @param req     请求实体
+     * @param urlName 用于区分，可能后期替换不一样的接口
      */
     @Headers({"Content-Type: application/json"})
     @POST("/wpflock/set/duressEmail")
@@ -511,9 +558,10 @@ public interface ApiService {
 
     /**
      * 接收邀请
-     * @param token      用户权限码
-     * @param req        请求实体
-     * @param urlName    用于区分，可能后期替换不一样的接口
+     *
+     * @param token   用户权限码
+     * @param req     请求实体
+     * @param urlName 用于区分，可能后期替换不一样的接口
      */
     @Headers({"Content-Type: application/json"})
     @POST("/wpflock/share/add")
@@ -521,8 +569,9 @@ public interface ApiService {
 
     /**
      * 登出
-     * @param token         用户权限码
-     * @param urlName       用于区分，可能后期替换不一样的接口
+     *
+     * @param token   用户权限码
+     * @param urlName 用于区分，可能后期替换不一样的接口
      */
     @Headers({"Content-Type: application/json"})
     @POST("/user/logout")
@@ -530,9 +579,10 @@ public interface ApiService {
 
     /**
      * 设置/修改用户名称
-     * @param token       用户权限码
-     * @param req         请求实体
-     * @param urlName     用于区分，可能后期替换不一样的接口
+     *
+     * @param token   用户权限码
+     * @param req     请求实体
+     * @param urlName 用于区分，可能后期替换不一样的接口
      */
     @Headers({"Content-Type: application/json"})
     @POST("/user/edit/postUserName")
@@ -540,9 +590,10 @@ public interface ApiService {
 
     /**
      * 上传头像
-     * @param token           用户权限码
-     * @param partLis         图片文件
-     * @param urlName         用于区分，可能后期替换不一样的接口
+     *
+     * @param token   用户权限码
+     * @param partLis 图片文件
+     * @param urlName 用于区分，可能后期替换不一样的接口
      */
 //    @Headers({"Content-Type: multipart/form-data"})
     @Multipart
@@ -551,9 +602,10 @@ public interface ApiService {
 
     /**
      * 获取分享用户的设备列表
-     * @param token         用户权限码
-     * @param req           请求实体
-     * @param urlName       用于区分，可能后期替换不一样的接口
+     *
+     * @param token   用户权限码
+     * @param req     请求实体
+     * @param urlName 用于区分，可能后期替换不一样的接口
      */
     @Headers({"Content-Type: application/json"})
     @POST("/wpflock/user/devList")
@@ -561,9 +613,10 @@ public interface ApiService {
 
     /**
      * 获取操作记录
-     * @param token       用户权限码
-     * @param req         请求实体
-     * @param urlName     用于区分，可能后期替换不一样的接口
+     *
+     * @param token   用户权限码
+     * @param req     请求实体
+     * @param urlName 用于区分，可能后期替换不一样的接口
      */
     @Headers({"Content-Type: application/json"})
     @POST("/wpflock/operation/list")
@@ -571,9 +624,10 @@ public interface ApiService {
 
     /**
      * 上传操作记录
-     * @param token        用户权限码
-     * @param req          请求实体
-     * @param urlName      用于区分，可能后期替换不一样的接口
+     *
+     * @param token   用户权限码
+     * @param req     请求实体
+     * @param urlName 用于区分，可能后期替换不一样的接口
      */
     @Headers({"Content-Type: application/json"})
     @POST("/wpflock/device/uploadOperationList")
@@ -581,9 +635,10 @@ public interface ApiService {
 
     /**
      * 用户反馈接口
-     * @param token      用户权限码
-     * @param req        请求实体
-     * @param urlName    用于区分，可能后期替换不一样的接口
+     *
+     * @param token   用户权限码
+     * @param req     请求实体
+     * @param urlName 用于区分，可能后期替换不一样的接口
      */
     @Headers({"Content-Type: application/json"})
     @POST("/suggest/putmsg")
@@ -594,12 +649,53 @@ public interface ApiService {
     Observable<QuestionBeanRsp> faqList(@Header("token") String token, @Path("languageType") int languageType);
 
     /**
-     *  更新锁属性
-     * @param token      用户权限码
-     * @param req        请求实体
-     * @param urlName    用于区分，可能后期替换不一样的接口
+     * 更新锁属性
+     *
+     * @param token   用户权限码
+     * @param req     请求实体
+     * @param urlName 用于区分，可能后期替换不一样的接口
      */
     @Headers({"Content-Type: application/json"})
     @POST("/wpflock/device/updateLockAttributes")
     Observable<UpdateLockInfoRsp> updateLockInfo(@Header("token") String token, @Body UpdateLockInfoReq req, @Header("url_name") String urlName);
+
+    /**
+     * 系统消息列表
+     *
+     * @param token 用户权限码
+     * @param req   请求实体
+     */
+    @Headers({"Content-Type: application/json"})
+    @POST("/systemMessage/list")
+    Observable<SystemMessageListBeanRsp> systemMessageList(@Header("token") String token, @Body SystemMessageListReq req);
+
+    /**
+     * 系统消息删除
+     *
+     * @param token 用户权限码
+     * @param req   请求实体
+     */
+    @Headers({"Content-Type: application/json"})
+    @POST("/systemMessage/delete")
+    Observable<SystemMessageListBeanRsp> systemMessageDelete(@Header("token") String token, @Body DeleteSystemMessageReq req);
+
+    /**
+     * 获取Alexa App和LWA Web登陆url
+     *
+     * @param token 用户权限码
+     * @param req   请求实体
+     */
+    @Headers({"Content-Type: application/json"})
+    @POST("/user/edit/getAppUrlAndWebUrl")
+    Observable<AlexaAppUrlAndWebUrlBeanRsp> getAppUrlAndWebUrl(@Header("token") String token, @Body AlexaAppUrlAndWebUrlReq req);
+
+    /**
+     * 关联AlexaSkill并启用技能
+     *
+     * @param token 用户权限码
+     * @param req   请求实体
+     */
+    @Headers({"Content-Type: application/json"})
+    @POST("/zetark-oauth2-server/skillEnable")
+    Observable<AlexaSkillEnableBeanRsp> skillEnable(@Header("token") String token, @Body AlexaSkillEnableReq req);
 }

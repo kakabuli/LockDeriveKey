@@ -27,14 +27,34 @@ import timber.log.Timber;
 public class MineFragment extends Fragment {
 
     private MineViewModel mMineViewModel;
+    private ImageView ivAvatar;
+    private TextView tvDayDetail;
+    private TextView tvHiName;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
         mMineViewModel =
                 new ViewModelProvider(this).get(MineViewModel.class);
         View root = inflater.inflate(R.layout.fragment_mine, container, false);
-        final TextView tvHiName = root.findViewById(R.id.tvHiName);
-        final TextView tvDayDetail = root.findViewById(R.id.tvDayDetail);
+        tvHiName = root.findViewById(R.id.tvHiName);
+        tvDayDetail = root.findViewById(R.id.tvDayDetail);
+        root.findViewById(R.id.clUserDetail).setOnClickListener(v -> {
+            Intent intent = new Intent(getContext(), UserPageActivity.class);
+            startActivity(intent);
+        });
+        ivAvatar = root.findViewById(R.id.ivAvatar);
+        root.findViewById(R.id.clMessage).setOnClickListener(v -> startActivity(new Intent(getContext(), MessageListActivity.class)));
+        root.findViewById(R.id.clSetting).setOnClickListener(v -> startActivity(new Intent(getContext(), SettingActivity.class)));
+        root.findViewById(R.id.clAbout).setOnClickListener(v -> startActivity(new Intent(getContext(), AboutActivity.class)));
+        root.findViewById(R.id.clFeedback).setOnClickListener(v -> startActivity(new Intent(getContext(), FeedbackActivity.class)));
+        root.findViewById(R.id.clHelp).setOnClickListener(v -> startActivity(new Intent(getContext(), HelpActivity.class)));
+        return root;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
         mMineViewModel.getUser().observe(getViewLifecycleOwner(), user -> {
             String userName = user.getFirstName();
             // TODO: 2021/3/7 名字后面需要更改其他显示
@@ -42,17 +62,7 @@ public class MineFragment extends Fragment {
             long registerTime = user.getRegisterTime();
             tvDayDetail.setText(getString(R.string.day_detail, daysBetween(TimeUtils.getNowMills() / 1000, registerTime)));
         });
-        refreshAvatar(root, mMineViewModel.getUser().getValue());
-        root.findViewById(R.id.clUserDetail).setOnClickListener(v -> {
-            Intent intent = new Intent(getContext(), UserPageActivity.class);
-            startActivity(intent);
-        });
-        root.findViewById(R.id.clMessage).setOnClickListener(v -> startActivity(new Intent(getContext(), MessageListActivity.class)));
-        root.findViewById(R.id.clSetting).setOnClickListener(v -> startActivity(new Intent(getContext(), SettingActivity.class)));
-        root.findViewById(R.id.clAbout).setOnClickListener(v -> startActivity(new Intent(getContext(), AboutActivity.class)));
-        root.findViewById(R.id.clFeedback).setOnClickListener(v -> startActivity(new Intent(getContext(), FeedbackActivity.class)));
-        root.findViewById(R.id.clHelp).setOnClickListener(v -> startActivity(new Intent(getContext(), HelpActivity.class)));
-        return root;
+        refreshAvatar(mMineViewModel.getUser().getValue());
     }
 
     //计算间隔日，比较两个时间是否同一天，如果两个时间都是同一天的话，返回0。
@@ -62,7 +72,7 @@ public class MineFragment extends Fragment {
         return (int) ((now - createTime) / (3600 * 24));
     }
 
-    private void refreshAvatar(View root, User user) {
+    private void refreshAvatar(User user) {
         String avatarUrl = user.getAvatarUrl();
         String avatarLocalPath = user.getAvatarLocalPath();
         String url;
@@ -81,7 +91,6 @@ public class MineFragment extends Fragment {
                 .skipMemoryCache(true)                            //不做内存缓存
                 .error(R.drawable.mine_personal_img_headportrait_default)          //错误图片
                 .placeholder(R.drawable.mine_personal_img_headportrait_default);   //预加载图片
-        ImageView ivAvatar = root.findViewById(R.id.ivAvatar);
         Glide.with(this)
                 .load(url)
                 .placeholder(R.drawable.mine_personal_img_headportrait_default)

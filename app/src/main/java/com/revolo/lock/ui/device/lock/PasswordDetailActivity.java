@@ -1,6 +1,5 @@
 package com.revolo.lock.ui.device.lock;
 
-import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -50,10 +49,8 @@ import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 import org.jetbrains.annotations.NotNull;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 
 import io.reactivex.Observable;
@@ -117,6 +114,7 @@ public class PasswordDetailActivity extends BaseActivity {
         mTvPwdName = findViewById(R.id.tvPwdName);
         mTvPwd = findViewById(R.id.tvPwd);
         mTvCreationDate = findViewById(R.id.tvCreationDate);
+        mTvPwdCharacteristic  = findViewById(R.id.tvPwdCharacteristic);
         mTvPwdCharacteristic = findViewById(R.id.tvPwdCharacteristic);
         initZeroTimeZoneDate();
         initSucMessageDialog();
@@ -230,9 +228,9 @@ public class PasswordDetailActivity extends BaseActivity {
             long startTimeMill = devicePwdBean.getStartTime() * 1000;
             long endTimeMill = devicePwdBean.getEndTime() * 1000;
             detail = weekly
-                    + TimeUtils.millis2String(startTimeMill, mZeroTimeZoneDateFormat)
+                    + TimeUtils.millis2String(startTimeMill,"HH:mm")
                     + " - "
-                    + TimeUtils.millis2String(endTimeMill, mZeroTimeZoneDateFormat);
+                    + TimeUtils.millis2String(endTimeMill,"HH:mm");
         }
         return detail;
     }
@@ -519,17 +517,6 @@ public class PasswordDetailActivity extends BaseActivity {
 
             }
         });
-    }
-
-    /*------------------------------- 零时区的时间解析时间 ------------------------------*/
-
-    // 因为周策略的时间锁端用的是零时区时间设置的，所以需要转换为零时区时间设置
-    private SimpleDateFormat mZeroTimeZoneDateFormat;
-
-    @SuppressLint("SimpleDateFormat")
-    private void initZeroTimeZoneDate() {
-        mZeroTimeZoneDateFormat = new SimpleDateFormat("HH:mm");
-        mZeroTimeZoneDateFormat.setTimeZone(TimeZone.getTimeZone("GMT+0"));
     }
 
 }

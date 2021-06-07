@@ -1,24 +1,14 @@
 package com.revolo.lock.manager.mqtt;
 
 import android.text.TextUtils;
-import android.util.Log;
 
 import com.blankj.utilcode.util.GsonUtils;
-import com.google.gson.JsonSyntaxException;
 import com.revolo.lock.App;
 import com.revolo.lock.LocalState;
-import com.revolo.lock.manager.LockMessage;
-import com.revolo.lock.manager.LockMessageCode;
-import com.revolo.lock.manager.LockMessageRes;
 import com.revolo.lock.mqtt.MQttConstant;
 import com.revolo.lock.mqtt.bean.MqttData;
-import com.revolo.lock.mqtt.bean.eventbean.WifiLockOperationEventBean;
-import com.revolo.lock.mqtt.bean.publishresultbean.WifiLockAddPwdAttrResponseBean;
-import com.revolo.lock.mqtt.bean.publishresultbean.WifiLockAddPwdRspBean;
 import com.revolo.lock.mqtt.bean.publishresultbean.WifiLockApproachOpenResponseBean;
-import com.revolo.lock.mqtt.bean.publishresultbean.WifiLockBaseResponseBean;
 import com.revolo.lock.mqtt.bean.publishresultbean.WifiLockCloseWifiResponseBean;
-import com.revolo.lock.mqtt.bean.publishresultbean.WifiLockDoorOptResponseBean;
 import com.revolo.lock.mqtt.bean.publishresultbean.WifiLockGetAllBindDeviceRspBean;
 import com.revolo.lock.mqtt.bean.publishresultbean.WifiLockRemovePasswordResponseBean;
 import com.revolo.lock.mqtt.bean.publishresultbean.WifiLockSetLockAttrVolumeRspBean;
@@ -26,8 +16,6 @@ import com.revolo.lock.mqtt.bean.publishresultbean.WifiLockSetMagneticResponseBe
 import com.revolo.lock.mqtt.bean.publishresultbean.WifiLockUpdatePasswordResponseBean;
 import com.revolo.lock.room.AppDatabase;
 import com.revolo.lock.room.entity.BleDeviceLocal;
-
-import org.greenrobot.eventbus.EventBus;
 
 import java.util.List;
 
@@ -99,145 +87,34 @@ public class MQTTReply {
             }
         } else if (MQttConstant.SET_MAGNETIC.equals(mqttData.getFunc())) {
             // 设置门磁
-            try {
-                WifiLockSetMagneticResponseBean bean = GsonUtils.fromJson(mqttData.getPayload(), WifiLockSetMagneticResponseBean.class);
-                postMessage(LockMessageCode.MSG_LOCK_MESSAGE_CODE_SUCCESS, LockMessageCode.MSG_LOCK_MESSAGE_SET_MAGNETIC, bean);
-            } catch (JsonSyntaxException e) {
-                Timber.e(e);
-                postMessage(LockMessageCode.MSG_LOCK_MESSAGE_SET_MAGNETIC, LockMessageCode.MSG_LOCK_MESSAGE_SET_MAGNETIC, null);
-                return;
-            }
-
+            WifiLockSetMagneticResponseBean bean = GsonUtils.fromJson(mqttData.getPayload(), WifiLockSetMagneticResponseBean.class);
         } else if (MQttConstant.APP_ROACH_OPEN.equals(mqttData.getFunc())) {
             // 无感开门
-            try {
-                WifiLockApproachOpenResponseBean bean = GsonUtils.fromJson(mqttData.getPayload(), WifiLockApproachOpenResponseBean.class);
-                postMessage(LockMessageCode.MSG_LOCK_MESSAGE_CODE_SUCCESS, LockMessageCode.MSG_LOCK_MESSAGE_APP_ROACH_OPEN, bean);
-            } catch (JsonSyntaxException e) {
-                Timber.e(e);
-                postMessage(LockMessageCode.MSG_LOCK_MESSAGE_APP_ROACH_OPEN, LockMessageCode.MSG_LOCK_MESSAGE_APP_ROACH_OPEN, null);
-                return;
-            }
-
-
+            WifiLockApproachOpenResponseBean bean = GsonUtils.fromJson(mqttData.getPayload(), WifiLockApproachOpenResponseBean.class);
         } else if (MQttConstant.CLOSE_WIFI.equals(mqttData.getFunc())) {
             // 关闭wifi
-            try {
-                WifiLockCloseWifiResponseBean bean = GsonUtils.fromJson(mqttData.getPayload(), WifiLockCloseWifiResponseBean.class);
-                postMessage(LockMessageCode.MSG_LOCK_MESSAGE_CODE_SUCCESS, LockMessageCode.MSG_LOCK_MESSAGE_CLOSE_WIFI, bean);
-            } catch (JsonSyntaxException e) {
-                Timber.e(e);
-                postMessage(LockMessageCode.MSG_LOCK_MESSAGE_CLOSE_WIFI, LockMessageCode.MSG_LOCK_MESSAGE_CLOSE_WIFI,null);
-                return;
-            }
-
-
+            WifiLockCloseWifiResponseBean bean = GsonUtils.fromJson(mqttData.getPayload(), WifiLockCloseWifiResponseBean.class);
         } else if (MQttConstant.SET_LOCK.equals(mqttData.getFunc())) {
             // 开关门指令
-            try {
-                WifiLockDoorOptResponseBean
-                        bean = GsonUtils.fromJson(mqttData.getPayload(), WifiLockDoorOptResponseBean.class);
-                postMessage(LockMessageCode.MSG_LOCK_MESSAGE_CODE_SUCCESS, LockMessageCode.MSG_LOCK_MESSAGE_SET_LOCK, bean);
-            } catch (JsonSyntaxException e) {
-                Timber.e(e);
-                postMessage(LockMessageCode.MSG_LOCK_MESSAGE_SET_LOCK, LockMessageCode.MSG_LOCK_MESSAGE_SET_LOCK,null);
-                return;
-            }
         } else if (MQttConstant.CREATE_PWD.equals(mqttData.getFunc())) {
-            try {
-                WifiLockAddPwdRspBean bean = GsonUtils.fromJson(mqttData.getPayload(), WifiLockAddPwdRspBean.class);
-                postMessage(LockMessageCode.MSG_LOCK_MESSAGE_CODE_SUCCESS, LockMessageCode.MSG_LOCK_MESSAGE_CREATE_PWD, bean);
-            } catch (JsonSyntaxException e) {
-                Timber.e(e);
-                postMessage(LockMessageCode.MSG_LOCK_MESSAGE_CREATE_PWD, LockMessageCode.MSG_LOCK_MESSAGE_CREATE_PWD, null);
-                return;
-            }
-
-
         } else if (MQttConstant.ADD_PWD.equals(mqttData.getFunc())) {
             // 秘钥属性添加
-            try {
-                WifiLockAddPwdAttrResponseBean bean = GsonUtils.fromJson(mqttData.getPayload(), WifiLockAddPwdAttrResponseBean.class);
-                postMessage(LockMessageCode.MSG_LOCK_MESSAGE_CODE_SUCCESS, LockMessageCode.MSG_LOCK_MESSAGE_ADD_PWD, bean);
-            } catch (JsonSyntaxException e) {
-                Timber.e(e);
-                postMessage(LockMessageCode.MSG_LOCK_MESSAGE_ADD_PWD, LockMessageCode.MSG_LOCK_MESSAGE_ADD_PWD,null);
-                return;
-            }
-
-
         } else if (MQttConstant.UPDATE_PWD.equals(mqttData.getFunc())) {
             // 秘钥属性修改
-            try {
-                WifiLockUpdatePasswordResponseBean bean = GsonUtils.fromJson(mqttData.getPayload(), WifiLockUpdatePasswordResponseBean.class);
-                postMessage(LockMessageCode.MSG_LOCK_MESSAGE_CODE_SUCCESS, LockMessageCode.MSG_LOCK_MESSAGE_UPDATE_PWD, bean);
-            } catch (JsonSyntaxException e) {
-                Timber.e(e);
-                postMessage(LockMessageCode.MSG_LOCK_MESSAGE_UPDATE_PWD, LockMessageCode.MSG_LOCK_MESSAGE_UPDATE_PWD, null);
-                return;
-            }
-
-
+            WifiLockUpdatePasswordResponseBean bean = GsonUtils.fromJson(mqttData.getPayload(), WifiLockUpdatePasswordResponseBean.class);
         } else if (MQttConstant.REMOVE_PWD.equals(mqttData.getFunc())) {
             // 秘钥属性删除
-            try {
-                WifiLockRemovePasswordResponseBean bean = GsonUtils.fromJson(mqttData.getPayload(), WifiLockRemovePasswordResponseBean.class);
-                postMessage(LockMessageCode.MSG_LOCK_MESSAGE_CODE_SUCCESS, LockMessageCode.MSG_LOCK_MESSAGE_REMOVE_PWD, bean);
-            } catch (JsonSyntaxException e) {
-                Timber.e(e);
-                postMessage(LockMessageCode.MSG_LOCK_MESSAGE_REMOVE_PWD, LockMessageCode.MSG_LOCK_MESSAGE_REMOVE_PWD, null);
-                return;
-            }
-
-
+            WifiLockRemovePasswordResponseBean bean = GsonUtils.fromJson(mqttData.getPayload(), WifiLockRemovePasswordResponseBean.class);
         } else if (MQttConstant.GATEWAY_STATE.equals(mqttData.getFunc())) {
             // 获取网关状态
-            // postMessage(LockMessageCode.MSG_LOCK_MESSAGE_GATEWAY_STATE, );
         } else if (MQttConstant.SET_LOCK_ATTR.equals(mqttData.getFunc())) {
             // 设置门锁属性
-            try {
-                WifiLockSetLockAttrVolumeRspBean bean = GsonUtils.fromJson(mqttData.getPayload(), WifiLockSetLockAttrVolumeRspBean.class);
-                postMessage(LockMessageCode.MSG_LOCK_MESSAGE_CODE_SUCCESS, LockMessageCode.MSG_LOCK_MESSAGE_SET_LOCK, bean);
-            } catch (JsonSyntaxException e) {
-                Timber.e(e);
-                postMessage(LockMessageCode.MSG_LOCK_MESSAGE_SET_LOCK, LockMessageCode.MSG_LOCK_MESSAGE_SET_LOCK, null);
-                return;
-            }
-
-
+            WifiLockSetLockAttrVolumeRspBean bean = GsonUtils.fromJson(mqttData.getPayload(), WifiLockSetLockAttrVolumeRspBean.class);
         } else if (MQttConstant.WF_EVENT.equals(mqttData.getFunc())) {
             // 操作事件
-            try {
-                WifiLockOperationEventBean bean = GsonUtils.fromJson(mqttData.getPayload(), WifiLockOperationEventBean.class);
-                postMessage(LockMessageCode.MSG_LOCK_MESSAGE_CODE_SUCCESS, LockMessageCode.MSG_LOCK_MESSAGE_WF_EVEN, bean);
-            } catch (JsonSyntaxException e) {
-                Timber.e(e);
-                postMessage(LockMessageCode.MSG_LOCK_MESSAGE_WF_EVEN, LockMessageCode.MSG_LOCK_MESSAGE_WF_EVEN, null);
-                return;
-            }
-
         } else if (MQttConstant.RECORD.equals(mqttData.getFunc())) {
             // 记录
-            WifiLockOperationEventBean bean;
-            try {
-                bean = GsonUtils.fromJson(mqttData.getPayload(), WifiLockOperationEventBean.class);
-                postMessage(LockMessageCode.MSG_LOCK_MESSAGE_CODE_SUCCESS, LockMessageCode.MSG_LOCK_MESSAGE_RECORD, bean);
-            } catch (JsonSyntaxException e) {
-                Timber.e(e);
-                postMessage(LockMessageCode.MSG_LOCK_MESSAGE_RECORD, LockMessageCode.MSG_LOCK_MESSAGE_RECORD, null);
-                return;
-            }
-
         }
-    }
-
-    public void postMessage(int resultCode, int messageCode, WifiLockBaseResponseBean bean) {
-        LockMessageRes messageRes = new LockMessageRes();
-        messageRes.setResultCode(resultCode);//操作完成
-        messageRes.setMessgaeType(LockMessageCode.MSG_LOCK_MESSAGE_MQTT);
-        messageRes.setMessageCode(messageCode);
-        messageRes.setWifiLockBaseResponseBean(bean);
-        EventBus.getDefault().post(messageRes);
     }
 
     /**

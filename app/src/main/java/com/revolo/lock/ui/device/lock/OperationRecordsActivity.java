@@ -106,7 +106,7 @@ public class OperationRecordsActivity extends BaseActivity {
     @Override
     public void initView(@Nullable Bundle savedInstanceState, @Nullable View contentView) {
         useCommonTitleBar(getString(R.string.tip_activities))
-                .setRight(ContextCompat.getDrawable(this, R.drawable.ic_icon_date), v -> {
+                .setRight(R.drawable.ic_icon_date, v -> {
                     showDatePicker();
                 });
         mElOperationRecords = findViewById(R.id.elOperationRecords);

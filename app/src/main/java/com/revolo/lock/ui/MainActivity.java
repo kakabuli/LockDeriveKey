@@ -38,7 +38,7 @@ public class MainActivity extends BaseActivity {
     private int isMainItemIndex = -1;
     private FragmentManager mSupportFragmentManager;
     private FragmentTransaction mTransaction;
-    private List<Fragment> mFragments = new ArrayList<>();
+    private final List<Fragment> mFragments = new ArrayList<>();
     private DeviceFragment deviceFragment;
     private UserFragment userFragment;
     private MineFragment mineFragment;

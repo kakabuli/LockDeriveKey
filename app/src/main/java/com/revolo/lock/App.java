@@ -12,6 +12,8 @@ import android.os.IBinder;
 import android.os.Looper;
 import android.text.TextUtils;
 
+import androidx.annotation.NonNull;
+
 import com.a1anwang.okble.client.core.OKBLEDeviceImp;
 import com.a1anwang.okble.client.core.OKBLEDeviceListener;
 import com.a1anwang.okble.client.core.OKBLEOperation;
@@ -32,9 +34,8 @@ import com.revolo.lock.ble.BleResultProcess;
 import com.revolo.lock.ble.OnBleDeviceListener;
 import com.revolo.lock.ble.bean.BleBean;
 import com.revolo.lock.ble.bean.BleResultBean;
-import com.revolo.lock.manager.LockAppService;
-import com.revolo.lock.mqtt.MqttCommandFactory;
 import com.revolo.lock.mqtt.MQttConstant;
+import com.revolo.lock.mqtt.MqttCommandFactory;
 import com.revolo.lock.mqtt.MqttService;
 import com.revolo.lock.mqtt.bean.MqttData;
 import com.revolo.lock.mqtt.bean.publishresultbean.WifiLockApproachOpenResponseBean;
@@ -548,15 +549,15 @@ public class App extends Application {
 
     public void logout(boolean isShowDialog, Activity act) {
         // TODO: 2021/3/30 logout的数据操作
-        User user = App.getInstance().getUser();
-        user.setUseFaceId(false);
-        user.setUseTouchId(false);
-        user.setUseGesturePassword(false);
-        user.setGestureCode("");
-        AppDatabase.getInstance(getApplicationContext()).userDao().update(user);
-        AppDatabase.getInstance(getApplicationContext()).userDao().delete(user);
-        App.getInstance().getUserBean().setToken(""); // 清空token
-        SPUtils.getInstance(REVOLO_SP).put(Constant.USER_LOGIN_INFO, ""); // 清空登录信息
+        clearAndDisconnectAllDevice();
+        new Thread(){
+            @Override
+            public void run() {
+                super.run();
+                // 不要删除用户数据，你只做更新
+                SPUtils.getInstance(REVOLO_SP).put(Constant.USER_LOGIN_INFO, ""); // 清空登录信息
+            }
+        }.start();
         // TODO: 2021/3/30 退出操作
         if (App.getInstance().getMainActivity() != null) {
             App.getInstance().getMainActivity().finish();
@@ -619,6 +620,37 @@ public class App extends Application {
     public void setScanCallBack(DeviceScanCallBack scanCallBack) {
         mScanManager.setScanCallBack(scanCallBack);
         mScanManager.setScanDuration(20 * 1000);
+    }
+
+    public void scanAndConnectDevice(@NonNull String deviceMac, byte[] pwd1, byte[] pwd2,
+                                     OnBleDeviceListener onBleDeviceListener,
+                                     @NonNull OnScanAndConnectResultListener connectResultListener) {
+        OKBLEScanManager scanManager = getScanManager();
+        setScanCallBack(new DeviceScanCallBack() {
+            @Override
+            public void onBLEDeviceScan(BLEScanResult bleScanResult, int i) {
+                if(bleScanResult.getMacAddress().equalsIgnoreCase(deviceMac)) {
+                    getScanManager().stopScan();
+                    BleBean bleBean = connectDevice(bleScanResult, pwd1, pwd2, onBleDeviceListener, false);
+                    connectResultListener.connectResult(bleBean, bleScanResult);
+                }
+            }
+
+            @Override
+            public void onFailed(int i) {
+
+            }
+
+            @Override
+            public void onStartSuccess() {
+
+            }
+        });
+        scanManager.startScan();
+    }
+
+    public interface OnScanAndConnectResultListener {
+        void connectResult(BleBean bleBean, BLEScanResult bleScanResult);
     }
 
     /*-------------------------------- 地理围栏设备 ---------------------------------*/

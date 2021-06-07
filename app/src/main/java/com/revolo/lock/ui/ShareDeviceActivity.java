@@ -1,5 +1,6 @@
 package com.revolo.lock.ui;
 
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -37,26 +38,33 @@ public class ShareDeviceActivity extends BaseActivity {
 
     @Override
     public void initData(@Nullable Bundle bundle) {
-        Uri uri = getIntent().getData();
-        // TODO: 2021/3/12 弹出对应的提示
-        if(uri == null) {
-            finish();
-            return;
-        }
-        mShareKey = uri.getQueryParameter("shareKey");
-        if(TextUtils.isEmpty(mShareKey)) {
-            finish();
-            return;
-        }
-        mUserName = uri.getQueryParameter("userName");
-        if(TextUtils.isEmpty(mUserName)) {
-            finish();
-            return;
-        }
-        mLockName = uri.getQueryParameter("lockName");
-        if(TextUtils.isEmpty(mLockName)) {
-            finish();
-        }
+        getShareUserIntent(getIntent());
+//        Uri uri = getIntent().getData();
+//        // TODO: 2021/3/12 弹出对应的提示
+//        if(uri == null) {
+//            finish();
+//            return;
+//        }
+//        mShareKey = uri.getQueryParameter("shareKey");
+//        if(TextUtils.isEmpty(mShareKey)) {
+//            finish();
+//            return;
+//        }
+//        mUserName = uri.getQueryParameter("userName");
+//        if(TextUtils.isEmpty(mUserName)) {
+//            finish();
+//            return;
+//        }
+//        mLockName = uri.getQueryParameter("lockName");
+//        if(TextUtils.isEmpty(mLockName)) {
+//            finish();
+//        }
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        getShareUserIntent(getIntent());
     }
 
     @Override
@@ -164,6 +172,18 @@ public class ShareDeviceActivity extends BaseActivity {
 
             }
         });
+    }
+
+    private void getShareUserIntent(Intent intent) {
+        String action = intent.getAction();
+        if(Intent.ACTION_VIEW.equals(action)) {
+            Uri data = getIntent().getData();
+
+            if (data != null) {
+                String shareKey = data.getQueryParameter("shareKey");
+                Timber.d("shareKey: %1s", shareKey);
+            }
+        }
     }
 
 }

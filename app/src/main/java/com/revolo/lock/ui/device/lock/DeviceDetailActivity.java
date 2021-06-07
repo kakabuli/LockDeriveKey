@@ -104,7 +104,7 @@ public class DeviceDetailActivity extends BaseActivity {
     public void initView(@Nullable Bundle savedInstanceState, @Nullable View contentView) {
         // TODO: 2021/4/6 抽离文字
         BleDeviceLocal mBleDeviceLocal = App.getInstance().getBleDeviceLocal();
-        if (null != mBleDeviceLocal && null != mBleDeviceLocal.getName() && !"".equals(mBleDeviceLocal.getName())) {
+        if (null != mBleDeviceLocal && null != mBleDeviceLocal.getName() && !"".equals(mBleDeviceLocal.getName()) && !mBleDeviceLocal.getEsn().equals(mBleDeviceLocal.getName())) {
             useCommonTitleBar(mBleDeviceLocal.getName());
         } else {
             useCommonTitleBar("Homepage");
@@ -736,5 +736,4 @@ public class DeviceDetailActivity extends BaseActivity {
             }
         }
     };
-
 }

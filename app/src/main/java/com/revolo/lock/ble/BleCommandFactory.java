@@ -142,8 +142,13 @@ public class BleCommandFactory {
      */
     private static byte[] pwdEncrypt(byte[] needEncryptData, byte[] pwd1, byte[] pwd2Or3, byte[] command) {
         if(pwd1.length != 16) {
-            Timber.e("pwdEncrypt pwd1 key的长度错误，请检查输入的数据 size: %1d", pwd1.length);
-            return new byte[20];
+            if(pwd1.length != 12) {
+                Timber.e("pwdEncrypt pwd1 key的长度错误，请检查输入的数据 size: %1d", pwd1.length);
+                return new byte[20];
+            }
+            byte[] pwdTemp = new byte[16];
+            System.arraycopy(pwd1, 0, pwdTemp, 0, pwd1.length);
+            pwd1 = pwdTemp;
         }
         if(pwd2Or3.length != 4) {
             Timber.e("pwdEncrypt pwd2 key的长度错误，请检查输入的数据 size: %1d", pwd2Or3.length);

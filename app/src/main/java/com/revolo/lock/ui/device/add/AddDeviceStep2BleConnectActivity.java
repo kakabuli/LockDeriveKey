@@ -2,6 +2,7 @@ package com.revolo.lock.ui.device.add;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
@@ -28,9 +29,11 @@ import com.revolo.lock.base.BaseActivity;
 import com.revolo.lock.bean.request.AdminAddDeviceBeanReq;
 import com.revolo.lock.bean.request.GetPwd1BeanReq;
 import com.revolo.lock.bean.request.LockIsBindBeanReq;
+import com.revolo.lock.bean.request.UpdateLockInfoReq;
 import com.revolo.lock.bean.respone.AdminAddDeviceBeanRsp;
 import com.revolo.lock.bean.respone.GetPwd1BeanRsp;
 import com.revolo.lock.bean.respone.LockIsBindBeanRsp;
+import com.revolo.lock.bean.respone.UpdateLockInfoRsp;
 import com.revolo.lock.ble.BleByteUtil;
 import com.revolo.lock.ble.BleCommandFactory;
 import com.revolo.lock.ble.BleProtocolState;
@@ -78,6 +81,7 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
     private int mPreA = mDefault;
     private String mEsn;
     private String mMac;
+    private boolean isRestartConnectingBle = true;
 
     @Override
     public void initData(@Nullable Bundle bundle) {
@@ -173,12 +177,28 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
 
     @Override
     public void doBusiness() {
+        mCountDownTimer.start();
         if (mPreA == mQRPre || mPreA == mESNPre) {
             checkDeviceIsBind();
         } else {
             gotoBleConnectFail();
         }
     }
+
+    private final CountDownTimer mCountDownTimer = new CountDownTimer(60000, 1000) {
+        @Override
+        public void onTick(long millisUntilFinished) {
+            if (!isRestartConnectingBle) {
+                mCountDownTimer.cancel();
+            }
+        }
+
+        @Override
+        public void onFinish() {
+            isRestartConnectingBle = false;
+            gotoBleConnectFail();
+        }
+    };
 
     @Override
     public void onDebouncingClick(@NonNull View view) {
@@ -208,6 +228,9 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
         //BleBean bleBean = App.getInstance().getBleBeanFromMac(mMac);
         if (bleBean != null) {
             bleBean.setAppPair(false);
+        }
+        if (mCountDownTimer != null) {
+            mCountDownTimer.cancel();
         }
         super.onDestroy();
     }
@@ -379,6 +402,7 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
             bleDeviceLocal.setCreateTime(TimeUtils.getNowMills() / 1000);
             long deviceId = AppDatabase.getInstance(this).bleDeviceDao().insert(bleDeviceLocal);
             BleDeviceLocal deviceLocal = AppDatabase.getInstance(this).bleDeviceDao().findBleDeviceFromId(deviceId);
+            Timber.d("addDeviceToLocal autoTime: %1d", bleDeviceLocal.getSetAutoLockTime());
             App.getInstance().setBleDeviceLocal(deviceLocal);
             App.getInstance().addBleDeviceLocal(deviceLocal);
         }
@@ -467,6 +491,7 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
             @Override
             public void onFailed(int code) {
                 bleScanFailed(code);
+                gotoBleConnectFail();
             }
 
             @Override

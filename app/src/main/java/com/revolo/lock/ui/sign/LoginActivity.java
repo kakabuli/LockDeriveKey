@@ -22,6 +22,7 @@ import com.blankj.utilcode.util.ThreadUtils;
 import com.blankj.utilcode.util.TimeUtils;
 import com.blankj.utilcode.util.ToastUtils;
 import com.revolo.lock.App;
+import com.revolo.lock.BuildConfig;
 import com.revolo.lock.Constant;
 import com.revolo.lock.R;
 import com.revolo.lock.base.BaseActivity;
@@ -101,10 +102,14 @@ public class LoginActivity extends BaseActivity {
             emailName = mail;
             mEtEmail.setText(mail);
         } else {
-            emailName = "zhouguimin@kaadas.com";
-            mEtEmail.setText("zhouguimin@kaadas.com");
+            if (BuildConfig.DEBUG) {
+                emailName = "zhouguimin@kaadas.com";
+                mEtEmail.setText("zhouguimin@kaadas.com");
+            }
         }
-        mEtPwd.setText("zgm123456");
+        if (BuildConfig.DEBUG) {
+            mEtPwd.setText("zgm123456");
+        }
         initLoading("Loading...");
     }
 
@@ -162,6 +167,10 @@ public class LoginActivity extends BaseActivity {
         }
         if (TextUtils.isEmpty(pwd)) {
             ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_please_input_your_pwd);
+            return;
+        }
+        if (!RegexUtils.isMatch("^(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{6,15}$", pwd)) {
+            ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_please_input_right_pwd);
             return;
         }
         showLoading();

@@ -70,14 +70,14 @@ public class DrawHandPwdAutoLoginActivity extends BaseActivity {
                 User user = App.getInstance().getUser();
                 // 获取缓存手势密码成功的值
                 String code = user.getGestureCode();
-                if(inputCode.equals(code)) {
+                if (inputCode.equals(code)) {
                     setResult(RESULT_OK);
                     autoLogin();
-                   // new Handler(Looper.getMainLooper()).postDelayed(() -> finish(), 50);
+                    // new Handler(Looper.getMainLooper()).postDelayed(() -> finish(), 50);
                 } else {
-                    if(mCount == 0) {
+                    if (mCount == 0) {
                         setResult(RESULT_CANCELED);
-                        Intent intent=new Intent(DrawHandPwdAutoLoginActivity.this,SignSelectActivity.class);
+                        Intent intent = new Intent(DrawHandPwdAutoLoginActivity.this, SignSelectActivity.class);
                         startActivity(intent);
                         finish();
                         //new Handler(Looper.getMainLooper()).postDelayed(() -> finish(), 50);
@@ -103,13 +103,18 @@ public class DrawHandPwdAutoLoginActivity extends BaseActivity {
         });
         // 设置手势解锁显示到哪个布局里面
         mGestureContentView.setParentView(gestureContainer);
+
+        findViewById(R.id.tv_more_unlock).setOnClickListener(v -> {
+            startActivity(new Intent(this, LoginActivity.class));
+            finish();
+        });
     }
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if(keyCode==KeyEvent.KEYCODE_BACK&&event.getRepeatCount()==0){
-            Intent intent=new Intent(DrawHandPwdAutoLoginActivity.this,SignSelectActivity.class);
-            intent.putExtra(Constant.SIGN_SELECT_MODE,"draw");
+        if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0) {
+            Intent intent = new Intent(DrawHandPwdAutoLoginActivity.this, SignSelectActivity.class);
+            intent.putExtra(Constant.SIGN_SELECT_MODE, "draw");
             startActivity(intent);
             finish();
             return true;
@@ -133,18 +138,19 @@ public class DrawHandPwdAutoLoginActivity extends BaseActivity {
         }
         return true;
     }
+
     private void autoLogin() {
         String loginJson = SPUtils.getInstance(REVOLO_SP).getString(Constant.USER_LOGIN_INFO);
-        if(TextUtils.isEmpty(loginJson)) {
+        if (TextUtils.isEmpty(loginJson)) {
             return;
         }
         MailLoginBeanRsp.DataBean dataBean = GsonUtils.fromJson(loginJson, MailLoginBeanRsp.DataBean.class);
-        if(dataBean == null) {
+        if (dataBean == null) {
             return;
         }
         App.getInstance().setUserBean(dataBean);
         User user = App.getInstance().getUser();
-        if(user == null) {
+        if (user == null) {
             return;
         }
         new Handler(Looper.getMainLooper()).postDelayed(() -> {

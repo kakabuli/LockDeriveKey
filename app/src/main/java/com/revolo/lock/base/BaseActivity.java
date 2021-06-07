@@ -1,8 +1,6 @@
 package com.revolo.lock.base;
 
 import android.app.Activity;
-import android.content.Context;
-import android.content.Intent;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.util.Log;
@@ -28,11 +26,9 @@ import com.revolo.lock.manager.LockConnected;
 import com.revolo.lock.mqtt.MqttService;
 import com.revolo.lock.shulan.KeepAliveManager;
 import com.revolo.lock.shulan.config.ForegroundNotification;
-import com.revolo.lock.shulan.config.ForegroundNotificationClickListener;
 import com.revolo.lock.shulan.config.RunMode;
 import com.revolo.lock.ui.TitleBar;
 
-import org.greenrobot.eventbus.EventBus;
 import org.jetbrains.annotations.NotNull;
 
 import io.reactivex.disposables.CompositeDisposable;
@@ -140,12 +136,9 @@ public abstract class BaseActivity extends AppCompatActivity
                 R.mipmap.ic_launcher,
                 new ForegroundNotification(
                         //定义前台服务的通知点击事件
-                        new ForegroundNotificationClickListener() {
-                            @Override
-                            public void foregroundNotificationClick(Context context, Intent intent) {
-                                Timber.e("JOB-->  foregroundNotificationClick");
+                        (context, intent) -> {
+                            Timber.e("JOB-->  foregroundNotificationClick");
 //                                stopKeepAlive();
-                            }
                         })
         );
     }
