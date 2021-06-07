@@ -116,7 +116,7 @@ public class PasswordDetailActivity extends BaseActivity {
         mTvCreationDate = findViewById(R.id.tvCreationDate);
         mTvPwdCharacteristic  = findViewById(R.id.tvPwdCharacteristic);
         mTvPwdCharacteristic = findViewById(R.id.tvPwdCharacteristic);
-        initZeroTimeZoneDate();
+     //   initZeroTimeZoneDate();
         initSucMessageDialog();
         initFailMessageDialog();
         initLoading("Deleting...");

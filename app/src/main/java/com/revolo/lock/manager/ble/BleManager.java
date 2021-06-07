@@ -130,13 +130,24 @@ public class BleManager {
         }
     }
 
+    public void removeBleConnected() {
+        if (null != mConnectedBleBeanList) {
+            for (BleBean bleBean : mConnectedBleBeanList) {
+                if (null != bleBean.getOKBLEDeviceImp()) {
+                    removeConnectedBleBeanAndDisconnect(bleBean);
+                }
+            }
+
+        }
+    }
+
     public List<BleBean> getBleBeans() {
         return mConnectedBleBeanList;
     }
 
     public BleBean getBleBeanFromMac(@NotNull String mac) {
         for (BleBean bleBean : mConnectedBleBeanList) {
-            if(null==bleBean.getOKBLEDeviceImp()||null==bleBean.getOKBLEDeviceImp().getMacAddress()){
+            if (null == bleBean.getOKBLEDeviceImp() || null == bleBean.getOKBLEDeviceImp().getMacAddress()) {
                 continue;
             }
             if (bleBean.getOKBLEDeviceImp().getMacAddress().equals(mac)) {
@@ -148,7 +159,7 @@ public class BleManager {
 
     public boolean getBleBeanCoonectedState(@NotNull String mac) {
         for (BleBean bleBean : mConnectedBleBeanList) {
-            if(null==bleBean.getOKBLEDeviceImp()||null==bleBean.getOKBLEDeviceImp().getMacAddress()){
+            if (null == bleBean.getOKBLEDeviceImp() || null == bleBean.getOKBLEDeviceImp().getMacAddress()) {
                 continue;
             }
             if (bleBean.getOKBLEDeviceImp().getMacAddress().equals(mac)) {

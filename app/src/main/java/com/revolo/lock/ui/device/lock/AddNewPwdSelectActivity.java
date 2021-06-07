@@ -464,30 +464,30 @@ public class AddNewPwdSelectActivity extends BaseActivity {
     private void showTimePicker(@IdRes int id) {
         TimePickerDialog timePickerDialog = new TimePickerDialog(this, R.style.MyTimePickerDialogTheme,
                 (view, hourOfDay, minute) -> {
-                    String time = (hourOfDay < 10 ? "0" + hourOfDay : hourOfDay) + ":" + (minute < 10 ? "0" + minute : minute);
-                    if (id == R.id.tvStartTime) {
-                        long scheduleStartTimeMill = TimeUtils.string2Millis(mNowDateStr + " " + time + ":00", mZeroTimeZoneDateFormat);
-                        if (scheduleStartTimeMill > mScheduleEndTimeMill) {
+                    String time = (hourOfDay<10?"0"+hourOfDay:hourOfDay)+":"+(minute<10?"0"+minute:minute);
+                    if(id == R.id.tvStartTime) {
+                        long scheduleStartTimeMill = TimeUtils.string2Millis(mNowDateStr + " " + time + ":00");
+                        if(scheduleStartTimeMill > mScheduleEndTimeMill) {
                             // 开始时间大于结束时间
                             ToastUtils.showShort(R.string.t_the_start_time_cannot_be_greater_than_the_end_time);
                             return;
                         }
                         mTvStartTime.setText(time);
                         mScheduleStartTimeMill = scheduleStartTimeMill;
-                        Timber.d("startTime 选择的时间%1s, 时间流：%2d, 转换的时间：%3s", time, mScheduleStartTimeMill, TimeUtils.millis2String(mScheduleStartTimeMill, mZeroTimeZoneDateFormat));
-                    } else if (id == R.id.tvEndTime) {
-                        long scheduleEndTimeMill = TimeUtils.string2Millis(mNowDateStr + " " + time + ":00", mZeroTimeZoneDateFormat);
-                        if (scheduleEndTimeMill < mScheduleStartTimeMill) {
+                        Timber.d("startTime 选择的时间%1s, 时间流：%2d, 转换的时间：%3s",time, mScheduleStartTimeMill, TimeUtils.millis2String(mScheduleStartTimeMill));
+                    } else if(id == R.id.tvEndTime) {
+                        long scheduleEndTimeMill = TimeUtils.string2Millis(mNowDateStr + " " + time + ":00");
+                        if(scheduleEndTimeMill < mScheduleStartTimeMill) {
                             // 结束时间小于开始时间
                             ToastUtils.showShort(R.string.t_the_end_time_cannot_be_less_than_the_start_time);
                             return;
                         }
                         mTvEndTime.setText(time);
                         mScheduleEndTimeMill = scheduleEndTimeMill;
-                        Timber.d("endTime 选择的时间%1s, 时间流：%2d, 转换的时间：%3s", time, mScheduleEndTimeMill, TimeUtils.millis2String(mScheduleEndTimeMill, mZeroTimeZoneDateFormat));
-                    } else if (id == R.id.tvEndDateTime) {
+                        Timber.d("endTime 选择的时间%1s, 时间流：%2d, 转换的时间：%3s",time, mScheduleEndTimeMill, TimeUtils.millis2String(mScheduleEndTimeMill));
+                    } else if(id == R.id.tvEndDateTime) {
                         long temEndDateTimeMill = TimeUtils.string2Millis(mTemEndDateStr + " " + time + ":00");
-                        if (temEndDateTimeMill < mTemStartDateTimeMill) {
+                        if(temEndDateTimeMill < mTemStartDateTimeMill) {
                             // 结束时间小于开始时间
                             ToastUtils.showShort(R.string.t_the_end_time_cannot_be_less_than_the_start_time);
                             return;
@@ -495,10 +495,10 @@ public class AddNewPwdSelectActivity extends BaseActivity {
                         mTvEndDateTime.setText(time);
                         mTemEndDateTimeStr = time;
                         mTemEndDateTimeMill = temEndDateTimeMill;
-                        Timber.d("endDateTime 选择的时间%1s, 时间流：%2d", time, mTemEndDateTimeMill);
-                    } else if (id == R.id.tvStartDateTime) {
+                        Timber.d("endDateTime 选择的时间%1s, 时间流：%2d",time, mTemEndDateTimeMill);
+                    } else if(id == R.id.tvStartDateTime) {
                         long temStartDateTimeMill = TimeUtils.string2Millis(mTemStartDateStr + " " + time + ":00");
-                        if (temStartDateTimeMill > mTemEndDateTimeMill) {
+                        if(temStartDateTimeMill > mTemEndDateTimeMill) {
                             // 开始时间大于结束时间
                             ToastUtils.showShort(R.string.t_the_start_time_cannot_be_greater_than_the_end_time);
                             return;
@@ -506,56 +506,12 @@ public class AddNewPwdSelectActivity extends BaseActivity {
                         mTvStartDateTime.setText(time);
                         mTemStartDateTimeStr = time;
                         mTemStartDateTimeMill = temStartDateTimeMill;
-                        Timber.d("startDateTime 选择的时间%1s, 时间流：%2d", time, mTemStartDateTimeMill);
+                        Timber.d("startDateTime 选择的时间%1s, 时间流：%2d",time, mTemStartDateTimeMill);
                     }
-                }, 0, 0, true);
-            String time = (hourOfDay<10?"0"+hourOfDay:hourOfDay)+":"+(minute<10?"0"+minute:minute);
-            if(id == R.id.tvStartTime) {
-                long scheduleStartTimeMill = TimeUtils.string2Millis(mNowDateStr + " " + time + ":00");
-                if(scheduleStartTimeMill > mScheduleEndTimeMill) {
-                    // 开始时间大于结束时间
-                    ToastUtils.showShort(R.string.t_the_start_time_cannot_be_greater_than_the_end_time);
-                    return;
-                }
-                mTvStartTime.setText(time);
-                mScheduleStartTimeMill = scheduleStartTimeMill;
-                Timber.d("startTime 选择的时间%1s, 时间流：%2d, 转换的时间：%3s",time, mScheduleStartTimeMill, TimeUtils.millis2String(mScheduleStartTimeMill));
-            } else if(id == R.id.tvEndTime) {
-                long scheduleEndTimeMill = TimeUtils.string2Millis(mNowDateStr + " " + time + ":00");
-                if(scheduleEndTimeMill < mScheduleStartTimeMill) {
-                    // 结束时间小于开始时间
-                    ToastUtils.showShort(R.string.t_the_end_time_cannot_be_less_than_the_start_time);
-                    return;
-                }
-                mTvEndTime.setText(time);
-                mScheduleEndTimeMill = scheduleEndTimeMill;
-                Timber.d("endTime 选择的时间%1s, 时间流：%2d, 转换的时间：%3s",time, mScheduleEndTimeMill, TimeUtils.millis2String(mScheduleEndTimeMill));
-            } else if(id == R.id.tvEndDateTime) {
-                long temEndDateTimeMill = TimeUtils.string2Millis(mTemEndDateStr + " " + time + ":00");
-                if(temEndDateTimeMill < mTemStartDateTimeMill) {
-                    // 结束时间小于开始时间
-                    ToastUtils.showShort(R.string.t_the_end_time_cannot_be_less_than_the_start_time);
-                    return;
-                }
-                mTvEndDateTime.setText(time);
-                mTemEndDateTimeStr = time;
-                mTemEndDateTimeMill = temEndDateTimeMill;
-                Timber.d("endDateTime 选择的时间%1s, 时间流：%2d",time, mTemEndDateTimeMill);
-            } else if(id == R.id.tvStartDateTime) {
-                long temStartDateTimeMill = TimeUtils.string2Millis(mTemStartDateStr + " " + time + ":00");
-                if(temStartDateTimeMill > mTemEndDateTimeMill) {
-                    // 开始时间大于结束时间
-                    ToastUtils.showShort(R.string.t_the_start_time_cannot_be_greater_than_the_end_time);
-                    return;
-                }
-                mTvStartDateTime.setText(time);
-                mTemStartDateTimeStr = time;
-                mTemStartDateTimeMill = temStartDateTimeMill;
-                Timber.d("startDateTime 选择的时间%1s, 时间流：%2d",time, mTemStartDateTimeMill);
-            }
-        }, 0,0, true);
+                }, 0,0, true);
         timePickerDialog.show();
     }
+
 
     private void showDatePicker(@IdRes int id) {
         DatePickerDialog datePickerDialog = new DatePickerDialog(this, R.style.MyTimePickerDialogTheme);

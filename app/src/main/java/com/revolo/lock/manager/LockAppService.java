@@ -351,6 +351,13 @@ public class LockAppService extends Service {
 
     }
 
+    public void removeDeviceList() {
+        if (null != mDeviceLists) {
+            mDeviceLists.clear();
+        }
+        BleManager.getInstance().removeBleConnected();
+    }
+
     /**
      * 根据sn码或是mac 情景：1、MQTT断开【1、App断开，2、设备断开】，2、WIFI或者网络关闭 ，3、设备蓝牙断开，4，蓝牙关闭
      *
@@ -1219,7 +1226,7 @@ public class LockAppService extends Service {
                         mAppMqttMessage = null;
                     }
                 }, e -> {
-                   pushErrMessage(message.getMqtt_message_code());
+                    pushErrMessage(message.getMqtt_message_code());
                     if (null != mAppMqttMessage) {
                         toDisposable(mAppMqttMessage);
                         mAppMqttMessage = null;

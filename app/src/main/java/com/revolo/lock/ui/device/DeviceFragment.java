@@ -167,9 +167,9 @@ public class DeviceFragment extends Fragment {
         super.onResume();
         refreshGetAllBindDevicesFromMQTT();
         initBaseData();
-        initData(mBleDeviceLocals);
+        /*initData(mBleDeviceLocals);
         initSignalWeakDialog();
-        initWfEven();
+        initWfEven();*/
 //        mDeviceViewModel.refreshGetAllBindDevicesFromMQTT();
     }
 
@@ -313,22 +313,6 @@ public class DeviceFragment extends Fragment {
         lockMessage.setBytes(null);
         pushMessage(lockMessage);
     }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        mBleDeviceLocals = App.getInstance().getDeviceLists();
-        mHomeLockListAdapter.setList(mBleDeviceLocals);
-        initBaseData();
-        refreshGetAllBindDevicesFromMQTT();
-        // mHomeLockListAdapter.setList(mBleDeviceLocals);
-        // initSignalWeakDialog();
-        // initData(mBleDeviceLocals);
-
-        //       initWfEven();
-//        mDeviceViewModel.refreshGetAllBindDevicesFromMQTT();
-    }
-
 
     private void updateData(List<BleDeviceLocal> locals) {
         if (locals != null) {

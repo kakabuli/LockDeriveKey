@@ -6,39 +6,19 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.os.CountDownTimer;
-import android.os.Handler;
 import android.os.IBinder;
-import android.os.Looper;
-import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
 
-import com.a1anwang.okble.client.core.OKBLEDeviceImp;
-import com.a1anwang.okble.client.core.OKBLEDeviceListener;
-import com.a1anwang.okble.client.core.OKBLEOperation;
 import com.a1anwang.okble.client.scan.BLEScanResult;
 import com.a1anwang.okble.client.scan.DeviceScanCallBack;
 import com.a1anwang.okble.client.scan.OKBLEScanManager;
 import com.blankj.utilcode.util.ActivityUtils;
-import com.blankj.utilcode.util.ConvertUtils;
-import com.blankj.utilcode.util.GsonUtils;
 import com.blankj.utilcode.util.SPUtils;
-import com.blankj.utilcode.util.TimeUtils;
-import com.google.gson.JsonSyntaxException;
 import com.revolo.lock.bean.respone.MailLoginBeanRsp;
-import com.revolo.lock.ble.BleByteUtil;
-import com.revolo.lock.ble.BleCommandFactory;
-import com.revolo.lock.ble.BleProtocolState;
-import com.revolo.lock.ble.BleResultProcess;
 import com.revolo.lock.ble.OnBleDeviceListener;
 import com.revolo.lock.ble.bean.BleBean;
-import com.revolo.lock.ble.bean.BleResultBean;
-import com.revolo.lock.mqtt.MQttConstant;
-import com.revolo.lock.mqtt.MqttCommandFactory;
-import com.revolo.lock.mqtt.MqttService;
-import com.revolo.lock.mqtt.bean.MqttData;
-import com.revolo.lock.mqtt.bean.publishresultbean.WifiLockApproachOpenResponseBean;
+import com.revolo.lock.manager.LockAppService;
 import com.revolo.lock.room.AppDatabase;
 import com.revolo.lock.room.entity.BleDeviceLocal;
 import com.revolo.lock.room.entity.User;
@@ -50,23 +30,13 @@ import com.scwang.smart.refresh.layout.SmartRefreshLayout;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
-import io.reactivex.disposables.CompositeDisposable;
-import io.reactivex.disposables.Disposable;
 import timber.log.Timber;
 
-import static com.revolo.lock.Constant.DEFAULT_TIMEOUT_SEC_VALUE;
 import static com.revolo.lock.Constant.REVOLO_SP;
 import static com.revolo.lock.Constant.USER_MAIL;
-import static com.revolo.lock.ble.BleProtocolState.CMD_ENCRYPT_KEY_UPLOAD;
-import static com.revolo.lock.ble.BleResultProcess.CONTROL_ENCRYPTION;
-import static com.revolo.lock.ble.BleResultProcess.bytesToLong;
-import static com.revolo.lock.ble.BleResultProcess.checksum;
-import static com.revolo.lock.ble.BleResultProcess.pwdDecrypt;
 
 /**
  * author :
@@ -479,6 +449,12 @@ public class App extends Application {
         return new ArrayList<>();
     }
 
+    public void removeDeviceList() {
+        if (null != lockAppService) {
+            lockAppService.removeDeviceList();
+        }
+    }
+
     /**
      * 设置用户列表
      *
@@ -501,6 +477,7 @@ public class App extends Application {
 
     /**
      * 删除蓝牙设备
+     *
      * @param bean
      */
     public void removeConnectedBleDisconnect(@NotNull BleBean bean) {
@@ -549,8 +526,8 @@ public class App extends Application {
 
     public void logout(boolean isShowDialog, Activity act) {
         // TODO: 2021/3/30 logout的数据操作
-        clearAndDisconnectAllDevice();
-        new Thread(){
+        removeDeviceList();
+        new Thread() {
             @Override
             public void run() {
                 super.run();
@@ -620,33 +597,6 @@ public class App extends Application {
     public void setScanCallBack(DeviceScanCallBack scanCallBack) {
         mScanManager.setScanCallBack(scanCallBack);
         mScanManager.setScanDuration(20 * 1000);
-    }
-
-    public void scanAndConnectDevice(@NonNull String deviceMac, byte[] pwd1, byte[] pwd2,
-                                     OnBleDeviceListener onBleDeviceListener,
-                                     @NonNull OnScanAndConnectResultListener connectResultListener) {
-        OKBLEScanManager scanManager = getScanManager();
-        setScanCallBack(new DeviceScanCallBack() {
-            @Override
-            public void onBLEDeviceScan(BLEScanResult bleScanResult, int i) {
-                if(bleScanResult.getMacAddress().equalsIgnoreCase(deviceMac)) {
-                    getScanManager().stopScan();
-                    BleBean bleBean = connectDevice(bleScanResult, pwd1, pwd2, onBleDeviceListener, false);
-                    connectResultListener.connectResult(bleBean, bleScanResult);
-                }
-            }
-
-            @Override
-            public void onFailed(int i) {
-
-            }
-
-            @Override
-            public void onStartSuccess() {
-
-            }
-        });
-        scanManager.startScan();
     }
 
     public interface OnScanAndConnectResultListener {

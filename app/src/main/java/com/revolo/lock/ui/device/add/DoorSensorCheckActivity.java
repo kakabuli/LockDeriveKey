@@ -116,7 +116,7 @@ public class DoorSensorCheckActivity extends BaseActivity {
             if (lockMessage.getResultCode() == LockMessageCode.MSG_LOCK_MESSAGE_CODE_SUCCESS) {
                 switch (lockMessage.getMessageCode()) {
                     case LockMessageCode.MSG_LOCK_MESSAGE_SET_MAGNETIC:
-                        refreshDoorSensor(mCalibrationState,(WifiLockSetMagneticResponseBean)lockMessage.getWifiLockBaseResponseBean());
+                        refreshDoorSensor(mCalibrationState, (WifiLockSetMagneticResponseBean) lockMessage.getWifiLockBaseResponseBean());
                         break;
                 }
             } else {
@@ -154,10 +154,10 @@ public class DoorSensorCheckActivity extends BaseActivity {
         if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI) {
             publishSetMagnetic(mBleDeviceLocal.getEsn(), BleCommandState.DOOR_CALIBRATION_STATE_CLOSE_SE);
         } else {
-            BleBean bleBean = App.getInstance().getBleBeanFromMac(mBleDeviceLocal.getMac());
+            /*BleBean bleBean = App.getInstance().getBleBeanFromMac(mBleDeviceLocal.getMac());
             if (bleBean != null) {
                 bleBean.setOnBleDeviceListener(mOnBleDeviceListener);
-            }
+            }*/
             sendCommand(BleCommandState.DOOR_CALIBRATION_STATE_CLOSE_SE);
         }
         // 初始化默认第一步执行开门
@@ -238,9 +238,9 @@ public class DoorSensorCheckActivity extends BaseActivity {
     private void gotoAddWifi() {
         if (mBleDeviceLocal.getLockPower() <= 20) {
             // 低电量
-            if (mPowerLowDialog != null) {
+            /*if (mPowerLowDialog != null) {
                 mPowerLowDialog.show();
-            }
+            }*/
         } else {
             mBleDeviceLocal.setOpenDoorSensor(true);
             AppDatabase.getInstance(this).bleDeviceDao().update(mBleDeviceLocal);
@@ -329,7 +329,7 @@ public class DoorSensorCheckActivity extends BaseActivity {
     /*---------------------------------- MQTT ----------------------------------*/
 
     private int mLastMsgId = -1;
-   // private Disposable mSetMagneticDisposable;
+    // private Disposable mSetMagneticDisposable;
 
     public void publishSetMagnetic(String wifiID, @BleCommandState.DoorCalibrationState int mode) {
         showLoading();
@@ -342,7 +342,7 @@ public class DoorSensorCheckActivity extends BaseActivity {
         mCalibrationState = mode;
 
         //替换
-        LockMessage message=new LockMessage();
+        LockMessage message = new LockMessage();
         message.setMqtt_message_code(MQttConstant.MSG_TYPE_REQUEST);
         message.setMqttMessage(MqttCommandFactory.setMagnetic(wifiID, mode, BleCommandFactory.getPwd(
                 ConvertUtils.hexString2Bytes(mBleDeviceLocal.getPwd1()),
@@ -366,7 +366,7 @@ public class DoorSensorCheckActivity extends BaseActivity {
     }
 
     private void refreshDoorSensor(@BleCommandState.DoorCalibrationState int mode, WifiLockSetMagneticResponseBean bean) {
-       // toDisposable(mSetMagneticDisposable);
+        // toDisposable(mSetMagneticDisposable);
         dismissLoading();
         Timber.d("publishSetMagnetic 设置门磁: %1s", bean.toString());
         if (bean == null) {
@@ -403,58 +403,6 @@ public class DoorSensorCheckActivity extends BaseActivity {
             mDoorState = DOOR_SUC;
         }
         refreshCurrentUI();
-    private void refreshDoorSensor(@BleCommandState.DoorCalibrationState int mode, MqttData mqttData) {
-        toDisposable(mSetMagneticDisposable);
-        if (TextUtils.isEmpty(mqttData.getFunc())) {
-            Timber.e("publishSetMagnetic mqttData.getFunc() is empty");
-            return;
-        }
-        if (mqttData.getFunc().equals(MQttConstant.SET_MAGNETIC)) {
-            dismissLoading();
-            Timber.d("publishSetMagnetic 设置门磁: %1s", mqttData);
-            WifiLockSetMagneticResponseBean bean;
-            try {
-                bean = GsonUtils.fromJson(mqttData.getPayload(), WifiLockSetMagneticResponseBean.class);
-            } catch (JsonSyntaxException e) {
-                Timber.e(e);
-                return;
-            }
-            if (bean == null) {
-                Timber.e("publishSetMagnetic bean == null");
-                return;
-            }
-            if (bean.getMsgId() == mLastMsgId) {
-                Timber.e("publishSetMagnetic 过滤重复数据ID， msgId: %1d, lastMsgId: %2d", bean.getMsgId(), mLastMsgId);
-                return;
-            }
-            mLastMsgId = bean.getMsgId();
-            if (bean.getParams() == null) {
-                Timber.e("publishSetMagnetic bean.getParams() == null");
-                return;
-            }
-            if (bean.getCode() != 200) {
-                Timber.e("publishSetMagnetic code : %1d", bean.getCode());
-                if (bean.getCode() == 201) {
-                    // 门磁校验失败
-                    gotoFailAct();
-                }
-                return;
-            }
-            saveDoorSensorStateToLocal(mode);
-            // 排除掉第一次发送禁用门磁指令的状态反馈
-            if (bean.getParams().getMode() == BleCommandState.DOOR_CALIBRATION_STATE_CLOSE_SE) {
-                return;
-            }
-            if (bean.getParams().getMode() == BleCommandState.DOOR_CALIBRATION_STATE_HALF) {
-                publishSetMagnetic(mBleDeviceLocal.getEsn(), BleCommandState.DOOR_CALIBRATION_STATE_START_SE);
-                return;
-            }
-            if (bean.getParams().getMode() == BleCommandState.DOOR_CALIBRATION_STATE_START_SE) {
-                mDoorState = DOOR_SUC;
-            }
-            refreshCurrentUI();
-        }
-        Timber.d("%1s", mqttData.toString());
     }
 
     /*--------------------------------- 蓝牙 -----------------------------------*/
@@ -480,7 +428,7 @@ public class DoorSensorCheckActivity extends BaseActivity {
             return;
         }
         mCalibrationState = doorState;
-        LockMessage message=new LockMessage();
+        LockMessage message = new LockMessage();
         message.setMessageType(3);
         message.setBytes(BleCommandFactory
                 .doorCalibration(doorState, bleBean.getPwd1(), bleBean.getPwd3()));
@@ -490,8 +438,6 @@ public class DoorSensorCheckActivity extends BaseActivity {
                 .writeControlMsg(BleCommandFactory
                         .doorCalibration(doorState, bleBean.getPwd1(), bleBean.getPwd3()), bleBean.getOKBLEDeviceImp());*/
     }
-
-    };
 
     private void changedDoor(BleResultBean bleResultBean) {
         if (bleResultBean.getCMD() == CMD_DOOR_SENSOR_CALIBRATION) {
