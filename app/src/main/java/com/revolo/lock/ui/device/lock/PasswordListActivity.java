@@ -4,7 +4,9 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.os.Message;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 
@@ -73,6 +75,8 @@ import static com.revolo.lock.ble.BleCommandState.KEY_SET_ATTRIBUTE_WEEK_KEY;
 import static com.revolo.lock.ble.BleCommandState.KEY_SET_KEY_OPTION_DEL;
 import static com.revolo.lock.ble.BleCommandState.KEY_SET_KEY_TYPE_PWD;
 import static com.revolo.lock.ble.BleProtocolState.CMD_KEY_ATTRIBUTES_READ;
+import static com.revolo.lock.ble.BleProtocolState.CMD_KEY_ATTRIBUTES_SET;
+import static com.revolo.lock.ble.BleProtocolState.CMD_PAIR_ACK;
 import static com.revolo.lock.ble.BleProtocolState.CMD_SY_KEY_STATE;
 
 /**
@@ -176,7 +180,7 @@ public class PasswordListActivity extends BaseActivity {
             if (lockMessage.getResultCode() == LockMessageCode.MSG_LOCK_MESSAGE_CODE_SUCCESS) {
                 switch (lockMessage.getMessageCode()) {
                     case LockMessageCode.MSG_LOCK_MESSAGE_REMOVE_PWD:
-                        processDelPwd((WifiLockRemovePasswordResponseBean)lockMessage.getWifiLockBaseResponseBean());
+                        processDelPwd((WifiLockRemovePasswordResponseBean) lockMessage.getWifiLockBaseResponseBean());
                         break;
                 }
             } else {
@@ -504,6 +508,7 @@ public class PasswordListActivity extends BaseActivity {
     private final ArrayList<DevicePwdBean> mDevicePwdBeanFormBle = new ArrayList<>();
 
     private void getPwdListFormBle(BleResultBean bean) {
+        dismissLoading();
         // TODO: 2021/2/3 可能存在100条数据以上，后续需要做100条数据以上的测试
         // TODO: 2021/2/4 后续需要做去重操作
         if (bean.getCMD() == CMD_SY_KEY_STATE) {
@@ -521,6 +526,9 @@ public class PasswordListActivity extends BaseActivity {
             }
             runOnUiThread(() -> mPasswordListAdapter.setList(mDevicePwdBeanFormBle));
             mHandler.postDelayed(mSearchPwdListRunnable, 20);
+        } else if (bean.getCMD() == CMD_KEY_ATTRIBUTES_SET) {
+            mHandler.sendEmptyMessageDelayed(MSG_UPDATE_PWD_LIST, 1000);
+
         }
     }
 
@@ -621,7 +629,17 @@ public class PasswordListActivity extends BaseActivity {
 //        mHandler.postDelayed(mSearchPwdListRunnable, 20);
     }
 
-    private final Handler mHandler = new Handler(Looper.getMainLooper());
+    private static final int MSG_UPDATE_PWD_LIST = 854;
+    private final Handler mHandler = new Handler(Looper.getMainLooper()) {
+        @Override
+        public void handleMessage(@NonNull Message msg) {
+            if (msg.what == MSG_UPDATE_PWD_LIST) {
+                mWillSearchList.clear();
+                mPasswordListAdapter.notifyDataSetChanged();
+                searchPwdListFromNET();
+            }
+        }
+    };
     private final Runnable mSearchPwdListRunnable = this::searchPwdList;
     private byte mCurrentSearchNum;
 
@@ -718,7 +736,7 @@ public class PasswordListActivity extends BaseActivity {
     }
 
     private void publishDelPwd(String wifiId, DevicePwdBean devicePwdBean) {
-        this.devicePwdBean=devicePwdBean;
+        this.devicePwdBean = devicePwdBean;
         LockMessage message = new LockMessage();
         message.setMqtt_message_code(MQttConstant.REMOVE_PWD);
         message.setMqttMessage(MqttCommandFactory.removePwd(

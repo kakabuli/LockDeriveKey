@@ -89,6 +89,11 @@ public class DeviceDetailActivity extends BaseActivity {
     protected void onResume() {
         super.onResume();
         mBleDeviceLocal = App.getInstance().getBleDeviceLocal();
+        if (null != mBleDeviceLocal && null != mBleDeviceLocal.getName() && !"".equals(mBleDeviceLocal.getName()) && !mBleDeviceLocal.getEsn().equals(mBleDeviceLocal.getName())) {
+            useCommonTitleBar(mBleDeviceLocal.getName());
+        } else {
+            useCommonTitleBar("Homepage");
+        }
         if (mBleDeviceLocal == null) {
             // TODO: 2021/3/1 处理
             finish();

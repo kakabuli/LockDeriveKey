@@ -130,7 +130,7 @@ public class DeviceFragment extends Fragment {
                         @LocalState.LockState int state = mHomeLockListAdapter.getItem(position).getLockState();
                         openOrCloseDoor(mHomeLockListAdapter.getItem(position).getEsn(),
                                 state == LocalState.LOCK_STATE_OPEN ? LocalState.DOOR_STATE_CLOSE : LocalState.DOOR_STATE_OPEN,
-                                mBleDeviceLocals.get(position), 0, position, state);
+                                mBleDeviceLocals.get(position), 0, position, state,connectedState);
                     }
                 });
                 rvLockList.setAdapter(mHomeLockListAdapter);
@@ -251,9 +251,9 @@ public class DeviceFragment extends Fragment {
 
     public void openOrCloseDoor(String wifiId,
                                 @LocalState.DoorState int doorOpt,
-                                BleDeviceLocal bleDeviceLocal, int num, int position, @LocalState.LockState int state) {
+                                BleDeviceLocal bleDeviceLocal, int num, int position, @LocalState.LockState int state,int connectState) {
         LockMessage message = new LockMessage();
-        if (state == LocalState.DEVICE_CONNECT_TYPE_WIFI || state == LocalState.DEVICE_CONNECT_TYPE_WIFI_BLE) {
+        if (connectState == LocalState.DEVICE_CONNECT_TYPE_WIFI ||connectState == LocalState.DEVICE_CONNECT_TYPE_WIFI_BLE) {
             //wifi
             if (App.getInstance().getUserBean() == null || bleDeviceLocal == null
                     || getActivity() == null) {

@@ -1,6 +1,8 @@
 package com.revolo.lock.manager;
 
 import android.app.Service;
+import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
 import android.os.Binder;
 import android.os.Handler;
@@ -177,7 +179,7 @@ public class LockAppService extends Service {
             switch (msg.what) {
                 case MSG_MESSAGE_SEND_OUT_TIME:
                     //发送message超时
-                    LockMessage message=outTimeNextMessage();
+                    LockMessage message = outTimeNextMessage();
                     if (null != message) {
                         if (message.getMessageType() == 2) {
                             pushErrMessage(message.getMqtt_message_code());
@@ -209,7 +211,7 @@ public class LockAppService extends Service {
             if (bleConnected.getConnectType() == 0) {
                 connectMQTT();
             } else {
-                onBleConnect(bleConnected.getmEsn(), bleConnected.getBleScanResult(), bleConnected.getPwd1(), bleConnected.getPwd2());
+                onBleConnect(bleConnected.getmEsn(), bleConnected.getBleScanResult(), null, bleConnected.getPwd1(), bleConnected.getPwd2());
             }
 
         }
@@ -302,6 +304,21 @@ public class LockAppService extends Service {
             //当前list中存在设备，更新当前的状态
             mDeviceLists.remove(index);
             mDeviceLists.add(bleDeviceLocal);
+        }
+        //判断当前ble的连接情况
+        if (!bleState) {
+            BluetoothDevice device = null;
+            try {
+                device = BluetoothAdapter.getDefaultAdapter().getRemoteDevice(bleDeviceLocal.getMac());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            //bleScanResult.
+            byte[] mPwd1 = new byte[16];
+            byte[] bytes = ConvertUtils.hexString2Bytes(bleDeviceLocal.getPwd1());
+            System.arraycopy(bytes, 0, mPwd1, 0, bytes.length);
+            onBleConnect(bleDeviceLocal.getEsn(), null, device, mPwd1, null
+            );
         }
         //lock.unlock();
         Timber.e("getEventBus send");
@@ -500,14 +517,20 @@ public class LockAppService extends Service {
      * @param pwd1
      * @param pwd2
      */
-    public void onBleConnect(String sn, BLEScanResult bleScanResult, byte[] pwd1, byte[] pwd2) {
+    public void onBleConnect(String sn, BLEScanResult bleScanResult, BluetoothDevice bluetoothDevice, byte[] pwd1, byte[] pwd2) {
         //isAppPair 设备列表中有当前连接设备 isAppPair是true,则isAppPair=false  用于配网操作
-        String mac = bleScanResult.getBluetoothDevice().getAddress();
-        if (null != getDevice("", mac)) {
-            BleManager.getInstance().connectDevice(sn, bleScanResult, pwd1, pwd2, true);
+        String mac = "";
+        if (null == bleScanResult && null != bluetoothDevice) {
+            mac = bluetoothDevice.getAddress();
         } else {
-            BleManager.getInstance().connectDevice(sn, bleScanResult, pwd1, pwd2, false);
+            mac = bleScanResult.getBluetoothDevice().getAddress();
         }
+        /*if (null != getDevice("", mac)) {
+            BleManager.getInstance().connectDevice(sn, bleScanResult, bluetoothDevice, pwd1, pwd2, true);
+        } else {
+*/
+        BleManager.getInstance().connectDevice(sn, bleScanResult, bluetoothDevice, pwd1, pwd2, false);
+        //      }
 
     }
 
@@ -538,6 +561,7 @@ public class LockAppService extends Service {
             LockMessageRes messageRes = new LockMessageRes(1, mac, bleResultBean);
             messageRes.setResultCode(LockMessageCode.MSG_LOCK_MESSAGE_CODE_SUCCESS);
             EventBus.getDefault().post(messageRes);
+            bleResultBean.setmMac(mac);
             switch (bleResultBean.getCMD()) {
                 case BleProtocolState.CMD_LOCK_OPEN_RECORD:// 0x04;                // 锁开锁记录查询响应
                     break;
@@ -679,7 +703,12 @@ public class LockAppService extends Service {
     private void processKey(BleResultBean bleResultBean) {
         if (bleResultBean.getCMD() == BleProtocolState.CMD_ENCRYPT_KEY_UPLOAD) {
             byte[] data = bleResultBean.getPayload();
-            String mMac = bleResultBean.getScanResult().getMacAddress();
+            String mMac = "";
+            if (null == bleResultBean.getScanResult()) {
+                mMac = bleResultBean.getmMac();
+            } else {
+                mMac = bleResultBean.getScanResult().getMacAddress();
+            }
             BleBean bleBean = BleManager.getInstance().getBleBeanFromMac(mMac);
             if (bleBean == null) {
                 Timber.e("processKey bleBean == null");

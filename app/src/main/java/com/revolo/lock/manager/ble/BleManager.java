@@ -1,5 +1,6 @@
 package com.revolo.lock.manager.ble;
 
+import android.bluetooth.BluetoothDevice;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
@@ -68,9 +69,16 @@ public class BleManager {
     }
 
     /*-------------------------------- 蓝牙搜索 end --------------------------------*/
-    public BleBean connectDevice(String sn, BLEScanResult bleScanResult, byte[] pwd1, byte[] pwd2, boolean isAppPair) {
-        OKBLEDeviceImp deviceImp = new OKBLEDeviceImp(App.getInstance().getApplicationContext(), bleScanResult);
-        deviceImp.setDeviceTAG(bleScanResult.getMacAddress().toLowerCase());
+    public BleBean connectDevice(String sn, BLEScanResult bleScanResult, BluetoothDevice device, byte[] pwd1, byte[] pwd2, boolean isAppPair) {
+        OKBLEDeviceImp deviceImp = null;
+        if (null == bleScanResult && null != device) {
+            deviceImp=new OKBLEDeviceImp(App.getInstance().getApplicationContext());
+            deviceImp.setBluetoothDevice(device);
+            deviceImp.setDeviceTAG(device.getAddress().toLowerCase());
+        } else {
+            deviceImp=new OKBLEDeviceImp(App.getInstance().getApplicationContext(), bleScanResult);
+            deviceImp.setDeviceTAG(bleScanResult.getMacAddress().toLowerCase());
+        }
         BleBean bleBean = new BleBean(deviceImp);
         bleBean.setPwd1(pwd1);
         bleBean.setPwd2(pwd2);

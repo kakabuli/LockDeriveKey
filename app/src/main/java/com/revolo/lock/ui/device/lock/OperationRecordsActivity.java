@@ -3,6 +3,7 @@ package com.revolo.lock.ui.device.lock;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.ExpandableListView;
 import android.widget.LinearLayout;
@@ -50,10 +51,12 @@ import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 import org.jetbrains.annotations.NotNull;
 
+import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -128,6 +131,7 @@ public class OperationRecordsActivity extends BaseActivity {
         mRefreshLayout.setOnLoadMoreListener(refreshLayout -> searchRecordFromNet(mPage, mPage == 1));
         onRegisterEventBus();
     }
+
     @Subscribe(threadMode = ThreadMode.MAIN, sticky = true)
     public void getEventBus(LockMessageRes lockMessage) {
         if (lockMessage == null) {
@@ -177,15 +181,15 @@ public class OperationRecordsActivity extends BaseActivity {
         }
         if (mBleBean.getOKBLEDeviceImp() != null) {
             //替换
-           // App.getInstance().openPairNotify(mBleBean.getOKBLEDeviceImp());
-       }
+            // App.getInstance().openPairNotify(mBleBean.getOKBLEDeviceImp());
+        }
     }
 
     private void searchRecordFromBle(short start, short end) {
         if (mBleBean.getOKBLEDeviceImp() != null) {
             if (mBleBean.getOKBLEDeviceImp().isConnected()) {
                 // 因为shortToBytes转出来就是小端模式，所以调用直接使用小端模式的方法
-                LockMessage message=new LockMessage();
+                LockMessage message = new LockMessage();
                 message.setBytes(BleCommandFactory
                         .readAllRecordFromSmallEndian(BleByteUtil.shortToBytes(start), BleByteUtil.shortToBytes(end),
                                 mBleBean.getPwd1(), mBleBean.getPwd3()));
@@ -807,6 +811,13 @@ public class OperationRecordsActivity extends BaseActivity {
             searchRecordsFromDate(time, startTime, endTime);
         });
 
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+        ParsePosition pos = new ParsePosition(0);
+        Date strtodate = formatter.parse("2019-01-01", pos);
+        Calendar startTime = Calendar.getInstance();
+        startTime.setTime(strtodate);
+       
+
         timePickerBuilder.setCancelColor(Color.parseColor("#999999"))
                 .setDividerColor(Color.parseColor("#f7f7f7"))
                 .setSubmitColor(Color.parseColor("#2c68ff"))
@@ -822,6 +833,7 @@ public class OperationRecordsActivity extends BaseActivity {
                 .setLabel("", "", "", "", "", "")
                 .setLineSpacingMultiplier(3f)
                 .setDividerType(WheelView.DividerType.FILL)
+                .setRangDate(startTime,Calendar.getInstance())
                 .setTextXOffset(0, 0, 0, 0, 0, 0);
 
 
