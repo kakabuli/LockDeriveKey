@@ -691,11 +691,11 @@ public class DeviceFragment extends Fragment {
                 setLockState(getPositionFromWifiId(bean.getWfId()), LocalState.LOCK_STATE_OPEN);
             }
         } else if (bean.getEventparams().getEventType() == 3) {
-            int eventCode = bean.getEventparams().getEventCode();
+           /* int eventCode = bean.getEventparams().getEventCode();
             if (eventCode == 5) {
                 // 上锁
                 setLockState(getPositionFromWifiId(bean.getWfId()), LocalState.LOCK_STATE_PRIVATE);
-            }
+            }*/
         } else if (bean.getEventparams().getEventType() == 4) {
             // 传感器上报，门磁
             if (bean.getEventparams().getEventCode() == 1) {

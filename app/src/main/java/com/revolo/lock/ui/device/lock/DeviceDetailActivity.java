@@ -343,11 +343,11 @@ public class DeviceDetailActivity extends BaseActivity {
             if (eventType == 0x01) {
                 if (eventCode == 0x01) {
                     // 上锁
-                    if (eventSource == 8) {
+                    /*if (eventSource == 8) {
                         setLockState(LocalState.LOCK_STATE_PRIVATE);
                     } else {
                         setLockState(LocalState.LOCK_STATE_CLOSE);
-                    }
+                    }*/
                 } else if (eventCode == 0x02) {
                     // 开锁
                     setLockState(LocalState.LOCK_STATE_OPEN);
