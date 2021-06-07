@@ -1,26 +1,11 @@
 package com.revolo.lock.manager.mqtt;
 
 import android.text.TextUtils;
-import android.util.Log;
 
-import com.blankj.utilcode.util.GsonUtils;
 import com.blankj.utilcode.util.LogUtils;
 import com.revolo.lock.App;
-import com.revolo.lock.LocalState;
 import com.revolo.lock.mqtt.MQttConstant;
-import com.revolo.lock.mqtt.MqttCommandFactory;
 import com.revolo.lock.mqtt.MqttExceptionHandle;
-import com.revolo.lock.mqtt.bean.MqttData;
-import com.revolo.lock.mqtt.bean.publishresultbean.PublishResult;
-import com.revolo.lock.mqtt.bean.publishresultbean.WifiLockApproachOpenResponseBean;
-import com.revolo.lock.mqtt.bean.publishresultbean.WifiLockCloseWifiResponseBean;
-import com.revolo.lock.mqtt.bean.publishresultbean.WifiLockGetAllBindDeviceRspBean;
-import com.revolo.lock.mqtt.bean.publishresultbean.WifiLockRemovePasswordResponseBean;
-import com.revolo.lock.mqtt.bean.publishresultbean.WifiLockSetLockAttrVolumeRspBean;
-import com.revolo.lock.mqtt.bean.publishresultbean.WifiLockSetMagneticResponseBean;
-import com.revolo.lock.mqtt.bean.publishresultbean.WifiLockUpdatePasswordResponseBean;
-import com.revolo.lock.room.AppDatabase;
-import com.revolo.lock.room.entity.BleDeviceLocal;
 
 import org.eclipse.paho.android.service.MqttAndroidClient;
 import org.eclipse.paho.client.mqttv3.DisconnectedBufferOptions;
@@ -31,13 +16,7 @@ import org.eclipse.paho.client.mqttv3.MqttCallbackExtended;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
-import org.json.JSONException;
-import org.json.JSONObject;
 
-import java.util.List;
-
-import io.reactivex.Observable;
-import io.reactivex.subjects.PublishSubject;
 import timber.log.Timber;
 
 import static com.revolo.lock.manager.mqtt.MQTTErrCode.MQTT_CONNECTED_ERR;

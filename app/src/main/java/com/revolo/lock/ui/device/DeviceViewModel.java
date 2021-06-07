@@ -1,30 +1,12 @@
 package com.revolo.lock.ui.device;
 
-import android.os.Handler;
-import android.os.Looper;
-import android.text.TextUtils;
-
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
-import com.blankj.utilcode.util.GsonUtils;
-import com.google.gson.JsonSyntaxException;
-import com.revolo.lock.App;
-import com.revolo.lock.manager.LockMessage;
-import com.revolo.lock.mqtt.MqttCommandFactory;
-import com.revolo.lock.mqtt.MQttConstant;
-import com.revolo.lock.mqtt.bean.MqttData;
 import com.revolo.lock.mqtt.bean.publishresultbean.WifiLockGetAllBindDeviceRspBean;
 
-import org.greenrobot.eventbus.EventBus;
-import org.jetbrains.annotations.NotNull;
-
 import java.util.List;
-
-import io.reactivex.Observer;
-import io.reactivex.disposables.Disposable;
-import timber.log.Timber;
 
 // TODO: 2021/4/20 暂时不使用viewModel层，因为需要提供新的改进方案才开始实现
 public class DeviceViewModel extends ViewModel {

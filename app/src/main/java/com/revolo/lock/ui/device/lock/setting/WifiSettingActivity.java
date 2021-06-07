@@ -1,13 +1,10 @@
 package com.revolo.lock.ui.device.lock.setting;
 
-import android.content.Context;
 import android.content.Intent;
-import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.text.TextUtils;
-import android.view.Gravity;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -15,13 +12,10 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.room.paging.LimitOffsetDataSource;
 
 import com.a1anwang.okble.client.scan.BLEScanResult;
 import com.blankj.utilcode.util.ConvertUtils;
-import com.blankj.utilcode.util.GsonUtils;
 import com.blankj.utilcode.util.ToastUtils;
-import com.google.gson.JsonSyntaxException;
 import com.revolo.lock.App;
 import com.revolo.lock.LocalState;
 import com.revolo.lock.R;
@@ -29,8 +23,6 @@ import com.revolo.lock.base.BaseActivity;
 import com.revolo.lock.ble.BleByteUtil;
 import com.revolo.lock.ble.BleCommandFactory;
 import com.revolo.lock.ble.BleCommandState;
-import com.revolo.lock.ble.BleResultProcess;
-import com.revolo.lock.ble.OnBleDeviceListener;
 import com.revolo.lock.ble.bean.BleBean;
 import com.revolo.lock.ble.bean.BleResultBean;
 import com.revolo.lock.dialog.MessageDialog;
@@ -38,9 +30,8 @@ import com.revolo.lock.dialog.SelectDialog;
 import com.revolo.lock.manager.LockMessage;
 import com.revolo.lock.manager.LockMessageCode;
 import com.revolo.lock.manager.LockMessageRes;
-import com.revolo.lock.mqtt.MqttCommandFactory;
 import com.revolo.lock.mqtt.MQttConstant;
-import com.revolo.lock.mqtt.bean.MqttData;
+import com.revolo.lock.mqtt.MqttCommandFactory;
 import com.revolo.lock.mqtt.bean.publishresultbean.WifiLockApproachOpenResponseBean;
 import com.revolo.lock.mqtt.bean.publishresultbean.WifiLockCloseWifiResponseBean;
 import com.revolo.lock.room.AppDatabase;
@@ -50,14 +41,9 @@ import com.revolo.lock.ui.device.add.AddWifiActivity;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
-import org.jetbrains.annotations.NotNull;
 
-import java.util.concurrent.TimeUnit;
-
-import io.reactivex.disposables.Disposable;
 import timber.log.Timber;
 
-import static com.revolo.lock.Constant.DEFAULT_TIMEOUT_SEC_VALUE;
 import static com.revolo.lock.ble.BleCommandState.WIFI_CONTROL_OPEN;
 import static com.revolo.lock.ble.BleProtocolState.CMD_WIFI_SWITCH;
 

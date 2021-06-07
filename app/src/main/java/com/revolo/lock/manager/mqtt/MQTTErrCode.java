@@ -1,7 +1,5 @@
 package com.revolo.lock.manager.mqtt;
 
-import android.text.TextUtils;
-
 /**
  * 用来标注MQTT模块中报错code及原因
  */

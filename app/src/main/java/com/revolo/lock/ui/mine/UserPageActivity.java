@@ -49,7 +49,6 @@ import pub.devrel.easypermissions.EasyPermissions;
 import timber.log.Timber;
 
 import static com.revolo.lock.Constant.REVOLO_SP;
-import static com.revolo.lock.Constant.USER_MAIL;
 
 /**
  * author : Jack

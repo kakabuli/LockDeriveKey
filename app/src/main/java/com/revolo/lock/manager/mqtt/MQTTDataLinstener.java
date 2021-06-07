@@ -1,6 +1,5 @@
 package com.revolo.lock.manager.mqtt;
 
-import com.revolo.lock.ble.bean.BleBean;
 import com.revolo.lock.room.entity.BleDeviceLocal;
 
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;

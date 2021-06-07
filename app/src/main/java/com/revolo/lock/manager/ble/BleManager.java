@@ -3,7 +3,6 @@ package com.revolo.lock.manager.ble;
 import android.bluetooth.BluetoothDevice;
 import android.os.Handler;
 import android.os.Looper;
-import android.util.Log;
 
 import com.a1anwang.okble.client.core.OKBLEDeviceImp;
 import com.a1anwang.okble.client.core.OKBLEDeviceListener;

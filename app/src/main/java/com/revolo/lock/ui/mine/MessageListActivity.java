@@ -1,6 +1,5 @@
 package com.revolo.lock.ui.mine;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
@@ -13,21 +12,16 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.revolo.lock.App;
-import com.revolo.lock.Constant;
 import com.revolo.lock.R;
 import com.revolo.lock.adapter.MessageListAdapter;
 import com.revolo.lock.base.BaseActivity;
 import com.revolo.lock.bean.request.DeleteSystemMessageReq;
 import com.revolo.lock.bean.request.SystemMessageListReq;
 import com.revolo.lock.bean.respone.SystemMessageListBeanRsp;
-import com.revolo.lock.bean.test.TestMessageBean;
 import com.revolo.lock.net.HttpRequest;
 import com.revolo.lock.net.ObservableDecorator;
-import com.revolo.lock.ui.device.lock.PasswordListActivity;
 import com.revolo.lock.widget.SlideRecyclerView;
 import com.scwang.smart.refresh.layout.SmartRefreshLayout;
-import com.scwang.smart.refresh.layout.api.RefreshLayout;
-import com.scwang.smart.refresh.layout.listener.OnLoadMoreListener;
 
 import java.util.ArrayList;
 import java.util.List;

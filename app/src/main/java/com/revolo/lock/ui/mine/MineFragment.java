@@ -1,6 +1,5 @@
 package com.revolo.lock.ui.mine;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
@@ -14,7 +13,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
@@ -23,20 +21,12 @@ import com.blankj.utilcode.util.ToastUtils;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.RequestOptions;
-import com.revolo.lock.App;
 import com.revolo.lock.R;
-import com.revolo.lock.bean.request.AlexaAppUrlAndWebUrlReq;
-import com.revolo.lock.bean.respone.AlexaAppUrlAndWebUrlBeanRsp;
-import com.revolo.lock.net.HttpRequest;
-import com.revolo.lock.net.ObservableDecorator;
 import com.revolo.lock.room.entity.User;
 
 import java.io.File;
 import java.util.List;
 
-import io.reactivex.Observable;
-import io.reactivex.Observer;
-import io.reactivex.disposables.Disposable;
 import timber.log.Timber;
 
 public class MineFragment extends Fragment {

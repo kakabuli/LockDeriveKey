@@ -1,8 +1,5 @@
 package com.revolo.lock.manager;
 
-import com.revolo.lock.mqtt.bean.publishbean.WifiLockBasePublishBean;
-import com.revolo.lock.room.entity.BleDeviceLocal;
-
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 
 import java.io.Serializable;

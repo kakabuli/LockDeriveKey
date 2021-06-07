@@ -8,15 +8,12 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.IBinder;
 
-import androidx.annotation.NonNull;
-
 import com.a1anwang.okble.client.scan.BLEScanResult;
 import com.a1anwang.okble.client.scan.DeviceScanCallBack;
 import com.a1anwang.okble.client.scan.OKBLEScanManager;
 import com.blankj.utilcode.util.ActivityUtils;
 import com.blankj.utilcode.util.SPUtils;
 import com.revolo.lock.bean.respone.MailLoginBeanRsp;
-import com.revolo.lock.ble.OnBleDeviceListener;
 import com.revolo.lock.ble.bean.BleBean;
 import com.revolo.lock.manager.LockAppService;
 import com.revolo.lock.room.AppDatabase;
@@ -487,10 +484,11 @@ public class App extends Application {
             }
         }
     }
+
     public void removeConnectedBleDisconnect(String mac) {
         if (null != lockAppService) {
-            if (null!=mac&&!"".equals(mac)) {
-                lockAppService.removeDevice(mac,mac);
+            if (null != mac && !"".equals(mac)) {
+                lockAppService.removeDevice(mac, mac);
                 lockAppService.removeBleConnect(mac);
             }
         }
@@ -534,12 +532,11 @@ public class App extends Application {
     public void logout(boolean isShowDialog, Activity act) {
         // TODO: 2021/3/30 logout的数据操作
         removeDeviceList();
-        new Thread() {
         User user = App.getInstance().getUser();
         AppDatabase.getInstance(getApplicationContext()).userDao().delete(user);
         App.getInstance().getUserBean().setToken(""); // 清空token
         SPUtils.getInstance(REVOLO_SP).put(Constant.USER_LOGIN_INFO, ""); // 清空登录信息
-        new Thread(){
+        new Thread() {
             @Override
             public void run() {
                 super.run();

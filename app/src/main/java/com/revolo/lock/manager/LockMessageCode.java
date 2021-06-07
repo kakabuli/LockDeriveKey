@@ -1,7 +1,5 @@
 package com.revolo.lock.manager;
 
-import org.greenrobot.eventbus.EventBus;
-
 /**
  * 定义消息code
  */

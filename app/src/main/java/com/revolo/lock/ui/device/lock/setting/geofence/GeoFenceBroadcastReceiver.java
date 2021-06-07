@@ -19,7 +19,6 @@ import com.revolo.lock.room.entity.BleDeviceLocal;
 
 import org.greenrobot.eventbus.EventBus;
 
-import java.security.spec.ECField;
 import java.util.List;
 
 import timber.log.Timber;
