@@ -165,8 +165,8 @@ public class DeviceFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        refreshGetAllBindDevicesFromMQTT();
         initBaseData();
+        refreshGetAllBindDevicesFromMQTT();
         /*initData(mBleDeviceLocals);
         initSignalWeakDialog();
         initWfEven();*/
@@ -189,6 +189,7 @@ public class DeviceFragment extends Fragment {
             //蓝牙消息
             if (lockMessage.getResultCode() == LockMessageCode.MSG_LOCK_MESSAGE_CODE_SUCCESS) {
                 //数据正常
+                dismissLoading();
                 processBleResult(lockMessage.getMac(), lockMessage.getBleResultBea());
             } else {
                 //数据异常
@@ -206,9 +207,11 @@ public class DeviceFragment extends Fragment {
                         updateData(mBleDeviceLocals);
                         break;
                     case LockMessageCode.MSG_LOCK_MESSAGE_SET_LOCK://开关锁
+                        dismissLoading();
                         processSetLock((WifiLockDoorOptResponseBean) lockMessage.getWifiLockBaseResponseBean());
                         break;
                     case LockMessageCode.MSG_LOCK_MESSAGE_WF_EVEN:
+                        dismissLoading();
                         processRecord((WifiLockOperationEventBean) lockMessage.getWifiLockBaseResponseBean());
                         break;
                     default:
@@ -221,7 +224,7 @@ public class DeviceFragment extends Fragment {
                 switch (lockMessage.getResultCode()) {
                     case LockMessageCode.MSG_LOCK_MESSAGE_SET_LOCK:
                         //开关锁异常
-                        //                    dismissLoading();
+                        dismissLoading();
 //                    ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(doorOpt == LocalState.DOOR_STATE_OPEN ? "Locking Failed" : "Unlocking Failed");
 //                    if (mCount == 3) {
 //                        // 3次机会,超时失败开始连接蓝牙
@@ -250,37 +253,42 @@ public class DeviceFragment extends Fragment {
                                 @LocalState.DoorState int doorOpt,
                                 BleDeviceLocal bleDeviceLocal, int num, int position, @LocalState.LockState int state) {
         LockMessage message = new LockMessage();
-        //wifi
-        if (App.getInstance().getUserBean() == null || bleDeviceLocal == null
-                || getActivity() == null) {
-            message.setMqttMessage(null);
+        if (state == LocalState.DEVICE_CONNECT_TYPE_WIFI || state == LocalState.DEVICE_CONNECT_TYPE_WIFI_BLE) {
+            //wifi
+            if (App.getInstance().getUserBean() == null || bleDeviceLocal == null
+                    || getActivity() == null) {
+                message.setMqttMessage(null);
+            } else {
+                message.setSn(bleDeviceLocal.getEsn());
+                message.setMqtt_topic(MQttConstant.getCallTopic(App.getInstance().getUserBean().getUid()));
+                message.setMqtt_message_code(MQttConstant.SET_LOCK);
+                message.setMessageType(2);
+                message.setMqttMessage(
+                        MqttCommandFactory.setLock(
+                                wifiId,
+                                doorOpt,
+                                BleCommandFactory.getPwd(
+                                        ConvertUtils.hexString2Bytes(bleDeviceLocal.getPwd1()),
+                                        ConvertUtils.hexString2Bytes(bleDeviceLocal.getPwd2())),
+                                bleDeviceLocal.getRandomCode(),
+                                num));
+            }
         } else {
-            message.setSn(bleDeviceLocal.getEsn());
-            message.setMqtt_topic(MQttConstant.getCallTopic(App.getInstance().getUserBean().getUid()));
-            message.setMqtt_message_code(MQttConstant.SET_LOCK);
-            message.setMqttMessage(
-                    MqttCommandFactory.setLock(
-                            wifiId,
-                            doorOpt,
-                            BleCommandFactory.getPwd(
-                                    ConvertUtils.hexString2Bytes(bleDeviceLocal.getPwd1()),
-                                    ConvertUtils.hexString2Bytes(bleDeviceLocal.getPwd2())),
-                            bleDeviceLocal.getRandomCode(),
-                            num));
-        }
-        //ble
-        BleBean bleBean = App.getInstance().getUserBleBean(mBleDeviceLocals.get(position).getMac());
-        if (bleBean == null || bleBean.getOKBLEDeviceImp() == null || bleBean.getPwd1() == null || bleBean.getPwd3() == null) {
-            Timber.e("openOrCloseDoorFromBle bleBean.getPwd3() == null");
-            message.setBytes(null);
-        } else {
-            message.setBytes(BleCommandFactory.lockControlCommand(
-                    (byte) (state == LocalState.LOCK_STATE_OPEN ? LOCK_SETTING_CLOSE : LOCK_SETTING_OPEN),
-                    (byte) 0x04,
-                    (byte) 0x01,
-                    bleBean.getPwd1(),
-                    bleBean.getPwd3()));
-            message.setMac(bleDeviceLocal.getMac());
+            //ble
+            BleBean bleBean = App.getInstance().getUserBleBean(mBleDeviceLocals.get(position).getMac());
+            if (bleBean == null || bleBean.getOKBLEDeviceImp() == null || bleBean.getPwd1() == null || bleBean.getPwd3() == null) {
+                Timber.e("openOrCloseDoorFromBle bleBean.getPwd3() == null");
+                message.setBytes(null);
+            } else {
+                message.setMessageType(3);
+                message.setBytes(BleCommandFactory.lockControlCommand(
+                        (byte) (state == LocalState.LOCK_STATE_OPEN ? LOCK_SETTING_CLOSE : LOCK_SETTING_OPEN),
+                        (byte) 0x04,
+                        (byte) 0x01,
+                        bleBean.getPwd1(),
+                        bleBean.getPwd3()));
+                message.setMac(bleDeviceLocal.getMac());
+            }
         }
         if (null == message.getBytes() && null == message.getMqttMessage()) {
             return;
@@ -485,6 +493,7 @@ public class DeviceFragment extends Fragment {
     private void initBaseData() {
         User user = App.getInstance().getUser();
         mBleDeviceLocals = App.getInstance().getDeviceLists();
+        updateData(mBleDeviceLocals);
         if (user == null) {
             return;
         }
@@ -496,8 +505,6 @@ public class DeviceFragment extends Fragment {
             return;
         }
         App.getInstance().setDeviceLists(locals);
-        /// updateData(mBleDeviceLocals);
-
     }
 
     /*private void initData(List<BleDeviceLocal> bleDeviceLocals) {

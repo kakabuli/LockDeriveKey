@@ -67,31 +67,6 @@ public class MQTTManager {
     public int reconnectionNum = 10;
     private String userId;
     private String token;
-    /**
-     * 判断是否订阅成功
-     */
-    private final PublishSubject<Boolean> mSubscribe = PublishSubject.create();
-    private final PublishSubject<MqttData> onReceiverDataObservable = PublishSubject.create();
-    private final PublishSubject<Boolean> connectStateObservable = PublishSubject.create();
-    private final PublishSubject<PublishResult> publishObservable = PublishSubject.create();
-    private final PublishSubject<Boolean> disconnectObservable = PublishSubject.create();
-    private final PublishSubject<MqttData> notifyEventObservable = PublishSubject.create();
-
-    /**
-     * 订阅状态
-     */
-    public PublishSubject<Boolean> subscribeStatus() {
-        return mSubscribe;
-    }
-
-    public Observable<MqttData> listenerDataBack() {
-        return onReceiverDataObservable;
-    }
-
-    public Observable<MqttData> listenerNotifyData() {
-        return notifyEventObservable;
-    }
-
 
     /**
      * mqtt连接参数设置
@@ -196,7 +171,6 @@ public class MQTTManager {
                     //连接成功之后订阅主题
                     mqttSubscribe(mqttClient, MQttConstant.getSubscribeTopic(userId), 2);
                     reconnectionNum = 10;
-                    connectStateObservable.onNext(true);
                 }
                 if (null != mqttDataLinstener) {
                     mqttDataLinstener.connectComplete(reconnect, serverURI);
@@ -231,49 +205,6 @@ public class MQTTManager {
                 if (null != mqttDataLinstener) {
                     mqttDataLinstener.messageArrived(topic, message);
                 }
-
-              // TODO: 2021/3/31 消息处理机制存在问题，需要修复,这种分发机制会导致使用超时的话一直都超时
-                if (message == null) {
-                    return;
-                }
-                //收到消息
-                String payload = new String(message.getPayload());
-                Timber.d("收到MQtt消息" + payload + "---topic" + topic + "  messageID  " + message.getId());
-                //String func, String topic, String payload, MqttMessage mqttMessage
-                JSONObject jsonObject = new JSONObject(payload);
-                int messageId = -1;
-                String returnCode = "";
-                String msgtype = "";
-                try {
-                    if (payload.contains("returnCode")) {
-                        returnCode = jsonObject.getString("returnCode");
-                    }
-
-                    if (payload.contains("msgId")) {
-                        messageId = jsonObject.getInt("msgId");
-                    }
-
-                    if (messageId == -1) {
-                        if (payload.contains("msgid")) {
-                            messageId = jsonObject.getInt("msgid");
-                        }
-                    }
-                    if (payload.contains("msgtype")) {
-                        msgtype = jsonObject.getString("msgtype");
-                    }
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-                MqttData mqttData = new MqttData(jsonObject.getString("func"), topic, payload, message, messageId);
-                mqttData.setReturnCode(returnCode);
-                mqttData.setMsgtype(msgtype);
-
-                onReceiverDataObservable.onNext(mqttData);
-
-                if (MQttConstant.WF_EVENT.equals(mqttData.getFunc())) {
-                    notifyEventObservable.onNext(mqttData);
-                }
-
             }
 
             @Override
@@ -321,15 +252,13 @@ public class MQTTManager {
                             IMqttActionListener() {
                                 @Override
                                 public void onSuccess(IMqttToken asyncActionToken) {
-                                    mSubscribe.onNext(true);
-                                    Timber.d("mqttSubscribe " + "订阅成功");
+                                   Timber.d("mqttSubscribe " + "订阅成功");
                                     //TODO:订阅成功，立即拿设备列表,此时拿设备列表，从mqtt转成以http方式
 
                                 }
 
                                 @Override
                                 public void onFailure(IMqttToken asyncActionToken, Throwable exception) {
-                                    mSubscribe.onNext(false);
                                     Timber.d("mqttSubscribe " + "订阅失败");
                                     MqttExceptionHandle.onFail(MqttExceptionHandle.SubscribeException, asyncActionToken, exception);
                                 }
@@ -341,39 +270,27 @@ public class MQTTManager {
         }
     }
 
-    //发布
-    public Observable<MqttData> mqttEventNotifyPublishListener() {
-        return notifyEventObservable;
-    }
 
     //发布
-    public Observable<MqttData> mqttPublish(String topic, MqttMessage mqttMessage) {
-        try {
-            if (mqttClient != null && mqttClient.isConnected()) {
-                Timber.e("发布mqtt消息 :" +mqttMessage.toString());
+    public void mqttPublish(String topic, MqttMessage mqttMessage) throws MqttException {
+         if (mqttClient != null && mqttClient.isConnected()) {
+                Timber.e("发布mqtt消息 :" + mqttMessage.toString());
                 Timber.e("发布mqtt消息 " + "topic: " + topic + "  mqttMessage: " + mqttMessage.toString());
                 mqttClient.publish(topic, mqttMessage, null, new IMqttActionListener() {
                     @Override
                     public void onSuccess(IMqttToken asyncActionToken) {
-                        LogUtils.e("发布消息成功  ", topic + "  消息Id  " + mqttMessage.getId() );
-                        publishObservable.onNext(new PublishResult(true, asyncActionToken, mqttMessage));
+                        LogUtils.e("发布消息成功  ", topic + "  消息Id  " + mqttMessage.getId());
                     }
 
                     @Override
                     public void onFailure(IMqttToken asyncActionToken, Throwable exception) {
                         Timber.e("发布消息失败 " + topic + "    fail");
                         MqttExceptionHandle.onFail(MqttExceptionHandle.PublishException, asyncActionToken, exception);
-                        publishObservable.onNext(new PublishResult(false, asyncActionToken, mqttMessage));
                     }
                 });
             } else {
                 mqttConnection();
             }
-        } catch (MqttException e) {
-            e.printStackTrace();
-
-        }
-        return onReceiverDataObservable;
     }
 
     //mqtt先断开，后退出http
@@ -399,13 +316,11 @@ public class MQTTManager {
                         mqttClient = null;
                         App.getInstance().tokenInvalid(true);
                         Timber.d("mqttDisconnect " + "断开连接成功");
-                        disconnectObservable.onNext(true);
                     }
 
                     @Override
                     public void onFailure(IMqttToken asyncActionToken, Throwable exception) {
                         Timber.d("正在断开连接失败");
-                        disconnectObservable.onNext(false);
                     }
                 });
             } catch (MqttException e) {
@@ -414,7 +329,6 @@ public class MQTTManager {
         } else {
             //被挤出
             Timber.d("正在断开连接被挤出");
-            disconnectObservable.onNext(true);
             mqttClient.unregisterResources();
             mqttClient = null;
             App.getInstance().tokenInvalid(true);
@@ -443,13 +357,11 @@ public class MQTTManager {
                         mqttClient.unregisterResources();
                         mqttClient = null;
                         Timber.d("mqttDisconnect " + "断开连接成功");
-                        disconnectObservable.onNext(true);
                     }
 
                     @Override
                     public void onFailure(IMqttToken asyncActionToken, Throwable exception) {
                         Timber.d("正在断开连接失败");
-                        disconnectObservable.onNext(false);
                     }
                 });
             } catch (MqttException e) {
@@ -458,7 +370,6 @@ public class MQTTManager {
         } else {
             //被挤出
             Timber.d("正在断开连接被挤出");
-            disconnectObservable.onNext(true);
             mqttClient.unregisterResources();
             mqttClient = null;
         }
@@ -477,13 +388,4 @@ public class MQTTManager {
         }
         return false;
     }
-
-
-    /**
-     * MQTT协议获取当前用户的所有设备
-     */
-    public void GET_ALL_BIND_DEVICE() {
-        mqttPublish(MQttConstant.PUBLISH_TO_SERVER, MqttCommandFactory.getAllBindDevices(App.getInstance().getUserBean().getUid()));
-    }
-
 }

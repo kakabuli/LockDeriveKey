@@ -41,6 +41,7 @@ import com.revolo.lock.room.entity.BleDeviceLocal;
 
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.IMqttToken;
+import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -176,14 +177,14 @@ public class LockAppService extends Service {
             switch (msg.what) {
                 case MSG_MESSAGE_SEND_OUT_TIME:
                     //发送message超时
-                    outTimeNextMessage();
-                   /* if (null != message) {
+                    LockMessage message=outTimeNextMessage();
+                    if (null != message) {
                         if (message.getMessageType() == 2) {
                             pushErrMessage(message.getMqtt_message_code());
                         } else if (message.getMessageType() == 3) {
 
                         }
-                    }*/
+                    }
                     break;
                 case MSG_MESSAGE_SEND_BLE:
                     sendMessageBle((LockMessage) msg.obj);
@@ -285,7 +286,7 @@ public class LockAppService extends Service {
      * @param bleDeviceLocal 设备对象
      */
     private void addDevice(BleDeviceLocal bleDeviceLocal) {
-        lock.lock();
+        //lock.lock();
         if (null == mDeviceLists) {
             mDeviceLists = new ArrayList<>();
         }
@@ -302,7 +303,7 @@ public class LockAppService extends Service {
             mDeviceLists.remove(index);
             mDeviceLists.add(bleDeviceLocal);
         }
-        lock.unlock();
+        //lock.unlock();
         Timber.e("getEventBus send");
         LockMessageRes lockMessageRes = new LockMessageRes();
         lockMessageRes.setMessgaeType(LockMessageCode.MSG_LOCK_MESSAGE_MQTT);//蓝牙消息
@@ -338,7 +339,7 @@ public class LockAppService extends Service {
      * @param mac
      */
     public void removeDevice(String esn, String mac) {
-        lock.lock();
+        //   lock.lock();
         if (null != mDeviceLists) {
             for (int i = 0; i < mDeviceLists.size(); i++) {
                 if (null != esn && esn.equals(mDeviceLists.get(i).getEsn()) || null != mac && mac.equals(mDeviceLists.get(i).getMac())) {
@@ -347,7 +348,7 @@ public class LockAppService extends Service {
                 }
             }
         }
-        lock.unlock();
+        // lock.unlock();
 
     }
 
@@ -422,7 +423,7 @@ public class LockAppService extends Service {
      * @return
      */
     public void updateDevice(String esn, String mac) {
-        lock.lock();
+        //    lock.lock();
         LogUtils.e(TAG, "esn:" + esn + ";mac:" + mac);
         if (0 == mDeviceLists.size()) return;
         for (int i = 0; i < mDeviceLists.size(); i++) {
@@ -435,7 +436,7 @@ public class LockAppService extends Service {
                 break;
             }
         }
-        lock.unlock();
+        //lock.unlock();
 
     }
 
@@ -443,7 +444,7 @@ public class LockAppService extends Service {
      * 更新全部设备的状态
      */
     public void updateAllDevice() {
-        lock.lock();
+        //  lock.lock();
         for (int i = 0; i < mDeviceLists.size(); i++) {
             //判断蓝牙mac和sn码
             boolean bleState = onGetConnectedState(mDeviceLists.get(i).getMac());//当前蓝牙设的设备的状态
@@ -452,7 +453,7 @@ public class LockAppService extends Service {
             mDeviceLists.get(i).setConnectedType(checkDeviceState(bleState, mqttState, appMqttState));//ble
             break;
         }
-        lock.unlock();
+        //  lock.unlock();
 
     }
 
@@ -926,10 +927,10 @@ public class LockAppService extends Service {
         @Override
         public void messageArrived(String topic, MqttMessage message) {
             //MQTT 收到消息  ，做相应处理或是上报ui
-            if (null != mAppMqttMessage) {
+          /*  if (null != mAppMqttMessage) {
                 toDisposable(mAppMqttMessage);
                 mAppMqttMessage = null;
-            }
+            }*/
             mHandler.removeMessages(MSG_MESSAGE_SEND_OUT_TIME);
             mHandler.sendEmptyMessage(MSG_MESSAGE_NEXT_SEND);
             try {
@@ -1094,21 +1095,21 @@ public class LockAppService extends Service {
         sendMessage();
     }
 
-    private void nextMessage() {
-        //LockMessage message = null;
+    private LockMessage nextMessage() {
+        LockMessage message = null;
         messageLock.lock();
         if (lockMessageList.size() > 0) {
-            // message = new LockMessage(lockMessageList.get(0));
+            message = new LockMessage(lockMessageList.get(0));
             lockMessageList.remove(0);
         }
         messageLock.unlock();
         nextSendMessage();
-        // return message;
+        return message;
     }
 
-    private void outTimeNextMessage() {
+    private LockMessage outTimeNextMessage() {
         //
-        nextMessage();
+        return nextMessage();
         /*if (lockMessageList.size() > 0) {
             if (lockMessageList.get(0).getSendFrequency() > 3) {
                 nextMessage();
@@ -1205,8 +1206,7 @@ public class LockAppService extends Service {
      * 发送 MQTT
      * @param message
      */
-    Disposable mAppMqttMessage = null;
-
+    // Disposable mAppMqttMessage = null;
     private void sendMessageMQTT(LockMessage message) {
         message.addSendFre();
       /* MQTTManager.getInstance().mqttPublish(message.getMqtt_topic(),
@@ -1216,8 +1216,15 @@ public class LockAppService extends Service {
        */
         mHandler.sendEmptyMessageDelayed(MSG_MESSAGE_SEND_OUT_TIME, 3000);
 
+        try {
+            MQTTManager.getInstance().mqttPublish(message.getMqtt_topic(),
+                    message.getMqttMessage());
+        } catch (MqttException e) {
+            pushErrMessage(message.getMqtt_message_code());
+            e.printStackTrace();
+        }
 
-        mAppMqttMessage = MQTTManager.getInstance().mqttPublish(message.getMqtt_topic(),
+     /*   mAppMqttMessage = MQTTManager.getInstance().mqttPublish(message.getMqtt_topic(),
                 message.getMqttMessage())
                 .timeout(3, TimeUnit.SECONDS)
                 .subscribe(mqttData -> {
@@ -1235,7 +1242,7 @@ public class LockAppService extends Service {
 
 
                 });
-
+*/
 
     }
 
@@ -1304,7 +1311,7 @@ public class LockAppService extends Service {
      */
     private void sendMessageBle(LockMessage message) {
         message.addSendFre();
-        BleManager.getInstance().write(message.getMac(), message.getBytes());
+        BleManager.getInstance().write(message.getBleChr(), message.getMac(), message.getBytes());
         mHandler.sendEmptyMessageDelayed(MSG_MESSAGE_SEND_OUT_TIME, 500);
     }
 }

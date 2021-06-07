@@ -3,6 +3,7 @@ package com.revolo.lock.ui.user;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -50,7 +51,7 @@ public class UserFragment extends Fragment {
         mUserViewModel =
                 new ViewModelProvider(this).get(UserViewModel.class);
         View root = inflater.inflate(R.layout.fragment_user, container, false);
-        if(getContext() != null) {
+        if (getContext() != null) {
             new TitleBar(root).setTitle(getString(R.string.title_user))
                     .setRight(R.drawable.ic_home_icon_add, v -> {
                         Intent intent = new Intent(getContext(), AddDeviceForSharedUserActivity.class);
@@ -88,23 +89,28 @@ public class UserFragment extends Fragment {
         getAllSharedUserFromAdminUser();
     }
 
+    @Override
+    public void onStart() {
+        super.onStart();
+    }
+
     private void getAllSharedUserFromAdminUser() {
-        if(getActivity() instanceof BaseActivity) {
-            if(!((BaseActivity)getActivity()).checkNetConnectFail()) {
+        if (getActivity() instanceof BaseActivity) {
+            if (!((BaseActivity) getActivity()).checkNetConnectFail()) {
                 return;
             }
         }
-        if(App.getInstance().getUserBean() == null) {
+        if (App.getInstance().getUserBean() == null) {
             Timber.e("getAllSharedUserFromAdminUser App.getInstance().getUserBean() == null");
             return;
         }
         String uid = App.getInstance().getUserBean().getUid();
-        if(TextUtils.isEmpty(uid)) {
+        if (TextUtils.isEmpty(uid)) {
             Timber.e("getAllSharedUserFromAdminUser uid is empty");
             return;
         }
         String token = App.getInstance().getUserBean().getToken();
-        if(TextUtils.isEmpty(token)) {
+        if (TextUtils.isEmpty(token)) {
             Timber.e("getAllSharedUserFromAdminUser token is empty");
             return;
         }
@@ -122,28 +128,28 @@ public class UserFragment extends Fragment {
             public void onNext(@NonNull GetAllSharedUserFromAdminUserBeanRsp userBeanRsp) {
                 dismissLoading();
                 String code = userBeanRsp.getCode();
-                if(TextUtils.isEmpty(code)) {
+                if (TextUtils.isEmpty(code)) {
                     Timber.e("getAllSharedUserFromAdminUser code is empty");
                     return;
                 }
-                if(!code.equals("200")) {
-                    if(code.equals("444")) {
+                if (!code.equals("200")) {
+                    if (code.equals("444")) {
                         App.getInstance().logout(true, getActivity());
                         return;
                     }
                     String msg = userBeanRsp.getMsg();
-                    if(!TextUtils.isEmpty(msg)) {
+                    if (!TextUtils.isEmpty(msg)) {
                         ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(msg);
                     }
                     Timber.e("getAllSharedUserFromAdminUser code: %1s, msg: %2s", code, userBeanRsp.getMsg());
                     return;
                 }
-                if(userBeanRsp.getData() == null) {
+                if (userBeanRsp.getData() == null) {
                     mLlNoUser.setVisibility(View.VISIBLE);
                     mRvLockList.setVisibility(View.GONE);
                     return;
                 }
-                if(userBeanRsp.getData().isEmpty()) {
+                if (userBeanRsp.getData().isEmpty()) {
                     mLlNoUser.setVisibility(View.VISIBLE);
                     mRvLockList.setVisibility(View.GONE);
                 } else {
@@ -175,8 +181,8 @@ public class UserFragment extends Fragment {
     }
 
     public void showLoading(@NotNull String message) {
-        if(mLoadingDialog != null) {
-            if(mLoadingDialog.isShowing()) {
+        if (mLoadingDialog != null) {
+            if (mLoadingDialog.isShowing()) {
                 mLoadingDialog.dismiss();
             }
         }
@@ -189,13 +195,13 @@ public class UserFragment extends Fragment {
     }
 
     public void showLoading() {
-        if(mLoadingDialog != null) {
+        if (mLoadingDialog != null) {
             mLoadingDialog.show();
         }
     }
 
     public void dismissLoading() {
-        if(mLoadingDialog != null) {
+        if (mLoadingDialog != null) {
             mLoadingDialog.dismiss();
         }
     }

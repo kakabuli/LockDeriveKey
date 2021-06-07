@@ -487,7 +487,14 @@ public class App extends Application {
             }
         }
     }
-
+    public void removeConnectedBleDisconnect(String mac) {
+        if (null != lockAppService) {
+            if (null!=mac&&!"".equals(mac)) {
+                lockAppService.removeDevice(mac,mac);
+                lockAppService.removeBleConnect(mac);
+            }
+        }
+    }
    /* public MqttService getMQttService() {
         return mMQttService;
     }*/
@@ -554,7 +561,7 @@ public class App extends Application {
     }
 
 
-    private final List<BleDeviceLocal> mBleDeviceLocals = new ArrayList<>();
+   /* private final List<BleDeviceLocal> mBleDeviceLocals = new ArrayList<>();
 
     public List<BleDeviceLocal> getBleDeviceLocals() {
         return mBleDeviceLocals;
@@ -582,7 +589,7 @@ public class App extends Application {
                 return;
             }
         }
-    }
+    }*/
 
     /*-------------------------------- 蓝牙搜索 --------------------------------*/
     private OKBLEScanManager mScanManager;

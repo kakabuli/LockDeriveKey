@@ -130,9 +130,9 @@ public class AddWifiActivity extends BaseActivity {
             //MQTT
             if(lockMessage.getResultCode()==LockMessageCode.MSG_LOCK_MESSAGE_CODE_SUCCESS){
                 switch (lockMessage.getMessageCode()){
-
                 }
             }else{
+                dismissLoading();
                 switch (lockMessage.getResultCode()){}
             }
         }else {

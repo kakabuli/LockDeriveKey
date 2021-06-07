@@ -364,7 +364,7 @@ public class DeviceSettingActivity extends BaseActivity {
                 message.setMac(mBleDeviceLocal.getMac().toUpperCase());
                 EventBus.getDefault().post(message);
 
-                App.getInstance().removeBleDeviceLocalFromMac(mBleDeviceLocal.getEsn());
+                App.getInstance().removeConnectedBleDisconnect(mBleDeviceLocal.getMac());
                 AppDatabase.getInstance(getApplicationContext()).bleDeviceDao().delete(mBleDeviceLocal);
                 ToastUtils.showShort(R.string.t_unbind_success);
                 new Handler(Looper.getMainLooper()).postDelayed(() -> {

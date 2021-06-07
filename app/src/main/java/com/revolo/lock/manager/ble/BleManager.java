@@ -399,10 +399,14 @@ public class BleManager {
         }
     };
 
-    public void write(String mac, byte[] bytes) {
+    public void write(int writeType, String mac, byte[] bytes) {
         BleBean bleBean = getBleBeanFromMac(mac);
         if (null != bleBean && null != bleBean.getOKBLEDeviceImp()) {
-            writeControlMsg(bytes, bleBean.getOKBLEDeviceImp());
+            if (writeType == 0) {
+                writeControlMsg(bytes, bleBean.getOKBLEDeviceImp());
+            } else {
+                writePairMsg(bytes, bleBean.getOKBLEDeviceImp());
+            }
         }
 
     }
