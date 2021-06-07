@@ -133,12 +133,13 @@ public class PasswordListActivity extends BaseActivity {
         mPasswordListAdapter.setEmptyView(R.layout.empty_view_password_list);
         mPasswordListAdapter.setOnDeletePassWordListener((view, position) -> {
 
-        if (mPasswordListAdapter != null) {
-            DevicePwdBean item = mPasswordListAdapter.getItem(position);
-            if (item != null) {
-                delPwd(item);
+            if (mPasswordListAdapter != null) {
+                DevicePwdBean item = mPasswordListAdapter.getItem(position);
+                if (item != null) {
+                    delPwd(item);
+                }
             }
-    }});
+        });
         initLoading("Loading...");
 
         mRefreshLayout = findViewById(R.id.refreshLayout);
@@ -403,13 +404,10 @@ public class PasswordListActivity extends BaseActivity {
         // 星期：      保留  六  五  四  三  二  一  日
         if (attribute == KEY_SET_ATTRIBUTE_WEEK_KEY) {
             boolean isSaveWeekly = true;
-            if (bean.getItems() == null) {
+            if (bean.getItems() == null || bean.getItems().isEmpty()) {
                 Timber.e("processKeyListFromNet bean.getItems() == null");
                 isSaveWeekly = false;
-            }
-            if (bean.getItems().isEmpty()) {
-                Timber.e("processKeyListFromNet bean.getItems().isEmpty()");
-                isSaveWeekly = false;
+                return;
             }
             byte[] weekBit = new byte[8];
             for (String day : bean.getItems()) {
@@ -888,7 +886,6 @@ public class PasswordListActivity extends BaseActivity {
                 mSucMessageDialog.show();
             }
         });
-
     }
 
     private void initFailMessageDialog() {
@@ -906,6 +903,5 @@ public class PasswordListActivity extends BaseActivity {
             if (mFailMessageDialog != null) {
                 mFailMessageDialog.show();
             }
-        });
-    }
+        });    }
 }

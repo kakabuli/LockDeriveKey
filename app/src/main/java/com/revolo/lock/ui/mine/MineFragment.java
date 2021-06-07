@@ -1,6 +1,10 @@
 package com.revolo.lock.ui.mine;
 
+import android.app.Activity;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
+import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -10,18 +14,29 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.blankj.utilcode.util.TimeUtils;
+import com.blankj.utilcode.util.ToastUtils;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.RequestOptions;
+import com.revolo.lock.App;
 import com.revolo.lock.R;
+import com.revolo.lock.bean.request.AlexaAppUrlAndWebUrlReq;
+import com.revolo.lock.bean.respone.AlexaAppUrlAndWebUrlBeanRsp;
+import com.revolo.lock.net.HttpRequest;
+import com.revolo.lock.net.ObservableDecorator;
 import com.revolo.lock.room.entity.User;
 
 import java.io.File;
+import java.util.List;
 
+import io.reactivex.Observable;
+import io.reactivex.Observer;
+import io.reactivex.disposables.Disposable;
 import timber.log.Timber;
 
 public class MineFragment extends Fragment {
@@ -47,7 +62,16 @@ public class MineFragment extends Fragment {
         root.findViewById(R.id.clSetting).setOnClickListener(v -> startActivity(new Intent(getContext(), SettingActivity.class)));
         root.findViewById(R.id.clAbout).setOnClickListener(v -> startActivity(new Intent(getContext(), AboutActivity.class)));
         root.findViewById(R.id.clFeedback).setOnClickListener(v -> startActivity(new Intent(getContext(), FeedbackActivity.class)));
-        root.findViewById(R.id.clHelp).setOnClickListener(v -> startActivity(new Intent(getContext(), HelpActivity.class)));
+        root.findViewById(R.id.clHelp).setOnClickListener(v -> {
+            String url = "https://alexa.amazon.com/spa/skill-account-linking-consent?fragment=skill-account-linking-consent&client_id=amzn1.application-oa2-client.f37d0df669ae40de9974517af080afc0&scope=alexa::skills:account_linking&response_type=code&redirect_uri=https://test.irevolo.com/zetark-oauth2-server/alexa&skill_stage=development&state=ANzKzFbXxieNyCqTLYMi";
+            boolean b = schemeValid(url);
+            if (b){
+                ToastUtils.showShort("true");
+            }else {
+                ToastUtils.showShort("false");
+            }
+        });
+//        startActivity(new Intent(getContext(), HelpActivity.class));
         return root;
     }
 
@@ -98,4 +122,11 @@ public class MineFragment extends Fragment {
                 .into(ivAvatar);
     }
 
+    private boolean schemeValid(String url) {
+        PackageManager manager = getActivity().getPackageManager();
+        Intent action = new Intent(Intent.ACTION_VIEW);
+        action.setData(Uri.parse(url));
+        List<ResolveInfo> resolveInfos = manager.queryIntentActivities(action, PackageManager.GET_RESOLVED_FILTER);
+        return !resolveInfos.isEmpty();
+    }
 }

@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.content.res.Resources;
 import android.net.Uri;
 import android.os.Bundle;
@@ -33,9 +34,11 @@ import com.revolo.lock.LocalState;
 import com.revolo.lock.R;
 import com.revolo.lock.base.BaseActivity;
 import com.revolo.lock.bean.request.AlexaAppUrlAndWebUrlReq;
+import com.revolo.lock.bean.request.AlexaSkillEnableReq;
 import com.revolo.lock.bean.request.DeviceUnbindBeanReq;
 import com.revolo.lock.bean.request.UpdateLockInfoReq;
 import com.revolo.lock.bean.respone.AlexaAppUrlAndWebUrlBeanRsp;
+import com.revolo.lock.bean.respone.AlexaSkillEnableBeanRsp;
 import com.revolo.lock.bean.respone.DeviceUnbindBeanRsp;
 import com.revolo.lock.bean.respone.UpdateLockInfoRsp;
 import com.revolo.lock.ble.BleByteUtil;
@@ -599,18 +602,9 @@ public class DeviceSettingActivity extends BaseActivity {
                         AlexaAppUrlAndWebUrlBeanRsp.DataBean data = alexaAppUrlAndWebUrlBeanRsp.getData();
                         String appUrl = data.getAppUrl();
                         String webFallbackUrl = data.getWebFallbackUrl();
-                        String packageName = "com.amazon.dee.app";
                         runOnUiThread(() -> {
-                            if (isAppInstalled(packageName)) {
-                                Intent launchIntentForPackage = getPackageManager().getLaunchIntentForPackage(packageName);
-                                String className = launchIntentForPackage.getComponent().getClassName();
-                                Intent intent = new Intent();
-                                intent.setAction(Intent.ACTION_MAIN);
-                                intent.setData(Uri.parse(appUrl));
-                                intent.addCategory(Intent.CATEGORY_LAUNCHER);
-                                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
-                                intent.setComponent(new ComponentName(packageName, className));
-                                startActivity(intent);
+                            if (schemeValid(appUrl)) {
+                                gotoAlexa(appUrl);
                             } else {
                                 Intent intent = new Intent();
                                 intent.setAction(Intent.ACTION_VIEW);
@@ -635,16 +629,88 @@ public class DeviceSettingActivity extends BaseActivity {
         });
     }
 
-    public boolean isAppInstalled(String packageName) {
-        final PackageManager packageManager = getPackageManager();
-        List<PackageInfo> packageInfo = packageManager.getInstalledPackages(0);
-        List<String> pName = new ArrayList<>();
-        if (packageInfo != null) {
-            for (int i = 0; i < packageInfo.size(); i++) {
-                String pn = packageInfo.get(i).packageName;
-                pName.add(pn);
-            }
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (data != null && requestCode == Activity.RESULT_OK && requestCode == REQUEST_CODE) {
+            String authorizationCode = data.getStringExtra("authorizationCode");
+            String stringExtra = data.getStringExtra("state");
+            skillAlexa(authorizationCode, stringExtra);
         }
-        return pName.contains(packageName);
+    }
+
+    private final static int REQUEST_CODE = 0xf01;
+
+    private void gotoAlexa(String url) {
+        Intent action = new Intent(Intent.ACTION_VIEW);
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append(url);
+        action.setData(Uri.parse(stringBuilder.toString()));
+        startActivityForResult(action, REQUEST_CODE);
+    }
+
+    private boolean schemeValid(String url) {
+        PackageManager manager = getPackageManager();
+        Intent action = new Intent(Intent.ACTION_VIEW);
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append(url);
+        Uri parse = Uri.parse(stringBuilder.toString());
+        String host = parse.getHost();
+        action.setData(Uri.parse(host));
+        List<ResolveInfo> resolveInfos = manager.queryIntentActivities(action, PackageManager.GET_RESOLVED_FILTER);
+        return resolveInfos != null && resolveInfos.size() > 0;
+    }
+
+    private void skillAlexa(String authorizationCode, String state) {
+
+        String token = App.getInstance().getUserBean().getToken();
+        if (TextUtils.isEmpty(token)) {
+            Timber.e("token is empty");
+            return;
+        }
+
+        String userMail = App.getInstance().getUser().getMail();
+        if (TextUtils.isEmpty(userMail)) {
+            Timber.e("userMail is empty");
+            return;
+        }
+
+        if (TextUtils.isEmpty(authorizationCode)) {
+            Timber.e("authorizationCode is empty");
+            return;
+        }
+
+        if (TextUtils.isEmpty(state)) {
+            Timber.e("authorizationCode is empty");
+            return;
+        }
+
+        AlexaSkillEnableReq alexaSkillEnableReq = new AlexaSkillEnableReq();
+        alexaSkillEnableReq.setAuthorizationCode(authorizationCode);
+        alexaSkillEnableReq.setState(state);
+        alexaSkillEnableReq.setType(1);
+        alexaSkillEnableReq.setUserMail(userMail);
+        Observable<AlexaSkillEnableBeanRsp> alexaSkillEnableBeanRspObservable = HttpRequest.getInstance().skillEnable(token, alexaSkillEnableReq);
+        ObservableDecorator.decorate(alexaSkillEnableBeanRspObservable).safeSubscribe(new Observer<AlexaSkillEnableBeanRsp>() {
+            @Override
+            public void onSubscribe(@io.reactivex.annotations.NonNull Disposable d) {
+
+            }
+
+            @Override
+            public void onNext(@io.reactivex.annotations.NonNull AlexaSkillEnableBeanRsp alexaSkillEnableBeanRsp) {
+                ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show("Alexa Skill Success!");
+            }
+
+            @Override
+            public void onError(@io.reactivex.annotations.NonNull Throwable e) {
+
+            }
+
+            @Override
+            public void onComplete() {
+
+            }
+        });
     }
 }

@@ -292,9 +292,9 @@
                 <!--协议部分-->
                 <!--声明自定义scheme，类似于http, https-->
                 <data
-                    android:host="test.irevolo.com"
-                    android:pathPrefix="/test"
-                    android:scheme="https" />
+                    android:host="192.168.8.252"
+                    android:pathPrefix="/share/user"
+                    android:scheme="http" />
             </intent-filter>
             <intent-filter android:label="test_app">
                 <!--必有项-->

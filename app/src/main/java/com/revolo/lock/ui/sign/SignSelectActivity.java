@@ -190,7 +190,7 @@ public class SignSelectActivity extends BaseActivity {
                 new BiometricPrompt.PromptInfo.Builder()
                         .setTitle(" ") //设置大标题
                         .setSubtitle("") // 设置标题下的提示
-                        .setNegativeButtonText("Cancel") //设置取消按钮
+                        .setNegativeButtonText("More Login") //设置取消按钮
                         .build();
 
         //需要提供的参数callback
@@ -201,7 +201,7 @@ public class SignSelectActivity extends BaseActivity {
                                               @NonNull CharSequence errString) {
                 super.onAuthenticationError(errorCode, errString);
                 Timber.e("Authentication error: %s", errString);
-                if (errString.equals("Cancel")) { // 取消
+                if (errString.equals("More Login")) { // 取消
                     constraintLayout.setVisibility(View.GONE);
                     gestureCode(loginJson, isUseGestureCode);
                 }

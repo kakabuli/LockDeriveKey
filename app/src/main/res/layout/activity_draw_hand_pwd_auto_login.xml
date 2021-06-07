@@ -51,8 +51,8 @@
         android:layout_marginRight="16pt"
         android:gravity="center"
         android:text="more login"
-        android:textColor="@color/picture_color_grey"
-        android:textSize="16pt"
+        android:textColor="@color/colorPrimary"
+        android:textSize="24pt"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintRight_toRightOf="parent" />
 

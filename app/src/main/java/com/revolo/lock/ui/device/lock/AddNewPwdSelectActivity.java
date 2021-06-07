@@ -90,13 +90,13 @@ public class AddNewPwdSelectActivity extends BaseActivity {
     private TextView mTvStartDate, mTvStartDateTime, mTvEndDate, mTvEndDateTime;
     private View mVSun, mVMon, mVTues, mVWed, mVThur, mVFri, mVSat;
 
-    private boolean isSelectedSun = false;
-    private boolean isSelectedMon = false;
-    private boolean isSelectedTues = false;
-    private boolean isSelectedWed = false;
-    private boolean isSelectedThur = false;
-    private boolean isSelectedFri = false;
-    private boolean isSelectedSat = false;
+    private boolean isSelectedSun = true;
+    private boolean isSelectedMon = true;
+    private boolean isSelectedTues = true;
+    private boolean isSelectedWed = true;
+    private boolean isSelectedThur = true;
+    private boolean isSelectedFri = true;
+    private boolean isSelectedSat = true;
 
     @IntDef(value = {PERMANENT_STATE, SCHEDULE_STATE, TEMPORARY_STATE})
     private @interface AttributeState{}
@@ -180,6 +180,14 @@ public class AddNewPwdSelectActivity extends BaseActivity {
         mTvStartDateTime = findViewById(R.id.tvStartDateTime);
         mTvEndDate = findViewById(R.id.tvEndDate);
         mTvEndDateTime = findViewById(R.id.tvEndDateTime);
+
+        mVSun.setVisibility(isSelectedSun?View.VISIBLE:View.GONE);
+        mVMon.setVisibility(isSelectedSun?View.VISIBLE:View.GONE);
+        mVTues.setVisibility(isSelectedSun?View.VISIBLE:View.GONE);
+        mVWed.setVisibility(isSelectedSun?View.VISIBLE:View.GONE);
+        mVThur.setVisibility(isSelectedSun?View.VISIBLE:View.GONE);
+        mVFri.setVisibility(isSelectedSun?View.VISIBLE:View.GONE);
+        mVSat.setVisibility(isSelectedSun?View.VISIBLE:View.GONE);
     }
 
     @Override

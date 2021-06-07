@@ -41,7 +41,7 @@ public class PasswordListAdapter extends BaseQuickAdapter<DevicePwdBean, BaseVie
             TextView tvPwdName = baseViewHolder.getView(R.id.tvPwdName);
             TextView tvDetail = baseViewHolder.getView(R.id.tvDetail);
             // TODO: 2021/2/21 要提前判断密码是否失效
-            if (devicePwdBean.getPwdState() == 2) {
+            if (isTimeInvalid(devicePwdBean)) {
                 baseViewHolder.setImageResource(R.id.ivPwdState, R.drawable.ic_home_icon_password_overdue);
                 tvPwdName.setTextColor(ContextCompat.getColor(getContext(), R.color.cCCCCCC));
                 tvDetail.setTextColor(ContextCompat.getColor(getContext(), R.color.cCCCCCC));

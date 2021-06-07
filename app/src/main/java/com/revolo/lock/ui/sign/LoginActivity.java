@@ -106,9 +106,9 @@ public class LoginActivity extends BaseActivity {
                 emailName = "zhouguimin@kaadas.com";
                 mEtEmail.setText("zhouguimin@kaadas.com");
             }
-        }
-        if (BuildConfig.DEBUG) {
-            mEtPwd.setText("zgm123456");
+            if (BuildConfig.DEBUG) {
+                mEtPwd.setText("zgm123456");
+            }
         }
         initLoading("Loading...");
     }

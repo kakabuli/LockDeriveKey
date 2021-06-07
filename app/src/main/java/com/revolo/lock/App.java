@@ -494,6 +494,10 @@ public class App extends Application {
 
     public void logout(boolean isShowDialog, Activity act) {
         // TODO: 2021/3/30 logout的数据操作
+        User user = App.getInstance().getUser();
+        AppDatabase.getInstance(getApplicationContext()).userDao().delete(user);
+        App.getInstance().getUserBean().setToken(""); // 清空token
+        SPUtils.getInstance(REVOLO_SP).put(Constant.USER_LOGIN_INFO, ""); // 清空登录信息
         clearAndDisconnectAllDevice();
         new Thread(){
             @Override

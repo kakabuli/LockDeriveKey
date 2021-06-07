@@ -429,16 +429,10 @@ public class UserPageActivity extends BaseActivity implements EasyPermissions.Pe
                     }
                 }
 
-                new Thread(){
-                    @Override
-                    public void run() {
-                        super.run();
-                        User user = App.getInstance().getUser();
-                        AppDatabase.getInstance(getApplicationContext()).userDao().delete(user);
-                        App.getInstance().getUserBean().setToken(""); // 清空token
-                        SPUtils.getInstance(REVOLO_SP).put(Constant.USER_LOGIN_INFO, ""); // 清空登录信息
-                    }
-                }.start();
+                User user = App.getInstance().getUser();
+                AppDatabase.getInstance(getApplicationContext()).userDao().delete(user);
+                App.getInstance().getUserBean().setToken(""); // 清空token
+                SPUtils.getInstance(REVOLO_SP).put(Constant.USER_LOGIN_INFO, ""); // 清空登录信息
                 // TODO: 2021/3/30 退出操作
                 if (App.getInstance().getMainActivity() != null) {
                     App.getInstance().getMainActivity().finish();
