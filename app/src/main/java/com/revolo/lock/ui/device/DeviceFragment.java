@@ -111,7 +111,7 @@ public class DeviceFragment extends Fragment {
                         @LocalState.LockState int state = mHomeLockListAdapter.getItem(position).getLockState();
                         openOrCloseDoor(mHomeLockListAdapter.getItem(position).getEsn(),
                                 state == LocalState.LOCK_STATE_OPEN ? LocalState.DOOR_STATE_CLOSE : LocalState.DOOR_STATE_OPEN,
-                                mBleDeviceLocals.get(position), 0, position, state,connectedState);
+                                mBleDeviceLocals.get(position), 0, position, state, connectedState);
                     }
                 });
                 rvLockList.setAdapter(mHomeLockListAdapter);
@@ -131,12 +131,14 @@ public class DeviceFragment extends Fragment {
         }
         return root;
     }
+
     public void onRegisterEventBus() {
         boolean registered = EventBus.getDefault().isRegistered(this);
         if (!registered) {
             EventBus.getDefault().register(this);
         }
     }
+
     private void initTitleBar() {
         new TitleBar(root).setTitle(getString(R.string.title_my_devices))
                 .setRight(R.drawable.ic_home_icon_add,
@@ -232,9 +234,25 @@ public class DeviceFragment extends Fragment {
 
     public void openOrCloseDoor(String wifiId,
                                 @LocalState.DoorState int doorOpt,
-                                BleDeviceLocal bleDeviceLocal, int num, int position, @LocalState.LockState int state,int connectState) {
+                                BleDeviceLocal bleDeviceLocal, int num, int position, @LocalState.LockState int state, int connectState) {
         LockMessage message = new LockMessage();
-        if (connectState == LocalState.DEVICE_CONNECT_TYPE_WIFI ||connectState == LocalState.DEVICE_CONNECT_TYPE_WIFI_BLE) {
+        if (connectState == LocalState.DEVICE_CONNECT_TYPE_BLE || connectState == LocalState.DEVICE_CONNECT_TYPE_WIFI_BLE) {
+            //ble
+            BleBean bleBean = App.getInstance().getUserBleBean(mBleDeviceLocals.get(position).getMac());
+            if (bleBean == null || bleBean.getOKBLEDeviceImp() == null || bleBean.getPwd1() == null || bleBean.getPwd3() == null) {
+                Timber.e("openOrCloseDoorFromBle bleBean.getPwd3() == null");
+                message.setBytes(null);
+            } else {
+                message.setMessageType(3);
+                message.setBytes(BleCommandFactory.lockControlCommand(
+                        (byte) (state == LocalState.LOCK_STATE_OPEN ? LOCK_SETTING_CLOSE : LOCK_SETTING_OPEN),
+                        (byte) 0x04,
+                        (byte) 0x01,
+                        bleBean.getPwd1(),
+                        bleBean.getPwd3()));
+                message.setMac(bleDeviceLocal.getMac());
+            }
+        } else {
             //wifi
             if (App.getInstance().getUserBean() == null || bleDeviceLocal == null
                     || getActivity() == null) {
@@ -253,22 +271,6 @@ public class DeviceFragment extends Fragment {
                                         ConvertUtils.hexString2Bytes(bleDeviceLocal.getPwd2())),
                                 bleDeviceLocal.getRandomCode(),
                                 num));
-            }
-        } else {
-            //ble
-            BleBean bleBean = App.getInstance().getUserBleBean(mBleDeviceLocals.get(position).getMac());
-            if (bleBean == null || bleBean.getOKBLEDeviceImp() == null || bleBean.getPwd1() == null || bleBean.getPwd3() == null) {
-                Timber.e("openOrCloseDoorFromBle bleBean.getPwd3() == null");
-                message.setBytes(null);
-            } else {
-                message.setMessageType(3);
-                message.setBytes(BleCommandFactory.lockControlCommand(
-                        (byte) (state == LocalState.LOCK_STATE_OPEN ? LOCK_SETTING_CLOSE : LOCK_SETTING_OPEN),
-                        (byte) 0x04,
-                        (byte) 0x01,
-                        bleBean.getPwd1(),
-                        bleBean.getPwd3()));
-                message.setMac(bleDeviceLocal.getMac());
             }
         }
         if (null == message.getBytes() && null == message.getMqttMessage()) {

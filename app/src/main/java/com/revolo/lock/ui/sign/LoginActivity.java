@@ -4,8 +4,11 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.text.Editable;
 import android.text.InputType;
 import android.text.TextUtils;
+import android.text.TextWatcher;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.EditText;
@@ -81,12 +84,30 @@ public class LoginActivity extends BaseActivity {
                     // 此处为失去焦点时的处理内容
                     emailName = mEtEmail.getText().toString();
                     if (null != emailName && !"".equals(emailName) && emailName.length() > 15) {
-                        String hintText = emailName.substring(0, 7) + "..." + emailName.substring(emailName.length() - 7, emailName.length());
+                        String hintText = emailName.substring(0, 5) + "..." + emailName.substring(emailName.length() - 7, emailName.length());
                         mEtEmail.setText(hintText);
                     } else {
                         mEtEmail.setText(emailName);
                     }
                 }
+            }
+        });
+        mEtEmail.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                if (s.length() > 0) {
+                    emailName = s.toString();
+                } else {
+                    emailName = "";
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
             }
         });
         mEtPwd = findViewById(R.id.etPwd);

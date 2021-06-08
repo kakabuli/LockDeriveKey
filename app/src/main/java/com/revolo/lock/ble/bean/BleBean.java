@@ -17,6 +17,8 @@ public class BleBean implements Serializable {
     private byte[] pwd2;
     private byte[] pwd3;
     private String esn;
+    private String mac;
+    private int bleConning=0;  //0，未连接。1连接中。2连接成功 3断开
     private boolean isAppPair;
     private boolean isAuth;
     private OKBLEDeviceImp mOKBLEDeviceImp;
@@ -110,5 +112,21 @@ public class BleBean implements Serializable {
 
     public void setHavePwd2Or3(boolean havePwd2Or3) {
         isHavePwd2Or3 = havePwd2Or3;
+    }
+
+    public String getMac() {
+        return mac;
+    }
+
+    public void setMac(String mac) {
+        this.mac = mac;
+    }
+
+    public int getBleConning() {
+        return bleConning;
+    }
+
+    public void setBleConning(int bleConning) {
+        this.bleConning = bleConning;
     }
 }

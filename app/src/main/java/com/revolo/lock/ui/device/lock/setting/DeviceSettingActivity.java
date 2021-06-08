@@ -66,6 +66,9 @@ import io.reactivex.Observer;
 import io.reactivex.disposables.Disposable;
 import timber.log.Timber;
 
+import static com.revolo.lock.Constant.DEFAULT_TIMEOUT_SEC_VALUE;
+import static com.revolo.lock.ble.BleCommandState.LOCK_SETTING_CLOSE;
+import static com.revolo.lock.ble.BleCommandState.LOCK_SETTING_OPEN;
 import static com.revolo.lock.ble.BleProtocolState.CMD_LOCK_PARAMETER_CHANGED;
 import static com.revolo.lock.manager.LockMessageCode.MSG_LOCK_MESSAGE_REMOVE_DEVICE;
 import static com.revolo.lock.manager.LockMessageCode.MSG_LOCK_MESSAGE_USER;
@@ -303,6 +306,19 @@ public class DeviceSettingActivity extends BaseActivity {
     private void unbindDevice() {
         if (!checkNetConnectFail()) {
             return;
+        }
+        BleBean bleBean2 = App.getInstance().getUserBleBean(mBleDeviceLocal.getMac());
+        if (null != bleBean2) {
+            LockMessage message = new LockMessage();
+            message.setMessageType(3);
+            message.setBytes(BleCommandFactory.lockControlCommand(
+                    (byte) 0x03,
+                    (byte) 0x04,
+                    (byte) 0x01,
+                    bleBean2.getPwd1(),
+                    bleBean2.getPwd3()));
+            message.setMac(mBleDeviceLocal.getMac());
+            EventBus.getDefault().post(message);
         }
         showLoading("Unbinding...");
         Observable<DeviceUnbindBeanRsp> observable = HttpRequest

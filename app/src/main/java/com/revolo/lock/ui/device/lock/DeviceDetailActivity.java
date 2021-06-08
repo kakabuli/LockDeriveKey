@@ -3,6 +3,9 @@ package com.revolo.lock.ui.device.lock;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.CountDownTimer;
+import android.text.TextUtils;
+import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -336,11 +339,10 @@ public class DeviceDetailActivity extends BaseActivity {
             if (eventType == 0x01) {
                 if (eventCode == 0x01) {
                     // 上锁
-                    /*if (eventSource == 8) {
-                        setLockState(LocalState.LOCK_STATE_PRIVATE);
-                    } else {
-                        setLockState(LocalState.LOCK_STATE_CLOSE);
-                    }*/
+
+                    //      setLockState(LocalState.LOCK_STATE_PRIVATE);
+                    setLockState(LocalState.LOCK_STATE_CLOSE);
+
                 } else if (eventCode == 0x02) {
                     // 开锁
                     setLockState(LocalState.LOCK_STATE_OPEN);
@@ -466,13 +468,7 @@ public class DeviceDetailActivity extends BaseActivity {
         if (state == LocalState.LOCK_STATE_PRIVATE) {
             return;
         }
-        if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI) {
-            // TODO: 2021/4/1 主编号是0，分享用户再使用分享用户的编号
-            publishOpenOrCloseLock(
-                    mBleDeviceLocal.getEsn(),
-                    state == LocalState.LOCK_STATE_OPEN ? LocalState.DOOR_STATE_CLOSE : LocalState.DOOR_STATE_OPEN,
-                    mBleDeviceLocal.getRandomCode(), 0);
-        } else {
+        if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_BLE || mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI_BLE) {
             BleBean bleBean = App.getInstance().getUserBleBean(mBleDeviceLocal.getMac());
             if (bleBean == null) {
                 Timber.e("openDoor bleBean == null");
@@ -500,6 +496,12 @@ public class DeviceDetailActivity extends BaseActivity {
            /* App.getInstance().writeControlMsg(BleCommandFactory
                     .lockControlCommand((byte) (mBleDeviceLocal.getLockState() == LocalState.LOCK_STATE_OPEN ? LOCK_SETTING_CLOSE : LOCK_SETTING_OPEN),
                             (byte) 0x04, (byte) 0x01, bleBean.getPwd1(), bleBean.getPwd3()), bleBean.getOKBLEDeviceImp());*/
+        } else {
+            // TODO: 2021/4/1 主编号是0，分享用户再使用分享用户的编号
+            publishOpenOrCloseLock(
+                    mBleDeviceLocal.getEsn(),
+                    state == LocalState.LOCK_STATE_OPEN ? LocalState.DOOR_STATE_CLOSE : LocalState.DOOR_STATE_OPEN,
+                    mBleDeviceLocal.getRandomCode(), 0);
         }
     }
 

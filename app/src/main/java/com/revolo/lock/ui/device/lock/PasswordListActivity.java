@@ -513,8 +513,8 @@ public class PasswordListActivity extends BaseActivity {
             runOnUiThread(() -> mPasswordListAdapter.setList(mDevicePwdBeanFormBle));
             mHandler.postDelayed(mSearchPwdListRunnable, 20);
         } else if (bean.getCMD() == CMD_KEY_ATTRIBUTES_SET) {
-            mHandler.sendEmptyMessageDelayed(MSG_UPDATE_PWD_LIST, 1000);
-
+           // mHandler.sendEmptyMessageDelayed(MSG_UPDATE_PWD_LIST, 1000);
+            new Handler(Looper.getMainLooper()).postDelayed(this::checkHadPwdFromBle, 20);
         }
     }
 

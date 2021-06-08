@@ -37,7 +37,7 @@ import static com.revolo.lock.manager.LockMessageCode.MSG_LOCK_MESSAGE_BLE;
 
 public class BleManager {
     private final ArrayList<BleBean> mConnectedBleBeanList = new ArrayList<>();
-    private static final int DEFAULT_CONNECTED_CAPACITY = 3;
+    private static final int DEFAULT_CONNECTED_CAPACITY = 7;
     private static BleManager bleManager;
     private OnBleDeviceListener onBleDeviceListener;
 
@@ -68,31 +68,65 @@ public class BleManager {
     }
 
     /*-------------------------------- 蓝牙搜索 end --------------------------------*/
-    public BleBean connectDevice(String sn, BLEScanResult bleScanResult, BluetoothDevice device, byte[] pwd1, byte[] pwd2, boolean isAppPair) {
+    public void connectDevice(String sn, BLEScanResult bleScanResult, BluetoothDevice device, byte[] pwd1, byte[] pwd2, boolean isAppPair) {
         OKBLEDeviceImp deviceImp = null;
+        String mac = "";
         if (null == bleScanResult && null != device) {
-            deviceImp=new OKBLEDeviceImp(App.getInstance().getApplicationContext());
+            deviceImp = new OKBLEDeviceImp(App.getInstance().getApplicationContext());
             deviceImp.setBluetoothDevice(device);
+            mac = device.getAddress().toUpperCase();
             deviceImp.setDeviceTAG(device.getAddress().toLowerCase());
         } else {
-            deviceImp=new OKBLEDeviceImp(App.getInstance().getApplicationContext(), bleScanResult);
+            deviceImp = new OKBLEDeviceImp(App.getInstance().getApplicationContext(), bleScanResult);
+            mac = bleScanResult.getMacAddress().toUpperCase();
             deviceImp.setDeviceTAG(bleScanResult.getMacAddress().toLowerCase());
         }
         BleBean bleBean = new BleBean(deviceImp);
         bleBean.setPwd1(pwd1);
+        if (null != pwd2) {
+            bleBean.setHavePwd2Or3(true);
+        }
+        bleBean.setMac(mac);
         bleBean.setPwd2(pwd2);
         bleBean.setEsn(sn);
         bleBean.setOnBleDeviceListener(onBleDeviceListener);
         bleBean.setAppPair(isAppPair);
         bleBean.setAuth(false);
-        addConnectedBleBean(bleBean);
         deviceImp.addDeviceListener(okbleDeviceListener);
-        // 自动重连
-        deviceImp.connect(true);
-        return bleBean;
+        if (addConnectedBleBean(bleBean)) {
+            // 自动重连
+            bleBean.setBleConning(1);
+            deviceImp.connect(true);
+        }
     }
 
-    private void addConnectedBleBean(BleBean bleBean) {
+    /**
+     * 添加到设备列表中
+     *
+     * @param bleBean
+     * @return
+     */
+    private boolean addConnectedBleBean(BleBean bleBean) {
+        for (BleBean conDe : mConnectedBleBeanList) {
+            if (conDe.getMac().equals(bleBean.getMac())) {
+                //重复设备  未连接或是断开中  就连接
+                if (conDe.getBleConning() == 0 || conDe.getBleConning() == 3) {
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+        }
+        if (mConnectedBleBeanList.size() == DEFAULT_CONNECTED_CAPACITY) {
+            return false;
+        }
+        mConnectedBleBeanList.add(bleBean);
+        return true;
+    }
+        /*if (mConnectedBleBeanList.size() == DEFAULT_CONNECTED_CAPACITY) {
+
+
+
         if (mConnectedBleBeanList.size() == DEFAULT_CONNECTED_CAPACITY) {
             Timber.d("连接的蓝牙设备数量： %1d", mConnectedBleBeanList.size());
             for (BleBean ble : mConnectedBleBeanList) {
@@ -104,7 +138,7 @@ public class BleManager {
             mConnectedBleBeanList.remove(0);
         }
         mConnectedBleBeanList.add(bleBean);
-    }
+    }*/
 
     public void removeConnectedBleBeanAndDisconnect(@NotNull BleBean bean) {
         if (mConnectedBleBeanList.isEmpty()) {
@@ -185,9 +219,16 @@ public class BleManager {
             Timber.d("onConnected deviceTAG: %1s", deviceTAG);
             BleBean bleBean = getBleBeanFromMac(deviceTAG);
             if (null != bleBean) {
+                bleBean.setBleConning(2);
                 openControlNotify(bleBean.getOKBLEDeviceImp());
                 if (bleBean.isAppPair()) {
                     // 正在蓝牙本地配网，所以不走自动鉴权
+                    new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                        Timber.d("getPwd2AndSendAuthCommand 延时发送鉴权指令, pwd2: %1s\n", ConvertUtils.bytes2HexString(bleBean.getPwd2()));
+                        writeControlMsg(BleCommandFactory
+                                .authCommand(bleBean.getPwd1(), bleBean.getPwd2(), bleBean.getEsn().getBytes(StandardCharsets.UTF_8)), bleBean.getOKBLEDeviceImp());
+                    }, 100);
+
                     bleConnectedCallback(bleBean, bleBean.getOKBLEDeviceImp().getMacAddress());
                     return;
                 }
@@ -212,6 +253,7 @@ public class BleManager {
             Timber.d("onDisconnected deviceTAG: %1s", deviceTAG);
             BleBean bleBean = getBleBeanFromMac(deviceTAG);
             if (null != bleBean) {
+                bleBean.setBleConning(3);
                 if (bleBean.getOnBleDeviceListener() == null) {
                     Timber.e("onDisconnected bleBean.getOnBleDeviceListener() == null");
                     return;

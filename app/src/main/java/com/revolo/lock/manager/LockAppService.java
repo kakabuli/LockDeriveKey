@@ -309,7 +309,7 @@ public class LockAppService extends Service {
             byte[] mPwd1 = new byte[16];
             byte[] bytes = ConvertUtils.hexString2Bytes(bleDeviceLocal.getPwd1());
             System.arraycopy(bytes, 0, mPwd1, 0, bytes.length);
-            onBleConnect(bleDeviceLocal.getEsn(), null, device, mPwd1, null
+            onBleConnect(bleDeviceLocal.getEsn(), null, device, mPwd1, ConvertUtils.hexString2Bytes(bleDeviceLocal.getPwd2())
             );
         }
         //lock.unlock();
@@ -517,12 +517,12 @@ public class LockAppService extends Service {
         } else {
             mac = bleScanResult.getBluetoothDevice().getAddress();
         }
-        /*if (null != getDevice("", mac)) {
+        if (null != getDevice("", mac)) {
             BleManager.getInstance().connectDevice(sn, bleScanResult, bluetoothDevice, pwd1, pwd2, true);
         } else {
-*/
-        BleManager.getInstance().connectDevice(sn, bleScanResult, bluetoothDevice, pwd1, pwd2, false);
-        //      }
+
+            BleManager.getInstance().connectDevice(sn, bleScanResult, bluetoothDevice, pwd1, pwd2, false);
+        }
 
     }
 
@@ -606,6 +606,12 @@ public class LockAppService extends Service {
                 case BleProtocolState.CMD_HEART_ACK:// 0x00;                       // 心跳包确认帧
                     break;
                 case BleProtocolState.CMD_AUTHENTICATION_ACK:// 0x01;              // 鉴权确认帧
+                    BleBean bleBean = BleManager.getInstance().getBleBeanFromMac(mac);
+                    if (null != bleBean) {
+                        Log.e("agag","回复：BleProtocolState.CMD_AUTHENTICATION_ACK");
+                        BleManager.getInstance().writeControlMsg(BleCommandFactory
+                                .ackCommand(bleResultBean.getTSN(), (byte) 0x00, bleResultBean.getCMD()), bleBean.getOKBLEDeviceImp());
+                    }
                     break;
                 case BleProtocolState.CMD_LOCK_CONTROL_ACK:// 0x02;               // 锁控制确认帧
                     break;

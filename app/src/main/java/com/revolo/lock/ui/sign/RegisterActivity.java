@@ -5,10 +5,12 @@ import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
 import android.os.Looper;
+import android.text.Editable;
 import android.text.InputType;
 import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.text.method.LinkMovementMethod;
 import android.view.Gravity;
 import android.view.View;
@@ -62,8 +64,9 @@ public class RegisterActivity extends BaseActivity {
     private boolean isSelected = false;
     private boolean isShowPwd = true;
     private boolean isCountdown = false;
-
+    private EditText mEtEmail;
     private TextView mTvGetCode;
+    private String emailName="";
 
     @Override
     public void initData(@Nullable Bundle bundle) {
@@ -90,7 +93,7 @@ public class RegisterActivity extends BaseActivity {
         LinkClickableSpan span = new LinkClickableSpan() {
             @Override
             public void onClick(@NonNull View widget) {
-                Intent intent =  new Intent(RegisterActivity.this, TermActivity.class);
+                Intent intent = new Intent(RegisterActivity.this, TermActivity.class);
                 intent.putExtra(Constant.TERM_TYPE, Constant.TERM_TYPE_USER);
                 startActivity(intent);
             }
@@ -101,6 +104,46 @@ public class RegisterActivity extends BaseActivity {
         tvAgreement.setMovementMethod(LinkMovementMethod.getInstance());
         initLoading("Registering...");
 
+        mEtEmail = findViewById(R.id.etEmail);
+        mEtEmail.setOnFocusChangeListener(new android.view.View.
+                OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                if (hasFocus) {
+                    // 此处为得到焦点时的处理内容
+                    mEtEmail.setText(emailName);
+                } else {
+                    // 此处为失去焦点时的处理内容
+                    emailName = mEtEmail.getText().toString();
+                    if (null != emailName && !"".equals(emailName) && emailName.length() > 15) {
+                        String hintText = emailName.substring(0, 5) + "..." + emailName.substring(emailName.length() - 7, emailName.length());
+                        mEtEmail.setText(hintText);
+                    } else {
+                        mEtEmail.setText(emailName);
+                    }
+                }
+            }
+        });
+        mEtEmail.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                if (s.length() > 0) {
+                    emailName = s.toString();
+                } else {
+                    emailName = "";
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+            }
+        });
+
+
     }
 
     @Override
@@ -110,43 +153,43 @@ public class RegisterActivity extends BaseActivity {
 
     @Override
     public void onDebouncingClick(@NonNull View view) {
-        if(view.getId() == R.id.btnStartCreating) {
+        if (view.getId() == R.id.btnStartCreating) {
             register();
             return;
         }
-        if(view.getId() == R.id.ivEye) {
+        if (view.getId() == R.id.ivEye) {
             ImageView ivEye = findViewById(R.id.ivEye);
-            ivEye.setImageResource(isShowPwd?R.drawable.ic_login_icon_display:R.drawable.ic_login_icon_hide);
+            ivEye.setImageResource(isShowPwd ? R.drawable.ic_login_icon_display : R.drawable.ic_login_icon_hide);
             EditText etPwd = findViewById(R.id.etPwd);
-            etPwd.setInputType(isShowPwd?
+            etPwd.setInputType(isShowPwd ?
                     InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
-                    :(InputType.TYPE_CLASS_TEXT|InputType.TYPE_TEXT_VARIATION_PASSWORD));
+                    : (InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD));
             isShowPwd = !isShowPwd;
             return;
         }
-        if(view.getId() == R.id.ivSelect) {
+        if (view.getId() == R.id.ivSelect) {
             ImageView ivSelect = findViewById(R.id.ivSelect);
             isSelected = !isSelected;
-            ivSelect.setImageResource(isSelected?R.drawable.ic_sign_in_icon_selected:R.drawable.ic_sign_in_icon_default);
+            ivSelect.setImageResource(isSelected ? R.drawable.ic_sign_in_icon_selected : R.drawable.ic_sign_in_icon_default);
             return;
         }
-        if(view.getId() == R.id.tvGetCode) {
-            if(!isCountdown) {
+        if (view.getId() == R.id.tvGetCode) {
+            if (!isCountdown) {
                 getCode();
             }
         }
     }
 
     private void getCode() {
-        if(!checkNetConnectFail()) {
+        if (!checkNetConnectFail()) {
             return;
         }
-        String mail = ((EditText) findViewById(R.id.etEmail)).getText().toString().trim();
-        if(TextUtils.isEmpty(mail)) {
+        String mail = emailName.trim();
+        if (TextUtils.isEmpty(mail)) {
             ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.err_tip_please_input_email);
             return;
         }
-        if(!RegexUtils.isEmail(mail)) {
+        if (!RegexUtils.isEmail(mail)) {
             ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_please_input_right_mail_address);
             return;
         }
@@ -164,14 +207,14 @@ public class RegisterActivity extends BaseActivity {
 
             @Override
             public void onNext(@NonNull GetCodeBeanRsp getCodeBeanRsp) {
-                if(TextUtils.isEmpty(getCodeBeanRsp.getCode())) {
+                if (TextUtils.isEmpty(getCodeBeanRsp.getCode())) {
                     Timber.e("getCodeBeanRsp.getCode() is null");
                     return;
                 }
-                if(!getCodeBeanRsp.getCode().equals("200")) {
+                if (!getCodeBeanRsp.getCode().equals("200")) {
                     String msg = getCodeBeanRsp.getMsg();
                     Timber.e("code: %1s, msg: %2s", getCodeBeanRsp.getCode(), msg);
-                    if(!TextUtils.isEmpty(msg)) {
+                    if (!TextUtils.isEmpty(msg)) {
                         ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(msg);
                     }
                     return;
@@ -192,33 +235,33 @@ public class RegisterActivity extends BaseActivity {
     }
 
     private void register() {
-        if(!checkNetConnectFail()) {
+        if (!checkNetConnectFail()) {
             return;
         }
         String mail = ((EditText) findViewById(R.id.etEmail)).getText().toString().trim();
-        if(TextUtils.isEmpty(mail)) {
+        if (TextUtils.isEmpty(mail)) {
             ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.err_tip_please_input_email);
             return;
         }
-        if(!RegexUtils.isEmail(mail)) {
+        if (!RegexUtils.isEmail(mail)) {
             ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_please_input_right_mail_address);
             return;
         }
         String tokens = ((EditText) findViewById(R.id.etVerification)).getText().toString().trim();
-        if(TextUtils.isEmpty(tokens)) {
+        if (TextUtils.isEmpty(tokens)) {
             ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.err_tip_please_input_verification_code);
             return;
         }
         String pwd = ((EditText) findViewById(R.id.etPwd)).getText().toString().trim();
-        if(TextUtils.isEmpty(pwd)) {
+        if (TextUtils.isEmpty(pwd)) {
             ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_please_input_pwd);
             return;
         }
-        if(!RegexUtils.isMatch("^(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{8,15}$", pwd)) {
+        if (!RegexUtils.isMatch("^(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{8,15}$", pwd)) {
             ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_please_input_right_pwd);
             return;
         }
-        if(!isSelected) {
+        if (!isSelected) {
             ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_please_agree_to_the_terms_of_use);
             return;
         }
@@ -237,16 +280,16 @@ public class RegisterActivity extends BaseActivity {
             @Override
             public void onNext(@NonNull MailRegisterBeanRsp mailRegisterBeanRsp) {
                 dismissLoading();
-                if(TextUtils.isEmpty(mailRegisterBeanRsp.getCode())) {
+                if (TextUtils.isEmpty(mailRegisterBeanRsp.getCode())) {
                     Timber.e("register mailRegisterBeanRsp.getCode() is null");
                     return;
                 }
                 // TODO: 2021/2/2 204,405,435,445 对应的提示语
-                if(!mailRegisterBeanRsp.getCode().equals("200")) {
+                if (!mailRegisterBeanRsp.getCode().equals("200")) {
                     Timber.e("register code: %1s, msg: %2s",
                             mailRegisterBeanRsp.getCode(),
                             mailRegisterBeanRsp.getMsg());
-                    if(mailRegisterBeanRsp.getMsg() != null) {
+                    if (mailRegisterBeanRsp.getMsg() != null) {
                         ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(mailRegisterBeanRsp.getMsg());
                     }
                     return;
@@ -293,7 +336,7 @@ public class RegisterActivity extends BaseActivity {
     private int loginCount = 3;
 
     private void login(@NotNull String mail, @NotNull String pwd) {
-        if(!checkNetConnectFail()) {
+        if (!checkNetConnectFail()) {
             return;
         }
         showLoading();
@@ -311,14 +354,14 @@ public class RegisterActivity extends BaseActivity {
             @Override
             public void onNext(@NonNull MailLoginBeanRsp mailLoginBeanRsp) {
                 dismissLoading();
-                if(!mailLoginBeanRsp.getCode().equals("200")) {
+                if (!mailLoginBeanRsp.getCode().equals("200")) {
                     // TODO: 2021/1/26 获取弹出错误的信息
                     Timber.e("processLoginRsp 登录请求错误了！ code : %1s, msg: %2s",
                             mailLoginBeanRsp.getCode(), mailLoginBeanRsp.getMsg());
                     tryLogin(mail, pwd);
                     return;
                 }
-                if(mailLoginBeanRsp.getData() == null) {
+                if (mailLoginBeanRsp.getData() == null) {
                     Timber.e("processLoginRsp mailLoginBeanRsp.getData() == null");
                     tryLogin(mail, pwd);
                     return;
@@ -348,7 +391,7 @@ public class RegisterActivity extends BaseActivity {
     }
 
     private void tryLogin(@NotNull String mail, @NotNull String pwd) {
-        if(loginCount <= 0) {
+        if (loginCount <= 0) {
             gotoLoginAct();
         } else {
             loginCount--;
@@ -378,17 +421,17 @@ public class RegisterActivity extends BaseActivity {
 
     private void updateUser(String mail, @NotNull MailLoginBeanRsp.DataBean rsp) {
         User user = App.getInstance().getUserFromLocal(mail);
-        if(user == null) {
+        if (user == null) {
             user = new User();
             user.setMail(mail);
             user.setFirstName(rsp.getFirstName());
             user.setLastName(rsp.getLastName());
-            user.setRegisterTime(TimeUtils.string2Millis(rsp.getInsertTime())/1000);
+            user.setRegisterTime(TimeUtils.string2Millis(rsp.getInsertTime()) / 1000);
             AppDatabase.getInstance(this).userDao().insert(user);
         } else {
             user.setFirstName(rsp.getFirstName());
             user.setLastName(rsp.getLastName());
-            user.setRegisterTime(TimeUtils.string2Millis(rsp.getInsertTime())/1000);
+            user.setRegisterTime(TimeUtils.string2Millis(rsp.getInsertTime()) / 1000);
             AppDatabase.getInstance(this).userDao().update(user);
         }
     }

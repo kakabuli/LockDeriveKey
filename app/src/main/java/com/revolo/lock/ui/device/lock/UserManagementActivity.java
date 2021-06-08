@@ -94,6 +94,7 @@ public class UserManagementActivity extends BaseActivity {
 
     @Override
     public void doBusiness() {
+        mLinearLayout.setVisibility(View.GONE);
         String firstName = App.getInstance().getUser().getFirstName();
         ((TextView) findViewById(R.id.tvUserShared)).setText((TextUtils.isEmpty(firstName) ? "" : firstName) + "'s Shared");
         getAllSharedUserFromLock();
