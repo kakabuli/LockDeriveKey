@@ -418,6 +418,7 @@ public class DoorSensorCheckActivity extends BaseActivity {
         message.setBytes(BleCommandFactory
                 .doorCalibration(doorState, bleBean.getPwd1(), bleBean.getPwd3()));
         message.setMac(bleBean.getOKBLEDeviceImp().getMacAddress());
+        EventBus.getDefault().post(message);
        /* 替换
         App.getInstance()
                 .writeControlMsg(BleCommandFactory
