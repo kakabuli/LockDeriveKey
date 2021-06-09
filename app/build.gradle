@@ -60,7 +60,7 @@ android {
                 outputFileName = "revolo_debug${date}_${versionName}.apk"
             }
             if (variant.buildType.name == 'release') {
-                outputFileName = "revolo${versionCode}_${versionName}_release.apk"
+                outputFileName = "revolo${date}_${versionName}_release.apk"
             }
         }
     }
@@ -182,4 +182,11 @@ dependencies {
     implementation 'com.google.code.gson:gson:2.8.6'
 
     implementation 'org.greenrobot:eventbus:3.0.0'
+    // Import the BoM for the Firebase platform
+    implementation platform('com.google.firebase:firebase-bom:27.1.0')
+
+    // Declare the dependencies for the Firebase Cloud Messaging and Analytics libraries
+    // When using the BoM, you don't specify versions in Firebase library dependencies
+    implementation 'com.google.firebase:firebase-messaging'
+    implementation 'com.google.firebase:firebase-analytics'
 }

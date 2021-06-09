@@ -119,7 +119,12 @@ public class SignSelectActivity extends BaseActivity {
                         //多次指纹密码验证错误后，进入此方法；并且，不可再验（短时间）
                         //errorCode是失败的次数
                         if (errorCode == 3) {
-                            gestureCode(loginJson, isUseGestureCode);
+                            if ((!TextUtils.isEmpty(loginJson)) && isUseGestureCode) {
+                                gestureCode();
+                            } else {
+                                startActivity(new Intent(SignSelectActivity.this, LoginActivity.class));
+                                finish();
+                            }
                         }
                     }
 
@@ -141,21 +146,19 @@ public class SignSelectActivity extends BaseActivity {
                 });
                 fingerprintUtils.openFingerprintAuth();
             }
-        } else {
+        } else if ((!TextUtils.isEmpty(loginJson)) && isUseGestureCode) {
             constraintLayout.setVisibility(View.GONE);
-            gestureCode(loginJson, isUseGestureCode);
+            gestureCode();
+        } else {
+            autoLogin();
         }
 
     }
 
-    private void gestureCode(String loginJson, boolean isUseGestureCode) {
-        if ((!TextUtils.isEmpty(loginJson)) && isUseGestureCode) {
-            Intent intent = new Intent(this, DrawHandPwdAutoLoginActivity.class);
-            startActivity(intent);
-            finish();
-        } else {
-            autoLogin();
-        }
+    private void gestureCode() {
+        Intent intent = new Intent(this, DrawHandPwdAutoLoginActivity.class);
+        startActivity(intent);
+        finish();
     }
 
     private void autoLogin() {
@@ -200,7 +203,12 @@ public class SignSelectActivity extends BaseActivity {
                 Timber.e("Authentication error: %s", errString);
                 if (errString.equals("More Login")) { // 取消
                     constraintLayout.setVisibility(View.GONE);
-                    gestureCode(loginJson, isUseGestureCode);
+                    if ((!TextUtils.isEmpty(loginJson)) && isUseGestureCode) {
+                        gestureCode();
+                    } else {
+                        startActivity(new Intent(SignSelectActivity.this, LoginActivity.class));
+                        finish();
+                    }
                 }
             }
 

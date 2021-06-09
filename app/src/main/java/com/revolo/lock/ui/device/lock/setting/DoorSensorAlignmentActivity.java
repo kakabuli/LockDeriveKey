@@ -1,9 +1,11 @@
 package com.revolo.lock.ui.device.lock.setting;
 
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -52,6 +54,7 @@ public class DoorSensorAlignmentActivity extends BaseActivity {
     private ConstraintLayout mClTip;
     private BleDeviceLocal mBleDeviceLocal;
     private ImageView mIvDoorMagneticEnable;
+    private TextView mTvIntroduceTitle, mTvIntroduceContent;
 
     @Override
     public void initData(@Nullable Bundle bundle) {
@@ -72,8 +75,24 @@ public class DoorSensorAlignmentActivity extends BaseActivity {
         mClTip = findViewById(R.id.clTip);
         mIvDoorMagneticEnable = findViewById(R.id.ivDoorMagneticEnable);
         applyDebouncingClickListener(mClTip, mIvDoorMagneticEnable);
+        mTvIntroduceContent = findViewById(R.id.tvIntroduceContent);
+        mTvIntroduceTitle = findViewById(R.id.tvIntroduceTitle);
         refreshDoorMagneticEnableState();
         onRegisterEventBus();
+
+        mTvIntroduceTitle.setOnClickListener(v -> {
+            if (mTvIntroduceContent.getVisibility() == View.GONE) {
+                Drawable drawable = getResources().getDrawable(R.drawable.ic_icon_more_close);
+                drawable.setBounds(0, 0, drawable.getMinimumWidth(), drawable.getMinimumHeight());
+                mTvIntroduceTitle.setCompoundDrawables(null, null, drawable, null);
+                mTvIntroduceContent.setVisibility(View.VISIBLE);
+            } else {
+                Drawable drawable = getResources().getDrawable(R.drawable.ic_icon_more_open);
+                drawable.setBounds(0, 0, drawable.getMinimumWidth(), drawable.getMinimumHeight());
+                mTvIntroduceTitle.setCompoundDrawables(null, null, drawable, null);
+                mTvIntroduceContent.setVisibility(View.GONE);
+            }
+        });
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN, sticky = true)

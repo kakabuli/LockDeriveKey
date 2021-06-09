@@ -1,4 +1,4 @@
-package com.revolo.lock.reveiver;
+package com.revolo.lock.receiver;
 
 import android.app.Activity;
 import android.content.BroadcastReceiver;

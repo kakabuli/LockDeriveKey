@@ -69,7 +69,13 @@
         <!--            android:name=".map.geofencing.GeofenceTransitionsJobIntentService"-->
         <!--            android:exported="true"-->
         <!--            android:permission="android.permission.BIND_JOB_SERVICE" />-->
-
+        <service
+            android:name=".receiver.MyFirebaseMessagingService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
         <receiver
             android:name=".ui.device.lock.setting.geofence.GeoFenceBroadcastReceiver"
             android:enabled="true"
@@ -328,10 +334,10 @@
             android:name=".ui.mine.HelpActivity"
             android:screenOrientation="portrait" />
 
-     <!--   <service android:name=".mqtt.MqttService" />-->
-        <service android:name=".manager.LockAppService"/>
+        <!--   <service android:name=".mqtt.MqttService" />-->
+        <service android:name=".manager.LockAppService" />
 
-        <receiver android:name=".reveiver.WifiStateReceiver">
+        <receiver android:name=".receiver.WifiStateReceiver">
             <intent-filter>
                 <action android:name="android.net.wifi.STATE_CHANGE" />
             </intent-filter>

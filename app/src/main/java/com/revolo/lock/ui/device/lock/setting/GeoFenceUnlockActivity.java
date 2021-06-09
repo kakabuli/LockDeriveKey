@@ -4,6 +4,7 @@ import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageView;
@@ -66,7 +67,7 @@ import static com.revolo.lock.ble.BleProtocolState.CMD_SET_SENSITIVITY;
 public class GeoFenceUnlockActivity extends BaseActivity implements OnMapReadyCallback {
 
     private ImageView mIvGeoFenceUnlockEnable;
-    private TextView mTvTime, mTvSensitivity;
+    private TextView mTvTime, mTvSensitivity, mTvIntroduceTitle, mTvIntroduceContent;
     private BleDeviceLocal mBleDeviceLocal;
     private SeekBar mSeekBarTime, mSeekBarSensitivity;
     private ConstraintLayout mConstraintLayout;
@@ -94,6 +95,8 @@ public class GeoFenceUnlockActivity extends BaseActivity implements OnMapReadyCa
         mTvTime = findViewById(R.id.tvTime);
         mTvSensitivity = findViewById(R.id.tvSensitivity);
         mSeekBarTime = findViewById(R.id.seekBarTime);
+        mTvIntroduceContent = findViewById(R.id.tvIntroduceContent);
+        mTvIntroduceTitle = findViewById(R.id.tvIntroduceTitle);
         mSeekBarSensitivity = findViewById(R.id.seekBarSensitivity);
         mConstraintLayout = findViewById(R.id.constraintLayout);
         initLoading("Setting...");
@@ -169,6 +172,20 @@ public class GeoFenceUnlockActivity extends BaseActivity implements OnMapReadyCa
                     }
                 });
         onRegisterEventBus();
+
+        mTvIntroduceTitle.setOnClickListener(v -> {
+            if (mTvIntroduceContent.getVisibility() == View.GONE) {
+                Drawable drawable = getResources().getDrawable(R.drawable.ic_icon_more_close);
+                drawable.setBounds(0, 0, drawable.getMinimumWidth(), drawable.getMinimumHeight());
+                mTvIntroduceTitle.setCompoundDrawables(null, null, drawable, null);
+                mTvIntroduceContent.setVisibility(View.VISIBLE);
+            } else {
+                Drawable drawable = getResources().getDrawable(R.drawable.ic_icon_more_open);
+                drawable.setBounds(0, 0, drawable.getMinimumWidth(), drawable.getMinimumHeight());
+                mTvIntroduceTitle.setCompoundDrawables(null, null, drawable, null);
+                mTvIntroduceContent.setVisibility(View.GONE);
+            }
+        });
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN, sticky = true)
@@ -186,7 +203,7 @@ public class GeoFenceUnlockActivity extends BaseActivity implements OnMapReadyCa
             if (lockMessage.getResultCode() == LockMessageCode.MSG_LOCK_MESSAGE_CODE_SUCCESS) {
                 switch (lockMessage.getMessageCode()) {
                     case LockMessageCode.MSG_LOCK_MESSAGE_SET_LOCK:
-                        processSensitivity((WifiLockSetLockAttrSensitivityRspBean)lockMessage.getWifiLockBaseResponseBean());
+                        processSensitivity((WifiLockSetLockAttrSensitivityRspBean) lockMessage.getWifiLockBaseResponseBean());
                         break;
                 }
             } else {
