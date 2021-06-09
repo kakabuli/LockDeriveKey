@@ -131,6 +131,9 @@ public class RegisterActivity extends BaseActivity {
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
+                if (s.toString().indexOf("...") > 0) {
+                    return;
+                }
                 if (s.length() > 0) {
                     emailName = s.toString();
                 } else {
