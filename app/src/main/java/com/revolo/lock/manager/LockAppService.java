@@ -437,7 +437,7 @@ public class LockAppService extends Service {
         if (0 == mDeviceLists.size()) return;
         for (int i = 0; i < mDeviceLists.size(); i++) {
             //判断蓝牙mac和sn码
-            if (esn.equals(mDeviceLists.get(i).getEsn()) || mac.equals(mDeviceLists.get(i).getMac())) {
+            if ((null!=esn&&esn.equals(mDeviceLists.get(i).getEsn())) || (null!=mac&&mac.equals(mDeviceLists.get(i).getMac()))) {
                 boolean bleState = onGetConnectedState(mDeviceLists.get(i).getMac());//当前蓝牙设的设备的状态
                 boolean mqttState = mDeviceLists.get(i).getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI ? true : false;//当前锁与服务器的连接状态
                 boolean appMqttState = MQTTManager.getInstance().onGetMQTTConnectedState();//当前APP与MQTT服务器端的连接状态
@@ -608,7 +608,6 @@ public class LockAppService extends Service {
                 case BleProtocolState.CMD_AUTHENTICATION_ACK:// 0x01;              // 鉴权确认帧
                     BleBean bleBean = BleManager.getInstance().getBleBeanFromMac(mac);
                     if (null != bleBean) {
-                        Log.e("agag","回复：BleProtocolState.CMD_AUTHENTICATION_ACK");
                         BleManager.getInstance().writeControlMsg(BleCommandFactory
                                 .ackCommand(bleResultBean.getTSN(), (byte) 0x00, bleResultBean.getCMD()), bleBean.getOKBLEDeviceImp());
                     }

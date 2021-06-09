@@ -72,11 +72,13 @@ public class BleManager {
         OKBLEDeviceImp deviceImp = null;
         String mac = "";
         if (null == bleScanResult && null != device) {
+            Timber.e("connectDevice: %1s", "device:"+device.getAddress());
             deviceImp = new OKBLEDeviceImp(App.getInstance().getApplicationContext());
             deviceImp.setBluetoothDevice(device);
             mac = device.getAddress().toUpperCase();
             deviceImp.setDeviceTAG(device.getAddress().toLowerCase());
         } else {
+            Timber.e("connectDevice: %1s", "deviceImp:"+bleScanResult.getMacAddress());
             deviceImp = new OKBLEDeviceImp(App.getInstance().getApplicationContext(), bleScanResult);
             mac = bleScanResult.getMacAddress().toUpperCase();
             deviceImp.setDeviceTAG(bleScanResult.getMacAddress().toLowerCase());
@@ -141,6 +143,7 @@ public class BleManager {
     }*/
 
     public void removeConnectedBleBeanAndDisconnect(@NotNull BleBean bean) {
+        Timber.d("removeConnectedBleBeanAndDisconnect device: %1s", bean.getMac());
         if (mConnectedBleBeanList.isEmpty()) {
             return;
         }
@@ -152,6 +155,7 @@ public class BleManager {
                 mConnectedBleBeanList.remove(bleBean);
             }
         }
+        Timber.d("removeConnectedBleBeanAndDisconnect device: %1s", mConnectedBleBeanList.size()+"");
     }
 
     public void removeConnectedBleBeanAndDisconnect(String mac) {
@@ -258,7 +262,7 @@ public class BleManager {
                     Timber.e("onDisconnected bleBean.getOnBleDeviceListener() == null");
                     return;
                 }
-                bleBean.getOKBLEDeviceImp().remove();
+               // bleBean.getOKBLEDeviceImp().remove();
                 removeConnectedBleBeanAndDisconnect(deviceTAG);//清理当前队列中的连接ble对象
                 bleBean.getOnBleDeviceListener().onDisconnected(bleBean.getOKBLEDeviceImp().getMacAddress());
 
