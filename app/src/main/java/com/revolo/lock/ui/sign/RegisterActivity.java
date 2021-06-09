@@ -241,7 +241,7 @@ public class RegisterActivity extends BaseActivity {
         if (!checkNetConnectFail()) {
             return;
         }
-        String mail = ((EditText) findViewById(R.id.etEmail)).getText().toString().trim();
+        String mail = emailName.trim();
         if (TextUtils.isEmpty(mail)) {
             ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.err_tip_please_input_email);
             return;
