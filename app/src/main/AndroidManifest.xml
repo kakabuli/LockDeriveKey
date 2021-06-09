@@ -120,10 +120,15 @@
 
                 <!--协议部分-->
                 <!--声明自定义scheme，类似于http, https-->
+<!--                <data-->
+<!--                    android:host="192.168.8.252"-->
+<!--                    android:pathPrefix="/share/user"-->
+<!--                    android:scheme="http" />-->
+
                 <data
-                    android:host="192.168.8.252"
-                    android:pathPrefix="/share/user"
-                    android:scheme="http" />
+                    android:host="test.irevolo.com"
+                    android:scheme="https"
+                    android:pathPrefix="/triple"/>
             </intent-filter>
 
         </activity>
@@ -298,10 +303,14 @@
 
                 <!--协议部分-->
                 <!--声明自定义scheme，类似于http, https-->
+<!--                <data-->
+<!--                    android:host="192.168.8.252"-->
+<!--                    android:pathPrefix="/share/user"-->
+<!--                    android:scheme="http" />-->
                 <data
-                    android:host="192.168.8.252"
-                    android:pathPrefix="/share/user"
-                    android:scheme="http" />
+                    android:host="test.irevolo.com"
+                    android:scheme="https"
+                    android:pathPrefix="/triple"/>
             </intent-filter>
             <intent-filter android:label="test_app">
                 <!--必有项-->

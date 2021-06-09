@@ -14,7 +14,7 @@ android {
         minSdkVersion 26
         targetSdkVersion 30
         versionCode 202106042
-        versionName "1.0.55"
+        versionName "0.5.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
@@ -55,12 +55,12 @@ android {
 
     android.applicationVariants.all { variant ->
         variant.outputs.all {
-            def date = new Date().format("yyyyMMdd", TimeZone.getDefault())
+            def date = new Date().format("yyyyMMddHHmm", TimeZone.getDefault())
             if (variant.buildType.name == 'debug') {
                 outputFileName = "revolo_debug${date}_${versionName}.apk"
             }
             if (variant.buildType.name == 'release') {
-                outputFileName = "revolo${date}_${versionName}_release.apk"
+                outputFileName = "revolo${date}_${versionName}.apk"
             }
         }
     }
