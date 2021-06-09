@@ -9,6 +9,7 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
 import android.os.Message;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 
@@ -608,7 +609,7 @@ public class LockAppService extends Service {
                 case BleProtocolState.CMD_AUTHENTICATION_ACK:// 0x01;              // 鉴权确认帧
                     BleBean bleBean = BleManager.getInstance().getBleBeanFromMac(mac);
                     if (null != bleBean) {
-                        Log.e("agag","回复：BleProtocolState.CMD_AUTHENTICATION_ACK");
+//                        Log.e("agag","回复：BleProtocolState.CMD_AUTHENTICATION_ACK");
                         BleManager.getInstance().writeControlMsg(BleCommandFactory
                                 .ackCommand(bleResultBean.getTSN(), (byte) 0x00, bleResultBean.getCMD()), bleBean.getOKBLEDeviceImp());
                     }

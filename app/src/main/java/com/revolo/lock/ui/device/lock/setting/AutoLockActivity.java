@@ -1,5 +1,6 @@
 package com.revolo.lock.ui.device.lock.setting;
 
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
@@ -62,7 +63,7 @@ import static com.revolo.lock.ble.BleProtocolState.CMD_SET_AUTO_LOCK_TIME;
 public class AutoLockActivity extends BaseActivity {
 
     private SeekBar mSeekBar;
-    private TextView mTvTime, mTvDetectionLock, mTvTip;
+    private TextView mTvTime, mTvDetectionLock, mTvTip, mTvIntroduceTitle, mTvIntroduceContent;
     private int mTime = 0;
     private ImageView mIvDetectionLockEnable, mIvAutoLockEnable;
     private ConstraintLayout mClSetLockTime;
@@ -91,6 +92,8 @@ public class AutoLockActivity extends BaseActivity {
         mTvDetectionLock = findViewById(R.id.tvDetectionLock);
         mClSetLockTime = findViewById(R.id.clSetLockTime);
         mIvAutoLockEnable = findViewById(R.id.ivAutoLockEnable);
+        mTvIntroduceTitle = findViewById(R.id.tvIntroduceTitle);
+        mTvIntroduceContent = findViewById(R.id.tvIntroduceContent);
         mIvDetectionLockEnable = findViewById(R.id.ivDetectionLockEnable);
         applyDebouncingClickListener(mIvAutoLockEnable, mIvDetectionLockEnable);
         initLoading("Setting...");
@@ -112,6 +115,20 @@ public class AutoLockActivity extends BaseActivity {
             }
         });
         mTime = mBleDeviceLocal.getSetAutoLockTime();
+
+        mTvIntroduceTitle.setOnClickListener(v -> {
+            if (mTvIntroduceContent.getVisibility() == View.GONE) {
+                Drawable drawable = getResources().getDrawable(R.drawable.ic_icon_more_close);
+                drawable.setBounds(0, 0, drawable.getMinimumWidth(), drawable.getMinimumHeight());
+                mTvIntroduceTitle.setCompoundDrawables(null, null, drawable, null);
+                mTvIntroduceContent.setVisibility(View.VISIBLE);
+            } else {
+                Drawable drawable = getResources().getDrawable(R.drawable.ic_icon_more_open);
+                drawable.setBounds(0, 0, drawable.getMinimumWidth(), drawable.getMinimumHeight());
+                mTvIntroduceTitle.setCompoundDrawables(null, null, drawable, null);
+                mTvIntroduceContent.setVisibility(View.GONE);
+            }
+        });
         initUI();
     }
 
@@ -357,7 +374,7 @@ public class AutoLockActivity extends BaseActivity {
         }
         byte[] value = new byte[1];
         value[0] = (byte) (mBleDeviceLocal.isAutoLock() ? 0x01 : 0x00);
-        LockMessage message=new LockMessage();
+        LockMessage message = new LockMessage();
         message.setMessageType(3);
         message.setBytes(BleCommandFactory
                 .lockParameterModificationCommand((byte) 0x04, (byte) 0x01, value, bleBean.getPwd1(),
@@ -451,7 +468,7 @@ public class AutoLockActivity extends BaseActivity {
             Timber.e("setAutoLockTimeFromBle bleBean.getPwd3() == null");
             return;
         }
-        LockMessage message=new LockMessage();
+        LockMessage message = new LockMessage();
         message.setBytes(BleCommandFactory
                 .setAutoLockTime(mTime, bleBean.getPwd1(), bleBean.getPwd3()));
         message.setMessageType(3);
@@ -459,7 +476,8 @@ public class AutoLockActivity extends BaseActivity {
         EventBus.getDefault().post(message);
       /*  App.getInstance().writeControlMsg(BleCommandFactory
                 .setAutoLockTime(mTime, bleBean.getPwd1(), bleBean.getPwd3()), bleBean.getOKBLEDeviceImp());
-    */}
+    */
+    }
 
     private int getProgressFromTime(int time) {
         switch (time) {

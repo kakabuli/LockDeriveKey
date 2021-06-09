@@ -13,6 +13,7 @@ import com.a1anwang.okble.client.scan.DeviceScanCallBack;
 import com.a1anwang.okble.client.scan.OKBLEScanManager;
 import com.blankj.utilcode.util.ActivityUtils;
 import com.blankj.utilcode.util.SPUtils;
+import com.google.firebase.messaging.FirebaseMessaging;
 import com.revolo.lock.bean.respone.MailLoginBeanRsp;
 import com.revolo.lock.ble.bean.BleBean;
 import com.revolo.lock.manager.LockAppService;
@@ -76,6 +77,12 @@ public class App extends Application {
         }
         //initMQttService();
         initLockAppService();
+
+        FirebaseMessaging.getInstance().getToken().addOnCompleteListener(task -> {
+            if (!task.isSuccessful()) {
+                return;
+            }
+        });
     }
 
     // TODO: 2021/3/8 临时存个MainActivity 后期删除

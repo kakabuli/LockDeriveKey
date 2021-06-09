@@ -160,17 +160,12 @@ public class SettingActivity extends BaseActivity {
      */
     private void biometricSet(boolean isFace) {
 
-        if (isFace){
-            ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show("Device not Support!");
-            return;
-        }
-
         switch (mFaceIDCode) {
             case 0:
-                if (mUser.isUseTouchId()) {
-                    mUser.setUseTouchId(false);
+                if (isFace) {
+                    mUser.setUseFaceId(!mUser.isUseFaceId());
                 } else {
-                    mUser.setUseTouchId(true);
+                    mUser.setUseTouchId(!mUser.isUseTouchId());
                 }
                 AppDatabase.getInstance(this).userDao().update(mUser);
                 refreshUI();
@@ -209,4 +204,12 @@ public class SettingActivity extends BaseActivity {
         }
     }
 
+    /**
+     * 获取手机厂商
+     *
+     * @return  手机厂商
+     */
+    public static String getDeviceBrand() {
+        return android.os.Build.BRAND;
+    }
 }

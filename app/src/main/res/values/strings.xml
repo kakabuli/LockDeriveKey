@@ -497,4 +497,13 @@
     <string name="pwd_open_camera_permission">Please turn on camera permissions in settings</string>
     <string name="t_wifi_disconnected_tip">WiFi is Offline. \n Please approach the lock and turn on Phone Bluetooth, then enter setting.</string>
     <string name="no_message_yet">No message yet~</string>
+
+    <string name="t_introduce_auto_lock_title">What is auto lock?</string>
+    <string name="t_introduce_auto_lock_content">    After you set the time, a built-in sensor detects when your door is closed and locks it at the corresponding time.</string>
+
+    <string name="t_introduce_Geo_fence_title">What is Geo-fence to unlock?</string>
+    <string name="t_introduce_Geo_fence_content">    Turn on the Geo-fence Lock function, calibrate the position of the lock, and then set the time and strength. After the APP user enters the positioning 200m range for the corresponding time, unlock by just knocking the door.</string>
+
+    <string name="t_introduce_door_sensor_alignment_title">What is door sensor calibration?</string>
+    <string name="t_introduce_door_sensor_alignment_content">    After the door sensor calibration, it will remind the user to close the door, and prompt when you forget to close the door.</string>
 </resources>

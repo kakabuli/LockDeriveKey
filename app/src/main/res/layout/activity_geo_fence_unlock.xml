@@ -230,4 +230,32 @@
             app:layout_constraintEnd_toEndOf="@+id/seekBarSensitivity"
             app:layout_constraintTop_toBottomOf="@+id/seekBarSensitivity" />
     </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <TextView
+        android:id="@+id/tvIntroduceTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24pt"
+        android:paddingStart="16pt"
+        android:paddingTop="6pt"
+        android:paddingEnd="16pt"
+        android:paddingBottom="6pt"
+        android:text="@string/t_introduce_Geo_fence_title"
+        android:textColor="@color/c333333"
+        android:textSize="15pt"
+        app:drawableEndCompat="@drawable/ic_icon_more_open"
+        app:layout_constraintTop_toBottomOf="@id/constraintLayout" />
+
+    <TextView
+        android:id="@+id/tvIntroduceContent"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16pt"
+        android:layout_marginTop="16pt"
+        android:layout_marginEnd="16pt"
+        android:text="@string/t_introduce_Geo_fence_content"
+        android:textColor="@color/c666666"
+        android:textSize="13pt"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@id/tvIntroduceTitle" />
 </androidx.constraintlayout.widget.ConstraintLayout>
