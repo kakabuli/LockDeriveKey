@@ -66,7 +66,7 @@ public class RegisterActivity extends BaseActivity {
     private boolean isCountdown = false;
     private EditText mEtEmail;
     private TextView mTvGetCode;
-    private String emailName="";
+    private String emailName = "";
 
     @Override
     public void initData(@Nullable Bundle bundle) {
@@ -252,6 +252,10 @@ public class RegisterActivity extends BaseActivity {
         }
         String tokens = ((EditText) findViewById(R.id.etVerification)).getText().toString().trim();
         if (TextUtils.isEmpty(tokens)) {
+            ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.err_tip_please_input_verification_code);
+            return;
+        }
+        if (tokens.length() < 6) {
             ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.err_tip_please_input_verification_code);
             return;
         }
