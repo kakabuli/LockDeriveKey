@@ -3,7 +3,10 @@ package com.revolo.lock.manager;
 import android.app.Service;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Binder;
 import android.os.Handler;
 import android.os.IBinder;
@@ -113,6 +116,7 @@ public class LockAppService extends Service {
         //registerNetReceive();
         startSendThread();
         Timber.d("attachView   mqtt 启动了");
+        registerBluetoothState();
     }
 
     @Override
@@ -135,7 +139,60 @@ public class LockAppService extends Service {
         //System.exit(0); 退出并没finish activity 因此增加了这一步
         ActivityUtils.finishAllActivities();
         System.exit(0);
+        unRegisterBluetoothState();
     }
+
+    //监听手机蓝牙的状态
+    // BluetoothAdapter.ACTION_STATE_CHANGED
+    private void registerBluetoothState() {
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(BluetoothAdapter.ACTION_STATE_CHANGED);
+        registerReceiver(bluetoothState, intentFilter);
+    }
+
+    private void unRegisterBluetoothState() {
+        unregisterReceiver(bluetoothState);
+    }
+
+    public BroadcastReceiver bluetoothState = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+            if (action != null) {
+                switch (action) {
+                    case BluetoothAdapter.ACTION_STATE_CHANGED:
+                        int blueState = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, 0);
+                        switch (blueState) {
+                            case BluetoothAdapter.STATE_TURNING_ON:
+                                Timber.e("蓝牙正在打开");
+                                break;
+                            case BluetoothAdapter.STATE_ON:
+                                Timber.e("蓝牙已经打开");
+                                break;
+                            case BluetoothAdapter.STATE_TURNING_OFF:
+                                Timber.e("蓝牙正在关闭");
+                                break;
+                            case BluetoothAdapter.STATE_OFF:
+                                Timber.e("蓝牙已经关闭");
+                                //断开所有的连接
+                                disBleConnect();
+                                updateDeviceBleDis();
+                                break;
+                        }
+                        break;
+
+                    case BluetoothDevice.ACTION_ACL_CONNECTED:
+                        Timber.e("蓝牙设备已连接");
+                        break;
+
+                    case BluetoothDevice.ACTION_ACL_DISCONNECTED:
+                        Timber.e("蓝牙设备已断开");
+                        break;
+                }
+
+            }
+        }
+    };
 
     @Subscribe(threadMode = ThreadMode.ASYNC)
     public void getEventBus(LockMessage lockMessage) {
@@ -446,6 +503,36 @@ public class LockAppService extends Service {
                 break;
             }
         }
+        LockMessageRes messageRes = new LockMessageRes();
+        messageRes.setMessgaeType(LockMessageCode.MSG_LOCK_MESSAGE_USER);
+        messageRes.setResultCode(LockMessageCode.MSG_LOCK_MESSAGE_CODE_SUCCESS);
+        messageRes.setMessageCode(LockMessageCode.MSG_LOCK_MESSAGE_UPDATE_DEVICE_STATE);
+
+        EventBus.getDefault().post(messageRes);
+        //lock.unlock();
+
+    }
+
+    /**
+     * 检测到手机蓝牙关闭时，更新所有的ble连接都为断开
+     */
+    public void updateDeviceBleDis() {
+        //    lock.lock();
+        Timber.e("updateDeviceBleDis");
+        if (0 == mDeviceLists.size()) return;
+        for (int i = 0; i < mDeviceLists.size(); i++) {
+            //判断蓝牙mac和sn码
+            boolean bleState = false;//当前蓝牙设的设备的状态
+            boolean mqttState = mDeviceLists.get(i).getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI ? true : false;//当前锁与服务器的连接状态
+            boolean appMqttState = MQTTManager.getInstance().onGetMQTTConnectedState();//当前APP与MQTT服务器端的连接状态
+            mDeviceLists.get(i).setConnectedType(checkDeviceState(bleState, mqttState, appMqttState));//ble
+        }
+        LockMessageRes messageRes = new LockMessageRes();
+        messageRes.setMessgaeType(LockMessageCode.MSG_LOCK_MESSAGE_USER);
+        messageRes.setResultCode(LockMessageCode.MSG_LOCK_MESSAGE_CODE_SUCCESS);
+        messageRes.setMessageCode(LockMessageCode.MSG_LOCK_MESSAGE_UPDATE_DEVICE_STATE);
+
+        EventBus.getDefault().post(messageRes);
         //lock.unlock();
 
     }
@@ -534,6 +621,13 @@ public class LockAppService extends Service {
      */
     public void removeBleConnect(String mac) {
         BleManager.getInstance().removeConnectedBleBeanAndDisconnect(mac);
+    }
+
+    /**
+     * 断开所有设备的连接
+     */
+    public void disBleConnect() {
+        BleManager.getInstance().disConnect();
     }
 
     /**
@@ -800,6 +894,7 @@ public class LockAppService extends Service {
         public void onDisconnected(@NotNull String mac) {
             //蓝牙断开
             //更新队列中对象的连接状态
+            Timber.e("onDisconnected 更新 %s:", mac);
             updateDevice("", mac);
         }
 
@@ -986,8 +1081,8 @@ public class LockAppService extends Service {
                 //判断处理回复超时
                 //判断 消息类型
                 if ("response".equals(msgtype)) {
-                    LockMessage message1=getCurrMessage();
-                    if (null!=message1&&null!=message1.getMqttMessage()&&messageId ==message1.getMqttMessage().getId()) {
+                    LockMessage message1 = getCurrMessage();
+                    if (null != message1 && null != message1.getMqttMessage() && messageId == message1.getMqttMessage().getId()) {
                         Timber.e("response: %1s\n", message1.getMqttMessage().getId());
                         mHandler.removeMessages(MSG_MESSAGE_SEND_OUT_TIME);
                         mHandler.sendEmptyMessage(MSG_MESSAGE_NEXT_SEND);
@@ -1073,7 +1168,7 @@ public class LockAppService extends Service {
      * @param MessageType
      */
     public void sendMessage(LockMessage message, int MessageType) {
-        Timber.e("msg type:%s",MessageType+"");
+        Timber.e("msg type:%s", MessageType + "");
         message.setMessageType(MessageType);
         addMessage(message);
     }
@@ -1143,7 +1238,7 @@ public class LockAppService extends Service {
     }
 
     private LockMessage getCurrMessage() {
-        LockMessage lockMessage=null;
+        LockMessage lockMessage = null;
         lock.lock();
         if (lockMessageList.size() > 0) {
             lockMessage = new LockMessage(lockMessageList.get(0));

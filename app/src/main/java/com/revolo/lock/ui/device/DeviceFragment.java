@@ -164,6 +164,12 @@ public class DeviceFragment extends Fragment {
         if (lockMessage.getMessgaeType() == LockMessageCode.MSG_LOCK_MESSAGE_USER) {
             if (lockMessage.getResultCode() == LockMessageCode.MSG_LOCK_MESSAGE_CODE_SUCCESS) {
                 //数据正常
+                switch (lockMessage.getMessageCode()){
+                    case LockMessageCode.MSG_LOCK_MESSAGE_UPDATE_DEVICE_STATE:
+                        mBleDeviceLocals = App.getInstance().getDeviceLists();
+                        updateData(mBleDeviceLocals);
+                        break;
+                }
             } else {
                 //数据异常
             }

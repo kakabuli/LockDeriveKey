@@ -72,13 +72,13 @@ public class BleManager {
         OKBLEDeviceImp deviceImp = null;
         String mac = "";
         if (null == bleScanResult && null != device) {
-            Timber.e("connectDevice: %1s", "device:"+device.getAddress());
+            Timber.e("connectDevice: %1s", "device:" + device.getAddress());
             deviceImp = new OKBLEDeviceImp(App.getInstance().getApplicationContext());
             deviceImp.setBluetoothDevice(device);
             mac = device.getAddress().toUpperCase();
             deviceImp.setDeviceTAG(device.getAddress().toLowerCase());
         } else {
-            Timber.e("connectDevice: %1s", "deviceImp:"+bleScanResult.getMacAddress());
+            Timber.e("connectDevice: %1s", "deviceImp:" + bleScanResult.getMacAddress());
             deviceImp = new OKBLEDeviceImp(App.getInstance().getApplicationContext(), bleScanResult);
             mac = bleScanResult.getMacAddress().toUpperCase();
             deviceImp.setDeviceTAG(bleScanResult.getMacAddress().toLowerCase());
@@ -155,7 +155,7 @@ public class BleManager {
                 mConnectedBleBeanList.remove(bleBean);
             }
         }
-        Timber.d("removeConnectedBleBeanAndDisconnect device: %1s", mConnectedBleBeanList.size()+"");
+        Timber.d("removeConnectedBleBeanAndDisconnect device: %1s", mConnectedBleBeanList.size() + "");
     }
 
     public void removeConnectedBleBeanAndDisconnect(String mac) {
@@ -174,6 +174,20 @@ public class BleManager {
             }
         }
     }
+
+    /**
+     * 断开所有设备的连接
+     */
+    public void disConnect() {
+        if (null != mConnectedBleBeanList) {
+            for (BleBean bleBean : mConnectedBleBeanList) {
+                if (null != bleBean.getOKBLEDeviceImp()) {
+                    removeConnectedBleBeanAndDisconnect(bleBean);
+                }
+            }
+        }
+    }
+
 
     public void removeBleConnected() {
         if (null != mConnectedBleBeanList) {
@@ -262,7 +276,7 @@ public class BleManager {
                     Timber.e("onDisconnected bleBean.getOnBleDeviceListener() == null");
                     return;
                 }
-               // bleBean.getOKBLEDeviceImp().remove();
+                // bleBean.getOKBLEDeviceImp().remove();
                 removeConnectedBleBeanAndDisconnect(deviceTAG);//清理当前队列中的连接ble对象
                 bleBean.getOnBleDeviceListener().onDisconnected(bleBean.getOKBLEDeviceImp().getMacAddress());
 

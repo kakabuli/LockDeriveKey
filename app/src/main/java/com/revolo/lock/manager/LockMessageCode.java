@@ -23,6 +23,7 @@ public class LockMessageCode {
     public static final int MSG_LOCK_MESSAGE_SET_LOCK_ATTR = 131;   // 设置门锁属性
     public static final int MSG_LOCK_MESSAGE_WF_EVEN = 132; // 操作事件
     public static final int MSG_LOCK_MESSAGE_RECORD = 133; // 记录
+    public static final int MSG_LOCK_MESSAGE_UPDATE_DEVICE_STATE = 134; // 更新当前设备的状态
 
 
 }
