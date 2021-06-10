@@ -158,6 +158,8 @@ public class DeviceFragment extends Fragment {
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void getEventBus(LockMessageRes lockMessage) {
+
+        mRefreshLayout.finishRefresh(true);
         if (lockMessage == null) {
             return;
         }
@@ -325,6 +327,9 @@ public class DeviceFragment extends Fragment {
     }
 
     private void processBleResult(@NotNull String mac, BleResultBean bean) {
+        if (bean == null){
+            return;
+        }
         if (bean.getCMD() == BleProtocolState.CMD_LOCK_INFO) {
             lockInfo(mac, bean);
         } else if (bean.getCMD() == BleProtocolState.CMD_LOCK_UPLOAD) {
@@ -635,9 +640,6 @@ public class DeviceFragment extends Fragment {
             mLoadingDialog.show();
         });
     }
-
-    private Disposable mOpenOrCloseDoorDisposable;
-
 
     private void processMQttMsg(@NotNull MqttData mqttData) {
         if (TextUtils.isEmpty(mqttData.getFunc())) {

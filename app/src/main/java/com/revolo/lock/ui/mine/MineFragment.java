@@ -1,9 +1,6 @@
 package com.revolo.lock.ui.mine;
 
 import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.content.pm.ResolveInfo;
-import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -17,7 +14,6 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.blankj.utilcode.util.TimeUtils;
-import com.blankj.utilcode.util.ToastUtils;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.RequestOptions;
@@ -25,7 +21,6 @@ import com.revolo.lock.R;
 import com.revolo.lock.room.entity.User;
 
 import java.io.File;
-import java.util.List;
 
 import timber.log.Timber;
 
@@ -111,13 +106,5 @@ public class MineFragment extends Fragment {
                 .placeholder(R.drawable.mine_personal_img_headportrait_default)
                 .apply(requestOptions)
                 .into(ivAvatar);
-    }
-
-    private boolean schemeValid(String url) {
-        PackageManager manager = getActivity().getPackageManager();
-        Intent action = new Intent(Intent.ACTION_VIEW);
-        action.setData(Uri.parse(url));
-        List<ResolveInfo> resolveInfos = manager.queryIntentActivities(action, PackageManager.GET_RESOLVED_FILTER);
-        return !resolveInfos.isEmpty();
     }
 }

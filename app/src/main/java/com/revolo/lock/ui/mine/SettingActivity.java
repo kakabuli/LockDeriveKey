@@ -183,7 +183,7 @@ public class SettingActivity extends BaseActivity {
 
     private void initFaceID() {
         BiometricManager biometricManager = BiometricManager.from(this);
-        switch (biometricManager.canAuthenticate()) {
+        switch (biometricManager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_WEAK)) {
             case BiometricManager.BIOMETRIC_SUCCESS:
                 Timber.d("允许生物识别");
                 mFaceIDCode = 0;
@@ -200,14 +200,25 @@ public class SettingActivity extends BaseActivity {
                 Timber.d("没有录入生物识别数据");
                 mFaceIDCode = 3;
                 break;
-
+            case BiometricManager.BIOMETRIC_ERROR_SECURITY_UPDATE_REQUIRED:
+                Timber.d("BIOMETRIC_ERROR_SECURITY_UPDATE_REQUIRED");
+                mFaceIDCode = 4;
+                break;
+            case BiometricManager.BIOMETRIC_ERROR_UNSUPPORTED:
+                Timber.d("BIOMETRIC_ERROR_UNSUPPORTED");
+                mFaceIDCode = 5;
+                break;
+            case BiometricManager.BIOMETRIC_STATUS_UNKNOWN:
+                Timber.d("BIOMETRIC_STATUS_UNKNOWN");
+                mFaceIDCode = 6;
+                break;
         }
     }
 
     /**
      * 获取手机厂商
      *
-     * @return  手机厂商
+     * @return 手机厂商
      */
     public static String getDeviceBrand() {
         return android.os.Build.BRAND;

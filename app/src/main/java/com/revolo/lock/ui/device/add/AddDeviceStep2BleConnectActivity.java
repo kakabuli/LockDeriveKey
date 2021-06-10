@@ -66,6 +66,7 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
     private static final int MSG_BLE_SCAN_OUT_TIME = 103;//搜索超时
     private static final int MSG_BLE_DATA_VALUE_ERR = 104;//sn错误或是mac错误
     private static final int MSG_BLE_SCAN_TIME = 20000;//搜索时间
+    private static final int MSG_BLE_CONNECT_FAIL = 105;
     private OKBLEScanManager mScanManager;
     private BLEScanResult mScanResult;
 
@@ -131,6 +132,11 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
                     //搜索超时
                     gotoBleConnectFail();
                     break;
+                case MSG_BLE_CONNECT_FAIL:
+                    if (mCountDownTimer != null) {
+                        mCountDownTimer.cancel();
+                    }
+                    break;
             }
         }
     };
@@ -183,7 +189,7 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
         @Override
         public void onTick(long millisUntilFinished) {
             if (!isRestartConnectingBle) {
-                mCountDownTimer.cancel();
+                handler.sendEmptyMessage(MSG_BLE_CONNECT_FAIL);
             }
         }
 
@@ -223,9 +229,7 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
         if (bleBean != null) {
             bleBean.setAppPair(false);
         }
-        if (mCountDownTimer != null) {
-            mCountDownTimer.cancel();
-        }
+        handler.sendEmptyMessage(MSG_BLE_CONNECT_FAIL);
         super.onDestroy();
     }
 
@@ -398,7 +402,7 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
             BleDeviceLocal deviceLocal = AppDatabase.getInstance(this).bleDeviceDao().findBleDeviceFromId(deviceId);
             Timber.d("addDeviceToLocal autoTime: %1d", bleDeviceLocal.getSetAutoLockTime());
             App.getInstance().setBleDeviceLocal(deviceLocal);
-          //  App.getInstance().addBleDeviceLocal(deviceLocal);
+            //  App.getInstance().addBleDeviceLocal(deviceLocal);
         }
     }
 

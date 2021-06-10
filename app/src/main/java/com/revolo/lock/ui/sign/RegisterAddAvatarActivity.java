@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.text.TextUtils;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.ImageView;
 
@@ -86,13 +87,13 @@ public class RegisterAddAvatarActivity extends BaseActivity implements EasyPermi
 
     @Override
     public void onDebouncingClick(@NonNull View view) {
-        if(view.getId() == R.id.tvSkip) {
+        if (view.getId() == R.id.tvSkip) {
             startActivity(new Intent(this, RegisterAddAvatarNextActivity.class));
             return;
         }
-        if(view.getId() == R.id.btnPhotograph) {
+        if (view.getId() == R.id.btnPhotograph) {
             rcSelectPicPermissions();
-            if(!isCanUploadAvatar) {
+            if (!isCanUploadAvatar) {
                 return;
             }
             PictureSelector.create(this)
@@ -102,9 +103,9 @@ public class RegisterAddAvatarActivity extends BaseActivity implements EasyPermi
                     .forResult(PictureConfig.REQUEST_CAMERA);
             return;
         }
-        if(view.getId() == R.id.btnAlbumAdd) {
+        if (view.getId() == R.id.btnAlbumAdd) {
             rcSelectPicPermissions();
-            if(!isCanUploadAvatar) {
+            if (!isCanUploadAvatar) {
                 return;
             }
             PictureSelector.create(this)
@@ -123,18 +124,17 @@ public class RegisterAddAvatarActivity extends BaseActivity implements EasyPermi
                 case PictureConfig.REQUEST_CAMERA:
                     // 结果回调
                     List<LocalMedia> selectList = PictureSelector.obtainMultipleResult(data);
-                    if(selectList == null) {
+                    if (selectList == null) {
                         return;
                     }
-                    if(selectList.isEmpty()) {
+                    if (selectList.isEmpty()) {
                         return;
                     }
                     String path = selectList.get(0).getRealPath();
-                    if(TextUtils.isEmpty(path)) {
+                    if (TextUtils.isEmpty(path)) {
                         return;
                     }
                     File avatarFile = new File(path);
-                    mUser.setAvatarLocalPath(path);
                     uploadUserAvatar(avatarFile);
 
                     break;
@@ -153,30 +153,30 @@ public class RegisterAddAvatarActivity extends BaseActivity implements EasyPermi
 
     @Override
     public void onPermissionsGranted(int requestCode, @NonNull List<String> perms) {
-        if(perms.isEmpty()) {
+        if (perms.isEmpty()) {
             Timber.e("onPermissionsGranted 返回的权限不存在数据 perms size: %1d", perms.size());
             return;
         }
-        if(requestCode == RC_QR_CODE_PERMISSIONS) {
-            if(perms.size() == 2) {
+        if (requestCode == RC_QR_CODE_PERMISSIONS) {
+            if (perms.size() == 2) {
                 Timber.d("onPermissionsGranted 同时两条权限都请求成功");
                 isCanUploadAvatar = true;
-            } else if(perms.get(0).equals(Manifest.permission.CAMERA)) {
+            } else if (perms.get(0).equals(Manifest.permission.CAMERA)) {
                 Timber.d("onPermissionsGranted 只有相机权限成功");
-                if(hasWriteExternalStoragePermission()) {
+                if (hasWriteExternalStoragePermission()) {
                     isCanUploadAvatar = true;
                 } else {
                     rcWriteStoragePermission();
                 }
-            } else if(perms.get(0).equals(Manifest.permission.READ_EXTERNAL_STORAGE)) {
+            } else if (perms.get(0).equals(Manifest.permission.READ_EXTERNAL_STORAGE)) {
                 Timber.d("onPermissionsGranted 只有存储权限成功");
-                if(hasCameraPermission()) {
+                if (hasCameraPermission()) {
                     isCanUploadAvatar = true;
                 } else {
                     rcCameraPermission();
                 }
             }
-        } else if(requestCode == RC_CAMERA_PERMISSIONS || requestCode == RC_WRITE_EXTERNAL_STORAGE_PERMISSIONS) {
+        } else if (requestCode == RC_CAMERA_PERMISSIONS || requestCode == RC_WRITE_EXTERNAL_STORAGE_PERMISSIONS) {
             Timber.d("onPermissionsGranted 请求剩下的权限成功");
             isCanUploadAvatar = true;
         }
@@ -184,11 +184,11 @@ public class RegisterAddAvatarActivity extends BaseActivity implements EasyPermi
 
     @Override
     public void onPermissionsDenied(int requestCode, @NonNull List<String> perms) {
-        if(perms.get(0).equals(Manifest.permission.READ_EXTERNAL_STORAGE)) {
+        if (perms.get(0).equals(Manifest.permission.READ_EXTERNAL_STORAGE)) {
             Timber.e("onPermissionsDenied 拒绝了打开图库需要的储存权限, requestCode: %1d", requestCode);
-        } else if(perms.get(0).equals(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+        } else if (perms.get(0).equals(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
             Timber.e("onPermissionsDenied 拒绝了打开图库需要的写入权限, requestCode: %1d", requestCode);
-        } else if(perms.get(0).equals(Manifest.permission.CAMERA)) {
+        } else if (perms.get(0).equals(Manifest.permission.CAMERA)) {
             Timber.e("onPermissionsDenied 拒绝了打开相机需要的相机权限, requestCode: %1d", requestCode);
         }
     }
@@ -197,11 +197,11 @@ public class RegisterAddAvatarActivity extends BaseActivity implements EasyPermi
         String avatarUrl = mUser.getAvatarUrl();
         String avatarLocalPath = mUser.getAvatarLocalPath();
         String url;
-        if(TextUtils.isEmpty(avatarLocalPath)) {
+        if (TextUtils.isEmpty(avatarLocalPath)) {
             url = avatarUrl;
         } else {
             File file = new File(avatarLocalPath);
-            if(file.exists()) {
+            if (file.exists()) {
                 url = avatarLocalPath;
             } else {
                 url = avatarUrl;
@@ -220,20 +220,20 @@ public class RegisterAddAvatarActivity extends BaseActivity implements EasyPermi
     }
 
     private void uploadUserAvatar(@NotNull File avatarFile) {
-        if(!checkNetConnectFail()) {
+        if (!checkNetConnectFail()) {
             return;
         }
-        if(App.getInstance().getUserBean() == null) {
+        if (App.getInstance().getUserBean() == null) {
             Timber.e("uploadUserAvatar App.getInstance().getUserBean() == null");
             return;
         }
         String token = App.getInstance().getUserBean().getToken();
-        if(TextUtils.isEmpty(token)) {
+        if (TextUtils.isEmpty(token)) {
             Timber.e("uploadUserAvatar token is empty");
             return;
         }
         String uid = App.getInstance().getUserBean().getUid();
-        if(TextUtils.isEmpty(uid)) {
+        if (TextUtils.isEmpty(uid)) {
             Timber.e("uploadUserAvatar uid is empty");
             return;
         }
@@ -251,25 +251,26 @@ public class RegisterAddAvatarActivity extends BaseActivity implements EasyPermi
             public void onNext(@NonNull UploadUserAvatarBeanRsp uploadUserAvatarBeanRsp) {
                 dismissLoading();
                 String code = uploadUserAvatarBeanRsp.getCode();
-                if(TextUtils.isEmpty(code)) {
+                if (TextUtils.isEmpty(code)) {
                     Timber.e("uploadUserAvatar code is empty");
                     return;
                 }
-                if(!code.equals("200")) {
+                if (!code.equals("200")) {
                     String msg = uploadUserAvatarBeanRsp.getMsg();
                     Timber.e("uploadUserAvatar code: %1s, msg: %2s", code, msg);
-                    if(!TextUtils.isEmpty(msg)) {
-                        ToastUtils.showShort(msg);
+                    if (!TextUtils.isEmpty(msg)) {
+                        ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(msg);
                     }
                     return;
                 }
                 String avatarUrl = uploadUserAvatarBeanRsp.getData().getPath();
-                if(TextUtils.isEmpty(avatarUrl)) {
+                if (TextUtils.isEmpty(avatarUrl)) {
                     Timber.e("avatarUrl is empty");
                     return;
                 }
                 refreshAvatar();
                 mUser.setAvatarUrl(avatarUrl);
+                mUser.setAvatarLocalPath(avatarFile.getPath());
                 AppDatabase.getInstance(RegisterAddAvatarActivity.this).userDao().update(mUser);
                 new Handler(Looper.getMainLooper()).postDelayed(() -> {
                     startActivity(new Intent(RegisterAddAvatarActivity.this, RegisterAddAvatarNextActivity.class));
@@ -281,6 +282,8 @@ public class RegisterAddAvatarActivity extends BaseActivity implements EasyPermi
             public void onError(@NonNull Throwable e) {
                 dismissLoading();
                 Timber.e(e);
+                ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show("Set Failed");
+                mUser.setAvatarLocalPath("");
             }
 
             @Override
@@ -293,7 +296,7 @@ public class RegisterAddAvatarActivity extends BaseActivity implements EasyPermi
 
     @AfterPermissionGranted(RC_QR_CODE_PERMISSIONS)
     private void rcSelectPicPermissions() {
-        String[] perms = new String[] {Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE};
+        String[] perms = new String[]{Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE};
         if (!EasyPermissions.hasPermissions(this, perms)) {
             EasyPermissions.requestPermissions(this, getString(R.string.rq_use_fun_need_camera_n_write_permission),
                     RC_QR_CODE_PERMISSIONS, perms);
@@ -304,15 +307,15 @@ public class RegisterAddAvatarActivity extends BaseActivity implements EasyPermi
 
     @AfterPermissionGranted(RC_CAMERA_PERMISSIONS)
     private void rcCameraPermission() {
-        if(!hasCameraPermission()) {
+        if (!hasCameraPermission()) {
             EasyPermissions.requestPermissions(this, getString(R.string.rq_use_the_camera_needs_camera_permission),
                     RC_CAMERA_PERMISSIONS, Manifest.permission.CAMERA);
         }
     }
 
     @AfterPermissionGranted(RC_WRITE_EXTERNAL_STORAGE_PERMISSIONS)
-    private void rcWriteStoragePermission(){
-        if(!hasWriteExternalStoragePermission()) {
+    private void rcWriteStoragePermission() {
+        if (!hasWriteExternalStoragePermission()) {
             EasyPermissions.requestPermissions(this, getString(R.string.rq_use_album_needs_write_permission),
                     RC_WRITE_EXTERNAL_STORAGE_PERMISSIONS, Manifest.permission.READ_EXTERNAL_STORAGE);
         }

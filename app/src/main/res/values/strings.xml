@@ -431,6 +431,8 @@
     <string name="t_please_open_location">Please open location</string>
     <string name="t_dont_enter_a_simple_pwd">Don\'t enter a simple password!</string>
     <string name="t_please_input_right_pwd">Please input right password!</string>
+    <string name="t_please_input_8_15_right_pwd">Please input 8&#8211;15 right passwords</string>
+    <string name="t_you_can_set_8_15_valid_pwd">You can set 8&#8211;15 valid passwords</string>
     <string name="t_please_input_pwd_name">Please Input Password Name!</string>
     <string name="t_setting_fail">Setting fail</string>
     <string name="t_the_start_time_cannot_be_greater_than_the_end_time">The start time cannot be greater than the end time!</string>

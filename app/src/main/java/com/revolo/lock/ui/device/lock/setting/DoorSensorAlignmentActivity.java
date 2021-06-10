@@ -112,7 +112,6 @@ public class DoorSensorAlignmentActivity extends BaseActivity {
                     case LockMessageCode.MSG_LOCK_MESSAGE_SET_MAGNETIC:
                         processSetMagnetic((WifiLockSetMagneticResponseBean) lockMessage.getWifiLockBaseResponseBean());
                         break;
-
                 }
             } else {
                 switch (lockMessage.getResultCode()) {
