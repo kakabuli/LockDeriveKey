@@ -438,7 +438,7 @@ public class LockAppService extends Service {
         if (0 == mDeviceLists.size()) return;
         for (int i = 0; i < mDeviceLists.size(); i++) {
             //判断蓝牙mac和sn码
-            if ((null!=esn&&esn.equals(mDeviceLists.get(i).getEsn())) || (null!=mac&&mac.equals(mDeviceLists.get(i).getMac()))) {
+            if ((null != esn && esn.equals(mDeviceLists.get(i).getEsn())) || (null != mac && mac.equals(mDeviceLists.get(i).getMac()))) {
                 boolean bleState = onGetConnectedState(mDeviceLists.get(i).getMac());//当前蓝牙设的设备的状态
                 boolean mqttState = mDeviceLists.get(i).getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI ? true : false;//当前锁与服务器的连接状态
                 boolean appMqttState = MQTTManager.getInstance().onGetMQTTConnectedState();//当前APP与MQTT服务器端的连接状态
@@ -551,6 +551,8 @@ public class LockAppService extends Service {
         public void processResult(String mac, BleResultBean bleResultBean) {
             //蓝牙收到回复，做相应的处理或是上报UI
             Timber.e("processResult 解析完成 mac: %1s\n", mac);
+            Timber.e("processResult 解析完成 CMD: %1d",
+                    bleResultBean.getCMD());
             LockMessageRes messageRes = new LockMessageRes(1, mac, bleResultBean);
             messageRes.setResultCode(LockMessageCode.MSG_LOCK_MESSAGE_CODE_SUCCESS);
             EventBus.getDefault().post(messageRes);
@@ -954,12 +956,6 @@ public class LockAppService extends Service {
         @Override
         public void messageArrived(String topic, MqttMessage message) {
             //MQTT 收到消息  ，做相应处理或是上报ui
-          /*  if (null != mAppMqttMessage) {
-                toDisposable(mAppMqttMessage);
-                mAppMqttMessage = null;
-            }*/
-            mHandler.removeMessages(MSG_MESSAGE_SEND_OUT_TIME);
-            mHandler.sendEmptyMessage(MSG_MESSAGE_NEXT_SEND);
             try {
                 String payload = new String(message.getPayload());
                 Timber.d("收到MQtt消息" + payload + "---topic" + topic + "  messageID  " + message.getId());
@@ -987,6 +983,17 @@ public class LockAppService extends Service {
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
+                //判断处理回复超时
+                //判断 消息类型
+                if ("response".equals(msgtype)) {
+                    LockMessage message1=getCurrMessage();
+                    if (null!=message1&&null!=message1.getMqttMessage()&&messageId ==message1.getMqttMessage().getId()) {
+                        Timber.e("response: %1s\n", message1.getMqttMessage().getId());
+                        mHandler.removeMessages(MSG_MESSAGE_SEND_OUT_TIME);
+                        mHandler.sendEmptyMessage(MSG_MESSAGE_NEXT_SEND);
+                    }
+                }
+
                 MqttData mqttData = new MqttData(jsonObject.getString("func"), topic, payload, message, messageId);
                 mqttData.setReturnCode(returnCode);
                 mqttData.setMsgtype(msgtype);
@@ -1066,6 +1073,7 @@ public class LockAppService extends Service {
      * @param MessageType
      */
     public void sendMessage(LockMessage message, int MessageType) {
+        Timber.e("msg type:%s",MessageType+"");
         message.setMessageType(MessageType);
         addMessage(message);
     }
@@ -1132,6 +1140,16 @@ public class LockAppService extends Service {
         messageLock.unlock();
         nextSendMessage();
         return message;
+    }
+
+    private LockMessage getCurrMessage() {
+        LockMessage lockMessage=null;
+        lock.lock();
+        if (lockMessageList.size() > 0) {
+            lockMessage = new LockMessage(lockMessageList.get(0));
+        }
+        lock.unlock();
+        return lockMessage;
     }
 
     private LockMessage outTimeNextMessage() {
