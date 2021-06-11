@@ -277,6 +277,7 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
             @Override
             public void onError(@NonNull Throwable e) {
                 Timber.e(e);
+                gotoBleConnectFail();
             }
 
             @Override
@@ -538,8 +539,10 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
         intent.putExtra(Constant.PRE_A, preA);
         if (preA.equals(Constant.INPUT_ESN_A)) {
             preIntent.putExtra(Constant.ESN, intent.getStringExtra(Constant.ESN));
+            intent.putExtra(Constant.ESN, preIntent.getStringExtra(Constant.ESN));
         } else if (preA.equals(Constant.QR_CODE_A)) {
             preIntent.putExtra(Constant.QR_RESULT, intent.getStringExtra(Constant.QR_RESULT));
+            intent.putExtra(Constant.QR_RESULT, preIntent.getStringExtra(Constant.QR_RESULT));
         }
         BleBean bleBean = App.getInstance().getUserBleBean(mMac);
         if (null != bleBean) {

@@ -104,6 +104,7 @@ public class UserPageActivity extends BaseActivity implements EasyPermissions.Pe
         );
         mPicSelectPopup.setCancelOnClickListener(v -> dismissPicSelect());
     }
+
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0) {
@@ -112,6 +113,7 @@ public class UserPageActivity extends BaseActivity implements EasyPermissions.Pe
         }
         return super.onKeyDown(keyCode, event);
     }
+
     private void dismissPicSelect() {
         runOnUiThread(() -> {
             if (mPicSelectPopup != null) {

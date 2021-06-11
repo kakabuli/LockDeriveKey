@@ -83,6 +83,8 @@ public class App extends Application {
                 return;
             }
         });
+
+        CrashCollectHandler.getInstance().init(this);
     }
 
     // TODO: 2021/3/8 临时存个MainActivity 后期删除

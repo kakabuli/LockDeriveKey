@@ -42,6 +42,7 @@
         android:layout_width="300pt"
         android:layout_height="44pt"
         android:layout_marginTop="6pt"
+        android:maxLength="20"
         android:hint="@string/please_enter_the_password_name"
         android:inputType="textEmailAddress"
         android:textColorHint="@color/cA5A4DA"

@@ -1,5 +1,6 @@
 package com.revolo.lock.ui.device.lock;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -72,6 +73,8 @@ public class PasswordDetailActivity extends BaseActivity {
     private String mESN;
     private BleDeviceLocal mBleDeviceLocal;
 
+    private static final int REQUEST_CODE = 0xf01;
+
     @Override
     public void initData(@Nullable Bundle bundle) {
         Intent intent = getIntent();
@@ -107,14 +110,15 @@ public class PasswordDetailActivity extends BaseActivity {
         mTvPwdName = findViewById(R.id.tvPwdName);
         mTvPwd = findViewById(R.id.tvPwd);
         mTvCreationDate = findViewById(R.id.tvCreationDate);
-        mTvPwdCharacteristic  = findViewById(R.id.tvPwdCharacteristic);
         mTvPwdCharacteristic = findViewById(R.id.tvPwdCharacteristic);
-     //   initZeroTimeZoneDate();
+        mTvPwdCharacteristic = findViewById(R.id.tvPwdCharacteristic);
+        //   initZeroTimeZoneDate();
         initSucMessageDialog();
         initFailMessageDialog();
         initLoading("Deleting...");
         onRegisterEventBus();
     }
+
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0) {
@@ -123,6 +127,7 @@ public class PasswordDetailActivity extends BaseActivity {
         }
         return super.onKeyDown(keyCode, event);
     }
+
     @Subscribe(threadMode = ThreadMode.MAIN, sticky = true)
     public void getEventBus(LockMessageRes lockMessage) {
         if (lockMessage == null) {
@@ -166,11 +171,20 @@ public class PasswordDetailActivity extends BaseActivity {
             Intent intent = new Intent(this, ChangePwdNameActivity.class);
             intent.putExtra(Constant.PWD_DETAIL, mDevicePwdBean);
             intent.putExtra(Constant.LOCK_ESN, mESN);
-            startActivity(intent);
+            startActivityForResult(intent, REQUEST_CODE);
             return;
         }
         if (view.getId() == R.id.btnDeletePwd) {
             showDelDialog();
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (data != null) {
+            String passwordName = data.getStringExtra("passwordName");
+            mTvPwdName.setText(passwordName);
         }
     }
 
@@ -183,7 +197,11 @@ public class PasswordDetailActivity extends BaseActivity {
 
     private void initDetail() {
         if (mDevicePwdBean != null) {
-            mTvPwdName.setText(mDevicePwdBean.getPwdName());
+            if (TextUtils.isEmpty(mDevicePwdBean.getPwdName())) {
+                mTvPwdName.setText(String.format("%03d", mDevicePwdBean.getPwdNum()));
+            } else {
+                mTvPwdName.setText(mDevicePwdBean.getPwdName());
+            }
             mTvPwd.setText("***********");
             mTvPwdCharacteristic.setText(getPwdCharacteristic(mDevicePwdBean));
             mTvCreationDate.setText(TimeUtils.millis2String(mDevicePwdBean.getCreateTime() * 1000, "MM,dd,yyyy HH:mm:ss"));
@@ -228,9 +246,9 @@ public class PasswordDetailActivity extends BaseActivity {
             long startTimeMill = devicePwdBean.getStartTime() * 1000;
             long endTimeMill = devicePwdBean.getEndTime() * 1000;
             detail = weekly
-                    + TimeUtils.millis2String(startTimeMill,"HH:mm")
+                    + TimeUtils.millis2String(startTimeMill, "HH:mm")
                     + " - "
-                    + TimeUtils.millis2String(endTimeMill,"HH:mm");
+                    + TimeUtils.millis2String(endTimeMill, "HH:mm");
         }
         return detail;
     }
