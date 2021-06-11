@@ -12,6 +12,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.view.Gravity;
+import android.view.KeyEvent;
 import android.view.View;
 
 import androidx.annotation.NonNull;
@@ -122,7 +123,14 @@ public class MapActivity extends BaseActivity implements OnMapReadyCallback, Goo
                     }
                 });
     }
-
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0) {
+            finish();
+            return true;
+        }
+        return super.onKeyDown(keyCode, event);
+    }
     @Override
     public void doBusiness() {
 

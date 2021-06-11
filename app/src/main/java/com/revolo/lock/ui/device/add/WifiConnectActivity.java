@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.text.TextUtils;
+import android.view.KeyEvent;
 import android.view.View;
 
 import androidx.annotation.NonNull;
@@ -86,6 +87,15 @@ public class WifiConnectActivity extends BaseActivity {
         useCommonTitleBar(getString(R.string.title_connect_wifi));
         mWifiCircleProgress = findViewById(R.id.wifiCircleProgress);
         onRegisterEventBus();
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0) {
+            finish();
+            return true;
+        }
+        return super.onKeyDown(keyCode, event);
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN, sticky = true)
@@ -290,7 +300,7 @@ public class WifiConnectActivity extends BaseActivity {
         byte[] data = mWifiPwdDataList.get(0);
         Timber.d("mWriteWifiPwdRunnable data %1s", ConvertUtils.bytes2HexString(data));
         LockMessage lockMessage = new LockMessage();
-         lockMessage.setBytes(BleCommandFactory.sendSSIDPwdCommand((byte) mWifiPwdLen, (byte) mWifiPwdCount, data));
+        lockMessage.setBytes(BleCommandFactory.sendSSIDPwdCommand((byte) mWifiPwdLen, (byte) mWifiPwdCount, data));
         lockMessage.setMac(mBleBean.getOKBLEDeviceImp().getMacAddress());
         lockMessage.setMessageType(3);
         lockMessage.setBleChr(1);

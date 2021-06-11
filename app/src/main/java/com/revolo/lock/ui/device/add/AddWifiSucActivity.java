@@ -3,6 +3,7 @@ package com.revolo.lock.ui.device.add;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.view.KeyEvent;
 import android.view.View;
 
 import androidx.annotation.NonNull;
@@ -40,7 +41,14 @@ public class AddWifiSucActivity extends BaseActivity {
         finishPreAct();
         threeSecFinish();
     }
-
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0) {
+            finish();
+            return true;
+        }
+        return super.onKeyDown(keyCode, event);
+    }
     @Override
     public void onDebouncingClick(@NonNull View view) {
     }

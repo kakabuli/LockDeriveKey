@@ -8,6 +8,7 @@ import android.os.Message;
 import android.text.TextUtils;
 import android.util.SparseArray;
 import android.view.Gravity;
+import android.view.KeyEvent;
 import android.view.View;
 
 import androidx.annotation.NonNull;
@@ -87,6 +88,14 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
         } else if (preA.equals(Constant.QR_CODE_A)) {
             initDataFromQRPre(intent);
         }
+    }
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0) {
+            finish();
+            return true;
+        }
+        return super.onKeyDown(keyCode, event);
     }
 
     private void initDataFromQRPre(Intent intent) {

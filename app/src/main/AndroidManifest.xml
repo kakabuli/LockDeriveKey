@@ -99,9 +99,11 @@
         <activity
             android:name=".ui.device.add.WifiConnectActivity"
             android:hardwareAccelerated="false"
+            android:launchMode="singleTask"
             android:screenOrientation="portrait" />
         <activity
             android:name=".ui.device.add.AddWifiActivity"
+            android:launchMode="singleTask"
             android:screenOrientation="portrait" />
         <activity
             android:name=".ui.MainActivity"
@@ -134,163 +136,203 @@
         </activity>
         <activity
             android:name=".ui.sign.RegisterActivity"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait"
+            android:launchMode="singleTask"/>
         <activity
             android:name=".ui.sign.RegisterInputNameActivity"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait"
+            android:launchMode="singleTask"/>
         <activity
             android:name=".ui.sign.RegisterAddAvatarActivity"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait"
+            android:launchMode="singleTask"/>
         <activity
             android:name=".ui.sign.RegisterAddAvatarNextActivity"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait"
+            android:launchMode="singleTask"/>
         <activity
             android:name=".ui.device.add.AddDeviceStep1Activity"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait"
+            android:launchMode="singleTask"/>
         <activity
             android:name=".ui.sign.ForgetThePwdActivity"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait"
+            android:launchMode="singleTask"/>
         <activity
             android:name=".ui.device.add.AddDeviceActivity"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait"
+            android:launchMode="singleTask"/>
         <activity
             android:name=".ui.device.add.AddDeviceQRCodeStep2Activity"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait"
+            android:launchMode="singleTask"/>
         <activity
             android:name=".ui.sign.LoginActivity"
             android:launchMode="singleTask"
             android:screenOrientation="portrait" />
         <activity
             android:name=".ui.device.add.AddDeviceStep2BleConnectActivity"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait"
+            android:launchMode="singleTask"/>
         <activity
             android:name=".ui.device.add.BleConnectFailActivity"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait"
+            android:launchMode="singleTask"/>
         <activity
             android:name=".ui.device.add.BleConnectSucActivity"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait"
+            android:launchMode="singleTask"/>
         <activity
             android:name=".ui.device.add.AddWifiSucActivity"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait"
+            android:launchMode="singleTask"/>
         <activity
             android:name=".ui.device.add.AddWifiFailActivity"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait"
+            android:launchMode="singleTask"/>
         <activity
             android:name=".ui.device.add.DoorSensorCheckActivity"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait"
+            android:launchMode="singleTask"/>
         <activity
             android:name=".ui.device.add.InputESNActivity"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait"
+            android:launchMode="singleTask"/>
         <activity
             android:name=".ui.device.lock.DeviceDetailActivity"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait"
+            android:launchMode="singleTask"/>
         <activity
             android:name=".ui.device.lock.OperationRecordsActivity"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait"
+            android:launchMode="singleTask"/>
         <activity
             android:name=".ui.device.lock.PasswordListActivity"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait"
+            android:launchMode="singleTask"/>
         <activity
             android:name=".ui.device.lock.AddInputNewPwdActivity"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait"
+            android:launchMode="singleTask"/>
         <activity
             android:name=".ui.device.lock.AddNewPwdSelectActivity"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait"
+            android:launchMode="singleTask"/>
         <activity
             android:name=".ui.device.lock.AddNewPwdNameActivity"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait"
+            android:launchMode="singleTask"/>
         <activity
             android:name=".ui.device.lock.PasswordDetailActivity"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait"
+            android:launchMode="singleTask"/>
         <activity
             android:name=".ui.device.lock.ChangePwdNameActivity"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait"
+            android:launchMode="singleTask"/>
         <activity
             android:name=".ui.device.lock.UserManagementActivity"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait"
+            android:launchMode="singleTask"/>
         <activity
             android:name=".ui.device.lock.AddNewShareUserInputNameActivity"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait"
+            android:launchMode="singleTask"/>
         <activity
             android:name=".ui.device.lock.AuthorizationManagementActivity"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait"
+            android:launchMode="singleTask"/>
         <activity
             android:name=".ui.device.lock.SharedUserDetailActivity"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait" android:launchMode="singleTask"/>
         <activity
             android:name=".ui.device.lock.setting.DeviceSettingActivity"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait" android:launchMode="singleTask"/>
         <activity
             android:name=".ui.device.lock.setting.ChangeLockNameActivity"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait" android:launchMode="singleTask"/>
         <activity
             android:name=".ui.device.lock.setting.WifiSettingActivity"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait" android:launchMode="singleTask"/>
         <activity
             android:name=".ui.device.lock.setting.AutoLockActivity"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait" android:launchMode="singleTask"/>
         <activity
             android:name=".ui.device.lock.setting.PrivateModeActivity"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait" android:launchMode="singleTask"/>
         <activity
             android:name=".ui.device.lock.setting.DuressCodeActivity"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait" android:launchMode="singleTask" />
         <activity
             android:name=".ui.device.lock.setting.DoorLockInformationActivity"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait"
+            android:launchMode="singleTask" />
         <activity
             android:name=".ui.user.AuthUserDetailActivity"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait" android:launchMode="singleTask"/>
         <activity
             android:name=".ui.user.ChangeSharedUserNameActivity"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait" android:launchMode="singleTask"/>
         <activity
             android:name=".ui.user.AddDeviceForSharedUserActivity"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait" android:launchMode="singleTask"/>
         <activity
             android:name=".ui.user.SelectAuthorizedDeviceActivity"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait" android:launchMode="singleTask"/>
         <activity
             android:name=".ui.mine.UserPageActivity"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait" android:launchMode="singleTask"/>
         <activity
             android:name=".ui.mine.ModifyUserNameActivity"
+            android:launchMode="singleTask"
             android:screenOrientation="portrait" />
         <activity
             android:name=".ui.mine.ModifyPasswordActivity"
+            android:launchMode="singleTask"
             android:screenOrientation="portrait" />
         <activity
             android:name=".ui.mine.MessageListActivity"
+            android:launchMode="singleTask"
             android:screenOrientation="portrait" />
         <activity
             android:name=".ui.mine.MessageDetailActivity"
+            android:launchMode="singleTask"
             android:screenOrientation="portrait" />
         <activity
             android:name=".ui.mine.SettingActivity"
+            android:launchMode="singleTask"
             android:screenOrientation="portrait" />
         <activity
             android:name=".ui.mine.AboutActivity"
+            android:launchMode="singleTask"
             android:screenOrientation="portrait" />
         <activity
             android:name=".ui.mine.FeedbackActivity"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait"
+            android:launchMode="singleTask"/>
         <activity
             android:name=".ui.device.add.DoorCheckFailActivity"
+            android:launchMode="singleTask"
             android:screenOrientation="portrait" />
         <activity
             android:name=".ui.device.lock.setting.GeoFenceUnlockActivity"
+            android:launchMode="singleTask"
             android:screenOrientation="portrait" />
         <activity
             android:name=".ui.device.lock.setting.DoorSensorAlignmentActivity"
+            android:launchMode="singleTask"
             android:screenOrientation="portrait" />
         <activity
             android:name=".ui.device.lock.setting.SetGeofenceActivity"
+            android:launchMode="singleTask"
             android:screenOrientation="portrait" />
         <activity
             android:name=".ui.sign.TermActivity"
+            android:launchMode="singleTask"
             android:screenOrientation="portrait" />
         <activity
             android:name=".ui.ShareDeviceActivity"
+            android:launchMode="singleTask"
             android:screenOrientation="portrait">
             <!--注册scheme-->
             <intent-filter android:label="share User">
@@ -329,18 +371,23 @@
         </activity>
         <activity
             android:name=".ui.device.lock.setting.geofence.MapActivity"
+            android:launchMode="singleTask"
             android:screenOrientation="portrait" />
         <activity
             android:name=".ui.mine.OpenDrawHandPwdActivity"
+            android:launchMode="singleTask"
             android:screenOrientation="portrait" />
         <activity
             android:name=".ui.sign.DrawHandPwdAutoLoginActivity"
+            android:launchMode="singleTask"
             android:screenOrientation="portrait" />
         <activity
             android:name=".ui.mine.CloseDrawHandPwdActivity"
+            android:launchMode="singleTask"
             android:screenOrientation="portrait" />
         <activity
             android:name=".ui.mine.HelpActivity"
+            android:launchMode="singleTask"
             android:screenOrientation="portrait" />
 
         <!--   <service android:name=".mqtt.MqttService" />-->

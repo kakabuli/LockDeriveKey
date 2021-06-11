@@ -3,6 +3,7 @@ package com.revolo.lock.ui.device.lock.setting;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -94,7 +95,14 @@ public class DoorSensorAlignmentActivity extends BaseActivity {
             }
         });
     }
-
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0) {
+            finish();
+            return true;
+        }
+        return super.onKeyDown(keyCode, event);
+    }
     @Subscribe(threadMode = ThreadMode.MAIN, sticky = true)
     public void getEventBus(LockMessageRes lockMessage) {
         if (lockMessage == null) {

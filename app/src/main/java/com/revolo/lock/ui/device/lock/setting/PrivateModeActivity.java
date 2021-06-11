@@ -1,6 +1,7 @@
 package com.revolo.lock.ui.device.lock.setting;
 
 import android.os.Bundle;
+import android.view.KeyEvent;
 import android.view.View;
 
 import androidx.annotation.NonNull;
@@ -30,7 +31,14 @@ public class PrivateModeActivity extends BaseActivity {
     public void initView(@Nullable Bundle savedInstanceState, @Nullable View contentView) {
         useCommonTitleBar(getString(R.string.title_private_mode));
     }
-
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0) {
+            finish();
+            return true;
+        }
+        return super.onKeyDown(keyCode, event);
+    }
     @Override
     public void doBusiness() {
 

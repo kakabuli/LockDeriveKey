@@ -5,6 +5,7 @@ import android.os.CountDownTimer;
 import android.text.InputType;
 import android.text.TextUtils;
 import android.view.Gravity;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -70,7 +71,14 @@ public class ForgetThePwdActivity extends BaseActivity {
         }
         initLoading("Loading...");
     }
-
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0) {
+            finish();
+            return true;
+        }
+        return super.onKeyDown(keyCode, event);
+    }
     @Override
     public void doBusiness() {
 

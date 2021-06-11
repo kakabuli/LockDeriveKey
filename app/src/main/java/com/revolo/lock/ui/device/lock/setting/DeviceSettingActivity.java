@@ -11,6 +11,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.text.TextUtils;
 import android.view.Gravity;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -125,7 +126,14 @@ public class DeviceSettingActivity extends BaseActivity {
         mIvMuteEnable.setImageResource(mBleDeviceLocal.isMute() ? R.drawable.ic_icon_switch_open : R.drawable.ic_icon_switch_close);
         onRegisterEventBus();
     }
-
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0) {
+            finish();
+            return true;
+        }
+        return super.onKeyDown(keyCode, event);
+    }
     @Subscribe(threadMode = ThreadMode.MAIN, sticky = true)
     public void getEventBus(LockMessageRes lockMessage) {
         if (lockMessage == null) {

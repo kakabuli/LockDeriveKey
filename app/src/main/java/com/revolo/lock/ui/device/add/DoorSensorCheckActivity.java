@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -84,7 +85,14 @@ public class DoorSensorCheckActivity extends BaseActivity {
         }
         onRegisterEventBus();
     }
-
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0) {
+            finish();
+            return true;
+        }
+        return super.onKeyDown(keyCode, event);
+    }
     @Subscribe(threadMode = ThreadMode.MAIN, sticky = true)
     public void getEventBus(LockMessageRes lockMessage) {
         if (lockMessage == null) {

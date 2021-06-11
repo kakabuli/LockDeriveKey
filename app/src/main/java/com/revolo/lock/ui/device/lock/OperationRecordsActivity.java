@@ -3,6 +3,7 @@ package com.revolo.lock.ui.device.lock;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.ExpandableListView;
 import android.widget.LinearLayout;
@@ -124,6 +125,14 @@ public class OperationRecordsActivity extends BaseActivity {
 //        });
         mRefreshLayout.setOnLoadMoreListener(refreshLayout -> searchRecordFromNet(mPage, mPage == 1));
         onRegisterEventBus();
+    }
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0) {
+            finish();
+            return true;
+        }
+        return super.onKeyDown(keyCode, event);
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN, sticky = true)

@@ -6,6 +6,7 @@ import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.SeekBar;
@@ -187,7 +188,14 @@ public class GeoFenceUnlockActivity extends BaseActivity implements OnMapReadyCa
             }
         });
     }
-
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0) {
+            finish();
+            return true;
+        }
+        return super.onKeyDown(keyCode, event);
+    }
     @Subscribe(threadMode = ThreadMode.MAIN, sticky = true)
     public void getEventBus(LockMessageRes lockMessage) {
         if (lockMessage == null) {

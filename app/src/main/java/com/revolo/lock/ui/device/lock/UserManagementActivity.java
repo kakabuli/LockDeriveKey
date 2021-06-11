@@ -3,6 +3,7 @@ package com.revolo.lock.ui.device.lock;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -91,7 +92,14 @@ public class UserManagementActivity extends BaseActivity {
         mSharedUserListAdapter.setEmptyView(R.layout.empty_view_share_user_list);
         initLoading("Loading...");
     }
-
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0) {
+            finish();
+            return true;
+        }
+        return super.onKeyDown(keyCode, event);
+    }
     @Override
     public void doBusiness() {
         mLinearLayout.setVisibility(View.GONE);

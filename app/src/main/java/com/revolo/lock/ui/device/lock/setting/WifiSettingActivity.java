@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.text.TextUtils;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -109,7 +110,14 @@ public class WifiSettingActivity extends BaseActivity {
         });
         onRegisterEventBus();
     }
-
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0) {
+            finish();
+            return true;
+        }
+        return super.onKeyDown(keyCode, event);
+    }
     @Override
     public void doBusiness() {
         updateUI();
@@ -158,7 +166,7 @@ public class WifiSettingActivity extends BaseActivity {
     }
 
     private void updateUI() {
-        if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI) {
+        if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI||mBleDeviceLocal.getConnectedType()==LocalState.DEVICE_CONNECT_TYPE_WIFI_BLE) {
             // Wifi
             updateWifiState();
         } else if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_BLE) {

@@ -5,6 +5,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.Gravity;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.TextView;
 
@@ -66,7 +67,14 @@ public class ShareDeviceActivity extends BaseActivity {
         super.onNewIntent(intent);
         getShareUserIntent(getIntent());
     }
-
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0) {
+            finish();
+            return true;
+        }
+        return super.onKeyDown(keyCode, event);
+    }
     @Override
     public int bindLayout() {
         return R.layout.activity_share_device;

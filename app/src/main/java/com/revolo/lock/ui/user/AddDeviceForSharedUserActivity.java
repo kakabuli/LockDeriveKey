@@ -2,6 +2,7 @@ package com.revolo.lock.ui.user;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.KeyEvent;
 import android.view.View;
 
 import androidx.annotation.NonNull;
@@ -72,7 +73,14 @@ public class AddDeviceForSharedUserActivity extends BaseActivity {
     public void onDebouncingClick(@NonNull View view) {
 
     }
-
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0) {
+            finish();
+            return true;
+        }
+        return super.onKeyDown(keyCode, event);
+    }
     private void initData() {
         List<BleDeviceLocal> list = AppDatabase
                 .getInstance(this)

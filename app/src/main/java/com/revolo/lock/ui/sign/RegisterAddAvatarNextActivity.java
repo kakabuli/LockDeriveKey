@@ -3,6 +3,7 @@ package com.revolo.lock.ui.sign;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.ImageView;
 
@@ -50,7 +51,14 @@ public class RegisterAddAvatarNextActivity extends BaseActivity {
         mIvAvatar = findViewById(R.id.ivAvatar);
         applyDebouncingClickListener(findViewById(R.id.btnAddDevice), findViewById(R.id.btnAddNextTime));
     }
-
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0) {
+            finish();
+            return true;
+        }
+        return super.onKeyDown(keyCode, event);
+    }
     @Override
     public void doBusiness() {
         refreshAvatar();

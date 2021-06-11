@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.text.InputType;
 import android.text.TextUtils;
 import android.view.Gravity;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -98,7 +99,14 @@ public class AddWifiActivity extends BaseActivity {
         mEtWifiName.setText(getConnectWifiSID());
         onRegisterEventBus();
     }
-
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0) {
+            finish();
+            return true;
+        }
+        return super.onKeyDown(keyCode, event);
+    }
     @Subscribe(threadMode = ThreadMode.MAIN, sticky = true)
     public void getEventBus(LockMessageRes lockMessage) {
         if (lockMessage == null) {

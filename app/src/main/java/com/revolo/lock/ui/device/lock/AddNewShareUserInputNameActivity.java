@@ -3,6 +3,7 @@ package com.revolo.lock.ui.device.lock;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.EditText;
 
@@ -52,7 +53,14 @@ public class AddNewShareUserInputNameActivity extends BaseActivity {
     public void doBusiness() {
 
     }
-
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0) {
+            finish();
+            return true;
+        }
+        return super.onKeyDown(keyCode, event);
+    }
     @Override
     public void onDebouncingClick(@NonNull View view) {
         if (view.getId() == R.id.btnAddUser) {

@@ -5,6 +5,7 @@ import android.os.CountDownTimer;
 import android.text.InputType;
 import android.text.TextUtils;
 import android.view.Gravity;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -50,7 +51,14 @@ public class ModifyPasswordActivity extends BaseActivity {
     public void initData(@Nullable Bundle bundle) {
 
     }
-
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0) {
+            finish();
+            return true;
+        }
+        return super.onKeyDown(keyCode, event);
+    }
     @Override
     public int bindLayout() {
         return R.layout.activity_modify_password;

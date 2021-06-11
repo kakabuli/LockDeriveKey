@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.Gravity;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -98,7 +99,14 @@ public class UserPageActivity extends BaseActivity implements EasyPermissions.Pe
         );
         mPicSelectPopup.setCancelOnClickListener(v -> dismissPicSelect());
     }
-
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0) {
+            finish();
+            return true;
+        }
+        return super.onKeyDown(keyCode, event);
+    }
     private void dismissPicSelect() {
         runOnUiThread(() -> {
             if (mPicSelectPopup != null) {

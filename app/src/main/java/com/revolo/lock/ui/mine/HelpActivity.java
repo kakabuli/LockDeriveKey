@@ -1,6 +1,7 @@
 package com.revolo.lock.ui.mine;
 
 import android.os.Bundle;
+import android.view.KeyEvent;
 import android.view.View;
 
 import androidx.annotation.NonNull;
@@ -80,7 +81,14 @@ public class HelpActivity extends BaseActivity {
             }
         });
     }
-
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0) {
+            finish();
+            return true;
+        }
+        return super.onKeyDown(keyCode, event);
+    }
     private void faqListResponse(List<QuestionBeanReq> questionBeanReqs) {
 
         if (questionBeanReqs != null && questionBeanReqs.size() > 0) {

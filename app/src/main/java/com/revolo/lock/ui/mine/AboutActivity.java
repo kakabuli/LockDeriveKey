@@ -2,6 +2,7 @@ package com.revolo.lock.ui.mine;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.TextView;
 
@@ -45,7 +46,14 @@ public class AboutActivity extends BaseActivity {
         tvContact.setText("service@irevolo.com");
         applyDebouncingClickListener(findViewById(R.id.clPrivacyAgreement), findViewById(R.id.clUserAgreement));
     }
-
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0) {
+            finish();
+            return true;
+        }
+        return super.onKeyDown(keyCode, event);
+    }
     @Override
     public void onDebouncingClick(@NonNull View view) {
         if(view.getId() == R.id.clUserAgreement) {

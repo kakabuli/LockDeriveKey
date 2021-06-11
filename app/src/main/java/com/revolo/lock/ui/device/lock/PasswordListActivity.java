@@ -7,6 +7,7 @@ import android.os.Looper;
 import android.os.Message;
 import android.text.TextUtils;
 import android.view.Gravity;
+import android.view.KeyEvent;
 import android.view.View;
 
 import androidx.annotation.NonNull;
@@ -94,7 +95,14 @@ public class PasswordListActivity extends BaseActivity {
     public int bindLayout() {
         return R.layout.activity_password_list;
     }
-
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0) {
+            finish();
+            return true;
+        }
+        return super.onKeyDown(keyCode, event);
+    }
     @Override
     public void initView(@Nullable Bundle savedInstanceState, @Nullable View contentView) {
         onRegisterEventBus();
