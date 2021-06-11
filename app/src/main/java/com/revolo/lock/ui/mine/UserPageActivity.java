@@ -13,6 +13,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.blankj.utilcode.util.FileUtils;
 import com.blankj.utilcode.util.SPUtils;
 import com.blankj.utilcode.util.ToastUtils;
 import com.bumptech.glide.Glide;
@@ -318,7 +319,7 @@ public class UserPageActivity extends BaseActivity implements EasyPermissions.Pe
                     String msg = uploadUserAvatarBeanRsp.getMsg();
                     Timber.e("uploadUserAvatar code: %1s, msg: %2s", code, msg);
                     if (!TextUtils.isEmpty(msg)) {
-                        ToastUtils.showShort(msg);
+                        ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(msg);
                     }
                     return;
                 }
@@ -462,7 +463,5 @@ public class UserPageActivity extends BaseActivity implements EasyPermissions.Pe
 
             }
         });
-
     }
-
 }

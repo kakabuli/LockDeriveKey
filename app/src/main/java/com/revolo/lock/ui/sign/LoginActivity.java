@@ -151,7 +151,11 @@ public class LoginActivity extends BaseActivity {
     @Override
     public void onDebouncingClick(@NonNull View view) {
         if (view.getId() == R.id.tvForgotPwd) {
-            startActivity(new Intent(this, ForgetThePwdActivity.class));
+            String email = mEtEmail.getText().toString().trim();
+            if (!TextUtils.isEmpty(emailName)) {
+                email = emailName;
+            }
+            startActivity(new Intent(this, ForgetThePwdActivity.class).putExtra("email", email));
             return;
         }
         if (view.getId() == R.id.ivEye) {
@@ -192,8 +196,8 @@ public class LoginActivity extends BaseActivity {
             ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_please_input_your_pwd);
             return;
         }
-        if (!RegexUtils.isMatch("^(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{6,15}$", pwd)) {
-            ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_please_input_right_pwd);
+        if (!RegexUtils.isMatch("^(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{8,15}$", pwd)) {
+            ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_please_input_8_15_right_pwd);
             return;
         }
         showLoading();

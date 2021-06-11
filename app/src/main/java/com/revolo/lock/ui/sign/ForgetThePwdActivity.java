@@ -64,8 +64,8 @@ public class ForgetThePwdActivity extends BaseActivity {
         applyDebouncingClickListener(findViewById(R.id.btnDone),
                 findViewById(R.id.ivEye),
                 mTvGetCode);
-        String mail = SPUtils.getInstance(REVOLO_SP).getString(USER_MAIL);
-        if(!TextUtils.isEmpty(mail)) {
+        String mail = getIntent().getStringExtra("email");
+        if (!TextUtils.isEmpty(mail)) {
             EditText etEmail = findViewById(R.id.etEmail);
             etEmail.setText(mail);
         }
@@ -86,37 +86,37 @@ public class ForgetThePwdActivity extends BaseActivity {
 
     @Override
     public void onDebouncingClick(@NonNull View view) {
-        if(view.getId() == R.id.btnDone) {
+        if (view.getId() == R.id.btnDone) {
             forgetPwd();
             return;
         }
-        if(view.getId() == R.id.ivEye) {
+        if (view.getId() == R.id.ivEye) {
             ImageView ivEye = findViewById(R.id.ivEye);
-            ivEye.setImageResource(isShowPwd?R.drawable.ic_login_icon_display:R.drawable.ic_login_icon_hide);
+            ivEye.setImageResource(isShowPwd ? R.drawable.ic_login_icon_display : R.drawable.ic_login_icon_hide);
             EditText etPwd = findViewById(R.id.etPwd);
-            etPwd.setInputType(isShowPwd?
+            etPwd.setInputType(isShowPwd ?
                     InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
-                    :(InputType.TYPE_CLASS_TEXT|InputType.TYPE_TEXT_VARIATION_PASSWORD));
+                    : (InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD));
             isShowPwd = !isShowPwd;
             return;
         }
-        if(view.getId() == R.id.tvGetCode) {
-            if(!isCountdown) {
+        if (view.getId() == R.id.tvGetCode) {
+            if (!isCountdown) {
                 getCode();
             }
         }
     }
 
     private void getCode() {
-        if(!checkNetConnectFail()) {
+        if (!checkNetConnectFail()) {
             return;
         }
         String mail = ((EditText) findViewById(R.id.etEmail)).getText().toString().trim();
-        if(TextUtils.isEmpty(mail)) {
+        if (TextUtils.isEmpty(mail)) {
             ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.err_tip_please_input_email);
             return;
         }
-        if(!RegexUtils.isEmail(mail)) {
+        if (!RegexUtils.isEmail(mail)) {
             ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_please_input_right_mail_address);
             return;
         }
@@ -134,17 +134,17 @@ public class ForgetThePwdActivity extends BaseActivity {
             @Override
             public void onNext(@NonNull GetCodeBeanRsp getCodeBeanRsp) {
                 dismissLoading();
-                if(TextUtils.isEmpty(getCodeBeanRsp.getCode())) {
+                if (TextUtils.isEmpty(getCodeBeanRsp.getCode())) {
                     Timber.e("getCode getCodeBeanRsp.getCode() is null");
                     ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_fail);
                     return;
                 }
-                if(!getCodeBeanRsp.getCode().equals("200")) {
+                if (!getCodeBeanRsp.getCode().equals("200")) {
                     Timber.e("getCode code: %1s, msg: %2s",
                             getCodeBeanRsp.getCode(),
                             getCodeBeanRsp.getMsg());
                     String msg = getCodeBeanRsp.getMsg();
-                    if(TextUtils.isEmpty(msg)) {
+                    if (TextUtils.isEmpty(msg)) {
                         ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_fail);
                     } else {
                         ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(msg);
@@ -170,30 +170,30 @@ public class ForgetThePwdActivity extends BaseActivity {
     }
 
     private void forgetPwd() {
-        if(!checkNetConnectFail()) {
+        if (!checkNetConnectFail()) {
             return;
         }
         String mail = ((EditText) findViewById(R.id.etEmail)).getText().toString().trim();
-        if(TextUtils.isEmpty(mail)) {
+        if (TextUtils.isEmpty(mail)) {
             ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.err_tip_please_input_email);
             return;
         }
-        if(!RegexUtils.isEmail(mail)) {
+        if (!RegexUtils.isEmail(mail)) {
             ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_please_input_right_mail_address);
             return;
         }
         String tokens = ((EditText) findViewById(R.id.etCode)).getText().toString().trim();
-        if(TextUtils.isEmpty(tokens)) {
+        if (TextUtils.isEmpty(tokens)) {
             ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.err_tip_please_input_verification_code);
             return;
         }
         String pwd = ((EditText) findViewById(R.id.etPwd)).getText().toString().trim();
-        if(TextUtils.isEmpty(pwd)) {
+        if (TextUtils.isEmpty(pwd)) {
             ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_please_input_pwd);
             return;
         }
-        if(!RegexUtils.isMatch("^(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{8,15}$", pwd)) {
-            ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_please_input_right_pwd);
+        if (!RegexUtils.isMatch("^(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{8,15}$", pwd)) {
+            ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_please_input_8_15_right_pwd);
             return;
         }
         showLoading();
@@ -212,14 +212,14 @@ public class ForgetThePwdActivity extends BaseActivity {
             @Override
             public void onNext(@NonNull ForgotPwdRsp forgotPwdRsp) {
                 dismissLoading();
-                if(TextUtils.isEmpty(forgotPwdRsp.getCode())) {
+                if (TextUtils.isEmpty(forgotPwdRsp.getCode())) {
                     ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_fail);
                     return;
                 }
-                if(!forgotPwdRsp.getCode().equals("200")) {
+                if (!forgotPwdRsp.getCode().equals("200")) {
                     Timber.e("forgetPwd code: %1s, msg: %2s", forgotPwdRsp.getCode(), forgotPwdRsp.getMsg());
                     String msg = forgotPwdRsp.getMsg();
-                    if(TextUtils.isEmpty(msg)) {
+                    if (TextUtils.isEmpty(msg)) {
                         ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_fail);
                     } else {
                         ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(msg);

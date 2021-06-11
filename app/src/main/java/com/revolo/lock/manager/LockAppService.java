@@ -750,6 +750,7 @@ public class LockAppService extends Service {
                 case BleProtocolState.CMD_PAIR_NETWORK_ACK:// 0x96;                // App下发配网状态响应
                     break;
                 case BleProtocolState.CMD_BLE_UPLOAD_PAIR_NETWORK_STATE:// 0x97;   // BLE上报联网状态
+                    Timber.e("CMD_BLE_UPLOAD_PAIR_NETWORK_STATE");
                     break;
                 case BleProtocolState.CMD_WIFI_LIST_CHECK:// 0x98;                 // WIFI热点列表查询响应
                     break;
