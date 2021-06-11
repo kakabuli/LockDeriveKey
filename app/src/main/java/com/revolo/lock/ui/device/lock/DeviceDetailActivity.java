@@ -444,8 +444,9 @@ public class DeviceDetailActivity extends BaseActivity {
                     doorClose(ivDoorState, tvDoorState);
                 }
             } else {
+                ivLockState.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_home_img_lock_close));
                 // TODO: 2021/3/31 其他选择
-                Timber.e("");
+                Timber.e("其他选择");
             }
 
         }
@@ -454,6 +455,8 @@ public class DeviceDetailActivity extends BaseActivity {
         } else if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_BLE) {
             ivNetState.setImageResource(R.drawable.ic_home_icon_bluetooth);
         } else {
+            Timber.e("connect state :%s",mBleDeviceLocal.getConnectedType()+"");
+            ivNetState.setImageResource(R.drawable.ic_home_icon_bluetooth);
             // TODO: 2021/3/2 其他选择
             Timber.e("");
         }

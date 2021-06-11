@@ -10,6 +10,8 @@ import androidx.room.PrimaryKey;
 import com.revolo.lock.LocalState;
 import com.revolo.lock.ble.BleCommandState;
 
+import java.util.Arrays;
+
 /**
  * author :
  * time   : 2021/2/3
@@ -485,4 +487,41 @@ public class BleDeviceLocal implements Parcelable {
             return new BleDeviceLocal[size];
         }
     };
+
+    @Override
+    public String toString() {
+        return "BleDeviceLocal{" +
+                "id=" + id +
+                ", userId=" + userId +
+                ", pwd1='" + pwd1 + '\'' +
+                ", pwd2='" + pwd2 + '\'' +
+                ", esn='" + esn + '\'' +
+                ", mac='" + mac + '\'' +
+                ", name='" + name + '\'' +
+                ", functionSet='" + functionSet + '\'' +
+                ", createTime=" + createTime +
+                ", scanResultJson=" + Arrays.toString(scanResultJson) +
+                ", type='" + type + '\'' +
+                ", wifiVer='" + wifiVer + '\'' +
+                ", lockVer='" + lockVer + '\'' +
+                ", doorSensor=" + doorSensor +
+                ", connectedWifiName='" + connectedWifiName + '\'' +
+                ", connectedType=" + connectedType +
+                ", lockState=" + lockState +
+                ", lockPower=" + lockPower +
+                ", setAutoLockTime=" + setAutoLockTime +
+                ", isDetectionLock=" + isDetectionLock +
+                ", setElectricFenceTime=" + setElectricFenceTime +
+                ", setElectricFenceSensitivity=" + setElectricFenceSensitivity +
+                ", isAutoLock=" + isAutoLock +
+                ", isOpenElectricFence=" + isOpenElectricFence +
+                ", isOpenDoorSensor=" + isOpenDoorSensor +
+                ", isMute=" + isMute +
+                ", isDoNotDisturbMode=" + isDoNotDisturbMode +
+                ", isDuress=" + isDuress +
+                ", randomCode='" + randomCode + '\'' +
+                ", latitude=" + latitude +
+                ", longitude=" + longitude +
+                '}';
+    }
 }

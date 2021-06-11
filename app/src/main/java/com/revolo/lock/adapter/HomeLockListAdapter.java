@@ -12,6 +12,8 @@ import com.revolo.lock.room.entity.BleDeviceLocal;
 
 import org.jetbrains.annotations.NotNull;
 
+import timber.log.Timber;
+
 
 /**
  * author : Jack
@@ -74,6 +76,10 @@ public class HomeLockListAdapter extends BaseQuickAdapter<BleDeviceLocal, BaseVi
                 } else {
                     doorClose(ivDoorState, tvDoorState);
                 }
+            }else{
+                //异常处理
+                Timber.e("homeLock type:%s",deviceLocal.getLockState()+"");
+                baseViewHolder.setImageResource(R.id.ivLockState, R.drawable.ic_home_img_lock_privacymodel);
             }
         }
         if (deviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI) {

@@ -30,6 +30,7 @@ import com.revolo.lock.base.BaseActivity;
 import com.revolo.lock.bean.respone.LogoutBeanRsp;
 import com.revolo.lock.bean.respone.UploadUserAvatarBeanRsp;
 import com.revolo.lock.dialog.SelectDialog;
+import com.revolo.lock.manager.LockMessage;
 import com.revolo.lock.net.HttpRequest;
 import com.revolo.lock.net.ObservableDecorator;
 import com.revolo.lock.popup.PicSelectPopup;
@@ -38,6 +39,7 @@ import com.revolo.lock.room.entity.User;
 import com.revolo.lock.ui.sign.LoginActivity;
 import com.revolo.lock.util.GlideEngine;
 
+import org.greenrobot.eventbus.EventBus;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
@@ -51,6 +53,8 @@ import pub.devrel.easypermissions.EasyPermissions;
 import timber.log.Timber;
 
 import static com.revolo.lock.Constant.REVOLO_SP;
+import static com.revolo.lock.manager.LockMessageCode.MSG_LOCK_MESSAGE_CLASE_DEVICE;
+import static com.revolo.lock.manager.LockMessageCode.MSG_LOCK_MESSAGE_USER;
 
 /**
  * author : Jack
@@ -442,7 +446,11 @@ public class UserPageActivity extends BaseActivity implements EasyPermissions.Pe
                 App.getInstance().getUserBean().setToken(""); // 清空token
                 SPUtils.getInstance(REVOLO_SP).put(Constant.USER_LOGIN_INFO, ""); // 清空登录信息
                 //清理设备信息
-                App.getInstance().removeDeviceList();
+                LockMessage message=new LockMessage();
+                message.setMessageType(MSG_LOCK_MESSAGE_USER);
+                message.setMessageCode(MSG_LOCK_MESSAGE_CLASE_DEVICE);
+                EventBus.getDefault().post(message);
+               // App.getInstance().removeDeviceList();
 
                 // TODO: 2021/3/30 退出操作
                 if (App.getInstance().getMainActivity() != null) {

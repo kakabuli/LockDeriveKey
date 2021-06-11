@@ -63,6 +63,7 @@ import timber.log.Timber;
 
 import static com.revolo.lock.manager.LockMessageCode.MSG_LOCK_MESSAGE_ADD_DEVICE_SERVICE;
 import static com.revolo.lock.manager.LockMessageCode.MSG_LOCK_MESSAGE_BLE;
+import static com.revolo.lock.manager.LockMessageCode.MSG_LOCK_MESSAGE_CLASE_DEVICE;
 import static com.revolo.lock.manager.LockMessageCode.MSG_LOCK_MESSAGE_CODE_SUCCESS;
 import static com.revolo.lock.manager.LockMessageCode.MSG_LOCK_MESSAGE_REMOVE_DEVICE;
 import static com.revolo.lock.manager.LockMessageCode.MSG_LOCK_MESSAGE_USER;
@@ -207,6 +208,10 @@ public class LockAppService extends Service {
                     //解绑
                     removeDevice(lockMessage.getSn(), lockMessage.getMac());
                     break;
+                case MSG_LOCK_MESSAGE_CLASE_DEVICE:
+                    //清理蓝牙连接
+                    removeDeviceList();
+                    break;
             }
 
         } else {
@@ -348,6 +353,8 @@ public class LockAppService extends Service {
         boolean mqttState = bleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI ? true : false;//当前锁与服务器的连接状态
         boolean appMqttState = MQTTManager.getInstance().onGetMQTTConnectedState();//当前APP与MQTT服务器端的连接状态
         bleDeviceLocal.setConnectedType(checkDeviceState(bleState, mqttState, appMqttState));//ble
+        Timber.d("add device：type:%s;bleState:%s;mqttState:%s;appMqttState:%s",bleDeviceLocal.getConnectedType()+"",bleState,mqttState,appMqttState);
+        Timber.d("add device：type:%s",bleDeviceLocal.getConnectedType()+"");
         if (index < 0) {
             //因设备添加是从服务端获取，从而需要更新当前的ble连接状态
             mDeviceLists.add(bleDeviceLocal);
@@ -373,6 +380,9 @@ public class LockAppService extends Service {
         }
         //lock.unlock();
         Timber.e("getEventBus send");
+        for(BleDeviceLocal deviceLocal:mDeviceLists){
+            Timber.e("device state:%s",deviceLocal.toString());
+        }
         LockMessageRes lockMessageRes = new LockMessageRes();
         lockMessageRes.setMessgaeType(LockMessageCode.MSG_LOCK_MESSAGE_MQTT);//蓝牙消息
         lockMessageRes.setResultCode(MSG_LOCK_MESSAGE_CODE_SUCCESS);
@@ -501,6 +511,8 @@ public class LockAppService extends Service {
                 boolean mqttState = mDeviceLists.get(i).getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI ? true : false;//当前锁与服务器的连接状态
                 boolean appMqttState = MQTTManager.getInstance().onGetMQTTConnectedState();//当前APP与MQTT服务器端的连接状态
                 mDeviceLists.get(i).setConnectedType(checkDeviceState(bleState, mqttState, appMqttState));//ble
+                Timber.d("add device：type:%s;bleState:%s;mqttState:%s;appMqttState:%s", mDeviceLists.get(i).getConnectedType()+"",bleState,mqttState,appMqttState);
+
                 break;
             }
         }
@@ -1118,6 +1130,7 @@ public class LockAppService extends Service {
 
         @Override
         public void onAddDevice(BleDeviceLocal bleDeviceLocal) {
+
             addDevice(bleDeviceLocal);
         }
     };

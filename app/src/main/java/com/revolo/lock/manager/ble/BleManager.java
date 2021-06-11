@@ -184,9 +184,9 @@ public class BleManager {
      */
     public void disConnect() {
         if (null != mConnectedBleBeanList) {
-            for (BleBean bleBean : mConnectedBleBeanList) {
-                if (null != bleBean.getOKBLEDeviceImp()) {
-                    removeConnectedBleBeanAndDisconnect(bleBean);
+            for (int i=0;i<mConnectedBleBeanList.size();i++) {
+                if (null != mConnectedBleBeanList.get(i).getOKBLEDeviceImp()) {
+                    removeConnectedBleBeanAndDisconnect(mConnectedBleBeanList.get(i));
                 }
             }
         }
@@ -195,12 +195,13 @@ public class BleManager {
 
     public void removeBleConnected() {
         if (null != mConnectedBleBeanList) {
-            for (BleBean bleBean : mConnectedBleBeanList) {
-                if (null != bleBean.getOKBLEDeviceImp()) {
-                    removeConnectedBleBeanAndDisconnect(bleBean);
+            for (int i=0;i<mConnectedBleBeanList.size();i++) {
+                if (null != mConnectedBleBeanList.get(i).getOKBLEDeviceImp()) {
+                    mConnectedBleBeanList.get(i).getOKBLEDeviceImp().disConnect(false);
+                    Timber.d("removeBleConnected device: %1s", mConnectedBleBeanList.size() + "");
                 }
             }
-
+            mConnectedBleBeanList.clear();
         }
     }
 

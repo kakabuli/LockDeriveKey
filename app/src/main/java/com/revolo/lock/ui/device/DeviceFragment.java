@@ -166,7 +166,7 @@ public class DeviceFragment extends Fragment {
         if (lockMessage.getMessgaeType() == LockMessageCode.MSG_LOCK_MESSAGE_USER) {
             if (lockMessage.getResultCode() == LockMessageCode.MSG_LOCK_MESSAGE_CODE_SUCCESS) {
                 //数据正常
-                switch (lockMessage.getMessageCode()){
+                switch (lockMessage.getMessageCode()) {
                     case LockMessageCode.MSG_LOCK_MESSAGE_UPDATE_DEVICE_STATE:
                         mBleDeviceLocals = App.getInstance().getDeviceLists();
                         updateData(mBleDeviceLocals);
@@ -315,6 +315,9 @@ public class DeviceFragment extends Fragment {
 
     private void updateData(List<BleDeviceLocal> locals) {
         if (locals != null) {
+            for (BleDeviceLocal local : locals) {
+                Timber.e("data state:%s", local.toString());
+            }
             if (locals.isEmpty()) {
                 mClNoDevice.setVisibility(View.VISIBLE);
                 mClHadDevice.setVisibility(View.GONE);
@@ -327,7 +330,7 @@ public class DeviceFragment extends Fragment {
     }
 
     private void processBleResult(@NotNull String mac, BleResultBean bean) {
-        if (bean == null){
+        if (bean == null) {
             return;
         }
         if (bean.getCMD() == BleProtocolState.CMD_LOCK_INFO) {
