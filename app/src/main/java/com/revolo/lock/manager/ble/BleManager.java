@@ -147,14 +147,18 @@ public class BleManager {
         if (mConnectedBleBeanList.isEmpty()) {
             return;
         }
+        if(null==mConnectedBleBeanList){
+            return;
+        }
+        for (int i=0;i< mConnectedBleBeanList.size();i++) {
+            if (mConnectedBleBeanList.get(i).getEsn().equals(bean.getEsn())) {
+                mConnectedBleBeanList.remove(i);
+            }
+        }
         if (bean.getOKBLEDeviceImp() != null) {
             bean.getOKBLEDeviceImp().disConnect(false);
         }
-        for (BleBean bleBean : mConnectedBleBeanList) {
-            if (bleBean.getEsn().equals(bean.getEsn())) {
-                mConnectedBleBeanList.remove(bleBean);
-            }
-        }
+
         Timber.d("removeConnectedBleBeanAndDisconnect device: %1s", mConnectedBleBeanList.size() + "");
     }
 
@@ -489,6 +493,7 @@ public class BleManager {
             deviceImp.addWriteOperation(sPairWriteCharacteristicUUID, bytes, mWriteOperationListener);
         }
     }
+    //....
 
     private void openControlNotify(OKBLEDeviceImp deviceImp) {
         if (deviceImp != null) {

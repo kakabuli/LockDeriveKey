@@ -64,6 +64,7 @@ import timber.log.Timber;
  * desc   : 连接蓝牙或者搜寻到对应的蓝牙连接
  */
 public class AddDeviceStep2BleConnectActivity extends BaseActivity {
+    private static final int MSG_BLE_ADDDEVICE_CONNECT_FAIL = 102;//ble连接校验超时
     private static final int MSG_BLE_SCAN_OUT_TIME = 103;//搜索超时
     private static final int MSG_BLE_DATA_VALUE_ERR = 104;//sn错误或是mac错误
     private static final int MSG_BLE_SCAN_TIME = 20000;//搜索时间
@@ -90,6 +91,7 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
             initDataFromQRPre(intent);
         }
     }
+
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0) {
@@ -138,6 +140,7 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
             switch (msg.what) {
                 case MSG_BLE_SCAN_OUT_TIME:
                 case MSG_BLE_DATA_VALUE_ERR:
+                case MSG_BLE_ADDDEVICE_CONNECT_FAIL:
                     //搜索超时
                     gotoBleConnectFail();
                     break;
@@ -170,10 +173,10 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
                 switch (lockMessage.getResultCode()) {
                     case LockMessageReplyErrCode.LOCK_BLE_ERR_CODE_CONNECT_OUT_TIME://连接超时
                     case LockMessageReplyErrCode.LOCK_BLE_ERR_CODE_DATA_CHECK_ERR://校验失败
-                    case LockMessageReplyErrCode.LOCK_BLE_ERR_CODE_DATA_WRITE_ERR://写入失败
-                    case LockMessageReplyErrCode.LOCK_BLE_ERR_CODE_DATA_NOTIFY_ERR://通知失败
-                    case LockMessageReplyErrCode.LOCK_BLE_ERR_CODE_BLE_DIS_ERR://蓝牙断开失败
-                    case LockMessageReplyErrCode.LOCK_BLE_ERR_CODE_BLE_VALUE_ERR://蓝牙蓝牙数据错误
+                        //  case LockMessageReplyErrCode.LOCK_BLE_ERR_CODE_DATA_WRITE_ERR://写入失败
+                        // case LockMessageReplyErrCode.LOCK_BLE_ERR_CODE_DATA_NOTIFY_ERR://通知失败
+                        //case LockMessageReplyErrCode.LOCK_BLE_ERR_CODE_BLE_DIS_ERR://蓝牙断开失败
+                        //case LockMessageReplyErrCode.LOCK_BLE_ERR_CODE_BLE_VALUE_ERR://蓝牙蓝牙数据错误
                         gotoBleConnectFail();
                         break;
                 }
@@ -239,6 +242,7 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
             bleBean.setAppPair(false);
         }
         handler.sendEmptyMessage(MSG_BLE_CONNECT_FAIL);
+        handler.removeMessages(MSG_BLE_ADDDEVICE_CONNECT_FAIL);
         super.onDestroy();
     }
 
@@ -526,6 +530,7 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
 
     private void gotoBleConnectFail() {
         handler.removeMessages(MSG_BLE_SCAN_OUT_TIME);
+        handler.removeMessages(MSG_BLE_ADDDEVICE_CONNECT_FAIL);
         Intent intent = new Intent(this, BleConnectFailActivity.class);
         Intent preIntent = getIntent();
         if (!preIntent.hasExtra(Constant.PRE_A)) return;
@@ -594,6 +599,8 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
             bleConnected.setmEsn(mEsn);
             bleConnected.setBleScanResult(device);
             EventBus.getDefault().post(bleConnected);
+            handler.removeMessages(MSG_BLE_ADDDEVICE_CONNECT_FAIL);
+            handler.sendEmptyMessageDelayed(MSG_BLE_ADDDEVICE_CONNECT_FAIL, 15000);
         }
     }
 
@@ -615,6 +622,8 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
             bleConnected.setmEsn(mEsn);
             bleConnected.setBleScanResult(device);
             EventBus.getDefault().post(bleConnected);
+            handler.removeMessages(MSG_BLE_ADDDEVICE_CONNECT_FAIL);
+            handler.sendEmptyMessageDelayed(MSG_BLE_ADDDEVICE_CONNECT_FAIL, 30000);
         }
     }
 

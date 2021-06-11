@@ -1,6 +1,7 @@
 package com.revolo.lock.manager.mqtt;
 
 import android.text.TextUtils;
+import android.util.Log;
 
 import com.blankj.utilcode.util.LogUtils;
 import com.revolo.lock.App;
@@ -149,6 +150,7 @@ public class MQTTManager {
                     }
                     //连接成功之后订阅主题
                     mqttSubscribe(mqttClient, MQttConstant.getSubscribeTopic(userId), 2);
+                    Log.e("topic:",MQttConstant.getSubscribeTopic(userId));
                     reconnectionNum = 10;
                 }
                 if (null != mqttDataLinstener) {
