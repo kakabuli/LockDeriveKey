@@ -149,14 +149,10 @@ public class DeviceSettingActivity extends BaseActivity {
         } else if (lockMessage.getMessgaeType() == LockMessageCode.MSG_LOCK_MESSAGE_MQTT) {
             //MQTT
             if (lockMessage.getResultCode() == LockMessageCode.MSG_LOCK_MESSAGE_CODE_SUCCESS) {
+                Timber.e("device_set:%s", lockMessage.getMessageCode() + "");
                 switch (lockMessage.getMessageCode()) {
                     case LockMessageCode.MSG_LOCK_MESSAGE_SET_LOCK_ATTRVOLUME:
-                        if (null != lockMessage.getWifiLockBaseResponseBean()) {
-                            if (lockMessage.getWifiLockBaseResponseBean().equals(MQttConstant.SET_LOCK_ATTR)) {
-                                processSetVolume((WifiLockSetLockAttrVolumeRspBean) lockMessage.getWifiLockBaseResponseBean(), lockMute);
-                            }
-                        }
-
+                        processSetVolume((WifiLockSetLockAttrVolumeRspBean) lockMessage.getWifiLockBaseResponseBean(), lockMute);
                         break;
 
                 }

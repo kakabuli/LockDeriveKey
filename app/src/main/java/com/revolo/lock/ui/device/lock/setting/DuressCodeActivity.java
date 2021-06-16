@@ -88,6 +88,7 @@ public class DuressCodeActivity extends BaseActivity {
         applyDebouncingClickListener(findViewById(R.id.ivDuressCodeEnable), findViewById(R.id.btnSave));
         onRegisterEventBus();
     }
+
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0) {
@@ -96,6 +97,7 @@ public class DuressCodeActivity extends BaseActivity {
         }
         return super.onKeyDown(keyCode, event);
     }
+
     @Subscribe(threadMode = ThreadMode.MAIN, sticky = true)
     public void getEventBus(LockMessageRes lockMessage) {
         if (lockMessage == null) {
@@ -112,12 +114,7 @@ public class DuressCodeActivity extends BaseActivity {
                 switch (lockMessage.getMessageCode()) {
                     case LockMessageCode.MSG_LOCK_MESSAGE_SET_LOCK_ATTRDURES:
                         //当前分两种
-                        if (null != lockMessage.getWifiLockBaseResponseBean()) {
-                            if (lockMessage.getWifiLockBaseResponseBean().equals(MQttConstant.SET_LOCK_ATTR)) {
-                                processOpenOrCloseDuressPwd((WifiLockSetLockAttrDuressRspBean) lockMessage.getWifiLockBaseResponseBean());
-                            }
-                        }
-
+                        processOpenOrCloseDuressPwd((WifiLockSetLockAttrDuressRspBean) lockMessage.getWifiLockBaseResponseBean());
                         break;
                 }
             } else {
