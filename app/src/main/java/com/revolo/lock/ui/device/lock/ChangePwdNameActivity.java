@@ -1,5 +1,6 @@
 package com.revolo.lock.ui.device.lock;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -37,22 +38,23 @@ public class ChangePwdNameActivity extends BaseActivity {
 
     private String mEsn;
     private DevicePwdBean mDevicePwdBean;
+    private EditText etPwdName;
 
     @Override
     public void initData(@Nullable Bundle bundle) {
         Intent intent = getIntent();
-        if(intent.hasExtra(Constant.PWD_DETAIL)) {
+        if (intent.hasExtra(Constant.PWD_DETAIL)) {
             mDevicePwdBean = intent.getParcelableExtra(Constant.PWD_DETAIL);
         }
-        if(mDevicePwdBean == null) {
+        if (mDevicePwdBean == null) {
             finish();
             return;
         }
-        if(intent.hasExtra(Constant.LOCK_ESN)) {
+        if (intent.hasExtra(Constant.LOCK_ESN)) {
             mEsn = intent.getStringExtra(Constant.LOCK_ESN);
             Timber.d("initData Device Esn: %1s", mEsn);
         }
-        if(TextUtils.isEmpty(mEsn)) {
+        if (TextUtils.isEmpty(mEsn)) {
             finish();
         }
     }
@@ -67,12 +69,19 @@ public class ChangePwdNameActivity extends BaseActivity {
         useCommonTitleBar(getString(R.string.title_change_the_name));
         applyDebouncingClickListener(findViewById(R.id.btnComplete));
         initLoading("Loading...");
+        etPwdName = findViewById(R.id.etPwdName);
+        if (TextUtils.isEmpty(mDevicePwdBean.getPwdName())) {
+            etPwdName.setText(String.format("%03d", mDevicePwdBean.getPwdNum()));
+        } else {
+            etPwdName.setText(mDevicePwdBean.getPwdName());
+        }
     }
 
     @Override
     public void doBusiness() {
 
     }
+
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0) {
@@ -81,29 +90,29 @@ public class ChangePwdNameActivity extends BaseActivity {
         }
         return super.onKeyDown(keyCode, event);
     }
+
     @Override
     public void onDebouncingClick(@NonNull View view) {
-        if(view.getId() == R.id.btnComplete) {
+        if (view.getId() == R.id.btnComplete) {
             sendPwdDataToServiceAndLocal();
         }
     }
 
     private void sendPwdDataToServiceAndLocal() {
-        if(!checkNetConnectFail()) {
+        if (!checkNetConnectFail()) {
             return;
         }
-        EditText etPwdName = findViewById(R.id.etPwdName);
         String pwdName = etPwdName.getText().toString().trim();
-        if(TextUtils.isEmpty(pwdName)) {
+        if (TextUtils.isEmpty(pwdName)) {
             ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_please_input_pwd_name);
             return;
         }
-        if(App.getInstance().getUserBean() == null) {
+        if (App.getInstance().getUserBean() == null) {
             showAddFail();
             return;
         }
         String uid = App.getInstance().getUserBean().getUid();
-        if(TextUtils.isEmpty(uid)) {
+        if (TextUtils.isEmpty(uid)) {
             showAddFail();
             return;
         }
@@ -127,18 +136,18 @@ public class ChangePwdNameActivity extends BaseActivity {
             public void onNext(@NonNull ChangeKeyNickBeanRsp changeKeyNickBeanRsp) {
                 dismissLoading();
                 String code = changeKeyNickBeanRsp.getCode();
-                if(TextUtils.isEmpty(code)) {
+                if (TextUtils.isEmpty(code)) {
                     Timber.e("changeKeyNickBeanRsp.getCode() is Empty");
                     return;
                 }
-                if(!code.equals("200")) {
-                    if(code.equals("444")) {
+                if (!code.equals("200")) {
+                    if (code.equals("444")) {
                         App.getInstance().logout(true, ChangePwdNameActivity.this);
                         return;
                     }
                     String msg = changeKeyNickBeanRsp.getMsg();
                     Timber.e("code: %1s, msg: %2s", changeKeyNickBeanRsp.getCode(), msg);
-                    if(!TextUtils.isEmpty(msg)) {
+                    if (!TextUtils.isEmpty(msg)) {
                         ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(msg);
                     }
                     return;
@@ -163,7 +172,12 @@ public class ChangePwdNameActivity extends BaseActivity {
     }
 
     private void finishThisAct() {
-        runOnUiThread(this::finish);
+        runOnUiThread(() -> {
+            String trim = etPwdName.getText().toString().trim();
+            Intent intent = new Intent();
+            intent.putExtra("passwordName", trim);
+            setResult(Activity.RESULT_OK);
+        });
     }
 
     private void showAddFail() {

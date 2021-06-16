@@ -121,7 +121,6 @@ public class WifiSettingActivity extends BaseActivity {
     @Override
     public void doBusiness() {
         updateUI();
-
     }
 
     @Override
@@ -362,7 +361,6 @@ public class WifiSettingActivity extends BaseActivity {
                 // TODO: 2021/1/26 为空的处理
             }
         }
-
     }
 
     private void openWifiFromBle() {
@@ -427,7 +425,7 @@ public class WifiSettingActivity extends BaseActivity {
             String wifiName = mBleDeviceLocal.getConnectedWifiName();
             mTvWifiName.setText(TextUtils.isEmpty(wifiName) ? "" : wifiName);
             isWifiConnected = true;
-            mCltip.setVisibility(View.VISIBLE);
+//            mCltip.setVisibility(View.VISIBLE);
         });
     }
 
@@ -435,7 +433,7 @@ public class WifiSettingActivity extends BaseActivity {
         runOnUiThread(() -> {
             mIvWifiEnable.setImageResource(R.drawable.ic_icon_switch_close);
             isWifiConnected = false;
-            mCltip.setVisibility(View.GONE);
+//            mCltip.setVisibility(View.GONE);
         });
     }
 
@@ -460,5 +458,4 @@ public class WifiSettingActivity extends BaseActivity {
         mBleDeviceLocal.setConnectedType(isWifiConnected ? LocalState.DEVICE_CONNECT_TYPE_WIFI : LocalState.DEVICE_CONNECT_TYPE_BLE);
         AppDatabase.getInstance(this).bleDeviceDao().update(mBleDeviceLocal);
     }
-
 }

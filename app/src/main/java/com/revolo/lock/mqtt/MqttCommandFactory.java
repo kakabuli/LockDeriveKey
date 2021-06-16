@@ -2,6 +2,7 @@ package com.revolo.lock.mqtt;
 
 import com.blankj.utilcode.util.EncodeUtils;
 import com.blankj.utilcode.util.EncryptUtils;
+import com.blankj.utilcode.util.LogUtils;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.revolo.lock.App;
@@ -214,7 +215,7 @@ public class MqttCommandFactory {
 
     private static String getEncryptString(byte[] pwd, Object src) {
         String json = new Gson().toJson(src);
-        Timber.d("MQtt 发送数据未加密： %1s", json);
+        LogUtils.d("MQtt 发送数据未加密： %1s", json);
         // 先AES加密
         byte[] aesJson = EncryptUtils.encryptAES(json.getBytes(StandardCharsets.UTF_8), pwd, "AES/ECB/PKCS5Padding", null);
         // 后Base64字符串编码

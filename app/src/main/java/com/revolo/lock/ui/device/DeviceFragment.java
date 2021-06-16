@@ -343,7 +343,7 @@ public class DeviceFragment extends Fragment {
             lockUpdateInfo(mac, bean);
         }
 //        else if(bean.getCMD() == BleProtocolState.CMD_LOCK_CONTROL_ACK) {
-////            controlOpenOrCloseDoorAck(mac, bean);
+//            controlOpenOrCloseDoorAck(mac, bean);
 //        }
     }
 
@@ -722,5 +722,4 @@ public class DeviceFragment extends Fragment {
             Timber.e("processSetLock code : %1d", bean.getCode());
         }
     }
-
 }

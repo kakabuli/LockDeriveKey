@@ -16,6 +16,7 @@ import com.revolo.lock.ble.BleByteUtil;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Date;
+import java.util.regex.Pattern;
 
 import static com.revolo.lock.ble.BleCommandState.KEY_SET_ATTRIBUTE_ALWAYS;
 import static com.revolo.lock.ble.BleCommandState.KEY_SET_ATTRIBUTE_TIME_KEY;
@@ -50,8 +51,11 @@ public class PasswordListAdapter extends BaseQuickAdapter<DevicePwdBean, BaseVie
                 tvPwdName.setTextColor(ContextCompat.getColor(getContext(), R.color.c333333));
                 tvDetail.setTextColor(ContextCompat.getColor(getContext(), R.color.c666666));
             }
-
-            baseViewHolder.setText(R.id.tvPwdName, devicePwdBean.getPwdName());
+            String pwdName = devicePwdBean.getPwdName();
+            if (TextUtils.isEmpty(pwdName)) {
+                pwdName = String.format("%03d", devicePwdBean.getPwdNum());
+            }
+            baseViewHolder.setText(R.id.tvPwdName, pwdName);
             baseViewHolder.setText(R.id.tvDetail, getPwdDetail(devicePwdBean));
         }
         TextView textView = baseViewHolder.getView(R.id.tv_delete);
@@ -99,9 +103,9 @@ public class PasswordListAdapter extends BaseQuickAdapter<DevicePwdBean, BaseVie
             long startTimeMill = devicePwdBean.getStartTime() * 1000;
             long endTimeMill = devicePwdBean.getEndTime() * 1000;
             detail = weekly
-                    + TimeUtils.millis2String(startTimeMill,"HH:mm")
+                    + TimeUtils.millis2String(startTimeMill, "HH:mm")
                     + " - "
-                    + TimeUtils.millis2String(endTimeMill,"HH:mm");
+                    + TimeUtils.millis2String(endTimeMill, "HH:mm");
         }
         return detail;
     }
@@ -156,6 +160,10 @@ public class PasswordListAdapter extends BaseQuickAdapter<DevicePwdBean, BaseVie
             }
         }
         return true;
+    }
+
+    public static boolean isInteger(String str) {
+        return str.matches("-?[0-9]+.？[0-9]*");
     }
 
     public void setOnDeletePassWordListener(OnDeletePassWordListener onDeleteListener) {

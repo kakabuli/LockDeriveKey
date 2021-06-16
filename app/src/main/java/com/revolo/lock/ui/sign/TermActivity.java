@@ -114,6 +114,7 @@ public class TermActivity extends BaseActivity {
 
     @Override
     protected void onDestroy() {
+        mTermWebView.clearHistory();
         mTermWebView.setVisibility(View.GONE);
         mTermWebView.destroy();
         super.onDestroy();

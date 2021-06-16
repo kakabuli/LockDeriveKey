@@ -4,10 +4,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.text.Editable;
 import android.text.InputType;
 import android.text.TextUtils;
-import android.text.TextWatcher;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.EditText;
@@ -56,7 +54,7 @@ public class LoginActivity extends BaseActivity {
 
     private EditText mEtEmail, mEtPwd;
     private boolean isShowPwd = true;
-    private String emailName = "";
+//    private String emailName = "";
 
     @Override
     public void initData(@Nullable Bundle bundle) {
@@ -72,7 +70,7 @@ public class LoginActivity extends BaseActivity {
     public void initView(@Nullable Bundle savedInstanceState, @Nullable View contentView) {
         useCommonTitleBar(getString(R.string.sign_in));
         mEtEmail = findViewById(R.id.etEmail);
-        mEtEmail.setOnFocusChangeListener(new android.view.View.
+       /* mEtEmail.setOnFocusChangeListener(new android.view.View.
                 OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
@@ -111,7 +109,7 @@ public class LoginActivity extends BaseActivity {
             @Override
             public void afterTextChanged(Editable s) {
             }
-        });
+        });*/
         mEtPwd = findViewById(R.id.etPwd);
         applyDebouncingClickListener(findViewById(R.id.tvForgotPwd),
                 findViewById(R.id.ivEye), findViewById(R.id.btnSignIn));
@@ -120,18 +118,9 @@ public class LoginActivity extends BaseActivity {
             //TODO:是否弹出token失效弹窗
             tokenDialog();
         }
-        String mail = SPUtils.getInstance(REVOLO_SP).getString(USER_MAIL);
-        if (!TextUtils.isEmpty(mail)) {
-            emailName = mail;
-            mEtEmail.setText(mail);
-        } else {
-            if (BuildConfig.DEBUG) {
-                emailName = "zhouguimin@kaadas.com";
-                mEtEmail.setText("zhouguimin@kaadas.com");
-            }
-            if (BuildConfig.DEBUG) {
-                mEtPwd.setText("zgm123456");
-            }
+        if (BuildConfig.DEBUG) {
+            mEtEmail.setText("zhouguimin@kaadas.com");
+            mEtPwd.setText("zgm123456");
         }
         initLoading("Loading...");
     }
@@ -152,9 +141,9 @@ public class LoginActivity extends BaseActivity {
     public void onDebouncingClick(@NonNull View view) {
         if (view.getId() == R.id.tvForgotPwd) {
             String email = mEtEmail.getText().toString().trim();
-            if (!TextUtils.isEmpty(emailName)) {
-                email = emailName;
-            }
+//            if (!TextUtils.isEmpty(emailName)) {
+//                email = emailName;
+//            }
             startActivity(new Intent(this, ForgetThePwdActivity.class).putExtra("email", email));
             return;
         }
@@ -181,7 +170,7 @@ public class LoginActivity extends BaseActivity {
         if (!checkNetConnectFail()) {
             return;
         }
-        String mail = emailName.trim();
+        String mail = mEtEmail.getText().toString().trim();
         String pwd = mEtPwd.getText().toString();
         // TODO: 2021/1/26 提示语抽离同时修正
         if (TextUtils.isEmpty(mail)) {

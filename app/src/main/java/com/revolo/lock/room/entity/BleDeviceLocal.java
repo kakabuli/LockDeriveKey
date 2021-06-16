@@ -62,16 +62,19 @@ public class BleDeviceLocal implements Parcelable {
     private String lockVer;                                         // 锁端的版本号
 
     @ColumnInfo(name = "d_door_sensor")
-    private @LocalState.DoorSensor int doorSensor;                  // 门磁的当前状态
+    private @LocalState.DoorSensor
+    int doorSensor;                  // 门磁的当前状态
 
     @ColumnInfo(name = "d_connected_wifi_name")
     private String connectedWifiName;                               // 连接上的wifi名称
 
     @ColumnInfo(name = "d_connected_type", defaultValue = "2")
-    private @LocalState.DeviceConnectType int connectedType;        // 连接的类型，wifi还是ble  1 wifi  2 ble, 默认为蓝牙
+    private @LocalState.DeviceConnectType
+    int connectedType;        // 连接的类型，wifi还是ble  1 wifi  2 ble, 默认为蓝牙
 
     @ColumnInfo(name = "d_lock_state")
-    private @LocalState.LockState int lockState;                    // 锁的开关状态（还有私密模式,存在分享用户） 1 开  2 关  3 私密模式
+    private @LocalState.LockState
+    int lockState;                    // 锁的开关状态（还有私密模式,存在分享用户） 1 开  2 关  3 私密模式
 
     @ColumnInfo(name = "d_lock_power")
     private int lockPower;                                          // 锁的剩余电量
@@ -114,7 +117,6 @@ public class BleDeviceLocal implements Parcelable {
 
     @ColumnInfo(name = "d_longitude")
     private double longitude;                                         // 地理围栏经度
-
 
     public long getId() {
         return id;
@@ -220,7 +222,8 @@ public class BleDeviceLocal implements Parcelable {
         this.lockVer = lockVer;
     }
 
-    public @LocalState.DoorSensor int getDoorSensor() {
+    public @LocalState.DoorSensor
+    int getDoorSensor() {
         return doorSensor;
     }
 
@@ -236,7 +239,8 @@ public class BleDeviceLocal implements Parcelable {
         this.connectedWifiName = connectedWifiName;
     }
 
-    public @LocalState.DeviceConnectType int getConnectedType() {
+    public @LocalState.DeviceConnectType
+    int getConnectedType() {
         return connectedType;
     }
 
@@ -244,7 +248,8 @@ public class BleDeviceLocal implements Parcelable {
         this.connectedType = connectedType;
     }
 
-    public @LocalState.LockState int getLockState() {
+    public @LocalState.LockState
+    int getLockState() {
         return lockState;
     }
 
@@ -364,7 +369,6 @@ public class BleDeviceLocal implements Parcelable {
         this.longitude = longitude;
     }
 
-
     @Override
     public int describeContents() {
         return 0;
@@ -394,12 +398,12 @@ public class BleDeviceLocal implements Parcelable {
         dest.writeByte(this.isDetectionLock ? (byte) 1 : (byte) 0);
         dest.writeInt(this.setElectricFenceTime);
         dest.writeInt(this.setElectricFenceSensitivity);
-        dest.writeByte(this.isAutoLock ? (byte) 1 : (byte) 0);
-        dest.writeByte(this.isOpenElectricFence ? (byte) 1 : (byte) 0);
+        dest.writeByte(this.isAutoLock ? (byte) 0 : (byte) 1);
+        dest.writeByte(this.isOpenElectricFence ? (byte) 0 : (byte) 1);
         dest.writeByte(this.isOpenDoorSensor ? (byte) 1 : (byte) 0);
         dest.writeByte(this.isMute ? (byte) 1 : (byte) 0);
         dest.writeByte(this.isDoNotDisturbMode ? (byte) 1 : (byte) 0);
-        dest.writeByte(this.isDuress ? (byte) 1 : (byte) 0);
+        dest.writeByte(this.isDuress ? (byte) 0 : (byte) 1);
         dest.writeString(this.randomCode);
         dest.writeDouble(this.latitude);
         dest.writeDouble(this.longitude);
@@ -431,7 +435,7 @@ public class BleDeviceLocal implements Parcelable {
         this.isAutoLock = source.readByte() != 0;
         this.isOpenElectricFence = source.readByte() != 0;
         this.isOpenDoorSensor = source.readByte() != 0;
-        this.isMute = source.readByte() != 0;
+        this.isMute = source.readByte() != 1;
         this.isDoNotDisturbMode = source.readByte() != 0;
         this.isDuress = source.readByte() != 0;
         this.randomCode = source.readString();
@@ -468,7 +472,7 @@ public class BleDeviceLocal implements Parcelable {
         this.isAutoLock = in.readByte() != 0;
         this.isOpenElectricFence = in.readByte() != 0;
         this.isOpenDoorSensor = in.readByte() != 0;
-        this.isMute = in.readByte() != 0;
+        this.isMute = in.readByte() != 1;
         this.isDoNotDisturbMode = in.readByte() != 0;
         this.isDuress = in.readByte() != 0;
         this.randomCode = in.readString();

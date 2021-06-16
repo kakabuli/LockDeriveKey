@@ -150,7 +150,7 @@ public class MQTTManager {
                     }
                     //连接成功之后订阅主题
                     mqttSubscribe(mqttClient, MQttConstant.getSubscribeTopic(userId), 2);
-                    Log.e("topic:",MQttConstant.getSubscribeTopic(userId));
+                    Log.e("topic:", MQttConstant.getSubscribeTopic(userId));
                     reconnectionNum = 10;
                 }
                 if (null != mqttDataLinstener) {
@@ -233,7 +233,7 @@ public class MQTTManager {
                             IMqttActionListener() {
                                 @Override
                                 public void onSuccess(IMqttToken asyncActionToken) {
-                                   Timber.d("mqttSubscribe " + "订阅成功");
+                                    Timber.d("mqttSubscribe " + "订阅成功");
                                     //TODO:订阅成功，立即拿设备列表,此时拿设备列表，从mqtt转成以http方式
 
                                 }
@@ -254,24 +254,24 @@ public class MQTTManager {
 
     //发布
     public void mqttPublish(String topic, MqttMessage mqttMessage) throws MqttException {
-         if (mqttClient != null && mqttClient.isConnected()) {
-                Timber.e("发布mqtt消息 :" + mqttMessage.toString());
-                Timber.e("发布mqtt消息 " + "topic: " + topic + "  mqttMessage: " + mqttMessage.toString());
-                mqttClient.publish(topic, mqttMessage, null, new IMqttActionListener() {
-                    @Override
-                    public void onSuccess(IMqttToken asyncActionToken) {
-                        LogUtils.e("发布消息成功  ", topic + "  消息Id  " + mqttMessage.getId());
-                    }
+        if (mqttClient != null && mqttClient.isConnected()) {
+            LogUtils.e("发布mqtt消息 :" + mqttMessage.toString());
+            LogUtils.e("发布mqtt消息 " + "topic: " + topic + "  mqttMessage: " + mqttMessage.toString());
+            mqttClient.publish(topic, mqttMessage, null, new IMqttActionListener() {
+                @Override
+                public void onSuccess(IMqttToken asyncActionToken) {
+                    LogUtils.e("发布消息成功  ", topic + "  消息Id  " + mqttMessage.getId());
+                }
 
-                    @Override
-                    public void onFailure(IMqttToken asyncActionToken, Throwable exception) {
-                        Timber.e("发布消息失败 " + topic + "    fail");
-                        MqttExceptionHandle.onFail(MqttExceptionHandle.PublishException, asyncActionToken, exception);
-                    }
-                });
-            } else {
-                mqttConnection();
-            }
+                @Override
+                public void onFailure(IMqttToken asyncActionToken, Throwable exception) {
+                    LogUtils.e("发布消息失败 " + topic + "    fail");
+                    MqttExceptionHandle.onFail(MqttExceptionHandle.PublishException, asyncActionToken, exception);
+                }
+            });
+        } else {
+            mqttConnection();
+        }
     }
 
     //mqtt先断开，后退出http

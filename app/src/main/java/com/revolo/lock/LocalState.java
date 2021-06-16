@@ -33,10 +33,11 @@ public class LocalState {
     public static final int DEVICE_STATE_UPDATE_DEVICE_BLUETOOTH_DIS = 4;//设备蓝牙断开
     public static final int DEVICE_STATE_UPDATE_BLUETOOTH_OFF = 5;//蓝牙关闭
 
-    @IntDef(value = {LOCK_STATE_OPEN, LOCK_STATE_CLOSE, LOCK_STATE_PRIVATE})
+    @IntDef(value = {LOCK_STATE_SENSOR_CLOSE, LOCK_STATE_OPEN, LOCK_STATE_CLOSE, LOCK_STATE_PRIVATE})
     public @interface LockState {
     }
 
+    public static final int LOCK_STATE_SENSOR_CLOSE = 0; // 门磁状态关
     public static final int LOCK_STATE_OPEN = 1;
     public static final int LOCK_STATE_CLOSE = 2;
     public static final int LOCK_STATE_PRIVATE = 3;             // 私密模式，不允许做任何操作
@@ -45,8 +46,8 @@ public class LocalState {
     public @interface VolumeState {
     }
 
-    public static final int VOLUME_STATE_OPEN = 1;
-    public static final int VOLUME_STATE_MUTE = 0;
+    public static final int VOLUME_STATE_OPEN = 0; // 语音
+    public static final int VOLUME_STATE_MUTE = 1; // 静音
 
     @IntDef(value = {DURESS_STATE_OPEN, DURESS_STATE_CLOSE})
     public @interface DuressState {

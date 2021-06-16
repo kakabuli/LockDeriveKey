@@ -655,7 +655,7 @@ public class AutoLockActivity extends BaseActivity {
         req.setWifiName(mBleDeviceLocal.getConnectedWifiName());
         req.setSafeMode(0);   // 没有使用这个
         req.setLanguage("en"); // 暂时也没使用这个
-        req.setVolume(mBleDeviceLocal.isMute() ? 0 : 1);
+        req.setVolume(mBleDeviceLocal.isMute() ? 1 : 0);
         req.setAmMode(mBleDeviceLocal.isAutoLock() ? 0 : 1);
         req.setDuress(mBleDeviceLocal.isDuress() ? 0 : 1);
         req.setDoorSensor(mBleDeviceLocal.getDoorSensor());

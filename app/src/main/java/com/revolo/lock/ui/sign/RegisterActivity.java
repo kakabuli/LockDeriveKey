@@ -5,12 +5,10 @@ import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
 import android.os.Looper;
-import android.text.Editable;
 import android.text.InputType;
 import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.TextUtils;
-import android.text.TextWatcher;
 import android.text.method.LinkMovementMethod;
 import android.view.Gravity;
 import android.view.View;
@@ -66,7 +64,7 @@ public class RegisterActivity extends BaseActivity {
     private boolean isCountdown = false;
     private EditText mEtEmail;
     private TextView mTvGetCode;
-    private String emailName = "";
+//    private String emailName = "";
 
     @Override
     public void initData(@Nullable Bundle bundle) {
@@ -105,7 +103,7 @@ public class RegisterActivity extends BaseActivity {
         initLoading("Registering...");
 
         mEtEmail = findViewById(R.id.etEmail);
-        mEtEmail.setOnFocusChangeListener(new android.view.View.
+        /*mEtEmail.setOnFocusChangeListener(new android.view.View.
                 OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
@@ -144,7 +142,7 @@ public class RegisterActivity extends BaseActivity {
             @Override
             public void afterTextChanged(Editable s) {
             }
-        });
+        });*/
 
 
     }
@@ -187,7 +185,7 @@ public class RegisterActivity extends BaseActivity {
         if (!checkNetConnectFail()) {
             return;
         }
-        String mail = emailName.trim();
+        String mail = mEtEmail.getText().toString().trim();
         if (TextUtils.isEmpty(mail)) {
             ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.err_tip_please_input_email);
             return;
@@ -241,7 +239,7 @@ public class RegisterActivity extends BaseActivity {
         if (!checkNetConnectFail()) {
             return;
         }
-        String mail = emailName.trim();
+        String mail = mEtEmail.getText().toString().trim();
         if (TextUtils.isEmpty(mail)) {
             ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.err_tip_please_input_email);
             return;

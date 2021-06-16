@@ -91,6 +91,7 @@ public class DeviceDetailActivity extends BaseActivity {
             finish();
         }
     }
+
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0) {
@@ -99,6 +100,7 @@ public class DeviceDetailActivity extends BaseActivity {
         }
         return super.onKeyDown(keyCode, event);
     }
+
     @Override
     public int bindLayout() {
         return R.layout.activity_device_detail;
@@ -432,7 +434,7 @@ public class DeviceDetailActivity extends BaseActivity {
                     doorOpen(ivDoorState, tvDoorState);
                 }
 
-            } else if (mBleDeviceLocal.getLockState() == LocalState.LOCK_STATE_CLOSE) {
+            } else if (mBleDeviceLocal.getLockState() == LocalState.LOCK_STATE_CLOSE || mBleDeviceLocal.getLockState() == LocalState.LOCK_STATE_SENSOR_CLOSE) {
                 ivLockState.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_home_img_lock_close));
                 if (isUseDoorSensor) {
                     switch (mBleDeviceLocal.getDoorSensor()) {
@@ -461,7 +463,7 @@ public class DeviceDetailActivity extends BaseActivity {
         } else if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_BLE) {
             ivNetState.setImageResource(R.drawable.ic_home_icon_bluetooth);
         } else {
-            Timber.e("connect state :%s",mBleDeviceLocal.getConnectedType()+"");
+            Timber.e("connect state :%s", mBleDeviceLocal.getConnectedType() + "");
             ivNetState.setImageResource(R.drawable.ic_home_icon_bluetooth);
             // TODO: 2021/3/2 其他选择
             Timber.e("");

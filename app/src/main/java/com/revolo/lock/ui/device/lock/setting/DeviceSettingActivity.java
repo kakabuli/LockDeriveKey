@@ -121,7 +121,7 @@ public class DeviceSettingActivity extends BaseActivity {
                 findViewById(R.id.clDuressCode), findViewById(R.id.clDoorLockInformation),
                 findViewById(R.id.clGeoFenceLock), findViewById(R.id.clDoorMagneticSwitch),
                 findViewById(R.id.clUnbind), findViewById(R.id.clMute), findViewById(R.id.clWifi),
-                mIvDoNotDisturbModeEnable, findViewById(R.id.ivLockName), findViewById(R.id.clJoinAlexa));
+                mIvDoNotDisturbModeEnable, findViewById(R.id.ivLockName), findViewById(R.id.clJoinAlexa), findViewById(R.id.clVideoMode));
         mIvDoNotDisturbModeEnable.setImageResource(mBleDeviceLocal.isDoNotDisturbMode() ? R.drawable.ic_icon_switch_open : R.drawable.ic_icon_switch_close);
         mIvMuteEnable.setImageResource(mBleDeviceLocal.isMute() ? R.drawable.ic_icon_switch_open : R.drawable.ic_icon_switch_close);
         onRegisterEventBus();
@@ -241,10 +241,13 @@ public class DeviceSettingActivity extends BaseActivity {
             if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI) {
                 showLoading("Loading...");
                 publishSetVolume(mBleDeviceLocal.getEsn(),
-                        mBleDeviceLocal.isMute() ? LocalState.VOLUME_STATE_OPEN : LocalState.VOLUME_STATE_MUTE);
+                        mBleDeviceLocal.isMute() ? LocalState.VOLUME_STATE_MUTE : LocalState.VOLUME_STATE_OPEN);
             } else {
                 mute();
             }
+            return;
+        }
+        if (view.getId() == R.id.clVideoMode) {
             return;
         }
         if (view.getId() == R.id.ivDoNotDisturbModeEnable) {
@@ -431,10 +434,10 @@ public class DeviceSettingActivity extends BaseActivity {
 
     private void saveMuteStateToLocal(@LocalState.VolumeState int mute) {
         if (mute == LocalState.VOLUME_STATE_OPEN) {
-            mBleDeviceLocal.setMute(false);
+            mBleDeviceLocal.setMute(true);
             AppDatabase.getInstance(this).bleDeviceDao().update(mBleDeviceLocal);
         } else if (mute == LocalState.VOLUME_STATE_MUTE) {
-            mBleDeviceLocal.setMute(true);
+            mBleDeviceLocal.setMute(false);
             AppDatabase.getInstance(this).bleDeviceDao().update(mBleDeviceLocal);
         }
         refreshMuteEnable();

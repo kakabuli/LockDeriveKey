@@ -21,6 +21,7 @@ import com.revolo.lock.bean.respone.UpdateUserFirstLastNameBeanRsp;
 import com.revolo.lock.net.HttpRequest;
 import com.revolo.lock.net.ObservableDecorator;
 import com.revolo.lock.room.AppDatabase;
+import com.revolo.lock.room.entity.User;
 
 import io.reactivex.Observable;
 import io.reactivex.Observer;
@@ -36,6 +37,7 @@ import timber.log.Timber;
 public class ModifyUserNameActivity extends BaseActivity {
 
     private EditText etFirstName, etLastName;
+    private User mUser;
 
     @Override
     public void initData(@Nullable Bundle bundle) {
@@ -50,10 +52,18 @@ public class ModifyUserNameActivity extends BaseActivity {
     @Override
     public void initView(@Nullable Bundle savedInstanceState, @Nullable View contentView) {
         useCommonTitleBar(getString(R.string.title_modify_user_name));
+        mUser = App.getInstance().getUser();
         etFirstName = findViewById(R.id.etFirstName);
         etLastName = findViewById(R.id.etLastName);
         applyDebouncingClickListener(findViewById(R.id.btnComplete));
+
+        if (mUser != null) {
+            etFirstName.setText(mUser.getFirstName());
+            etLastName.setText(mUser.getLastName());
+        }
+
     }
+
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0) {
@@ -62,6 +72,7 @@ public class ModifyUserNameActivity extends BaseActivity {
         }
         return super.onKeyDown(keyCode, event);
     }
+
     @Override
     public void doBusiness() {
 
@@ -69,37 +80,37 @@ public class ModifyUserNameActivity extends BaseActivity {
 
     @Override
     public void onDebouncingClick(@NonNull View view) {
-        if(view.getId() == R.id.btnComplete) {
+        if (view.getId() == R.id.btnComplete) {
             updateFirstLastName();
         }
     }
 
     private void updateFirstLastName() {
-        if(!checkNetConnectFail()) {
+        if (!checkNetConnectFail()) {
             return;
         }
         String firstName = etFirstName.getText().toString().trim();
-        if(TextUtils.isEmpty(firstName)) {
+        if (TextUtils.isEmpty(firstName)) {
             ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_please_input_your_first_name);
             return;
         }
         String lastName = etLastName.getText().toString().trim();
-        if(TextUtils.isEmpty(lastName)) {
+        if (TextUtils.isEmpty(lastName)) {
             ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_please_input_your_last_name);
             return;
         }
-        if(App.getInstance().getUserBean() == null) {
+        if (App.getInstance().getUserBean() == null) {
             Timber.e("updateFirstLastName App.getInstance().getUserBean() == null");
             return;
         }
 
         String token = App.getInstance().getUserBean().getToken();
-        if(TextUtils.isEmpty(token)) {
+        if (TextUtils.isEmpty(token)) {
             Timber.e("updateFirstLastName token is empty");
             return;
         }
         String uid = App.getInstance().getUserBean().getUid();
-        if(TextUtils.isEmpty(uid)) {
+        if (TextUtils.isEmpty(uid)) {
             Timber.e("updateFirstLastName uid is empty");
             return;
         }
@@ -119,17 +130,17 @@ public class ModifyUserNameActivity extends BaseActivity {
             public void onNext(@NonNull UpdateUserFirstLastNameBeanRsp updateUserFirstLastNameBeanRsp) {
                 dismissLoading();
                 String code = updateUserFirstLastNameBeanRsp.getCode();
-                if(TextUtils.isEmpty(code)) {
+                if (TextUtils.isEmpty(code)) {
                     return;
                 }
-                if(!code.equals("200")) {
-                    if(code.equals("444")) {
+                if (!code.equals("200")) {
+                    if (code.equals("444")) {
                         App.getInstance().logout(true, ModifyUserNameActivity.this);
                         return;
                     }
                     String msg = updateUserFirstLastNameBeanRsp.getMsg();
                     Timber.e("updateFirstLastName code: %1s, msg: %2s", code, msg);
-                    if(!TextUtils.isEmpty(msg)) {
+                    if (!TextUtils.isEmpty(msg)) {
                         ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(msg);
                     }
                     return;

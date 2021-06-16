@@ -12,6 +12,7 @@ import com.a1anwang.okble.client.scan.BLEScanResult;
 import com.a1anwang.okble.client.scan.DeviceScanCallBack;
 import com.a1anwang.okble.client.scan.OKBLEScanManager;
 import com.blankj.utilcode.util.ActivityUtils;
+import com.blankj.utilcode.util.LogUtils;
 import com.blankj.utilcode.util.SPUtils;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.revolo.lock.bean.respone.MailLoginBeanRsp;
@@ -83,6 +84,8 @@ public class App extends Application {
                 return;
             }
         });
+
+        CrashCollectHandler.getInstance().init(this);
     }
 
     // TODO: 2021/3/8 临时存个MainActivity 后期删除
