@@ -17,7 +17,7 @@ public class MQttConstant {
     public static final String MQTT_TEST_URL = "tcp://internal.irevolo.com:1883";   // 国内测试服务器
     public static final String MQTT_CHANGSHA_TEST_URL = "tcp://192.168.8.252:1883";
     public static final String MQTT_CHANGSHA_TEST_URL_2 = "tcp://192.168.118.249:1883";
-    public static final String MQTT_BASE_URL = MQTT_ABROAD_URL;
+    public static final String MQTT_BASE_URL = MQTT_CHANGSHA_TEST_URL_2;//MQTT_ABROAD_URL;
 
     public static final String MQTT_REQUEST_APP = "/request/app/func";
 

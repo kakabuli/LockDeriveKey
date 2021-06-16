@@ -126,6 +126,7 @@ public class DeviceSettingActivity extends BaseActivity {
         mIvMuteEnable.setImageResource(mBleDeviceLocal.isMute() ? R.drawable.ic_icon_switch_open : R.drawable.ic_icon_switch_close);
         onRegisterEventBus();
     }
+
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0) {
@@ -134,6 +135,7 @@ public class DeviceSettingActivity extends BaseActivity {
         }
         return super.onKeyDown(keyCode, event);
     }
+
     @Subscribe(threadMode = ThreadMode.MAIN, sticky = true)
     public void getEventBus(LockMessageRes lockMessage) {
         if (lockMessage == null) {
@@ -148,14 +150,19 @@ public class DeviceSettingActivity extends BaseActivity {
             //MQTT
             if (lockMessage.getResultCode() == LockMessageCode.MSG_LOCK_MESSAGE_CODE_SUCCESS) {
                 switch (lockMessage.getMessageCode()) {
-                    case LockMessageCode.MSG_LOCK_MESSAGE_SET_LOCK:
-                        processSetVolume((WifiLockSetLockAttrVolumeRspBean) lockMessage.getWifiLockBaseResponseBean(), lockMute);
+                    case LockMessageCode.MSG_LOCK_MESSAGE_SET_LOCK_ATTRVOLUME:
+                        if (null != lockMessage.getWifiLockBaseResponseBean()) {
+                            if (lockMessage.getWifiLockBaseResponseBean().equals(MQttConstant.SET_LOCK_ATTR)) {
+                                processSetVolume((WifiLockSetLockAttrVolumeRspBean) lockMessage.getWifiLockBaseResponseBean(), lockMute);
+                            }
+                        }
+
                         break;
 
                 }
             } else {
                 switch (lockMessage.getResultCode()) {
-                    case LockMessageCode.MSG_LOCK_MESSAGE_SET_LOCK:
+                    case LockMessageCode.MSG_LOCK_MESSAGE_SET_LOCK_ATTRVOLUME:
                         dismissLoading();
                         break;
                 }

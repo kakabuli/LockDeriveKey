@@ -198,8 +198,12 @@ public class DeviceFragment extends Fragment {
                         updateData(mBleDeviceLocals);
                         break;
                     case LockMessageCode.MSG_LOCK_MESSAGE_SET_LOCK://开关锁
-                        dismissLoading();
-                        processSetLock((WifiLockDoorOptResponseBean) lockMessage.getWifiLockBaseResponseBean());
+                        if(null!=lockMessage.getWifiLockBaseResponseBean()){
+                            if(MQttConstant.SET_LOCK.equals(lockMessage.getWifiLockBaseResponseBean().getFunc())){
+                                dismissLoading();
+                                processSetLock((WifiLockDoorOptResponseBean) lockMessage.getWifiLockBaseResponseBean());
+                            }
+                        }
                         break;
                     case LockMessageCode.MSG_LOCK_MESSAGE_WF_EVEN:
                         dismissLoading();

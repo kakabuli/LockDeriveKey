@@ -132,6 +132,7 @@ public class AutoLockActivity extends BaseActivity {
         });
         initUI();
     }
+
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0) {
@@ -140,6 +141,7 @@ public class AutoLockActivity extends BaseActivity {
         }
         return super.onKeyDown(keyCode, event);
     }
+
     @Subscribe(threadMode = ThreadMode.MAIN, sticky = true)
     public void getEventBus(LockMessageRes lockMessage) {
         if (lockMessage == null) {
@@ -154,14 +156,22 @@ public class AutoLockActivity extends BaseActivity {
             //MQTT
             if (lockMessage.getResultCode() == LockMessageCode.MSG_LOCK_MESSAGE_CODE_SUCCESS) {
                 switch (lockMessage.getMessageCode()) {
-                    case LockMessageCode.MSG_LOCK_MESSAGE_SET_LOCK:
-                        processOpenOrCloseAutoLock((WifiLockSetLockAttrAutoRspBean) lockMessage.getWifiLockBaseResponseBean());
+                    case LockMessageCode.MSG_LOCK_MESSAGE_SET_LOCK_ATTRAUTO:
+                        if (null != lockMessage.getWifiLockBaseResponseBean()) {
+                            if (MQttConstant.SET_LOCK_ATTR.equals(lockMessage.getWifiLockBaseResponseBean().getFunc())) {
+                                try {
+                                    processOpenOrCloseAutoLock((WifiLockSetLockAttrAutoRspBean) lockMessage.getWifiLockBaseResponseBean());
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        }
                         break;
                 }
             } else {
                 switch (lockMessage.getResultCode()) {
                     // 超时或者其他错误
-                    case LockMessageCode.MSG_LOCK_MESSAGE_SET_LOCK:
+                    case LockMessageCode.MSG_LOCK_MESSAGE_SET_LOCK_ATTRAUTO:
                         dismissLoading();
                         break;
                 }

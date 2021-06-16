@@ -20,6 +20,7 @@ import androidx.annotation.NonNull;
 import com.a1anwang.okble.client.scan.BLEScanResult;
 import com.blankj.utilcode.util.ActivityUtils;
 import com.blankj.utilcode.util.ConvertUtils;
+import com.blankj.utilcode.util.GsonUtils;
 import com.blankj.utilcode.util.LogUtils;
 import com.blankj.utilcode.util.TimeUtils;
 import com.revolo.lock.App;
@@ -39,6 +40,11 @@ import com.revolo.lock.mqtt.MQttConstant;
 import com.revolo.lock.mqtt.MqttCommandFactory;
 import com.revolo.lock.mqtt.bean.MqttData;
 import com.revolo.lock.mqtt.bean.publishresultbean.WifiLockBaseResponseBean;
+import com.revolo.lock.mqtt.bean.publishresultbean.WifiLockSetLockAttrAutoRspBean;
+import com.revolo.lock.mqtt.bean.publishresultbean.WifiLockSetLockAttrAutoTimeRspBean;
+import com.revolo.lock.mqtt.bean.publishresultbean.WifiLockSetLockAttrDuressRspBean;
+import com.revolo.lock.mqtt.bean.publishresultbean.WifiLockSetLockAttrSensitivityRspBean;
+import com.revolo.lock.mqtt.bean.publishresultbean.WifiLockSetLockAttrVolumeRspBean;
 import com.revolo.lock.room.entity.BleDeviceLocal;
 
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
@@ -238,7 +244,7 @@ public class LockAppService extends Service {
                     LockMessage message = outTimeNextMessage();
                     if (null != message) {
                         if (message.getMessageType() == 2) {
-                            pushErrMessage(message.getMqtt_message_code());
+                            pushErrMessage(message.getMqttMessage().getId()+"",message.getMqtt_message_code());
                         } else if (message.getMessageType() == 3) {
 
                         }
@@ -1375,7 +1381,7 @@ public class LockAppService extends Service {
             MQTTManager.getInstance().mqttPublish(message.getMqtt_topic(),
                     message.getMqttMessage());
         } catch (MqttException e) {
-            pushErrMessage(message.getMqtt_message_code());
+            pushErrMessage(message.getMqttMessage().getId()+"",message.getMqtt_message_code());
             e.printStackTrace();
         }
 
@@ -1407,7 +1413,7 @@ public class LockAppService extends Service {
         }
     }
 
-    private void pushErrMessage(String messageCode) {
+    private void pushErrMessage(String msgId,String messageCode) {
         if (MQttConstant.GET_ALL_BIND_DEVICE.equals(messageCode)) {
             //获取所有绑定的设备接口
 
@@ -1439,7 +1445,20 @@ public class LockAppService extends Service {
             // postMessage(LockMessageCode.MSG_LOCK_MESSAGE_GATEWAY_STATE, );
         } else if (MQttConstant.SET_LOCK_ATTR.equals(messageCode)) {
             // 设置门锁属性
-            postMessage(LockMessageCode.MSG_LOCK_MESSAGE_SET_LOCK, LockMessageCode.MSG_LOCK_MESSAGE_SET_LOCK, null);
+            Class t = MqttCommandFactory.sendMessage(msgId, null, 1);
+            if (t.getName().equals(WifiLockSetLockAttrAutoRspBean.class.getName())) {
+                 postMessage(LockMessageCode.MSG_LOCK_MESSAGE_SET_LOCK_ATTRAUTO, LockMessageCode.MSG_LOCK_MESSAGE_SET_LOCK_ATTRAUTO, null);
+            } else if (t.getName().equals(WifiLockSetLockAttrAutoTimeRspBean.class.getName())) {
+                postMessage(LockMessageCode.MSG_LOCK_MESSAGE_SET_LOCK_ATTRAUTOTIME, LockMessageCode.MSG_LOCK_MESSAGE_SET_LOCK_ATTRAUTOTIME, null);
+            } else if (t.getName().equals(WifiLockSetLockAttrDuressRspBean.class.getName())) {
+                postMessage(LockMessageCode.MSG_LOCK_MESSAGE_SET_LOCK_ATTRDURES, LockMessageCode.MSG_LOCK_MESSAGE_SET_LOCK_ATTRDURES, null);
+            } else if (t.getName().equals(WifiLockSetLockAttrSensitivityRspBean.class.getName())) {
+                postMessage(LockMessageCode.MSG_LOCK_MESSAGE_SET_LOCK_ATTRSENSITIVITY, LockMessageCode.MSG_LOCK_MESSAGE_SET_LOCK_ATTRSENSITIVITY, null);
+            } else if (t.getName().equals(WifiLockSetLockAttrVolumeRspBean.class.getName())) {
+                postMessage(LockMessageCode.MSG_LOCK_MESSAGE_SET_LOCK_ATTRVOLUME, LockMessageCode.MSG_LOCK_MESSAGE_SET_LOCK_ATTRVOLUME,null);
+            }
+            MqttCommandFactory.sendMessage(msgId,null,3);
+
         } else if (MQttConstant.WF_EVENT.equals(messageCode)) {
             // 操作事件
             postMessage(LockMessageCode.MSG_LOCK_MESSAGE_WF_EVEN, LockMessageCode.MSG_LOCK_MESSAGE_WF_EVEN, null);

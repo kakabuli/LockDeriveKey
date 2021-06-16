@@ -14,7 +14,7 @@ public class LockMessageCode {
     public static final int MSG_LOCK_MESSAGE_SET_MAGNETIC = 122; // 设置门磁
     public static final int MSG_LOCK_MESSAGE_APP_ROACH_OPEN = 123;// 无感开门
     public static final int MSG_LOCK_MESSAGE_CLOSE_WIFI = 124;// 关闭wifi
-    public static final int MSG_LOCK_MESSAGE_SET_LOCK = 125; // 开关门指令
+     public static final int MSG_LOCK_MESSAGE_SET_LOCK = 125; // 开关门指令
     public static final int MSG_LOCK_MESSAGE_CREATE_PWD = 126;// 创建密码
     public static final int MSG_LOCK_MESSAGE_ADD_PWD = 127;// 秘钥属性添加
     public static final int MSG_LOCK_MESSAGE_UPDATE_PWD = 128; // 秘钥属性修改
@@ -24,7 +24,13 @@ public class LockMessageCode {
     public static final int MSG_LOCK_MESSAGE_WF_EVEN = 132; // 操作事件
     public static final int MSG_LOCK_MESSAGE_RECORD = 133; // 记录
     public static final int MSG_LOCK_MESSAGE_UPDATE_DEVICE_STATE = 134; // 更新当前设备的状态
-    public static final int MSG_LOCK_MESSAGE_CLASE_DEVICE=135;//清理蓝牙连接
+    public static final int MSG_LOCK_MESSAGE_CLASE_DEVICE = 135;//清理蓝牙连接
+
+    public static final int MSG_LOCK_MESSAGE_SET_LOCK_ATTRAUTO = 125; // 开关门指令
+    public static final int MSG_LOCK_MESSAGE_SET_LOCK_ATTRAUTOTIME = 126; // 开关门指令
+    public static final int MSG_LOCK_MESSAGE_SET_LOCK_ATTRDURES = 127; // 开关门指令
+    public static final int MSG_LOCK_MESSAGE_SET_LOCK_ATTRSENSITIVITY = 128; // 开关门指令
+    public static final int MSG_LOCK_MESSAGE_SET_LOCK_ATTRVOLUME = 129; // 开关门指令
 
 
 }

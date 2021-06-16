@@ -210,13 +210,17 @@ public class GeoFenceUnlockActivity extends BaseActivity implements OnMapReadyCa
             //MQTT
             if (lockMessage.getResultCode() == LockMessageCode.MSG_LOCK_MESSAGE_CODE_SUCCESS) {
                 switch (lockMessage.getMessageCode()) {
-                    case LockMessageCode.MSG_LOCK_MESSAGE_SET_LOCK:
-                        processSensitivity((WifiLockSetLockAttrSensitivityRspBean) lockMessage.getWifiLockBaseResponseBean());
+                    case LockMessageCode.MSG_LOCK_MESSAGE_SET_LOCK_ATTRSENSITIVITY:
+                        if(null!=lockMessage.getWifiLockBaseResponseBean()){
+                            if(MQttConstant.SET_LOCK_ATTR.equals(lockMessage.getWifiLockBaseResponseBean().getFunc())){
+                                processSensitivity((WifiLockSetLockAttrSensitivityRspBean) lockMessage.getWifiLockBaseResponseBean());
+                            }
+                        }
                         break;
                 }
             } else {
                 switch (lockMessage.getResultCode()) {
-                    case LockMessageCode.MSG_LOCK_MESSAGE_SET_LOCK:
+                    case LockMessageCode.MSG_LOCK_MESSAGE_SET_LOCK_ATTRSENSITIVITY:
                         dismissLoading();
                         break;
                 }

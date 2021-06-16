@@ -32,6 +32,7 @@ import com.revolo.lock.mqtt.MQttConstant;
 import com.revolo.lock.mqtt.MqttCommandFactory;
 import com.revolo.lock.mqtt.bean.publishbean.attrparams.DuressParams;
 import com.revolo.lock.mqtt.bean.publishresultbean.WifiLockSetLockAttrDuressRspBean;
+import com.revolo.lock.mqtt.bean.publishresultbean.WifiLockSetLockAttrVolumeRspBean;
 import com.revolo.lock.net.HttpRequest;
 import com.revolo.lock.net.ObservableDecorator;
 import com.revolo.lock.room.AppDatabase;
@@ -109,14 +110,19 @@ public class DuressCodeActivity extends BaseActivity {
             //MQTT
             if (lockMessage.getResultCode() == LockMessageCode.MSG_LOCK_MESSAGE_CODE_SUCCESS) {
                 switch (lockMessage.getMessageCode()) {
-                    case LockMessageCode.MSG_LOCK_MESSAGE_SET_LOCK:
+                    case LockMessageCode.MSG_LOCK_MESSAGE_SET_LOCK_ATTRDURES:
                         //当前分两种
-                        processOpenOrCloseDuressPwd((WifiLockSetLockAttrDuressRspBean) lockMessage.getWifiLockBaseResponseBean());
+                        if (null != lockMessage.getWifiLockBaseResponseBean()) {
+                            if (lockMessage.getWifiLockBaseResponseBean().equals(MQttConstant.SET_LOCK_ATTR)) {
+                                processOpenOrCloseDuressPwd((WifiLockSetLockAttrDuressRspBean) lockMessage.getWifiLockBaseResponseBean());
+                            }
+                        }
+
                         break;
                 }
             } else {
                 switch (lockMessage.getResultCode()) {
-                    case LockMessageCode.MSG_LOCK_MESSAGE_SET_LOCK:
+                    case LockMessageCode.MSG_LOCK_MESSAGE_SET_LOCK_ATTRDURES:
                         //当前分两种
                         dismissLoading();
                         break;
