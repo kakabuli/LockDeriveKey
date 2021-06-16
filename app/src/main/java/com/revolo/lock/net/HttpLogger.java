@@ -15,5 +15,4 @@ public class HttpLogger implements HttpLoggingInterceptor.Logger {
     public void log(String message) {
         Timber.d(message);//okHttp的详细日志会打印出来
     }
-
 }

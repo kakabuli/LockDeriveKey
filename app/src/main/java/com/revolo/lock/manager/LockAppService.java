@@ -13,7 +13,6 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
 import android.os.Message;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 
@@ -564,7 +563,6 @@ public class LockAppService extends Service {
             break;
         }
         //  lock.unlock();
-
     }
 
     /**
@@ -1067,7 +1065,7 @@ public class LockAppService extends Service {
             //MQTT 收到消息  ，做相应处理或是上报ui
             try {
                 String payload = new String(message.getPayload());
-                Timber.d("收到MQtt消息" + payload + "---topic" + topic + "  messageID  " + message.getId());
+                LogUtils.d("收到MQtt消息:" + payload + "---topic" + topic + "  messageID  " + message.getId());
                 JSONObject jsonObject = new JSONObject(payload);
                 int messageId = -1;
                 String returnCode = "";

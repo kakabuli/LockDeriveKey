@@ -2,6 +2,7 @@ package com.revolo.lock.mqtt;
 
 import com.blankj.utilcode.util.EncodeUtils;
 import com.blankj.utilcode.util.EncryptUtils;
+import com.blankj.utilcode.util.LogUtils;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.revolo.lock.App;
@@ -59,7 +60,7 @@ public class MqttCommandFactory {
     /**
      * 3.App设置门磁
      */
-    public static MqttMessage setMagnetic(String wifiID,int mode, byte[] pwd){
+    public static MqttMessage setMagnetic(String wifiID, int mode, byte[] pwd) {
         int messageId = getMessageId();
         WifiLockSetMagneticPublishBean.ParamsBean setMagneticMode = new WifiLockSetMagneticPublishBean.ParamsBean();
         setMagneticMode.setMode(mode);
@@ -70,7 +71,7 @@ public class MqttCommandFactory {
                 wifiID,
                 MQttConstant.SET_MAGNETIC,
                 setMagneticMode,
-                (System.currentTimeMillis()/1000) + "");
+                (System.currentTimeMillis() / 1000) + "");
         String base64Json = getEncryptString(pwd, wifiLockSetMagneticPublishBean);
         return sendEncryptData(messageId, wifiID, base64Json);
     }
@@ -78,7 +79,7 @@ public class MqttCommandFactory {
     /**
      * 无感开门
      */
-    public static MqttMessage approachOpen(String wifiID,int broadcastTime, byte[] pwd){
+    public static MqttMessage approachOpen(String wifiID, int broadcastTime, byte[] pwd) {
         int messageId = getMessageId();
         WifiLockApproachOpenPublishBean.ParamsBean approachOpenPublishBean = new WifiLockApproachOpenPublishBean.ParamsBean();
         approachOpenPublishBean.setBroadcast(broadcastTime);
@@ -91,15 +92,15 @@ public class MqttCommandFactory {
                 wifiID,
                 MQttConstant.APP_ROACH_OPEN,
                 approachOpenPublishBean,
-                (System.currentTimeMillis()/1000) + "");
+                (System.currentTimeMillis() / 1000) + "");
         String base64Json = getEncryptString(pwd, wifiLockApproachOpenPublishBean);
         return sendEncryptData(messageId, wifiID, base64Json);
     }
 
     /**
-     *  关闭wifi
+     * 关闭wifi
      */
-    public static MqttMessage closeWifi(String wifiID, byte[] pwd){
+    public static MqttMessage closeWifi(String wifiID, byte[] pwd) {
         int messageId = getMessageId();
         WifiLockCloseWifiPublishBean wifiLockCloseWifiPublishBean = new WifiLockCloseWifiPublishBean(
                 MQttConstant.MSG_TYPE_REQUEST,
@@ -108,33 +109,33 @@ public class MqttCommandFactory {
                 wifiID,
                 MQttConstant.CLOSE_WIFI,
                 new WifiLockCloseWifiPublishBean.ParamsBean(),
-                (System.currentTimeMillis()/1000) + "");
+                (System.currentTimeMillis() / 1000) + "");
         String base64Json = getEncryptString(pwd, wifiLockCloseWifiPublishBean);
         return sendEncryptData(messageId, wifiID, base64Json);
     }
 
     /**
-     *  加密数据发送
+     * 加密数据发送
      */
-    public static MqttMessage sendEncryptData(int messageId, String wifiID,String encrypt){
+    public static MqttMessage sendEncryptData(int messageId, String wifiID, String encrypt) {
         WifiLockEncryptPublishBean wifiLockEncryptPublishBean = new WifiLockEncryptPublishBean(App.getInstance().getUserBean().getUid(),
-                wifiID,encrypt);
-        return getMessage(wifiLockEncryptPublishBean, messageId,2);
+                wifiID, encrypt);
+        return getMessage(wifiLockEncryptPublishBean, messageId, 2);
     }
 
     /**
-     *  加密数据发送
+     * 加密数据发送
      */
-    public static MqttMessage sendEncryptData(int messageId, String wifiID,String encrypt, int qos){
+    public static MqttMessage sendEncryptData(int messageId, String wifiID, String encrypt, int qos) {
         WifiLockEncryptPublishBean wifiLockEncryptPublishBean = new WifiLockEncryptPublishBean(App.getInstance().getUserBean().getUid(),
-                wifiID,encrypt);
-        return getMessage(wifiLockEncryptPublishBean, messageId,qos);
+                wifiID, encrypt);
+        return getMessage(wifiLockEncryptPublishBean, messageId, qos);
     }
 
     /**
      * 7.App 下发开门，关门指令
      */
-    public static MqttMessage setLock(String wifiID,int dooropt, byte[] pwd, String randomCode, int num){
+    public static MqttMessage setLock(String wifiID, int dooropt, byte[] pwd, String randomCode, int num) {
         int messageId = getMessageId();
         WifiLockDoorOptPublishBean.ParamsBean setLock = new WifiLockDoorOptPublishBean.ParamsBean();
         setLock.setDooropt(dooropt);
@@ -145,8 +146,8 @@ public class MqttCommandFactory {
                 messageId,
                 App.getInstance().getUserBean().getUid(),
                 wifiID,
-                MQttConstant.SET_LOCK,setLock,
-                (System.currentTimeMillis()/1000) + "");
+                MQttConstant.SET_LOCK, setLock,
+                (System.currentTimeMillis() / 1000) + "");
         String base64Json = getEncryptString(pwd, mWifiLockDoorOptPublishBean);
         return sendEncryptData(messageId, wifiID, base64Json, 0);
     }
@@ -185,7 +186,7 @@ public class MqttCommandFactory {
 
     private static String getEncryptString(byte[] pwd, Object src) {
         String json = new Gson().toJson(src);
-        Timber.d("MQtt 发送数据未加密： %1s", json);
+        LogUtils.d("MQtt 发送数据未加密： %1s", json);
         // 先AES加密
         byte[] aesJson = EncryptUtils.encryptAES(json.getBytes(StandardCharsets.UTF_8), pwd, "AES/ECB/PKCS5Padding", null);
         // 后Base64字符串编码
@@ -200,7 +201,7 @@ public class MqttCommandFactory {
                 App.getInstance().getUserBean().getUid(),
                 wifiId, MQttConstant.CREATE_PWD,
                 paramsBean,
-                (System.currentTimeMillis()/1000) + "");
+                (System.currentTimeMillis() / 1000) + "");
         String base64Json = getEncryptString(pwd, wifiLockAddPwdPublishBean);
         return sendEncryptData(messageId, wifiId, base64Json);
     }
@@ -208,7 +209,7 @@ public class MqttCommandFactory {
     /**
      * 秘钥属性添加
      */
-    public static MqttMessage addPwdAttr(String wifiID, WifiLockAddPwdAttrPublishBean.ParamsBean addPwd, byte[] pwd){
+    public static MqttMessage addPwdAttr(String wifiID, WifiLockAddPwdAttrPublishBean.ParamsBean addPwd, byte[] pwd) {
         int messageId = getMessageId();
         WifiLockAddPwdAttrPublishBean wifiLockAddPwdAttrPublishBean = new WifiLockAddPwdAttrPublishBean(
                 MQttConstant.MSG_TYPE_REQUEST,
@@ -217,7 +218,7 @@ public class MqttCommandFactory {
                 wifiID,
                 MQttConstant.ADD_PWD,
                 addPwd,
-                (System.currentTimeMillis()/1000) + "");
+                (System.currentTimeMillis() / 1000) + "");
         String base64Json = getEncryptString(pwd, wifiLockAddPwdAttrPublishBean);
         return sendEncryptData(messageId, wifiID, base64Json);
     }
@@ -226,7 +227,7 @@ public class MqttCommandFactory {
     /**
      * 秘钥属性修改
      */
-    public static MqttMessage updatePwdAttr(String wifiID,WifiLockUpdatePasswordPublishBean.ParamsBean updatePwd, byte[] pwd){
+    public static MqttMessage updatePwdAttr(String wifiID, WifiLockUpdatePasswordPublishBean.ParamsBean updatePwd, byte[] pwd) {
         int messageId = getMessageId();
         WifiLockUpdatePasswordPublishBean wifiLockUpdatePasswordPublishBean = new WifiLockUpdatePasswordPublishBean(
                 MQttConstant.MSG_TYPE_REQUEST,
@@ -235,7 +236,7 @@ public class MqttCommandFactory {
                 wifiID,
                 MQttConstant.UPDATE_PWD,
                 updatePwd,
-                (System.currentTimeMillis()/1000) + "");
+                (System.currentTimeMillis() / 1000) + "");
         String base64Json = getEncryptString(pwd, wifiLockUpdatePasswordPublishBean);
         return sendEncryptData(messageId, wifiID, base64Json);
     }
@@ -243,7 +244,7 @@ public class MqttCommandFactory {
     /**
      * 秘钥属性删除
      */
-    public static MqttMessage removePwd(String wifiID,int keyType,int keyNum, byte[] pwd){
+    public static MqttMessage removePwd(String wifiID, int keyType, int keyNum, byte[] pwd) {
         int messageId = getMessageId();
         WifiLockRemovePasswordPublishBean.ParamsBean paramsBean = new WifiLockRemovePasswordPublishBean.ParamsBean();
         paramsBean.setKeyNum(keyNum);
@@ -255,7 +256,7 @@ public class MqttCommandFactory {
                 wifiID,
                 MQttConstant.REMOVE_PWD,
                 paramsBean,
-                (System.currentTimeMillis()/1000) + "");
+                (System.currentTimeMillis() / 1000) + "");
         String base64Json = getEncryptString(pwd, wifiLockRemovePasswordPublishBean);
         return sendEncryptData(messageId, wifiID, base64Json);
     }
@@ -272,7 +273,7 @@ public class MqttCommandFactory {
                 wifiID,
                 MQttConstant.SET_LOCK_ATTR,
                 bean,
-                (System.currentTimeMillis()/1000) + "");
+                (System.currentTimeMillis() / 1000) + "");
         String base64Json = getEncryptString(pwd, wifiLockSetLockAttrPublishBean);
         return sendEncryptData(messageId, wifiID, base64Json);
 
@@ -290,7 +291,7 @@ public class MqttCommandFactory {
                 wifiID,
                 MQttConstant.SET_LOCK_ATTR,
                 bean,
-                (System.currentTimeMillis()/1000) + "");
+                (System.currentTimeMillis() / 1000) + "");
         String base64Json = getEncryptString(pwd, wifiLockSetLockAttrPublishBean);
         return sendEncryptData(messageId, wifiID, base64Json);
 
@@ -308,7 +309,7 @@ public class MqttCommandFactory {
                 wifiID,
                 MQttConstant.SET_LOCK_ATTR,
                 bean,
-                (System.currentTimeMillis()/1000) + "");
+                (System.currentTimeMillis() / 1000) + "");
         String base64Json = getEncryptString(pwd, wifiLockSetLockAttrPublishBean);
         return sendEncryptData(messageId, wifiID, base64Json);
 
@@ -326,7 +327,7 @@ public class MqttCommandFactory {
                 wifiID,
                 MQttConstant.SET_LOCK_ATTR,
                 bean,
-                (System.currentTimeMillis()/1000) + "");
+                (System.currentTimeMillis() / 1000) + "");
         String base64Json = getEncryptString(pwd, wifiLockSetLockAttrPublishBean);
         return sendEncryptData(messageId, wifiID, base64Json);
 
@@ -344,7 +345,7 @@ public class MqttCommandFactory {
                 wifiID,
                 MQttConstant.SET_LOCK_ATTR,
                 bean,
-                (System.currentTimeMillis()/1000) + "");
+                (System.currentTimeMillis() / 1000) + "");
         String base64Json = getEncryptString(pwd, wifiLockSetLockAttrPublishBean);
         return sendEncryptData(messageId, wifiID, base64Json);
 
@@ -368,7 +369,7 @@ public class MqttCommandFactory {
         return mqttMessage;
     }
 
-    public static MqttMessage getMessage(Object o, int messageID,int qos) {
+    public static MqttMessage getMessage(Object o, int messageID, int qos) {
         String payload = new Gson().toJson(o);
         MqttMessage mqttMessage = new MqttMessage();
         mqttMessage.setQos(qos);

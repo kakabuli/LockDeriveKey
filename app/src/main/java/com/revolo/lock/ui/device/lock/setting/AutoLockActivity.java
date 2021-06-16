@@ -153,21 +153,15 @@ public class AutoLockActivity extends BaseActivity {
         } else if (lockMessage.getMessgaeType() == LockMessageCode.MSG_LOCK_MESSAGE_MQTT) {
             //MQTT
             if (lockMessage.getResultCode() == LockMessageCode.MSG_LOCK_MESSAGE_CODE_SUCCESS) {
-                switch (lockMessage.getMessageCode()) {
-                    case LockMessageCode.MSG_LOCK_MESSAGE_SET_LOCK:
-                        processOpenOrCloseAutoLock((WifiLockSetLockAttrAutoRspBean) lockMessage.getWifiLockBaseResponseBean());
-                        break;
+                if (lockMessage.getMessageCode() == LockMessageCode.MSG_LOCK_MESSAGE_SET_LOCK) {
+                    processOpenOrCloseAutoLock((WifiLockSetLockAttrAutoRspBean) lockMessage.getWifiLockBaseResponseBean());
                 }
             } else {
-                switch (lockMessage.getResultCode()) {
-                    // 超时或者其他错误
-                    case LockMessageCode.MSG_LOCK_MESSAGE_SET_LOCK:
-                        dismissLoading();
-                        break;
+                // 超时或者其他错误
+                if (lockMessage.getResultCode() == LockMessageCode.MSG_LOCK_MESSAGE_SET_LOCK) {
+                    dismissLoading();
                 }
             }
-        } else {
-
         }
     }
 
@@ -645,7 +639,7 @@ public class AutoLockActivity extends BaseActivity {
         req.setWifiName(mBleDeviceLocal.getConnectedWifiName());
         req.setSafeMode(0);   // 没有使用这个
         req.setLanguage("en"); // 暂时也没使用这个
-        req.setVolume(mBleDeviceLocal.isMute() ? 0 : 1);
+        req.setVolume(mBleDeviceLocal.isMute() ? 1 : 0);
         req.setAmMode(mBleDeviceLocal.isAutoLock() ? 0 : 1);
         req.setDuress(mBleDeviceLocal.isDuress() ? 0 : 1);
         req.setDoorSensor(mBleDeviceLocal.getDoorSensor());

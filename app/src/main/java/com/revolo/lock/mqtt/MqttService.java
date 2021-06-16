@@ -8,6 +8,7 @@ import android.os.IBinder;
 import android.text.TextUtils;
 
 import com.blankj.utilcode.util.ActivityUtils;
+import com.blankj.utilcode.util.LogUtils;
 import com.revolo.lock.App;
 import com.revolo.lock.mqtt.bean.MqttData;
 import com.revolo.lock.mqtt.bean.publishresultbean.PublishResult;
@@ -217,7 +218,7 @@ public class MqttService extends Service {
                 }
                 //收到消息
                 String payload = new String(message.getPayload());
-                Timber.d("收到MQtt消息" +  payload + "---topic" + topic + "  messageID  " + message.getId());
+                LogUtils.d("收到MQtt消息" +  payload + "---topic" + topic + "  messageID  " + message.getId());
                 //String func, String topic, String payload, MqttMessage mqttMessage
                 JSONObject jsonObject = new JSONObject(payload);
                 int messageId = -1;

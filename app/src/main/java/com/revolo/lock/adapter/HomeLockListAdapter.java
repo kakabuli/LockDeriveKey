@@ -59,7 +59,7 @@ public class HomeLockListAdapter extends BaseQuickAdapter<BleDeviceLocal, BaseVi
                 } else {
                     doorOpen(ivDoorState, tvDoorState);
                 }
-            } else if (deviceLocal.getLockState() == LocalState.LOCK_STATE_CLOSE) {
+            } else if (deviceLocal.getLockState() == LocalState.LOCK_STATE_CLOSE || deviceLocal.getLockState() == LocalState.LOCK_STATE_SENSOR_CLOSE) {
                 baseViewHolder.setImageResource(R.id.ivLockState, R.drawable.ic_home_img_lock_close);
                 if (isUseDoorSensor) {
                     switch (deviceLocal.getDoorSensor()) {
@@ -76,9 +76,9 @@ public class HomeLockListAdapter extends BaseQuickAdapter<BleDeviceLocal, BaseVi
                 } else {
                     doorClose(ivDoorState, tvDoorState);
                 }
-            }else{
+            } else {
                 //异常处理
-                Timber.e("homeLock type:%s",deviceLocal.getLockState()+"");
+                Timber.e("homeLock type:%s", deviceLocal.getLockState() + "");
                 baseViewHolder.setImageResource(R.id.ivLockState, R.drawable.ic_home_img_lock_privacymodel);
             }
         }
@@ -88,7 +88,7 @@ public class HomeLockListAdapter extends BaseQuickAdapter<BleDeviceLocal, BaseVi
             baseViewHolder.setImageResource(R.id.ivNetState, R.drawable.ic_home_icon_bluetooth);
         } else if (deviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI_BLE) {//WiFi和ble同时存在连接
             baseViewHolder.setImageResource(R.id.ivNetState, R.drawable.ic_home_icon_wifi);
-        } else if (deviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_DIS) {//掉线模式else {
+        } else if (deviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_DIS) {//掉线模式else
             // TODO: 2021/3/2 其他处理
             baseViewHolder.setImageResource(R.id.ivLockState, R.drawable.ic_home_img_lock_privacymodel);
         }

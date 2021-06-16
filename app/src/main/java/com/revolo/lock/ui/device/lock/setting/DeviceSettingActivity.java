@@ -121,11 +121,12 @@ public class DeviceSettingActivity extends BaseActivity {
                 findViewById(R.id.clDuressCode), findViewById(R.id.clDoorLockInformation),
                 findViewById(R.id.clGeoFenceLock), findViewById(R.id.clDoorMagneticSwitch),
                 findViewById(R.id.clUnbind), findViewById(R.id.clMute), findViewById(R.id.clWifi),
-                mIvDoNotDisturbModeEnable, findViewById(R.id.ivLockName), findViewById(R.id.clJoinAlexa));
+                mIvDoNotDisturbModeEnable, findViewById(R.id.ivLockName), findViewById(R.id.clJoinAlexa), findViewById(R.id.clVideoMode));
         mIvDoNotDisturbModeEnable.setImageResource(mBleDeviceLocal.isDoNotDisturbMode() ? R.drawable.ic_icon_switch_open : R.drawable.ic_icon_switch_close);
         mIvMuteEnable.setImageResource(mBleDeviceLocal.isMute() ? R.drawable.ic_icon_switch_open : R.drawable.ic_icon_switch_close);
         onRegisterEventBus();
     }
+
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0) {
@@ -134,6 +135,7 @@ public class DeviceSettingActivity extends BaseActivity {
         }
         return super.onKeyDown(keyCode, event);
     }
+
     @Subscribe(threadMode = ThreadMode.MAIN, sticky = true)
     public void getEventBus(LockMessageRes lockMessage) {
         if (lockMessage == null) {
@@ -147,21 +149,14 @@ public class DeviceSettingActivity extends BaseActivity {
         } else if (lockMessage.getMessgaeType() == LockMessageCode.MSG_LOCK_MESSAGE_MQTT) {
             //MQTT
             if (lockMessage.getResultCode() == LockMessageCode.MSG_LOCK_MESSAGE_CODE_SUCCESS) {
-                switch (lockMessage.getMessageCode()) {
-                    case LockMessageCode.MSG_LOCK_MESSAGE_SET_LOCK:
-                        processSetVolume((WifiLockSetLockAttrVolumeRspBean) lockMessage.getWifiLockBaseResponseBean(), lockMute);
-                        break;
-
+                if (lockMessage.getMessageCode() == LockMessageCode.MSG_LOCK_MESSAGE_SET_LOCK) {
+                    processSetVolume((WifiLockSetLockAttrVolumeRspBean) lockMessage.getWifiLockBaseResponseBean(), lockMute);
                 }
             } else {
-                switch (lockMessage.getResultCode()) {
-                    case LockMessageCode.MSG_LOCK_MESSAGE_SET_LOCK:
-                        dismissLoading();
-                        break;
+                if (lockMessage.getResultCode() == LockMessageCode.MSG_LOCK_MESSAGE_SET_LOCK) {
+                    dismissLoading();
                 }
             }
-        } else {
-
         }
     }
 
@@ -234,10 +229,13 @@ public class DeviceSettingActivity extends BaseActivity {
             if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI) {
                 showLoading("Loading...");
                 publishSetVolume(mBleDeviceLocal.getEsn(),
-                        mBleDeviceLocal.isMute() ? LocalState.VOLUME_STATE_OPEN : LocalState.VOLUME_STATE_MUTE);
+                        mBleDeviceLocal.isMute() ? LocalState.VOLUME_STATE_MUTE : LocalState.VOLUME_STATE_OPEN);
             } else {
                 mute();
             }
+            return;
+        }
+        if (view.getId() == R.id.clVideoMode) {
             return;
         }
         if (view.getId() == R.id.ivDoNotDisturbModeEnable) {
@@ -424,10 +422,10 @@ public class DeviceSettingActivity extends BaseActivity {
 
     private void saveMuteStateToLocal(@LocalState.VolumeState int mute) {
         if (mute == LocalState.VOLUME_STATE_OPEN) {
-            mBleDeviceLocal.setMute(false);
+            mBleDeviceLocal.setMute(true);
             AppDatabase.getInstance(this).bleDeviceDao().update(mBleDeviceLocal);
         } else if (mute == LocalState.VOLUME_STATE_MUTE) {
-            mBleDeviceLocal.setMute(true);
+            mBleDeviceLocal.setMute(false);
             AppDatabase.getInstance(this).bleDeviceDao().update(mBleDeviceLocal);
         }
         refreshMuteEnable();

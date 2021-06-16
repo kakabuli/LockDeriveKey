@@ -143,6 +143,7 @@
     <string name="door_lock_information">Door lock information</string>
     <string name="unbind">Unbind</string>
     <string name="do_not_disturb_mode">Do not disturb mode</string>
+    <string name="video_mode">Video mode</string>
 
     <!-- ChangeLockNameActivity -->
     <string name="hint_please_enter_the_lock_name">Please enter the lock name</string>
