@@ -188,6 +188,7 @@ public class GeoFenceUnlockActivity extends BaseActivity implements OnMapReadyCa
             }
         });
     }
+
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0) {
@@ -196,6 +197,7 @@ public class GeoFenceUnlockActivity extends BaseActivity implements OnMapReadyCa
         }
         return super.onKeyDown(keyCode, event);
     }
+
     @Subscribe(threadMode = ThreadMode.MAIN, sticky = true)
     public void getEventBus(LockMessageRes lockMessage) {
         if (lockMessage == null) {
@@ -211,11 +213,7 @@ public class GeoFenceUnlockActivity extends BaseActivity implements OnMapReadyCa
             if (lockMessage.getResultCode() == LockMessageCode.MSG_LOCK_MESSAGE_CODE_SUCCESS) {
                 switch (lockMessage.getMessageCode()) {
                     case LockMessageCode.MSG_LOCK_MESSAGE_SET_LOCK_ATTRSENSITIVITY:
-                        if(null!=lockMessage.getWifiLockBaseResponseBean()){
-                            if(MQttConstant.SET_LOCK_ATTR.equals(lockMessage.getWifiLockBaseResponseBean().getFunc())){
-                                processSensitivity((WifiLockSetLockAttrSensitivityRspBean) lockMessage.getWifiLockBaseResponseBean());
-                            }
-                        }
+                        processSensitivity((WifiLockSetLockAttrSensitivityRspBean) lockMessage.getWifiLockBaseResponseBean());
                         break;
                 }
             } else {
