@@ -76,25 +76,16 @@ public class MQTTReply {
                                 App.getInstance().getUser().getId());
                 if (bleDeviceLocal == null) {
                     Timber.e("updateDataFromNet bleDeviceLocal == null");
-                    bleDeviceLocal = createDeviceToLocal(wifiListBean);
+                    bleDeviceLocal = new BleDeviceLocal();
+                    long id = AppDatabase.getInstance(App.getInstance().getApplicationContext()).bleDeviceDao().insert(bleDeviceLocal);
+                    bleDeviceLocal.setId(id);
                 }
-                bleDeviceLocal.setName(wifiListBean.getLockNickname());
-                String firmwareVer = wifiListBean.getLockFirmwareVersion();
-                if (!TextUtils.isEmpty(firmwareVer)) {
-                    bleDeviceLocal.setLockVer(firmwareVer);
-                }
-                String wifiVer = wifiListBean.getWifiVersion();
-                if (!TextUtils.isEmpty(wifiVer)) {
-                    bleDeviceLocal.setWifiVer(wifiVer);
-                }
-                Timber.d("wifiESN: %1s, 电量：%2d", wifiListBean.getWifiSN(), wifiListBean.getPower());
-                bleDeviceLocal.setLockPower(wifiListBean.getPower());
-                // 0 锁端wifi没有与服务器连接   1 锁端wifi与服务器连接成功
-                Timber.d("wifi 连接状态: %1s", wifiListBean.getWifiStatus());
-                boolean isWifiConnected = (wifiListBean.getWifiStatus().equals("1"));
-                bleDeviceLocal.setConnectedType(isWifiConnected ?
-                        LocalState.DEVICE_CONNECT_TYPE_WIFI : LocalState.DEVICE_CONNECT_TYPE_BLE);
-                bleDeviceLocal.setRandomCode(wifiListBean.getRandomCode());
+                bleDeviceLocal = createDeviceToLocal(wifiListBean, bleDeviceLocal);
+//                bleDeviceLocal.setName(wifiListBean.getLockNickname());
+//                boolean isWifiConnected = (wifiListBean.getWifiStatus().equals("1"));
+//                bleDeviceLocal.setConnectedType(isWifiConnected ?
+//                        LocalState.DEVICE_CONNECT_TYPE_WIFI : LocalState.DEVICE_CONNECT_TYPE_BLE);
+//                bleDeviceLocal.setRandomCode(wifiListBean.getRandomCode());
                 AppDatabase.getInstance(App.getInstance().getApplicationContext()).bleDeviceDao().update(bleDeviceLocal);
                 if (null != mqttDataLinstener) {
                     mqttDataLinstener.onAddDevice(bleDeviceLocal);
@@ -180,13 +171,9 @@ public class MQTTReply {
      * @param wifiListBean
      * @return
      */
-    private BleDeviceLocal createDeviceToLocal(WifiLockGetAllBindDeviceRspBean.DataBean.WifiListBean wifiListBean) {
+    private BleDeviceLocal createDeviceToLocal(WifiLockGetAllBindDeviceRspBean.DataBean.WifiListBean wifiListBean, BleDeviceLocal bleDeviceLocal) {
         // TODO: 2021/3/16 存储数据
-        BleDeviceLocal bleDeviceLocal;
-        bleDeviceLocal = new BleDeviceLocal();
         bleDeviceLocal.setRandomCode(wifiListBean.getRandomCode());
-        bleDeviceLocal.setWifiVer(wifiListBean.getWifiVersion());
-        bleDeviceLocal.setLockVer(wifiListBean.getLockFirmwareVersion());
         bleDeviceLocal.setName(wifiListBean.getLockNickname());
         bleDeviceLocal.setOpenDoorSensor(wifiListBean.getDoorSensor() == 1);
 //        bleDeviceLocal.setDoNotDisturbMode(wifiListBean.get);
@@ -212,8 +199,18 @@ public class MQTTReply {
 //        bleDeviceLocal.setOpenElectricFence();
         bleDeviceLocal.setType(wifiListBean.getModel());
         bleDeviceLocal.setUserId(App.getInstance().getUser().getId());
-        long id = AppDatabase.getInstance(App.getInstance().getApplicationContext()).bleDeviceDao().insert(bleDeviceLocal);
-        bleDeviceLocal.setId(id);
+        String firmwareVer = wifiListBean.getLockFirmwareVersion();
+        if (!TextUtils.isEmpty(firmwareVer)) {
+            bleDeviceLocal.setLockVer(firmwareVer);
+        }
+        String wifiVer = wifiListBean.getWifiVersion();
+        if (!TextUtils.isEmpty(wifiVer)) {
+            bleDeviceLocal.setWifiVer(wifiVer);
+        }
+        Timber.d("wifiESN: %1s, 电量：%2d", wifiListBean.getWifiSN(), wifiListBean.getPower());
+        bleDeviceLocal.setLockPower(wifiListBean.getPower());
+        // 0 锁端wifi没有与服务器连接   1 锁端wifi与服务器连接成功
+        Timber.d("wifi 连接状态: %1s", wifiListBean.getWifiStatus());
         return bleDeviceLocal;
     }
 }

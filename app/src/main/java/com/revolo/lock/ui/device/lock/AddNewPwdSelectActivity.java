@@ -1,7 +1,9 @@
 package com.revolo.lock.ui.device.lock;
 
+import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -127,6 +129,7 @@ public class AddNewPwdSelectActivity extends BaseActivity {
             }
         }
     }
+
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0) {
@@ -135,6 +138,7 @@ public class AddNewPwdSelectActivity extends BaseActivity {
         }
         return super.onKeyDown(keyCode, event);
     }
+
     @Override
     public int bindLayout() {
         return R.layout.activity_add_new_pwd_select;
@@ -185,7 +189,7 @@ public class AddNewPwdSelectActivity extends BaseActivity {
                         processAddPwd((WifiLockAddPwdRspBean) lockMessage.getWifiLockBaseResponseBean());
                         break;
                     case LockMessageCode.MSG_LOCK_MESSAGE_ADD_PWD:
-                        setPwdAttrCallback((WifiLockAddPwdAttrResponseBean)lockMessage.getWifiLockBaseResponseBean());
+                        setPwdAttrCallback((WifiLockAddPwdAttrResponseBean) lockMessage.getWifiLockBaseResponseBean());
                         break;
                 }
             } else {
@@ -240,13 +244,13 @@ public class AddNewPwdSelectActivity extends BaseActivity {
         mTvEndDate = findViewById(R.id.tvEndDate);
         mTvEndDateTime = findViewById(R.id.tvEndDateTime);
 
-        mVSun.setVisibility(isSelectedSun?View.VISIBLE:View.GONE);
-        mVMon.setVisibility(isSelectedSun?View.VISIBLE:View.GONE);
-        mVTues.setVisibility(isSelectedSun?View.VISIBLE:View.GONE);
-        mVWed.setVisibility(isSelectedSun?View.VISIBLE:View.GONE);
-        mVThur.setVisibility(isSelectedSun?View.VISIBLE:View.GONE);
-        mVFri.setVisibility(isSelectedSun?View.VISIBLE:View.GONE);
-        mVSat.setVisibility(isSelectedSun?View.VISIBLE:View.GONE);
+        mVSun.setVisibility(isSelectedSun ? View.VISIBLE : View.GONE);
+        mVMon.setVisibility(isSelectedSun ? View.VISIBLE : View.GONE);
+        mVTues.setVisibility(isSelectedSun ? View.VISIBLE : View.GONE);
+        mVWed.setVisibility(isSelectedSun ? View.VISIBLE : View.GONE);
+        mVThur.setVisibility(isSelectedSun ? View.VISIBLE : View.GONE);
+        mVFri.setVisibility(isSelectedSun ? View.VISIBLE : View.GONE);
+        mVSat.setVisibility(isSelectedSun ? View.VISIBLE : View.GONE);
     }
 
     @Override
@@ -371,7 +375,7 @@ public class AddNewPwdSelectActivity extends BaseActivity {
             }
             LockMessage message = new LockMessage();
             message.setMessageType(3);
-             message.setBytes(BleCommandFactory.addKey(KEY_SET_KEY_TYPE_PWD,
+            message.setBytes(BleCommandFactory.addKey(KEY_SET_KEY_TYPE_PWD,
                     mKey.getBytes(StandardCharsets.UTF_8), mBleBean.getPwd1(), mBleBean.getPwd3()));
             message.setMac(mBleBean.getOKBLEDeviceImp().getMacAddress());
             EventBus.getDefault().post(message);/*
@@ -470,30 +474,30 @@ public class AddNewPwdSelectActivity extends BaseActivity {
     private void showTimePicker(@IdRes int id) {
         TimePickerDialog timePickerDialog = new TimePickerDialog(this, R.style.MyTimePickerDialogTheme,
                 (view, hourOfDay, minute) -> {
-                    String time = (hourOfDay<10?"0"+hourOfDay:hourOfDay)+":"+(minute<10?"0"+minute:minute);
-                    if(id == R.id.tvStartTime) {
+                    String time = (hourOfDay < 10 ? "0" + hourOfDay : hourOfDay) + ":" + (minute < 10 ? "0" + minute : minute);
+                    if (id == R.id.tvStartTime) {
                         long scheduleStartTimeMill = TimeUtils.string2Millis(mNowDateStr + " " + time + ":00");
-                        if(scheduleStartTimeMill > mScheduleEndTimeMill) {
+                        if (scheduleStartTimeMill > mScheduleEndTimeMill) {
                             // 开始时间大于结束时间
                             ToastUtils.showShort(R.string.t_the_start_time_cannot_be_greater_than_the_end_time);
                             return;
                         }
                         mTvStartTime.setText(time);
                         mScheduleStartTimeMill = scheduleStartTimeMill;
-                        Timber.d("startTime 选择的时间%1s, 时间流：%2d, 转换的时间：%3s",time, mScheduleStartTimeMill, TimeUtils.millis2String(mScheduleStartTimeMill));
-                    } else if(id == R.id.tvEndTime) {
+                        Timber.d("startTime 选择的时间%1s, 时间流：%2d, 转换的时间：%3s", time, mScheduleStartTimeMill, TimeUtils.millis2String(mScheduleStartTimeMill));
+                    } else if (id == R.id.tvEndTime) {
                         long scheduleEndTimeMill = TimeUtils.string2Millis(mNowDateStr + " " + time + ":00");
-                        if(scheduleEndTimeMill < mScheduleStartTimeMill) {
+                        if (scheduleEndTimeMill < mScheduleStartTimeMill) {
                             // 结束时间小于开始时间
                             ToastUtils.showShort(R.string.t_the_end_time_cannot_be_less_than_the_start_time);
                             return;
                         }
                         mTvEndTime.setText(time);
                         mScheduleEndTimeMill = scheduleEndTimeMill;
-                        Timber.d("endTime 选择的时间%1s, 时间流：%2d, 转换的时间：%3s",time, mScheduleEndTimeMill, TimeUtils.millis2String(mScheduleEndTimeMill));
-                    } else if(id == R.id.tvEndDateTime) {
+                        Timber.d("endTime 选择的时间%1s, 时间流：%2d, 转换的时间：%3s", time, mScheduleEndTimeMill, TimeUtils.millis2String(mScheduleEndTimeMill));
+                    } else if (id == R.id.tvEndDateTime) {
                         long temEndDateTimeMill = TimeUtils.string2Millis(mTemEndDateStr + " " + time + ":00");
-                        if(temEndDateTimeMill < mTemStartDateTimeMill) {
+                        if (temEndDateTimeMill < mTemStartDateTimeMill) {
                             // 结束时间小于开始时间
                             ToastUtils.showShort(R.string.t_the_end_time_cannot_be_less_than_the_start_time);
                             return;
@@ -501,10 +505,10 @@ public class AddNewPwdSelectActivity extends BaseActivity {
                         mTvEndDateTime.setText(time);
                         mTemEndDateTimeStr = time;
                         mTemEndDateTimeMill = temEndDateTimeMill;
-                        Timber.d("endDateTime 选择的时间%1s, 时间流：%2d",time, mTemEndDateTimeMill);
-                    } else if(id == R.id.tvStartDateTime) {
+                        Timber.d("endDateTime 选择的时间%1s, 时间流：%2d", time, mTemEndDateTimeMill);
+                    } else if (id == R.id.tvStartDateTime) {
                         long temStartDateTimeMill = TimeUtils.string2Millis(mTemStartDateStr + " " + time + ":00");
-                        if(temStartDateTimeMill > mTemEndDateTimeMill) {
+                        if (temStartDateTimeMill > mTemEndDateTimeMill) {
                             // 开始时间大于结束时间
                             ToastUtils.showShort(R.string.t_the_start_time_cannot_be_greater_than_the_end_time);
                             return;
@@ -512,9 +516,9 @@ public class AddNewPwdSelectActivity extends BaseActivity {
                         mTvStartDateTime.setText(time);
                         mTemStartDateTimeStr = time;
                         mTemStartDateTimeMill = temStartDateTimeMill;
-                        Timber.d("startDateTime 选择的时间%1s, 时间流：%2d",time, mTemStartDateTimeMill);
+                        Timber.d("startDateTime 选择的时间%1s, 时间流：%2d", time, mTemStartDateTimeMill);
                     }
-                }, 0,0, true);
+                }, 0, 0, true);
         timePickerDialog.show();
     }
 
@@ -658,17 +662,17 @@ public class AddNewPwdSelectActivity extends BaseActivity {
                 isSelectedThur, isSelectedFri, isSelectedSat);
         Timber.d("num: %1s, week: %2s, weekBytes: %3s, startTime: %4d, endTime: %5d",
                 mNum, ConvertUtils.int2HexString(week), ConvertUtils.bytes2HexString(weekBit),
-                mScheduleStartTimeMill/1000, mScheduleEndTimeMill/1000);
+                mScheduleStartTimeMill / 1000, mScheduleEndTimeMill / 1000);
         mDevicePwdBean.setWeekly(week);
-        mDevicePwdBean.setStartTime(mScheduleStartTimeMill/1000);
-        mDevicePwdBean.setEndTime(mScheduleEndTimeMill/1000);
+        mDevicePwdBean.setStartTime(mScheduleStartTimeMill / 1000);
+        mDevicePwdBean.setEndTime(mScheduleEndTimeMill / 1000);
         mDevicePwdBean.setAttribute(KEY_SET_ATTRIBUTE_WEEK_KEY);
-        if(mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI) {
+        if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI) {
             publishAddPwdAttr(mBleDeviceLocal.getEsn(),
                     KEY_SET_ATTRIBUTE_WEEK_KEY,
                     mNum,
-                    mScheduleStartTimeMill/1000,
-                    mScheduleEndTimeMill/1000,
+                    mScheduleStartTimeMill / 1000,
+                    mScheduleEndTimeMill / 1000,
                     week);
         } else {
             LockMessage message = new LockMessage();
@@ -707,7 +711,7 @@ public class AddNewPwdSelectActivity extends BaseActivity {
         mSucMessageDialog.setMessage(getString(R.string.dialog_tip_password_added));
         mSucMessageDialog.setOnListener(v -> {
             // 不销毁会导致内存泄漏
-            if(mSucMessageDialog != null) {
+            if (mSucMessageDialog != null) {
                 mSucMessageDialog.dismiss();
             }
             Intent intent = new Intent(AddNewPwdSelectActivity.this, AddNewPwdNameActivity.class);
@@ -720,7 +724,7 @@ public class AddNewPwdSelectActivity extends BaseActivity {
 
     private void showSucMessage() {
         runOnUiThread(() -> {
-            if(mSucMessageDialog != null) {
+            if (mSucMessageDialog != null) {
                 mSucMessageDialog.show();
             }
         });
@@ -741,7 +745,7 @@ public class AddNewPwdSelectActivity extends BaseActivity {
 
     private void publishAddPwd(String wifiId, String key) {
         String uid = App.getInstance().getUserBean().getUid();
-        if(TextUtils.isEmpty(uid)) {
+        if (TextUtils.isEmpty(uid)) {
             Timber.e("publishAddPwd uid is empty");
             return;
         }
@@ -848,11 +852,11 @@ public class AddNewPwdSelectActivity extends BaseActivity {
         paramsBean.setKeyType(0);
         //toDisposable(mSetPwdAttrDisposable);
 
-        LockMessage message=new LockMessage();
+        LockMessage message = new LockMessage();
         message.setMessageType(2);
-       message.setMqtt_message_code(MQttConstant.ADD_PWD);
+        message.setMqtt_message_code(MQttConstant.ADD_PWD);
         message.setMqtt_topic(MQttConstant.getCallTopic(App.getInstance().getUserBean().getUid()));
-        message.setMqttMessage(  MqttCommandFactory.addPwdAttr(
+        message.setMqttMessage(MqttCommandFactory.addPwdAttr(
                 wifiId,
                 paramsBean,
                 BleCommandFactory.getPwd(
@@ -876,17 +880,17 @@ public class AddNewPwdSelectActivity extends BaseActivity {
                     dismissLoading();
                     Timber.e(e);
                 });*/
-      //  mCompositeDisposable.add(mSetPwdAttrDisposable);
+        //  mCompositeDisposable.add(mSetPwdAttrDisposable);
     }
 
     private void setPwdAttrCallback(WifiLockAddPwdAttrResponseBean bean) {
-      //  toDisposable(mSetPwdAttrDisposable);
+        //  toDisposable(mSetPwdAttrDisposable);
         /*if (TextUtils.isEmpty(mqttData.getFunc())) {
             return;
         }*/
         // TODO: 2021/3/3 处理开关门的回调信息
-       /* if (mqttData.getFunc().equals(MQttConstant.ADD_PWD)) {*/
-            dismissLoading();
+        /* if (mqttData.getFunc().equals(MQttConstant.ADD_PWD)) {*/
+        dismissLoading();
             /*Timber.d("publishAddPwdAttr 添加密码属性: %1s", mqttData);
             WifiLockAddPwdAttrResponseBean bean;
             try {
@@ -895,19 +899,19 @@ public class AddNewPwdSelectActivity extends BaseActivity {
                 Timber.e(e);
                 return;
             }*/
-            if (bean == null) {
-                Timber.e("publishAddPwdAttr bean == null");
-                return;
-            }
-            if (bean.getCode() != 200) {
-                Timber.e("publishAddPwdAttr code : %1d", bean.getCode());
-                return;
-            }
-            if (bean.getParams() == null) {
-                Timber.e("publishAddPwdAttr bean.getParams() == null");
-                return;
-            }
-            savePwdToService(mDevicePwdBean);
+        if (bean == null) {
+            Timber.e("publishAddPwdAttr bean == null");
+            return;
+        }
+        if (bean.getCode() != 200) {
+            Timber.e("publishAddPwdAttr code : %1d", bean.getCode());
+            return;
+        }
+        if (bean.getParams() == null) {
+            Timber.e("publishAddPwdAttr bean.getParams() == null");
+            return;
+        }
+        savePwdToService(mDevicePwdBean);
     /*    }
         Timber.d("%1s", mqttData.toString());*/
     }
@@ -1018,13 +1022,13 @@ public class AddNewPwdSelectActivity extends BaseActivity {
 
     private List<String> getWeekItems() {
         List<String> list = new ArrayList<>();
-        if(isSelectedSun) {
+        if (isSelectedSun) {
             list.add("0");
         }
-        if(isSelectedMon) {
+        if (isSelectedMon) {
             list.add("1");
         }
-        if(isSelectedTues) {
+        if (isSelectedTues) {
             list.add("2");
         }
         if (isSelectedWed) {
@@ -1033,10 +1037,10 @@ public class AddNewPwdSelectActivity extends BaseActivity {
         if (isSelectedThur) {
             list.add("4");
         }
-        if(isSelectedFri) {
+        if (isSelectedFri) {
             list.add("5");
         }
-        if(isSelectedSat) {
+        if (isSelectedSat) {
             list.add("6");
         }
         return list;

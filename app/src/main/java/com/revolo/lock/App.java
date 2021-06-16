@@ -558,6 +558,7 @@ public class App extends Application {
         if (App.getInstance().getMainActivity() != null) {
             App.getInstance().getMainActivity().finish();
         }
+        LockAppManager.getAppManager().finishAllActivity();
         act.startActivity(new Intent(act, LoginActivity.class));
         act.finish();
     }

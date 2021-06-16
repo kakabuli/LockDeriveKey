@@ -90,6 +90,7 @@ public class DeviceFragment extends Fragment {
                     if (adapter.getItem(position) instanceof BleDeviceLocal) {
                         if (position < 0 || position >= adapter.getData().size()) return;
                         BleDeviceLocal deviceLocal = (BleDeviceLocal) adapter.getItem(position);
+                        if (deviceLocal.getLockState() == LocalState.LOCK_STATE_PRIVATE) return; // 隐私模式
                         Intent intent = new Intent(getContext(), DeviceDetailActivity.class);
                         App.getInstance().setBleDeviceLocal(deviceLocal);
                         startActivity(intent);
@@ -198,8 +199,8 @@ public class DeviceFragment extends Fragment {
                         updateData(mBleDeviceLocals);
                         break;
                     case LockMessageCode.MSG_LOCK_MESSAGE_SET_LOCK://开关锁
-                        if(null!=lockMessage.getWifiLockBaseResponseBean()){
-                            if(MQttConstant.SET_LOCK.equals(lockMessage.getWifiLockBaseResponseBean().getFunc())){
+                        if (null != lockMessage.getWifiLockBaseResponseBean()) {
+                            if (MQttConstant.SET_LOCK.equals(lockMessage.getWifiLockBaseResponseBean().getFunc())) {
                                 dismissLoading();
                                 processSetLock((WifiLockDoorOptResponseBean) lockMessage.getWifiLockBaseResponseBean());
                             }

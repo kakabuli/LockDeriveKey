@@ -149,13 +149,13 @@ public class DeviceDetailActivity extends BaseActivity {
                         break;
                     case LockMessageCode.MSG_LOCK_MESSAGE_SET_LOCK:
                         //开关锁锁
-                        if(null!=lockMessage.getWifiLockBaseResponseBean()){
-                            if(MQttConstant.SET_LOCK.equals(lockMessage.getWifiLockBaseResponseBean().getFunc())){
+                        if (null != lockMessage.getWifiLockBaseResponseBean()) {
+                            if (MQttConstant.SET_LOCK.equals(lockMessage.getWifiLockBaseResponseBean().getFunc())) {
                                 dismissLoading();
                                 processSetLock((WifiLockDoorOptResponseBean) lockMessage.getWifiLockBaseResponseBean());
                             }
                         }
-                     //   processSetLock((WifiLockDoorOptResponseBean) lockMessage.getWifiLockBaseResponseBean());
+                        //   processSetLock((WifiLockDoorOptResponseBean) lockMessage.getWifiLockBaseResponseBean());
                         break;
 
                 }
@@ -455,6 +455,7 @@ public class DeviceDetailActivity extends BaseActivity {
                 ivLockState.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_home_img_lock_close));
                 // TODO: 2021/3/31 其他选择
                 Timber.e("其他选择");
+                doorClose(ivDoorState, tvDoorState);
             }
 
         }
@@ -469,7 +470,6 @@ public class DeviceDetailActivity extends BaseActivity {
             Timber.e("");
         }
         tvNetState.setText(getString(R.string.tip_online));
-
     }
 
     private void doorClose(ImageView ivDoorState, TextView tvDoorState) {
