@@ -79,4 +79,17 @@ public class LockMessageRes {
     public void setMessageCode(int messageCode) {
         this.messageCode = messageCode;
     }
+
+    @Override
+    public String toString() {
+        return "LockMessageRes{" +
+                "MessgaeType=" + MessgaeType +
+                ", messageCode=" + messageCode +
+                ", resultCode=" + resultCode +
+                ", mac='" + mac + '\'' +
+                ", sn='" + sn + '\'' +
+                ", bleResultBea=" + bleResultBea +
+                ", wifiLockBaseResponseBean=" + wifiLockBaseResponseBean +
+                '}';
+    }
 }
