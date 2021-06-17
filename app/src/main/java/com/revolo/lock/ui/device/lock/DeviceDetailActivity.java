@@ -149,7 +149,7 @@ public class DeviceDetailActivity extends BaseActivity {
                     case LockMessageCode.MSG_LOCK_MESSAGE_WF_EVEN:
                         Timber.e("MSG_LOCK_MESSAGE_WF_EVEN curr0 sn:%s", App.getInstance().getmCurrSn());
                         Timber.e("MSG_LOCK_MESSAGE_WF_EVEN Esn:%s", mBleDeviceLocal.getEsn());
-                        if (App.getInstance().getmCurrMac().equals(mBleDeviceLocal.getEsn())) {
+                        if (App.getInstance().getmCurrSn().equals(mBleDeviceLocal.getEsn())) {
                             dismissLoading();
                             //操作
                             mBleDeviceLocal = App.getInstance().getBleDeviceLocal();
@@ -164,7 +164,7 @@ public class DeviceDetailActivity extends BaseActivity {
                         //开关锁锁
                         Timber.e("MSG_LOCK_MESSAGE_SET_LOCK curr0 sn:%s", App.getInstance().getmCurrSn());
                         Timber.e("MSG_LOCK_MESSAGE_SET_LOCK Esn:%s", mBleDeviceLocal.getEsn());
-                        if (App.getInstance().getmCurrMac().equals(mBleDeviceLocal.getEsn())) {
+                        if (App.getInstance().getmCurrSn().equals(mBleDeviceLocal.getEsn())) {
                             Timber.e("MSG_LOCK_MESSAGE_SET_LOCK curr sn:%s", App.getInstance().getmCurrSn());
                             dismissLoading();
                             //processSetLock((WifiLockDoorOptResponseBean) lockMessage.getWifiLockBaseResponseBean());
