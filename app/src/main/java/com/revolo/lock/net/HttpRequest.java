@@ -131,13 +131,12 @@ public class HttpRequest {
 
     private static final String HOST_TEST = "https://internal.irevolo.com:8090";                    // 国内服务器测试接口
     private static final String ABROAD_HOST = "https://test.irevolo.com:8090";                      // 海外服务器测试接口
-    private static final String LOCAL_HOST = "https://192.168.8.252:443";                           // 长沙本地服务器测试接口
+    private static final String LOCAL_HOST = "https://192.168.118.248:443";                           // 长沙本地服务器测试接口
     private static final String LOCAL_HOST_2 = "https://192.168.118.249:443";                           // 长沙本地服务器测试接口2
     public static final String HOST = LOCAL_HOST_2;
     private static final String CHECK_OTA_HOST_TEST = "https://test1.juziwulian.com:9111";          // 国内服务器测试接口
     private static final String CHECK_OTA_HOST_ABROAD = "https://ota-global.juziwulian.com:9111";   // 海外服务器接口
     public static final String CHECK_OTA_HOST = CHECK_OTA_HOST_ABROAD;
-
 
     private static HttpRequest ourInstance;
 

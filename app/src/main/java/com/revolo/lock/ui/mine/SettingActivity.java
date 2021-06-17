@@ -17,6 +17,7 @@ import com.blankj.utilcode.util.ToastUtils;
 import com.revolo.lock.App;
 import com.revolo.lock.R;
 import com.revolo.lock.base.BaseActivity;
+import com.revolo.lock.dialog.AccountCancellationDialog;
 import com.revolo.lock.room.AppDatabase;
 import com.revolo.lock.room.entity.User;
 import com.revolo.lock.util.FingerprintUtils;
@@ -62,7 +63,7 @@ public class SettingActivity extends BaseActivity {
         mClEnableFaceID = findViewById(R.id.clEnableFaceID);
         mClEnableTouchID = findViewById(R.id.clEnableTouchID);
         clChangeGesturePassword = findViewById(R.id.clChangeGesturePassword);
-        applyDebouncingClickListener(ivGestureCodeEnable, ivEnableTouchIDEnable, ivEnableFaceIDEnable, clChangeGesturePassword);
+        applyDebouncingClickListener(ivGestureCodeEnable, ivEnableTouchIDEnable, ivEnableFaceIDEnable, clChangeGesturePassword, findViewById(R.id.clChangePwd), findViewById(R.id.btnAccountCancellation));
         mFingerprintUtils = new FingerprintUtils(new FingerprintManager.AuthenticationCallback() {
             @Override
             public void onAuthenticationError(int errorCode, CharSequence errString) {
@@ -93,6 +94,7 @@ public class SettingActivity extends BaseActivity {
 
         initFaceID();
     }
+
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0) {
@@ -101,6 +103,7 @@ public class SettingActivity extends BaseActivity {
         }
         return super.onKeyDown(keyCode, event);
     }
+
     @Override
     public void doBusiness() {
         refreshUI();
@@ -116,14 +119,12 @@ public class SettingActivity extends BaseActivity {
                 Intent intent = new Intent(this, OpenDrawHandPwdActivity.class);
                 startActivityForResult(intent, REQUEST_CODE_OPEN_GESTURE_CODE);
             }
-            return;
         } else if (view.getId() == R.id.ivEnableTouchIDEnable) {
             if (android.os.Build.VERSION.SDK_INT > 27) {
                 biometricSet(false);
             } else {
                 mFingerprintUtils.openFingerprintAuth();
             }
-            return;
         } else if (view.getId() == R.id.ivEnableFaceIDEnable) {
             // TODO: 2021/3/19 faceId
             biometricSet(true);
@@ -134,6 +135,10 @@ public class SettingActivity extends BaseActivity {
             } else {
                 ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show("Please open Gesture password!");
             }
+        } else if (view.getId() == R.id.clChangePwd) {
+            startActivity(new Intent(this, ModifyPasswordActivity.class));
+        } else if (view.getId() == R.id.btnAccountCancellation) {
+            showAccountCancellationDialog();
         }
     }
 
@@ -230,5 +235,15 @@ public class SettingActivity extends BaseActivity {
      */
     public static String getDeviceBrand() {
         return android.os.Build.BRAND;
+    }
+
+    private void showAccountCancellationDialog() {
+        AccountCancellationDialog dialog = new AccountCancellationDialog(this);
+        dialog.setOnCancelClickListener(v -> dialog.dismiss());
+        dialog.setOnCancellationClickListener(v -> {
+            dialog.dismiss();
+            ToastUtils.showShort("接口");
+        });
+        dialog.show();
     }
 }

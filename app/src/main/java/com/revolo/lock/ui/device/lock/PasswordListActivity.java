@@ -95,6 +95,7 @@ public class PasswordListActivity extends BaseActivity {
     public int bindLayout() {
         return R.layout.activity_password_list;
     }
+
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0) {
@@ -103,6 +104,7 @@ public class PasswordListActivity extends BaseActivity {
         }
         return super.onKeyDown(keyCode, event);
     }
+
     @Override
     public void initView(@Nullable Bundle savedInstanceState, @Nullable View contentView) {
         onRegisterEventBus();
@@ -193,15 +195,16 @@ public class PasswordListActivity extends BaseActivity {
 
     @Override
     public void doBusiness() {
-        if (mBleDeviceLocal.getConnectedType() != LocalState.DEVICE_CONNECT_TYPE_WIFI) {
-            BleBean bleBean = App.getInstance().getUserBleBean(mBleDeviceLocal.getMac());
-            if (bleBean != null) {
-                showLoading();
-                new Handler(Looper.getMainLooper()).postDelayed(this::checkHadPwdFromBle, 20);
-            }
-        } else {
+//        if (mBleDeviceLocal.getConnectedType() != LocalState.DEVICE_CONNECT_TYPE_WIFI) {
+//            BleBean bleBean = App.getInstance().getUserBleBean(mBleDeviceLocal.getMac());
+//            if (bleBean != null) {
+//                showLoading();
+//                new Handler(Looper.getMainLooper()).postDelayed(this::checkHadPwdFromBle, 20);
+//                checkHadPwdFromBle();
+//            }
+//        } else {
             searchPwdListFromNET();
-        }
+//        }
     }
 
     @Override
@@ -521,7 +524,7 @@ public class PasswordListActivity extends BaseActivity {
             runOnUiThread(() -> mPasswordListAdapter.setList(mDevicePwdBeanFormBle));
             mHandler.postDelayed(mSearchPwdListRunnable, 20);
         } else if (bean.getCMD() == CMD_KEY_ATTRIBUTES_SET) {
-           // mHandler.sendEmptyMessageDelayed(MSG_UPDATE_PWD_LIST, 1000);
+            // mHandler.sendEmptyMessageDelayed(MSG_UPDATE_PWD_LIST, 1000);
             new Handler(Looper.getMainLooper()).postDelayed(this::checkHadPwdFromBle, 20);
         }
     }
