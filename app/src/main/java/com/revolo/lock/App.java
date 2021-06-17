@@ -102,6 +102,8 @@ public class App extends Application {
     private User mUser;
     private String mMail;
     private BleDeviceLocal mBleDeviceLocal;
+    private String mCurrSn;//当前设备
+    private String mCurrMac;
 
     public BleDeviceLocal getBleDeviceLocal() {
         return mBleDeviceLocal;
@@ -109,6 +111,22 @@ public class App extends Application {
 
     public void setBleDeviceLocal(BleDeviceLocal bleDeviceLocal) {
         mBleDeviceLocal = bleDeviceLocal;
+    }
+
+    public String getmCurrSn() {
+        return mCurrSn;
+    }
+
+    public void setmCurrSn(String mCurrSn) {
+        this.mCurrSn = mCurrSn;
+    }
+
+    public String getmCurrMac() {
+        return mCurrMac;
+    }
+
+    public void setmCurrMac(String mCurrMac) {
+        this.mCurrMac = mCurrMac;
     }
 
     public User getUserFromLocal(String mail) {

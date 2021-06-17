@@ -158,6 +158,9 @@ public class MQTTReply {
         } else if (MQttConstant.WF_EVENT.equals(mqttData.getFunc())) {
             // 操作事件
             WifiLockOperationEventBean bean = GsonUtils.fromJson(mqttData.getPayload(), WifiLockOperationEventBean.class);
+            if(null!=mqttDataLinstener){
+                mqttDataLinstener.onOperationCallback(LockMessageCode.MSG_LOCK_MESSAGE_WF_EVEN, bean);
+            }
             postMessage(LockMessageCode.MSG_LOCK_MESSAGE_CODE_SUCCESS, LockMessageCode.MSG_LOCK_MESSAGE_WF_EVEN, bean);
         } else if (MQttConstant.RECORD.equals(mqttData.getFunc())) {
             // 记录
