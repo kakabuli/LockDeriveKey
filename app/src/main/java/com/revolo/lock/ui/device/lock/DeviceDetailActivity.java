@@ -166,7 +166,7 @@ public class DeviceDetailActivity extends BaseActivity {
                         Timber.e("MSG_LOCK_MESSAGE_SET_LOCK Esn:%s", mBleDeviceLocal.getEsn());
                         if (App.getInstance().getmCurrSn().equals(mBleDeviceLocal.getEsn())) {
                             Timber.e("MSG_LOCK_MESSAGE_SET_LOCK curr sn:%s", App.getInstance().getmCurrSn());
-                            dismissLoading();
+                            //dismissLoading();
                             //processSetLock((WifiLockDoorOptResponseBean) lockMessage.getWifiLockBaseResponseBean());
                         }
                         //   processSetLock((WifiLockDoorOptResponseBean) lockMessage.getWifiLockBaseResponseBean());
@@ -418,6 +418,12 @@ public class DeviceDetailActivity extends BaseActivity {
                             (byte) 0x04, (byte) 0x01, bleBean.getPwd1(), bleBean.getPwd3()));
             message.setMessageType(3);
             EventBus.getDefault().post(message);
+            int doorOpt= state == LocalState.LOCK_STATE_OPEN ? LocalState.DOOR_STATE_CLOSE : LocalState.DOOR_STATE_OPEN;
+            if (doorOpt == LocalState.DOOR_STATE_OPEN) {
+                showLoading("Lock Opening...");
+            } else if (doorOpt == LocalState.DOOR_STATE_CLOSE) {
+                showLoading("Lock Closing...");
+            }
            /* App.getInstance().writeControlMsg(BleCommandFactory
                     .lockControlCommand((byte) (mBleDeviceLocal.getLockState() == LocalState.LOCK_STATE_OPEN ? LOCK_SETTING_CLOSE : LOCK_SETTING_OPEN),
                             (byte) 0x04, (byte) 0x01, bleBean.getPwd1(), bleBean.getPwd3()), bleBean.getOKBLEDeviceImp());*/

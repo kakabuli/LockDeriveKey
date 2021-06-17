@@ -90,10 +90,13 @@ public class HomeLockListAdapter extends BaseQuickAdapter<BleDeviceLocal, BaseVi
         }
         if (deviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI) {
             baseViewHolder.setImageResource(R.id.ivNetState, R.drawable.ic_home_icon_wifi);
+            baseViewHolder.setVisible(R.id.ivNetState, true);
         } else if (deviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_BLE) {
             baseViewHolder.setImageResource(R.id.ivNetState, R.drawable.ic_home_icon_bluetooth);
+            baseViewHolder.setVisible(R.id.ivNetState, true);
         } else if (deviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI_BLE) {//WiFi和ble同时存在连接
             baseViewHolder.setImageResource(R.id.ivNetState, R.drawable.ic_home_icon_wifi);
+            baseViewHolder.setVisible(R.id.ivNetState, true);
         } else if (deviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_DIS) {//掉线模式else
             // TODO: 2021/3/2 其他处理
             baseViewHolder.setImageResource(R.id.ivLockState, R.drawable.ic_home_img_lock_privacymodel);

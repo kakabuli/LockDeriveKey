@@ -92,10 +92,15 @@ public class DeviceFragment extends Fragment {
                     if (mLockstate == LocalState.LOCK_STATE_PRIVATE) {
                         return;
                     }
+                    @LocalState.LockState int connectedState = ((BleDeviceLocal) adapter.getItem(position)).getConnectedType();
+                    if (LocalState.DEVICE_CONNECT_TYPE_DIS == connectedState) {
+                        return;
+                    }
                     if (adapter.getItem(position) instanceof BleDeviceLocal) {
                         if (position < 0 || position >= adapter.getData().size()) return;
                         BleDeviceLocal deviceLocal = (BleDeviceLocal) adapter.getItem(position);
-                        if (deviceLocal.getLockState() == LocalState.LOCK_STATE_PRIVATE) return; // 隐私模式
+                        if (deviceLocal.getLockState() == LocalState.LOCK_STATE_PRIVATE)
+                            return; // 隐私模式
                         Intent intent = new Intent(getContext(), DeviceDetailActivity.class);
                         App.getInstance().setmCurrMac(deviceLocal.getMac());
                         App.getInstance().setmCurrSn(deviceLocal.getEsn());
@@ -107,17 +112,18 @@ public class DeviceFragment extends Fragment {
                 mHomeLockListAdapter.setOnItemChildClickListener((adapter, view, position) -> {
                     if (view.getId() == R.id.ivLockState) {
                         //判断隐私模式
-                        @LocalState.LockState int mLockstate = ((BleDeviceLocal) adapter.getItem(position)).getLockState();
-                        if (mLockstate == LocalState.LOCK_STATE_PRIVATE) {
+                        //@LocalState.LockState int mLockstate = ((BleDeviceLocal) adapter.getItem(position)).getLockState();
+                        @LocalState.LockState int state = ((BleDeviceLocal) adapter.getItem(position)).getLockState();
+                        if (state == LocalState.LOCK_STATE_PRIVATE) {
                             return;
                         }
                         //判断设备是否掉线
-                        @LocalState.LockState int connectedState = mHomeLockListAdapter.getItem(position).getConnectedType();
+                        @LocalState.LockState int connectedState = ((BleDeviceLocal) adapter.getItem(position)).getConnectedType();
                         if (LocalState.DEVICE_CONNECT_TYPE_DIS == connectedState) {
                             return;
                         }
-                        @LocalState.LockState int state = mHomeLockListAdapter.getItem(position).getLockState();
-                        openOrCloseDoor(mHomeLockListAdapter.getItem(position).getEsn(),
+
+                        openOrCloseDoor(((BleDeviceLocal) adapter.getItem(position)).getEsn(),
                                 state == LocalState.LOCK_STATE_OPEN ? LocalState.DOOR_STATE_CLOSE : LocalState.DOOR_STATE_OPEN,
                                 (BleDeviceLocal) adapter.getItem(position), 0, position, state, connectedState);
                     }
@@ -188,7 +194,6 @@ public class DeviceFragment extends Fragment {
             //蓝牙消息
             if (lockMessage.getResultCode() == LockMessageCode.MSG_LOCK_MESSAGE_CODE_SUCCESS) {
                 //数据正常
-                dismissLoading();
                 processBleResult(lockMessage.getMac(), lockMessage.getBleResultBea());
             } else {
                 //数据异常
@@ -348,6 +353,7 @@ public class DeviceFragment extends Fragment {
         }
         if (bean.getCMD() == BleProtocolState.CMD_LOCK_INFO) {
             lockInfo(mac, bean);
+            dismissLoading();
         } else if (bean.getCMD() == BleProtocolState.CMD_LOCK_UPLOAD) {
             mHomeLockListAdapter.notifyDataSetChanged();
             dismissLoading();
