@@ -176,7 +176,8 @@ public class ChangePwdNameActivity extends BaseActivity {
             String trim = etPwdName.getText().toString().trim();
             Intent intent = new Intent();
             intent.putExtra("passwordName", trim);
-            setResult(Activity.RESULT_OK);
+            setResult(Activity.RESULT_OK, intent);
+            finish();
         });
     }
 

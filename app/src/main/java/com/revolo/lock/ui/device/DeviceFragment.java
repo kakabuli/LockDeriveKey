@@ -95,6 +95,7 @@ public class DeviceFragment extends Fragment {
                     if (adapter.getItem(position) instanceof BleDeviceLocal) {
                         if (position < 0 || position >= adapter.getData().size()) return;
                         BleDeviceLocal deviceLocal = (BleDeviceLocal) adapter.getItem(position);
+                        if (deviceLocal.getLockState() == LocalState.LOCK_STATE_PRIVATE) return; // 隐私模式
                         Intent intent = new Intent(getContext(), DeviceDetailActivity.class);
                         App.getInstance().setmCurrMac(deviceLocal.getMac());
                         App.getInstance().setmCurrSn(deviceLocal.getEsn());

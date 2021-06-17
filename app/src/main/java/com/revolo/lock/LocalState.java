@@ -17,10 +17,10 @@ public class LocalState {
     public @interface DeviceConnectType {
     }
 
+    public static final int DEVICE_CONNECT_TYPE_DIS = 0;//掉线模式
     public static final int DEVICE_CONNECT_TYPE_WIFI = 1;//WiFi模式
     public static final int DEVICE_CONNECT_TYPE_BLE = 2;//ble存在连接
     public static final int DEVICE_CONNECT_TYPE_WIFI_BLE = 3;//WiFi和ble同时存在连接
-    public static final int DEVICE_CONNECT_TYPE_DIS = 4;//掉线模式
 
     @IntDef(value = {DEVICE_STATE_UPDATE_MQTT_APP, DEVICE_STATE_UPDATE_MQTT_DEVICE,
             DEVICE_STATE_UPDATE_WIFI, DEVICE_STATE_UPDATE_DEVICE_BLUETOOTH_DIS, DEVICE_STATE_UPDATE_BLUETOOTH_OFF})

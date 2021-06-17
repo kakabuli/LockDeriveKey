@@ -1,6 +1,7 @@
 package com.revolo.lock.adapter;
 
 import android.text.TextUtils;
+import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -32,16 +33,19 @@ public class HomeLockListAdapter extends BaseQuickAdapter<BleDeviceLocal, BaseVi
         if (deviceLocal == null) {
             return;
         }
+        ImageView ivDoorState = baseViewHolder.getView(R.id.ivDoorState);
+        TextView tvDoorState = baseViewHolder.getView(R.id.tvDoorState);
+        String name = deviceLocal.getName();
+        baseViewHolder.setText(R.id.tvLockName, TextUtils.isEmpty(name) ?
+                (TextUtils.isEmpty(deviceLocal.getEsn()) ? "" : deviceLocal.getEsn())
+                : name);
         if (deviceLocal.getLockState() == LocalState.LOCK_STATE_PRIVATE) {
             baseViewHolder.setImageResource(R.id.ivLockState, R.drawable.ic_home_img_lock_privacymodel);
             baseViewHolder.setText(R.id.tvDoorState, getContext().getString(R.string.tip_private_mode));
             baseViewHolder.setGone(R.id.ivDoorState, true);
         } else {
-
             baseViewHolder.setGone(R.id.ivDoorState, false);
             boolean isUseDoorSensor = deviceLocal.isOpenDoorSensor();
-            ImageView ivDoorState = baseViewHolder.getView(R.id.ivDoorState);
-            TextView tvDoorState = baseViewHolder.getView(R.id.tvDoorState);
             if (deviceLocal.getLockState() == LocalState.LOCK_STATE_OPEN) {
                 baseViewHolder.setImageResource(R.id.ivLockState, R.drawable.ic_home_img_lock_open);
                 if (isUseDoorSensor) {
@@ -57,7 +61,7 @@ public class HomeLockListAdapter extends BaseQuickAdapter<BleDeviceLocal, BaseVi
                             break;
                     }
                 } else {
-                    doorOpen(ivDoorState, tvDoorState);
+                    doorClose(ivDoorState, tvDoorState);
                 }
             } else if (deviceLocal.getLockState() == LocalState.LOCK_STATE_CLOSE || deviceLocal.getLockState() == LocalState.LOCK_STATE_SENSOR_CLOSE) {
                 baseViewHolder.setImageResource(R.id.ivLockState, R.drawable.ic_home_img_lock_close);
@@ -79,7 +83,9 @@ public class HomeLockListAdapter extends BaseQuickAdapter<BleDeviceLocal, BaseVi
             } else {
                 //异常处理
                 Timber.e("homeLock type:%s", deviceLocal.getLockState() + "");
-                baseViewHolder.setImageResource(R.id.ivLockState, R.drawable.ic_home_img_lock_privacymodel);
+                baseViewHolder.setImageResource(R.id.ivLockState, R.drawable.ic_home_img_lock_close);
+//                baseViewHolder.setImageResource(R.id.ivLockState, R.drawable.ic_home_img_lock_privacymodel);
+                doorClose(ivDoorState, tvDoorState);
             }
         }
         if (deviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI) {
@@ -91,11 +97,8 @@ public class HomeLockListAdapter extends BaseQuickAdapter<BleDeviceLocal, BaseVi
         } else if (deviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_DIS) {//掉线模式else
             // TODO: 2021/3/2 其他处理
             baseViewHolder.setImageResource(R.id.ivLockState, R.drawable.ic_home_img_lock_privacymodel);
+            baseViewHolder.setVisible(R.id.ivNetState, false);
         }
-        String name = deviceLocal.getName();
-        baseViewHolder.setText(R.id.tvLockName, TextUtils.isEmpty(name) ?
-                (TextUtils.isEmpty(deviceLocal.getEsn()) ? "" : deviceLocal.getEsn())
-                : name);
     }
 
     private void doorClose(ImageView ivDoorState, TextView tvDoorState) {
@@ -108,4 +111,13 @@ public class HomeLockListAdapter extends BaseQuickAdapter<BleDeviceLocal, BaseVi
         tvDoorState.setText(R.string.tip_door_opened);
     }
 
+    private void doorHide(ImageView ivDoorState, TextView tvDoorState) {
+        ivDoorState.setVisibility(View.GONE);
+        tvDoorState.setVisibility(View.GONE);
+    }
+
+    private void doorShow(ImageView ivDoorState, TextView tvDoorState) {
+        ivDoorState.setVisibility(View.VISIBLE);
+        tvDoorState.setVisibility(View.VISIBLE);
+    }
 }

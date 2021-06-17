@@ -298,6 +298,7 @@ public class DeviceDetailActivity extends BaseActivity {
                 ivLockState.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_home_img_lock_close));
                 // TODO: 2021/3/31 其他选择
                 Timber.e("其他选择");
+                doorClose(ivDoorState, tvDoorState);
             }
 
         }

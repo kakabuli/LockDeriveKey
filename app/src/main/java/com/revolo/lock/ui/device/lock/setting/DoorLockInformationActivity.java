@@ -122,15 +122,15 @@ public class DoorLockInformationActivity extends BaseActivity {
     }
     @Override
     public void doBusiness() {
-        if(mBleDeviceLocal.getConnectedType() != LocalState.DEVICE_CONNECT_TYPE_WIFI) {
-            initBleListener();
-        } else {
+//        if(mBleDeviceLocal.getConnectedType() != LocalState.DEVICE_CONNECT_TYPE_WIFI) {
+//            initBleListener();
+//        } else {
             String fireVer = mBleDeviceLocal.getLockVer();
             String wifiVer = mBleDeviceLocal.getWifiVer();
             if(!TextUtils.isEmpty(fireVer) || !TextUtils.isEmpty(wifiVer)) {
                 checkAllOTAVer(fireVer, wifiVer);
             }
-        }
+//        }
         refreshUI();
     }
 
@@ -303,7 +303,7 @@ public class DoorLockInformationActivity extends BaseActivity {
         req.setCustomer(16);
         req.setDeviceName(mBleDeviceLocal.getEsn());
         // 暂时使用 2为WIFI锁，6为前面板（1为WIFI模块，2为WIFI锁，3为人脸模组，4为视频模组，5为视频模组微控制器，6为前面板，7为后面板）
-        req.setDevNum(6);
+        req.setDevNum(1);
         req.setVersion(ver);
         showLoading();
         Observable<CheckOTABeanRsp> observable = HttpRequest.getInstance()

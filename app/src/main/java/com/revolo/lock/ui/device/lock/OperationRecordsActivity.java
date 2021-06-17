@@ -115,7 +115,7 @@ public class OperationRecordsActivity extends BaseActivity {
         initLoading("Loading...");
 
         mRefreshLayout = findViewById(R.id.refreshLayout);
-        mRefreshLayout.setEnableRefresh(false);
+        mRefreshLayout.setEnableRefresh(true);
         mRefreshLayout.setRefreshFooter(new SmartClassicsFooterView((this)));
 //        refreshLayout.setOnRefreshListener(new OnRefreshListener() {
 //            @Override
@@ -126,6 +126,7 @@ public class OperationRecordsActivity extends BaseActivity {
         mRefreshLayout.setOnLoadMoreListener(refreshLayout -> searchRecordFromNet(mPage, mPage == 1));
         onRegisterEventBus();
     }
+
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0) {
@@ -374,7 +375,7 @@ public class OperationRecordsActivity extends BaseActivity {
                     return;
                 }
                 List<LockRecordBeanRsp.DataBean> beans = lockRecordBeanRsp.getData();
-                processRecordFromNet(isNeedBleGetRecords, page, beans);
+                processRecordFromNet(isNeedBleGetRecords, beans);
                 if (mRefreshLayout != null) {
                     mRefreshLayout.finishLoadMore(true);
                 }
@@ -398,7 +399,7 @@ public class OperationRecordsActivity extends BaseActivity {
     private long mLatestCreateTime = 0L;
     private final List<LockRecord> mWillShowRecords = new ArrayList<>();
 
-    private void processRecordFromNet(boolean isNeedBleGetRecords, int page, List<LockRecordBeanRsp.DataBean> beans) {
+    private void processRecordFromNet(boolean isNeedBleGetRecords, List<LockRecordBeanRsp.DataBean> beans) {
         if (isNeedBleGetRecords) {
             if (!beans.isEmpty()) {
                 mLatestCreateTime = beans.get(0).getTimesTamp();
@@ -819,7 +820,7 @@ public class OperationRecordsActivity extends BaseActivity {
         Date strtodate = formatter.parse("2019-01-01", pos);
         Calendar startTime = Calendar.getInstance();
         startTime.setTime(strtodate);
-       
+
 
         timePickerBuilder.setCancelColor(Color.parseColor("#999999"))
                 .setDividerColor(Color.parseColor("#f7f7f7"))
@@ -836,7 +837,7 @@ public class OperationRecordsActivity extends BaseActivity {
                 .setLabel("", "", "", "", "", "")
                 .setLineSpacingMultiplier(3f)
                 .setDividerType(WheelView.DividerType.FILL)
-                .setRangDate(startTime,Calendar.getInstance())
+                .setRangDate(startTime, Calendar.getInstance())
                 .setTextXOffset(0, 0, 0, 0, 0, 0);
 
 

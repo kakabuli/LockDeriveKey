@@ -171,7 +171,6 @@ public class AutoLockActivity extends BaseActivity {
                     case LockMessageCode.MSG_LOCK_MESSAGE_SET_LOCK_ATTRAUTOTIME:
                         dismissLoading();
                         break;
-
                 }
             }
         } else {
