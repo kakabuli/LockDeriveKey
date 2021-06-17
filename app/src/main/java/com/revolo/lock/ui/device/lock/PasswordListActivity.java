@@ -195,16 +195,16 @@ public class PasswordListActivity extends BaseActivity {
 
     @Override
     public void doBusiness() {
-//        if (mBleDeviceLocal.getConnectedType() != LocalState.DEVICE_CONNECT_TYPE_WIFI) {
-//            BleBean bleBean = App.getInstance().getUserBleBean(mBleDeviceLocal.getMac());
-//            if (bleBean != null) {
-//                showLoading();
-//                new Handler(Looper.getMainLooper()).postDelayed(this::checkHadPwdFromBle, 20);
-//                checkHadPwdFromBle();
-//            }
-//        } else {
+        if (mBleDeviceLocal.getConnectedType() != LocalState.DEVICE_CONNECT_TYPE_WIFI) {
+            BleBean bleBean = App.getInstance().getUserBleBean(mBleDeviceLocal.getMac());
+            if (bleBean != null) {
+                showLoading();
+                new Handler(Looper.getMainLooper()).postDelayed(this::checkHadPwdFromBle, 20);
+                checkHadPwdFromBle();
+            }
+        } else {
             searchPwdListFromNET();
-//        }
+        }
     }
 
     @Override
