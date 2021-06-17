@@ -15,12 +15,11 @@ public class MQttConstant {
 
     public static final String MQTT_ABROAD_URL = "tcp://test.irevolo.com:1883";     // 海外服务器
     public static final String MQTT_TEST_URL = "tcp://internal.irevolo.com:1883";   // 国内测试服务器
-    public static final String MQTT_CHANGSHA_TEST_URL = "tcp://192.168.8.252:1883";
+    public static final String MQTT_CHANGSHA_TEST_URL = "tcp://192.168.118.248:1883";
     public static final String MQTT_CHANGSHA_TEST_URL_2 = "tcp://192.168.118.249:1883";
-    public static final String MQTT_BASE_URL = MQTT_CHANGSHA_TEST_URL_2;//MQTT_ABROAD_URL;
+    public static final String MQTT_BASE_URL = MQTT_CHANGSHA_TEST_URL_2;
 
     public static final String MQTT_REQUEST_APP = "/request/app/func";
-
 
     //断开后，是否自动连接
     public static final boolean MQTT_AUTOMATIC_RECONNECT = true;
@@ -46,11 +45,9 @@ public class MQttConstant {
     //获取所有绑定的设备接口
     public static final String GET_ALL_BIND_DEVICE = "getAllBindDevice";
 
-
     public static String getSubscribeTopic(String userId) {
         return "/" + userId + "/rpc/reply";
     }
-
 
     public static String getCallTopic(String userId) {
         return "/" + userId + "/rpc/call";
@@ -61,8 +58,6 @@ public class MQttConstant {
     //发布给服务器中转网关消息的主题，/clientid/rpc/call
     public static String PUBLISH_TO_GATEWAY = "/rpc/call";
     public static final String PUBLISH_GET_RANDOM_CODE_TOPIC = "orangeiot/sn/encreport";
-
-
 
     //==================================revolo============================
 

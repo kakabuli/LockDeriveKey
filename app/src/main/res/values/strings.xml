@@ -199,10 +199,11 @@
 
     <!-- MineFragment -->
     <string name="message">Message</string>
-    <string name="setting">Setting</string>
+    <string name="setting">General Setting</string>
     <string name="about">About</string>
     <string name="feedback">Feedback</string>
     <string name="help">Help</string>
+    <string name="FAQ">FAQ</string>
     <string name="hi_name">Hi, %1$s</string>
     <string name="join_tip">%1$s is inviting you to use %2$s lock, would you accept?</string>
     <string name="day_detail">Revolo has been with you for %1$d days</string>
@@ -235,14 +236,21 @@
     <string name="change_gesture_password">Change gesture password</string>
     <string name="enable_touch_id">Enable touch ID</string>
     <string name="enable_face_id">Enable face ID</string>
+    <string name="account_cancellation">Account cancellation</string>
+    <string name="account_cancellation_title">Gate magnet abnormal</string>
+    <string name="account_cancellation_content">After logging off, all information and data of the device and account will be cleared.</string>
+    <string name="cancellation">Cancellation</string>
 
     <!-- AboutActivity -->
-    <string name="copyright_2020">Copyright@2020</string>
+    <string name="copyright_2020">Copyright@2021 Revolo Co.,Ltd ALL RIGHTS RESERVED</string>
     <string name="title_about">About</string>
     <string name="contact">Contact</string>
     <string name="privacy_agreement">Privacy agreement</string>
+    <string name="privacy_policy">Privacy policy</string>
     <string name="user_agreement">User agreement</string>
+    <string name="version_update">Version update</string>
     <string name="about_ver">v%1$s</string>
+    <string name="about_text">Questions about your new Revolo lock?\nPlease contact us.</string>
 
     <!-- FeedbackActivity -->
     <string name="title_feedback">Feedback</string>

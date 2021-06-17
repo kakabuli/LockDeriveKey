@@ -42,11 +42,14 @@ public class AboutActivity extends BaseActivity {
     @Override
     public void doBusiness() {
         TextView tvVersion = findViewById(R.id.tvVersion);
-        tvVersion.setText(getString(R.string.about_ver, AppUtils.getAppVersionName()));
+        tvVersion.setText(getString(R.string.about_ver, AppUtils.getAppVersionName()).replace("v", "V"));
+
+        TextView tvVersionNew = findViewById(R.id.tv_version_new);
+        tvVersionNew.setText(getString(R.string.about_ver, AppUtils.getAppVersionName()).replace("v", "V"));
         TextView tvContact = findViewById(R.id.tvContact);
         // TODO: 2021/3/8 后期从服务器获取
         tvContact.setText("service@irevolo.com");
-        applyDebouncingClickListener(findViewById(R.id.clPrivacyAgreement), findViewById(R.id.clUserAgreement), findViewById(R.id.ivLogo));
+        applyDebouncingClickListener(findViewById(R.id.clPrivacyAgreement), findViewById(R.id.clVersionUpdate));
     }
 
     @Override
@@ -60,16 +63,11 @@ public class AboutActivity extends BaseActivity {
 
     @Override
     public void onDebouncingClick(@NonNull View view) {
-        if (view.getId() == R.id.clUserAgreement) {
-            Intent intent = new Intent(this, TermActivity.class);
-            intent.putExtra(Constant.TERM_TYPE, Constant.TERM_TYPE_USER);
-            startActivity(intent);
+        if (view.getId() == R.id.clVersionUpdate) {
+            launchAppDetail("com.revolo.lock", "com.android.vending");
         } else if (view.getId() == R.id.clPrivacyAgreement) {
-            Intent intent = new Intent(this, TermActivity.class);
-            intent.putExtra(Constant.TERM_TYPE, Constant.TERM_TYPE_PRIVACY);
+            Intent intent = new Intent(this, PrivacyPolicyActivity.class);
             startActivity(intent);
-        } else if (view.getId() == R.id.ivLogo) {
-            launchAppDetail("com.revolo.lock","com.android.vending");
         }
     }
 

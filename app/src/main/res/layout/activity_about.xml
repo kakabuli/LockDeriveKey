@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -17,33 +16,44 @@
         android:id="@+id/ivLogo"
         android:layout_width="88pt"
         android:layout_height="88pt"
-        android:gravity="center"
         android:layout_marginTop="54pt"
-        app:srcCompat="@drawable/ic_signin_logo"
+        android:gravity="center"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/titleBar" />
+        app:layout_constraintTop_toBottomOf="@+id/titleBar"
+        app:srcCompat="@drawable/ic_signin_logo" />
 
     <TextView
         android:id="@+id/tvVersion"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        tools:text="V1.0.0"
-        android:textSize="15pt"
-        android:textColor="@color/c333333"
         android:layout_marginTop="10pt"
+        android:textColor="@color/c333333"
+        android:textSize="15pt"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/ivLogo" />
+        app:layout_constraintTop_toBottomOf="@+id/ivLogo"
+        tools:text="V1.0.0" />
+
+    <TextView
+        android:id="@+id/tvText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:gravity="center"
+        android:text="@string/about_text"
+        android:textColor="@color/c333333"
+        android:textSize="15sp"
+        app:layout_constraintTop_toBottomOf="@id/tvVersion" />
 
     <TextView
         android:id="@+id/textView52"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="32pt"
         android:text="@string/copyright_2020"
         android:textColor="@color/c666666"
         android:textSize="13pt"
-        android:layout_marginBottom="32pt"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
@@ -55,16 +65,16 @@
         android:layout_marginTop="37pt"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tvVersion">
+        app:layout_constraintTop_toBottomOf="@+id/tvText">
 
         <TextView
             android:id="@+id/textView53"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/contact"
-            android:textSize="15pt"
-            android:textColor="@color/c333333"
             android:layout_marginStart="16pt"
+            android:text="@string/contact"
+            android:textColor="@color/c333333"
+            android:textSize="15pt"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
@@ -73,13 +83,13 @@
             android:id="@+id/tvContact"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            tools:text="hu@kaadas.com"
             android:layout_marginEnd="15pt"
-            android:textSize="15pt"
             android:textColor="@color/c666666"
+            android:textSize="15pt"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="hu@kaadas.com" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -94,10 +104,10 @@
             android:id="@+id/textView3"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/privacy_agreement"
-            android:textSize="15pt"
-            android:textColor="@color/c333333"
             android:layout_marginStart="16pt"
+            android:text="@string/privacy_policy"
+            android:textColor="@color/c333333"
+            android:textSize="15pt"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
@@ -111,12 +121,10 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:srcCompat="@drawable/ic_icon_more" />
-
-
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/clUserAgreement"
+        android:id="@+id/clVersionUpdate"
         android:layout_width="match_parent"
         android:layout_height="51pt"
         app:layout_constraintEnd_toEndOf="parent"
@@ -127,10 +135,10 @@
             android:id="@+id/textView5"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/user_agreement"
-            android:textSize="15pt"
-            android:textColor="@color/c333333"
             android:layout_marginStart="16pt"
+            android:text="@string/version_update"
+            android:textColor="@color/c333333"
+            android:textSize="15pt"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
@@ -145,6 +153,27 @@
             app:layout_constraintTop_toTopOf="parent"
             app:srcCompat="@drawable/ic_icon_more" />
 
+        <View
+            android:layout_width="6dp"
+            android:layout_height="6dp"
+            android:layout_marginRight="8dp"
+            android:background="@drawable/ic_circle_red_bg"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintCircleRadius="@dimen/dp_10"
+            app:layout_constraintRight_toLeftOf="@id/tv_version_new"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/tv_version_new"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="4dp"
+            android:textColor="@color/cFF556D"
+            android:textSize="15sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintRight_toLeftOf="@id/imageView2"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="V1.0.0" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

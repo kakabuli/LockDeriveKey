@@ -327,6 +327,10 @@
             android:launchMode="singleTask"
             android:screenOrientation="portrait" />
         <activity
+            android:name=".ui.mine.PrivacyPolicyActivity"
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait" />
+        <activity
             android:name=".ui.sign.TermActivity"
             android:launchMode="singleTask"
             android:screenOrientation="portrait" />

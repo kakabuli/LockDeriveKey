@@ -78,7 +78,7 @@ public class OpenDrawHandPwdActivity extends BaseActivity {
                         new Handler(Looper.getMainLooper()).postDelayed(() -> finish(), 50);
 
                     } else {
-                        tvDrawTip.setText(getResources().getString(R.string.inconsistent_with_the_previous_drawing_please_redraw));
+                        tvDrawTip.setText(getResources().getString(R.string.drawing_incorrectly));
                         // 左右移动动画
                         Animation shakeAnimation = AnimationUtils.loadAnimation(OpenDrawHandPwdActivity.this, R.anim.shake);
                         tvDrawTip.startAnimation(shakeAnimation);
