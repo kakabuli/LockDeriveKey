@@ -1,6 +1,7 @@
 package com.revolo.lock.manager;
 
 import com.a1anwang.okble.client.scan.BLEScanResult;
+import com.revolo.lock.room.entity.BleDeviceLocal;
 
 public class LockConnected {
     private int connectType;
@@ -9,6 +10,7 @@ public class LockConnected {
     private byte[] pwd2;
     private boolean isAppPair;
     private String mEsn;
+    private BleDeviceLocal bleDeviceLocal;
 
     public BLEScanResult getBleScanResult() {
         return bleScanResult;
@@ -56,5 +58,13 @@ public class LockConnected {
 
     public void setmEsn(String mEsn) {
         this.mEsn = mEsn;
+    }
+
+    public BleDeviceLocal getBleDeviceLocal() {
+        return bleDeviceLocal;
+    }
+
+    public void setBleDeviceLocal(BleDeviceLocal bleDeviceLocal) {
+        this.bleDeviceLocal = bleDeviceLocal;
     }
 }

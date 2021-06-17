@@ -171,11 +171,11 @@ public class AddWifiActivity extends BaseActivity {
 
     @Override
     protected void onDestroy() {
-        if (App.getInstance().isWifiSettingNeedToCloseBle()) {
+       /* if (App.getInstance().isWifiSettingNeedToCloseBle()) {
             if (mBleBean != null && mBleBean.getOKBLEDeviceImp() != null) {
                 mBleBean.getOKBLEDeviceImp().disConnect(false);
             }
-        }
+        }*/
         super.onDestroy();
     }
 
