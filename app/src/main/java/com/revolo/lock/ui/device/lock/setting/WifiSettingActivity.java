@@ -187,7 +187,11 @@ public class WifiSettingActivity extends BaseActivity {
 
     private void gotoAddWifiAct() {
 
+        String trim = mTvWifiName.getText().toString().trim();
         Intent intent = new Intent(this, AddWifiActivity.class);
+        if (!TextUtils.isEmpty(trim)) {
+            intent.putExtra("WiFiName", trim);
+        }
         startActivity(intent);
     }
 

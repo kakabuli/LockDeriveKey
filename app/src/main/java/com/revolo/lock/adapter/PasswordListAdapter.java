@@ -60,7 +60,6 @@ public class PasswordListAdapter extends BaseQuickAdapter<DevicePwdBean, BaseVie
         }
         TextView textView = baseViewHolder.getView(R.id.tv_delete);
         textView.setOnClickListener(v -> mOnDeleteListener.onDeleteClickListener(textView, baseViewHolder.getAdapterPosition()));
-
     }
 
     private String getPwdDetail(DevicePwdBean devicePwdBean) {
@@ -150,14 +149,15 @@ public class PasswordListAdapter extends BaseQuickAdapter<DevicePwdBean, BaseVie
 
         if (devicePwdBean.getAttribute() == 5) {
             // 周策略秘钥
-            long startTime = devicePwdBean.getStartTime() * 1000;
-            long endTime = devicePwdBean.getEndTime() * 1000;
-            long nowTime = new Date().getTime();
-            if (startTime <= nowTime && nowTime <= endTime) {
-                return false;
-            } else {
-                return true;
-            }
+            return false;
+//            long startTime = devicePwdBean.getStartTime() * 1000;
+//            long endTime = devicePwdBean.getEndTime() * 1000;
+//            long nowTime = new Date().getTime();
+//            if (startTime <= nowTime && nowTime <= endTime) {
+//                return false;
+//            } else {
+//                return true;
+//            }
         }
         return true;
     }

@@ -86,7 +86,7 @@ public class UserPageActivity extends BaseActivity implements EasyPermissions.Pe
     public void initView(@Nullable Bundle savedInstanceState, @Nullable View contentView) {
         useCommonTitleBar(getString(R.string.title_user_page));
         mIvAvatar = findViewById(R.id.ivAvatar);
-        applyDebouncingClickListener(findViewById(R.id.clUserName), mIvAvatar);
+        applyDebouncingClickListener(findViewById(R.id.clUserName),findViewById(R.id.btnLogout), mIvAvatar);
         mUser = App.getInstance().getUser();
         mPicSelectPopup = new PicSelectPopup(this);
         mPicSelectPopup.setPicSelectOnClickListener(v -> {
@@ -177,6 +177,10 @@ public class UserPageActivity extends BaseActivity implements EasyPermissions.Pe
         if (view.getId() == R.id.clUserName) {
             Intent intent = new Intent(this, ModifyUserNameActivity.class);
             startActivity(intent);
+            return;
+        }
+        if (view.getId() == R.id.btnLogout) {
+            showLogoutDialog();
             return;
         }
         if (view.getId() == R.id.ivAvatar) {
@@ -382,5 +386,84 @@ public class UserPageActivity extends BaseActivity implements EasyPermissions.Pe
 
     private boolean hasWriteExternalStoragePermission() {
         return EasyPermissions.hasPermissions(this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+    }
+
+    private void showLogoutDialog() {
+        SelectDialog dialog = new SelectDialog(this);
+        dialog.setMessage(getString(R.string.dialog_tip_log_out));
+        dialog.setOnCancelClickListener(v -> dialog.dismiss());
+        dialog.setOnConfirmListener(v -> {
+            dialog.dismiss();
+            logout();
+        });
+        dialog.show();
+    }
+
+    private void logout() {
+        if (!checkNetConnectFail()) {
+            return;
+        }
+        if (App.getInstance().getUserBean() == null) {
+            return;
+        }
+        String token = App.getInstance().getUserBean().getToken();
+        if (TextUtils.isEmpty(token)) {
+            return;
+        }
+        showLoading("Logging out...");
+        Observable<LogoutBeanRsp> observable = HttpRequest.getInstance().logout(token);
+        ObservableDecorator.decorate(observable).safeSubscribe(new Observer<LogoutBeanRsp>() {
+            @Override
+            public void onSubscribe(@NonNull Disposable d) {
+
+            }
+
+            @Override
+            public void onNext(@NonNull LogoutBeanRsp logoutBeanRsp) {
+                dismissLoading();
+                String code = logoutBeanRsp.getCode();
+                if (TextUtils.isEmpty(code)) {
+                    Timber.e("code is empty");
+                    return;
+                }
+                if (!code.equals("200")) {
+                    if (code.equals("444")) {
+                        App.getInstance().logout(true, UserPageActivity.this);
+                        return;
+                    }
+                    String msg = logoutBeanRsp.getMsg();
+                    Timber.e("code: %1s, msg: %2s", code, msg);
+                    if (!TextUtils.isEmpty(msg)) {
+                        ToastUtils.showShort(msg);
+                        return;
+                    }
+                }
+
+                User user = App.getInstance().getUser();
+                AppDatabase.getInstance(getApplicationContext()).userDao().delete(user);
+                App.getInstance().getUserBean().setToken(""); // 清空token
+                SPUtils.getInstance(REVOLO_SP).put(Constant.USER_LOGIN_INFO, ""); // 清空登录信息
+                //清理设备信息
+                App.getInstance().removeDeviceList();
+
+                // TODO: 2021/3/30 退出操作
+                if (App.getInstance().getMainActivity() != null) {
+                    App.getInstance().getMainActivity().finish();
+                }
+                finish();
+                startActivity(new Intent(UserPageActivity.this, LoginActivity.class));
+            }
+
+            @Override
+            public void onError(@NonNull Throwable e) {
+                dismissLoading();
+                Timber.e(e);
+            }
+
+            @Override
+            public void onComplete() {
+
+            }
+        });
     }
 }

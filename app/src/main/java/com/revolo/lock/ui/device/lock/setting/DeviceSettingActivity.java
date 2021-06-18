@@ -54,6 +54,7 @@ import com.revolo.lock.net.ObservableDecorator;
 import com.revolo.lock.room.AppDatabase;
 import com.revolo.lock.room.entity.BleDeviceLocal;
 import com.revolo.lock.ui.device.lock.DeviceDetailActivity;
+import com.yalantis.ucrop.util.MimeType;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -659,7 +660,7 @@ public class DeviceSettingActivity extends BaseActivity {
     @Override
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (data != null && requestCode == Activity.RESULT_OK && requestCode == REQUEST_CODE) {
+        if (data != null) {
             String authorizationCode = data.getStringExtra("authorizationCode");
             String stringExtra = data.getStringExtra("state");
             skillAlexa(authorizationCode, stringExtra);
@@ -670,22 +671,16 @@ public class DeviceSettingActivity extends BaseActivity {
 
     private void gotoAlexa(String url) {
         Intent action = new Intent(Intent.ACTION_VIEW);
-        StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append(url);
-        action.setData(Uri.parse(stringBuilder.toString()));
+        action.setData(Uri.parse(url));
         startActivityForResult(action, REQUEST_CODE);
     }
 
     private boolean schemeValid(String url) {
         PackageManager manager = getPackageManager();
         Intent action = new Intent(Intent.ACTION_VIEW);
-        StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append(url);
-        Uri parse = Uri.parse(stringBuilder.toString());
-        String host = parse.getHost();
-        action.setData(Uri.parse(host));
+        action.setData(Uri.parse(url));
         List<ResolveInfo> resolveInfos = manager.queryIntentActivities(action, PackageManager.GET_RESOLVED_FILTER);
-        return resolveInfos != null && resolveInfos.size() > 0;
+        return resolveInfos != null && !resolveInfos.isEmpty();
     }
 
     private void skillAlexa(String authorizationCode, String state) {
@@ -708,7 +703,7 @@ public class DeviceSettingActivity extends BaseActivity {
         }
 
         if (TextUtils.isEmpty(state)) {
-            Timber.e("authorizationCode is empty");
+            Timber.e("state is empty");
             return;
         }
 

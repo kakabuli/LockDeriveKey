@@ -63,6 +63,7 @@ public class AddWifiActivity extends BaseActivity {
     private boolean isShowPwd = true;
 
     private BleDeviceLocal mBleDeviceLocal;
+    private String mDefaultName = "";
 
     @Override
     public void initData(@Nullable Bundle bundle) {
@@ -96,9 +97,11 @@ public class AddWifiActivity extends BaseActivity {
                 findViewById(R.id.ivEye), findViewById(R.id.tvSkip));
         initLoading("Loading...");
 
-        mEtWifiName.setText(getConnectWifiSID());
+        mDefaultName = getIntent().getStringExtra("WiFiName");
+        if (!TextUtils.isEmpty(mDefaultName)) mEtWifiName.setText(mDefaultName);
         onRegisterEventBus();
     }
+
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0) {
@@ -107,6 +110,7 @@ public class AddWifiActivity extends BaseActivity {
         }
         return super.onKeyDown(keyCode, event);
     }
+
     @Subscribe(threadMode = ThreadMode.MAIN, sticky = true)
     public void getEventBus(LockMessageRes lockMessage) {
         if (lockMessage == null) {
@@ -407,17 +411,14 @@ public class AddWifiActivity extends BaseActivity {
                 if (mWifiSnList.isEmpty()) {
                     return;
                 }
-                mEtWifiName.setText(getConnectWifiSID());
+                if (TextUtils.isEmpty(mDefaultName)) {
+                    mEtWifiName.setText(mWifiSnList.get(0));
+                } else {
+                    mEtWifiName.setText(mDefaultName);
+                }
             }
         });
 
         // TODO: 2021/1/21 记得清空
-    }
-
-
-    private String getConnectWifiSID() {
-        WifiManager wifiManager = (WifiManager) getSystemService(WIFI_SERVICE);
-        WifiInfo wifiInfo = wifiManager.getConnectionInfo();
-        return wifiInfo.getSSID().replaceAll("\\\"", "");
     }
 }

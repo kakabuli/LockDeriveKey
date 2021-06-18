@@ -7,6 +7,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Button;
@@ -60,6 +61,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import io.reactivex.Observable;
@@ -477,9 +479,9 @@ public class AddNewPwdSelectActivity extends BaseActivity {
                     String time = (hourOfDay < 10 ? "0" + hourOfDay : hourOfDay) + ":" + (minute < 10 ? "0" + minute : minute);
                     if (id == R.id.tvStartTime) {
                         long scheduleStartTimeMill = TimeUtils.string2Millis(mNowDateStr + " " + time + ":00");
-                        if (scheduleStartTimeMill > mScheduleEndTimeMill) {
+                        if (scheduleStartTimeMill >= mScheduleEndTimeMill) {
                             // 开始时间大于结束时间
-                            ToastUtils.showShort(R.string.t_the_start_time_cannot_be_greater_than_the_end_time);
+                            ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_the_start_time_cannot_be_greater_than_the_end_time);
                             return;
                         }
                         mTvStartTime.setText(time);
@@ -487,9 +489,9 @@ public class AddNewPwdSelectActivity extends BaseActivity {
                         Timber.d("startTime 选择的时间%1s, 时间流：%2d, 转换的时间：%3s", time, mScheduleStartTimeMill, TimeUtils.millis2String(mScheduleStartTimeMill));
                     } else if (id == R.id.tvEndTime) {
                         long scheduleEndTimeMill = TimeUtils.string2Millis(mNowDateStr + " " + time + ":00");
-                        if (scheduleEndTimeMill < mScheduleStartTimeMill) {
+                        if (scheduleEndTimeMill <= mScheduleStartTimeMill) {
                             // 结束时间小于开始时间
-                            ToastUtils.showShort(R.string.t_the_end_time_cannot_be_less_than_the_start_time);
+                            ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_the_end_time_cannot_be_less_than_the_start_time);
                             return;
                         }
                         mTvEndTime.setText(time);
@@ -497,9 +499,14 @@ public class AddNewPwdSelectActivity extends BaseActivity {
                         Timber.d("endTime 选择的时间%1s, 时间流：%2d, 转换的时间：%3s", time, mScheduleEndTimeMill, TimeUtils.millis2String(mScheduleEndTimeMill));
                     } else if (id == R.id.tvEndDateTime) {
                         long temEndDateTimeMill = TimeUtils.string2Millis(mTemEndDateStr + " " + time + ":00");
-                        if (temEndDateTimeMill < mTemStartDateTimeMill) {
+                        if (temEndDateTimeMill <= mTemStartDateTimeMill) {
                             // 结束时间小于开始时间
-                            ToastUtils.showShort(R.string.t_the_end_time_cannot_be_less_than_the_start_time);
+                            ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_the_end_time_cannot_be_less_than_the_start_time);
+                            return;
+                        }
+                        if (mSelectedPwdState == TEMPORARY_STATE && temEndDateTimeMill < (new Date().getTime())) {
+                            // 临时密码 && 结束时间小于当前时间
+                            ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_the_end_time_cannot_be_less_than_the_current_time);
                             return;
                         }
                         mTvEndDateTime.setText(time);
@@ -508,9 +515,9 @@ public class AddNewPwdSelectActivity extends BaseActivity {
                         Timber.d("endDateTime 选择的时间%1s, 时间流：%2d", time, mTemEndDateTimeMill);
                     } else if (id == R.id.tvStartDateTime) {
                         long temStartDateTimeMill = TimeUtils.string2Millis(mTemStartDateStr + " " + time + ":00");
-                        if (temStartDateTimeMill > mTemEndDateTimeMill) {
+                        if (temStartDateTimeMill >= mTemEndDateTimeMill) {
                             // 开始时间大于结束时间
-                            ToastUtils.showShort(R.string.t_the_start_time_cannot_be_greater_than_the_end_time);
+                            ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_the_start_time_cannot_be_greater_than_the_end_time);
                             return;
                         }
                         mTvStartDateTime.setText(time);
@@ -531,9 +538,9 @@ public class AddNewPwdSelectActivity extends BaseActivity {
             String date = year + "-" + (month < 10 ? "0" + month : month) + "-" + (dayOfMonth < 10 ? "0" + dayOfMonth : dayOfMonth);
             if (id == R.id.tvStartDate) {
                 long temStartDateTimeMill = TimeUtils.string2Millis(date + " " + mTemStartDateTimeStr);
-                if (temStartDateTimeMill > mTemEndDateTimeMill) {
+                if (temStartDateTimeMill >= mTemEndDateTimeMill) {
                     // 开始时间大于结束时间
-                    ToastUtils.showShort(R.string.t_the_start_time_cannot_be_greater_than_the_end_time);
+                    ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_the_start_time_cannot_be_greater_than_the_end_time);
                     return;
                 }
                 mTemStartDateStr = date;
@@ -542,9 +549,14 @@ public class AddNewPwdSelectActivity extends BaseActivity {
                 Timber.d("startDate 选择的日期%1s, 时间流：%2d", date, mTemStartDateTimeMill);
             } else if (id == R.id.tvEndDate) {
                 long temEndDateTimeMill = TimeUtils.string2Millis(date + " " + mTemEndDateTimeStr);
-                if (temEndDateTimeMill < mTemStartDateTimeMill) {
+                if (temEndDateTimeMill <= mTemStartDateTimeMill) {
                     // 开始时间大于结束时间
-                    ToastUtils.showShort(R.string.t_the_end_time_cannot_be_less_than_the_start_time);
+                    ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_the_end_time_cannot_be_less_than_the_start_time);
+                    return;
+                }
+                if (mSelectedPwdState == TEMPORARY_STATE && temEndDateTimeMill < (new Date().getTime())) {
+                    // 临时密码 && 结束时间小于当前时间
+                    ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_the_end_time_cannot_be_less_than_the_current_time);
                     return;
                 }
                 mTemEndDateStr = date;
@@ -597,8 +609,10 @@ public class AddNewPwdSelectActivity extends BaseActivity {
         dismissLoading();
         runOnUiThread(() -> {
             //     if (mAddPwdDisposable != null) {
-            mAddPwdFailDialog.show();
+//            mAddPwdFailDialog.show();
             //  }
+
+            ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_add_pwd_fail);
         });
     }
 
@@ -812,7 +826,7 @@ public class AddNewPwdSelectActivity extends BaseActivity {
         if (bean.getCode() != 200) {
             Timber.e("processAddPwd code : %1d", bean.getCode());
             if (bean.getCode() == 201) {
-                ToastUtils.showShort(R.string.t_add_pwd_fail);
+                ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_add_pwd_fail);
             }
             return;
         }

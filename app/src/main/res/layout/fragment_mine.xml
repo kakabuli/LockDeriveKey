@@ -271,15 +271,4 @@
             app:layout_constraintStart_toEndOf="@+id/imageView18"
             app:layout_constraintTop_toTopOf="parent" />
     </androidx.constraintlayout.widget.ConstraintLayout>
-
-    <android.widget.Button
-        android:id="@+id/btnLogout"
-        style="@style/ButtonStyle"
-        android:layout_width="223pt"
-        android:layout_height="44pt"
-        android:layout_marginBottom="128pt"
-        android:text="@string/log_out"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>

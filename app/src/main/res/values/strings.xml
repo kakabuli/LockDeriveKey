@@ -446,6 +446,7 @@
     <string name="t_setting_fail">Setting fail</string>
     <string name="t_the_start_time_cannot_be_greater_than_the_end_time">The start time cannot be greater than the end time!</string>
     <string name="t_the_end_time_cannot_be_less_than_the_start_time">The end time cannot be less than the start time!</string>
+    <string name="t_the_end_time_cannot_be_less_than_the_current_time">The end time cannot be less than the current time!</string>
     <string name="t_add_pwd_fail">Add password fail!</string>
     <string name="t_delete_share_user_suc">Delete Share User Success</string>
     <string name="t_please_input_name">Please input name</string>
