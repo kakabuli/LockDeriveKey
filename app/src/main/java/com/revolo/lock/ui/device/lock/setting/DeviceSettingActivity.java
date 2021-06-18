@@ -184,6 +184,7 @@ public class DeviceSettingActivity extends BaseActivity {
     public void onDebouncingClick(@NonNull View view) {
         if (view.getId() == R.id.tvName || view.getId() == R.id.ivLockName) {
             Intent intent = new Intent(this, ChangeLockNameActivity.class);
+            intent.putExtra("tvName", mTvName.getText().toString());
             startActivity(intent);
             return;
         }
@@ -270,7 +271,8 @@ public class DeviceSettingActivity extends BaseActivity {
         name = TextUtils.isEmpty(name) ? mBleDeviceLocal.getEsn() : name;
         mTvName.setText(TextUtils.isEmpty(name) ? "" : name);
         String wifiName = mBleDeviceLocal.getConnectedWifiName();
-        mTvWifiName.setText(TextUtils.isEmpty(wifiName) ? "" : wifiName);
+        //同时得保持WiFi连接
+        mTvWifiName.setText(TextUtils.isEmpty(wifiName)&mBleDeviceLocal.getConnectedType()==LocalState.DEVICE_CONNECT_TYPE_WIFI ? "" : wifiName);
     }
 
     private void mute() {

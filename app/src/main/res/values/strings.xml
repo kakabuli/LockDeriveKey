@@ -450,6 +450,7 @@
     <string name="t_add_pwd_fail">Add password fail!</string>
     <string name="t_delete_share_user_suc">Delete Share User Success</string>
     <string name="t_please_input_name">Please input name</string>
+    <string name="t_please_input_name_2">Name length should be greater than 2</string>
     <string name="t_ota_update_suc">OTA update success</string>
     <string name="t_please_input_right_mail_address">Please input right mail address</string>
     <string name="t_setting_email_suc">Setting Email success</string>

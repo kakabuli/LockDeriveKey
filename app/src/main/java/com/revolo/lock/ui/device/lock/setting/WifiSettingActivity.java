@@ -510,6 +510,7 @@ public class WifiSettingActivity extends BaseActivity {
     private void refreshWifiConnectState() {
         isWifiConnected = !isWifiConnected;
         mBleDeviceLocal.setConnectedType(isWifiConnected ? LocalState.DEVICE_CONNECT_TYPE_WIFI : LocalState.DEVICE_CONNECT_TYPE_BLE);
+        App.getInstance().setBleDeviceLocal(mBleDeviceLocal);
         AppDatabase.getInstance(this).bleDeviceDao().update(mBleDeviceLocal);
     }
 }
