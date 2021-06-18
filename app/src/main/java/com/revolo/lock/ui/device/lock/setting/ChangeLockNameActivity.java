@@ -39,6 +39,8 @@ import timber.log.Timber;
 public class ChangeLockNameActivity extends BaseActivity {
 
     private BleDeviceLocal mBleDeviceLocal;
+    private EditText etLockName;
+    private String mTvName;
 
     @Override
     public void initData(@Nullable Bundle bundle) {
@@ -55,7 +57,10 @@ public class ChangeLockNameActivity extends BaseActivity {
 
     @Override
     public void initView(@Nullable Bundle savedInstanceState, @Nullable View contentView) {
+        mTvName=getIntent().getStringExtra("tvName");
         useCommonTitleBar(getString(R.string.title_change_the_name));
+        etLockName=findViewById(R.id.etLockName);
+        etLockName.setText(mTvName);
         applyDebouncingClickListener(findViewById(R.id.btnComplete));
         initLoading("Setting...");
     }
@@ -83,10 +88,13 @@ public class ChangeLockNameActivity extends BaseActivity {
         if(!checkNetConnectFail()) {
             return;
         }
-        EditText etLockName = findViewById(R.id.etLockName);
         String name = etLockName.getText().toString().trim();
         if(TextUtils.isEmpty(name)) {
             ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_please_input_name);
+            return;
+        }
+        if(name.length()<2){
+            ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_please_input_name_2);
             return;
         }
         if(App.getInstance().getUserBean() == null) {

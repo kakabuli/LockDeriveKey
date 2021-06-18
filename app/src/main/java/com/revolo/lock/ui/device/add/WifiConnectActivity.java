@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.os.Message;
 import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.View;
@@ -12,11 +13,14 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.blankj.utilcode.util.ConvertUtils;
+import com.blankj.utilcode.util.ToastUtils;
 import com.revolo.lock.App;
 import com.revolo.lock.Constant;
 import com.revolo.lock.LocalState;
 import com.revolo.lock.R;
 import com.revolo.lock.base.BaseActivity;
+import com.revolo.lock.bean.request.UpdateLockInfoReq;
+import com.revolo.lock.bean.respone.UpdateLockInfoRsp;
 import com.revolo.lock.ble.BleCommandFactory;
 import com.revolo.lock.ble.BleProtocolState;
 import com.revolo.lock.ble.bean.BleBean;
@@ -24,6 +28,8 @@ import com.revolo.lock.ble.bean.BleResultBean;
 import com.revolo.lock.manager.LockMessage;
 import com.revolo.lock.manager.LockMessageCode;
 import com.revolo.lock.manager.LockMessageRes;
+import com.revolo.lock.net.HttpRequest;
+import com.revolo.lock.net.ObservableDecorator;
 import com.revolo.lock.room.AppDatabase;
 import com.revolo.lock.room.entity.BleDeviceLocal;
 import com.revolo.lock.widget.WifiCircleProgress;
@@ -31,11 +37,15 @@ import com.revolo.lock.widget.WifiCircleProgress;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
+import org.jetbrains.annotations.NotNull;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.reactivex.Observable;
+import io.reactivex.Observer;
+import io.reactivex.disposables.Disposable;
 import timber.log.Timber;
 
 /**
@@ -46,7 +56,7 @@ import timber.log.Timber;
  */
 // TODO: 2021/1/22 添加超时处理
 public class WifiConnectActivity extends BaseActivity {
-
+    private static final int MSG_ADD_WIFI_OUT_TIME = 201;
     private String mWifiName;
     private String mWifiPwd;
     private BleBean mBleBean;
@@ -73,8 +83,14 @@ public class WifiConnectActivity extends BaseActivity {
         }
         mWifiName = intent.getStringExtra(Constant.WIFI_NAME);
         mWifiPwd = intent.getStringExtra(Constant.WIFI_PWD);
+        //配网超时 30s
+        mHandler.sendEmptyMessageDelayed(MSG_ADD_WIFI_OUT_TIME, 30000);
 
-
+    }
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        mHandler.removeMessages(MSG_ADD_WIFI_OUT_TIME);
     }
 
     @Override
@@ -134,11 +150,9 @@ public class WifiConnectActivity extends BaseActivity {
                         // 设置为wifi模式
                         mBleDeviceLocal.setConnectedType(LocalState.DEVICE_CONNECT_TYPE_WIFI);
                         mBleDeviceLocal.setConnectedWifiName(mWifiName);
+                        App.getInstance().setBleDeviceLocal(mBleDeviceLocal);
                         AppDatabase.getInstance(this).bleDeviceDao().update(mBleDeviceLocal);
-                        runOnUiThread(() -> new Handler(Looper.getMainLooper()).postDelayed(() -> {
-                            startActivity(new Intent(WifiConnectActivity.this, AddWifiSucActivity.class));
-                            finish();
-                        }, 50));
+                        updateLockInfoToService();
                     } else if (bleResultBean.getPayload()[0] == 0x01) {
                         // 配网失败
                         gotoWifiPairFail();
@@ -160,6 +174,86 @@ public class WifiConnectActivity extends BaseActivity {
         } else {
 
         }
+    }
+
+    /**
+     * 更新锁服务器存储的数据
+     */
+    private void updateLockInfoToService() {
+        if (null == this) {
+            return;
+        }
+        if (App.getInstance().getUserBean() == null) {
+            Timber.e("updateLockInfoToService App.getInstance().getUserBean() == null");
+            return;
+        }
+        String uid = App.getInstance().getUserBean().getUid();
+        if (TextUtils.isEmpty(uid)) {
+            Timber.e("updateLockInfoToService uid is empty");
+            return;
+        }
+        String token = App.getInstance().getUserBean().getToken();
+        if (TextUtils.isEmpty(token)) {
+            Timber.e("updateLockInfoToService token is empty");
+            return;
+        }
+        showLoading();
+
+        UpdateLockInfoReq req = new UpdateLockInfoReq();
+        req.setSn(mBleDeviceLocal.getEsn());
+        req.setWifiName(mBleDeviceLocal.getConnectedWifiName());
+        req.setSafeMode(0);   // 没有使用这个
+        req.setLanguage("en"); // 暂时也没使用这个
+        req.setVolume(mBleDeviceLocal.isMute() ? 1 : 0);
+        req.setAmMode(mBleDeviceLocal.isAutoLock() ? 0 : 1);
+        req.setDuress(mBleDeviceLocal.isDuress() ? 0 : 1);
+        req.setDoorSensor(mBleDeviceLocal.getDoorSensor());
+        req.setElecFence(mBleDeviceLocal.isOpenElectricFence() ? 0 : 1);
+        req.setAutoLockTime(mBleDeviceLocal.getSetAutoLockTime());
+        req.setElecFenceTime(mBleDeviceLocal.getSetElectricFenceTime());
+        req.setElecFenceSensitivity(mBleDeviceLocal.getSetElectricFenceSensitivity());
+
+        Observable<UpdateLockInfoRsp> observable = HttpRequest.getInstance().updateLockInfo(token, req);
+        ObservableDecorator.decorate(observable).safeSubscribe(new Observer<UpdateLockInfoRsp>() {
+            @Override
+            public void onSubscribe(@NotNull Disposable d) {
+
+            }
+
+            @Override
+            public void onNext(@NotNull UpdateLockInfoRsp updateLockInfoRsp) {
+                dismissLoading();
+                String code = updateLockInfoRsp.getCode();
+                if (!code.equals("200")) {
+                    String msg = updateLockInfoRsp.getMsg();
+                    Timber.e("updateLockInfoToService code: %1s, msg: %2s", code, msg);
+                    if (!TextUtils.isEmpty(msg)) ToastUtils.showShort(msg);
+                    mHandler.removeMessages(MSG_ADD_WIFI_OUT_TIME);
+                    runOnUiThread(() -> new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                        startActivity(new Intent(WifiConnectActivity.this, AddWifiSucActivity.class));
+                        finish();
+                    }, 50));
+                }
+            }
+
+            @Override
+            public void onError(@NotNull Throwable e) {
+                dismissLoading();
+                Timber.e(e);
+                new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                    Intent intent = new Intent(WifiConnectActivity.this, AddWifiFailActivity.class);
+                    intent.putExtra(Constant.WIFI_NAME, mWifiName);
+                    intent.putExtra(Constant.WIFI_PWD, mWifiPwd);
+                    startActivity(intent);
+                    finish();
+                }, 50);
+            }
+
+            @Override
+            public void onComplete() {
+
+            }
+        });
     }
 
     @Override
@@ -206,7 +300,20 @@ public class WifiConnectActivity extends BaseActivity {
         runOnUiThread(() -> mWifiCircleProgress.setValue(value));
     }
 
-    private final Handler mHandler = new Handler(Looper.getMainLooper());
+    private final Handler mHandler = new Handler(Looper.getMainLooper()){
+        @Override
+        public void handleMessage(@NonNull Message msg) {
+            if (msg.what == MSG_ADD_WIFI_OUT_TIME) {
+                new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                    Intent intent = new Intent(WifiConnectActivity.this, AddWifiFailActivity.class);
+                    intent.putExtra(Constant.WIFI_NAME, mWifiName);
+                    intent.putExtra(Constant.WIFI_PWD, mWifiPwd);
+                    startActivity(intent);
+                    finish();
+                }, 50);
+            }
+        }
+    };
     private final List<byte[]> mWifiSnDataList = new ArrayList<>();
     private int mWifiSnCount = 0;
     private int mWifiPwdCount = 0;
