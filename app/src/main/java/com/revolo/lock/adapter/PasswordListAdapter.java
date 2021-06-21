@@ -1,5 +1,6 @@
 package com.revolo.lock.adapter;
 
+import android.annotation.SuppressLint;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.TextView;
@@ -35,6 +36,7 @@ public class PasswordListAdapter extends BaseQuickAdapter<DevicePwdBean, BaseVie
         super(layoutResId);
     }
 
+    @SuppressLint("DefaultLocale")
     @Override
     protected void convert(@NotNull BaseViewHolder baseViewHolder, DevicePwdBean devicePwdBean) {
         if (devicePwdBean != null) {

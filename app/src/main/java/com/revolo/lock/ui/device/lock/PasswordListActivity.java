@@ -195,10 +195,10 @@ public class PasswordListActivity extends BaseActivity {
 
     @Override
     public void doBusiness() {
+        showLoading();
         if (mBleDeviceLocal.getConnectedType() != LocalState.DEVICE_CONNECT_TYPE_WIFI) {
             BleBean bleBean = App.getInstance().getUserBleBean(mBleDeviceLocal.getMac());
             if (bleBean != null) {
-                showLoading();
                 new Handler(Looper.getMainLooper()).postDelayed(this::checkHadPwdFromBle, 20);
                 checkHadPwdFromBle();
             }
@@ -234,7 +234,6 @@ public class PasswordListActivity extends BaseActivity {
             Timber.e("searchPwdListFromNET App.getInstance().getUserBean().getToken()");
             return;
         }
-        showLoading();
         SearchKeyListBeanReq req = new SearchKeyListBeanReq();
         req.setPwdType(1);
         req.setSn(mBleDeviceLocal.getEsn());
@@ -837,7 +836,6 @@ public class PasswordListActivity extends BaseActivity {
             Timber.e("delKeyFromService token is Empty");
             return;
         }
-        showLoading();
         DelKeyBeanReq req = new DelKeyBeanReq();
         req.setPwdList(listBeans);
         req.setSn(esn);

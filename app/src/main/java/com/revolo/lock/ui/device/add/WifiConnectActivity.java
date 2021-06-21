@@ -225,7 +225,7 @@ public class WifiConnectActivity extends BaseActivity {
             public void onNext(@NotNull UpdateLockInfoRsp updateLockInfoRsp) {
                 dismissLoading();
                 String code = updateLockInfoRsp.getCode();
-                if (!code.equals("200")) {
+                if (code.equals("200")) {
                     String msg = updateLockInfoRsp.getMsg();
                     Timber.e("updateLockInfoToService code: %1s, msg: %2s", code, msg);
                     if (!TextUtils.isEmpty(msg)) ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(msg);

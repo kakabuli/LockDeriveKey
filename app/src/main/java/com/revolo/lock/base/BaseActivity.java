@@ -205,7 +205,7 @@ public abstract class BaseActivity extends AppCompatActivity
 
     public void showLoading() {
         runOnUiThread(() -> {
-            if (mLoadingDialog != null) {
+            if (mLoadingDialog != null && !mLoadingDialog.isShowing()) {
                 mLoadingDialog.show();
             }
         });
