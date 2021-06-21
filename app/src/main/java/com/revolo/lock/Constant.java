@@ -67,6 +67,8 @@ public class Constant {
     public static final String USER_TOKEN = "UserToken";
     public static final String USER_LOGIN_INFO = "UserLoginInfo";
 
+    //DuressPwdReceive  设置胁迫邮箱
+    public static final String DURESS_PWD_RECEIVE="DuressPwdReceive";
     //SignSelect
     public static final String SIGN_SELECT_MODE = "sign_select_mode";
 

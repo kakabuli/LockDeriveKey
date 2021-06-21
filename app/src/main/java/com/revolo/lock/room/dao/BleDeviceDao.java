@@ -42,16 +42,16 @@ public interface BleDeviceDao {
     void update(BleDeviceLocal bleDeviceLocal);
 
     @Query("SELECT * FROM BleDeviceLocal WHERE d_esn=:esn AND d_user_id=:userId")
-    BleDeviceLocal findBleDeviceFromEsnAndUserId(String esn, long userId);
+    BleDeviceLocal findBleDeviceFromEsnAndUserId(String esn, String userId);
 
     @Query("SELECT * FROM BleDeviceLocal")
     List<BleDeviceLocal> findAllBleDevice();
 
     @Query("SELECT * FROM BleDeviceLocal WHERE d_user_id=:id")
-    List<BleDeviceLocal> findBleDevicesFromUserId(long id);
+    List<BleDeviceLocal> findBleDevicesFromUserId(String id);
 
     @Query("SELECT * FROM BleDeviceLocal WHERE d_user_id=:id ORDER BY d_create_time DESC")
-    List<BleDeviceLocal> findBleDevicesFromUserIdByCreateTimeDesc(long id);
+    List<BleDeviceLocal> findBleDevicesFromUserIdByCreateTimeDesc(String id);
 
     @Query("SELECT * FROM BleDeviceLocal WHERE d_id=:id ")
     BleDeviceLocal findBleDeviceFromId(long id);

@@ -20,6 +20,9 @@ public class User implements Parcelable {
     @ColumnInfo(name = "u_id")
     private long id;                                // 自增长id
 
+    @ColumnInfo(name = "u_adminUid")               //用戶id
+    private String adminUid;
+
     @ColumnInfo(name = "u_mail")
     private String mail;                            // 用户邮箱
 
@@ -59,6 +62,14 @@ public class User implements Parcelable {
 
     public void setId(long id) {
         this.id = id;
+    }
+
+    public String getAdminUid() {
+        return adminUid;
+    }
+
+    public void setAdminUid(String adminUid) {
+        this.adminUid = adminUid;
     }
 
     public String getMail() {
@@ -158,6 +169,7 @@ public class User implements Parcelable {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeLong(this.id);
+        dest.writeString(this.adminUid);
         dest.writeString(this.mail);
         dest.writeString(this.userName);
         dest.writeLong(this.registerTime);
@@ -173,6 +185,7 @@ public class User implements Parcelable {
 
     public void readFromParcel(Parcel source) {
         this.id = source.readLong();
+        this.adminUid=source.readString();
         this.mail = source.readString();
         this.userName = source.readString();
         this.registerTime = source.readLong();
@@ -191,6 +204,7 @@ public class User implements Parcelable {
 
     protected User(Parcel in) {
         this.id = in.readLong();
+        this.adminUid=in.readString();
         this.mail = in.readString();
         this.userName = in.readString();
         this.registerTime = in.readLong();

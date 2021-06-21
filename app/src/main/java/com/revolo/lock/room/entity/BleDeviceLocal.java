@@ -26,7 +26,7 @@ public class BleDeviceLocal implements Parcelable {
     private long id;                                                // 自增长id
 
     @ColumnInfo(name = "d_user_id")
-    private long userId;                                            // 用户id
+    private String userId;                                            // 用户id
 
     @ColumnInfo(name = "d_pwd1")
     private String pwd1;                                            // 密码1
@@ -126,11 +126,11 @@ public class BleDeviceLocal implements Parcelable {
         this.id = id;
     }
 
-    public long getUserId() {
+    public String getUserId() {
         return userId;
     }
 
-    public void setUserId(long userId) {
+    public void setUserId(String userId) {
         this.userId = userId;
     }
 
@@ -377,7 +377,7 @@ public class BleDeviceLocal implements Parcelable {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeLong(this.id);
-        dest.writeLong(this.userId);
+        dest.writeString(this.userId);
         dest.writeString(this.pwd1);
         dest.writeString(this.pwd2);
         dest.writeString(this.esn);
@@ -411,7 +411,7 @@ public class BleDeviceLocal implements Parcelable {
 
     public void readFromParcel(Parcel source) {
         this.id = source.readLong();
-        this.userId = source.readLong();
+        this.userId = source.readString();
         this.pwd1 = source.readString();
         this.pwd2 = source.readString();
         this.esn = source.readString();
@@ -448,7 +448,7 @@ public class BleDeviceLocal implements Parcelable {
 
     protected BleDeviceLocal(Parcel in) {
         this.id = in.readLong();
-        this.userId = in.readLong();
+        this.userId = in.readString();
         this.pwd1 = in.readString();
         this.pwd2 = in.readString();
         this.esn = in.readString();

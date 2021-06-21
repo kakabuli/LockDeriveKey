@@ -397,7 +397,7 @@ public class DeviceFragment extends Fragment {
         if (user == null) {
             return;
         }
-        List<BleDeviceLocal> locals = AppDatabase.getInstance(App.getInstance()).bleDeviceDao().findBleDevicesFromUserIdByCreateTimeDesc(user.getId());
+        List<BleDeviceLocal> locals = AppDatabase.getInstance(App.getInstance()).bleDeviceDao().findBleDevicesFromUserIdByCreateTimeDesc(user.getAdminUid());
         if (locals == null) {
             return;
         }

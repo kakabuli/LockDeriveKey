@@ -262,6 +262,7 @@ public class LoginActivity extends BaseActivity {
         User user = App.getInstance().getUserFromLocal(mail);
         if (user == null) {
             user = new User();
+            user.setAdminUid(rsp.getUid());
             user.setMail(mail);
             user.setFirstName(rsp.getFirstName());
             user.setLastName(rsp.getLastName());
@@ -269,6 +270,7 @@ public class LoginActivity extends BaseActivity {
             user.setAvatarUrl(rsp.getAvatarPath());
             AppDatabase.getInstance(this).userDao().insert(user);
         } else {
+            user.setAdminUid(rsp.getUid());
             user.setFirstName(rsp.getFirstName());
             user.setLastName(rsp.getLastName());
             user.setRegisterTime(TimeUtils.string2Millis(rsp.getInsertTime()) / 1000);

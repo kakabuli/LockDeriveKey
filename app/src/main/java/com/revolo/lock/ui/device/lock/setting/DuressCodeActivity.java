@@ -13,8 +13,10 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 
 import com.blankj.utilcode.util.ConvertUtils;
 import com.blankj.utilcode.util.RegexUtils;
+import com.blankj.utilcode.util.SPUtils;
 import com.blankj.utilcode.util.ToastUtils;
 import com.revolo.lock.App;
+import com.revolo.lock.Constant;
 import com.revolo.lock.LocalState;
 import com.revolo.lock.R;
 import com.revolo.lock.base.BaseActivity;
@@ -47,6 +49,7 @@ import io.reactivex.Observer;
 import io.reactivex.disposables.Disposable;
 import timber.log.Timber;
 
+import static com.revolo.lock.Constant.REVOLO_SP;
 import static com.revolo.lock.ble.BleProtocolState.CMD_DURESS_PWD_SWITCH;
 
 /**
@@ -207,6 +210,7 @@ public class DuressCodeActivity extends BaseActivity {
                     Timber.e("settingDuressReceiveMail code: %1s, msg: %2s", code, settingDuressPwdReceiveEMailBeanRsp.getMsg());
                     return;
                 }
+                SPUtils.getInstance(REVOLO_SP).put(Constant.DURESS_PWD_RECEIVE,mail);
                 ToastUtils.showShort(R.string.t_setting_email_suc);
                 finish();
             }
@@ -302,6 +306,7 @@ public class DuressCodeActivity extends BaseActivity {
         runOnUiThread(() -> {
             mIvDuressCodeEnable.setImageResource(mBleDeviceLocal.isDuress() ? R.drawable.ic_icon_switch_open : R.drawable.ic_icon_switch_close);
             mClInputEmail.setVisibility(mBleDeviceLocal.isDuress() ? View.VISIBLE : View.GONE);
+            mEtEmail.setText(SPUtils.getInstance(REVOLO_SP).getString(Constant.DURESS_PWD_RECEIVE));
         });
     }
 

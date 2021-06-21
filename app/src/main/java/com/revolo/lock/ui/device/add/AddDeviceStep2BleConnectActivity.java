@@ -403,7 +403,7 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
             // 设置初始默认值为30s
             bleDeviceLocal.setSetAutoLockTime(30);
             bleDeviceLocal.setDoorSensor(LocalState.DOOR_SENSOR_INIT);
-            bleDeviceLocal.setUserId(user.getId());
+            bleDeviceLocal.setUserId(user.getAdminUid());
             bleDeviceLocal.setConnectedType(LocalState.DEVICE_CONNECT_TYPE_BLE);
             bleDeviceLocal.setLockState(LocalState.LOCK_STATE_CLOSE);
             bleDeviceLocal.setMute(true);

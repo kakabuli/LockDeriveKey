@@ -73,7 +73,7 @@ public class MQTTReply {
                 BleDeviceLocal bleDeviceLocal = AppDatabase
                         .getInstance(App.getInstance().getApplicationContext()).bleDeviceDao().findBleDeviceFromEsnAndUserId(
                                 wifiListBean.getWifiSN(),
-                                App.getInstance().getUser().getId());
+                                App.getInstance().getUser().getAdminUid());
                 if (bleDeviceLocal == null) {
                     Timber.e("updateDataFromNet bleDeviceLocal == null");
                     bleDeviceLocal = new BleDeviceLocal();
@@ -201,7 +201,7 @@ public class MQTTReply {
         bleDeviceLocal.setFunctionSet(wifiListBean.getFunctionSet());
 //        bleDeviceLocal.setOpenElectricFence();
         bleDeviceLocal.setType(wifiListBean.getModel());
-        bleDeviceLocal.setUserId(App.getInstance().getUser().getId());
+        bleDeviceLocal.setUserId(App.getInstance().getUser().getAdminUid());
         String firmwareVer = wifiListBean.getLockFirmwareVersion();
         if (!TextUtils.isEmpty(firmwareVer)) {
             bleDeviceLocal.setLockVer(firmwareVer);
