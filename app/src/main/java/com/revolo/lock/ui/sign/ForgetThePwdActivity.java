@@ -15,7 +15,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.blankj.utilcode.util.RegexUtils;
-import com.blankj.utilcode.util.SPUtils;
 import com.blankj.utilcode.util.ToastUtils;
 import com.revolo.lock.R;
 import com.revolo.lock.base.BaseActivity;
@@ -30,9 +29,6 @@ import io.reactivex.Observable;
 import io.reactivex.Observer;
 import io.reactivex.disposables.Disposable;
 import timber.log.Timber;
-
-import static com.revolo.lock.Constant.REVOLO_SP;
-import static com.revolo.lock.Constant.USER_MAIL;
 
 /**
  * author : Jack

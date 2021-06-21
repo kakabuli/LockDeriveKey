@@ -11,8 +11,6 @@ import androidx.annotation.NonNull;
 
 import com.revolo.lock.R;
 
-import java.util.logging.Handler;
-
 /**
  * author :
  * time   : 2021/1/29

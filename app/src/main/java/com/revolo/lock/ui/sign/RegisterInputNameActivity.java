@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.text.TextUtils;
+import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.EditText;
@@ -84,15 +85,15 @@ public class RegisterInputNameActivity extends BaseActivity {
         String firstName = etFirstName.getText().toString().trim();
         String lastName = etLastName.getText().toString().trim();
         if(TextUtils.isEmpty(firstName)) {
-            ToastUtils.showShort(R.string.t_please_input_your_first_name);
+            ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_please_input_your_first_name);
             return;
         }
         if(TextUtils.isEmpty(lastName)) {
-            ToastUtils.showShort(R.string.t_please_input_your_last_name);
+            ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_please_input_your_last_name);
             return;
         }
         if(firstName.length()>30||firstName.length()<2||lastName.length()>30||lastName.length()<2){
-            ToastUtils.showShort(R.string.login_name_len_max_hint);
+            ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.login_name_len_max_hint);
             return;
         }
 
@@ -129,7 +130,7 @@ public class RegisterInputNameActivity extends BaseActivity {
                     String msg = updateUserFirstLastNameBeanRsp.getMsg();
                     Timber.e("updateFirstLastName code: %1s, msg: %2s", code, msg);
                     if(!TextUtils.isEmpty(msg)) {
-                        ToastUtils.showShort(msg);
+                        ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(msg);
                     }
                     return;
                 }

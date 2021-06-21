@@ -3,6 +3,7 @@ package com.revolo.lock.ui.device.lock;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.ExpandableListView;
@@ -370,7 +371,7 @@ public class OperationRecordsActivity extends BaseActivity {
                     String msg = lockRecordBeanRsp.getMsg();
                     Timber.e("searchRecordFromNet code: %1s, msg: %2s", code, msg);
                     if (!TextUtils.isEmpty(msg)) {
-                        ToastUtils.showShort(msg);
+                        ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(msg);
                     }
                     return;
                 }
@@ -501,7 +502,7 @@ public class OperationRecordsActivity extends BaseActivity {
                     String msg = updateLockRecordBeanRsp.getMsg();
                     Timber.d("updateLockRecord code: %1s, msg: %2s", code, msg);
                     if (!TextUtils.isEmpty(msg)) {
-                        ToastUtils.showShort(msg);
+                        ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(msg);
                     }
                     return;
                 }
@@ -771,9 +772,7 @@ public class OperationRecordsActivity extends BaseActivity {
         }
     }
 
-
     /*--------------------------------- 日期筛选 -------------------------------------*/
-
 
     private void processRightRecords(List<OperationRecords.OperationRecord> records) {
         // 日期分类筛选

@@ -12,7 +12,6 @@ import com.a1anwang.okble.client.scan.BLEScanResult;
 import com.a1anwang.okble.client.scan.DeviceScanCallBack;
 import com.a1anwang.okble.client.scan.OKBLEScanManager;
 import com.blankj.utilcode.util.ActivityUtils;
-import com.blankj.utilcode.util.LogUtils;
 import com.blankj.utilcode.util.SPUtils;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.revolo.lock.bean.respone.MailLoginBeanRsp;
@@ -572,13 +571,7 @@ public class App extends Application {
                 SPUtils.getInstance(REVOLO_SP).put(Constant.USER_LOGIN_INFO, ""); // 清空登录信息
             }
         }.start();
-        // TODO: 2021/3/30 退出操作
-        if (App.getInstance().getMainActivity() != null) {
-            App.getInstance().getMainActivity().finish();
-        }
-        LockAppManager.getAppManager().finishAllActivity();
-        act.startActivity(new Intent(act, LoginActivity.class));
-        act.finish();
+        act.startActivity(new Intent(act, LoginActivity.class).putExtra("logout", true));
     }
 
     private boolean isWifiSettingNeedToCloseBle = false;

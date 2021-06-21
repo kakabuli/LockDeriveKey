@@ -6,6 +6,7 @@ import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.ImageView;
@@ -541,7 +542,7 @@ public class GeoFenceUnlockActivity extends BaseActivity implements OnMapReadyCa
             Timber.e("publishSensitivity code : %1d", bean.getCode());
             if (bean.getCode() == 201) {
                 // 设置失败了
-                ToastUtils.showShort(R.string.t_setting_sensitivity_fail);
+                ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_setting_sensitivity_fail);
                 initDefaultValue();
                 initTimeNSensitivityDataUI();
             }

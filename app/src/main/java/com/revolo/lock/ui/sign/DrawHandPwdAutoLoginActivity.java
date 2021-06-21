@@ -77,7 +77,7 @@ public class DrawHandPwdAutoLoginActivity extends BaseActivity {
                 } else {
                     if (mCount == 0) {
                         setResult(RESULT_CANCELED);
-                        Intent intent = new Intent(DrawHandPwdAutoLoginActivity.this, SignSelectActivity.class);
+                        Intent intent = new Intent(DrawHandPwdAutoLoginActivity.this, LoginActivity.class);
                         startActivity(intent);
                         finish();
                         //new Handler(Looper.getMainLooper()).postDelayed(() -> finish(), 50);
@@ -97,7 +97,6 @@ public class DrawHandPwdAutoLoginActivity extends BaseActivity {
 
             @Override
             public void checkedFail() {
-
 
             }
         });

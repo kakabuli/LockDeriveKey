@@ -1,6 +1,5 @@
 package com.revolo.lock.ui.device.lock.setting;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
@@ -54,7 +53,6 @@ import com.revolo.lock.net.ObservableDecorator;
 import com.revolo.lock.room.AppDatabase;
 import com.revolo.lock.room.entity.BleDeviceLocal;
 import com.revolo.lock.ui.device.lock.DeviceDetailActivity;
-import com.yalantis.ucrop.util.MimeType;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -68,9 +66,6 @@ import io.reactivex.Observer;
 import io.reactivex.disposables.Disposable;
 import timber.log.Timber;
 
-import static com.revolo.lock.Constant.DEFAULT_TIMEOUT_SEC_VALUE;
-import static com.revolo.lock.ble.BleCommandState.LOCK_SETTING_CLOSE;
-import static com.revolo.lock.ble.BleCommandState.LOCK_SETTING_OPEN;
 import static com.revolo.lock.ble.BleProtocolState.CMD_LOCK_PARAMETER_CHANGED;
 import static com.revolo.lock.manager.LockMessageCode.MSG_LOCK_MESSAGE_REMOVE_DEVICE;
 import static com.revolo.lock.manager.LockMessageCode.MSG_LOCK_MESSAGE_USER;
@@ -124,7 +119,7 @@ public class DeviceSettingActivity extends BaseActivity {
                 findViewById(R.id.clUnbind), findViewById(R.id.clMute), findViewById(R.id.clWifi),
                 mIvDoNotDisturbModeEnable, findViewById(R.id.ivLockName), findViewById(R.id.clJoinAlexa), findViewById(R.id.clVideoMode));
         mIvDoNotDisturbModeEnable.setImageResource(mBleDeviceLocal.isDoNotDisturbMode() ? R.drawable.ic_icon_switch_open : R.drawable.ic_icon_switch_close);
-        mIvMuteEnable.setImageResource(mBleDeviceLocal.isMute() ? R.drawable.ic_icon_switch_open : R.drawable.ic_icon_switch_close);
+        mIvMuteEnable.setImageResource(mBleDeviceLocal.isMute() ? R.drawable.ic_icon_switch_close : R.drawable.ic_icon_switch_open);
         onRegisterEventBus();
     }
 
@@ -239,7 +234,7 @@ public class DeviceSettingActivity extends BaseActivity {
             if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI) {
                 showLoading("Loading...");
                 publishSetVolume(mBleDeviceLocal.getEsn(),
-                        mBleDeviceLocal.isMute() ? LocalState.VOLUME_STATE_MUTE : LocalState.VOLUME_STATE_OPEN);
+                        mBleDeviceLocal.isMute() ? LocalState.VOLUME_STATE_OPEN : LocalState.VOLUME_STATE_MUTE);
             } else {
                 mute();
             }
@@ -272,7 +267,7 @@ public class DeviceSettingActivity extends BaseActivity {
         mTvName.setText(TextUtils.isEmpty(name) ? "" : name);
         String wifiName = mBleDeviceLocal.getConnectedWifiName();
         //同时得保持WiFi连接
-        mTvWifiName.setText(TextUtils.isEmpty(wifiName)&mBleDeviceLocal.getConnectedType()==LocalState.DEVICE_CONNECT_TYPE_WIFI ? "" : wifiName);
+        mTvWifiName.setText(TextUtils.isEmpty(wifiName) & mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI ? "" : wifiName);
     }
 
     private void mute() {
@@ -295,9 +290,7 @@ public class DeviceSettingActivity extends BaseActivity {
             Timber.e("mute bleBean.getPwd3() == null");
             return;
         }
-        // 0x00：Silent Mode静音
-        // 0x01：Low Volume低音量
-        // 0x02：High Volume高音量
+        // 0x00 语音  0x01 静音
         byte[] value = new byte[1];
         value[0] = (byte) (mBleDeviceLocal.isMute() ? LocalState.VOLUME_STATE_OPEN : LocalState.VOLUME_STATE_MUTE);
         LockMessage ms = new LockMessage();
@@ -361,7 +354,7 @@ public class DeviceSettingActivity extends BaseActivity {
                     }
                     String msg = deviceUnbindBeanRsp.getMsg();
                     if (!TextUtils.isEmpty(msg)) {
-                        ToastUtils.showShort(msg);
+                        ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(msg);
                     }
                     Timber.e("unbindDevice code: %1s, msg: %2s", code, msg);
                     return;
@@ -390,7 +383,7 @@ public class DeviceSettingActivity extends BaseActivity {
 
                 App.getInstance().removeConnectedBleDisconnect(mBleDeviceLocal.getMac());
                 AppDatabase.getInstance(getApplicationContext()).bleDeviceDao().delete(mBleDeviceLocal);
-                ToastUtils.showShort(R.string.t_unbind_success);
+                ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_unbind_success);
                 new Handler(Looper.getMainLooper()).postDelayed(() -> {
                     ActivityUtils.finishActivity(DeviceDetailActivity.class);
                     finish();
@@ -423,20 +416,20 @@ public class DeviceSettingActivity extends BaseActivity {
         if (bean.getPayload()[0] == 0x00) {
             saveMuteStateToLocal(mBleDeviceLocal.isMute() ? LocalState.VOLUME_STATE_OPEN : LocalState.VOLUME_STATE_MUTE);
         } else {
-            ToastUtils.showShort(R.string.t_setting_mute_fail);
+            ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_setting_mute_fail);
         }
     }
 
     private void refreshMuteEnable() {
-        runOnUiThread(() -> mIvMuteEnable.setImageResource(mBleDeviceLocal.isMute() ? R.drawable.ic_icon_switch_open : R.drawable.ic_icon_switch_close));
+        runOnUiThread(() -> mIvMuteEnable.setImageResource(mBleDeviceLocal.isMute() ? R.drawable.ic_icon_switch_close : R.drawable.ic_icon_switch_open));
     }
 
     private void saveMuteStateToLocal(@LocalState.VolumeState int mute) {
         if (mute == LocalState.VOLUME_STATE_OPEN) {
-            mBleDeviceLocal.setMute(true);
+            mBleDeviceLocal.setMute(false);
             AppDatabase.getInstance(this).bleDeviceDao().update(mBleDeviceLocal);
         } else if (mute == LocalState.VOLUME_STATE_MUTE) {
-            mBleDeviceLocal.setMute(false);
+            mBleDeviceLocal.setMute(true);
             AppDatabase.getInstance(this).bleDeviceDao().update(mBleDeviceLocal);
         }
         refreshMuteEnable();
@@ -584,7 +577,7 @@ public class DeviceSettingActivity extends BaseActivity {
                 if (!code.equals("200")) {
                     String msg = updateLockInfoRsp.getMsg();
                     Timber.e("updateLockInfoToService code: %1s, msg: %2s", code, msg);
-                    if (!TextUtils.isEmpty(msg)) ToastUtils.showShort(msg);
+                    if (!TextUtils.isEmpty(msg)) ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(msg);
                 }
             }
 

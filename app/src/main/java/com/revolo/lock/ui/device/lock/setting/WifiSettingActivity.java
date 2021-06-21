@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.text.TextUtils;
+import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.ImageView;
@@ -14,7 +15,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
 
-import com.a1anwang.okble.client.scan.BLEScanResult;
 import com.blankj.utilcode.util.ConvertUtils;
 import com.blankj.utilcode.util.ToastUtils;
 import com.revolo.lock.App;
@@ -31,7 +31,6 @@ import com.revolo.lock.dialog.SelectDialog;
 import com.revolo.lock.manager.LockConnected;
 import com.revolo.lock.manager.LockMessage;
 import com.revolo.lock.manager.LockMessageCode;
-import com.revolo.lock.manager.LockMessageReplyErrCode;
 import com.revolo.lock.manager.LockMessageRes;
 import com.revolo.lock.mqtt.MQttConstant;
 import com.revolo.lock.mqtt.MqttCommandFactory;
@@ -255,7 +254,7 @@ public class WifiSettingActivity extends BaseActivity {
         if (bean.getCode() != 200) {
             Timber.e("closeWifiFromMqtt code : %1d", bean.getCode());
             if (bean.getCode() == 201) {
-                ToastUtils.showShort(R.string.t_close_wifi_fail);
+                ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_close_wifi_fail);
             }
             return;
         }

@@ -2,6 +2,7 @@ package com.revolo.lock.ui.device.lock.setting;
 
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.EditText;
@@ -34,7 +35,6 @@ import com.revolo.lock.mqtt.MQttConstant;
 import com.revolo.lock.mqtt.MqttCommandFactory;
 import com.revolo.lock.mqtt.bean.publishbean.attrparams.DuressParams;
 import com.revolo.lock.mqtt.bean.publishresultbean.WifiLockSetLockAttrDuressRspBean;
-import com.revolo.lock.mqtt.bean.publishresultbean.WifiLockSetLockAttrVolumeRspBean;
 import com.revolo.lock.net.HttpRequest;
 import com.revolo.lock.net.ObservableDecorator;
 import com.revolo.lock.room.AppDatabase;
@@ -160,11 +160,11 @@ public class DuressCodeActivity extends BaseActivity {
         }
         String mail = mEtEmail.getText().toString().trim();
         if (TextUtils.isEmpty(mail)) {
-            ToastUtils.showShort(R.string.err_tip_please_input_email);
+            ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.err_tip_please_input_email);
             return;
         }
         if (!RegexUtils.isEmail(mail)) {
-            ToastUtils.showShort(R.string.t_please_input_right_mail_address);
+            ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_please_input_right_mail_address);
             return;
         }
         String token = App.getInstance().getUserBean().getToken();
@@ -175,6 +175,11 @@ public class DuressCodeActivity extends BaseActivity {
         String uid = App.getInstance().getUserBean().getUid();
         if (TextUtils.isEmpty(uid)) {
             Timber.e("settingDuressReceiveMail uid is empty");
+            return;
+        }
+        String loginMail = App.getInstance().getUser().getMail();
+        if (loginMail.equals(mail)) {
+            ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.tip_duress_password_email_alike);
             return;
         }
         SettingDuressPwdReceiveEMailBeanReq req = new SettingDuressPwdReceiveEMailBeanReq();
@@ -205,13 +210,13 @@ public class DuressCodeActivity extends BaseActivity {
                     }
                     String msg = settingDuressPwdReceiveEMailBeanRsp.getMsg();
                     if (TextUtils.isEmpty(msg)) {
-                        ToastUtils.showShort(msg);
+                        ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(msg);
                     }
                     Timber.e("settingDuressReceiveMail code: %1s, msg: %2s", code, settingDuressPwdReceiveEMailBeanRsp.getMsg());
                     return;
                 }
                 SPUtils.getInstance(REVOLO_SP).put(Constant.DURESS_PWD_RECEIVE,mail);
-                ToastUtils.showShort(R.string.t_setting_email_suc);
+                ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_setting_email_suc);
                 finish();
             }
 

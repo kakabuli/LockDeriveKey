@@ -4,7 +4,6 @@ import android.text.TextUtils;
 
 import com.blankj.utilcode.util.GsonUtils;
 import com.revolo.lock.App;
-import com.revolo.lock.LocalState;
 import com.revolo.lock.manager.LockMessageCode;
 import com.revolo.lock.manager.LockMessageRes;
 import com.revolo.lock.mqtt.MQttConstant;
@@ -143,13 +142,13 @@ public class MQTTReply {
                 WifiLockSetLockAttrVolumeRspBean bean = GsonUtils.fromJson(mqttData.getPayload(), WifiLockSetLockAttrVolumeRspBean.class);
                 postMessage(LockMessageCode.MSG_LOCK_MESSAGE_CODE_SUCCESS, LockMessageCode.MSG_LOCK_MESSAGE_SET_LOCK_ATTRVOLUME, bean);
             }
-            MqttCommandFactory.sendMessage(mqttData.getMessageId() + "",null,3);
+            MqttCommandFactory.sendMessage(mqttData.getMessageId() + "", null, 3);
 
 
         } else if (MQttConstant.WF_EVENT.equals(mqttData.getFunc())) {
             // 操作事件
             WifiLockOperationEventBean bean = GsonUtils.fromJson(mqttData.getPayload(), WifiLockOperationEventBean.class);
-            if(null!=mqttDataLinstener){
+            if (null != mqttDataLinstener) {
                 mqttDataLinstener.onOperationCallback(LockMessageCode.MSG_LOCK_MESSAGE_WF_EVEN, bean);
             }
             postMessage(LockMessageCode.MSG_LOCK_MESSAGE_CODE_SUCCESS, LockMessageCode.MSG_LOCK_MESSAGE_WF_EVEN, bean);
@@ -175,33 +174,52 @@ public class MQTTReply {
      * @return
      */
     private BleDeviceLocal createDeviceToLocal(WifiLockGetAllBindDeviceRspBean.DataBean.WifiListBean wifiListBean, BleDeviceLocal bleDeviceLocal) {
+
         // TODO: 2021/3/16 存储数据
-        bleDeviceLocal.setRandomCode(wifiListBean.getRandomCode());
-        bleDeviceLocal.setName(wifiListBean.getLockNickname());
+        if (!TextUtils.isEmpty(wifiListBean.getRandomCode())) bleDeviceLocal.setRandomCode(wifiListBean.getRandomCode());
+
+        if (!TextUtils.isEmpty(wifiListBean.getLockNickname())) bleDeviceLocal.setName(wifiListBean.getLockNickname());
+
         bleDeviceLocal.setOpenDoorSensor(wifiListBean.getDoorSensor() == 1);
+
 //        bleDeviceLocal.setDoNotDisturbMode(wifiListBean.get);
         bleDeviceLocal.setSetAutoLockTime(wifiListBean.getAutoLockTime());
+
 //        bleDeviceLocal.setMute();
         // TODO: 2021/3/18 修改为从服务器获取数据
-        bleDeviceLocal.setConnectedType(Integer.parseInt(wifiListBean.getWifiStatus()));
+        if (!TextUtils.isEmpty(wifiListBean.getWifiStatus())) bleDeviceLocal.setConnectedType(Integer.parseInt(wifiListBean.getWifiStatus()));
+
         bleDeviceLocal.setLockPower(wifiListBean.getPower());
+
         bleDeviceLocal.setLockState(wifiListBean.getOpenStatus());
-        bleDeviceLocal.setMute(wifiListBean.getVolume() == 0);
+
+        bleDeviceLocal.setMute(wifiListBean.getVolume() == 1);
+
 //        bleDeviceLocal.setSetElectricFenceSensitivity();
 //        bleDeviceLocal.setSetElectricFenceTime();
 //        bleDeviceLocal.setDetectionLock();
-        bleDeviceLocal.setAutoLock(wifiListBean.getAutoLock().equals("0"));
+        if (!TextUtils.isEmpty(wifiListBean.getAutoLock())) bleDeviceLocal.setAutoLock(wifiListBean.getAutoLock().equals("0"));
+
         bleDeviceLocal.setDuress(wifiListBean.getDuress() == 1);
-        bleDeviceLocal.setConnectedWifiName(wifiListBean.getWifiName());
+
+        if (!TextUtils.isEmpty(wifiListBean.getWifiName())) bleDeviceLocal.setConnectedWifiName(wifiListBean.getWifiName());
+
         bleDeviceLocal.setCreateTime(wifiListBean.getCreateTime());
-        bleDeviceLocal.setPwd2(wifiListBean.getPassword2());
-        bleDeviceLocal.setPwd1(wifiListBean.getPassword1());
-        bleDeviceLocal.setMac(wifiListBean.getBleMac());
-        bleDeviceLocal.setEsn(wifiListBean.getWifiSN());
-        bleDeviceLocal.setFunctionSet(wifiListBean.getFunctionSet());
+
+        if (!TextUtils.isEmpty(wifiListBean.getPassword2())) bleDeviceLocal.setPwd2(wifiListBean.getPassword2());
+
+        if (!TextUtils.isEmpty(wifiListBean.getPassword1())) bleDeviceLocal.setPwd1(wifiListBean.getPassword1());
+
+        if (!TextUtils.isEmpty(wifiListBean.getBleMac())) bleDeviceLocal.setMac(wifiListBean.getBleMac());
+
+        if (!TextUtils.isEmpty(wifiListBean.getWifiSN())) bleDeviceLocal.setEsn(wifiListBean.getWifiSN());
+
+        if (!TextUtils.isEmpty(wifiListBean.getFunctionSet())) bleDeviceLocal.setFunctionSet(wifiListBean.getFunctionSet());
 //        bleDeviceLocal.setOpenElectricFence();
-        bleDeviceLocal.setType(wifiListBean.getModel());
         bleDeviceLocal.setUserId(App.getInstance().getUser().getAdminUid());
+
+        if (!TextUtils.isEmpty(wifiListBean.getModel())) bleDeviceLocal.setType(wifiListBean.getModel());
+
         String firmwareVer = wifiListBean.getLockFirmwareVersion();
         if (!TextUtils.isEmpty(firmwareVer)) {
             bleDeviceLocal.setLockVer(firmwareVer);
@@ -211,7 +229,7 @@ public class MQTTReply {
             bleDeviceLocal.setWifiVer(wifiVer);
         }
         Timber.d("wifiESN: %1s, 电量：%2d", wifiListBean.getWifiSN(), wifiListBean.getPower());
-        bleDeviceLocal.setLockPower(wifiListBean.getPower());
+        if (!TextUtils.isEmpty(wifiListBean.getLockNickname())) bleDeviceLocal.setLockPower(wifiListBean.getPower());
         // 0 锁端wifi没有与服务器连接   1 锁端wifi与服务器连接成功
         Timber.d("wifi 连接状态: %1s", wifiListBean.getWifiStatus());
         return bleDeviceLocal;

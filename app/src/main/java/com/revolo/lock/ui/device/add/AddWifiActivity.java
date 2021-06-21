@@ -2,8 +2,6 @@ package com.revolo.lock.ui.device.add;
 
 import android.content.Intent;
 import android.graphics.Color;
-import android.net.wifi.WifiInfo;
-import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.text.InputType;
 import android.text.TextUtils;
@@ -211,6 +209,10 @@ public class AddWifiActivity extends BaseActivity {
             if (mWifiListPopup == null) {
                 return;
             }
+            if (mWifiSnList == null || mWifiSnList.isEmpty()) {
+                Timber.e("get WiFi List is Empty!");
+                return;
+            }
             if (mWifiListPopup.isShowing()) {
                 mWifiListPopup.dismiss();
             } else {
@@ -218,7 +220,6 @@ public class AddWifiActivity extends BaseActivity {
                 mWifiListPopup.showPopupWindow(findViewById(R.id.ivDropdown));
             }
         });
-
     }
 
     private void openOrClosePwdEye() {

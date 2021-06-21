@@ -362,7 +362,7 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
             String msg = getPwd1BeanRsp.getMsg();
             Timber.e("getPwd1FromNet code: %1s, msg: %2s", getPwd1BeanRsp.getCode(), msg);
             if (!TextUtils.isEmpty(msg)) {
-                ToastUtils.showShort(msg);
+                ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(msg);
             }
             gotoBleConnectFail();
             return;
@@ -406,7 +406,7 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
             bleDeviceLocal.setUserId(user.getAdminUid());
             bleDeviceLocal.setConnectedType(LocalState.DEVICE_CONNECT_TYPE_BLE);
             bleDeviceLocal.setLockState(LocalState.LOCK_STATE_CLOSE);
-            bleDeviceLocal.setMute(true);
+            bleDeviceLocal.setMute(false);
             bleDeviceLocal.setLockPower(power);
             bleDeviceLocal.setAutoLock(true);
             bleDeviceLocal.setScanResultJson(ConvertUtils.parcelable2Bytes(scanResultJson));

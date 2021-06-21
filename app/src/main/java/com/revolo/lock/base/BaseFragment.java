@@ -160,5 +160,4 @@ public abstract class BaseFragment extends Fragment implements IBaseView {
             Timber.d(getClass().getSimpleName() + ": " + msg);
         }
     }
-
 }

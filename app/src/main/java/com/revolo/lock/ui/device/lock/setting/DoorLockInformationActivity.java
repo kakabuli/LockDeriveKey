@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.text.TextUtils;
+import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.TextView;
@@ -15,7 +16,6 @@ import androidx.annotation.Nullable;
 import com.blankj.utilcode.util.ToastUtils;
 import com.revolo.lock.App;
 import com.revolo.lock.Constant;
-import com.revolo.lock.LocalState;
 import com.revolo.lock.R;
 import com.revolo.lock.base.BaseActivity;
 import com.revolo.lock.bean.request.CheckAllOTABeanReq;
@@ -408,12 +408,12 @@ public class DoorLockInformationActivity extends BaseActivity {
                     }
                     String msg = startOTAUpdateBeanRsp.getMsg();
                     if(!TextUtils.isEmpty(msg)) {
-                        ToastUtils.showShort(msg);
+                        ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(msg);
                     }
                     Timber.e("checkOrUseOTAUpdateVer code: %1s,  msg: %2s", code, msg);
                     return;
                 }
-                ToastUtils.showShort(R.string.t_ota_update_success);
+                ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_ota_update_success);
             }
 
             @Override
@@ -475,7 +475,7 @@ public class DoorLockInformationActivity extends BaseActivity {
                     }
                     String msg = checkOTABeanRsp.getMsg();
                     if(!TextUtils.isEmpty(msg)) {
-                        ToastUtils.showShort(msg);
+                        ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(msg);
                     }
                     Timber.e("checkOTAVer code: %1s  msg: %2s", code, msg);
                     return;
@@ -554,12 +554,12 @@ public class DoorLockInformationActivity extends BaseActivity {
                     }
                     String msg = startOTAUpdateBeanRsp.getMsg();
                     if(!TextUtils.isEmpty(msg)) {
-                        ToastUtils.showShort(msg);
+                        ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(msg);
                     }
                     Timber.e("checkOrUseWifiOTAUpdateVer code: %1s,  msg: %2s", code, msg);
                     return;
                 }
-                ToastUtils.showShort(R.string.t_ota_update_suc);
+                ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_ota_update_suc);
             }
 
             @Override
@@ -634,7 +634,7 @@ public class DoorLockInformationActivity extends BaseActivity {
                     Timber.e("checkAllOTAVer code: %1s  msg: %2s",
                             checkAllOTABeanRsp.getCode(), msg);
                     if(!TextUtils.isEmpty(msg)) {
-                        ToastUtils.showShort(msg);
+                        ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(msg);
                     }
                     return;
                 }
@@ -747,11 +747,11 @@ public class DoorLockInformationActivity extends BaseActivity {
                     Timber.e("checkOrUseAllOTAUpdateVer code: %1s,  msg: %2s",
                             beanRsp.getCode(), msg);
                     if(TextUtils.isEmpty(msg)) {
-                        ToastUtils.showShort(msg);
+                        ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(msg);
                     }
                     return;
                 }
-                ToastUtils.showShort(R.string.t_ota_update_success);
+                ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_ota_update_success);
             }
 
             @Override

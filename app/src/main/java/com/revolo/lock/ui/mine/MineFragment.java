@@ -13,36 +13,16 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
-import com.blankj.utilcode.util.SPUtils;
 import com.blankj.utilcode.util.TimeUtils;
-import com.blankj.utilcode.util.ToastUtils;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.RequestOptions;
-import com.revolo.lock.App;
-import com.revolo.lock.Constant;
 import com.revolo.lock.R;
-import com.revolo.lock.bean.respone.LogoutBeanRsp;
-import com.revolo.lock.dialog.SelectDialog;
-import com.revolo.lock.manager.LockMessage;
-import com.revolo.lock.net.HttpRequest;
-import com.revolo.lock.net.ObservableDecorator;
-import com.revolo.lock.room.AppDatabase;
 import com.revolo.lock.room.entity.User;
-import com.revolo.lock.ui.sign.LoginActivity;
-
-import org.greenrobot.eventbus.EventBus;
 
 import java.io.File;
 
-import io.reactivex.Observable;
-import io.reactivex.Observer;
-import io.reactivex.disposables.Disposable;
 import timber.log.Timber;
-
-import static com.revolo.lock.Constant.REVOLO_SP;
-import static com.revolo.lock.manager.LockMessageCode.MSG_LOCK_MESSAGE_CLASE_DEVICE;
-import static com.revolo.lock.manager.LockMessageCode.MSG_LOCK_MESSAGE_USER;
 
 public class MineFragment extends Fragment {
 
@@ -127,77 +107,5 @@ public class MineFragment extends Fragment {
                 .placeholder(R.drawable.mine_personal_img_headportrait_default)
                 .apply(requestOptions)
                 .into(ivAvatar);
-    }
-
-    private void showLogoutDialog() {
-        SelectDialog dialog = new SelectDialog(getActivity());
-        dialog.setMessage(getString(R.string.dialog_tip_log_out));
-        dialog.setOnCancelClickListener(v -> dialog.dismiss());
-        dialog.setOnConfirmListener(v -> {
-            dialog.dismiss();
-            logout();
-        });
-        dialog.show();
-    }
-
-    private void logout() {
-        if (App.getInstance().getUserBean() == null) {
-            return;
-        }
-        String token = App.getInstance().getUserBean().getToken();
-        if (TextUtils.isEmpty(token)) {
-            return;
-        }
-        Observable<LogoutBeanRsp> observable = HttpRequest.getInstance().logout(token);
-        ObservableDecorator.decorate(observable).safeSubscribe(new Observer<LogoutBeanRsp>() {
-            @Override
-            public void onSubscribe(@NonNull Disposable d) {
-
-            }
-
-            @Override
-            public void onNext(@NonNull LogoutBeanRsp logoutBeanRsp) {
-                String code = logoutBeanRsp.getCode();
-                if (TextUtils.isEmpty(code)) {
-                    Timber.e("code is empty");
-                    return;
-                }
-                if (!code.equals("200")) {
-                    if (code.equals("444")) {
-                        App.getInstance().logout(true, getActivity());
-                        return;
-                    }
-                    String msg = logoutBeanRsp.getMsg();
-                    Timber.e("code: %1s, msg: %2s", code, msg);
-                    if (!TextUtils.isEmpty(msg)) {
-                        ToastUtils.showShort(msg);
-                        return;
-                    }
-                }
-
-                User user = App.getInstance().getUser();
-                AppDatabase.getInstance(getActivity()).userDao().delete(user);
-                App.getInstance().getUserBean().setToken(""); // 清空token
-                SPUtils.getInstance(REVOLO_SP).put(Constant.USER_LOGIN_INFO, ""); // 清空登录信息
-                //清理设备信息
-                LockMessage message = new LockMessage();
-                message.setMessageType(MSG_LOCK_MESSAGE_USER);
-                message.setMessageCode(MSG_LOCK_MESSAGE_CLASE_DEVICE);
-                EventBus.getDefault().post(message);
-                // App.getInstance().removeDeviceList();
-                getActivity().finish();
-                startActivity(new Intent(getActivity(), LoginActivity.class));
-            }
-
-            @Override
-            public void onError(@NonNull Throwable e) {
-                Timber.e(e);
-            }
-
-            @Override
-            public void onComplete() {
-
-            }
-        });
     }
 }

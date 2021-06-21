@@ -122,166 +122,177 @@
 
                 <!--协议部分-->
                 <!--声明自定义scheme，类似于http, https-->
-<!--                <data-->
-<!--                    android:host="192.168.8.252"-->
-<!--                    android:pathPrefix="/share/user"-->
-<!--                    android:scheme="http" />-->
-
+                <!--                <data-->
+                <!--                    android:host="192.168.8.252"-->
+                <!--                    android:pathPrefix="/share/user"-->
+                <!--                    android:scheme="http" />-->
                 <data
-                    android:host="test.irevolo.com"
-                    android:scheme="https"
-                    android:pathPrefix="/triple"/>
+                    android:host="revolotest.sfeiya.com"
+                    android:pathPrefix="/triple"
+                    android:scheme="https" />
             </intent-filter>
 
         </activity>
         <activity
             android:name=".ui.sign.RegisterActivity"
-            android:screenOrientation="portrait"
-            android:launchMode="singleTask"/>
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".ui.sign.RegisterInputNameActivity"
-            android:screenOrientation="portrait"
-            android:launchMode="singleTask"/>
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".ui.sign.RegisterAddAvatarActivity"
-            android:screenOrientation="portrait"
-            android:launchMode="singleTask"/>
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".ui.sign.RegisterAddAvatarNextActivity"
-            android:screenOrientation="portrait"
-            android:launchMode="singleTask"/>
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".ui.device.add.AddDeviceStep1Activity"
-            android:screenOrientation="portrait"
-            android:launchMode="singleTask"/>
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".ui.sign.ForgetThePwdActivity"
-            android:screenOrientation="portrait"
-            android:launchMode="singleTask"/>
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".ui.device.add.AddDeviceActivity"
-            android:screenOrientation="portrait"
-            android:launchMode="singleTask"/>
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".ui.device.add.AddDeviceQRCodeStep2Activity"
-            android:screenOrientation="portrait"
-            android:launchMode="singleTask"/>
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".ui.sign.LoginActivity"
             android:launchMode="singleTask"
             android:screenOrientation="portrait" />
         <activity
             android:name=".ui.device.add.AddDeviceStep2BleConnectActivity"
-            android:screenOrientation="portrait"
-            android:launchMode="singleTask"/>
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".ui.device.add.BleConnectFailActivity"
-            android:screenOrientation="portrait"
-            android:launchMode="singleTask"/>
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".ui.device.add.BleConnectSucActivity"
-            android:screenOrientation="portrait"
-            android:launchMode="singleTask"/>
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".ui.device.add.AddWifiSucActivity"
-            android:screenOrientation="portrait"
-            android:launchMode="singleTask"/>
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".ui.device.add.AddWifiFailActivity"
-            android:screenOrientation="portrait"
-            android:launchMode="singleTask"/>
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".ui.device.add.DoorSensorCheckActivity"
-            android:screenOrientation="portrait"
-            android:launchMode="singleTask"/>
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".ui.device.add.InputESNActivity"
-            android:screenOrientation="portrait"
-            android:launchMode="singleTask"/>
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".ui.device.lock.DeviceDetailActivity"
-            android:screenOrientation="portrait"
-            android:launchMode="singleTask"/>
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".ui.device.lock.OperationRecordsActivity"
-            android:screenOrientation="portrait"
-            android:launchMode="singleTask"/>
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".ui.device.lock.PasswordListActivity"
-            android:screenOrientation="portrait"
-            android:launchMode="singleTask"/>
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".ui.device.lock.AddInputNewPwdActivity"
-            android:screenOrientation="portrait"
-            android:launchMode="singleTask"/>
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".ui.device.lock.AddNewPwdSelectActivity"
-            android:screenOrientation="portrait"
-            android:launchMode="singleTask"/>
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".ui.device.lock.AddNewPwdNameActivity"
-            android:screenOrientation="portrait"
-            android:launchMode="singleTask"/>
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".ui.device.lock.PasswordDetailActivity"
-            android:screenOrientation="portrait"
-            android:launchMode="singleTask"/>
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".ui.device.lock.ChangePwdNameActivity"
-            android:screenOrientation="portrait"
-            android:launchMode="singleTask"/>
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".ui.device.lock.UserManagementActivity"
-            android:screenOrientation="portrait"
-            android:launchMode="singleTask"/>
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".ui.device.lock.AddNewShareUserInputNameActivity"
-            android:screenOrientation="portrait"
-            android:launchMode="singleTask"/>
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".ui.device.lock.AuthorizationManagementActivity"
-            android:screenOrientation="portrait"
-            android:launchMode="singleTask"/>
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".ui.device.lock.SharedUserDetailActivity"
-            android:screenOrientation="portrait" android:launchMode="singleTask"/>
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".ui.device.lock.setting.DeviceSettingActivity"
-            android:screenOrientation="portrait" android:launchMode="singleTask"/>
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".ui.device.lock.setting.ChangeLockNameActivity"
-            android:screenOrientation="portrait" android:launchMode="singleTask"/>
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".ui.device.lock.setting.WifiSettingActivity"
-            android:screenOrientation="portrait" android:launchMode="singleTask"/>
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".ui.device.lock.setting.AutoLockActivity"
-            android:screenOrientation="portrait" android:launchMode="singleTask"/>
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".ui.device.lock.setting.PrivateModeActivity"
-            android:screenOrientation="portrait" android:launchMode="singleTask"/>
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".ui.device.lock.setting.DuressCodeActivity"
-            android:screenOrientation="portrait" android:launchMode="singleTask" />
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".ui.device.lock.setting.DoorLockInformationActivity"
-            android:screenOrientation="portrait"
-            android:launchMode="singleTask" />
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".ui.user.AuthUserDetailActivity"
-            android:screenOrientation="portrait" android:launchMode="singleTask"/>
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".ui.user.ChangeSharedUserNameActivity"
-            android:screenOrientation="portrait" android:launchMode="singleTask"/>
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".ui.user.AddDeviceForSharedUserActivity"
-            android:screenOrientation="portrait" android:launchMode="singleTask"/>
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".ui.user.SelectAuthorizedDeviceActivity"
-            android:screenOrientation="portrait" android:launchMode="singleTask"/>
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".ui.mine.UserPageActivity"
-            android:screenOrientation="portrait" android:launchMode="singleTask"/>
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".ui.mine.ModifyUserNameActivity"
             android:launchMode="singleTask"
@@ -308,8 +319,8 @@
             android:screenOrientation="portrait" />
         <activity
             android:name=".ui.mine.FeedbackActivity"
-            android:screenOrientation="portrait"
-            android:launchMode="singleTask"/>
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".ui.device.add.DoorCheckFailActivity"
             android:launchMode="singleTask"
@@ -349,14 +360,14 @@
 
                 <!--协议部分-->
                 <!--声明自定义scheme，类似于http, https-->
-<!--                <data-->
-<!--                    android:host="192.168.8.252"-->
-<!--                    android:pathPrefix="/share/user"-->
-<!--                    android:scheme="http" />-->
+                <!--                <data-->
+                <!--                    android:host="192.168.8.252"-->
+                <!--                    android:pathPrefix="/share/user"-->
+                <!--                    android:scheme="http" />-->
                 <data
-                    android:host="test.irevolo.com"
-                    android:scheme="https"
-                    android:pathPrefix="/triple"/>
+                    android:host="revolotest.sfeiya.com"
+                    android:pathPrefix="/triple"
+                    android:scheme="https" />
             </intent-filter>
             <intent-filter android:label="test_app">
                 <!--必有项-->
@@ -369,7 +380,7 @@
                 <!--协议部分-->
                 <!--声明自定义scheme，类似于http, https-->
                 <data
-                    android:host="test.irevolo.com"
+                    android:host="revolotest.sfeiya.com"
                     android:scheme="app" />
             </intent-filter>
         </activity>

@@ -869,7 +869,7 @@ public class PasswordListActivity extends BaseActivity {
                     String msg = delKeyBeanRsp.getMsg();
                     Timber.e("delKeyFromService code: %1s msg: %2s", code, msg);
                     if (!TextUtils.isEmpty(msg)) {
-                        ToastUtils.showShort(msg);
+                        ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(msg);
                     }
                     return;
                 }

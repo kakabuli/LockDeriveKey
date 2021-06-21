@@ -519,4 +519,9 @@
 
     <string name="t_introduce_door_sensor_alignment_title">What is door sensor calibration?</string>
     <string name="t_introduce_door_sensor_alignment_content">    After the door sensor calibration, it will remind the user to close the door, and prompt when you forget to close the door.</string>
+    <string name="tip_duress_password_email_alike">Email cannot be the same as login account</string>
+    <string name="tip_setting_no_supports">Device not Support!</string>
+    <string name="tip_setting_no_supports_face_id">Device not find FaceID!</string>
+    <string name="tip_setting_no_supports_touch_id">Device not find TouchID!</string>
+    <string name="tip_net_error"></string>
 </resources>

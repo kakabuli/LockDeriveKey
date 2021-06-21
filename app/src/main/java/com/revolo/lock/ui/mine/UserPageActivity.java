@@ -2,6 +2,8 @@ package com.revolo.lock.ui.mine;
 
 import android.Manifest;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.Gravity;
@@ -13,7 +15,6 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.blankj.utilcode.util.FileUtils;
 import com.blankj.utilcode.util.SPUtils;
 import com.blankj.utilcode.util.ToastUtils;
 import com.bumptech.glide.Glide;
@@ -30,7 +31,6 @@ import com.revolo.lock.base.BaseActivity;
 import com.revolo.lock.bean.respone.LogoutBeanRsp;
 import com.revolo.lock.bean.respone.UploadUserAvatarBeanRsp;
 import com.revolo.lock.dialog.SelectDialog;
-import com.revolo.lock.manager.LockMessage;
 import com.revolo.lock.net.HttpRequest;
 import com.revolo.lock.net.ObservableDecorator;
 import com.revolo.lock.popup.PicSelectPopup;
@@ -39,10 +39,13 @@ import com.revolo.lock.room.entity.User;
 import com.revolo.lock.ui.sign.LoginActivity;
 import com.revolo.lock.util.GlideEngine;
 
-import org.greenrobot.eventbus.EventBus;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.List;
 
 import io.reactivex.Observable;
@@ -53,8 +56,6 @@ import pub.devrel.easypermissions.EasyPermissions;
 import timber.log.Timber;
 
 import static com.revolo.lock.Constant.REVOLO_SP;
-import static com.revolo.lock.manager.LockMessageCode.MSG_LOCK_MESSAGE_CLASE_DEVICE;
-import static com.revolo.lock.manager.LockMessageCode.MSG_LOCK_MESSAGE_USER;
 
 /**
  * author : Jack
@@ -86,7 +87,7 @@ public class UserPageActivity extends BaseActivity implements EasyPermissions.Pe
     public void initView(@Nullable Bundle savedInstanceState, @Nullable View contentView) {
         useCommonTitleBar(getString(R.string.title_user_page));
         mIvAvatar = findViewById(R.id.ivAvatar);
-        applyDebouncingClickListener(findViewById(R.id.clUserName),findViewById(R.id.btnLogout), mIvAvatar);
+        applyDebouncingClickListener(findViewById(R.id.clUserName), findViewById(R.id.btnLogout), mIvAvatar);
         mUser = App.getInstance().getUser();
         mPicSelectPopup = new PicSelectPopup(this);
         mPicSelectPopup.setPicSelectOnClickListener(v -> {
@@ -218,6 +219,7 @@ public class UserPageActivity extends BaseActivity implements EasyPermissions.Pe
                     if (avatarFile == null) {
                         return;
                     }
+                    compress(avatarFile, 70);
                     uploadUserAvatar(avatarFile);
                     dismissPicSelect();
 
@@ -434,7 +436,7 @@ public class UserPageActivity extends BaseActivity implements EasyPermissions.Pe
                     String msg = logoutBeanRsp.getMsg();
                     Timber.e("code: %1s, msg: %2s", code, msg);
                     if (!TextUtils.isEmpty(msg)) {
-                        ToastUtils.showShort(msg);
+                        ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(msg);
                         return;
                     }
                 }
@@ -445,13 +447,7 @@ public class UserPageActivity extends BaseActivity implements EasyPermissions.Pe
                 SPUtils.getInstance(REVOLO_SP).put(Constant.USER_LOGIN_INFO, ""); // 清空登录信息
                 //清理设备信息
                 App.getInstance().removeDeviceList();
-
-                // TODO: 2021/3/30 退出操作
-                if (App.getInstance().getMainActivity() != null) {
-                    App.getInstance().getMainActivity().finish();
-                }
-                finish();
-                startActivity(new Intent(UserPageActivity.this, LoginActivity.class));
+                startActivity(new Intent(UserPageActivity.this, LoginActivity.class).putExtra("logout", true));
             }
 
             @Override
@@ -465,5 +461,27 @@ public class UserPageActivity extends BaseActivity implements EasyPermissions.Pe
 
             }
         });
+    }
+
+    /**
+     * 质量压缩
+     *
+     * @param avatarFile 文件
+     * @param quality    图片的质量,0-100,数值越小质量越差
+     */
+    public static void compress(File avatarFile, int quality) {
+        Bitmap originBitmap = BitmapFactory.decodeFile(avatarFile.getAbsolutePath());
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        originBitmap.compress(Bitmap.CompressFormat.WEBP, quality, bos);
+        try {
+            FileOutputStream fos = new FileOutputStream(avatarFile);
+            fos.write(bos.toByteArray());
+            fos.flush();
+            fos.close();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

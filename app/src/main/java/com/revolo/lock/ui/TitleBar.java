@@ -20,11 +20,13 @@ public class TitleBar {
     private final TextView mTvTitle;
     private final ImageView mIvLeft;
     private final ImageView mIvRight;
+    private final TextView mTvNetError;
 
     public TitleBar(View rootView) {
         mTvTitle = rootView.findViewById(R.id.tvTitle);
         mIvLeft = rootView.findViewById(R.id.ivLeft);
         mIvRight = rootView.findViewById(R.id.ivRight);
+        mTvNetError = rootView.findViewById(R.id.tvNetError);
     }
 
     public TextView getTvTitle() {
@@ -40,7 +42,7 @@ public class TitleBar {
     }
 
     public TitleBar setTitle(String title) {
-        if(mTvTitle != null) {
+        if (mTvTitle != null) {
             mTvTitle.setText(title);
             mTvTitle.setVisibility(View.VISIBLE);
         }
@@ -48,7 +50,7 @@ public class TitleBar {
     }
 
     public TitleBar useCommonLeft(View.OnClickListener onClickListener) {
-        if(mIvLeft != null) {
+        if (mIvLeft != null) {
             mIvLeft.setVisibility(View.VISIBLE);
             mIvLeft.setOnClickListener(onClickListener);
         }
@@ -56,7 +58,7 @@ public class TitleBar {
     }
 
     public TitleBar setRight(Drawable drawable, View.OnClickListener onClickListener) {
-        if(mIvRight!= null) {
+        if (mIvRight != null) {
             mIvRight.setVisibility(View.VISIBLE);
             mIvRight.setImageDrawable(drawable);
             mIvRight.setOnClickListener(onClickListener);
@@ -65,7 +67,7 @@ public class TitleBar {
     }
 
     public TitleBar setRight(@DrawableRes int drawableId, View.OnClickListener onClickListener) {
-        if(mIvRight!= null) {
+        if (mIvRight != null) {
             mIvRight.setVisibility(View.VISIBLE);
             mIvRight.setImageResource(drawableId);
             mIvRight.setOnClickListener(onClickListener);
@@ -73,4 +75,7 @@ public class TitleBar {
         return this;
     }
 
+    public void setNetError(boolean isConnect) {
+        mTvNetError.setVisibility(isConnect ? View.GONE : View.VISIBLE);
+    }
 }

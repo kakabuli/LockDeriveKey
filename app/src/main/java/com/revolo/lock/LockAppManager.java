@@ -35,13 +35,13 @@ public class LockAppManager {
 
     public void toActivity(Activity activity, Class<?> cls, Intent intent) {
         //根据 cls 获取跳转的activity
-        Intent intent1=new Intent();
-        Activity currActivity=getActivity(cls);
+        Intent intent1 = new Intent();
+        Activity currActivity = getActivity(cls);
         if (null == currActivity) {
             //为空 直接跳
             activity.startActivity(intent);
         } else {
-            if(currentActivity()!=currActivity){
+            if (currentActivity() != currActivity) {
                 activity.startActivity(intent);
             }
         }
@@ -90,13 +90,23 @@ public class LockAppManager {
      * 结束所有Activity
      */
     public void finishAllActivity() {
-        for (int i = 0, size = activityStack.size(); i < size; i++) {
-            if (null != activityStack.get(i)) {
+        for (int i = activityStack.size() - 1; i >= 0; i--) {
+            if (activityStack.get(i) != null) {
                 finishActivity(activityStack.get(i));
-                break;
             }
         }
         activityStack.clear();
+    }
+
+    /**
+     * 登出
+     */
+    public void loginOut(Activity cls) {
+        for (int i = activityStack.size() - 1; i >= 0; i--) {
+            if (activityStack.get(i) != null && !activityStack.get(i).equals(cls)) {
+                finishActivity(activityStack.get(i));
+            }
+        }
     }
 
     /**

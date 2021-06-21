@@ -19,7 +19,6 @@ import androidx.annotation.NonNull;
 import com.a1anwang.okble.client.scan.BLEScanResult;
 import com.blankj.utilcode.util.ActivityUtils;
 import com.blankj.utilcode.util.ConvertUtils;
-import com.blankj.utilcode.util.GsonUtils;
 import com.blankj.utilcode.util.LogUtils;
 import com.blankj.utilcode.util.TimeUtils;
 import com.revolo.lock.App;
@@ -869,7 +868,7 @@ public class LockAppService extends Service {
                 ConvertUtils.bytes2HexString(lockStateBit15_8), soundVolume, languageStr, power, realTime);
 
         mDeviceLists.get(index).setLockPower(power);
-        boolean isMute = (soundVolume == LocalState.VOLUME_STATE_MUTE);
+        boolean isMute = (soundVolume == LocalState.VOLUME_STATE_OPEN);
         mDeviceLists.get(index).setMute(isMute);
         byte doorSensorState = bit7_0[3];
         boolean isOpenDoorSensor = (doorSensorState == 0x01);

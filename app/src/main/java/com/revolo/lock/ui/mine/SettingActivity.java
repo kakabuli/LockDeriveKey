@@ -127,7 +127,16 @@ public class SettingActivity extends BaseActivity {
             }
         } else if (view.getId() == R.id.ivEnableFaceIDEnable) {
             // TODO: 2021/3/19 faceId
-            biometricSet(true);
+            switch (getDeviceBrand()) {
+                case "samsung":
+                case "lg":
+                case "google":
+                    biometricSet(true);
+                    break;
+                default:
+                    ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.tip_setting_no_supports_face_id);
+                    break;
+            }
         } else if (view.getId() == R.id.clChangeGesturePassword) {
             if (mUser.isUseGesturePassword()) {
                 Intent intent = new Intent(this, OpenDrawHandPwdActivity.class);
@@ -186,10 +195,14 @@ public class SettingActivity extends BaseActivity {
             case 1:
             case -1:
             case 2:
-                ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show("Device not Support!");
+                ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.tip_setting_no_supports);
                 break;
             case 3:
-                ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show("Device not find FaceID!");
+                if (isFace) {
+                    ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.tip_setting_no_supports_face_id);
+                } else {
+                    ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.tip_setting_no_supports_touch_id);
+                }
                 break;
         }
     }
@@ -242,7 +255,7 @@ public class SettingActivity extends BaseActivity {
         dialog.setOnCancelClickListener(v -> dialog.dismiss());
         dialog.setOnCancellationClickListener(v -> {
             dialog.dismiss();
-            ToastUtils.showShort("接口");
+            ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show("接口");
         });
         dialog.show();
     }

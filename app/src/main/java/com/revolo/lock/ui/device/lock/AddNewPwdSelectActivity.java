@@ -1,9 +1,7 @@
 package com.revolo.lock.ui.device.lock;
 
-import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -1005,7 +1003,7 @@ public class AddNewPwdSelectActivity extends BaseActivity {
                         return;
                     }
                     if (!TextUtils.isEmpty(lockKeyAddBeanRsp.getMsg())) {
-                        ToastUtils.showShort(lockKeyAddBeanRsp.getMsg());
+                        ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(lockKeyAddBeanRsp.getMsg());
                     }
                     Timber.e("savePwdToService code: %1s, msg: %2s", lockKeyAddBeanRsp.getCode(), lockKeyAddBeanRsp.getMsg());
                     dismissLoadingAndShowAddFail();

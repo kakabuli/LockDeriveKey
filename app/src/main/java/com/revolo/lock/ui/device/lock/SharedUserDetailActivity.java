@@ -3,6 +3,7 @@ package com.revolo.lock.ui.device.lock;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Button;
@@ -205,11 +206,11 @@ public class SharedUserDetailActivity extends BaseActivity {
                     String msg = delSharedUserBeanRsp.getMsg();
                     Timber.e("removeUser code: %1s, msg: %2s", code, msg);
                     if(!TextUtils.isEmpty(msg)) {
-                        ToastUtils.showShort(msg);
+                        ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(msg);
                     }
                     return;
                 }
-                ToastUtils.showShort(R.string.t_delete_share_user_suc);
+                ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_delete_share_user_suc);
                 finish();
             }
 
@@ -290,7 +291,7 @@ public class SharedUserDetailActivity extends BaseActivity {
                     String msg = enableSharedUserBeanRsp.getMsg();
                     Timber.e("switchUserEnable code: %1s, msg: %2s", code, msg);
                     if(!TextUtils.isEmpty(msg)) {
-                        ToastUtils.showShort(msg);
+                        ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(msg);
                     }
                     return;
                 }
@@ -357,7 +358,7 @@ public class SharedUserDetailActivity extends BaseActivity {
                     String msg = updateUserAuthorityTypeBeanRsp.getMsg();
                     Timber.e("switchUserAuthority code: %1s, msg: %2s", code, msg);
                     if(!TextUtils.isEmpty(msg)) {
-                        ToastUtils.showShort(msg);
+                        ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(msg);
                     }
                     return;
                 }

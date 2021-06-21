@@ -46,6 +46,7 @@ public abstract class BaseActivity extends AppCompatActivity
     private final View.OnClickListener mClickListener = this::onDebouncingClick;
     //public CompositeDisposable mCompositeDisposable = new CompositeDisposable();
     //public MqttService mMQttService = App.getInstance().getMQttService();
+    private TitleBar mTitleBar;
 
     public View mContentView;
     public Activity mActivity;
@@ -62,7 +63,6 @@ public abstract class BaseActivity extends AppCompatActivity
         LockConnected bleConnected = new LockConnected();
         bleConnected.setConnectType(0);
         EventBus.getDefault().post(bleConnected);
-
 
       /*  if (mMQttService == null) {
             mMQttService = App.getInstance().getMQttService();
@@ -88,6 +88,10 @@ public abstract class BaseActivity extends AppCompatActivity
     protected void onResume() {
         super.onResume();
         doBusiness();
+        boolean b = NetworkUtils.isConnected();
+        if (mTitleBar != null) {
+            mTitleBar.setNetError(b);
+        }
     }
 
     @Override
@@ -150,7 +154,8 @@ public abstract class BaseActivity extends AppCompatActivity
 
     public TitleBar useCommonTitleBar(String title) {
         setStatusBarColor(R.color.white);
-        return new TitleBar(mContentView).setTitle(title).useCommonLeft(v -> finish());
+        mTitleBar = new TitleBar(mContentView).setTitle(title).useCommonLeft(v -> finish());
+        return mTitleBar;
     }
 
     public void applyDebouncingClickListener(View... views) {

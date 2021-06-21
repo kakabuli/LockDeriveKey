@@ -44,7 +44,7 @@ public class ModifyPasswordActivity extends BaseActivity {
     private TextView mTvGetCode;
 
     private boolean isShowOldPwd = false;
-    private boolean isShowPwd = true;
+    private boolean isShowPwd = false;
     private boolean isCountdown = false;
 
     @Override
@@ -92,7 +92,7 @@ public class ModifyPasswordActivity extends BaseActivity {
             return;
         }
         if(view.getId() == R.id.ivOldPwdEye) {
-            mIvOldPwdEye.setImageResource(isShowPwd?R.drawable.ic_login_icon_display:R.drawable.ic_login_icon_hide);
+            mIvOldPwdEye.setImageResource(isShowOldPwd?R.drawable.ic_login_icon_display:R.drawable.ic_login_icon_hide);
             mEtOldPwd.setInputType(isShowOldPwd?
                     InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
                     :(InputType.TYPE_CLASS_TEXT|InputType.TYPE_TEXT_VARIATION_PASSWORD));

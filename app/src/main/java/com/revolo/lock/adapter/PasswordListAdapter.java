@@ -16,7 +16,6 @@ import com.revolo.lock.ble.BleByteUtil;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Date;
-import java.util.regex.Pattern;
 
 import static com.revolo.lock.ble.BleCommandState.KEY_SET_ATTRIBUTE_ALWAYS;
 import static com.revolo.lock.ble.BleCommandState.KEY_SET_ATTRIBUTE_TIME_KEY;

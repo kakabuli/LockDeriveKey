@@ -24,6 +24,7 @@ import com.blankj.utilcode.util.ToastUtils;
 import com.revolo.lock.App;
 import com.revolo.lock.BuildConfig;
 import com.revolo.lock.Constant;
+import com.revolo.lock.LockAppManager;
 import com.revolo.lock.R;
 import com.revolo.lock.base.BaseActivity;
 import com.revolo.lock.bean.request.MailLoginBeanReq;
@@ -42,7 +43,6 @@ import io.reactivex.disposables.Disposable;
 import timber.log.Timber;
 
 import static com.revolo.lock.Constant.REVOLO_SP;
-import static com.revolo.lock.Constant.USER_MAIL;
 
 /**
  * author : Jack
@@ -58,7 +58,10 @@ public class LoginActivity extends BaseActivity {
 
     @Override
     public void initData(@Nullable Bundle bundle) {
-
+        boolean logout = getIntent().getBooleanExtra("logout", false);
+        if (logout) {
+            LockAppManager.getAppManager().loginOut(this);
+        }
     }
 
     @Override
@@ -225,7 +228,7 @@ public class LoginActivity extends BaseActivity {
             // TODO: 2021/1/26 获取弹出错误的信息
             Timber.e("processLoginRsp 登录请求错误了！ code : %1s, msg: %2s",
                     mailLoginBeanRsp.getCode(), mailLoginBeanRsp.getMsg());
-            ToastUtils.showShort(mailLoginBeanRsp.getMsg());
+            ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(mailLoginBeanRsp.getMsg());
             return;
         }
         if (mailLoginBeanRsp.getData() == null) {
