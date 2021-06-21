@@ -61,7 +61,7 @@ import static com.revolo.lock.ble.BleCommandState.LOCK_SETTING_OPEN;
  * desc   : 设备详情页面
  */
 public class DeviceDetailActivity extends BaseActivity {
-
+    private boolean isSend = false;
     private BleDeviceLocal mBleDeviceLocal;
     private SignalWeakDialog mSignalWeakDialog;
     private MessageDialog mMessageDialog;
@@ -177,11 +177,13 @@ public class DeviceDetailActivity extends BaseActivity {
                 switch (lockMessage.getResultCode()) {
                     case LockMessageCode.MSG_LOCK_MESSAGE_WF_EVEN:
                         //操作
+                        isSend=false;
                         dismissLoading();
                         break;
                     case LockMessageCode.MSG_LOCK_MESSAGE_SET_LOCK:
                         //开关锁锁
                         dismissLoading();
+                        isSend=false;
                         if (mCount == 3) {
                             // 3次机会,超时失败开始连接蓝牙
                             mCount = 0;
@@ -245,6 +247,7 @@ public class DeviceDetailActivity extends BaseActivity {
      * 更新ui 参数显示
      */
     private void updateView() {
+        isSend=false;
         if (mBleDeviceLocal == null) {
             return;
         }
@@ -337,6 +340,10 @@ public class DeviceDetailActivity extends BaseActivity {
             return;
         }
         if (view.getId() == R.id.ivLockState) {
+            if(isSend){
+               return;
+            }
+            isSend=true;
             openDoor();
         }
     }
@@ -418,7 +425,7 @@ public class DeviceDetailActivity extends BaseActivity {
                             (byte) 0x04, (byte) 0x01, bleBean.getPwd1(), bleBean.getPwd3()));
             message.setMessageType(3);
             EventBus.getDefault().post(message);
-            int doorOpt= state == LocalState.LOCK_STATE_OPEN ? LocalState.DOOR_STATE_CLOSE : LocalState.DOOR_STATE_OPEN;
+            int doorOpt = state == LocalState.LOCK_STATE_OPEN ? LocalState.DOOR_STATE_CLOSE : LocalState.DOOR_STATE_OPEN;
             if (doorOpt == LocalState.DOOR_STATE_OPEN) {
                 showLoading("Lock Opening...");
             } else if (doorOpt == LocalState.DOOR_STATE_CLOSE) {
