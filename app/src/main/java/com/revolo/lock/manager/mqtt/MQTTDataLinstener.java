@@ -30,7 +30,7 @@ public interface MQTTDataLinstener {
     /**
      * @param bleDeviceLocal
      */
-    void onAddDevice(BleDeviceLocal bleDeviceLocal);
+    void onAddDevice(boolean isdelete,BleDeviceLocal bleDeviceLocal);
 
     /**
      * 操作回调

@@ -108,7 +108,6 @@ public class DeviceDetailActivity extends BaseActivity {
         } else {
             useCommonTitleBar("Homepage");
         }
-        updateView();
         initSignalWeakDialog();
         onRegisterEventBus();
     }
@@ -231,7 +230,7 @@ public class DeviceDetailActivity extends BaseActivity {
         llDoorState = findViewById(R.id.llDoorState);
         tvPrivateMode = findViewById(R.id.tvPrivateMode);
         applyDebouncingClickListener(llNotification, llPwd, llUser, llSetting, ivLockState);
-        updateView();
+       // updateView();
     }
 
     /**

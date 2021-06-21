@@ -357,7 +357,7 @@ public class LockAppService extends Service {
     public void add(List<BleDeviceLocal> bleDeviceLocalList) {
         if (null != bleDeviceLocalList) {
             for (BleDeviceLocal local : bleDeviceLocalList) {
-                addDevice(local);
+                addDevice(false, local);
             }
         }
     }
@@ -367,40 +367,56 @@ public class LockAppService extends Service {
      *
      * @param bleDeviceLocal 设备对象
      */
-    private void addDevice(BleDeviceLocal bleDeviceLocal) {
+    private void addDevice(boolean isDelete, BleDeviceLocal bleDeviceLocal) {
         //lock.lock();
-        if (null == mDeviceLists) {
-            mDeviceLists = new ArrayList<>();
-        }
-        int index = checkDeviceList(bleDeviceLocal.getEsn(), bleDeviceLocal.getMac());
-        boolean bleState = onGetConnectedState(bleDeviceLocal.getMac());//当前蓝牙设的设备的状态
-        boolean mqttState = bleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI ? true : false;//当前锁与服务器的连接状态
-        boolean appMqttState = MQTTManager.getInstance().onGetMQTTConnectedState();//当前APP与MQTT服务器端的连接状态
-        bleDeviceLocal.setConnectedType(checkDeviceState(bleState, mqttState, appMqttState));//ble
-        Timber.d("add device：type:%s;bleState:%s;mqttState:%s;appMqttState:%s", bleDeviceLocal.getConnectedType() + "", bleState, mqttState, appMqttState);
-        Timber.d("add device：type:%s", bleDeviceLocal.getConnectedType() + "");
-        if (index < 0) {
-            //因设备添加是从服务端获取，从而需要更新当前的ble连接状态
-            mDeviceLists.add(bleDeviceLocal);
-        } else {
-            //当前list中存在设备，更新当前的状态
-            mDeviceLists.remove(index);
-            mDeviceLists.add(bleDeviceLocal);
-        }
-        //判断当前ble的连接情况
-        if (!bleState) {
-            BluetoothDevice device = null;
-            try {
-                device = BluetoothAdapter.getDefaultAdapter().getRemoteDevice(bleDeviceLocal.getMac());
-            } catch (Exception e) {
-                e.printStackTrace();
+        if (isDelete) {
+            if (null == bleDeviceLocal) {
+                if (null != mDeviceLists) {
+                    mDeviceLists.clear();
+                }
+                removeDeviceList();
+            } else {
+                removeDevice(bleDeviceLocal.getEsn(), bleDeviceLocal.getMac());
+                removeBleConnect(bleDeviceLocal.getMac());
             }
-            //bleScanResult.
-            byte[] mPwd1 = new byte[16];
-            byte[] bytes = ConvertUtils.hexString2Bytes(bleDeviceLocal.getPwd1());
-            System.arraycopy(bytes, 0, mPwd1, 0, bytes.length);
-            onBleConnect(bleDeviceLocal.getEsn(), null, device, mPwd1, ConvertUtils.hexString2Bytes(bleDeviceLocal.getPwd2())
-            );
+
+        } else {
+            if (null == mDeviceLists) {
+                mDeviceLists = new ArrayList<>();
+            }
+            boolean bleState = onGetConnectedState(bleDeviceLocal.getMac());//当前蓝牙设的设备的状态
+            boolean mqttState = bleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI ? true : false;//当前锁与服务器的连接状态
+            boolean appMqttState = MQTTManager.getInstance().onGetMQTTConnectedState();//当前APP与MQTT服务器端的连接状态
+            bleDeviceLocal.setConnectedType(checkDeviceState(bleState, mqttState, appMqttState));//ble
+            Timber.d("add device：type:%s;bleState:%s;mqttState:%s;appMqttState:%s", bleDeviceLocal.getConnectedType() + "", bleState, mqttState, appMqttState);
+            Timber.d("add device：type:%s", bleDeviceLocal.getConnectedType() + "");
+            int index = checkDeviceList(bleDeviceLocal.getEsn(), bleDeviceLocal.getMac());
+            if (index < 0) {
+                //因设备添加是从服务端获取，从而需要更新当前的ble连接状态
+                mDeviceLists.add(bleDeviceLocal);
+            } else {
+                //当前list中存在设备，更新当前的状态
+                //   bleDeviceLocal.set
+                if (mqttState) {
+                    mDeviceLists.remove(index);
+                    mDeviceLists.add(bleDeviceLocal);
+                }
+            }
+            //判断当前ble的连接情况
+            if (!bleState) {
+                BluetoothDevice device = null;
+                try {
+                    device = BluetoothAdapter.getDefaultAdapter().getRemoteDevice(bleDeviceLocal.getMac());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                //bleScanResult.
+                byte[] mPwd1 = new byte[16];
+                byte[] bytes = ConvertUtils.hexString2Bytes(bleDeviceLocal.getPwd1());
+                System.arraycopy(bytes, 0, mPwd1, 0, bytes.length);
+                onBleConnect(bleDeviceLocal.getEsn(), null, device, mPwd1, ConvertUtils.hexString2Bytes(bleDeviceLocal.getPwd2())
+                );
+            }
         }
         //lock.unlock();
         Timber.e("getEventBus send");
@@ -886,6 +902,11 @@ public class LockAppService extends Service {
             App.getInstance().setBleDeviceLocal(mDeviceLists.get(index));
         }
         AppDatabase.getInstance(this).bleDeviceDao().update(mDeviceLists.get(index));
+        Timber.e("devices %s:", mDeviceLists.get(index).toString());
+        List<BleDeviceLocal> locals = AppDatabase.getInstance(App.getInstance()).bleDeviceDao().findBleDevicesFromUserIdByCreateTimeDesc(mDeviceLists.get(index).getUserId());
+        if (locals.size() > 0) {
+            Timber.e("locals %s:", locals.get(0).toString());
+        }
     }
 
     /**
@@ -953,9 +974,9 @@ public class LockAppService extends Service {
             return;
         }
         if (null != mDeviceLists.get(index)) {
-            if(mDeviceLists.get(index).getLockState()==LocalState.LOCK_STATE_PRIVATE&&state!=LocalState.LOCK_STATE_OPEN){
-                Timber.e("设置门的状态过滤：%s",state+"");
-                return ;
+            if (mDeviceLists.get(index).getLockState() == LocalState.LOCK_STATE_PRIVATE && state != LocalState.LOCK_STATE_OPEN) {
+                Timber.e("设置门的状态过滤：%s", state + "");
+                return;
             }
             mDeviceLists.get(index).setLockState(state);
             Timber.d("setLockState wifiId: %1s %2s", mDeviceLists.get(index).getEsn(), state == LocalState.LOCK_STATE_OPEN ? "锁开了" : "锁关了");
@@ -1357,9 +1378,9 @@ public class LockAppService extends Service {
         }
 
         @Override
-        public void onAddDevice(BleDeviceLocal bleDeviceLocal) {
+        public void onAddDevice(boolean isDelete, BleDeviceLocal bleDeviceLocal) {
             /*** 添加设备*/
-            addDevice(bleDeviceLocal);
+            addDevice(isDelete, bleDeviceLocal);
         }
 
         @Override

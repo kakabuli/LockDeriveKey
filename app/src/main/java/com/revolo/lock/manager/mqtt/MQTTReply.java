@@ -61,12 +61,97 @@ public class MQTTReply {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            if (bean == null || TextUtils.isEmpty(bean.getMsgtype()) || !bean.getMsgtype().equals("response") ||
-                    bean.getData() == null || bean.getData().getWifiList() == null || bean.getData().getWifiList().isEmpty()) {
+            if (bean == null || TextUtils.isEmpty(bean.getMsgtype()) || !bean.getMsgtype().equals("response")) {
                 Timber.e("WifiLockGetAllBindDeviceRspBean..getData().getWifiList().isEmpty()");
                 return;
             }
-            List<WifiLockGetAllBindDeviceRspBean.DataBean.WifiListBean> wifilists = bean.getData().getWifiList();
+            ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+            //获取当前本地的设备列表
+            List<BleDeviceLocal> locals = AppDatabase.getInstance(App.getInstance()).bleDeviceDao().findBleDevicesFromUserIdByCreateTimeDesc(App.getInstance().getUser().getAdminUid());
+            if (bean.getData() == null || bean.getData().getWifiList() == null || bean.getData().getWifiList().isEmpty()) {
+                //删除本地数据
+                Timber.e("删除本地设备数据");
+                if (null != locals && locals.size() > 0) {
+                    AppDatabase
+                            .getInstance(App.getInstance().getApplicationContext())
+                            .bleDeviceDao().delete(locals);
+                }
+                if (null != mqttDataLinstener) {
+                    mqttDataLinstener.onAddDevice(true, null);
+                }
+                return;
+            } else {
+                //从服务端返回的设备列表
+                List<WifiLockGetAllBindDeviceRspBean.DataBean.WifiListBean> wifilists = bean.getData().getWifiList();
+                //先判断当前本地的设备是否在在服务器端返回的列表中
+                if (locals.size() == 0) {
+                    Timber.e("当前本地不存在设备数据，服务端设备个数为:%s", wifilists.size() + "");
+                    //当前不存在本地设备
+                    for (WifiLockGetAllBindDeviceRspBean.DataBean.WifiListBean wifiListBean : wifilists) {
+                        // TODO: 2021/2/26 后期再考虑是否需要多条件合并查询
+                        BleDeviceLocal bleDeviceLocal = new BleDeviceLocal();
+                        long id = AppDatabase.getInstance(App.getInstance().getApplicationContext()).bleDeviceDao().insert(bleDeviceLocal);
+                        Timber.e("crate DataFromNet bleDeviceLocal == %s:", id + "");
+                        bleDeviceLocal.setId(id);
+                        bleDeviceLocal = createDeviceToLocal(wifiListBean, bleDeviceLocal);
+                        AppDatabase.getInstance(App.getInstance().getApplicationContext()).bleDeviceDao().update(bleDeviceLocal);
+                        if (null != mqttDataLinstener) {
+                            mqttDataLinstener.onAddDevice(false, bleDeviceLocal);
+                        }
+                    }
+
+                } else {
+                    //当前存在本地设备
+                    Timber.e("当前本地存在设备数据，个数为:%s", locals.size() + "");
+                    for (int i = 0; i < locals.size(); i++) {
+                        boolean isExistence = false;
+                        BleDeviceLocal deviceLocal = locals.get(i);
+                        for (WifiLockGetAllBindDeviceRspBean.DataBean.WifiListBean wifiListBean : wifilists) {
+                            if (deviceLocal.getEsn().equals(wifiListBean.getWifiSN())) {
+                                isExistence = true;
+                                deviceLocal = createDeviceToLocal(wifiListBean, deviceLocal);
+                                Timber.e("当前本地存在设备数据，个数为:%s,更新：%s", locals.size() + "", deviceLocal.toString());
+                                AppDatabase.getInstance(App.getInstance().getApplicationContext()).bleDeviceDao().update(deviceLocal);
+                                if (null != mqttDataLinstener) {
+                                    mqttDataLinstener.onAddDevice(false, deviceLocal);
+                                }
+                                break;
+                            }
+                        }
+                        if (!isExistence) {
+                            Timber.e("服务端不存在此设备数据，删除:%s", deviceLocal.toString());
+                            AppDatabase.getInstance(App.getInstance().getApplicationContext()).bleDeviceDao().delete(deviceLocal);
+                            if (null != mqttDataLinstener) {
+                                mqttDataLinstener.onAddDevice(true, deviceLocal);
+                            }
+                        }
+                    }
+                    for (WifiLockGetAllBindDeviceRspBean.DataBean.WifiListBean wifiListBean : wifilists) {
+                        boolean isExistence = false;
+                        for (BleDeviceLocal bleDeviceLocal : locals) {
+                            if (bleDeviceLocal.getEsn().equals(wifiListBean.getWifiSN())) {
+                                isExistence = true;
+                                break;
+                            }
+                        }
+                        if (!isExistence) {
+
+                            BleDeviceLocal bleDeviceLocal = new BleDeviceLocal();
+                            long id = AppDatabase.getInstance(App.getInstance().getApplicationContext()).bleDeviceDao().insert(bleDeviceLocal);
+                            Timber.e("crate DataFromNet bleDeviceLocal == %s:", id + "");
+                            bleDeviceLocal.setId(id);
+                            bleDeviceLocal = createDeviceToLocal(wifiListBean, bleDeviceLocal);
+                            Timber.e("本地不存在此设备数据，添加:%s", bleDeviceLocal.toString());
+                            AppDatabase.getInstance(App.getInstance().getApplicationContext()).bleDeviceDao().update(bleDeviceLocal);
+                            if (null != mqttDataLinstener) {
+                                mqttDataLinstener.onAddDevice(false, bleDeviceLocal);
+                            }
+                        }
+                    }
+                }
+            }
+            ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+           /* List<WifiLockGetAllBindDeviceRspBean.DataBean.WifiListBean> wifilists = bean.getData().getWifiList();
             for (WifiLockGetAllBindDeviceRspBean.DataBean.WifiListBean wifiListBean : wifilists) {
                 // TODO: 2021/2/26 后期再考虑是否需要多条件合并查询
                 BleDeviceLocal bleDeviceLocal = AppDatabase
@@ -87,9 +172,9 @@ public class MQTTReply {
 //                bleDeviceLocal.setRandomCode(wifiListBean.getRandomCode());
                 AppDatabase.getInstance(App.getInstance().getApplicationContext()).bleDeviceDao().update(bleDeviceLocal);
                 if (null != mqttDataLinstener) {
-                    mqttDataLinstener.onAddDevice(bleDeviceLocal);
+                    mqttDataLinstener.onAddDevice(false, bleDeviceLocal);
                 }
-            }
+            }*/
         } else if (MQttConstant.SET_MAGNETIC.equals(mqttData.getFunc())) {
             // 设置门磁
             WifiLockSetMagneticResponseBean bean = GsonUtils.fromJson(mqttData.getPayload(), WifiLockSetMagneticResponseBean.class);
