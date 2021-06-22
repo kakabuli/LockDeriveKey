@@ -52,7 +52,6 @@ import static com.revolo.lock.ble.BleCommandState.LOCK_SETTING_OPEN;
  * desc   : 设备详情页面
  */
 public class DeviceDetailActivity extends BaseActivity {
-    private boolean isSend = false;
     private BleDeviceLocal mBleDeviceLocal;
     private SignalWeakDialog mSignalWeakDialog;
     private MessageDialog mMessageDialog;
@@ -167,13 +166,11 @@ public class DeviceDetailActivity extends BaseActivity {
                 switch (lockMessage.getResultCode()) {
                     case LockMessageCode.MSG_LOCK_MESSAGE_WF_EVEN:
                         //操作
-                        isSend=false;
                         dismissLoading();
                         break;
                     case LockMessageCode.MSG_LOCK_MESSAGE_SET_LOCK:
                         //开关锁锁
                         dismissLoading();
-                        isSend=false;
                         if (mCount == 3) {
                             // 3次机会,超时失败开始连接蓝牙
                             mCount = 0;
@@ -211,6 +208,13 @@ public class DeviceDetailActivity extends BaseActivity {
         }
     }
 
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if (null != mBleDeviceLocal)
+            AppDatabase.getInstance(this).bleDeviceDao().update(mBleDeviceLocal);
+    }
+
     ImageView ivLockState, ivNetState, ivDoorState;
     TextView tvNetState, tvDoorState, tvPrivateMode;
     LinearLayout llLowBattery, llNotification, llPwd, llUser, llSetting, llDoorState;
@@ -230,14 +234,13 @@ public class DeviceDetailActivity extends BaseActivity {
         llDoorState = findViewById(R.id.llDoorState);
         tvPrivateMode = findViewById(R.id.tvPrivateMode);
         applyDebouncingClickListener(llNotification, llPwd, llUser, llSetting, ivLockState);
-       // updateView();
+        // updateView();
     }
 
     /**
      * 更新ui 参数显示
      */
     private void updateView() {
-        isSend=false;
         if (mBleDeviceLocal == null) {
             return;
         }
@@ -330,10 +333,6 @@ public class DeviceDetailActivity extends BaseActivity {
             return;
         }
         if (view.getId() == R.id.ivLockState) {
-            if(isSend){
-               return;
-            }
-            isSend=true;
             openDoor();
         }
     }
@@ -390,6 +389,12 @@ public class DeviceDetailActivity extends BaseActivity {
         if (state == LocalState.LOCK_STATE_PRIVATE) {
             return;
         }
+        int doorOpt = state == LocalState.LOCK_STATE_OPEN ? LocalState.DOOR_STATE_CLOSE : LocalState.DOOR_STATE_OPEN;
+        if (doorOpt == LocalState.DOOR_STATE_OPEN) {
+            showLoading("Lock Opening...");
+        } else if (doorOpt == LocalState.DOOR_STATE_CLOSE) {
+            showLoading("Lock Closing...");
+        }
         if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_BLE || mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI_BLE) {
             BleBean bleBean = App.getInstance().getUserBleBean(mBleDeviceLocal.getMac());
             if (bleBean == null) {
@@ -415,12 +420,7 @@ public class DeviceDetailActivity extends BaseActivity {
                             (byte) 0x04, (byte) 0x01, bleBean.getPwd1(), bleBean.getPwd3()));
             message.setMessageType(3);
             EventBus.getDefault().post(message);
-            int doorOpt = state == LocalState.LOCK_STATE_OPEN ? LocalState.DOOR_STATE_CLOSE : LocalState.DOOR_STATE_OPEN;
-            if (doorOpt == LocalState.DOOR_STATE_OPEN) {
-                showLoading("Lock Opening...");
-            } else if (doorOpt == LocalState.DOOR_STATE_CLOSE) {
-                showLoading("Lock Closing...");
-            }
+
            /* App.getInstance().writeControlMsg(BleCommandFactory
                     .lockControlCommand((byte) (mBleDeviceLocal.getLockState() == LocalState.LOCK_STATE_OPEN ? LOCK_SETTING_CLOSE : LOCK_SETTING_OPEN),
                             (byte) 0x04, (byte) 0x01, bleBean.getPwd1(), bleBean.getPwd3()), bleBean.getOKBLEDeviceImp());*/
@@ -512,7 +512,7 @@ public class DeviceDetailActivity extends BaseActivity {
         mMessageDialog.setOnListener(v -> {
             if (mMessageDialog != null) {
                 mMessageDialog.dismiss();
-                connectBle();
+                // connectBle();
             }
         });
     }

@@ -262,12 +262,17 @@ public class DeviceSettingActivity extends BaseActivity {
     }
 
     private void initData() {
+        mBleDeviceLocal = App.getInstance().getBleDeviceLocal();
         String name = mBleDeviceLocal.getName();
         name = TextUtils.isEmpty(name) ? mBleDeviceLocal.getEsn() : name;
         mTvName.setText(TextUtils.isEmpty(name) ? "" : name);
         String wifiName = mBleDeviceLocal.getConnectedWifiName();
         //同时得保持WiFi连接
-        mTvWifiName.setText(TextUtils.isEmpty(wifiName) & mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI ? "" : wifiName);
+        if (null != wifiName && !"".equals(wifiName)) {
+            mTvWifiName.setText(mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI ? wifiName : "");
+        } else {
+            mTvWifiName.setText("");
+        }
     }
 
     private void mute() {
