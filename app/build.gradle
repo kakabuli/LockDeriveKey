@@ -189,4 +189,8 @@ dependencies {
     // When using the BoM, you don't specify versions in Firebase library dependencies
     implementation 'com.google.firebase:firebase-messaging'
     implementation 'com.google.firebase:firebase-analytics'
+
+    // bugly
+    implementation 'com.tencent.bugly:crashreport:3.3.92'
+    implementation 'com.tencent.bugly:nativecrashreport:3.9.1'
 }

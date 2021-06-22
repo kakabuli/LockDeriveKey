@@ -25,6 +25,7 @@ import com.revolo.lock.ui.sign.LoginActivity;
 import com.revolo.lock.ui.view.SmartClassicsFooterView;
 import com.revolo.lock.ui.view.SmartClassicsHeaderView;
 import com.scwang.smart.refresh.layout.SmartRefreshLayout;
+import com.tencent.bugly.crashreport.CrashReport;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -85,6 +86,8 @@ public class App extends Application {
         });
 
         CrashCollectHandler.getInstance().init(this);
+
+        CrashReport.initCrashReport(getApplicationContext(), "22dc9fa410", true);
     }
 
     // TODO: 2021/3/8 临时存个MainActivity 后期删除

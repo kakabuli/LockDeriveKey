@@ -34,6 +34,9 @@
   *** rewind();
 }
 
+-dontwarn com.tencent.bugly.**
+-keep public class com.tencent.bugly.*{*;}
+
 #PictureSelector 2.0
 -keep class com.luck.picture.lib.*{*;}
 #-keep class com.luck.picture.lib.** { *; }

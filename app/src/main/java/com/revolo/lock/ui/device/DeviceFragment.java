@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.blankj.utilcode.util.ConvertUtils;
+import com.blankj.utilcode.util.NetworkUtils;
 import com.revolo.lock.App;
 import com.revolo.lock.Constant;
 import com.revolo.lock.LocalState;
@@ -61,6 +62,7 @@ public class DeviceFragment extends Fragment {
     private ConstraintLayout mClNoDevice, mClHadDevice;
     private CustomerLoadingDialog mLoadingDialog;
     private RefreshLayout mRefreshLayout;
+    private TitleBar titleBar;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -149,7 +151,7 @@ public class DeviceFragment extends Fragment {
     }
 
     private void initTitleBar() {
-        new TitleBar(root).setTitle(getString(R.string.title_my_devices))
+        titleBar = new TitleBar(root).setTitle(getString(R.string.title_my_devices))
                 .setRight(R.drawable.ic_home_icon_add,
                         v -> startActivity(new Intent(getContext(), AddDeviceActivity.class)));
     }
@@ -163,6 +165,10 @@ public class DeviceFragment extends Fragment {
         initSignalWeakDialog();
         initWfEven();*/
 //        mDeviceViewModel.refreshGetAllBindDevicesFromMQTT();
+        boolean b = NetworkUtils.isConnected();
+        if (titleBar != null) {
+            titleBar.setNetError(b);
+        }
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)

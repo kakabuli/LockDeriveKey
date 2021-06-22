@@ -94,11 +94,11 @@ public class UserFragment extends Fragment {
     }
 
     private void getAllSharedUserFromAdminUser() {
-        if (getActivity() instanceof BaseActivity) {
-            if (!((BaseActivity) getActivity()).checkNetConnectFail()) {
-                return;
-            }
-        }
+//        if (getActivity() instanceof BaseActivity) {
+//            if (!((BaseActivity) getActivity()).checkNetConnectFail()) {
+//                return;
+//            }
+//        }
         if (App.getInstance().getUserBean() == null) {
             Timber.e("getAllSharedUserFromAdminUser App.getInstance().getUserBean() == null");
             return;

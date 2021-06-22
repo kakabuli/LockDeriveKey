@@ -34,6 +34,7 @@ import com.revolo.lock.net.ObservableDecorator;
 import com.revolo.lock.room.AppDatabase;
 import com.revolo.lock.room.entity.User;
 import com.revolo.lock.ui.MainActivity;
+import com.tencent.bugly.crashreport.CrashReport;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -163,13 +164,12 @@ public class LoginActivity extends BaseActivity {
         ImageView ivEye = findViewById(R.id.ivEye);
         ivEye.setImageResource(isShowPwd ? R.drawable.ic_login_icon_display : R.drawable.ic_login_icon_hide);
         EditText etPwd = findViewById(R.id.etPwd);
-        etPwd.setInputType(isShowPwd ?
-                InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
-                : (InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD));
+        etPwd.setInputType(isShowPwd ? InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD : (InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD));
         isShowPwd = !isShowPwd;
     }
 
     private void login() {
+
         if (!checkNetConnectFail()) {
             return;
         }
