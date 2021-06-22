@@ -273,8 +273,10 @@ public class LockAppService extends Service {
     public void getConnected(LockConnected bleConnected) {
         if (null != bleConnected) {
             if (bleConnected.getConnectType() == 0) {
+                Timber.e("connected type:0");
                 connectMQTT();
             } else if (bleConnected.getConnectType() == 1) {
+                Timber.e("connected type:1");
                 onBleConnect(bleConnected.getmEsn(), bleConnected.getBleScanResult(), null, bleConnected.getPwd1(), bleConnected.getPwd2());
             } else if (bleConnected.getConnectType() == 3) {
                 BleDeviceLocal bleDeviceLocal = bleConnected.getBleDeviceLocal();
@@ -289,6 +291,7 @@ public class LockAppService extends Service {
                     byte[] mPwd1 = new byte[16];
                     byte[] bytes = ConvertUtils.hexString2Bytes(bleDeviceLocal.getPwd1());
                     System.arraycopy(bytes, 0, mPwd1, 0, bytes.length);
+                    Timber.e("connected type:3");
                     onBleConnect(bleDeviceLocal.getEsn(), null, device, mPwd1, ConvertUtils.hexString2Bytes(bleDeviceLocal.getPwd2())
                     );
                 }
@@ -652,10 +655,16 @@ public class LockAppService extends Service {
     public void onBleConnect(String sn, BLEScanResult bleScanResult, BluetoothDevice bluetoothDevice, byte[] pwd1, byte[] pwd2) {
         //isAppPair 设备列表中有当前连接设备 isAppPair是true,则isAppPair=false  用于配网操作
         String mac = "";
-        if (null == bleScanResult && null != bluetoothDevice) {
+        if (null == bleScanResult && null == bluetoothDevice) {
+            Timber.e("蓝牙连接 bleScanResult=null，bluetoothDevice=null");
+            return;
+        }
+        if (null == bleScanResult) {
             mac = bluetoothDevice.getAddress();
+            Timber.e("蓝牙连接 bluetoothDevice Mac：%s", mac);
         } else {
             mac = bleScanResult.getBluetoothDevice().getAddress();
+            Timber.e("蓝牙连接 bleScanResult mac：%s", mac);
         }
         if (null != getDevice("", mac)) {
             BleManager.getInstance().connectDevice(sn, bleScanResult, bluetoothDevice, pwd1, pwd2, true);

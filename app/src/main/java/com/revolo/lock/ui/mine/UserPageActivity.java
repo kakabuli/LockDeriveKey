@@ -31,6 +31,7 @@ import com.revolo.lock.base.BaseActivity;
 import com.revolo.lock.bean.respone.LogoutBeanRsp;
 import com.revolo.lock.bean.respone.UploadUserAvatarBeanRsp;
 import com.revolo.lock.dialog.SelectDialog;
+import com.revolo.lock.manager.mqtt.MQTTManager;
 import com.revolo.lock.net.HttpRequest;
 import com.revolo.lock.net.ObservableDecorator;
 import com.revolo.lock.popup.PicSelectPopup;
@@ -440,6 +441,10 @@ public class UserPageActivity extends BaseActivity implements EasyPermissions.Pe
                         return;
                     }
                 }
+
+                //清理mqtt连接
+                //关闭MQTT
+                MQTTManager.getInstance().mqttDisconnect();
 
                 User user = App.getInstance().getUser();
                 AppDatabase.getInstance(getApplicationContext()).userDao().delete(user);
