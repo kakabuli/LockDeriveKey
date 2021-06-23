@@ -1,6 +1,9 @@
 package com.revolo.lock.ui.device.lock.setting;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.KeyEvent;
@@ -22,7 +25,9 @@ import com.revolo.lock.LocalState;
 import com.revolo.lock.R;
 import com.revolo.lock.base.BaseActivity;
 import com.revolo.lock.bean.request.SettingDuressPwdReceiveEMailBeanReq;
+import com.revolo.lock.bean.request.UpdateLockInfoReq;
 import com.revolo.lock.bean.respone.SettingDuressPwdReceiveEMailBeanRsp;
+import com.revolo.lock.bean.respone.UpdateLockInfoRsp;
 import com.revolo.lock.ble.BleByteUtil;
 import com.revolo.lock.ble.BleCommandFactory;
 import com.revolo.lock.ble.BleCommandState;
@@ -39,10 +44,14 @@ import com.revolo.lock.net.HttpRequest;
 import com.revolo.lock.net.ObservableDecorator;
 import com.revolo.lock.room.AppDatabase;
 import com.revolo.lock.room.entity.BleDeviceLocal;
+import com.revolo.lock.ui.device.add.AddWifiFailActivity;
+import com.revolo.lock.ui.device.add.AddWifiSucActivity;
+import com.revolo.lock.ui.device.add.WifiConnectActivity;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
+import org.jetbrains.annotations.NotNull;
 
 import io.reactivex.Observable;
 import io.reactivex.Observer;
@@ -302,6 +311,8 @@ public class DuressCodeActivity extends BaseActivity {
             return;
         }
         saveDuressToLocal();
+        //更改后更新到服务端 设备属性
+        updateLockInfoToService();
         initUI();
      /*   }
         Timber.d("publishOpenOrCloseDuressPwd %1s", mqttData.toString());*/
@@ -354,12 +365,82 @@ public class DuressCodeActivity extends BaseActivity {
         byte state = bean.getPayload()[0];
         if (state == 0x00) {
             saveDuressToLocal();
+            //更改后更新到服务端 设备属性
+            updateLockInfoToService();
             initUI();
         } else {
             Timber.e("处理失败原因 state：%1s", ConvertUtils.int2HexString(BleByteUtil.byteToInt(state)));
         }
     }
+    /**
+     * 更新锁服务器存储的数据
+     */
+    private void updateLockInfoToService() {
+        if (null == this) {
+            return;
+        }
+        if (App.getInstance().getUserBean() == null) {
+            Timber.e("updateLockInfoToService App.getInstance().getUserBean() == null");
+            return;
+        }
+        String uid = App.getInstance().getUserBean().getUid();
+        if (TextUtils.isEmpty(uid)) {
+            Timber.e("updateLockInfoToService uid is empty");
+            return;
+        }
+        String token = App.getInstance().getUserBean().getToken();
+        if (TextUtils.isEmpty(token)) {
+            Timber.e("updateLockInfoToService token is empty");
+            return;
+        }
+        showLoading();
 
+        UpdateLockInfoReq req = new UpdateLockInfoReq();
+        req.setSn(mBleDeviceLocal.getEsn());
+        req.setWifiName(mBleDeviceLocal.getConnectedWifiName());
+        req.setSafeMode(0);   // 没有使用这个
+        req.setLanguage("en"); // 暂时也没使用这个
+        req.setVolume(mBleDeviceLocal.isMute() ? 1 : 0);
+        req.setAmMode(mBleDeviceLocal.isAutoLock() ? 0 : 1);
+        req.setDuress(mBleDeviceLocal.isDuress() ? 0 : 1);
+        req.setDoorSensor(mBleDeviceLocal.getDoorSensor());
+        req.setElecFence(mBleDeviceLocal.isOpenElectricFence() ? 0 : 1);
+        req.setAutoLockTime(mBleDeviceLocal.getSetAutoLockTime());
+        req.setElecFenceTime(mBleDeviceLocal.getSetElectricFenceTime());
+        req.setElecFenceSensitivity(mBleDeviceLocal.getSetElectricFenceSensitivity());
+
+        Observable<UpdateLockInfoRsp> observable = HttpRequest.getInstance().updateLockInfo(token, req);
+        ObservableDecorator.decorate(observable).safeSubscribe(new Observer<UpdateLockInfoRsp>() {
+            @Override
+            public void onSubscribe(@NotNull Disposable d) {
+
+            }
+
+            @Override
+            public void onNext(@NotNull UpdateLockInfoRsp updateLockInfoRsp) {
+                dismissLoading();
+                String code = updateLockInfoRsp.getCode();
+                if (code.equals("200")) {
+                    String msg = updateLockInfoRsp.getMsg();
+                    Timber.e("updateLockInfoToService code: %1s, msg: %2s", code, msg);
+                    if (!TextUtils.isEmpty(msg)) ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(msg);
+
+                }
+            }
+
+            @Override
+            public void onError(@NotNull Throwable e) {
+                dismissLoading();
+                Timber.e(e);
+
+            }
+
+            @Override
+            public void onComplete() {
+
+            }
+        });
+    }
     private void saveDuressToLocal() {
         mBleDeviceLocal.setDuress(!mBleDeviceLocal.isDuress());
         AppDatabase.getInstance(this).bleDeviceDao().update(mBleDeviceLocal);

@@ -4,6 +4,7 @@ package com.revolo.lock.manager;
 import android.app.Service;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -101,6 +102,8 @@ public class LockAppService extends Service {
     private List<BleDeviceLocal> mDeviceLists = new ArrayList<>();
     //同步锁
     private Lock lock = new ReentrantLock();
+    //蓝牙
+    private BluetoothAdapter bluetoothAdapter;
     //5、数据回复接口
     //6、数据重发、超时、等机制
     //7、账号数据缓存
@@ -150,6 +153,26 @@ public class LockAppService extends Service {
         ActivityUtils.finishAllActivities();
         System.exit(0);
         unRegisterBluetoothState();
+    }
+
+    /**
+     * 获取蓝牙适配器
+     *
+     * @return
+     */
+    private BluetoothAdapter getBluetoothAdapter() {
+        if (null == bluetoothAdapter) {
+            Timber.e("new  bluetoothAdapter get");
+            bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+        }
+        if (null == bluetoothAdapter) {
+            BluetoothManager bluetoothManager = (BluetoothManager) this.getSystemService(Context.BLUETOOTH_SERVICE);
+            if (null != bluetoothManager) {
+                Timber.e("new  bluetoothAdapter manager");
+                bluetoothAdapter = bluetoothManager.getAdapter();
+            }
+        }
+        return bluetoothAdapter;
     }
 
     //监听手机蓝牙的状态
@@ -283,7 +306,7 @@ public class LockAppService extends Service {
                 if (null != bleDeviceLocal) {
                     BluetoothDevice device = null;
                     try {
-                        device = BluetoothAdapter.getDefaultAdapter().getRemoteDevice(bleDeviceLocal.getMac());
+                        device = getBluetoothAdapter().getRemoteDevice(bleDeviceLocal.getMac());
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -407,18 +430,23 @@ public class LockAppService extends Service {
             }
             //判断当前ble的连接情况
             if (!bleState) {
-                BluetoothDevice device = null;
-                try {
-                    device = BluetoothAdapter.getDefaultAdapter().getRemoteDevice(bleDeviceLocal.getMac());
-                } catch (Exception e) {
-                    e.printStackTrace();
+                if (!getBluetoothAdapter().isEnabled()) {
+                    Timber.e("当前蓝牙已关闭，无法进行连接");
+                } else {
+                    Timber.e("当前蓝牙正常，正进行连接");
+                    BluetoothDevice device = null;
+                    try {
+                        device = getBluetoothAdapter().getRemoteDevice(bleDeviceLocal.getMac());
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                    //bleScanResult.
+                    byte[] mPwd1 = new byte[16];
+                    byte[] bytes = ConvertUtils.hexString2Bytes(bleDeviceLocal.getPwd1());
+                    System.arraycopy(bytes, 0, mPwd1, 0, bytes.length);
+                    onBleConnect(bleDeviceLocal.getEsn(), null, device, mPwd1, ConvertUtils.hexString2Bytes(bleDeviceLocal.getPwd2())
+                    );
                 }
-                //bleScanResult.
-                byte[] mPwd1 = new byte[16];
-                byte[] bytes = ConvertUtils.hexString2Bytes(bleDeviceLocal.getPwd1());
-                System.arraycopy(bytes, 0, mPwd1, 0, bytes.length);
-                onBleConnect(bleDeviceLocal.getEsn(), null, device, mPwd1, ConvertUtils.hexString2Bytes(bleDeviceLocal.getPwd2())
-                );
             }
         }
         //lock.unlock();
