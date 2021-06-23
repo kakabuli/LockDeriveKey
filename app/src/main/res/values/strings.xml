@@ -523,5 +523,4 @@
     <string name="tip_setting_no_supports">Device not Support!</string>
     <string name="tip_setting_no_supports_face_id">Device not find FaceID!</string>
     <string name="tip_setting_no_supports_touch_id">Device not find TouchID!</string>
-    <string name="tip_net_error"></string>
 </resources>

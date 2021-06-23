@@ -17,7 +17,7 @@ public class PrivacyPolicyActivity extends BaseActivity {
 
     @Override
     public void initData(@Nullable Bundle bundle) {
-
+        isShowNetState = false;
     }
 
     @Override

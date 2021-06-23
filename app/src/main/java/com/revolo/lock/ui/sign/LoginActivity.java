@@ -34,6 +34,7 @@ import com.revolo.lock.net.ObservableDecorator;
 import com.revolo.lock.room.AppDatabase;
 import com.revolo.lock.room.entity.User;
 import com.revolo.lock.ui.MainActivity;
+import com.revolo.lock.ui.TitleBar;
 import com.tencent.bugly.crashreport.CrashReport;
 
 import org.jetbrains.annotations.NotNull;
@@ -72,7 +73,10 @@ public class LoginActivity extends BaseActivity {
 
     @Override
     public void initView(@Nullable Bundle savedInstanceState, @Nullable View contentView) {
-        useCommonTitleBar(getString(R.string.sign_in));
+        TitleBar titleBar = useCommonTitleBar(getString(R.string.sign_in));
+        titleBar.getIvLeft().setOnClickListener(v -> {
+            startActivity(new Intent(this, SignSelectActivity.class).putExtra(Constant.SIGN_SELECT_MODE, "loginActivity"));
+        });
         mEtEmail = findViewById(R.id.etEmail);
        /* mEtEmail.setOnFocusChangeListener(new android.view.View.
                 OnFocusChangeListener() {

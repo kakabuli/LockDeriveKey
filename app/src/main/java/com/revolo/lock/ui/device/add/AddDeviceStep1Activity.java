@@ -37,7 +37,7 @@ public class AddDeviceStep1Activity extends BaseActivity implements EasyPermissi
 
     @Override
     public void initData(@Nullable Bundle bundle) {
-
+        isShowNetState = false;
     }
 
     @Override
@@ -68,6 +68,7 @@ public class AddDeviceStep1Activity extends BaseActivity implements EasyPermissi
             }
         }
     }
+
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0) {
@@ -76,6 +77,7 @@ public class AddDeviceStep1Activity extends BaseActivity implements EasyPermissi
         }
         return super.onKeyDown(keyCode, event);
     }
+
     @Override
     public void onRequestPermissionsResult(int requestCode,
                                            String @NotNull [] permissions,

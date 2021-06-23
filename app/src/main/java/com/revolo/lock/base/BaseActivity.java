@@ -51,10 +51,12 @@ public abstract class BaseActivity extends AppCompatActivity
     public View mContentView;
     public Activity mActivity;
     private CustomerLoadingDialog mLoadingDialog;
+    public boolean isShowNetState = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
+        isShowNetState = true;
         LockAppManager.getAppManager().addActivity(this);
         mActivity = this;
         super.onCreate(savedInstanceState);
@@ -88,9 +90,11 @@ public abstract class BaseActivity extends AppCompatActivity
     protected void onResume() {
         super.onResume();
         doBusiness();
-        boolean b = NetworkUtils.isConnected();
-        if (mTitleBar != null) {
-            mTitleBar.setNetError(b);
+        if (isShowNetState) {
+            boolean b = NetworkUtils.isConnected();
+            if (mTitleBar != null) {
+                mTitleBar.setNetError(b);
+            }
         }
     }
 

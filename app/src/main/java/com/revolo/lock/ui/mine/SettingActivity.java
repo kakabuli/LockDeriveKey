@@ -43,6 +43,7 @@ public class SettingActivity extends BaseActivity {
 
     @Override
     public void initData(@Nullable Bundle bundle) {
+        isShowNetState = false;
         mUser = App.getInstance().getUser();
         if (mUser == null) {
             finish();

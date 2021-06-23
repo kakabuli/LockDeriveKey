@@ -54,6 +54,7 @@ import io.reactivex.Observer;
 import io.reactivex.disposables.Disposable;
 import pub.devrel.easypermissions.AfterPermissionGranted;
 import pub.devrel.easypermissions.EasyPermissions;
+import pub.devrel.easypermissions.PermissionRequest;
 import timber.log.Timber;
 
 import static com.revolo.lock.Constant.REVOLO_SP;
@@ -275,6 +276,7 @@ public class UserPageActivity extends BaseActivity implements EasyPermissions.Pe
             Timber.e("onPermissionsDenied 拒绝了打开图库需要的写入权限, requestCode: %1d", requestCode);
         } else if (perms.get(0).equals(Manifest.permission.CAMERA)) {
             Timber.e("onPermissionsDenied 拒绝了打开相机需要的相机权限, requestCode: %1d", requestCode);
+            ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(getString(R.string.pwd_open_camera_permission));
         }
     }
 
@@ -357,8 +359,10 @@ public class UserPageActivity extends BaseActivity implements EasyPermissions.Pe
     private void rcSelectPicPermissions() {
         String[] perms = new String[]{Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE};
         if (!EasyPermissions.hasPermissions(this, perms)) {
-            EasyPermissions.requestPermissions(this, getString(R.string.rq_use_fun_need_camera_n_write_permission),
-                    RC_QR_CODE_PERMISSIONS, perms);
+            EasyPermissions.requestPermissions(new PermissionRequest.Builder(this, RC_QR_CODE_PERMISSIONS, perms)
+                    .setRationale(getString(R.string.rq_use_fun_need_camera_n_write_permission))
+                    .setTheme(R.style.easyPermissions)
+                    .build());
         } else {
             showSelectPopup();
         }
@@ -367,16 +371,20 @@ public class UserPageActivity extends BaseActivity implements EasyPermissions.Pe
     @AfterPermissionGranted(RC_CAMERA_PERMISSIONS)
     private void rcCameraPermission() {
         if (!hasCameraPermission()) {
-            EasyPermissions.requestPermissions(this, getString(R.string.rq_use_the_camera_needs_camera_permission),
-                    RC_CAMERA_PERMISSIONS, Manifest.permission.CAMERA);
+            EasyPermissions.requestPermissions(new PermissionRequest.Builder(this, RC_CAMERA_PERMISSIONS, Manifest.permission.CAMERA)
+                    .setRationale(getString(R.string.rq_use_the_camera_needs_camera_permission))
+                    .setTheme(R.style.easyPermissions)
+                    .build());
         }
     }
 
     @AfterPermissionGranted(RC_WRITE_EXTERNAL_STORAGE_PERMISSIONS)
     private void rcWriteStoragePermission() {
         if (!hasWriteExternalStoragePermission()) {
-            EasyPermissions.requestPermissions(this, getString(R.string.rq_use_album_needs_write_permission),
-                    RC_WRITE_EXTERNAL_STORAGE_PERMISSIONS, Manifest.permission.READ_EXTERNAL_STORAGE);
+            EasyPermissions.requestPermissions(new PermissionRequest.Builder(this, RC_WRITE_EXTERNAL_STORAGE_PERMISSIONS, Manifest.permission.READ_EXTERNAL_STORAGE)
+                    .setRationale(getString(R.string.rq_use_album_needs_write_permission))
+                    .setTheme(R.style.easyPermissions)
+                    .build());
         }
     }
 

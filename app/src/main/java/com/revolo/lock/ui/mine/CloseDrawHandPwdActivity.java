@@ -35,7 +35,7 @@ public class CloseDrawHandPwdActivity extends BaseActivity {
 
     @Override
     public void initData(@Nullable Bundle bundle) {
-
+        isShowNetState = false;
     }
 
     @Override
@@ -62,11 +62,11 @@ public class CloseDrawHandPwdActivity extends BaseActivity {
                 User user = App.getInstance().getUser();
                 // 获取缓存手势密码成功的值
                 String code = user.getGestureCode();
-                if(inputCode.equals(code)) {
+                if (inputCode.equals(code)) {
                     setResult(RESULT_OK);
                     new Handler(Looper.getMainLooper()).postDelayed(() -> finish(), 50);
                 } else {
-                    if(mCount == 0) {
+                    if (mCount == 0) {
                         setResult(RESULT_CANCELED);
                         new Handler(Looper.getMainLooper()).postDelayed(() -> finish(), 50);
                     } else {
@@ -97,6 +97,7 @@ public class CloseDrawHandPwdActivity extends BaseActivity {
     public void doBusiness() {
 
     }
+
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0) {
@@ -105,6 +106,7 @@ public class CloseDrawHandPwdActivity extends BaseActivity {
         }
         return super.onKeyDown(keyCode, event);
     }
+
     @Override
     public void onDebouncingClick(@NonNull View view) {
 

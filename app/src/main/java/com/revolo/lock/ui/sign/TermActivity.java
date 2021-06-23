@@ -31,6 +31,7 @@ public class TermActivity extends BaseActivity {
 
     @Override
     public void initData(@Nullable Bundle bundle) {
+        isShowNetState = false;
         Intent intent = getIntent();
         String termType = "";
         if(intent.hasExtra(Constant.TERM_TYPE)) {
