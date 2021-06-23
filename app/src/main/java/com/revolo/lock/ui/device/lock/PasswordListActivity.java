@@ -155,7 +155,7 @@ public class PasswordListActivity extends BaseActivity {
         mRefreshLayout = findViewById(R.id.refreshLayout);
         mRefreshLayout.setEnableLoadMore(false);
         mRefreshLayout.setRefreshHeader(new SmartClassicsHeaderView(this));
-        mRefreshLayout.setOnRefreshListener(refreshLayout -> searchPwdListFromNET());
+        mRefreshLayout.setOnRefreshListener(refreshLayout -> initData());
 
         initSucMessageDialog();
         initFailMessageDialog();
@@ -196,6 +196,10 @@ public class PasswordListActivity extends BaseActivity {
     @Override
     public void doBusiness() {
         showLoading();
+        initData();
+    }
+
+    private void initData() {
         if (mBleDeviceLocal.getConnectedType() != LocalState.DEVICE_CONNECT_TYPE_WIFI) {
             BleBean bleBean = App.getInstance().getUserBleBean(mBleDeviceLocal.getMac());
             if (bleBean != null) {
@@ -330,7 +334,9 @@ public class PasswordListActivity extends BaseActivity {
             }
             pwdList.add(devicePwdBean);
         }
-        deleteCantFindPwd(pwdList);
+//        deleteCantFindPwd(pwdList);
+
+        showPwdList(pwdList);
     }
 
     private void showPwdList(List<DevicePwdBean> pwdList) {

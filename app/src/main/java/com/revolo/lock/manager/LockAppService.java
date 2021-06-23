@@ -697,10 +697,8 @@ public class LockAppService extends Service {
         if (null != getDevice("", mac)) {
             BleManager.getInstance().connectDevice(sn, bleScanResult, bluetoothDevice, pwd1, pwd2, true);
         } else {
-
             BleManager.getInstance().connectDevice(sn, bleScanResult, bluetoothDevice, pwd1, pwd2, false);
         }
-
     }
 
     /**

@@ -174,6 +174,8 @@ public class SettingActivity extends BaseActivity {
             ivGestureCodeEnable.setImageResource(mUser.isUseGesturePassword() ? R.drawable.ic_icon_switch_open : R.drawable.ic_icon_switch_close);
             ivEnableTouchIDEnable.setImageResource(mUser.isUseTouchId() ? R.drawable.ic_icon_switch_open : R.drawable.ic_icon_switch_close);
             ivEnableFaceIDEnable.setImageResource(mUser.isUseFaceId() ? R.drawable.ic_icon_switch_open : R.drawable.ic_icon_switch_close);
+            clChangeGesturePassword.setVisibility(mUser.isUseGesturePassword() ? View.VISIBLE : View.GONE);
+            mClEnableFaceID.setVisibility(android.os.Build.VERSION.SDK_INT > 27 ? View.VISIBLE : View.GONE);
         });
     }
 

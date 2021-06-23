@@ -42,6 +42,7 @@ import com.revolo.lock.room.entity.BleDeviceLocal;
 import com.revolo.lock.room.entity.LockRecord;
 import com.revolo.lock.ui.view.SmartClassicsFooterView;
 import com.scwang.smart.refresh.layout.api.RefreshLayout;
+import com.scwang.smart.refresh.layout.listener.OnRefreshListener;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -118,13 +119,23 @@ public class OperationRecordsActivity extends BaseActivity {
         mRefreshLayout = findViewById(R.id.refreshLayout);
         mRefreshLayout.setEnableRefresh(true);
         mRefreshLayout.setRefreshFooter(new SmartClassicsFooterView((this)));
-//        refreshLayout.setOnRefreshListener(new OnRefreshListener() {
-//            @Override
-//            public void onRefresh(RefreshLayout refreshlayout) {
-//                refreshlayout.finishRefresh(2000/*,false*/);//传入false表示刷新失败
-//            }
-//        });
-        mRefreshLayout.setOnLoadMoreListener(refreshLayout -> searchRecordFromNet(mPage, mPage == 1));
+        mRefreshLayout.setOnRefreshListener(refreshLayout -> {
+            mPage = 1;
+            if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI) {
+                searchRecordFromNet(mPage, false);
+            } else {
+                initDevice();
+                searchRecordFromNet(mPage, true);
+            }
+        });
+        mRefreshLayout.setOnLoadMoreListener(refreshLayout -> {
+            if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI) {
+                searchRecordFromNet(mPage, false);
+            } else {
+                initDevice();
+                searchRecordFromNet(mPage, true);
+            }
+        });
         onRegisterEventBus();
     }
 
@@ -379,6 +390,7 @@ public class OperationRecordsActivity extends BaseActivity {
                 processRecordFromNet(isNeedBleGetRecords, beans);
                 if (mRefreshLayout != null) {
                     mRefreshLayout.finishLoadMore(true);
+                    mRefreshLayout.finishRefresh(true);
                 }
             }
 
@@ -387,6 +399,10 @@ public class OperationRecordsActivity extends BaseActivity {
                 // TODO: 2021/3/18 如果是第一页加载本地数据库
                 dismissLoading();
                 Timber.e(e);
+                if (mRefreshLayout != null) {
+                    mRefreshLayout.finishLoadMore(false);
+                    mRefreshLayout.finishRefresh(false);
+                }
             }
 
             @Override
@@ -394,7 +410,6 @@ public class OperationRecordsActivity extends BaseActivity {
 
             }
         });
-
     }
 
     private long mLatestCreateTime = 0L;

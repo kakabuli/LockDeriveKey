@@ -95,15 +95,19 @@ public class UserPageActivity extends BaseActivity implements EasyPermissions.Pe
             PictureSelector.create(this)
                     .openGallery(PictureMimeType.ofImage())
                     .loadImageEngine(GlideEngine.createGlideEngine()) // 请参考Demo GlideEngine.java
+                    .isWebp(true)
                     .forResult(PictureConfig.CHOOSE_REQUEST);
+            if (mPicSelectPopup != null) mPicSelectPopup.dismiss();
         });
-        mPicSelectPopup.setCameraOnClickListener(v ->
-                PictureSelector.create(this)
-                        .openCamera(PictureMimeType.ofImage())
-                        .maxSelectNum(1)
-                        .loadImageEngine(GlideEngine.createGlideEngine()) // 请参考Demo GlideEngine.java
-                        .forResult(PictureConfig.REQUEST_CAMERA)
-        );
+        mPicSelectPopup.setCameraOnClickListener(v -> {
+            PictureSelector.create(this)
+                    .openCamera(PictureMimeType.ofImage())
+                    .maxSelectNum(1)
+                    .isWebp(true)
+                    .loadImageEngine(GlideEngine.createGlideEngine()) // 请参考Demo GlideEngine.java
+                    .forResult(PictureConfig.REQUEST_CAMERA);
+            if (mPicSelectPopup != null) mPicSelectPopup.dismiss();
+        });
         mPicSelectPopup.setCancelOnClickListener(v -> dismissPicSelect());
     }
 
@@ -147,14 +151,10 @@ public class UserPageActivity extends BaseActivity implements EasyPermissions.Pe
             url = avatarUrl;
         } else {
             File file = new File(avatarLocalPath);
-            if (file == null) {
-                url = avatarUrl;
+            if (file.exists()) {
+                url = avatarLocalPath;
             } else {
-                if (file.exists()) {
-                    url = avatarLocalPath;
-                } else {
-                    url = avatarUrl;
-                }
+                url = avatarUrl;
             }
         }
         RequestOptions requestOptions = RequestOptions.circleCropTransform()
@@ -201,6 +201,7 @@ public class UserPageActivity extends BaseActivity implements EasyPermissions.Pe
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == RESULT_OK) {
+            showLoading("Uploading...");
             switch (requestCode) {
                 case PictureConfig.CHOOSE_REQUEST:
                 case PictureConfig.REQUEST_CAMERA:
@@ -217,9 +218,6 @@ public class UserPageActivity extends BaseActivity implements EasyPermissions.Pe
                         return;
                     }
                     File avatarFile = new File(path);
-                    if (avatarFile == null) {
-                        return;
-                    }
                     compress(avatarFile, 70);
                     uploadUserAvatar(avatarFile);
                     dismissPicSelect();
@@ -299,7 +297,6 @@ public class UserPageActivity extends BaseActivity implements EasyPermissions.Pe
             return;
         }
 
-        showLoading("Uploading...");
         Observable<UploadUserAvatarBeanRsp> observable = HttpRequest.getInstance()
                 .uploadUserAvatar(token, uid, avatarFile);
         ObservableDecorator.decorate(observable).safeSubscribe(new Observer<UploadUserAvatarBeanRsp>() {
@@ -310,7 +307,6 @@ public class UserPageActivity extends BaseActivity implements EasyPermissions.Pe
 
             @Override
             public void onNext(@NonNull UploadUserAvatarBeanRsp uploadUserAvatarBeanRsp) {
-                dismissLoading();
                 String code = uploadUserAvatarBeanRsp.getCode();
                 if (TextUtils.isEmpty(code)) {
                     Timber.e("uploadUserAvatar code is empty");
@@ -337,6 +333,7 @@ public class UserPageActivity extends BaseActivity implements EasyPermissions.Pe
                 mUser.setAvatarLocalPath(avatarFile.getPath());
                 AppDatabase.getInstance(UserPageActivity.this).userDao().update(mUser);
                 refreshUserUI();
+                dismissLoading();
                 ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show("Change Success");
             }
 
@@ -483,8 +480,6 @@ public class UserPageActivity extends BaseActivity implements EasyPermissions.Pe
             fos.write(bos.toByteArray());
             fos.flush();
             fos.close();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }
