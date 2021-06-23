@@ -129,5 +129,4 @@ public class OpenDrawHandPwdActivity extends BaseActivity {
         }
         return true;
     }
-
 }

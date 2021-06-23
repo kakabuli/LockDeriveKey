@@ -120,7 +120,7 @@ public class ModifyPasswordActivity extends BaseActivity {
             return;
         }
         if(!RegexUtils.isMatch("^(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{8,15}$", oldPwd)) {
-            ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_please_input_8_15_right_pwd);
+            ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_you_can_set_8_15_valid_pwd);
             return;
         }
         String pwd = mEtPwd.getText().toString().trim();
@@ -129,7 +129,7 @@ public class ModifyPasswordActivity extends BaseActivity {
             return;
         }
         if(!RegexUtils.isMatch("^(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{8,15}$", pwd)) {
-            ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_please_input_8_15_right_pwd);
+            ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_you_can_set_8_15_valid_pwd);
             return;
         }
         if(App.getInstance().getUserBean() == null) {

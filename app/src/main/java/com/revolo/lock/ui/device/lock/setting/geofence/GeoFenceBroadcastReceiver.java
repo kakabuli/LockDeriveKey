@@ -95,6 +95,4 @@ public class GeoFenceBroadcastReceiver extends BroadcastReceiver {
         EventBus.getDefault().post(lockMessage);
 
     }
-
-
 }

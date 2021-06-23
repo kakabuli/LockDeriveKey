@@ -919,7 +919,7 @@ public class LockAppService extends Service {
                 ConvertUtils.bytes2HexString(lockStateBit15_8), soundVolume, languageStr, power, realTime);
 
         mDeviceLists.get(index).setLockPower(power);
-        boolean isMute = (soundVolume == LocalState.VOLUME_STATE_OPEN);
+        boolean isMute = (soundVolume == LocalState.VOLUME_STATE_MUTE);
         mDeviceLists.get(index).setMute(isMute);
         byte doorSensorState = bit7_0[3];
         boolean isOpenDoorSensor = (doorSensorState == 0x01);

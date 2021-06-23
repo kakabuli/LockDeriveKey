@@ -192,10 +192,6 @@ public class LoginActivity extends BaseActivity {
             ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_please_input_your_pwd);
             return;
         }
-        if (!RegexUtils.isMatch("^(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{8,15}$", pwd)) {
-            ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_please_input_8_15_right_pwd);
-            return;
-        }
         showLoading();
         MailLoginBeanReq req = new MailLoginBeanReq();
         req.setMail(mail);

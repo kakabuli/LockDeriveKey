@@ -128,7 +128,7 @@
                 <!--                    android:pathPrefix="/share/user"-->
                 <!--                    android:scheme="http" />-->
                 <data
-                    android:host="revolotest.sfeiya.com"
+                    android:host="wfp.irevolohome.com"
                     android:pathPrefix="/triple"
                     android:scheme="https" />
             </intent-filter>
@@ -366,7 +366,7 @@
                 <!--                    android:pathPrefix="/share/user"-->
                 <!--                    android:scheme="http" />-->
                 <data
-                    android:host="revolotest.sfeiya.com"
+                    android:host="wfp.irevolohome.com"
                     android:pathPrefix="/triple"
                     android:scheme="https" />
             </intent-filter>
@@ -381,7 +381,7 @@
                 <!--协议部分-->
                 <!--声明自定义scheme，类似于http, https-->
                 <data
-                    android:host="revolotest.sfeiya.com"
+                    android:host="wfp.irevolohome.com"
                     android:scheme="app" />
             </intent-filter>
         </activity>

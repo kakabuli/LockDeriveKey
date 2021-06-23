@@ -257,6 +257,7 @@ public class DeviceSettingActivity extends BaseActivity {
 
     private void openOrCloseNotification() {
         mBleDeviceLocal.setDoNotDisturbMode(!mBleDeviceLocal.isDoNotDisturbMode());
+        App.getInstance().setBleDeviceLocal(mBleDeviceLocal);
         AppDatabase.getInstance(this).bleDeviceDao().update(mBleDeviceLocal);
         mIvDoNotDisturbModeEnable.setImageResource(mBleDeviceLocal.isDoNotDisturbMode() ? R.drawable.ic_icon_switch_open : R.drawable.ic_icon_switch_close);
     }
@@ -432,9 +433,11 @@ public class DeviceSettingActivity extends BaseActivity {
     private void saveMuteStateToLocal(@LocalState.VolumeState int mute) {
         if (mute == LocalState.VOLUME_STATE_OPEN) {
             mBleDeviceLocal.setMute(false);
+            App.getInstance().setBleDeviceLocal(mBleDeviceLocal);
             AppDatabase.getInstance(this).bleDeviceDao().update(mBleDeviceLocal);
         } else if (mute == LocalState.VOLUME_STATE_MUTE) {
             mBleDeviceLocal.setMute(true);
+            App.getInstance().setBleDeviceLocal(mBleDeviceLocal);
             AppDatabase.getInstance(this).bleDeviceDao().update(mBleDeviceLocal);
         }
         refreshMuteEnable();
