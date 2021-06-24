@@ -180,6 +180,10 @@ public class LoginActivity extends BaseActivity {
         String mail = mEtEmail.getText().toString().trim();
         String pwd = mEtPwd.getText().toString();
         // TODO: 2021/1/26 提示语抽离同时修正
+        if (TextUtils.isEmpty(mail) && TextUtils.isEmpty(pwd)) {
+            ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_please_input_your_account_and_password);
+            return;
+        }
         if (TextUtils.isEmpty(mail)) {
             ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_please_input_your_account);
             return;

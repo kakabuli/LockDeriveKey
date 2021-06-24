@@ -338,20 +338,9 @@ public class PasswordDetailActivity extends BaseActivity {
             publishDelPwd(mBleDeviceLocal.getEsn(), mDevicePwdBean.getPwdNum());
         } else {
             BleBean bleBean = App.getInstance().getUserBleBean(mBleDeviceLocal.getMac());
-            if (bleBean == null) {
+            if (bleBean == null || bleBean.getOKBLEDeviceImp() == null || bleBean.getPwd1() == null || bleBean.getPwd3() == null) {
                 Timber.e("delPwd bleBean == null");
-                return;
-            }
-            if (bleBean.getOKBLEDeviceImp() == null) {
-                Timber.e("delPwd bleBean.getOKBLEDeviceImp() == null");
-                return;
-            }
-            if (bleBean.getPwd1() == null) {
-                Timber.e("delPwd bleBean.getPwd1() == null");
-                return;
-            }
-            if (bleBean.getPwd3() == null) {
-                Timber.e("delPwd bleBean.getPwd3() == null");
+                ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show("Delete failed, Bluetooth connection failed");
                 return;
             }
             LockMessage message = new LockMessage();

@@ -61,7 +61,7 @@ public class AddDeviceQRCodeStep2Activity extends BaseActivity {
                         startActivity(intent);
                         finish();
                     } else {
-                        ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show("Abnormal QR code, please scan again");
+                        ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show("Please select the correct QR code to scan again");
                     }
                 }
             }

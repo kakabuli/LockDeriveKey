@@ -195,8 +195,6 @@ public class AddNewPwdSelectActivity extends BaseActivity {
             } else {
                 switch (lockMessage.getResultCode()) {
                     case LockMessageCode.MSG_LOCK_MESSAGE_CREATE_PWD:
-                        dismissLoading();
-                        break;
                     case LockMessageCode.MSG_LOCK_MESSAGE_ADD_PWD:
                         dismissLoading();
                         break;
@@ -245,12 +243,12 @@ public class AddNewPwdSelectActivity extends BaseActivity {
         mTvEndDateTime = findViewById(R.id.tvEndDateTime);
 
         mVSun.setVisibility(isSelectedSun ? View.VISIBLE : View.GONE);
-        mVMon.setVisibility(isSelectedSun ? View.VISIBLE : View.GONE);
-        mVTues.setVisibility(isSelectedSun ? View.VISIBLE : View.GONE);
-        mVWed.setVisibility(isSelectedSun ? View.VISIBLE : View.GONE);
-        mVThur.setVisibility(isSelectedSun ? View.VISIBLE : View.GONE);
-        mVFri.setVisibility(isSelectedSun ? View.VISIBLE : View.GONE);
-        mVSat.setVisibility(isSelectedSun ? View.VISIBLE : View.GONE);
+        mVMon.setVisibility(isSelectedMon ? View.VISIBLE : View.GONE);
+        mVTues.setVisibility(isSelectedTues ? View.VISIBLE : View.GONE);
+        mVWed.setVisibility(isSelectedWed ? View.VISIBLE : View.GONE);
+        mVThur.setVisibility(isSelectedThur ? View.VISIBLE : View.GONE);
+        mVFri.setVisibility(isSelectedFri ? View.VISIBLE : View.GONE);
+        mVSat.setVisibility(isSelectedSat ? View.VISIBLE : View.GONE);
     }
 
     @Override
@@ -679,6 +677,11 @@ public class AddNewPwdSelectActivity extends BaseActivity {
         mDevicePwdBean.setStartTime(mScheduleStartTimeMill / 1000);
         mDevicePwdBean.setEndTime(mScheduleEndTimeMill / 1000);
         mDevicePwdBean.setAttribute(KEY_SET_ATTRIBUTE_WEEK_KEY);
+        if (week == 0) { // 没有选择星期
+            Timber.e("............ repeat not choose");
+            ToastUtils.make().setGravity(Gravity.CENTER,0,0).show("Repeat Not Choose");
+            return;
+        }
         if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI) {
             publishAddPwdAttr(mBleDeviceLocal.getEsn(),
                     KEY_SET_ATTRIBUTE_WEEK_KEY,

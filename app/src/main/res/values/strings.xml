@@ -522,4 +522,7 @@
     <string name="tip_setting_no_supports">Device not Support!</string>
     <string name="tip_setting_no_supports_face_id">Device not find FaceID!</string>
     <string name="tip_setting_no_supports_touch_id">Device not find TouchID!</string>
+    <string name="tip_incorrect_input_please_try_again">Please enter a correct ESN number</string>
+    <string name="tip_modify_user_name_length">The name is limited to 2-30 characters</string>
+    <string name="t_please_input_your_account_and_password">Please input your account and password!</string>
 </resources>
