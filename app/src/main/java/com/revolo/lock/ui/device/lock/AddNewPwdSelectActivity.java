@@ -280,7 +280,22 @@ public class AddNewPwdSelectActivity extends BaseActivity {
             return;
         }
         if (view.getId() == R.id.btnNext) {
-            nextStep();
+            if (mSelectedPwdState == SCHEDULE_STATE) {
+                if (isSelectedFri || isSelectedMon || isSelectedSat || isSelectedSun || isSelectedThur || isSelectedTues || isSelectedWed) {
+                    nextStep();
+                } else {
+                    ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show("Repeat Not Choose");
+                    dismissLoading();
+                }
+            } else if (mSelectedPwdState == TEMPORARY_STATE) {
+                if (mTemEndDateTimeMill < new Date().getTime()) {
+                    ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_the_end_time_cannot_be_less_than_the_current_time);
+                } else {
+                    nextStep();
+                }
+            } else {
+                nextStep();
+            }
             return;
         }
         if (view.getId() == R.id.tvSun) {
@@ -677,11 +692,6 @@ public class AddNewPwdSelectActivity extends BaseActivity {
         mDevicePwdBean.setStartTime(mScheduleStartTimeMill / 1000);
         mDevicePwdBean.setEndTime(mScheduleEndTimeMill / 1000);
         mDevicePwdBean.setAttribute(KEY_SET_ATTRIBUTE_WEEK_KEY);
-        if (week == 0) { // 没有选择星期
-            Timber.e("............ repeat not choose");
-            ToastUtils.make().setGravity(Gravity.CENTER,0,0).show("Repeat Not Choose");
-            return;
-        }
         if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI) {
             publishAddPwdAttr(mBleDeviceLocal.getEsn(),
                     KEY_SET_ATTRIBUTE_WEEK_KEY,

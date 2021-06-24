@@ -1,6 +1,7 @@
 package com.revolo.lock.base;
 
 import android.app.Activity;
+import android.bluetooth.BluetoothAdapter;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.view.Gravity;
@@ -20,6 +21,7 @@ import com.blankj.utilcode.util.ToastUtils;
 import com.revolo.lock.LockAppManager;
 import com.revolo.lock.R;
 import com.revolo.lock.dialog.iosloading.CustomerLoadingDialog;
+import com.revolo.lock.manager.LockAppService;
 import com.revolo.lock.manager.LockConnected;
 import com.revolo.lock.shulan.KeepAliveManager;
 import com.revolo.lock.shulan.config.ForegroundNotification;
@@ -52,6 +54,7 @@ public abstract class BaseActivity extends AppCompatActivity
     public Activity mActivity;
     private CustomerLoadingDialog mLoadingDialog;
     public boolean isShowNetState = true;
+    private BluetoothAdapter mBluetoothAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,6 +65,10 @@ public abstract class BaseActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         initData(getIntent().getExtras());
         setContentView();
+        if (mBluetoothAdapter == null) {
+            mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+        }
+
         LockConnected bleConnected = new LockConnected();
         bleConnected.setConnectType(0);
         EventBus.getDefault().post(bleConnected);
@@ -96,6 +103,7 @@ public abstract class BaseActivity extends AppCompatActivity
                 mTitleBar.setNetError(b);
             }
         }
+
     }
 
     @Override

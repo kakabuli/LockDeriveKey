@@ -412,9 +412,9 @@ public class LockAppService extends Service {
             }
             boolean bleState = onGetConnectedState(bleDeviceLocal.getMac());//当前蓝牙设的设备的状态
             boolean mqttState = bleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI ? true : false;//当前锁与服务器的连接状态
-            boolean appMqttState = MQTTManager.getInstance().onGetMQTTConnectedState();//当前APP与MQTT服务器端的连接状态
-            bleDeviceLocal.setConnectedType(checkDeviceState(bleState, mqttState, appMqttState));//ble
-            Timber.d("add device：type:%s;bleState:%s;mqttState:%s;appMqttState:%s", bleDeviceLocal.getConnectedType() + "", bleState, mqttState, appMqttState);
+//            boolean appMqttState = MQTTManager.getInstance().onGetMQTTConnectedState();//当前APP与MQTT服务器端的连接状态
+            bleDeviceLocal.setConnectedType(checkDeviceState(bleState, mqttState));//ble
+            Timber.d("add device：type:%s;bleState:%s;mqttState:%s", bleDeviceLocal.getConnectedType() + "", bleState, mqttState);
             Timber.d("add device：type:%s", bleDeviceLocal.getConnectedType() + "");
             int index = checkDeviceList(bleDeviceLocal.getEsn(), bleDeviceLocal.getMac());
             if (index < 0) {
@@ -466,15 +466,14 @@ public class LockAppService extends Service {
      *
      * @param bleState
      * @param mqttState
-     * @param appMqttState
      * @return
      */
-    private int checkDeviceState(boolean bleState, boolean mqttState, boolean appMqttState) {
-        if (bleState && mqttState && appMqttState) {
+    private int checkDeviceState(boolean bleState, boolean mqttState) {
+        if (bleState && mqttState) {
             return LocalState.DEVICE_CONNECT_TYPE_WIFI;//双连接
-        } else if (!bleState && mqttState && appMqttState) {
+        } else if (!bleState && mqttState) {
             return LocalState.DEVICE_CONNECT_TYPE_WIFI;//wifi
-        } else if ((bleState && !mqttState || (bleState && !appMqttState))) {
+        } else if (bleState && !mqttState) {
             return LocalState.DEVICE_CONNECT_TYPE_BLE;//ble
         } else {
             return LocalState.DEVICE_CONNECT_TYPE_DIS;//ble
@@ -580,10 +579,9 @@ public class LockAppService extends Service {
             if ((null != esn && esn.equals(mDeviceLists.get(i).getEsn())) || (null != mac && mac.equals(mDeviceLists.get(i).getMac()))) {
                 boolean bleState = onGetConnectedState(mDeviceLists.get(i).getMac());//当前蓝牙设的设备的状态
                 boolean mqttState = mDeviceLists.get(i).getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI ? true : false;//当前锁与服务器的连接状态
-                boolean appMqttState = MQTTManager.getInstance().onGetMQTTConnectedState();//当前APP与MQTT服务器端的连接状态
-                mDeviceLists.get(i).setConnectedType(checkDeviceState(bleState, mqttState, appMqttState));//ble
-                Timber.d("add device：type:%s;bleState:%s;mqttState:%s;appMqttState:%s", mDeviceLists.get(i).getConnectedType() + "", bleState, mqttState, appMqttState);
-
+//                boolean appMqttState = MQTTManager.getInstance().onGetMQTTConnectedState();//当前APP与MQTT服务器端的连接状态
+                mDeviceLists.get(i).setConnectedType(checkDeviceState(bleState, mqttState));//ble
+                Timber.d("add device：type:%s;bleState:%s;mqttState:%s;", mDeviceLists.get(i).getConnectedType() + "", bleState, mqttState);
                 break;
             }
         }
@@ -608,8 +606,8 @@ public class LockAppService extends Service {
             //判断蓝牙mac和sn码
             boolean bleState = false;//当前蓝牙设的设备的状态
             boolean mqttState = mDeviceLists.get(i).getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI ? true : false;//当前锁与服务器的连接状态
-            boolean appMqttState = MQTTManager.getInstance().onGetMQTTConnectedState();//当前APP与MQTT服务器端的连接状态
-            mDeviceLists.get(i).setConnectedType(checkDeviceState(bleState, mqttState, appMqttState));//ble
+//            boolean appMqttState = MQTTManager.getInstance().onGetMQTTConnectedState();//当前APP与MQTT服务器端的连接状态
+            mDeviceLists.get(i).setConnectedType(checkDeviceState(bleState, mqttState));//ble
         }
         LockMessageRes messageRes = new LockMessageRes();
         messageRes.setMessgaeType(LockMessageCode.MSG_LOCK_MESSAGE_USER);
@@ -630,8 +628,8 @@ public class LockAppService extends Service {
             //判断蓝牙mac和sn码
             boolean bleState = onGetConnectedState(mDeviceLists.get(i).getMac());//当前蓝牙设的设备的状态
             boolean mqttState = mDeviceLists.get(i).getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI ? true : false;//当前锁与服务器的连接状态
-            boolean appMqttState = MQTTManager.getInstance().onGetMQTTConnectedState();//当前APP与MQTT服务器端的连接状态
-            mDeviceLists.get(i).setConnectedType(checkDeviceState(bleState, mqttState, appMqttState));//ble
+//            boolean appMqttState = MQTTManager.getInstance().onGetMQTTConnectedState();//当前APP与MQTT服务器端的连接状态
+            mDeviceLists.get(i).setConnectedType(checkDeviceState(bleState, mqttState));//ble
             break;
         }
         //  lock.unlock();
