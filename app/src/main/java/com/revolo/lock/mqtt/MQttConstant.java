@@ -54,10 +54,6 @@ public class MQttConstant {
         return "/" + userId + "/rpc/call";
     }
 
-    public static String getOrangeiotTopic(String sn) {
-        return " /orangeiot/" + sn + "/event";
-    }
-
     //发布给服务器消息的主题，格式为/request/app/func
     public static final String PUBLISH_TO_SERVER = "/request/app/func";
     //发布给服务器中转网关消息的主题，/clientid/rpc/call

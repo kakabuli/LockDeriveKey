@@ -80,6 +80,7 @@ public class WifiLockOperationEventBean extends WifiLockBaseResponseBean {
     private String eventtype;
     private EventparamsBean eventparams;
     private String timestamp;
+    private int state;
 
     public static class EventparamsBean {
         private int eventType;
@@ -250,6 +251,13 @@ public class WifiLockOperationEventBean extends WifiLockBaseResponseBean {
         }
     }
 
+    public int getState() {
+        return state;
+    }
+
+    public void setState(int state) {
+        this.state = state;
+    }
 
     public String getDevtype() {
         return devtype;

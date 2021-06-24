@@ -3,7 +3,6 @@ package com.revolo.lock.ui.device;
 import android.bluetooth.BluetoothAdapter;
 import android.content.Intent;
 import android.os.Bundle;
-import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -30,7 +29,6 @@ import com.revolo.lock.ble.BleProtocolState;
 import com.revolo.lock.ble.bean.BleBean;
 import com.revolo.lock.ble.bean.BleResultBean;
 import com.revolo.lock.dialog.iosloading.CustomerLoadingDialog;
-import com.revolo.lock.manager.LockConnected;
 import com.revolo.lock.manager.LockMessage;
 import com.revolo.lock.manager.LockMessageCode;
 import com.revolo.lock.manager.LockMessageRes;
@@ -285,6 +283,10 @@ public class DeviceFragment extends Fragment {
             if (bleDeviceLocal.getEsn().equals(wfId) && eventparams != null) {
                 if (eventparams.getOperatingMode() == 1) {
                     bleDeviceLocal.setLockState(LocalState.LOCK_STATE_PRIVATE);
+                }
+                if (wifiLockBaseResponseBean.getEventtype().equals("wifiState")) {
+                    int state = wifiLockBaseResponseBean.getState();
+                    bleDeviceLocal.setConnectedType(state);
                 }
             }
         }

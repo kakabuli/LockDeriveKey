@@ -241,8 +241,9 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
         if (bleBean != null) {
             bleBean.setAppPair(false);
         }
-        handler.sendEmptyMessage(MSG_BLE_CONNECT_FAIL);
-        handler.removeMessages(MSG_BLE_ADDDEVICE_CONNECT_FAIL);
+        handler.removeCallbacksAndMessages(0);
+        handler = null;
+        mCountDownTimer.cancel();
         super.onDestroy();
     }
 
@@ -532,6 +533,7 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
     private void gotoBleConnectFail() {
         handler.removeMessages(MSG_BLE_SCAN_OUT_TIME);
         handler.removeMessages(MSG_BLE_ADDDEVICE_CONNECT_FAIL);
+        handler.removeMessages(MSG_BLE_CONNECT_FAIL);
         Intent intent = new Intent(this, BleConnectFailActivity.class);
         Intent preIntent = getIntent();
         if (!preIntent.hasExtra(Constant.PRE_A)) return;
