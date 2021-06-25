@@ -46,6 +46,7 @@ import com.revolo.lock.net.ObservableDecorator;
 import com.revolo.lock.room.AppDatabase;
 import com.revolo.lock.room.entity.BleDeviceLocal;
 import com.revolo.lock.ui.view.SmartClassicsHeaderView;
+import com.revolo.lock.widget.SlideRecyclerView;
 import com.scwang.smart.refresh.layout.api.RefreshLayout;
 
 import org.greenrobot.eventbus.EventBus;
@@ -80,7 +81,6 @@ public class PasswordListActivity extends BaseActivity {
     private BleDeviceLocal mBleDeviceLocal;
     private RefreshLayout mRefreshLayout;
     private MessageDialog mPasswordFull;
-    private Disposable mDelPwdDisposable;
     private DevicePwdBean devicePwdBean;
 
     @Override
@@ -127,7 +127,7 @@ public class PasswordListActivity extends BaseActivity {
                                 }
                             }
                         });
-        RecyclerView rvPwdList = findViewById(R.id.rvPwdList);
+        SlideRecyclerView rvPwdList = findViewById(R.id.rvPwdList);
         rvPwdList.setLayoutManager(new LinearLayoutManager(this));
         mPasswordListAdapter = new PasswordListAdapter(R.layout.item_pwd_list_rv);
         mPasswordListAdapter.setOnItemClickListener((adapter, view, position) -> {
@@ -148,6 +148,7 @@ public class PasswordListActivity extends BaseActivity {
                 if (item != null) {
                     delPwd(item);
                 }
+                rvPwdList.closeMenu();
             }
         });
         initLoading("Loading...");

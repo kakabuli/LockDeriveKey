@@ -1,8 +1,8 @@
 <resources>
     <string name="app_name">Revolo Lock</string>
-    <string name="title_device">Device</string>
-    <string name="title_user">User</string>
-    <string name="title_mine">Mine</string>
+    <string name="title_device">Devices</string>
+    <string name="title_user">Invite</string>
+    <string name="title_mine">My</string>
 
     <!--   SignSelectActivity  -->
     <string name="revolo">Revolo</string>
@@ -40,6 +40,7 @@
 
     <!-- LoginActivity -->
     <string name="tip_login">Please enter your email account！</string>
+    <string name="pin_key">PIN key</string>
     <string name="password">Password</string>
     <string name="forgot_password">Forgot password?</string>
 
@@ -71,6 +72,7 @@
     <string name="tip_notification">Notification</string>
     <string name="tip_activities">Activities</string>
     <string name="tip_user">User</string>
+    <string name="tip_invite">Invite</string>
     <string name="tip_setting">Setting</string>
     <string name="tip_low_battery">Low battery</string>
     <string name="tip_online">Online</string>
@@ -85,7 +87,7 @@
 
     <!-- AddNewPwdActivity -->
     <string name="tip_you_can_set_4_10_valid_passwords">You can set 4&#8211;10 valid passwords</string>
-    <string name="hint_please_enter_password">Please enter password</string>
+    <string name="hint_please_enter_password">Enter pincode</string>
     <string name="title_add_password">Add password</string>
     <string name="select_permanent">Permanent</string>
     <string name="select_schedule">Schedule</string>
@@ -157,8 +159,8 @@
 
     <!-- AutoLockActivity -->
     <string name="title_auto_lock">Auto lock</string>
-    <string name="tip_auto_lock">Auto lock</string>
-    <string name="set_lock_time">Set lock time</string>
+    <string name="tip_auto_lock">Auto-lock</string>
+    <string name="set_lock_time">Auto0lock Timing</string>
     <string name="tip_the_timer_will_start_when_your_door_is_closed">The timer will start when your door is closed.</string>
     <string name="tip_door_will_be_locked_when_time_is_up">Door will be locked when time is up.</string>
     <string name="second">%1$ds</string>
@@ -458,8 +460,8 @@
     <string name="t_you_have_entered_the_range_of_the_geo_fence">You have entered the range of the geo fence</string>
     <string name="t_you_have_exited_the_geo_fence">You have exited the geo fence</string>
     <string name="n_geo_fence">Geo Fence</string>
-    <string name="t_you_can_add_geo_fences">You can add geo fences...</string>
-    <string name="t_bg_loc_access_is_necessary_for_geo_fences_to_trigger">Background location access is necessary for geo fences to trigger...</string>
+    <string name="t_you_can_add_geo_fences">You can add geo fences&#8230;</string>
+    <string name="t_bg_loc_access_is_necessary_for_geo_fences_to_trigger">Background location access is necessary for geo fences to trigger&#8230;</string>
     <string name="t_please_enter_feedback_content">Please enter feedback content!</string>
     <string name="t_please_enter_feedback_less">Enter at least 20 characters!</string>
     <string name="t_please_input_old_pwd">Please input old password</string>
@@ -505,24 +507,29 @@
     <string name="smart_srl_footer_pulling">Pull Up To Load More</string>
     <string name="smart_srl_footer_refreshing">Wait For Refreshing…</string>
     <string name="smart_srl_footer_release">Release To Load More</string>
-    <string name="login_name_len_max_hint">The user name is limited to 2-30 characters</string>
+    <string name="login_name_len_max_hint">The user name is limited to 2&#8211;30 characters</string>
     <string name="pwd_open_camera_permission">Please turn on camera permissions in settings</string>
     <string name="t_wifi_disconnected_tip">WiFi is Offline. \n Please approach the lock and turn on Phone Bluetooth, then enter setting.</string>
     <string name="no_message_yet">No message yet~</string>
 
     <string name="t_introduce_auto_lock_title">What is auto lock?</string>
-    <string name="t_introduce_auto_lock_content">    After you set the time, a built-in sensor detects when your door is closed and locks it at the corresponding time.</string>
+    <string name="t_introduce_auto_lock_content">&#160;&#160;&#160;&#160;After you set the time, a built-in sensor detects when your door is closed and locks it at the corresponding time.</string>
 
-    <string name="t_introduce_Geo_fence_title">What is Geo-fence to unlock?</string>
-    <string name="t_introduce_Geo_fence_content">    Turn on the Geo-fence Lock function, calibrate the position of the lock, and then set the time and strength. After the APP user enters the positioning 200m range for the corresponding time, unlock by just knocking the door.</string>
+    <string name="t_introduce_Geo_fence_title">What is the knock-open unlock?</string>
+    <string name="t_introduce_Geo_fence_content">· Turn on the Geo-fence Lock function, \n·set the distance, time, and knocking strength of knocking. \n\nSet a distance of 200 meters and a time of 10 minutes. When you enter the scope of the distance and time that been set, the door will be unlocked ac-cording to the set knock frequency, and the door will be opened. It does not need any equipment to unlock, which will provide you great convenience for your door opening.</string>
 
-    <string name="t_introduce_door_sensor_alignment_title">What is door sensor calibration?</string>
-    <string name="t_introduce_door_sensor_alignment_content">    After the door sensor calibration, it will remind the user to close the door, and prompt when you forget to close the door.</string>
+    <string name="t_introduce_door_sensor_alignment_title">What is the door sensor alignment?</string>
+    <string name="t_introduce_door_sensor_alignment_content">&#160;&#160;&#160;&#160;After the door sensor calibration, it will remind the user to close the door, and prompt when you forget to close the door.</string>
     <string name="tip_duress_password_email_alike">Email cannot be the same as login account</string>
     <string name="tip_setting_no_supports">Device not Support!</string>
     <string name="tip_setting_no_supports_face_id">Device not find FaceID!</string>
     <string name="tip_setting_no_supports_touch_id">Device not find TouchID!</string>
     <string name="tip_incorrect_input_please_try_again">Please enter a correct ESN number</string>
-    <string name="tip_modify_user_name_length">The name is limited to 2-30 characters</string>
+    <string name="tip_modify_user_name_length">The name is limited to 2&#8211;30 characters</string>
     <string name="t_please_input_your_account_and_password">Please input your account and password!</string>
+    <string name="tip_wifi_not_connected">Not connected</string>
+    <string name="t_can_not_contain_more_than_4_repeats_numbers">·Can not contain more than 4-repeats numbers</string>
+    <string name="t_can_not_contain_more_than_4_sequential_numbers">·Can not contain more than 4 sequential numbers</string>
+    <string name="t_how_to_use_the_password_securely">How to use the password securely?</string>
+    <string name="t_add_new_input_pin_text">· After the password setting is completed. · When opening the door, if necessary, you can add any random number before and after you set the password, which will better protect your password security.</string>
 </resources>

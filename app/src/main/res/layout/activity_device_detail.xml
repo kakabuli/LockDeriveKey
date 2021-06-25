@@ -161,7 +161,7 @@
                 android:textSize="11pt"
                 android:layout_marginTop="7pt"
                 android:textColor="@color/c999999"
-                android:text="@string/password"/>
+                android:text="@string/pin_key"/>
 
         </LinearLayout>
 
@@ -181,10 +181,10 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textSize="11pt"
                 android:layout_marginTop="7pt"
+                android:text="@string/tip_invite"
                 android:textColor="@color/c999999"
-                android:text="@string/tip_user"/>
+                android:textSize="11pt" />
 
         </LinearLayout>
 

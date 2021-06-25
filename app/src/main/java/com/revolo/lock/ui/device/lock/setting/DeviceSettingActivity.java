@@ -270,9 +270,9 @@ public class DeviceSettingActivity extends BaseActivity {
         String wifiName = mBleDeviceLocal.getConnectedWifiName();
         //同时得保持WiFi连接
         if (null != wifiName && !"".equals(wifiName)) {
-            mTvWifiName.setText(mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI ? wifiName : "");
+            mTvWifiName.setText(mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI ? wifiName : getString(R.string.tip_wifi_not_connected));
         } else {
-            mTvWifiName.setText("");
+            mTvWifiName.setText(R.string.tip_wifi_not_connected);
         }
     }
 

@@ -33,35 +33,13 @@
         app:layout_constraintTop_toBottomOf="@+id/titleBar"
         app:srcCompat="@drawable/ic_icon_switch_close" />
 
-    <TextView
-        android:id="@+id/tvDetectionLock"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16pt"
-        android:layout_marginTop="30pt"
-        android:text="@string/detection_lock"
-        android:textColor="@color/c333333"
-        android:textSize="15pt"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView34" />
-
-    <ImageView
-        android:id="@+id/ivDetectionLockEnable"
-        android:layout_width="46pt"
-        android:layout_height="26pt"
-        android:layout_marginTop="25pt"
-        android:layout_marginEnd="15pt"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/ivAutoLockEnable"
-        app:srcCompat="@drawable/ic_icon_switch_close" />
-
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/clSetLockTime"
         android:layout_width="match_parent"
         android:layout_height="0pt"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tvDetectionLock">
+        app:layout_constraintTop_toBottomOf="@+id/textView34">
 
         <TextView
             android:id="@+id/textView36"
@@ -107,10 +85,34 @@
             android:layout_marginTop="15pt"
             android:layout_marginEnd="10pt"
             android:max="140"
+            android:maxHeight="2dp"
+            android:progressDrawable="@drawable/ic_seek_bar_progress_bg"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/textView36" />
     </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <TextView
+        android:id="@+id/tvDetectionLock"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16pt"
+        android:layout_marginTop="30pt"
+        android:text="@string/detection_lock"
+        android:textColor="@color/c333333"
+        android:textSize="15pt"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/clSetLockTime" />
+
+    <ImageView
+        android:id="@+id/ivDetectionLockEnable"
+        android:layout_width="46pt"
+        android:layout_height="26pt"
+        android:layout_marginTop="25pt"
+        android:layout_marginEnd="15pt"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/clSetLockTime"
+        app:srcCompat="@drawable/ic_icon_switch_close" />
 
     <TextView
         android:id="@+id/tvIntroduceTitle"
@@ -122,10 +124,10 @@
         android:paddingEnd="16pt"
         android:paddingBottom="6pt"
         android:text="@string/t_introduce_auto_lock_title"
-        android:textColor="@color/c333333"
+        android:textColor="@color/cFF6A36"
         android:textSize="15pt"
         app:drawableEndCompat="@drawable/ic_icon_more_open"
-        app:layout_constraintTop_toBottomOf="@id/clSetLockTime" />
+        app:layout_constraintTop_toBottomOf="@id/tvDetectionLock" />
 
     <TextView
         android:id="@+id/tvIntroduceContent"
@@ -134,10 +136,10 @@
         android:layout_marginStart="16pt"
         android:layout_marginTop="16pt"
         android:layout_marginEnd="16pt"
-        android:visibility="gone"
         android:text="@string/t_introduce_auto_lock_content"
         android:textColor="@color/c666666"
         android:textSize="13pt"
+        android:visibility="gone"
         app:layout_constraintTop_toBottomOf="@id/tvIntroduceTitle" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

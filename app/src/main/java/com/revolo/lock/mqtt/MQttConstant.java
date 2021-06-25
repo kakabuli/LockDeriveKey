@@ -60,12 +60,6 @@ public class MQttConstant {
     public static String PUBLISH_TO_GATEWAY = "/rpc/call";
     public static final String PUBLISH_GET_RANDOM_CODE_TOPIC = "orangeiot/sn/encreport";
 
-    /**
-     * 新增MQTT订阅,/orangeiot/esn/event,服务器推送锁状态 state 字段  0 锁与服务器断开连接：1 锁与服务器保持连接
-     * /orangeiot/W013211810021/event
-     * "payload":"{"msgtype":"event","func":"wfevent","msgId":4,"devtype":"kdswflock","eventtype":"wifiState","state":"1","eventparams":}
-     */
-
     //==================================revolo============================
 
     // 设置门磁
