@@ -311,6 +311,7 @@ public class BleDeviceLocal implements Parcelable {
 
     public void setOpenDoorSensor(boolean openDoorSensor) {
         isOpenDoorSensor = openDoorSensor;
+        setDoorSensor(openDoorSensor?LocalState.DOOR_SENSOR_OPEN:LocalState.DOOR_SENSOR_CLOSE);
     }
 
     public boolean isMute() {

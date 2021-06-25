@@ -83,7 +83,6 @@ public class GeoFenceBroadcastReceiver extends BroadcastReceiver {
             Timber.e("publishApproachOpen deviceLocal == null");
             return;
         }
-        App.getInstance().setUsingGeoFenceBleDeviceLocal(deviceLocal);
         LockMessage lockMessage=new LockMessage();
         lockMessage.setMqttMessage( MqttCommandFactory.approachOpen(wifiID, broadcastTime,
                 BleCommandFactory.getPwd(
