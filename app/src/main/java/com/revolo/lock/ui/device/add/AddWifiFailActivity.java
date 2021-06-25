@@ -25,6 +25,7 @@ public class AddWifiFailActivity extends BaseActivity {
 
     @Override
     public void initData(@Nullable Bundle bundle) {
+        isShowNetState = false;
         Intent intent = getIntent();
         if(!intent.hasExtra(Constant.WIFI_NAME)) {
             // TODO: 2021/1/22 没有输入wifi name

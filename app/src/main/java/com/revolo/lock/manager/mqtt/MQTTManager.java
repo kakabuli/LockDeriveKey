@@ -222,7 +222,6 @@ public class MQTTManager {
         //设置MQTT数据回复
     }
 
-
     //订阅
     private void mqttSubscribe(MqttAndroidClient mqttClient, String topic, int qos) {
         Timber.d("订阅    " + topic + "   " + (mqttClient != null));

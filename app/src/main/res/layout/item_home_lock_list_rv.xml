@@ -27,6 +27,7 @@
         android:layout_marginStart="25pt"
         android:layout_marginTop="34pt"
         android:textColor="@color/c333333"
+        android:maxLength="20"
         android:textSize="16pt"
         app:layout_constraintStart_toEndOf="@+id/ivLockState"
         app:layout_constraintTop_toTopOf="parent"

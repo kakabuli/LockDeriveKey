@@ -129,11 +129,12 @@ public class HttpRequest {
 
     private final ApiService service;
 
+    private static final String HOST_ALPHA = "https://api.irevolohome.com:443";                   // alpha 生产服务器
     private static final String HOST_TEST = "https://internal.irevolo.com:8090";                    // 国内服务器测试接口
     private static final String ABROAD_HOST = "https://revolotest.sfeiya.com:8090";                      // 海外服务器测试接口
-    private static final String LOCAL_HOST = "https://192.168.118.248:443";                           // 长沙本地服务器测试接口
-    private static final String LOCAL_HOST_2 = "https://192.168.118.249:443";                           // 长沙本地服务器测试接口2
-    public static final String HOST = LOCAL_HOST_2;
+    private static final String LOCAL_HOST_248 = "https://192.168.118.248:443";                           // 长沙本地服务器测试接口
+    private static final String LOCAL_HOST_249 = "https://192.168.118.249:443";                           // 长沙本地服务器-*/测试接口2
+    public static final String HOST = LOCAL_HOST_249;
     private static final String CHECK_OTA_HOST_TEST = "https://test1.juziwulian.com:9111";          // 国内服务器测试接口
     private static final String CHECK_OTA_HOST_ABROAD = "https://ota-global.juziwulian.com:9111";   // 海外服务器接口
     public static final String CHECK_OTA_HOST = CHECK_OTA_HOST_ABROAD;
@@ -158,8 +159,7 @@ public class HttpRequest {
         logInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);//这一句一定要记得写，否则没有数据输出
         OkHttpClient client = new OkHttpClient.Builder()
                 .addNetworkInterceptor(logInterceptor)
-                .addInterceptor(new ChangeUrlInterceptor())
-                .connectTimeout(60, TimeUnit.SECONDS)
+                .addInterceptor(new ChangeUrlInterceptor()).connectTimeout(60, TimeUnit.SECONDS)
                 .sslSocketFactory(SSLSocketClient.getSSLSocketFactory(), new X509TrustManager() {
                     @Override
                     public void checkClientTrusted(X509Certificate[] chain, String authType) throws CertificateException {

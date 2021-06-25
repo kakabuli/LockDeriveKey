@@ -34,6 +34,7 @@ import com.revolo.lock.net.ObservableDecorator;
 import com.revolo.lock.room.AppDatabase;
 import com.revolo.lock.room.entity.User;
 import com.revolo.lock.ui.MainActivity;
+import com.revolo.lock.ui.TitleBar;
 import com.tencent.bugly.crashreport.CrashReport;
 
 import org.jetbrains.annotations.NotNull;
@@ -72,7 +73,10 @@ public class LoginActivity extends BaseActivity {
 
     @Override
     public void initView(@Nullable Bundle savedInstanceState, @Nullable View contentView) {
-        useCommonTitleBar(getString(R.string.sign_in));
+        TitleBar titleBar = useCommonTitleBar(getString(R.string.sign_in));
+        titleBar.getIvLeft().setOnClickListener(v -> {
+            startActivity(new Intent(this, SignSelectActivity.class).putExtra(Constant.SIGN_SELECT_MODE, "loginActivity"));
+        });
         mEtEmail = findViewById(R.id.etEmail);
        /* mEtEmail.setOnFocusChangeListener(new android.view.View.
                 OnFocusChangeListener() {
@@ -176,6 +180,10 @@ public class LoginActivity extends BaseActivity {
         String mail = mEtEmail.getText().toString().trim();
         String pwd = mEtPwd.getText().toString();
         // TODO: 2021/1/26 提示语抽离同时修正
+        if (TextUtils.isEmpty(mail) && TextUtils.isEmpty(pwd)) {
+            ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_please_input_your_account_and_password);
+            return;
+        }
         if (TextUtils.isEmpty(mail)) {
             ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_please_input_your_account);
             return;
@@ -186,10 +194,6 @@ public class LoginActivity extends BaseActivity {
         }
         if (TextUtils.isEmpty(pwd)) {
             ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_please_input_your_pwd);
-            return;
-        }
-        if (!RegexUtils.isMatch("^(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{8,15}$", pwd)) {
-            ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_please_input_8_15_right_pwd);
             return;
         }
         showLoading();

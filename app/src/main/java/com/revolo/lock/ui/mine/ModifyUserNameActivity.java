@@ -99,6 +99,10 @@ public class ModifyUserNameActivity extends BaseActivity {
             ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_please_input_your_last_name);
             return;
         }
+        if ((firstName.length() < 2 || firstName.length() > 30) || (lastName.length() < 2 || lastName.length() > 30)) {
+            ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.tip_modify_user_name_length);
+            return;
+        }
         if (App.getInstance().getUserBean() == null) {
             Timber.e("updateFirstLastName App.getInstance().getUserBean() == null");
             return;

@@ -193,6 +193,7 @@
             android:layout_width="223pt"
             android:layout_height="44pt"
             android:layout_marginBottom="128pt"
+            android:visibility="gone"
             android:text="@string/account_cancellation"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"

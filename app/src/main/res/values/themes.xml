@@ -111,4 +111,12 @@
         <item name="android:textColorPrimary">@color/white</item>
         <item name="colorButtonNormal">@color/white</item>
     </style>
+
+    <style name="easyPermissions" parent="EasyPermissions">
+        <item name="colorPrimary">@color/c2C68FF</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:windowIsFloating">true</item>
+        <item name="android:backgroundDimEnabled">true</item>
+    </style>
 </resources>

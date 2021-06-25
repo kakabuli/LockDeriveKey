@@ -64,7 +64,7 @@ public class InputESNActivity extends BaseActivity {
             // TODO: 2021/1/20 需要增加校验规则
             if(esn.length() != 13) {
                 MessageDialog dialog = new MessageDialog(this);
-                dialog.setMessage(getString(R.string.dialog_tip_incorrect_input_please_try_again));
+                dialog.setMessage(getString(R.string.tip_incorrect_input_please_try_again));
                 dialog.setOnListener(v -> dialog.cancel());
                 dialog.show();
                 return;

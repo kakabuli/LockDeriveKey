@@ -34,7 +34,7 @@ public class AddDeviceQRCodeStep2Activity extends BaseActivity {
 
     @Override
     public void initData(@Nullable Bundle bundle) {
-
+        isShowNetState = false;
     }
 
     @Override
@@ -54,17 +54,15 @@ public class AddDeviceQRCodeStep2Activity extends BaseActivity {
                 Timber.d("onScanQRCodeSuccess 扫描结果：%1s", result);
                 if (null != result && !"".equals(result)) {
                     // ESN=S420210110001&MAC=10:98:C3:72:C6:23
-                    if (result.indexOf("ESN=") > -1 && result.indexOf("MAC") > -1 && result.indexOf("&") > -1) {
+                    if (result.contains("ESN=") && result.contains("MAC") && result.contains("&")) {
                         Intent intent = new Intent(AddDeviceQRCodeStep2Activity.this, AddDeviceStep2BleConnectActivity.class);
                         intent.putExtra(Constant.PRE_A, Constant.QR_CODE_A);
                         intent.putExtra(Constant.QR_RESULT, result);
                         startActivity(intent);
                         finish();
-                    }else{
-                        ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show("Abnormal QR code, please scan again");
+                    } else {
+                        ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show("Please select the correct QR code to scan again");
                     }
-                } else {
-                    return;
                 }
             }
 
@@ -84,6 +82,7 @@ public class AddDeviceQRCodeStep2Activity extends BaseActivity {
         });
 
     }
+
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0) {
@@ -92,6 +91,7 @@ public class AddDeviceQRCodeStep2Activity extends BaseActivity {
         }
         return super.onKeyDown(keyCode, event);
     }
+
     @Override
     public void doBusiness() {
 

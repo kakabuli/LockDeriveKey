@@ -44,11 +44,11 @@ public class PasswordListAdapter extends BaseQuickAdapter<DevicePwdBean, BaseVie
             TextView tvDetail = baseViewHolder.getView(R.id.tvDetail);
             // TODO: 2021/2/21 要提前判断密码是否失效
             if (isTimeInvalid(devicePwdBean)) {
-                baseViewHolder.setImageResource(R.id.ivPwdState, R.drawable.ic_home_icon_password_overdue);
+                baseViewHolder.setBackgroundResource(R.id.ivPwdState, R.drawable.ic_home_icon_password_overdue);
                 tvPwdName.setTextColor(ContextCompat.getColor(getContext(), R.color.cCCCCCC));
                 tvDetail.setTextColor(ContextCompat.getColor(getContext(), R.color.cCCCCCC));
             } else {
-                baseViewHolder.setImageResource(R.id.ivPwdState, R.drawable.ic_home_icon_password);
+                baseViewHolder.setBackgroundResource(R.id.ivPwdState, R.drawable.ic_home_icon_password);
                 tvPwdName.setTextColor(ContextCompat.getColor(getContext(), R.color.c333333));
                 tvDetail.setTextColor(ContextCompat.getColor(getContext(), R.color.c666666));
             }

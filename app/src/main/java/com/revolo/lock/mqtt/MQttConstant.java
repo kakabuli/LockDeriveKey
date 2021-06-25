@@ -13,11 +13,12 @@ public class MQttConstant {
     private MQttConstant() {
     }
 
+    public static final String MQTT_ALPHA = "tcp://mqtt.irevolohome.com:1883";      // alpha 生产服务器
     public static final String MQTT_ABROAD_URL = "tcp://revolotest.sfeiya.com:1883";     // 海外服务器
     public static final String MQTT_TEST_URL = "tcp://internal.irevolo.com:1883";   // 国内测试服务器
-    public static final String MQTT_CHANGSHA_TEST_URL = "tcp://192.168.118.248:1883";
-    public static final String MQTT_CHANGSHA_TEST_URL_2 = "tcp://192.168.118.249:1883";
-    public static final String MQTT_BASE_URL = MQTT_CHANGSHA_TEST_URL_2;
+    public static final String MQTT_CHANGSHA_TEST_URL_248 = "tcp://192.168.118.248:1883";
+    public static final String MQTT_CHANGSHA_TEST_URL_249 = "tcp://192.168.118.249:1883";
+    public static final String MQTT_BASE_URL = MQTT_CHANGSHA_TEST_URL_249;
 
     public static final String MQTT_REQUEST_APP = "/request/app/func";
 

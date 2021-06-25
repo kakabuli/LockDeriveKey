@@ -313,7 +313,7 @@ public class MQTTReply {
 
         if (!TextUtils.isEmpty(wifiListBean.getFunctionSet()))
             bleDeviceLocal.setFunctionSet(wifiListBean.getFunctionSet());
-//        bleDeviceLocal.setOpenElectricFence();
+
         bleDeviceLocal.setUserId(App.getInstance().getUser().getAdminUid());
 
         if (!TextUtils.isEmpty(wifiListBean.getModel()))

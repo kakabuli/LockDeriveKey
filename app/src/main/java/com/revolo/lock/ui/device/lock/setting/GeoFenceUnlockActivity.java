@@ -176,7 +176,7 @@ public class GeoFenceUnlockActivity extends BaseActivity implements OnMapReadyCa
         onRegisterEventBus();
 
         mTvIntroduceTitle.setOnClickListener(v -> {
-            if (mTvIntroduceContent.getVisibility() == View.GONE) {
+            if (mTvIntroduceContent.getVisibility() == View.INVISIBLE) {
                 Drawable drawable = getResources().getDrawable(R.drawable.ic_icon_more_close);
                 drawable.setBounds(0, 0, drawable.getMinimumWidth(), drawable.getMinimumHeight());
                 mTvIntroduceTitle.setCompoundDrawables(null, null, drawable, null);
@@ -185,7 +185,7 @@ public class GeoFenceUnlockActivity extends BaseActivity implements OnMapReadyCa
                 Drawable drawable = getResources().getDrawable(R.drawable.ic_icon_more_open);
                 drawable.setBounds(0, 0, drawable.getMinimumWidth(), drawable.getMinimumHeight());
                 mTvIntroduceTitle.setCompoundDrawables(null, null, drawable, null);
-                mTvIntroduceContent.setVisibility(View.GONE);
+                mTvIntroduceContent.setVisibility(View.INVISIBLE);
             }
         });
     }

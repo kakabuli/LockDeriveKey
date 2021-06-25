@@ -155,7 +155,8 @@ public class DeviceDetailActivity extends BaseActivity {
                         Timber.e("MSG_LOCK_MESSAGE_SET_LOCK Esn:%s", mBleDeviceLocal.getEsn());
                         if (App.getInstance().getmCurrSn().equals(mBleDeviceLocal.getEsn())) {
                             Timber.e("MSG_LOCK_MESSAGE_SET_LOCK curr sn:%s", App.getInstance().getmCurrSn());
-                            //dismissLoading();
+                            dismissLoading();
+                            updateView();
                             //processSetLock((WifiLockDoorOptResponseBean) lockMessage.getWifiLockBaseResponseBean());
                         }
                         //   processSetLock((WifiLockDoorOptResponseBean) lockMessage.getWifiLockBaseResponseBean());

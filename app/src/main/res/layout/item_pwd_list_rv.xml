@@ -3,36 +3,35 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="109pt"
+    android:layout_height="87pt"
     android:layout_marginBottom="5pt"
     android:background="@color/white">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/constraintLayout"
         android:layout_width="match_parent"
-        android:layout_height="109pt"
+        android:layout_height="87pt"
         app:layout_constraintTop_toTopOf="parent">
 
         <ImageView
             android:id="@+id/ivPwdState"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="47pt"
+            android:layout_height="47pt"
             android:layout_marginStart="15pt"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            tools:srcCompat="@drawable/ic_home_icon_password" />
+            tools:background="@drawable/ic_home_icon_password" />
 
         <TextView
             android:id="@+id/tvPwdName"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="25pt"
-            android:layout_marginTop="21pt"
             android:textColor="@color/c333333"
             android:textSize="16pt"
             app:layout_constraintStart_toEndOf="@+id/ivPwdState"
-            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintTop_toTopOf="@id/ivPwdState"
             tools:text="Password name" />
 
         <TextView
@@ -40,7 +39,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="25pt"
-            android:layout_marginTop="6pt"
+            android:textColor="@color/c666666"
+            android:textSize="13pt"
             app:layout_constraintStart_toEndOf="@+id/ivPwdState"
             app:layout_constraintTop_toBottomOf="@+id/tvPwdName"
             tools:text="Sun、Mon、Tues、Wed、Thure、Tir\n15:00-17:00" />
@@ -48,7 +48,7 @@
 
     <TextView
         android:id="@+id/tv_delete"
-        android:layout_width="60dp"
+        android:layout_width="110pt"
         android:layout_height="match_parent"
         android:background="#FFF55030"
         android:gravity="center"

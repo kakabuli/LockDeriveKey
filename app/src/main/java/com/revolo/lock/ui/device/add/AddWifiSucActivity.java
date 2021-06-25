@@ -23,7 +23,7 @@ import com.revolo.lock.base.BaseActivity;
 public class AddWifiSucActivity extends BaseActivity {
     @Override
     public void initData(@Nullable Bundle bundle) {
-
+        isShowNetState = false;
     }
 
     @Override

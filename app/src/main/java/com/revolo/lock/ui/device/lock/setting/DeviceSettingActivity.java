@@ -257,6 +257,7 @@ public class DeviceSettingActivity extends BaseActivity {
 
     private void openOrCloseNotification() {
         mBleDeviceLocal.setDoNotDisturbMode(!mBleDeviceLocal.isDoNotDisturbMode());
+        App.getInstance().setBleDeviceLocal(mBleDeviceLocal);
         AppDatabase.getInstance(this).bleDeviceDao().update(mBleDeviceLocal);
         mIvDoNotDisturbModeEnable.setImageResource(mBleDeviceLocal.isDoNotDisturbMode() ? R.drawable.ic_icon_switch_open : R.drawable.ic_icon_switch_close);
     }
@@ -269,9 +270,9 @@ public class DeviceSettingActivity extends BaseActivity {
         String wifiName = mBleDeviceLocal.getConnectedWifiName();
         //同时得保持WiFi连接
         if (null != wifiName && !"".equals(wifiName)) {
-            mTvWifiName.setText(mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI ? wifiName : "");
+            mTvWifiName.setText(mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI ? wifiName : getString(R.string.tip_wifi_not_connected));
         } else {
-            mTvWifiName.setText("");
+            mTvWifiName.setText(R.string.tip_wifi_not_connected);
         }
     }
 
@@ -432,9 +433,11 @@ public class DeviceSettingActivity extends BaseActivity {
     private void saveMuteStateToLocal(@LocalState.VolumeState int mute) {
         if (mute == LocalState.VOLUME_STATE_OPEN) {
             mBleDeviceLocal.setMute(false);
+            App.getInstance().setBleDeviceLocal(mBleDeviceLocal);
             AppDatabase.getInstance(this).bleDeviceDao().update(mBleDeviceLocal);
         } else if (mute == LocalState.VOLUME_STATE_MUTE) {
             mBleDeviceLocal.setMute(true);
+            App.getInstance().setBleDeviceLocal(mBleDeviceLocal);
             AppDatabase.getInstance(this).bleDeviceDao().update(mBleDeviceLocal);
         }
         refreshMuteEnable();

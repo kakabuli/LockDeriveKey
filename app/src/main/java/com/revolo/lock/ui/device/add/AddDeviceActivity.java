@@ -20,7 +20,7 @@ import com.revolo.lock.base.BaseActivity;
 public class AddDeviceActivity extends BaseActivity {
     @Override
     public void initData(@Nullable Bundle bundle) {
-
+        isShowNetState = false;
     }
 
     @Override
@@ -33,6 +33,7 @@ public class AddDeviceActivity extends BaseActivity {
         useCommonTitleBar(getString(R.string.add_device));
         applyDebouncingClickListener(findViewById(R.id.llAddLock));
     }
+
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0) {
@@ -41,6 +42,7 @@ public class AddDeviceActivity extends BaseActivity {
         }
         return super.onKeyDown(keyCode, event);
     }
+
     @Override
     public void doBusiness() {
 
@@ -48,7 +50,7 @@ public class AddDeviceActivity extends BaseActivity {
 
     @Override
     public void onDebouncingClick(@NonNull View view) {
-        if(view.getId()  == R.id.llAddLock) {
+        if (view.getId() == R.id.llAddLock) {
             startActivity(new Intent(this, AddDeviceStep1Activity.class));
         }
     }

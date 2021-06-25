@@ -54,6 +54,7 @@ import io.reactivex.Observer;
 import io.reactivex.disposables.Disposable;
 import pub.devrel.easypermissions.AfterPermissionGranted;
 import pub.devrel.easypermissions.EasyPermissions;
+import pub.devrel.easypermissions.PermissionRequest;
 import timber.log.Timber;
 
 import static com.revolo.lock.Constant.REVOLO_SP;
@@ -95,15 +96,19 @@ public class UserPageActivity extends BaseActivity implements EasyPermissions.Pe
             PictureSelector.create(this)
                     .openGallery(PictureMimeType.ofImage())
                     .loadImageEngine(GlideEngine.createGlideEngine()) // 请参考Demo GlideEngine.java
+                    .isWebp(true)
                     .forResult(PictureConfig.CHOOSE_REQUEST);
+            if (mPicSelectPopup != null) mPicSelectPopup.dismiss();
         });
-        mPicSelectPopup.setCameraOnClickListener(v ->
-                PictureSelector.create(this)
-                        .openCamera(PictureMimeType.ofImage())
-                        .maxSelectNum(1)
-                        .loadImageEngine(GlideEngine.createGlideEngine()) // 请参考Demo GlideEngine.java
-                        .forResult(PictureConfig.REQUEST_CAMERA)
-        );
+        mPicSelectPopup.setCameraOnClickListener(v -> {
+            PictureSelector.create(this)
+                    .openCamera(PictureMimeType.ofImage())
+                    .maxSelectNum(1)
+                    .isWebp(true)
+                    .loadImageEngine(GlideEngine.createGlideEngine()) // 请参考Demo GlideEngine.java
+                    .forResult(PictureConfig.REQUEST_CAMERA);
+            if (mPicSelectPopup != null) mPicSelectPopup.dismiss();
+        });
         mPicSelectPopup.setCancelOnClickListener(v -> dismissPicSelect());
     }
 
@@ -147,14 +152,10 @@ public class UserPageActivity extends BaseActivity implements EasyPermissions.Pe
             url = avatarUrl;
         } else {
             File file = new File(avatarLocalPath);
-            if (file == null) {
-                url = avatarUrl;
+            if (file.exists()) {
+                url = avatarLocalPath;
             } else {
-                if (file.exists()) {
-                    url = avatarLocalPath;
-                } else {
-                    url = avatarUrl;
-                }
+                url = avatarUrl;
             }
         }
         RequestOptions requestOptions = RequestOptions.circleCropTransform()
@@ -201,6 +202,7 @@ public class UserPageActivity extends BaseActivity implements EasyPermissions.Pe
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == RESULT_OK) {
+            showLoading("Uploading...");
             switch (requestCode) {
                 case PictureConfig.CHOOSE_REQUEST:
                 case PictureConfig.REQUEST_CAMERA:
@@ -217,9 +219,6 @@ public class UserPageActivity extends BaseActivity implements EasyPermissions.Pe
                         return;
                     }
                     File avatarFile = new File(path);
-                    if (avatarFile == null) {
-                        return;
-                    }
                     compress(avatarFile, 70);
                     uploadUserAvatar(avatarFile);
                     dismissPicSelect();
@@ -277,6 +276,7 @@ public class UserPageActivity extends BaseActivity implements EasyPermissions.Pe
             Timber.e("onPermissionsDenied 拒绝了打开图库需要的写入权限, requestCode: %1d", requestCode);
         } else if (perms.get(0).equals(Manifest.permission.CAMERA)) {
             Timber.e("onPermissionsDenied 拒绝了打开相机需要的相机权限, requestCode: %1d", requestCode);
+            ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(getString(R.string.pwd_open_camera_permission));
         }
     }
 
@@ -299,7 +299,6 @@ public class UserPageActivity extends BaseActivity implements EasyPermissions.Pe
             return;
         }
 
-        showLoading("Uploading...");
         Observable<UploadUserAvatarBeanRsp> observable = HttpRequest.getInstance()
                 .uploadUserAvatar(token, uid, avatarFile);
         ObservableDecorator.decorate(observable).safeSubscribe(new Observer<UploadUserAvatarBeanRsp>() {
@@ -310,7 +309,6 @@ public class UserPageActivity extends BaseActivity implements EasyPermissions.Pe
 
             @Override
             public void onNext(@NonNull UploadUserAvatarBeanRsp uploadUserAvatarBeanRsp) {
-                dismissLoading();
                 String code = uploadUserAvatarBeanRsp.getCode();
                 if (TextUtils.isEmpty(code)) {
                     Timber.e("uploadUserAvatar code is empty");
@@ -337,6 +335,7 @@ public class UserPageActivity extends BaseActivity implements EasyPermissions.Pe
                 mUser.setAvatarLocalPath(avatarFile.getPath());
                 AppDatabase.getInstance(UserPageActivity.this).userDao().update(mUser);
                 refreshUserUI();
+                dismissLoading();
                 ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show("Change Success");
             }
 
@@ -360,8 +359,10 @@ public class UserPageActivity extends BaseActivity implements EasyPermissions.Pe
     private void rcSelectPicPermissions() {
         String[] perms = new String[]{Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE};
         if (!EasyPermissions.hasPermissions(this, perms)) {
-            EasyPermissions.requestPermissions(this, getString(R.string.rq_use_fun_need_camera_n_write_permission),
-                    RC_QR_CODE_PERMISSIONS, perms);
+            EasyPermissions.requestPermissions(new PermissionRequest.Builder(this, RC_QR_CODE_PERMISSIONS, perms)
+                    .setRationale(getString(R.string.rq_use_fun_need_camera_n_write_permission))
+                    .setTheme(R.style.easyPermissions)
+                    .build());
         } else {
             showSelectPopup();
         }
@@ -370,16 +371,20 @@ public class UserPageActivity extends BaseActivity implements EasyPermissions.Pe
     @AfterPermissionGranted(RC_CAMERA_PERMISSIONS)
     private void rcCameraPermission() {
         if (!hasCameraPermission()) {
-            EasyPermissions.requestPermissions(this, getString(R.string.rq_use_the_camera_needs_camera_permission),
-                    RC_CAMERA_PERMISSIONS, Manifest.permission.CAMERA);
+            EasyPermissions.requestPermissions(new PermissionRequest.Builder(this, RC_CAMERA_PERMISSIONS, Manifest.permission.CAMERA)
+                    .setRationale(getString(R.string.rq_use_the_camera_needs_camera_permission))
+                    .setTheme(R.style.easyPermissions)
+                    .build());
         }
     }
 
     @AfterPermissionGranted(RC_WRITE_EXTERNAL_STORAGE_PERMISSIONS)
     private void rcWriteStoragePermission() {
         if (!hasWriteExternalStoragePermission()) {
-            EasyPermissions.requestPermissions(this, getString(R.string.rq_use_album_needs_write_permission),
-                    RC_WRITE_EXTERNAL_STORAGE_PERMISSIONS, Manifest.permission.READ_EXTERNAL_STORAGE);
+            EasyPermissions.requestPermissions(new PermissionRequest.Builder(this, RC_WRITE_EXTERNAL_STORAGE_PERMISSIONS, Manifest.permission.READ_EXTERNAL_STORAGE)
+                    .setRationale(getString(R.string.rq_use_album_needs_write_permission))
+                    .setTheme(R.style.easyPermissions)
+                    .build());
         }
     }
 
@@ -483,8 +488,6 @@ public class UserPageActivity extends BaseActivity implements EasyPermissions.Pe
             fos.write(bos.toByteArray());
             fos.flush();
             fos.close();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }

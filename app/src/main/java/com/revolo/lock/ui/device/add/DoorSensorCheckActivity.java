@@ -485,6 +485,7 @@ public class DoorSensorCheckActivity extends BaseActivity {
     /*--------------------------------- 蓝牙 -----------------------------------*/
 
     private void sendCommand(@BleCommandState.DoorCalibrationState int doorState) {
+        showLoading();
         BleBean bleBean = App.getInstance().getUserBleBean(mBleDeviceLocal.getMac());
         //替换
         //BleBean bleBean = App.getInstance().getBleBeanFromMac(mBleDeviceLocal.getMac());
@@ -518,6 +519,7 @@ public class DoorSensorCheckActivity extends BaseActivity {
     }
 
     private void changedDoor(BleResultBean bleResultBean) {
+        dismissLoading();
         if (bleResultBean.getCMD() == CMD_DOOR_SENSOR_CALIBRATION) {
             if (bleResultBean.getPayload()[0] == 0x00) {
                 saveDoorSensorStateToLocal(mCalibrationState);

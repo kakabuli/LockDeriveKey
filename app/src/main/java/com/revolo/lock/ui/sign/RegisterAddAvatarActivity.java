@@ -2,6 +2,8 @@ package com.revolo.lock.ui.sign;
 
 import android.Manifest;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -34,7 +36,10 @@ import com.revolo.lock.util.GlideEngine;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.List;
 
 import io.reactivex.Observable;
@@ -127,6 +132,7 @@ public class RegisterAddAvatarActivity extends BaseActivity implements EasyPermi
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == RESULT_OK) {
+            showLoading("Uploading...");
             switch (requestCode) {
                 case PictureConfig.CHOOSE_REQUEST:
                 case PictureConfig.REQUEST_CAMERA:
@@ -143,8 +149,8 @@ public class RegisterAddAvatarActivity extends BaseActivity implements EasyPermi
                         return;
                     }
                     File avatarFile = new File(path);
+                    compress(avatarFile, 70);
                     uploadUserAvatar(avatarFile);
-
                     break;
                 default:
                     break;
@@ -246,7 +252,6 @@ public class RegisterAddAvatarActivity extends BaseActivity implements EasyPermi
             return;
         }
 
-        showLoading("Uploading...");
         Observable<UploadUserAvatarBeanRsp> observable = HttpRequest.getInstance()
                 .uploadUserAvatar(token, uid, avatarFile);
         ObservableDecorator.decorate(observable).safeSubscribe(new Observer<UploadUserAvatarBeanRsp>() {
@@ -337,4 +342,23 @@ public class RegisterAddAvatarActivity extends BaseActivity implements EasyPermi
         return EasyPermissions.hasPermissions(this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
     }
 
+    /**
+     * 质量压缩
+     *
+     * @param avatarFile 文件
+     * @param quality    图片的质量,0-100,数值越小质量越差
+     */
+    public static void compress(File avatarFile, int quality) {
+        Bitmap originBitmap = BitmapFactory.decodeFile(avatarFile.getAbsolutePath());
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        originBitmap.compress(Bitmap.CompressFormat.WEBP, quality, bos);
+        try {
+            FileOutputStream fos = new FileOutputStream(avatarFile);
+            fos.write(bos.toByteArray());
+            fos.flush();
+            fos.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 }

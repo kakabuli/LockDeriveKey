@@ -80,6 +80,7 @@ public class WifiLockOperationEventBean extends WifiLockBaseResponseBean {
     private String eventtype;
     private EventparamsBean eventparams;
     private String timestamp;
+    private int state;
 
     public static class EventparamsBean {
         private int eventType;
@@ -87,6 +88,105 @@ public class WifiLockOperationEventBean extends WifiLockBaseResponseBean {
         private int eventCode;
         private int userID;
         private int appID;
+        private int amMode;
+        private int safeMode;
+        private int defences;
+        private String language;
+        private int operatingMode;
+        private int volume;
+        private int powerSave;
+        private int duress;
+        private int doorSensor;
+        private int autoLockTime;
+        private int elecFenceSensitivity;
+
+        public int getAmMode() {
+            return amMode;
+        }
+
+        public void setAmMode(int amMode) {
+            this.amMode = amMode;
+        }
+
+        public int getSafeMode() {
+            return safeMode;
+        }
+
+        public void setSafeMode(int safeMode) {
+            this.safeMode = safeMode;
+        }
+
+        public int getDefences() {
+            return defences;
+        }
+
+        public void setDefences(int defences) {
+            this.defences = defences;
+        }
+
+        public String getLanguage() {
+            return language;
+        }
+
+        public void setLanguage(String language) {
+            this.language = language;
+        }
+
+        public int getOperatingMode() {
+            return operatingMode;
+        }
+
+        public void setOperatingMode(int operatingMode) {
+            this.operatingMode = operatingMode;
+        }
+
+        public int getVolume() {
+            return volume;
+        }
+
+        public void setVolume(int volume) {
+            this.volume = volume;
+        }
+
+        public int getPowerSave() {
+            return powerSave;
+        }
+
+        public void setPowerSave(int powerSave) {
+            this.powerSave = powerSave;
+        }
+
+        public int getDuress() {
+            return duress;
+        }
+
+        public void setDuress(int duress) {
+            this.duress = duress;
+        }
+
+        public int getDoorSensor() {
+            return doorSensor;
+        }
+
+        public void setDoorSensor(int doorSensor) {
+            this.doorSensor = doorSensor;
+        }
+
+        public int getAutoLockTime() {
+            return autoLockTime;
+        }
+
+        public void setAutoLockTime(int autoLockTime) {
+            this.autoLockTime = autoLockTime;
+        }
+
+        public int getElecFenceSensitivity() {
+            return elecFenceSensitivity;
+        }
+
+        public void setElecFenceSensitivity(int elecFenceSensitivity) {
+            this.elecFenceSensitivity = elecFenceSensitivity;
+        }
 
         public int getEventType() {
             return eventType;
@@ -130,16 +230,34 @@ public class WifiLockOperationEventBean extends WifiLockBaseResponseBean {
 
         @Override
         public String toString() {
-            return "RecordParam{" +
+            return "EventparamsBean{" +
                     "eventType=" + eventType +
                     ", eventSource=" + eventSource +
                     ", eventCode=" + eventCode +
                     ", userID=" + userID +
                     ", appID=" + appID +
+                    ", amMode=" + amMode +
+                    ", safeMode=" + safeMode +
+                    ", defences=" + defences +
+                    ", language='" + language + '\'' +
+                    ", operatingMode=" + operatingMode +
+                    ", volume=" + volume +
+                    ", powerSave=" + powerSave +
+                    ", duress=" + duress +
+                    ", doorSensor=" + doorSensor +
+                    ", autoLockTime=" + autoLockTime +
+                    ", elecFenceSensitivity=" + elecFenceSensitivity +
                     '}';
         }
     }
 
+    public int getState() {
+        return state;
+    }
+
+    public void setState(int state) {
+        this.state = state;
+    }
 
     public String getDevtype() {
         return devtype;

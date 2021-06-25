@@ -1,7 +1,9 @@
 package com.revolo.lock.ui.device;
 
+import android.bluetooth.BluetoothAdapter;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,6 +17,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.blankj.utilcode.util.ConvertUtils;
 import com.blankj.utilcode.util.NetworkUtils;
+import com.blankj.utilcode.util.ToastUtils;
 import com.revolo.lock.App;
 import com.revolo.lock.Constant;
 import com.revolo.lock.LocalState;
@@ -31,6 +34,8 @@ import com.revolo.lock.manager.LockMessageCode;
 import com.revolo.lock.manager.LockMessageRes;
 import com.revolo.lock.mqtt.MQttConstant;
 import com.revolo.lock.mqtt.MqttCommandFactory;
+import com.revolo.lock.mqtt.bean.eventbean.WifiLockOperationEventBean;
+import com.revolo.lock.mqtt.bean.publishresultbean.WifiLockBaseResponseBean;
 import com.revolo.lock.room.AppDatabase;
 import com.revolo.lock.room.entity.BleDeviceLocal;
 import com.revolo.lock.room.entity.User;
@@ -63,6 +68,7 @@ public class DeviceFragment extends Fragment {
     private CustomerLoadingDialog mLoadingDialog;
     private RefreshLayout mRefreshLayout;
     private TitleBar titleBar;
+    private BluetoothAdapter mBluetoothAdapter;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -96,8 +102,12 @@ public class DeviceFragment extends Fragment {
                     if (adapter.getItem(position) instanceof BleDeviceLocal) {
                         if (position < 0 || position >= adapter.getData().size()) return;
                         BleDeviceLocal deviceLocal = (BleDeviceLocal) adapter.getItem(position);
-                        if (deviceLocal.getLockState() == LocalState.LOCK_STATE_PRIVATE)
+                        if (deviceLocal.getLockState() == LocalState.LOCK_STATE_PRIVATE) {
+                            if (mBluetoothAdapter == null || !mBluetoothAdapter.isEnabled()) {
+                                ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_please_open_bluetooth);
+                            }
                             return; // 隐私模式
+                        }
                         Intent intent = new Intent(getContext(), DeviceDetailActivity.class);
                         App.getInstance().setmCurrMac(deviceLocal.getMac());
                         App.getInstance().setmCurrSn(deviceLocal.getEsn());
@@ -117,6 +127,9 @@ public class DeviceFragment extends Fragment {
                         //判断设备是否掉线
                         @LocalState.LockState int connectedState = ((BleDeviceLocal) adapter.getItem(position)).getConnectedType();
                         if (LocalState.DEVICE_CONNECT_TYPE_DIS == connectedState) {
+                            if (mBluetoothAdapter == null || !mBluetoothAdapter.isEnabled()) {
+                                ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_please_open_bluetooth);
+                            }
                             return;
                         }
 
@@ -140,6 +153,10 @@ public class DeviceFragment extends Fragment {
             });
             onRegisterEventBus();
         }
+        if (mBluetoothAdapter == null) {
+            mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+        }
+        refreshGetAllBindDevicesFromMQTT();
         return root;
     }
 
@@ -160,7 +177,7 @@ public class DeviceFragment extends Fragment {
     public void onResume() {
         super.onResume();
         initBaseData();
-        refreshGetAllBindDevicesFromMQTT();
+//        refreshGetAllBindDevicesFromMQTT();
         /*initData(mBleDeviceLocals);
         initSignalWeakDialog();
         initWfEven();*/
@@ -221,7 +238,11 @@ public class DeviceFragment extends Fragment {
                         break;
                     case LockMessageCode.MSG_LOCK_MESSAGE_WF_EVEN:
                         dismissLoading();
-                        updateData(App.getInstance().getDeviceLists());
+//                        updateData(App.getInstance().getDeviceLists());
+                        WifiLockBaseResponseBean wifiLockBaseResponseBean = lockMessage.getWifiLockBaseResponseBean();
+                        if (wifiLockBaseResponseBean != null) {
+                            updateLockState((WifiLockOperationEventBean) wifiLockBaseResponseBean);
+                        }
                         break;
                     default:
                         processBleResult(lockMessage.getMac(), lockMessage.getBleResultBea());
@@ -252,6 +273,24 @@ public class DeviceFragment extends Fragment {
         } else {
 
         }
+    }
+
+    private void updateLockState(WifiLockOperationEventBean wifiLockBaseResponseBean) {
+        WifiLockOperationEventBean.EventparamsBean eventparams = wifiLockBaseResponseBean.getEventparams();
+        String wfId = wifiLockBaseResponseBean.getWfId();
+        List<BleDeviceLocal> deviceLists = App.getInstance().getDeviceLists();
+        for (BleDeviceLocal bleDeviceLocal : deviceLists) {
+            if (bleDeviceLocal.getEsn().equals(wfId) && eventparams != null) {
+                if (eventparams.getOperatingMode() == 1) {
+                    bleDeviceLocal.setLockState(LocalState.LOCK_STATE_PRIVATE);
+                }
+                if (wifiLockBaseResponseBean.getEventtype().equals("wifiState")) {
+                    int state = wifiLockBaseResponseBean.getState();
+                    bleDeviceLocal.setConnectedType(state);
+                }
+            }
+        }
+        mHomeLockListAdapter.notifyDataSetChanged();
     }
 
     public void pushMessage(LockMessage message) {

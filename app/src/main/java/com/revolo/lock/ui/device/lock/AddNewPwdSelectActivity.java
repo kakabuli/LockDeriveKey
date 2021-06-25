@@ -195,8 +195,6 @@ public class AddNewPwdSelectActivity extends BaseActivity {
             } else {
                 switch (lockMessage.getResultCode()) {
                     case LockMessageCode.MSG_LOCK_MESSAGE_CREATE_PWD:
-                        dismissLoading();
-                        break;
                     case LockMessageCode.MSG_LOCK_MESSAGE_ADD_PWD:
                         dismissLoading();
                         break;
@@ -245,12 +243,12 @@ public class AddNewPwdSelectActivity extends BaseActivity {
         mTvEndDateTime = findViewById(R.id.tvEndDateTime);
 
         mVSun.setVisibility(isSelectedSun ? View.VISIBLE : View.GONE);
-        mVMon.setVisibility(isSelectedSun ? View.VISIBLE : View.GONE);
-        mVTues.setVisibility(isSelectedSun ? View.VISIBLE : View.GONE);
-        mVWed.setVisibility(isSelectedSun ? View.VISIBLE : View.GONE);
-        mVThur.setVisibility(isSelectedSun ? View.VISIBLE : View.GONE);
-        mVFri.setVisibility(isSelectedSun ? View.VISIBLE : View.GONE);
-        mVSat.setVisibility(isSelectedSun ? View.VISIBLE : View.GONE);
+        mVMon.setVisibility(isSelectedMon ? View.VISIBLE : View.GONE);
+        mVTues.setVisibility(isSelectedTues ? View.VISIBLE : View.GONE);
+        mVWed.setVisibility(isSelectedWed ? View.VISIBLE : View.GONE);
+        mVThur.setVisibility(isSelectedThur ? View.VISIBLE : View.GONE);
+        mVFri.setVisibility(isSelectedFri ? View.VISIBLE : View.GONE);
+        mVSat.setVisibility(isSelectedSat ? View.VISIBLE : View.GONE);
     }
 
     @Override
@@ -282,7 +280,22 @@ public class AddNewPwdSelectActivity extends BaseActivity {
             return;
         }
         if (view.getId() == R.id.btnNext) {
-            nextStep();
+            if (mSelectedPwdState == SCHEDULE_STATE) {
+                if (isSelectedFri || isSelectedMon || isSelectedSat || isSelectedSun || isSelectedThur || isSelectedTues || isSelectedWed) {
+                    nextStep();
+                } else {
+                    ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show("Repeat Not Choose");
+                    dismissLoading();
+                }
+            } else if (mSelectedPwdState == TEMPORARY_STATE) {
+                if (mTemEndDateTimeMill < new Date().getTime()) {
+                    ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_the_end_time_cannot_be_less_than_the_current_time);
+                } else {
+                    nextStep();
+                }
+            } else {
+                nextStep();
+            }
             return;
         }
         if (view.getId() == R.id.tvSun) {

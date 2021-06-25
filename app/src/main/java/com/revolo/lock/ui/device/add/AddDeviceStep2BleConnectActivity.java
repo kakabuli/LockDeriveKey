@@ -534,6 +534,7 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
         handler.removeMessages(MSG_BLE_SCAN_OUT_TIME);
         if (handler.hasMessages(MSG_BLE_ADDDEVICE_CONNECT_FAIL))
             handler.removeMessages(MSG_BLE_ADDDEVICE_CONNECT_FAIL);
+         handler.removeMessages(MSG_BLE_CONNECT_FAIL);
         Intent intent = new Intent(this, BleConnectFailActivity.class);
         Intent preIntent = getIntent();
         if (!preIntent.hasExtra(Constant.PRE_A)) return;

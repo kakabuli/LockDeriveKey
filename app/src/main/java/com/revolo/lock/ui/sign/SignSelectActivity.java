@@ -41,7 +41,7 @@ public class SignSelectActivity extends BaseActivity {
 
     @Override
     public void initData(@Nullable Bundle bundle) {
-
+        isShowNetState = false;
     }
 
     @Override
@@ -56,7 +56,7 @@ public class SignSelectActivity extends BaseActivity {
         constraintLayout = findViewById(R.id.activity_sign_select_view);
         constraintLayout.setVisibility(View.GONE);
         signSelctMode = getIntent().getStringExtra(Constant.SIGN_SELECT_MODE);
-        if (null == signSelctMode || "".equals(signSelctMode)) {
+        if (TextUtils.isEmpty(signSelctMode)) {
             verification();
         }
     }
