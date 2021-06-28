@@ -311,6 +311,7 @@ public class MQTTReply {
             bleDeviceLocal.setAutoLock(wifiListBean.getAutoLock().equals("0"));
 
         bleDeviceLocal.setDuress(wifiListBean.getDuress() == 1);
+        bleDeviceLocal.setDuressEmail(wifiListBean.getDuressEmail());
 
         if (!TextUtils.isEmpty(wifiListBean.getWifiName()))
             bleDeviceLocal.setConnectedWifiName(wifiListBean.getWifiName());

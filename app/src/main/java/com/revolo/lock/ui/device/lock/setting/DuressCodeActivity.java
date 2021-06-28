@@ -228,7 +228,10 @@ public class DuressCodeActivity extends BaseActivity {
                     Timber.e("settingDuressReceiveMail code: %1s, msg: %2s", code, settingDuressPwdReceiveEMailBeanRsp.getMsg());
                     return;
                 }
-                SPUtils.getInstance(REVOLO_SP).put(Constant.DURESS_PWD_RECEIVE, mail);
+              //  SPUtils.getInstance(REVOLO_SP).put(Constant.DURESS_PWD_RECEIVE, mail);
+                mBleDeviceLocal.setDuressEmail(mail);
+                App.getInstance().setBleDeviceLocal(mBleDeviceLocal);
+                AppDatabase.getInstance(DuressCodeActivity.this).bleDeviceDao().update(mBleDeviceLocal);
                 ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_setting_email_suc);
                 finish();
             }
@@ -327,7 +330,7 @@ public class DuressCodeActivity extends BaseActivity {
         runOnUiThread(() -> {
             mIvDuressCodeEnable.setImageResource(mBleDeviceLocal.isDuress() ? R.drawable.ic_icon_switch_open : R.drawable.ic_icon_switch_close);
             mClInputEmail.setVisibility(mBleDeviceLocal.isDuress() ? View.VISIBLE : View.GONE);
-            mEtEmail.setText(SPUtils.getInstance(REVOLO_SP).getString(Constant.DURESS_PWD_RECEIVE));
+            mEtEmail.setText(mBleDeviceLocal.getDuressEmail());
         });
     }
 

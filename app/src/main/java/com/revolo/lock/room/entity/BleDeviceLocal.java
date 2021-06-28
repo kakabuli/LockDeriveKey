@@ -107,7 +107,10 @@ public class BleDeviceLocal implements Parcelable {
     private boolean isDoNotDisturbMode;                             // 是否开启勿扰模式
 
     @ColumnInfo(name = "d_is_duress")
-    private boolean isDuress;                                       // 是否开启胁迫密码
+    private boolean isDuress;// 是否开启胁迫密码
+
+    @ColumnInfo(name = "duressEmail")
+    private String duressEmail;
 
     @ColumnInfo(name = "d_random_code")
     private String randomCode;                                      // randomCode 用于开关门
@@ -336,6 +339,14 @@ public class BleDeviceLocal implements Parcelable {
 
     public void setDuress(boolean duress) {
         isDuress = duress;
+    }
+
+    public String getDuressEmail() {
+        return duressEmail;
+    }
+
+    public void setDuressEmail(String duressEmail) {
+        this.duressEmail = duressEmail;
     }
 
     public boolean isAutoLock() {
