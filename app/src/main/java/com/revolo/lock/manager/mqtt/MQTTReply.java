@@ -32,6 +32,7 @@ import com.revolo.lock.room.entity.BleDeviceLocal;
 import org.greenrobot.eventbus.EventBus;
 
 import java.util.List;
+import java.util.Timer;
 
 import timber.log.Timber;
 
@@ -184,6 +185,9 @@ public class MQTTReply {
             // 无感开门
             WifiLockApproachOpenResponseBean bean = GsonUtils.fromJson(mqttData.getPayload(), WifiLockApproachOpenResponseBean.class);
             postMessage(LockMessageCode.MSG_LOCK_MESSAGE_CODE_SUCCESS, LockMessageCode.MSG_LOCK_MESSAGE_APP_ROACH_OPEN, bean);
+            if (null != mqttDataLinstener) {
+                mqttDataLinstener.onDoorSensorAlignmen(bean.getWfId());
+            }
         } else if (MQttConstant.CLOSE_WIFI.equals(mqttData.getFunc())) {
             // 关闭wifi
             WifiLockCloseWifiResponseBean bean = GsonUtils.fromJson(mqttData.getPayload(), WifiLockCloseWifiResponseBean.class);
@@ -212,21 +216,23 @@ public class MQTTReply {
         } else if (MQttConstant.SET_LOCK_ATTR.equals(mqttData.getFunc())) {
             // 设置门锁属性
             Class t = MqttCommandFactory.sendMessage(mqttData.getMessageId() + "", null, 1);
-            if (t.getName().equals(WifiLockSetLockAttrAutoRspBean.class.getName())) {
-                WifiLockSetLockAttrAutoRspBean bean = GsonUtils.fromJson(mqttData.getPayload(), WifiLockSetLockAttrAutoRspBean.class);
-                postMessage(LockMessageCode.MSG_LOCK_MESSAGE_CODE_SUCCESS, LockMessageCode.MSG_LOCK_MESSAGE_SET_LOCK_ATTRAUTO, bean);
-            } else if (t.getName().equals(WifiLockSetLockAttrAutoTimeRspBean.class.getName())) {
-                WifiLockSetLockAttrAutoTimeRspBean bean = GsonUtils.fromJson(mqttData.getPayload(), WifiLockSetLockAttrAutoTimeRspBean.class);
-                postMessage(LockMessageCode.MSG_LOCK_MESSAGE_CODE_SUCCESS, LockMessageCode.MSG_LOCK_MESSAGE_SET_LOCK_ATTRAUTOTIME, bean);
-            } else if (t.getName().equals(WifiLockSetLockAttrDuressRspBean.class.getName())) {
-                WifiLockSetLockAttrDuressRspBean bean = GsonUtils.fromJson(mqttData.getPayload(), WifiLockSetLockAttrDuressRspBean.class);
-                postMessage(LockMessageCode.MSG_LOCK_MESSAGE_CODE_SUCCESS, LockMessageCode.MSG_LOCK_MESSAGE_SET_LOCK_ATTRDURES, bean);
-            } else if (t.getName().equals(WifiLockSetLockAttrSensitivityRspBean.class.getName())) {
-                WifiLockSetLockAttrSensitivityRspBean bean = GsonUtils.fromJson(mqttData.getPayload(), WifiLockSetLockAttrSensitivityRspBean.class);
-                postMessage(LockMessageCode.MSG_LOCK_MESSAGE_CODE_SUCCESS, LockMessageCode.MSG_LOCK_MESSAGE_SET_LOCK_ATTRSENSITIVITY, bean);
-            } else if (t.getName().equals(WifiLockSetLockAttrVolumeRspBean.class.getName())) {
-                WifiLockSetLockAttrVolumeRspBean bean = GsonUtils.fromJson(mqttData.getPayload(), WifiLockSetLockAttrVolumeRspBean.class);
-                postMessage(LockMessageCode.MSG_LOCK_MESSAGE_CODE_SUCCESS, LockMessageCode.MSG_LOCK_MESSAGE_SET_LOCK_ATTRVOLUME, bean);
+            if (null != t) {
+                if (t.getName().equals(WifiLockSetLockAttrAutoRspBean.class.getName())) {
+                    WifiLockSetLockAttrAutoRspBean bean = GsonUtils.fromJson(mqttData.getPayload(), WifiLockSetLockAttrAutoRspBean.class);
+                    postMessage(LockMessageCode.MSG_LOCK_MESSAGE_CODE_SUCCESS, LockMessageCode.MSG_LOCK_MESSAGE_SET_LOCK_ATTRAUTO, bean);
+                } else if (t.getName().equals(WifiLockSetLockAttrAutoTimeRspBean.class.getName())) {
+                    WifiLockSetLockAttrAutoTimeRspBean bean = GsonUtils.fromJson(mqttData.getPayload(), WifiLockSetLockAttrAutoTimeRspBean.class);
+                    postMessage(LockMessageCode.MSG_LOCK_MESSAGE_CODE_SUCCESS, LockMessageCode.MSG_LOCK_MESSAGE_SET_LOCK_ATTRAUTOTIME, bean);
+                } else if (t.getName().equals(WifiLockSetLockAttrDuressRspBean.class.getName())) {
+                    WifiLockSetLockAttrDuressRspBean bean = GsonUtils.fromJson(mqttData.getPayload(), WifiLockSetLockAttrDuressRspBean.class);
+                    postMessage(LockMessageCode.MSG_LOCK_MESSAGE_CODE_SUCCESS, LockMessageCode.MSG_LOCK_MESSAGE_SET_LOCK_ATTRDURES, bean);
+                } else if (t.getName().equals(WifiLockSetLockAttrSensitivityRspBean.class.getName())) {
+                    WifiLockSetLockAttrSensitivityRspBean bean = GsonUtils.fromJson(mqttData.getPayload(), WifiLockSetLockAttrSensitivityRspBean.class);
+                    postMessage(LockMessageCode.MSG_LOCK_MESSAGE_CODE_SUCCESS, LockMessageCode.MSG_LOCK_MESSAGE_SET_LOCK_ATTRSENSITIVITY, bean);
+                } else if (t.getName().equals(WifiLockSetLockAttrVolumeRspBean.class.getName())) {
+                    WifiLockSetLockAttrVolumeRspBean bean = GsonUtils.fromJson(mqttData.getPayload(), WifiLockSetLockAttrVolumeRspBean.class);
+                    postMessage(LockMessageCode.MSG_LOCK_MESSAGE_CODE_SUCCESS, LockMessageCode.MSG_LOCK_MESSAGE_SET_LOCK_ATTRVOLUME, bean);
+                }
             }
             MqttCommandFactory.sendMessage(mqttData.getMessageId() + "", null, 3);
 
@@ -280,9 +286,21 @@ public class MQTTReply {
 
         bleDeviceLocal.setLockPower(wifiListBean.getPower());
         //锁的wifi模式下开关状态已服务器为准
+        Timber.e("设备 服务器 lockState： %s", wifiListBean.getOpenStatus() + "");
+        Timber.e("设备 本地 lockState： %s", bleDeviceLocal.getLockState() + "");
+        Timber.e("设备 connected： %s", bleDeviceLocal.getConnectedType() + "");
         if (bleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI) {
-            bleDeviceLocal.setLockState(wifiListBean.getOpenStatus());
+            int eventCode = wifiListBean.getOpenStatus();
+            if (eventCode == 0x01 || eventCode == 0x08 || eventCode == 0x0D || eventCode == 0x0A) {
+                // 上锁
+                bleDeviceLocal.setLockState(LocalState.LOCK_STATE_CLOSE);
+            } else if (eventCode == 2 || eventCode == 0x09 || eventCode == 0x0E) {
+                // 开锁
+                bleDeviceLocal.setLockState(LocalState.LOCK_STATE_OPEN);
+            }
+            //     bleDeviceLocal.setLockState(wifiListBean.getOpenStatus());
         }
+        Timber.e("设备 更新后 lockState： %s", bleDeviceLocal.getLockState() + "");
 
         bleDeviceLocal.setMute(wifiListBean.getVolume() == 1);
 

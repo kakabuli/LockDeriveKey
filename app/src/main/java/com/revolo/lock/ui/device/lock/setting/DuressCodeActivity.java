@@ -262,6 +262,7 @@ public class DuressCodeActivity extends BaseActivity {
                         ConvertUtils.hexString2Bytes(mBleDeviceLocal.getPwd1()),
                         ConvertUtils.hexString2Bytes(mBleDeviceLocal.getPwd2()))));
         lockMessage.setMqtt_topic(MQttConstant.getCallTopic(App.getInstance().getUserBean().getUid()));
+        EventBus.getDefault().post(lockMessage);
 
        /* toDisposable(mOpenOrCloseDuressPwdDisposable);
         mOpenOrCloseDuressPwdDisposable = mMQttService.mqttPublish(MQttConstant.getCallTopic(App.getInstance().getUserBean().getUid()),

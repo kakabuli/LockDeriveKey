@@ -15,6 +15,7 @@ import com.blankj.utilcode.util.ActivityUtils;
 import com.blankj.utilcode.util.SPUtils;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.revolo.lock.bean.respone.MailLoginBeanRsp;
+import com.revolo.lock.ble.BleCommandFactory;
 import com.revolo.lock.ble.bean.BleBean;
 import com.revolo.lock.manager.LockAppService;
 import com.revolo.lock.manager.mqtt.MQTTManager;
@@ -308,35 +309,6 @@ public class App extends Application {
     }
 
 
-   /* private final List<BleDeviceLocal> mBleDeviceLocals = new ArrayList<>();
-
-    public List<BleDeviceLocal> getBleDeviceLocals() {
-        return mBleDeviceLocals;
-    }
-
-    public void addBleDeviceLocal(BleDeviceLocal bleDeviceLocal) {
-        if (mBleDeviceLocals.contains(bleDeviceLocal)) {
-            return;
-        }
-        mBleDeviceLocals.add(bleDeviceLocal);
-    }
-
-    public void addBleDeviceLocals(List<BleDeviceLocal> bleDeviceLocals) {
-        mBleDeviceLocals.clear();
-        mBleDeviceLocals.addAll(bleDeviceLocals);
-    }
-
-    public void removeBleDeviceLocalFromMac(@NotNull String esn) {
-        if (mBleDeviceLocals.isEmpty()) {
-            return;
-        }
-        for (BleDeviceLocal ble : mBleDeviceLocals) {
-            if (ble.getEsn().equals(esn)) {
-                mBleDeviceLocals.remove(ble);
-                return;
-            }
-        }
-    }*/
 
     /*-------------------------------- 蓝牙搜索 --------------------------------*/
     private OKBLEScanManager mScanManager;
@@ -359,7 +331,7 @@ public class App extends Application {
 
     /*-------------------------------- 地理围栏设备 ---------------------------------*/
 
-    private BleDeviceLocal mUsingGeoFenceBleDeviceLocal;
+   /* private BleDeviceLocal mUsingGeoFenceBleDeviceLocal;
 
     public BleDeviceLocal getUsingGeoFenceBleDeviceLocal() {
         return mUsingGeoFenceBleDeviceLocal;
@@ -368,13 +340,13 @@ public class App extends Application {
     public void setUsingGeoFenceBleDeviceLocal(BleDeviceLocal usingGeoFenceBleDeviceLocal) {
         mUsingGeoFenceBleDeviceLocal = usingGeoFenceBleDeviceLocal;
     }
-
+*/
 
     /*--------------------------------- 地理围栏功能 --------------------------------*/
 
     // TODO: 2021/4/20 现在的写法是存在问题，因为是基于一个设备来考虑的，如果出现多设备，这方案后续是需要修改的。
     // TODO: 2021/5/13 需要全局监听地理位置来实现地理围栏功能，国内google获取的坐标是火星坐标，存在很大偏差（但设备是海外的，所以最好直接在海外测试）
-  /*  private final CompositeDisposable mCompositeDisposable = new CompositeDisposable();
+  /* private final CompositeDisposable mCompositeDisposable = new CompositeDisposable();
     private Disposable mApproachOpenDisposable;
     private BleBean mGeoFenceBleBean;
 
@@ -406,8 +378,8 @@ public class App extends Application {
                     Timber.e(e);
                 });
         mCompositeDisposable.add(mApproachOpenDisposable);
-    }*/
-
+    }
+*/
    /* private void processApproachOpen(MqttData mqttData) {
         if (TextUtils.isEmpty(mqttData.getFunc())) {
             Timber.e("publishApproachOpen mqttData.getFunc() is empty");
@@ -440,9 +412,9 @@ public class App extends Application {
         Timber.d("publishApproachOpen %1s", mqttData.toString());
     }*/
 
-    private boolean isRestartConnectingBle = false;
+    /*private boolean isRestartConnectingBle = false;
 
-   /* private void connectBle() {
+    private void connectBle() {
         if (mUsingGeoFenceBleDeviceLocal == null) {
             return;
         }

@@ -775,6 +775,9 @@ public class LockAppService extends Service {
                 case BleProtocolState.CMD_SET_AUTO_LOCK_TIME:// 0x21;              // 设置关门自动上锁时间
                     break;
                 case BleProtocolState.CMD_KNOCK_DOOR_AND_UNLOCK_TIME:// 0x22;      // 敲门开锁指令
+                    if (bleResultBean.getPayload()[0] == 0) {
+                        // 设置敲击开锁成功
+                    }
                     break;
                 case BleProtocolState.CMD_SY_LOCK_TIME:// 0x23;                    // 与锁同步时间
                     break;
@@ -1267,9 +1270,36 @@ public class LockAppService extends Service {
 
         @Override
         public void onAuthSuc(@NotNull String mac) {
-
+            //判断当前的蓝牙设备是否开启电子围栏
+            senGeoFence(mac);
         }
     };
+
+    /**
+     * 发送电子围栏命令
+     *
+     * @param mac
+     */
+    private void senGeoFence(String mac) {
+        BleDeviceLocal deviceLocal = getDevice(mac, mac);
+        if (null != deviceLocal) {
+            if (deviceLocal.isOpenElectricFence()) {
+                BleBean bleBean = getUserBleBean(mac);
+                if (null != bleBean) {
+                    new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                        if (bleBean == null) {
+                            Timber.e("mOnBleDeviceListener bleBean == null");
+                            return;
+                        }
+                        // TODO: 2021/4/7 抽离0x01
+                        BleManager.getInstance().writeControlMsg(BleCommandFactory
+                                .setKnockDoorAndUnlockTime(0x01, bleBean.getPwd1(), bleBean.getPwd3()), bleBean.getOKBLEDeviceImp());
+                    }, 200);
+
+                }
+            }
+        }
+    }
 
 
     //******************************************************蓝牙管理 end***********************************************************************
@@ -1423,6 +1453,22 @@ public class LockAppService extends Service {
                 case LockMessageCode.MSG_LOCK_MESSAGE_WF_EVEN:
                     processRecord((WifiLockOperationEventBean) bean);
                     break;
+            }
+        }
+
+        @Override
+        public void onDoorSensorAlignmen(String wfId) {
+            Timber.e("无感开门 之蓝牙连接");
+            BleDeviceLocal bleDeviceLoca = getDevice(wfId, wfId);
+            if (null != bleDeviceLoca) {
+                boolean bleState = onGetConnectedState(bleDeviceLoca.getMac());//当前蓝牙设的设备的状态
+                if (bleState) {
+                    Timber.e("已连接蓝牙，发送开门命令");
+                    senGeoFence(bleDeviceLoca.getMac());
+                } else {
+                    Timber.e("未连接蓝牙，正在开始连接");
+                    addDevice(false, bleDeviceLoca);
+                }
             }
         }
     };
@@ -1826,5 +1872,78 @@ public class LockAppService extends Service {
         message.addSendFre();
         BleManager.getInstance().write(message.getBleChr(), message.getMac(), message.getBytes());
         mHandler.sendEmptyMessageDelayed(MSG_MESSAGE_SEND_OUT_TIME, 500);
+    }
+
+    private DoorState doorState;
+
+    public void addConnect(String wfid) {
+        if (null == doorState) {
+            doorState = new DoorState();
+            doorState.isRun = true;
+            doorState.start();
+        }
+        doorState.addConnect(wfid);
+    }
+
+    public void stopCibDoor() {
+        if (null != doorState) {
+            doorState.isRun = false;
+            doorState.interrupt();
+            doorState = null;
+        }
+    }
+
+    private class DoorState extends Thread {
+        private Lock lock = new ReentrantLock();
+        private boolean isRun = true;
+        private List<String> connectList = new ArrayList<>();
+
+        public void addConnect(String mac) {
+            lock.lock();
+            if (connectList.indexOf(mac) > 0) {
+                return;
+            }
+            connectList.add(mac);
+            lock.unlock();
+        }
+
+        private void connect(BleDeviceLocal bleDeviceLoca) {
+
+            if (null != bleDeviceLoca) {
+                addDevice(false, bleDeviceLoca);
+            }
+        }
+
+
+        @Override
+        public void run() {
+            while (isRun) {
+                lock.lock();
+                for (int i = 0; i < connectList.size(); i++) {
+                    BleDeviceLocal bleDeviceLoca = getDevice(connectList.get(i), connectList.get(i));
+                    if (null == bleDeviceLoca) {
+                        continue;
+                    }
+                    BleBean bleBean = getUserBleBean(bleDeviceLoca.getMac());
+                    if (null == bleBean) {
+                        //连接
+                        connect(bleDeviceLoca);
+                    } else {
+                        if (bleBean.getBleConning() == 0 || bleBean.getBleConning() == 3) {
+                            //连接
+                            connect(bleDeviceLoca);
+                        } else {
+                            connectList.remove(i);
+                        }
+                    }
+                }
+                lock.unlock();
+                try {
+                    Thread.sleep(6000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
     }
 }

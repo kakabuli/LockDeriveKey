@@ -177,7 +177,7 @@ public class DeviceFragment extends Fragment {
     public void onResume() {
         super.onResume();
         initBaseData();
-//        refreshGetAllBindDevicesFromMQTT();
+        refreshGetAllBindDevicesFromMQTT();
         /*initData(mBleDeviceLocals);
         initSignalWeakDialog();
         initWfEven();*/

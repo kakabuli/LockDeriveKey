@@ -38,4 +38,10 @@ public interface MQTTDataLinstener {
      * @param bean
      */
     void onOperationCallback(int what, WifiLockBaseResponseBean bean);
+
+    /**
+     * 无感开门  之蓝牙操作
+     * @param wfId
+     */
+    void onDoorSensorAlignmen(String wfId);
 }

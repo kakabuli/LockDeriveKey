@@ -255,12 +255,31 @@ public class GeoFenceUnlockActivity extends BaseActivity implements OnMapReadyCa
             }
             // TODO: 2021/2/23 开关电子围栏 TEST使用开启地理围栏开门
 //            publishApproachOpen(mBleDeviceLocal.getEsn(), mBleDeviceLocal.getSetElectricFenceTime());
+            pushMessage(mBleDeviceLocal.getEsn(), mBleDeviceLocal.getSetElectricFenceTime());
             return;
         }
         if (view.getId() == R.id.clDistanceRangeSetting) {
             Intent intent = new Intent(this, MapActivity.class);
             startActivity(intent);
         }
+    }
+
+    private void pushMessage(String wifiID, int broadcastTime) {
+        BleDeviceLocal deviceLocal = App.getInstance().getBleDeviceLocal();
+        if (deviceLocal == null) {
+            Timber.e("publishApproachOpen deviceLocal == null");
+            return;
+        }
+        LockMessage lockMessage = new LockMessage();
+        lockMessage.setMqttMessage(MqttCommandFactory.approachOpen(wifiID, broadcastTime,
+                BleCommandFactory.getPwd(
+                        ConvertUtils.hexString2Bytes(deviceLocal.getPwd1()),
+                        ConvertUtils.hexString2Bytes(deviceLocal.getPwd2()))));
+        lockMessage.setMqtt_topic(MQttConstant.getCallTopic(App.getInstance().getUserBean().getUid()));
+        lockMessage.setMessageType(2);
+        lockMessage.setMqtt_message_code(MQttConstant.APP_ROACH_OPEN);
+        EventBus.getDefault().post(lockMessage);
+
     }
 
     // TODO: 2021/2/24 超时或者失败处理需要恢复为原来的显示
