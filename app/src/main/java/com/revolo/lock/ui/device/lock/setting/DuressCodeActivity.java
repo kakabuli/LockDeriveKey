@@ -193,6 +193,10 @@ public class DuressCodeActivity extends BaseActivity {
         }
         SettingDuressPwdReceiveEMailBeanReq req = new SettingDuressPwdReceiveEMailBeanReq();
         req.setDuressEmail(mail);
+        BleDeviceLocal bleDeviceLocal = App.getInstance().getBleDeviceLocal();
+        if (null != bleDeviceLocal) {
+            req.setDeviceSN(bleDeviceLocal.getEsn());
+        }
         req.setUid(uid);
         // 1手机 2邮箱
         req.setType(2);
@@ -224,7 +228,7 @@ public class DuressCodeActivity extends BaseActivity {
                     Timber.e("settingDuressReceiveMail code: %1s, msg: %2s", code, settingDuressPwdReceiveEMailBeanRsp.getMsg());
                     return;
                 }
-                SPUtils.getInstance(REVOLO_SP).put(Constant.DURESS_PWD_RECEIVE,mail);
+                SPUtils.getInstance(REVOLO_SP).put(Constant.DURESS_PWD_RECEIVE, mail);
                 ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_setting_email_suc);
                 finish();
             }
@@ -373,6 +377,7 @@ public class DuressCodeActivity extends BaseActivity {
             Timber.e("处理失败原因 state：%1s", ConvertUtils.int2HexString(BleByteUtil.byteToInt(state)));
         }
     }
+
     /**
      * 更新锁服务器存储的数据
      */
@@ -424,7 +429,8 @@ public class DuressCodeActivity extends BaseActivity {
                 if (code.equals("200")) {
                     String msg = updateLockInfoRsp.getMsg();
                     Timber.e("updateLockInfoToService code: %1s, msg: %2s", code, msg);
-                    if (!TextUtils.isEmpty(msg)) ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(msg);
+                    if (!TextUtils.isEmpty(msg))
+                        ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(msg);
 
                 }
             }
@@ -442,6 +448,7 @@ public class DuressCodeActivity extends BaseActivity {
             }
         });
     }
+
     private void saveDuressToLocal() {
         mBleDeviceLocal.setDuress(!mBleDeviceLocal.isDuress());
         AppDatabase.getInstance(this).bleDeviceDao().update(mBleDeviceLocal);

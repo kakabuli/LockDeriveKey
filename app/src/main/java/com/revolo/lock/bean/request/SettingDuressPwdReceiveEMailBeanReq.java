@@ -18,6 +18,7 @@ public class SettingDuressPwdReceiveEMailBeanReq {
     private String uid;             // 用户唯一编号
     private int type;               // 账号类型。 1 手机；2 邮箱
     private String duressEmail;     // 胁迫密码邮箱
+    private String deviceSN;        //设备esn
 
     public String getUid() {
         return uid;
@@ -43,4 +44,11 @@ public class SettingDuressPwdReceiveEMailBeanReq {
         this.duressEmail = duressEmail;
     }
 
+    public String getDeviceSN() {
+        return deviceSN;
+    }
+
+    public void setDeviceSN(String deviceSN) {
+        this.deviceSN = deviceSN;
+    }
 }
