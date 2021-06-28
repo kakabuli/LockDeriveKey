@@ -61,6 +61,7 @@ import org.jetbrains.annotations.NotNull;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
@@ -70,6 +71,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import io.reactivex.disposables.Disposable;
 import timber.log.Timber;
 
+import static com.revolo.lock.Constant.PING_RESULT;
 import static com.revolo.lock.manager.LockMessageCode.MSG_LOCK_MESSAGE_ADD_DEVICE_SERVICE;
 import static com.revolo.lock.manager.LockMessageCode.MSG_LOCK_MESSAGE_BLE;
 import static com.revolo.lock.manager.LockMessageCode.MSG_LOCK_MESSAGE_CLASE_DEVICE;
@@ -120,6 +122,19 @@ public class LockAppService extends Service {
         }
     }
 
+    private final Runnable mRunnable = new Runnable() {
+        @Override
+        public void run() {
+            boolean ping = ping();// ping 百度判断网络连接
+            Constant.PING_RESULT_B = ping;
+            sendBroadcast(new Intent().setAction(Constant.RECEIVE_ACTION_NETWORKS).putExtra(PING_RESULT, ping));
+            for (int i = 0; i < mDeviceLists.size(); i++) {
+                mDeviceLists.get(i).setConnectedType(ping ? LocalState.DEVICE_CONNECT_TYPE_WIFI : LocalState.DEVICE_CONNECT_TYPE_DIS);
+            }
+            mHandler.postDelayed(this, 10 * 1000);
+        }
+    };
+
     @Override
     public void onCreate() {
         super.onCreate();
@@ -130,6 +145,7 @@ public class LockAppService extends Service {
         startSendThread();
         Timber.d("attachView   mqtt 启动了");
         registerBluetoothState();
+        mHandler.post(mRunnable);
     }
 
     @Override
@@ -153,6 +169,7 @@ public class LockAppService extends Service {
         ActivityUtils.finishAllActivities();
         System.exit(0);
         unRegisterBluetoothState();
+        mHandler.removeCallbacks(mRunnable);
     }
 
     /**
@@ -1826,5 +1843,17 @@ public class LockAppService extends Service {
         message.addSendFre();
         BleManager.getInstance().write(message.getBleChr(), message.getMac(), message.getBytes());
         mHandler.sendEmptyMessageDelayed(MSG_MESSAGE_SEND_OUT_TIME, 500);
+    }
+
+    public static boolean ping() {
+        try {
+            Runtime runtime = Runtime.getRuntime();
+            Process exec = runtime.exec("ping -c 3 www.baidu.com");
+            int i = exec.waitFor();
+            return i == 0;
+        } catch (InterruptedException | IOException e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 }

@@ -1,7 +1,10 @@
 package com.revolo.lock.ui.device;
 
 import android.bluetooth.BluetoothAdapter;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -53,9 +56,12 @@ import org.jetbrains.annotations.NotNull;
 
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Objects;
 
 import timber.log.Timber;
 
+import static com.revolo.lock.Constant.PING_RESULT;
+import static com.revolo.lock.Constant.RECEIVE_ACTION_NETWORKS;
 import static com.revolo.lock.ble.BleCommandState.LOCK_SETTING_CLOSE;
 import static com.revolo.lock.ble.BleCommandState.LOCK_SETTING_OPEN;
 import static com.revolo.lock.manager.LockMessageCode.MSG_LOCK_MESSAGE_MQTT;
@@ -69,6 +75,21 @@ public class DeviceFragment extends Fragment {
     private RefreshLayout mRefreshLayout;
     private TitleBar titleBar;
     private BluetoothAdapter mBluetoothAdapter;
+
+    private BroadcastReceiver mReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (intent != null) {
+                boolean pingResult = intent.getBooleanExtra(PING_RESULT, true);
+                if (titleBar != null) {
+                    titleBar.setNetError(pingResult);
+                }
+                if (mHomeLockListAdapter != null){
+                    mHomeLockListAdapter.notifyDataSetChanged();
+                }
+            }
+        }
+    };
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -157,6 +178,11 @@ public class DeviceFragment extends Fragment {
             mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         }
         refreshGetAllBindDevicesFromMQTT();
+        if (titleBar != null) {
+            titleBar.setNetError(Constant.PING_RESULT_B);
+        }
+
+        requireActivity().registerReceiver(mReceiver, new IntentFilter(RECEIVE_ACTION_NETWORKS));
         return root;
     }
 
@@ -182,10 +208,6 @@ public class DeviceFragment extends Fragment {
         initSignalWeakDialog();
         initWfEven();*/
 //        mDeviceViewModel.refreshGetAllBindDevicesFromMQTT();
-        boolean b = NetworkUtils.isConnected();
-        if (titleBar != null) {
-            titleBar.setNetError(b);
-        }
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
