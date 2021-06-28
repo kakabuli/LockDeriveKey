@@ -122,6 +122,13 @@ public class LockAppManager {
         return null;
     }
 
+    public int getActivitySize() {
+        if (activityStack != null) {
+            return activityStack.size();
+        }
+        return 0;
+    }
+
     /**
      * 退出应用程序
      */

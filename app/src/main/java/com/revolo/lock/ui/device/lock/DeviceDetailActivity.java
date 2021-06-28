@@ -84,6 +84,12 @@ public class DeviceDetailActivity extends BaseActivity {
     }
 
     @Override
+    public void noteNetworks(boolean pingResult) {
+        super.noteNetworks(pingResult);
+        updateView();
+    }
+
+    @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0) {
             finish();
@@ -301,13 +307,19 @@ public class DeviceDetailActivity extends BaseActivity {
         }
         if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI) {
             ivNetState.setImageResource(R.drawable.ic_home_icon_wifi);
+            ivNetState.setVisibility(View.VISIBLE);
+            tvNetState.setVisibility(View.VISIBLE);
         } else if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_BLE) {
             ivNetState.setImageResource(R.drawable.ic_home_icon_bluetooth);
+            ivNetState.setVisibility(View.VISIBLE);
+            tvNetState.setVisibility(View.VISIBLE);
         } else {
-            Timber.e("connect state :%s", mBleDeviceLocal.getConnectedType() + "");
-            ivNetState.setImageResource(R.drawable.ic_home_icon_bluetooth);
-            // TODO: 2021/3/2 其他选择
-            Timber.e("");
+            ivLockState.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_home_img_lock_privacymodel));
+            tvPrivateMode.setVisibility(View.VISIBLE);
+            tvPrivateMode.setText("OffLine");
+            llDoorState.setVisibility(View.GONE);
+            ivNetState.setVisibility(View.GONE);
+            tvNetState.setVisibility(View.GONE);
         }
         tvNetState.setText(getString(R.string.tip_online));
     }

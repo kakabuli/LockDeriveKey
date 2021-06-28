@@ -37,6 +37,7 @@ public class MainActivity extends BaseActivity {
     private DeviceFragment deviceFragment;
     private UserFragment userFragment;
     private MineFragment mineFragment;
+    private BottomNavigationView navView;
 
     @Override
     public void initData(@Nullable Bundle bundle) {
@@ -49,8 +50,6 @@ public class MainActivity extends BaseActivity {
 
         //onRegisterEventBus();
     }
-
-
 
     @Override
     protected void onNewIntent(Intent intent) {
@@ -65,7 +64,7 @@ public class MainActivity extends BaseActivity {
 
     @Override
     public void initView(@Nullable Bundle savedInstanceState, @Nullable View contentView) {
-        BottomNavigationView navView = findViewById(R.id.nav_view);
+        navView = findViewById(R.id.nav_view);
         //NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
         navView.setOnNavigationItemSelectedListener(item -> {
             if (isMainItemIndex != item.getItemId()) {
@@ -150,7 +149,7 @@ public class MainActivity extends BaseActivity {
 
     private void getAlexaIntent(Intent intent) {
         String action = intent.getAction();
-        if(Intent.ACTION_VIEW.equals(action)) {
+        if (Intent.ACTION_VIEW.equals(action)) {
             Uri data = getIntent().getData();
 
             if (data != null) {
