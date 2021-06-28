@@ -9,6 +9,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.ServiceConnection;
 import android.os.Binder;
 import android.os.Handler;
 import android.os.IBinder;
@@ -145,6 +146,7 @@ public class LockAppService extends Service {
         startSendThread();
         Timber.d("attachView   mqtt 启动了");
         registerBluetoothState();
+        mHandler.removeCallbacks(mRunnable);
         mHandler.post(mRunnable);
     }
 
@@ -157,6 +159,12 @@ public class LockAppService extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
         //NotificationManager.silentForegroundNotification(this);//TODO:未知revolo是否要做通知，用FCM就不用自己做通知，先注释
         return super.onStartCommand(intent, flags, startId);
+    }
+
+    @Override
+    public void unbindService(ServiceConnection conn) {
+        super.unbindService(conn);
+        mHandler.removeCallbacks(mRunnable);
     }
 
     @Override

@@ -172,7 +172,7 @@ public class AboutActivity extends BaseActivity {
         tvVersionNew.setText(getString(R.string.about_ver, AppUtils.getAppVersionName()).replace("v", "V"));
         TextView tvContact = findViewById(R.id.tvContact);
         // TODO: 2021/3/8 后期从服务器获取
-        tvContact.setText("service@irevolo.com");
+        tvContact.setText("support@irevolo.com");
         applyDebouncingClickListener(findViewById(R.id.clPrivacyAgreement), findViewById(R.id.clVersionUpdate));
     }
 

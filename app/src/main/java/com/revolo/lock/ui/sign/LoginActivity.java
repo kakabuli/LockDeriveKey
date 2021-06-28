@@ -170,6 +170,10 @@ public class LoginActivity extends BaseActivity {
         EditText etPwd = findViewById(R.id.etPwd);
         etPwd.setInputType(isShowPwd ? InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD : (InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD));
         isShowPwd = !isShowPwd;
+        String trim = mEtPwd.getText().toString().trim();
+        if (!TextUtils.isEmpty(trim)) {
+            mEtPwd.setSelection(trim.length());
+        }
     }
 
     private void login() {

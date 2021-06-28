@@ -67,6 +67,7 @@ public class ForgetThePwdActivity extends BaseActivity {
         }
         initLoading("Loading...");
     }
+
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0) {
@@ -75,6 +76,7 @@ public class ForgetThePwdActivity extends BaseActivity {
         }
         return super.onKeyDown(keyCode, event);
     }
+
     @Override
     public void doBusiness() {
 
@@ -94,6 +96,10 @@ public class ForgetThePwdActivity extends BaseActivity {
                     InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
                     : (InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD));
             isShowPwd = !isShowPwd;
+            String trim = etPwd.getText().toString().trim();
+            if (!TextUtils.isEmpty(trim)) {
+                etPwd.setSelection(trim.length());
+            }
             return;
         }
         if (view.getId() == R.id.tvGetCode) {

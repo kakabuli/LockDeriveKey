@@ -3,6 +3,7 @@ package com.revolo.lock.ui.mine;
 import android.content.Intent;
 import android.hardware.fingerprint.FingerprintManager;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
@@ -11,6 +12,7 @@ import android.widget.ImageView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.biometric.BiometricManager;
+import androidx.biometric.BiometricPrompt;
 import androidx.constraintlayout.widget.ConstraintLayout;
 
 import com.blankj.utilcode.util.ToastUtils;
@@ -20,7 +22,10 @@ import com.revolo.lock.base.BaseActivity;
 import com.revolo.lock.dialog.AccountCancellationDialog;
 import com.revolo.lock.room.AppDatabase;
 import com.revolo.lock.room.entity.User;
+import com.revolo.lock.ui.sign.SignSelectActivity;
 import com.revolo.lock.util.FingerprintUtils;
+
+import java.util.concurrent.Executor;
 
 import timber.log.Timber;
 
@@ -122,7 +127,7 @@ public class SettingActivity extends BaseActivity {
             }
         } else if (view.getId() == R.id.ivEnableTouchIDEnable) {
             if (android.os.Build.VERSION.SDK_INT > 27) {
-                biometricSet(false);
+                showBiometricPrompt(false);
             } else {
                 mFingerprintUtils.openFingerprintAuth();
             }
@@ -132,7 +137,7 @@ public class SettingActivity extends BaseActivity {
                 case "samsung":
                 case "lg":
                 case "google":
-                    biometricSet(true);
+                    showBiometricPrompt(true);
                     break;
                 default:
                     ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.tip_setting_no_supports_face_id);
@@ -261,5 +266,48 @@ public class SettingActivity extends BaseActivity {
             ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show("接口");
         });
         dialog.show();
+    }
+
+    private Handler handler = new Handler();
+
+    private Executor executor = command -> handler.post(command);
+
+    //生物认证的setting
+    private void showBiometricPrompt(boolean isFace) {
+        BiometricPrompt.PromptInfo promptInfo =
+                new BiometricPrompt.PromptInfo.Builder()
+                        .setTitle(" ") //设置大标题
+                        .setSubtitle("") // 设置标题下的提示
+                        .setNegativeButtonText("Cancel") //设置取消按钮
+                        .build();
+
+        //需要提供的参数callback
+        BiometricPrompt biometricPrompt = new BiometricPrompt(SettingActivity.this, executor, new BiometricPrompt.AuthenticationCallback() {
+            //各种异常的回调
+            @Override
+            public void onAuthenticationError(int errorCode,
+                                              @NonNull CharSequence errString) {
+                super.onAuthenticationError(errorCode, errString);
+                Timber.e("Authentication error: %s", errString);
+            }
+
+            //认证成功的回调
+            @Override
+            public void onAuthenticationSucceeded(
+                    @NonNull BiometricPrompt.AuthenticationResult result) {
+                super.onAuthenticationSucceeded(result);
+                biometricSet(isFace);
+            }
+
+            //认证失败的回调
+            @Override
+            public void onAuthenticationFailed() {
+                super.onAuthenticationFailed();
+                Timber.e("Authentication failed");
+            }
+        });
+
+        // 显示认证对话框
+        biometricPrompt.authenticate(promptInfo);
     }
 }
