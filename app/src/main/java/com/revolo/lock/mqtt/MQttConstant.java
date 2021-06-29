@@ -23,9 +23,9 @@ public class MQttConstant {
     public static final String MQTT_TEST_URL = "tcp://internal.irevolo.com:1883";   // 国内测试服务器
     public static final String MQTT_CHANGSHA_TEST_URL_248 = "tcp://192.168.118.248:1883";
     public static final String MQTT_CHANGSHA_TEST_URL_249 = "tcp://192.168.118.249:1883";
-    //public static final String MQTT_BASE_URL = MQTT_CHANGSHA_TEST_URL_249;
+    public static final String MQTT_BASE_URL = MQTT_CHANGSHA_TEST_URL_248;
     // test
-    public static final String MQTT_BASE_URL = "".equals(SPUtils.getInstance("test").getString("test")) ? MQTT_CHANGSHA_TEST_URL_249 : MQTT_CHANGSHA_TEST_URL_248;
+//    public static final String MQTT_BASE_URL = "".equals(SPUtils.getInstance("test").getString("test")) ? MQTT_CHANGSHA_TEST_URL_249 : MQTT_CHANGSHA_TEST_URL_248;
     public static final String MQTT_REQUEST_APP = "/request/app/func";
 
     //断开后，是否自动连接

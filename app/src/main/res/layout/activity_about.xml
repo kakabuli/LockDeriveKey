@@ -157,6 +157,7 @@
             android:layout_width="6dp"
             android:layout_height="6dp"
             android:layout_marginRight="8dp"
+            android:visibility="gone"
             android:background="@drawable/ic_circle_red_bg"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintCircleRadius="@dimen/dp_10"
@@ -180,6 +181,7 @@
         android:id="@+id/test_update_service"
         android:layout_width="match_parent"
         android:layout_height="51pt"
+        android:visibility="gone"
         app:layout_constraintTop_toBottomOf="@+id/clVersionUpdate">
 
         <TextView

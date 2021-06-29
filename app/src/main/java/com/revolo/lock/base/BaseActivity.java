@@ -6,8 +6,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.pm.PackageManager;
-import android.content.pm.ResolveInfo;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.view.Gravity;
@@ -37,13 +35,12 @@ import com.revolo.lock.ui.TitleBar;
 import org.greenrobot.eventbus.EventBus;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.List;
-
 import io.reactivex.disposables.Disposable;
 import timber.log.Timber;
 
 import static com.revolo.lock.Constant.PING_RESULT;
 import static com.revolo.lock.Constant.RECEIVE_ACTION_NETWORKS;
+import static com.revolo.lock.Constant.isRegisterReceiver;
 
 /**
  * <pre>
@@ -106,13 +103,10 @@ public abstract class BaseActivity extends AppCompatActivity
 
 //        startKeepAlive();
 
-        Intent intent = new Intent();
-        intent.setAction(RECEIVE_ACTION_NETWORKS);
-        PackageManager packageManager = getPackageManager();
-        List<ResolveInfo> resolveInfos = packageManager.queryBroadcastReceivers(intent, 0);
-        if (resolveInfos == null || resolveInfos.isEmpty()) {  // 判断广播是否注册
+        if (!isRegisterReceiver) {  // 判断广播是否注册
             Timber.e("#################  广播注册成功  #####################");
             registerReceiver(mReceiver, new IntentFilter(RECEIVE_ACTION_NETWORKS));
+            isRegisterReceiver = true;
         }
     }
 
@@ -136,7 +130,7 @@ public abstract class BaseActivity extends AppCompatActivity
         super.onResume();
         doBusiness();
         if (mTitleBar != null) {
-            mTitleBar.setNetError(Constant.PING_RESULT_B);
+            mTitleBar.setNetError(Constant.pingResult);
         }
     }
 
@@ -163,6 +157,7 @@ public abstract class BaseActivity extends AppCompatActivity
         if (mReceiver != null && LockAppManager.getAppManager().getActivitySize() == 0) {
             Timber.e("####################  注销广播  ########################");
             unregisterReceiver(mReceiver);
+            isRegisterReceiver = false;
         }
         super.onDestroy();
     }

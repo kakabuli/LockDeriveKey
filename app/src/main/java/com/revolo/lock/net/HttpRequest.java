@@ -136,9 +136,9 @@ public class HttpRequest {
     private static final String ABROAD_HOST = "https://revolotest.sfeiya.com:8090";                      // 海外服务器测试接口
     private static final String LOCAL_HOST_248 = "https://192.168.118.248:443";                           // 长沙本地服务器测试接口
     private static final String LOCAL_HOST_249 = "https://192.168.118.249:443";                           // 长沙本地服务器-*/测试接口2
-    //public static final String HOST = LOCAL_HOST_249;
+    public static final String HOST = LOCAL_HOST_248;
     //test
-    public static final String HOST = "".equals(SPUtils.getInstance("test").getString("test")) ? LOCAL_HOST_249 : LOCAL_HOST_248;
+//    public static final String HOST = "".equals(SPUtils.getInstance("test").getString("test")) ? LOCAL_HOST_249 : LOCAL_HOST_248;
     private static final String CHECK_OTA_HOST_TEST = "https://test1.juziwulian.com:9111";          // 国内服务器测试接口
     private static final String CHECK_OTA_HOST_ABROAD = "https://ota-global.juziwulian.com:9111";   // 海外服务器接口
     public static final String CHECK_OTA_HOST = CHECK_OTA_HOST_ABROAD;

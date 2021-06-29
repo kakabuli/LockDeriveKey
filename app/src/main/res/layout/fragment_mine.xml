@@ -216,10 +216,10 @@
             app:layout_constraintTop_toTopOf="parent" />
 
         <View
-            android:layout_width="10pt"
-            android:layout_height="10pt"
-            android:layout_marginEnd="8pt"
+            android:layout_width="13dp"
+            android:layout_height="10dp"
             android:background="@drawable/ic_circle_red_bg"
+            android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintCircleRadius="@dimen/dp_10"
             app:layout_constraintRight_toLeftOf="@id/imageView2"

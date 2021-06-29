@@ -19,7 +19,6 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.blankj.utilcode.util.ConvertUtils;
-import com.blankj.utilcode.util.NetworkUtils;
 import com.blankj.utilcode.util.ToastUtils;
 import com.revolo.lock.App;
 import com.revolo.lock.Constant;
@@ -56,7 +55,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.nio.charset.StandardCharsets;
 import java.util.List;
-import java.util.Objects;
 
 import timber.log.Timber;
 
@@ -179,7 +177,7 @@ public class DeviceFragment extends Fragment {
         }
         refreshGetAllBindDevicesFromMQTT();
         if (titleBar != null) {
-            titleBar.setNetError(Constant.PING_RESULT_B);
+            titleBar.setNetError(Constant.pingResult);
         }
 
         requireActivity().registerReceiver(mReceiver, new IntentFilter(RECEIVE_ACTION_NETWORKS));

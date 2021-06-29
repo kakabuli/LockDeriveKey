@@ -127,7 +127,7 @@ public class LockAppService extends Service {
         @Override
         public void run() {
             boolean ping = ping();// ping 百度判断网络连接
-            Constant.PING_RESULT_B = ping;
+            Constant.pingResult = ping;
             sendBroadcast(new Intent().setAction(Constant.RECEIVE_ACTION_NETWORKS).putExtra(PING_RESULT, ping));
             for (int i = 0; i < mDeviceLists.size(); i++) {
                 mDeviceLists.get(i).setConnectedType(ping ? LocalState.DEVICE_CONNECT_TYPE_WIFI : LocalState.DEVICE_CONNECT_TYPE_DIS);

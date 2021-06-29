@@ -86,6 +86,8 @@ public class Constant {
 
     public static final String PING_RESULT = "pingResult";
 
-    public static boolean PING_RESULT_B = true;
+    public static boolean pingResult = true;
+
+    public static boolean isRegisterReceiver = false;
 
 }

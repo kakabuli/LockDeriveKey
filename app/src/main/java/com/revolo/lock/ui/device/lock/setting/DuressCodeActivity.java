@@ -48,6 +48,7 @@ import com.revolo.lock.ui.device.add.AddWifiFailActivity;
 import com.revolo.lock.ui.device.add.AddWifiSucActivity;
 import com.revolo.lock.ui.device.add.WifiConnectActivity;
 
+import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
@@ -228,7 +229,7 @@ public class DuressCodeActivity extends BaseActivity {
                     Timber.e("settingDuressReceiveMail code: %1s, msg: %2s", code, settingDuressPwdReceiveEMailBeanRsp.getMsg());
                     return;
                 }
-              //  SPUtils.getInstance(REVOLO_SP).put(Constant.DURESS_PWD_RECEIVE, mail);
+                //  SPUtils.getInstance(REVOLO_SP).put(Constant.DURESS_PWD_RECEIVE, mail);
                 mBleDeviceLocal.setDuressEmail(mail);
                 App.getInstance().setBleDeviceLocal(mBleDeviceLocal);
                 AppDatabase.getInstance(DuressCodeActivity.this).bleDeviceDao().update(mBleDeviceLocal);
@@ -264,10 +265,12 @@ public class DuressCodeActivity extends BaseActivity {
         LockMessage lockMessage = new LockMessage();
         lockMessage.setMessageType(2);
         lockMessage.setMqtt_message_code(MQttConstant.SET_LOCK_ATTR);
-        lockMessage.setMqttMessage(MqttCommandFactory.setLockAttr(wifiID, duressParams,
+        MqttMessage mqttMessage = MqttCommandFactory.setLockAttr(wifiID, duressParams,
                 BleCommandFactory.getPwd(
                         ConvertUtils.hexString2Bytes(mBleDeviceLocal.getPwd1()),
-                        ConvertUtils.hexString2Bytes(mBleDeviceLocal.getPwd2()))));
+                        ConvertUtils.hexString2Bytes(mBleDeviceLocal.getPwd2())));
+        mqttMessage.setQos(0);
+        lockMessage.setMqttMessage(mqttMessage);
         lockMessage.setMqtt_topic(MQttConstant.getCallTopic(App.getInstance().getUserBean().getUid()));
         EventBus.getDefault().post(lockMessage);
 
