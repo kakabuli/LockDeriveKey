@@ -42,7 +42,6 @@ import com.revolo.lock.room.entity.BleDeviceLocal;
 import com.revolo.lock.room.entity.LockRecord;
 import com.revolo.lock.ui.view.SmartClassicsFooterView;
 import com.scwang.smart.refresh.layout.api.RefreshLayout;
-import com.scwang.smart.refresh.layout.listener.OnRefreshListener;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -114,7 +113,7 @@ public class OperationRecordsActivity extends BaseActivity {
         mllNoRecord = findViewById(R.id.llNoRecord);
         mOpRecordsAdapter = new OpRecordsAdapter(new ArrayList<>(), this);
         mElOperationRecords.setAdapter(mOpRecordsAdapter);
-        initLoading("Loading...");
+        initLoading(getString(R.string.t_load_content_loading));
 
         mRefreshLayout = findViewById(R.id.refreshLayout);
         mRefreshLayout.setEnableRefresh(true);

@@ -85,7 +85,7 @@ public class WifiSettingActivity extends BaseActivity {
         mIvWifiEnable = findViewById(R.id.ivWifiEnable);
         mTvWifiName = findViewById(R.id.tvWifiName);
         mCltip = findViewById(R.id.clTip);
-        initLoading("Setting...");
+        initLoading(getString(R.string.t_load_content_setting));
         applyDebouncingClickListener(mIvWifiEnable, findViewById(R.id.tvSettingTitle), findViewById(R.id.clTip));
 
         mPowerLowDialog = new MessageDialog(this);

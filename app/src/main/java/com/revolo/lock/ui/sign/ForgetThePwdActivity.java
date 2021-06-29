@@ -65,7 +65,7 @@ public class ForgetThePwdActivity extends BaseActivity {
             EditText etEmail = findViewById(R.id.etEmail);
             etEmail.setText(mail);
         }
-        initLoading("Loading...");
+        initLoading(getString(R.string.t_load_content_loading));
     }
 
     @Override

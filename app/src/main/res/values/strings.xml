@@ -532,4 +532,15 @@
     <string name="t_can_not_contain_more_than_4_sequential_numbers">·Can not contain more than 4 sequential numbers</string>
     <string name="t_how_to_use_the_password_securely">How to use the password securely?</string>
     <string name="t_add_new_input_pin_text">· After the password setting is completed. · When opening the door, if necessary, you can add any random number before and after you set the password, which will better protect your password security.</string>
+    <string name="t_load_content_setting">Setting...</string>
+    <string name="t_load_content_accepting">Accepting...</string>
+    <string name="t_load_content_loading">Loading...</string>
+    <string name="t_load_content_password_generating">Password Generating</string>
+    <string name="t_load_content_creating">Creating...</string>
+    <string name="t_load_content_deleting">Deleting...</string>
+    <string name="t_load_content_feed_back">FeedBack...</string>
+    <string name="t_load_content_updating">Updating</string>
+    <string name="t_load_content_registering">Registering</string>
+    <string name="t_text_content_offline">Offline</string>
+    <string name="t_text_content_wrong_password">Wrong password</string>
 </resources>

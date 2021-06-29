@@ -316,7 +316,7 @@ public class DeviceDetailActivity extends BaseActivity {
         } else {
             ivLockState.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_home_img_lock_privacymodel));
             tvPrivateMode.setVisibility(View.VISIBLE);
-            tvPrivateMode.setText("OffLine");
+            tvPrivateMode.setText(getString(R.string.t_text_content_offline));
             llDoorState.setVisibility(View.GONE);
             ivNetState.setVisibility(View.GONE);
             tvNetState.setVisibility(View.GONE);

@@ -70,7 +70,7 @@ public class CloseDrawHandPwdActivity extends BaseActivity {
                         setResult(RESULT_CANCELED);
                         new Handler(Looper.getMainLooper()).postDelayed(() -> finish(), 50);
                     } else {
-                        tvDrawTip.setText("Wrong password");
+                        tvDrawTip.setText(getString(R.string.t_text_content_wrong_password));
                         mGestureContentView.clearDrawlineState(0L);
                         mCount--;
                     }

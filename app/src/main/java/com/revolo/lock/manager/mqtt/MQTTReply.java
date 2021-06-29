@@ -32,7 +32,6 @@ import com.revolo.lock.room.entity.BleDeviceLocal;
 import org.greenrobot.eventbus.EventBus;
 
 import java.util.List;
-import java.util.Timer;
 
 import timber.log.Timber;
 

@@ -101,7 +101,7 @@ public class GeoFenceUnlockActivity extends BaseActivity implements OnMapReadyCa
         mTvIntroduceTitle = findViewById(R.id.tvIntroduceTitle);
         mSeekBarSensitivity = findViewById(R.id.seekBarSensitivity);
         mConstraintLayout = findViewById(R.id.constraintLayout);
-        initLoading("Setting...");
+        initLoading(getString(R.string.t_load_content_setting));
         mSeekBarTime.setMax(230);
         mSeekBarTime.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
@@ -586,5 +586,4 @@ public class GeoFenceUnlockActivity extends BaseActivity implements OnMapReadyCa
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
     }
-
 }

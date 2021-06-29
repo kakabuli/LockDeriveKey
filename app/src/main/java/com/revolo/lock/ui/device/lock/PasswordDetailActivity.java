@@ -115,7 +115,7 @@ public class PasswordDetailActivity extends BaseActivity {
         //   initZeroTimeZoneDate();
         initSucMessageDialog();
         initFailMessageDialog();
-        initLoading("Deleting...");
+        initLoading(getString(R.string.t_load_content_deleting));
         onRegisterEventBus();
     }
 

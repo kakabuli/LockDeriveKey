@@ -22,7 +22,6 @@ import com.revolo.lock.base.BaseActivity;
 import com.revolo.lock.dialog.AccountCancellationDialog;
 import com.revolo.lock.room.AppDatabase;
 import com.revolo.lock.room.entity.User;
-import com.revolo.lock.ui.sign.SignSelectActivity;
 import com.revolo.lock.util.FingerprintUtils;
 
 import java.util.concurrent.Executor;

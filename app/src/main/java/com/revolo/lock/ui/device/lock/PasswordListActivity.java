@@ -13,7 +13,6 @@ import android.view.View;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
 import com.blankj.utilcode.util.ConvertUtils;
 import com.blankj.utilcode.util.TimeUtils;
@@ -151,7 +150,7 @@ public class PasswordListActivity extends BaseActivity {
                 rvPwdList.closeMenu();
             }
         });
-        initLoading("Loading...");
+        initLoading(getString(R.string.t_load_content_loading));
 
         mRefreshLayout = findViewById(R.id.refreshLayout);
         mRefreshLayout.setEnableLoadMore(false);

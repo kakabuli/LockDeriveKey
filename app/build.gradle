@@ -57,10 +57,10 @@ android {
         variant.outputs.all {
             def date = new Date().format("yyyyMMddHHmm", TimeZone.getDefault())
             if (variant.buildType.name == 'debug') {
-                outputFileName = "revolo_debug${date}_${versionName}.apk"
+                outputFileName = "Revolo_debug${date}_${versionName}.apk"
             }
             if (variant.buildType.name == 'release') {
-                outputFileName = "revolo${date}_${versionName}.apk"
+                outputFileName = "Revolo${date}_${versionName}.apk"
             }
         }
     }

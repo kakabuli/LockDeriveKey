@@ -91,7 +91,7 @@ public class AuthUserDetailActivity extends BaseActivity {
         rvLockList.setLayoutManager(new LinearLayoutManager(this));
         rvLockList.setAdapter(mDevicesAdapter);
         applyDebouncingClickListener(findViewById(R.id.clUserName));
-        initLoading("Loading...");
+        initLoading(getString(R.string.t_load_content_loading));
 
     }
     @Override

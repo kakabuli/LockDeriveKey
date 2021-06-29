@@ -95,7 +95,7 @@ public class AutoLockActivity extends BaseActivity {
         mTvIntroduceContent = findViewById(R.id.tvIntroduceContent);
         mIvDetectionLockEnable = findViewById(R.id.ivDetectionLockEnable);
         applyDebouncingClickListener(mIvAutoLockEnable, mIvDetectionLockEnable);
-        initLoading("Setting...");
+        initLoading(getString(R.string.t_load_content_setting));
         mSeekBar.setMax(140);
         mSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override

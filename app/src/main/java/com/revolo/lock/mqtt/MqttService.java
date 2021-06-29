@@ -479,9 +479,5 @@ public class MqttService extends Service {
             mqttClient.unregisterResources();
             mqttClient = null;
         }
-
-
-
     }
-
 }

@@ -149,7 +149,7 @@ public class AddNewPwdSelectActivity extends BaseActivity {
         useCommonTitleBar(getString(R.string.title_add_password));
         initGlobalView();
         initApplyClick();
-        initLoading("password generating");
+        initLoading(getString(R.string.t_load_content_password_generating));
         mAddPwdFailDialog = new AddPwdFailDialog(this);
         initSucMessageDialog();
         onRegisterEventBus();

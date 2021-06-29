@@ -90,7 +90,7 @@ public class SharedUserDetailActivity extends BaseActivity {
     @Override
     public void initView(@Nullable Bundle savedInstanceState, @Nullable View contentView) {
         useCommonTitleBar(getString(R.string.title_authorization_management));
-        initLoading("Loading...");
+        initLoading(getString(R.string.t_load_content_loading));
         ivEnable = findViewById(R.id.ivEnable);
         ivFamily = findViewById(R.id.ivFamily);
         ivGuest = findViewById(R.id.ivGuest);

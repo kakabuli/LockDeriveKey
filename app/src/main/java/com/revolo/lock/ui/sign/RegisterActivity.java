@@ -100,7 +100,7 @@ public class RegisterActivity extends BaseActivity {
         tvAgreement.append(getString(R.string.i_agree_to));
         tvAgreement.append(spannableString);
         tvAgreement.setMovementMethod(LinkMovementMethod.getInstance());
-        initLoading("Registering...");
+        initLoading(getString(R.string.t_load_content_registering));
 
         mEtEmail = findViewById(R.id.etEmail);
         /*mEtEmail.setOnFocusChangeListener(new android.view.View.

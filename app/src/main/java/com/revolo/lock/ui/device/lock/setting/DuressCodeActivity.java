@@ -1,9 +1,6 @@
 package com.revolo.lock.ui.device.lock.setting;
 
-import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
 import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.KeyEvent;
@@ -17,10 +14,8 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 
 import com.blankj.utilcode.util.ConvertUtils;
 import com.blankj.utilcode.util.RegexUtils;
-import com.blankj.utilcode.util.SPUtils;
 import com.blankj.utilcode.util.ToastUtils;
 import com.revolo.lock.App;
-import com.revolo.lock.Constant;
 import com.revolo.lock.LocalState;
 import com.revolo.lock.R;
 import com.revolo.lock.base.BaseActivity;
@@ -44,9 +39,6 @@ import com.revolo.lock.net.HttpRequest;
 import com.revolo.lock.net.ObservableDecorator;
 import com.revolo.lock.room.AppDatabase;
 import com.revolo.lock.room.entity.BleDeviceLocal;
-import com.revolo.lock.ui.device.add.AddWifiFailActivity;
-import com.revolo.lock.ui.device.add.AddWifiSucActivity;
-import com.revolo.lock.ui.device.add.WifiConnectActivity;
 
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.greenrobot.eventbus.EventBus;
@@ -59,7 +51,6 @@ import io.reactivex.Observer;
 import io.reactivex.disposables.Disposable;
 import timber.log.Timber;
 
-import static com.revolo.lock.Constant.REVOLO_SP;
 import static com.revolo.lock.ble.BleProtocolState.CMD_DURESS_PWD_SWITCH;
 
 /**
@@ -96,7 +87,7 @@ public class DuressCodeActivity extends BaseActivity {
         mClInputEmail = findViewById(R.id.clInputEmail);
         mIvDuressCodeEnable = findViewById(R.id.ivDuressCodeEnable);
         mEtEmail = findViewById(R.id.etEmail);
-        initLoading("Setting...");
+        initLoading(getString(R.string.t_load_content_setting));
         initUI();
         applyDebouncingClickListener(findViewById(R.id.ivDuressCodeEnable), findViewById(R.id.btnSave));
         onRegisterEventBus();

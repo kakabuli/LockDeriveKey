@@ -35,7 +35,6 @@ import com.revolo.lock.room.AppDatabase;
 import com.revolo.lock.room.entity.User;
 import com.revolo.lock.ui.MainActivity;
 import com.revolo.lock.ui.TitleBar;
-import com.tencent.bugly.crashreport.CrashReport;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -130,7 +129,7 @@ public class LoginActivity extends BaseActivity {
             mEtEmail.setText("zhouguimin@kaadas.com");
             mEtPwd.setText("zgm123456");
         }
-        initLoading("Loading...");
+        initLoading(getString(R.string.t_load_content_loading));
     }
 
     /**

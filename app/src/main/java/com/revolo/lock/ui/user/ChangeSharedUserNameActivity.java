@@ -59,7 +59,7 @@ public class ChangeSharedUserNameActivity extends BaseActivity {
         useCommonTitleBar(getString(R.string.title_change_the_name));
         etName = findViewById(R.id.etName);
         applyDebouncingClickListener(findViewById(R.id.btnComplete));
-        initLoading("Updating...");
+        initLoading(getString(R.string.t_load_content_updating));
     }
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {

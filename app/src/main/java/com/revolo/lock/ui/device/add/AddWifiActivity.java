@@ -93,7 +93,7 @@ public class AddWifiActivity extends BaseActivity {
         });
         applyDebouncingClickListener(findViewById(R.id.btnNext), findViewById(R.id.ivDropdown),
                 findViewById(R.id.ivEye), findViewById(R.id.tvSkip));
-        initLoading("Loading...");
+        initLoading(getString(R.string.t_load_content_loading));
 
         mDefaultName = getIntent().getStringExtra("WiFiName");
         if (!TextUtils.isEmpty(mDefaultName)) mEtWifiName.setText(mDefaultName);

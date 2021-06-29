@@ -48,10 +48,10 @@ public class SelectAuthorizedDeviceActivity extends BaseActivity {
     @Override
     public void initData(@Nullable Bundle bundle) {
         Intent intent = getIntent();
-        if(intent.hasExtra(Constant.LOCK_DETAIL)) {
+        if (intent.hasExtra(Constant.LOCK_DETAIL)) {
             mBleDeviceLocal = intent.getParcelableExtra(Constant.LOCK_DETAIL);
         }
-        if(mBleDeviceLocal == null) {
+        if (mBleDeviceLocal == null) {
             finish();
         }
     }
@@ -69,8 +69,9 @@ public class SelectAuthorizedDeviceActivity extends BaseActivity {
         mIvGuest = findViewById(R.id.ivGuest);
         mIvFamily = findViewById(R.id.ivFamily);
         applyDebouncingClickListener(findViewById(R.id.clFamily), findViewById(R.id.clGuest), findViewById(R.id.btnComplete));
-        initLoading("Creating...");
+        initLoading(getString(R.string.t_load_content_creating));
     }
+
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0) {
@@ -79,6 +80,7 @@ public class SelectAuthorizedDeviceActivity extends BaseActivity {
         }
         return super.onKeyDown(keyCode, event);
     }
+
     @Override
     public void doBusiness() {
         refreshUI();
@@ -86,17 +88,17 @@ public class SelectAuthorizedDeviceActivity extends BaseActivity {
 
     @Override
     public void onDebouncingClick(@NonNull View view) {
-        if(view.getId() == R.id.btnComplete) {
+        if (view.getId() == R.id.btnComplete) {
             share();
             return;
         }
-        if(view.getId() == R.id.clFamily) {
+        if (view.getId() == R.id.clFamily) {
             mCurrentUserType = 1;
             mIvGuest.setImageResource(R.drawable.ic_home_password_icon_default);
             mIvFamily.setImageResource(R.drawable.ic_home_password_icon_selected);
             return;
         }
-        if(view.getId() == R.id.clGuest) {
+        if (view.getId() == R.id.clGuest) {
             mCurrentUserType = 2;
             mIvGuest.setImageResource(R.drawable.ic_home_password_icon_selected);
             mIvFamily.setImageResource(R.drawable.ic_home_password_icon_default);
@@ -105,26 +107,26 @@ public class SelectAuthorizedDeviceActivity extends BaseActivity {
 
     private void refreshUI() {
         String name = mBleDeviceLocal.getName();
-        tvUserName.setText(TextUtils.isEmpty(name)?"":name);
+        tvUserName.setText(TextUtils.isEmpty(name) ? "" : name);
         String esn = mBleDeviceLocal.getEsn();
-        tvSn.setText(TextUtils.isEmpty(esn)?"":getString(R.string.equipment_n_esn, esn));
+        tvSn.setText(TextUtils.isEmpty(esn) ? "" : getString(R.string.equipment_n_esn, esn));
     }
 
     private void share() {
-        if(!checkNetConnectFail()) {
+        if (!checkNetConnectFail()) {
             return;
         }
-        if(App.getInstance().getUserBean() == null) {
+        if (App.getInstance().getUserBean() == null) {
             Timber.e("share App.getInstance().getUserBean() == null");
             return;
         }
         String uid = App.getInstance().getUserBean().getUid();
-        if(TextUtils.isEmpty(uid)) {
+        if (TextUtils.isEmpty(uid)) {
             Timber.e("share uid is empty");
             return;
         }
         String token = App.getInstance().getUserBean().getToken();
-        if(TextUtils.isEmpty(token)) {
+        if (TextUtils.isEmpty(token)) {
             Timber.e("share token is empty");
             return;
         }
@@ -147,28 +149,28 @@ public class SelectAuthorizedDeviceActivity extends BaseActivity {
             public void onNext(@NonNull GainKeyBeanRsp gainKeyBeanRsp) {
                 dismissLoading();
                 String code = gainKeyBeanRsp.getCode();
-                if(TextUtils.isEmpty(code)) {
+                if (TextUtils.isEmpty(code)) {
                     Timber.e("share code empty");
                     return;
                 }
-                if(!code.equals("200")) {
-                    if(code.equals("444")) {
+                if (!code.equals("200")) {
+                    if (code.equals("444")) {
                         App.getInstance().logout(true, SelectAuthorizedDeviceActivity.this);
                         return;
                     }
                     String msg = gainKeyBeanRsp.getMsg();
-                    if(!TextUtils.isEmpty(msg)) {
+                    if (!TextUtils.isEmpty(msg)) {
                         ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(msg);
                     }
                     Timber.e("share code: %1s, msg: %2s", code, gainKeyBeanRsp.getMsg());
                     return;
                 }
-                if(gainKeyBeanRsp.getData() == null) {
+                if (gainKeyBeanRsp.getData() == null) {
                     Timber.e("share gainKeyBeanRsp.getData() == null");
                     return;
                 }
                 String url = gainKeyBeanRsp.getData().getUrl();
-                if(TextUtils.isEmpty(url)) {
+                if (TextUtils.isEmpty(url)) {
                     Timber.e("share url is empty");
                     return;
                 }

@@ -152,7 +152,7 @@ public class DoorSensorCheckActivity extends BaseActivity {
         mTvStep = findViewById(R.id.tvStep);
         applyDebouncingClickListener(mBtnNext, mTvSkip);
 
-        initLoading("Loading...");
+        initLoading(getString(R.string.t_load_content_loading));
     }
 
     @Override
@@ -264,6 +264,7 @@ public class DoorSensorCheckActivity extends BaseActivity {
             finish();
         }, 50);
     }
+
     /**
      * 更新锁服务器存储的数据
      */

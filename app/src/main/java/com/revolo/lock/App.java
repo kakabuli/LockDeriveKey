@@ -15,7 +15,6 @@ import com.blankj.utilcode.util.ActivityUtils;
 import com.blankj.utilcode.util.SPUtils;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.revolo.lock.bean.respone.MailLoginBeanRsp;
-import com.revolo.lock.ble.BleCommandFactory;
 import com.revolo.lock.ble.bean.BleBean;
 import com.revolo.lock.manager.LockAppService;
 import com.revolo.lock.manager.mqtt.MQTTManager;
