@@ -213,7 +213,7 @@ public class DeviceSettingActivity extends BaseActivity {
             return;
         }
         if (view.getId() == R.id.clGeoFenceLock) {
-            if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI) {
+            if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI || mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI_BLE) {
                 Intent intent = new Intent(this, GeoFenceUnlockActivity.class);
                 startActivity(intent);
             } else {
@@ -231,7 +231,7 @@ public class DeviceSettingActivity extends BaseActivity {
             return;
         }
         if (view.getId() == R.id.clMute) {
-            if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI) {
+            if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI || mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI_BLE) {
                 showLoading("Loading...");
                 publishSetVolume(mBleDeviceLocal.getEsn(),
                         mBleDeviceLocal.isMute() ? LocalState.VOLUME_STATE_OPEN : LocalState.VOLUME_STATE_MUTE);
@@ -270,7 +270,7 @@ public class DeviceSettingActivity extends BaseActivity {
         String wifiName = mBleDeviceLocal.getConnectedWifiName();
         //同时得保持WiFi连接
         if (null != wifiName && !"".equals(wifiName)) {
-            mTvWifiName.setText(mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI ? wifiName : getString(R.string.tip_wifi_not_connected));
+            mTvWifiName.setText(mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI || mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI_BLE ? wifiName : getString(R.string.tip_wifi_not_connected));
         } else {
             mTvWifiName.setText(R.string.tip_wifi_not_connected);
         }

@@ -31,6 +31,7 @@ import com.revolo.lock.ble.BleProtocolState;
 import com.revolo.lock.ble.bean.BleBean;
 import com.revolo.lock.ble.bean.BleResultBean;
 import com.revolo.lock.dialog.iosloading.CustomerLoadingDialog;
+import com.revolo.lock.manager.LockAppService;
 import com.revolo.lock.manager.LockMessage;
 import com.revolo.lock.manager.LockMessageCode;
 import com.revolo.lock.manager.LockMessageRes;
@@ -82,7 +83,7 @@ public class DeviceFragment extends Fragment {
                 if (titleBar != null) {
                     titleBar.setNetError(pingResult);
                 }
-                if (mHomeLockListAdapter != null){
+                if (mHomeLockListAdapter != null) {
                     mHomeLockListAdapter.notifyDataSetChanged();
                 }
             }
@@ -306,7 +307,24 @@ public class DeviceFragment extends Fragment {
                 }
                 if (wifiLockBaseResponseBean.getEventtype().equals("wifiState")) {
                     int state = wifiLockBaseResponseBean.getState();
-                    bleDeviceLocal.setConnectedType(state);
+                    switch (bleDeviceLocal.getConnectedType()) {
+                        case LocalState.DEVICE_CONNECT_TYPE_BLE: // 之前是蓝牙
+                        case LocalState.DEVICE_CONNECT_TYPE_DIS: // 之前是断线
+                            if (state == 1) {
+                                bleDeviceLocal.setConnectedType(LocalState.DEVICE_CONNECT_TYPE_WIFI);
+                            }
+                            break;
+                        case LocalState.DEVICE_CONNECT_TYPE_WIFI: // 之前是wifi
+                            if (state == 0) {
+                                bleDeviceLocal.setConnectedType(LocalState.DEVICE_CONNECT_TYPE_DIS);
+                            }
+                            break;
+                        case LocalState.DEVICE_CONNECT_TYPE_WIFI_BLE: //之前是wifi ble双链接
+                            if (state == 0) {
+                                bleDeviceLocal.setConnectedType(LocalState.DEVICE_CONNECT_TYPE_BLE);
+                            }
+                            break;
+                    }
                 }
             }
         }

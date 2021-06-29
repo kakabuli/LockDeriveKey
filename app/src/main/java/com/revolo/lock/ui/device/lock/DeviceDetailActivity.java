@@ -305,7 +305,7 @@ public class DeviceDetailActivity extends BaseActivity {
             }
 
         }
-        if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI) {
+        if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI || mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI_BLE) {
             ivNetState.setImageResource(R.drawable.ic_home_icon_wifi);
             ivNetState.setVisibility(View.VISIBLE);
             tvNetState.setVisibility(View.VISIBLE);
@@ -313,7 +313,7 @@ public class DeviceDetailActivity extends BaseActivity {
             ivNetState.setImageResource(R.drawable.ic_home_icon_bluetooth);
             ivNetState.setVisibility(View.VISIBLE);
             tvNetState.setVisibility(View.VISIBLE);
-        } else {
+        } else if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_DIS) {
             ivLockState.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_home_img_lock_privacymodel));
             tvPrivateMode.setVisibility(View.VISIBLE);
             tvPrivateMode.setText(getString(R.string.t_text_content_offline));

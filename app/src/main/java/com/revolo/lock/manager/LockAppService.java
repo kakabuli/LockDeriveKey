@@ -492,7 +492,7 @@ public class LockAppService extends Service {
      */
     private int checkDeviceState(boolean bleState, boolean mqttState) {
         if (bleState && mqttState) {
-            return LocalState.DEVICE_CONNECT_TYPE_WIFI;//双连接
+            return LocalState.DEVICE_CONNECT_TYPE_WIFI_BLE;//双连接
         } else if (!bleState && mqttState) {
             return LocalState.DEVICE_CONNECT_TYPE_WIFI;//wifi
         } else if (bleState && !mqttState) {

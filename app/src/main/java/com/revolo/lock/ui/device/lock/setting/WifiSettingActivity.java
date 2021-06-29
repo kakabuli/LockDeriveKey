@@ -221,24 +221,6 @@ public class WifiSettingActivity extends BaseActivity {
                         .getPwd(ConvertUtils.hexString2Bytes(mBleDeviceLocal.getPwd1()),
                                 ConvertUtils.hexString2Bytes(mBleDeviceLocal.getPwd2()))));
         EventBus.getDefault().post(message);
-
-        /**toDisposable(mCloseWifiFromMQttDisposable);
-         mCloseWifiFromMQttDisposable = mMQttService.mqttPublish(MQttConstant.getCallTopic(App.getInstance().getUserBean().getUid()),
-         MqttCommandFactory.closeWifi(
-         mBleDeviceLocal.getEsn(),
-         BleCommandFactory
-         .getPwd(ConvertUtils.hexString2Bytes(mBleDeviceLocal.getPwd1()),
-         ConvertUtils.hexString2Bytes(mBleDeviceLocal.getPwd2()))))
-         .filter(mqttData -> mqttData.getFunc().equals(MQttConstant.CLOSE_WIFI))
-         .timeout(DEFAULT_TIMEOUT_SEC_VALUE, TimeUnit.SECONDS)
-         .subscribe(mqttData -> {
-         toDisposable(mCloseWifiFromMQttDisposable);
-         processCloseWifiFromMQtt(mqttData);
-         }, e -> {
-         dismissLoading();
-         Timber.e(e);
-         });
-         mCompositeDisposable.add(mCloseWifiFromMQttDisposable);*/
     }
 
     private void processCloseWifiFromMQtt(WifiLockCloseWifiResponseBean bean) {
@@ -486,7 +468,6 @@ public class WifiSettingActivity extends BaseActivity {
         runOnUiThread(() -> {
             mIvWifiEnable.setImageResource(R.drawable.ic_icon_switch_close);
             isWifiConnected = false;
-//            mCltip.setVisibility(View.GONE);
         });
     }
 
