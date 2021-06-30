@@ -561,7 +561,7 @@ public class DoorLockInformationActivity extends BaseActivity {
                     Timber.e("checkOrUseWifiOTAUpdateVer code: %1s,  msg: %2s", code, msg);
                     return;
                 }
-                ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_ota_update_suc);
+                ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_ota_updating);
             }
 
             @Override

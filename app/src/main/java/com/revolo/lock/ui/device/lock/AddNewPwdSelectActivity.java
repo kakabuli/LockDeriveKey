@@ -371,7 +371,7 @@ public class AddNewPwdSelectActivity extends BaseActivity {
             return;
         }
         showLoading();
-        if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI) {
+        if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI || mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI_BLE) {
             publishAddPwd(mBleDeviceLocal.getEsn(), mKey);
         } else {
             if (mBleBean == null) {
@@ -633,7 +633,7 @@ public class AddNewPwdSelectActivity extends BaseActivity {
         mDevicePwdBean.setStartTime(mTemStartDateTimeMill / 1000);
         mDevicePwdBean.setEndTime(mTemEndDateTimeMill / 1000);
         mDevicePwdBean.setAttribute(KEY_SET_ATTRIBUTE_TIME_KEY);
-        if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI) {
+        if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI || mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI) {
             publishAddPwdAttr(mBleDeviceLocal.getEsn(),
                     KEY_SET_ATTRIBUTE_TIME_KEY,
                     mNum,
@@ -692,7 +692,7 @@ public class AddNewPwdSelectActivity extends BaseActivity {
         mDevicePwdBean.setStartTime(mScheduleStartTimeMill / 1000);
         mDevicePwdBean.setEndTime(mScheduleEndTimeMill / 1000);
         mDevicePwdBean.setAttribute(KEY_SET_ATTRIBUTE_WEEK_KEY);
-        if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI) {
+        if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI || mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI) {
             publishAddPwdAttr(mBleDeviceLocal.getEsn(),
                     KEY_SET_ATTRIBUTE_WEEK_KEY,
                     mNum,

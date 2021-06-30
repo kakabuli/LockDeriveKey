@@ -200,7 +200,7 @@ public class PasswordListActivity extends BaseActivity {
     }
 
     private void initData() {
-        if (mBleDeviceLocal.getConnectedType() != LocalState.DEVICE_CONNECT_TYPE_WIFI) {
+        if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_BLE) {
             BleBean bleBean = App.getInstance().getUserBleBean(mBleDeviceLocal.getMac());
             if (bleBean != null) {
                 new Handler(Looper.getMainLooper()).postDelayed(this::checkHadPwdFromBle, 20);
@@ -325,7 +325,7 @@ public class PasswordListActivity extends BaseActivity {
             // 默认可用
             // TODO: 2021/2/24 后面需要修改通过策略和时间判断是否可用
             devicePwdBean.setPwdState(1);
-            if (mBleDeviceLocal.getConnectedType() != LocalState.DEVICE_CONNECT_TYPE_WIFI) {
+            if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_BLE) {
                 Timber.d("bean num: %1d", bean.getNum());
                 if (!mWillSearchList.contains(BleByteUtil.intToByte(bean.getNum()))) {
                     mWillDelPwd.add(bean.getNum());
@@ -690,7 +690,7 @@ public class PasswordListActivity extends BaseActivity {
 
     private void delPwd(DevicePwdBean devicePwdBean) {
         showLoading();
-        if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI) {
+        if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI || mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI) {
             publishDelPwd(mBleDeviceLocal.getEsn(), devicePwdBean);
         } else {
             BleBean bleBean = App.getInstance().getUserBleBean(mBleDeviceLocal.getMac());

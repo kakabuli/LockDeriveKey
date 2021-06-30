@@ -160,7 +160,7 @@
     <!-- AutoLockActivity -->
     <string name="title_auto_lock">Auto lock</string>
     <string name="tip_auto_lock">Auto-lock</string>
-    <string name="set_lock_time">Auto0lock Timing</string>
+    <string name="set_lock_time">Auto lock Timing</string>
     <string name="tip_the_timer_will_start_when_your_door_is_closed">The timer will start when your door is closed.</string>
     <string name="tip_door_will_be_locked_when_time_is_up">Door will be locked when time is up.</string>
     <string name="second">%1$ds</string>
@@ -453,6 +453,7 @@
     <string name="t_please_input_name">Please input name</string>
     <string name="t_please_input_name_2">Name length should be greater than 2</string>
     <string name="t_ota_update_suc">OTA update success</string>
+    <string name="t_ota_updating">OTA updating...</string>
     <string name="t_please_input_right_mail_address">Please input right mail address</string>
     <string name="t_setting_email_suc">Setting Email success</string>
     <string name="t_setting_sensitivity_fail">Setting sensitivity fail!</string>

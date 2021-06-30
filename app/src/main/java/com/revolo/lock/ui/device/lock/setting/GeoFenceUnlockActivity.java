@@ -430,7 +430,7 @@ public class GeoFenceUnlockActivity extends BaseActivity implements OnMapReadyCa
             seekBar.setProgress(100);
         }
         if (isSendCommand) {
-            if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI) {
+            if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI || mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI) {
                 publishSensitivity(mBleDeviceLocal.getEsn(), mSensitivity);
             } else {
                 setSensitivityFromBle();
