@@ -177,6 +177,14 @@ public class DeviceSettingActivity extends BaseActivity {
 
     @Override
     public void onDebouncingClick(@NonNull View view) {
+        if (view.getId() == R.id.clUnbind) {
+            showUnbindDialog();
+            return;
+        }
+        if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_DIS) {
+            ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_text_content_offline_devices);
+            return;
+        }
         if (view.getId() == R.id.tvName || view.getId() == R.id.ivLockName) {
             Intent intent = new Intent(this, ChangeLockNameActivity.class);
             intent.putExtra("tvName", mTvName.getText().toString());
@@ -224,10 +232,6 @@ public class DeviceSettingActivity extends BaseActivity {
         if (view.getId() == R.id.clDoorMagneticSwitch) {
             Intent intent = new Intent(this, DoorSensorAlignmentActivity.class);
             startActivity(intent);
-            return;
-        }
-        if (view.getId() == R.id.clUnbind) {
-            showUnbindDialog();
             return;
         }
         if (view.getId() == R.id.clMute) {
@@ -585,7 +589,8 @@ public class DeviceSettingActivity extends BaseActivity {
                 if (!code.equals("200")) {
                     String msg = updateLockInfoRsp.getMsg();
                     Timber.e("updateLockInfoToService code: %1s, msg: %2s", code, msg);
-                    if (!TextUtils.isEmpty(msg)) ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(msg);
+                    if (!TextUtils.isEmpty(msg))
+                        ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(msg);
                 }
             }
 

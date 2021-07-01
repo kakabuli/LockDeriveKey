@@ -126,12 +126,15 @@ public class DeviceDetailActivity extends BaseActivity {
         }
         if (lockMessage.getMessgaeType() == LockMessageCode.MSG_LOCK_MESSAGE_USER) {
             if (lockMessage.getResultCode() == LockMessageCode.MSG_LOCK_MESSAGE_CODE_SUCCESS) {
-                //正常数据
-            } else {
-                //异常
-                switch (lockMessage.getResultCode()) {
-
+                //数据正常
+                switch (lockMessage.getMessageCode()) {
+                    case LockMessageCode.MSG_LOCK_MESSAGE_UPDATE_DEVICE_STATE:
+                        mBleDeviceLocal = App.getInstance().getBleDeviceLocal();
+                        updateView();
+                        break;
                 }
+            } else {
+                //数据异常
             }
 
         } else if (lockMessage.getMessgaeType() == LockMessageCode.MSG_LOCK_MESSAGE_BLE) {
