@@ -169,7 +169,7 @@ public class DoorSensorAlignmentActivity extends BaseActivity {
             return;
         }
         if (view.getId() == R.id.ivDoorMagneticEnable) {
-            if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI || mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI) {
+            if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI || mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI_BLE) {
                 if (mBleDeviceLocal.isOpenDoorSensor()) {
                     publishSetMagnetic(mBleDeviceLocal.getEsn(), BleCommandState.DOOR_CALIBRATION_STATE_CLOSE_SE);
                 } else {

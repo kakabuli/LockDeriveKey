@@ -334,7 +334,7 @@ public class PasswordDetailActivity extends BaseActivity {
 
     private void delPwd() {
         showLoading();
-        if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI || mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI) {
+        if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI || mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI_BLE) {
             publishDelPwd(mBleDeviceLocal.getEsn(), mDevicePwdBean.getPwdNum());
         } else {
             BleBean bleBean = App.getInstance().getUserBleBean(mBleDeviceLocal.getMac());

@@ -228,7 +228,7 @@ public class WifiConnectActivity extends BaseActivity {
                 if (code.equals("200")) {
                     String msg = updateLockInfoRsp.getMsg();
                     Timber.e("updateLockInfoToService code: %1s, msg: %2s", code, msg);
-                    if (!TextUtils.isEmpty(msg)) ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(msg);
+//                    if (!TextUtils.isEmpty(msg)) ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(msg);
                     mHandler.removeMessages(MSG_ADD_WIFI_OUT_TIME);
                     runOnUiThread(() -> new Handler(Looper.getMainLooper()).postDelayed(() -> {
                         startActivity(new Intent(WifiConnectActivity.this, AddWifiSucActivity.class));

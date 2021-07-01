@@ -34,11 +34,15 @@ import com.revolo.lock.ble.bean.BleBean;
 import com.revolo.lock.ble.bean.BleResultBean;
 import com.revolo.lock.dialog.SelectDialog;
 import com.revolo.lock.manager.LockMessage;
+import com.revolo.lock.manager.LockMessageRes;
+import com.revolo.lock.mqtt.bean.eventbean.WifiLockOperationEventBean;
 import com.revolo.lock.net.HttpRequest;
 import com.revolo.lock.net.ObservableDecorator;
 import com.revolo.lock.room.entity.BleDeviceLocal;
 
 import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 import org.jetbrains.annotations.NotNull;
 
 import java.nio.charset.StandardCharsets;
@@ -111,6 +115,8 @@ public class DoorLockInformationActivity extends BaseActivity {
         String esn = mReq.getWifiSN();
         tvLockSn.setText(TextUtils.isEmpty(esn) ? "" : esn);
         initLoading(getString(R.string.t_load_content_loading));
+
+        onRegisterEventBus();
     }
 
     @Override
@@ -415,7 +421,8 @@ public class DoorLockInformationActivity extends BaseActivity {
                     Timber.e("checkOrUseOTAUpdateVer code: %1s,  msg: %2s", code, msg);
                     return;
                 }
-                ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_ota_update_success);
+//                ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_ota_update_success);
+                initLoading("Updating");
             }
 
             @Override
@@ -561,7 +568,8 @@ public class DoorLockInformationActivity extends BaseActivity {
                     Timber.e("checkOrUseWifiOTAUpdateVer code: %1s,  msg: %2s", code, msg);
                     return;
                 }
-                ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_ota_updating);
+//                ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_ota_updating);
+                initLoading("Updating");
             }
 
             @Override
@@ -664,7 +672,6 @@ public class DoorLockInformationActivity extends BaseActivity {
                         mVVersion.setVisibility(isCanUpdateWifiVer ? View.VISIBLE : View.GONE);
                     }
                 }
-
             }
 
             @Override
@@ -753,7 +760,8 @@ public class DoorLockInformationActivity extends BaseActivity {
                     }
                     return;
                 }
-                ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_ota_update_success);
+//                ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_ota_update_success);
+                showLoading("Updating");
             }
 
             @Override
@@ -767,7 +775,42 @@ public class DoorLockInformationActivity extends BaseActivity {
 
             }
         });
-
     }
 
+    @Subscribe(threadMode = ThreadMode.MAIN, sticky = true)
+    public void getOTAUpdateResult(LockMessageRes lockMessageRes) {
+        if (lockMessageRes != null) {
+            WifiLockOperationEventBean bean = (WifiLockOperationEventBean) lockMessageRes.getWifiLockBaseResponseBean();
+            if (bean != null && bean.getEventtype().equals("otaResult")) {
+                WifiLockOperationEventBean.EventparamsBean eventparams = bean.getEventparams();
+                if (eventparams != null) {
+                    int returnCode = eventparams.getReturnCode();
+                    if (returnCode == 200) { // 成功
+                        int status = eventparams.getStatus();
+                        if (status == 3) { // 升级完成
+                            dismissLoading();
+                            ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show("升级成功");
+                        }
+                    } else {
+                        int hwerrcode = eventparams.getHwerrcode();
+                        switch (hwerrcode) {
+                            case 1:
+                                ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show("下载文件失败");
+                                break;
+                            case 2:
+                                ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show("文件MD5校验失败");
+                                break;
+                            case 3:
+                                ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show("版本号相同无法升级");
+                                break;
+                            case 4:
+                                ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show("其他错误");
+                                break;
+                        }
+                        dismissLoading();
+                    }
+                }
+            }
+        }
+    }
 }

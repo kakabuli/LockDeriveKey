@@ -143,7 +143,7 @@ public class DuressCodeActivity extends BaseActivity {
     @Override
     public void onDebouncingClick(@NonNull View view) {
         if (view.getId() == R.id.ivDuressCodeEnable) {
-            if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI || mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI) {
+            if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI || mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI_BLE) {
                 publishOpenOrCloseDuressPwd(mBleDeviceLocal.getEsn());
             } else {
                 openOrCloseDuressPwd();

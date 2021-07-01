@@ -77,6 +77,7 @@
     <string name="tip_low_battery">Low battery</string>
     <string name="tip_online">Online</string>
     <string name="tip_private_mode">Private mode</string>
+    <string name="tip_door_sensor_error">Door sensor closed</string>
     <string name="tip_door_opened">Door opened</string>
     <string name="tip_door_closed">Door closed</string>
     <string name="tip_opened">Opened</string>
@@ -544,4 +545,5 @@
     <string name="t_load_content_registering">Registering</string>
     <string name="t_text_content_offline">Offline</string>
     <string name="t_text_content_wrong_password">Wrong password</string>
+    <string name="t_text_content_offline_devices">Devices offline</string>
 </resources>

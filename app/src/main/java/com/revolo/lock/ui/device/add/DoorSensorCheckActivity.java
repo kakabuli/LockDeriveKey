@@ -157,7 +157,7 @@ public class DoorSensorCheckActivity extends BaseActivity {
 
     @Override
     public void doBusiness() {
-        if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI) {
+        if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI || mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI_BLE) {
             publishSetMagnetic(mBleDeviceLocal.getEsn(), BleCommandState.DOOR_CALIBRATION_STATE_CLOSE_SE);
         } else {
             /*BleBean bleBean = App.getInstance().getBleBeanFromMac(mBleDeviceLocal.getMac());
@@ -195,21 +195,21 @@ public class DoorSensorCheckActivity extends BaseActivity {
             switch (mDoorState) {
                 case DOOR_OPEN:
                 case DOOR_OPEN_AGAIN:
-                    if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI || mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI) {
+                    if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI || mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI_BLE) {
                         publishSetMagnetic(mBleDeviceLocal.getEsn(), BleCommandState.DOOR_CALIBRATION_STATE_OPEN);
                     } else {
                         sendCommand(BleCommandState.DOOR_CALIBRATION_STATE_OPEN);
                     }
                     break;
                 case DOOR_CLOSE:
-                    if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI || mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI) {
+                    if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI || mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI_BLE) {
                         publishSetMagnetic(mBleDeviceLocal.getEsn(), BleCommandState.DOOR_CALIBRATION_STATE_CLOSE);
                     } else {
                         sendCommand(BleCommandState.DOOR_CALIBRATION_STATE_CLOSE);
                     }
                     break;
                 case DOOR_HALF:
-                    if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI || mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI) {
+                    if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI || mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI_BLE) {
                         publishSetMagnetic(mBleDeviceLocal.getEsn(), BleCommandState.DOOR_CALIBRATION_STATE_HALF);
                     } else {
                         sendCommand(BleCommandState.DOOR_CALIBRATION_STATE_HALF);
@@ -316,7 +316,7 @@ public class DoorSensorCheckActivity extends BaseActivity {
                 if (code.equals("200")) {
                     String msg = updateLockInfoRsp.getMsg();
                     Timber.e("updateLockInfoToService code: %1s, msg: %2s", code, msg);
-                    if (!TextUtils.isEmpty(msg)) ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(msg);
+//                    if (!TextUtils.isEmpty(msg)) ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(msg);
 
                 }
             }
@@ -557,6 +557,7 @@ public class DoorSensorCheckActivity extends BaseActivity {
     private void gotoFailAct() {
         mDoorState = DOOR_FAIL;
         Intent intent = new Intent(this, DoorCheckFailActivity.class);
+        intent.putExtra(Constant.IS_GO_TO_ADD_WIFI, isGoToAddWifi);
         startActivity(intent);
         finish();
     }

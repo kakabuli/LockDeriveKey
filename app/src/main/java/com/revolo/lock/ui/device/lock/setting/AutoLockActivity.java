@@ -184,7 +184,7 @@ public class AutoLockActivity extends BaseActivity {
     @Override
     public void onDebouncingClick(@NonNull View view) {
         if (view.getId() == R.id.ivAutoLockEnable) {
-            if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI || mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI) {
+            if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI || mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI_BLE) {
                 publishOpenOrCloseAutoLock(mBleDeviceLocal.getEsn());
             } else {
                 openOrCloseAutoLock();
@@ -456,7 +456,7 @@ public class AutoLockActivity extends BaseActivity {
             mTvTime.setText("30min");
             mTime = 30 * 60;
         }
-        if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI || mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI) {
+        if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI || mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI_BLE) {
             publishAutoLockTime(mBleDeviceLocal.getEsn(), mTime);
         } else {
             setAutoLockTimeFromBle();

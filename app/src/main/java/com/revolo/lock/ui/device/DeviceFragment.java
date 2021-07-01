@@ -117,6 +117,7 @@ public class DeviceFragment extends Fragment {
                     }
                     @LocalState.LockState int connectedState = ((BleDeviceLocal) adapter.getItem(position)).getConnectedType();
                     if (LocalState.DEVICE_CONNECT_TYPE_DIS == connectedState) {
+                        ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_text_content_offline_devices);
                         return;
                     }
                     if (adapter.getItem(position) instanceof BleDeviceLocal) {

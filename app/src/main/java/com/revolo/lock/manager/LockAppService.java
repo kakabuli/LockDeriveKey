@@ -1466,6 +1466,9 @@ public class LockAppService extends Service {
         public void onAddDevice(boolean isDelete, BleDeviceLocal bleDeviceLocal) {
             /*** 添加设备*/
             addDevice(isDelete, bleDeviceLocal);
+            if (bleDeviceLocal != null) { // 订阅mqtt主题
+                MQTTManager.getInstance().mqttSubscribe(MQttConstant.getOrangeIotEvent(bleDeviceLocal.getEsn()), 2);
+            }
         }
 
         @Override

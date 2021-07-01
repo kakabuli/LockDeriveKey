@@ -3,6 +3,7 @@ package com.revolo.lock.ui.device.lock;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.CountDownTimer;
+import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.ImageView;
@@ -15,6 +16,7 @@ import androidx.core.content.ContextCompat;
 
 import com.a1anwang.okble.client.scan.BLEScanResult;
 import com.blankj.utilcode.util.ConvertUtils;
+import com.blankj.utilcode.util.ToastUtils;
 import com.revolo.lock.App;
 import com.revolo.lock.Constant;
 import com.revolo.lock.LocalState;
@@ -145,7 +147,7 @@ public class DeviceDetailActivity extends BaseActivity {
                         Timber.e("MSG_LOCK_MESSAGE_WF_EVEN curr0 sn:%s", App.getInstance().getmCurrSn());
                         Timber.e("MSG_LOCK_MESSAGE_WF_EVEN Esn:%s", mBleDeviceLocal.getEsn());
                         if (App.getInstance().getmCurrSn().equals(mBleDeviceLocal.getEsn())) {
-                            dismissLoading();
+//                            dismissLoading();
                             //操作
                             mBleDeviceLocal = App.getInstance().getBleDeviceLocal();
                             Timber.e("MSG_LOCK_MESSAGE_WF_EVEN curr sn:%s", App.getInstance().getmCurrSn());
@@ -161,7 +163,7 @@ public class DeviceDetailActivity extends BaseActivity {
                         Timber.e("MSG_LOCK_MESSAGE_SET_LOCK Esn:%s", mBleDeviceLocal.getEsn());
                         if (App.getInstance().getmCurrSn().equals(mBleDeviceLocal.getEsn())) {
                             Timber.e("MSG_LOCK_MESSAGE_SET_LOCK curr sn:%s", App.getInstance().getmCurrSn());
-                            dismissLoading();
+//                            dismissLoading();
                             updateView();
                             //processSetLock((WifiLockDoorOptResponseBean) lockMessage.getWifiLockBaseResponseBean());
                         }
@@ -265,6 +267,7 @@ public class DeviceDetailActivity extends BaseActivity {
             if (mBleDeviceLocal.getLockState() == LocalState.LOCK_STATE_OPEN) {
                 ivLockState.setImageResource(R.drawable.ic_home_img_lock_open);
                 if (isUseDoorSensor) {
+                    doorShow(ivDoorState, tvDoorState);
                     switch (mBleDeviceLocal.getDoorSensor()) {
                         case LocalState.DOOR_SENSOR_CLOSE:
                             doorClose(ivDoorState, tvDoorState);
@@ -277,12 +280,14 @@ public class DeviceDetailActivity extends BaseActivity {
                             break;
                     }
                 } else {
-                    doorOpen(ivDoorState, tvDoorState);
+                    doorHide(ivDoorState, tvDoorState);
+//                    doorOpen(ivDoorState, tvDoorState);
                 }
 
             } else if (mBleDeviceLocal.getLockState() == LocalState.LOCK_STATE_CLOSE || mBleDeviceLocal.getLockState() == LocalState.LOCK_STATE_SENSOR_CLOSE) {
                 ivLockState.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_home_img_lock_close));
                 if (isUseDoorSensor) {
+                    doorShow(ivDoorState, tvDoorState);
                     switch (mBleDeviceLocal.getDoorSensor()) {
                         case LocalState.DOOR_SENSOR_CLOSE:
                         case LocalState.DOOR_SENSOR_EXCEPTION:
@@ -295,7 +300,8 @@ public class DeviceDetailActivity extends BaseActivity {
                             break;
                     }
                 } else {
-                    doorClose(ivDoorState, tvDoorState);
+                    doorHide(ivDoorState, tvDoorState);
+//                    doorClose(ivDoorState, tvDoorState);
                 }
             } else {
                 ivLockState.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_home_img_lock_close));
@@ -397,9 +403,25 @@ public class DeviceDetailActivity extends BaseActivity {
         tvDoorState.setText(R.string.tip_opened);
     }
 
+    private void doorHide(ImageView ivDoorState, TextView tvDoorState) {
+        llDoorState.setVisibility(View.GONE);
+        ivDoorState.setVisibility(View.GONE);
+        tvDoorState.setVisibility(View.GONE);
+    }
+
+    private void doorShow(ImageView ivDoorState, TextView tvDoorState) {
+        llDoorState.setVisibility(View.VISIBLE);
+        ivDoorState.setVisibility(View.VISIBLE);
+        tvDoorState.setVisibility(View.VISIBLE);
+    }
+
     private void openDoor() {
         @LocalState.LockState int state = mBleDeviceLocal.getLockState();
         if (state == LocalState.LOCK_STATE_PRIVATE) {
+            return;
+        }
+        if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_DIS) {
+            ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_text_content_offline_devices);
             return;
         }
         int doorOpt = state == LocalState.LOCK_STATE_OPEN ? LocalState.DOOR_STATE_CLOSE : LocalState.DOOR_STATE_OPEN;
@@ -461,11 +483,11 @@ public class DeviceDetailActivity extends BaseActivity {
             Timber.e("publishOpenOrCloseDoor mMQttService == null");
             return;
         }*/
-        if (doorOpt == LocalState.DOOR_STATE_OPEN) {
-            showLoading("Lock Opening...");
-        } else if (doorOpt == LocalState.DOOR_STATE_CLOSE) {
-            showLoading("Lock Closing...");
-        }
+//        if (doorOpt == LocalState.DOOR_STATE_OPEN) {
+//            showLoading("Lock Opening...");
+//        } else if (doorOpt == LocalState.DOOR_STATE_CLOSE) {
+//            showLoading("Lock Closing...");
+//        }
         mCount++;
         LockMessage message = new LockMessage();
         message.setMessageType(2);
@@ -477,40 +499,6 @@ public class DeviceDetailActivity extends BaseActivity {
                 randomCode,
                 num));
         EventBus.getDefault().post(message);
-
-
-        // toDisposable(mOpenOrCloseLockDisposable);
-      /*  mOpenOrCloseLockDisposable = mMQttService.mqttPublish(
-                MQttConstant.getCallTopic(App.getInstance().getUserBean().getUid()),
-                MqttCommandFactory.setLock(wifiId,
-                        doorOpt,
-                        BleCommandFactory.getPwd(ConvertUtils.hexString2Bytes(mBleDeviceLocal.getPwd1()), ConvertUtils.hexString2Bytes(mBleDeviceLocal.getPwd2())),
-                        randomCode,
-                        num))
-                .timeout(DEFAULT_TIMEOUT_SEC_VALUE, TimeUnit.SECONDS)
-                .filter(mqttData -> mqttData.getFunc().equals(MQttConstant.SET_LOCK) || mqttData.getFunc().equals(MQttConstant.WF_EVENT))
-                .subscribe(mqttData -> {
-                    mCount = 0;
-                    toDisposable(mOpenOrCloseLockDisposable);
-                    processOpenOrClose(mqttData);
-                    dismissLoading();
-                }, e -> {
-                    dismissLoading();
-                    if (e instanceof TimeoutException) {
-                        ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(doorOpt == LocalState.DOOR_STATE_OPEN ? "Locking Failed" : "Unlocking Failed");
-                        if (mCount == 3) {
-                            // 3次机会,超时失败开始连接蓝牙
-                            mCount = 0;
-                            runOnUiThread(() -> {
-                                if (mMessageDialog != null) {
-                                    mMessageDialog.show();
-                                }
-                            });
-                        }
-                    }
-                    Timber.e(e);
-                });*/
-        // mCompositeDisposable.add(mOpenOrCloseLockDisposable);
     }
 
 

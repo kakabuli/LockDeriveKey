@@ -120,7 +120,7 @@ public class OperationRecordsActivity extends BaseActivity {
         mRefreshLayout.setRefreshFooter(new SmartClassicsFooterView((this)));
         mRefreshLayout.setOnRefreshListener(refreshLayout -> {
             mPage = 1;
-            if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI || mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI) {
+            if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI || mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI_BLE) {
                 searchRecordFromNet(mPage, false);
             } else {
                 initDevice();
@@ -128,7 +128,7 @@ public class OperationRecordsActivity extends BaseActivity {
             }
         });
         mRefreshLayout.setOnLoadMoreListener(refreshLayout -> {
-            if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI || mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI) {
+            if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI || mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI_BLE) {
                 searchRecordFromNet(mPage, false);
             } else {
                 initDevice();
@@ -168,7 +168,7 @@ public class OperationRecordsActivity extends BaseActivity {
 
     @Override
     public void doBusiness() {
-        if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI || mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI) {
+        if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI || mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI_BLE) {
             searchRecordFromNet(mPage, false);
         } else {
             initDevice();
