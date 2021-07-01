@@ -268,7 +268,7 @@ public class DoorSensorAlignmentActivity extends BaseActivity {
                 // TODO: 2021/3/6 出错的情况
             }
         } else if (bleResultBean.getCMD() == CMD_LOCK_INFO) {
-            byte[] state = BleByteUtil.byteToBit(bleResultBean.getPayload()[4]);
+            byte[] state = BleByteUtil.byteToBit(bleResultBean.getPayload()[3]);
             byte doorSensorState = state[3];
             Timber.d("LockState 7~0: %1s", ConvertUtils.bytes2HexString(state));
             // 更新最新的门磁状态
