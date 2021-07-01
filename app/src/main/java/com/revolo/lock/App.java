@@ -17,6 +17,7 @@ import com.google.firebase.messaging.FirebaseMessaging;
 import com.revolo.lock.bean.respone.MailLoginBeanRsp;
 import com.revolo.lock.ble.bean.BleBean;
 import com.revolo.lock.manager.LockAppService;
+import com.revolo.lock.manager.geo.LockGeoFenceService;
 import com.revolo.lock.manager.mqtt.MQTTManager;
 import com.revolo.lock.room.AppDatabase;
 import com.revolo.lock.room.entity.BleDeviceLocal;
@@ -69,6 +70,7 @@ public class App extends Application {
 
     /*protected MqttService mMQttService;*/
     private LockAppService lockAppService;
+    private LockGeoFenceService lockGeoFenceService;
 
     @Override
     public void onCreate() {
@@ -79,6 +81,7 @@ public class App extends Application {
         }
         //initMQttService();
         initLockAppService();
+        initLockGeoService();
 
         FirebaseMessaging.getInstance().getToken().addOnCompleteListener(task -> {
             if (!task.isSuccessful()) {
@@ -182,6 +185,33 @@ public class App extends Application {
     public LockAppService getLockAppService() {
         return lockAppService;
     }
+
+    /**
+     * 初始化定位服务
+     */
+    private void initLockGeoService() {
+        Intent intent = new Intent(this, LockGeoFenceService.class);
+        bindService(intent, new ServiceConnection() {
+            @Override
+            public void onServiceConnected(ComponentName name, IBinder service) {
+                if (service instanceof LockGeoFenceService.lockBinder) {
+                    LockGeoFenceService.lockBinder binder = (LockGeoFenceService.lockBinder) service;
+                    lockGeoFenceService = binder.getService();
+                    Timber.d("attachView service启动 %1b", (lockGeoFenceService == null));
+                }
+            }
+
+            @Override
+            public void onServiceDisconnected(ComponentName name) {
+                lockGeoFenceService = null;
+            }
+        }, Context.BIND_AUTO_CREATE);
+    }
+
+    public LockGeoFenceService getLockGeoFenceService() {
+        return lockGeoFenceService;
+    }
+
 
     /**
      * 获取用户设备列表
@@ -306,7 +336,6 @@ public class App extends Application {
     public void setWifiSettingNeedToCloseBle(boolean wifiSettingNeedToCloseBle) {
         isWifiSettingNeedToCloseBle = wifiSettingNeedToCloseBle;
     }
-
 
 
     /*-------------------------------- 蓝牙搜索 --------------------------------*/

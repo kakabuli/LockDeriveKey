@@ -799,6 +799,7 @@ public class LockAppService extends Service {
                 case BleProtocolState.CMD_KNOCK_DOOR_AND_UNLOCK_TIME:// 0x22;      // 敲门开锁指令
                     if (bleResultBean.getPayload()[0] == 0) {
                         // 设置敲击开锁成功
+                        updateDeviceState(mac);
                     }
                     break;
                 case BleProtocolState.CMD_SY_LOCK_TIME:// 0x23;                    // 与锁同步时间
@@ -873,6 +874,37 @@ public class LockAppService extends Service {
             EventBus.getDefault().post(messageRes);
         }
     };
+
+    /**
+     * 更新电子围栏状态
+     *
+     * @param mac
+     */
+    private void updateDeviceState(String mac) {
+        BleBean bleBean = BleManager.getInstance().getBleBeanFromMac(mac);
+        if (null != bleBean) {
+            for (int index = 0; index < mDeviceLists.size(); index++) {
+                if (null != mac && mac.equals(mDeviceLists.get(index).getMac())) {
+                    if (null != App.getInstance().getLockGeoFenceService()) {
+                        App.getInstance().getLockGeoFenceService().clearBleDevice(mDeviceLists.get(index).getEsn());
+                        mDeviceLists.get(index).setOpenElectricFence(false);
+                        AppDatabase.getInstance(getApplicationContext()).bleDeviceDao().update(mDeviceLists.get(index));
+                        Timber.e("app service setDoorState curr mac: %s", App.getInstance().getmCurrMac());
+                        Timber.e("app service setDoorState curr sn: %s", App.getInstance().getmCurrSn());
+                        Timber.e("app service setDoorState  mac: %s", mDeviceLists.get(index).getMac());
+                        Timber.e("app service setDoorState  sn: %s", mDeviceLists.get(index).getEsn());
+                        if ((null != mDeviceLists.get(index).getMac() && mDeviceLists.get(index).getMac().equals(App.getInstance().getmCurrMac())) ||
+                                (null != mDeviceLists.get(index).getEsn() && mDeviceLists.get(index).getEsn().equals(App.getInstance().getmCurrSn()))) {
+                            Timber.e("app service setDoorState set BleDeviceLocal");
+                            App.getInstance().setBleDeviceLocal(mDeviceLists.get(index));
+                        }
+                    }
+                    break;
+                }
+            }
+
+        }
+    }
 
     /**
      * 更新报警信息
@@ -1068,7 +1100,6 @@ public class LockAppService extends Service {
             AppDatabase.getInstance(getApplicationContext()).bleDeviceDao().update(mDeviceLists.get(index));
             Timber.e("app service setDoorState curr mac: %s", App.getInstance().getmCurrMac());
             Timber.e("app service setDoorState curr sn: %s", App.getInstance().getmCurrSn());
-
             Timber.e("app service setDoorState  mac: %s", mDeviceLists.get(index).getMac());
             Timber.e("app service setDoorState  sn: %s", mDeviceLists.get(index).getEsn());
             if ((null != mDeviceLists.get(index).getMac() && mDeviceLists.get(index).getMac().equals(App.getInstance().getmCurrMac())) ||

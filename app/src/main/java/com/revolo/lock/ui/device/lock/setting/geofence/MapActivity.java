@@ -7,9 +7,12 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.location.Location;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.provider.Settings;
 import android.view.Gravity;
 import android.view.KeyEvent;
@@ -26,6 +29,9 @@ import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.Geofence;
 import com.google.android.gms.location.GeofencingClient;
 import com.google.android.gms.location.GeofencingRequest;
+import com.google.android.gms.location.LocationCallback;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -37,6 +43,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.revolo.lock.App;
 import com.revolo.lock.R;
 import com.revolo.lock.base.BaseActivity;
+import com.revolo.lock.manager.geo.LockGeoFenceService;
 import com.revolo.lock.room.AppDatabase;
 import com.revolo.lock.room.entity.BleDeviceLocal;
 
@@ -56,11 +63,11 @@ public class MapActivity extends BaseActivity implements OnMapReadyCallback, Goo
     private int BACKGROUND_LOCATION_ACCESS_REQUEST_CODE = 10002;
     private String GEO_FENCE_ID = "SOME_GEO_FENCE_ID";
     private GoogleMap mMap;
-    private GeofencingClient mGeoFencingClient;
-    private GeoFenceHelper mGeoFenceHelper;
-    public float GEO_FENCE_RADIUS = 200;
+    /*private GeofencingClient mGeoFencingClient;
+    private GeoFenceHelper mGeoFenceHelper;*/
+    public float GEO_FENCE_RADIUS = 50;
 
-    private FusedLocationProviderClient fusedLocationClient;
+    //  private FusedLocationProviderClient fusedLocationClient;
 
     private BleDeviceLocal mBleDeviceLocal;
 
@@ -78,6 +85,32 @@ public class MapActivity extends BaseActivity implements OnMapReadyCallback, Goo
         return R.layout.activity_map;
     }
 
+    private Handler handler = new Handler() {
+        @Override
+        public void handleMessage(@NonNull Message msg) {
+            if (msg.what == LockGeoFenceService.MSG_LOCK_GEO_FEN_SERIVE_UPDATE) {
+                LatLng location = (LatLng) msg.obj;
+                if (location != null) {
+                    // Logic to handle location object
+                    if (mMap != null) {
+                        LatLng dhaka = new LatLng(location.latitude, location.longitude);
+                        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(dhaka, 16));
+                        if (mBleDeviceLocal.isOpenElectricFence()) {
+                            double la = mBleDeviceLocal.getLatitude();
+                            double lo = mBleDeviceLocal.getLongitude();
+                            if (mMap != null) {
+                                mMap.clear();
+                                LatLng latLng = new LatLng(la, lo);
+                                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 16));
+                                handleMapLongClick(latLng);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    };
+
     @Override
     public void initView(@Nullable Bundle savedInstanceState, @Nullable View contentView) {
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
@@ -87,8 +120,10 @@ public class MapActivity extends BaseActivity implements OnMapReadyCallback, Goo
         if (mapFragment != null) {
             mapFragment.getMapAsync(this);
         }
-
-        mGeoFencingClient = LocationServices.getGeofencingClient(this);
+        if (null != App.getInstance().getLockGeoFenceService()) {
+            App.getInstance().getLockGeoFenceService().setHandler(handler);
+        }
+        /*mGeoFencingClient = LocationServices.getGeofencingClient(this);
         mGeoFenceHelper = new GeoFenceHelper(this);
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -121,8 +156,9 @@ public class MapActivity extends BaseActivity implements OnMapReadyCallback, Goo
                             }
                         }
                     }
-                });
+                });*/
     }
+
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0) {
@@ -131,6 +167,15 @@ public class MapActivity extends BaseActivity implements OnMapReadyCallback, Goo
         }
         return super.onKeyDown(keyCode, event);
     }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (null != App.getInstance().getLockGeoFenceService()) {
+            App.getInstance().getLockGeoFenceService().setHandler(null);
+        }
+    }
+
     @Override
     public void doBusiness() {
 
@@ -258,8 +303,11 @@ public class MapActivity extends BaseActivity implements OnMapReadyCallback, Goo
     @SuppressLint("MissingPermission")
     private void addGeoFence(LatLng latLng, float radius) {
         Timber.d("addGeoFence: started");
-
-        Geofence geofence = mGeoFenceHelper.getGeoFence(
+        if (null != App.getInstance().getLockGeoFenceService()) {
+            mBleDeviceLocal.setOpenElectricFence(true);
+            App.getInstance().getLockGeoFenceService().updateDeviceGeo(mBleDeviceLocal, latLng, radius);
+        }
+        /*Geofence geofence = mGeoFenceHelper.getGeoFence(
                 GEO_FENCE_ID,
                 latLng,
                 radius,
@@ -274,7 +322,7 @@ public class MapActivity extends BaseActivity implements OnMapReadyCallback, Goo
                 .addOnFailureListener(e -> {
                     String errorMessage = mGeoFenceHelper.getErrorString(e);
                     Timber.d("GeoFence onFailure: %1s", errorMessage);
-                });
+                });*/
     }
 
     private void addMarker(LatLng latLng) {
