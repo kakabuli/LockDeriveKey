@@ -41,6 +41,7 @@ public class HomeLockListAdapter extends BaseQuickAdapter<BleDeviceLocal, BaseVi
                 : name);
         if (deviceLocal.getLockState() == LocalState.LOCK_STATE_PRIVATE) {
             baseViewHolder.setImageResource(R.id.ivLockState, R.mipmap.ic_home_img_lock_privacymodel);
+            doorShow(ivDoorState, tvDoorState);
             baseViewHolder.setText(R.id.tvDoorState, getContext().getString(R.string.tip_private_mode));
             baseViewHolder.setGone(R.id.ivDoorState, true);
         } else {

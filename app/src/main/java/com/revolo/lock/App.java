@@ -76,9 +76,9 @@ public class App extends Application {
     public void onCreate() {
         super.onCreate();
         instance = this;
-        if (BuildConfig.DEBUG) {
+//        if (BuildConfig.DEBUG) {
             Timber.plant(new Timber.DebugTree());
-        }
+//        }
         //initMQttService();
         initLockAppService();
         initLockGeoService();
