@@ -299,6 +299,10 @@ public class MQTTReply {
             }
             //     bleDeviceLocal.setLockState(wifiListBean.getOpenStatus());
         }
+
+        if (wifiListBean.getOperatingMode() == 1) {
+            bleDeviceLocal.setLockState(LocalState.LOCK_STATE_PRIVATE);
+        }
         Timber.e("设备 更新后 lockState： %s", bleDeviceLocal.getLockState() + "");
 
         bleDeviceLocal.setMute(wifiListBean.getVolume() == 1);

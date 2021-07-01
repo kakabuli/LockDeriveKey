@@ -256,6 +256,7 @@ public class DeviceDetailActivity extends BaseActivity {
         // 低电量
         llLowBattery.setVisibility(mBleDeviceLocal.getLockPower() <= 20 ? View.VISIBLE : View.GONE);
         if (mBleDeviceLocal.getLockState() == LocalState.LOCK_STATE_PRIVATE) {
+            doorShow(ivDoorState, tvDoorState);
             ivLockState.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_home_img_lock_privacymodel));
             tvPrivateMode.setVisibility(View.VISIBLE);
             llDoorState.setVisibility(View.GONE);
@@ -309,7 +310,6 @@ public class DeviceDetailActivity extends BaseActivity {
                 Timber.e("其他选择");
                 doorClose(ivDoorState, tvDoorState);
             }
-
         }
         if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI || mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI_BLE) {
             ivNetState.setImageResource(R.drawable.ic_home_icon_wifi);
