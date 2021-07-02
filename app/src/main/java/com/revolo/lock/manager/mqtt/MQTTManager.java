@@ -251,33 +251,6 @@ public class MQTTManager {
         }
     }
 
-    public void mqttSubscribe(String topic, int qos) {
-        Timber.d("订阅    " + topic + "   " + (mqttClient != null));
-        try {
-            if (mqttClient != null) {
-                if (!TextUtils.isEmpty(topic) && mqttClient.isConnected()) {
-                    mqttClient.subscribe(topic, qos, null, new
-                            IMqttActionListener() {
-                                @Override
-                                public void onSuccess(IMqttToken asyncActionToken) {
-                                    Timber.d("mqttSubscribe " + "订阅成功");
-                                    //TODO:订阅成功，立即拿设备列表,此时拿设备列表，从mqtt转成以http方式
-
-                                }
-
-                                @Override
-                                public void onFailure(IMqttToken asyncActionToken, Throwable exception) {
-                                    Timber.d("mqttSubscribe " + "订阅失败");
-                                    MqttExceptionHandle.onFail(MqttExceptionHandle.SubscribeException, asyncActionToken, exception);
-                                }
-                            });
-                }
-            }
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-    }
-
     //发布
     public void mqttPublish(String topic, MqttMessage mqttMessage) throws MqttException {
         if (mqttClient != null && mqttClient.isConnected()) {
