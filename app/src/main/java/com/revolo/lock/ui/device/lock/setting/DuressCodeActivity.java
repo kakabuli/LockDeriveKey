@@ -241,8 +241,6 @@ public class DuressCodeActivity extends BaseActivity {
         });
     }
 
-    //private Disposable mOpenOrCloseDuressPwdDisposable;
-
     private void publishOpenOrCloseDuressPwd(String wifiID) {
         /*if(mMQttService == null) {
             Timber.e("publishOpenOrCloseDuressPwd mMQttService == null");
@@ -264,42 +262,10 @@ public class DuressCodeActivity extends BaseActivity {
         lockMessage.setMqttMessage(mqttMessage);
         lockMessage.setMqtt_topic(MQttConstant.getCallTopic(App.getInstance().getUserBean().getUid()));
         EventBus.getDefault().post(lockMessage);
-
-       /* toDisposable(mOpenOrCloseDuressPwdDisposable);
-        mOpenOrCloseDuressPwdDisposable = mMQttService.mqttPublish(MQttConstant.getCallTopic(App.getInstance().getUserBean().getUid()),
-                MqttCommandFactory.setLockAttr(wifiID, duressParams,
-                        BleCommandFactory.getPwd(
-                                ConvertUtils.hexString2Bytes(mBleDeviceLocal.getPwd1()),
-                                ConvertUtils.hexString2Bytes(mBleDeviceLocal.getPwd2()))))
-                .filter(mqttData -> mqttData.getFunc().equals(MQttConstant.SET_LOCK_ATTR))
-                .timeout(DEFAULT_TIMEOUT_SEC_VALUE, TimeUnit.SECONDS)
-                .subscribe(mqttData -> {
-                    toDisposable(mOpenOrCloseDuressPwdDisposable);
-                    processOpenOrCloseDuressPwd(mqttData);
-                }, e -> {
-                    // TODO: 2021/3/3 错误处理
-                    // 超时或者其他错误
-                    dismissLoading();
-                    Timber.e(e);
-                });
-        mCompositeDisposable.add(mOpenOrCloseDuressPwdDisposable);*/
     }
 
     private void processOpenOrCloseDuressPwd(WifiLockSetLockAttrDuressRspBean bean) {
-        /*if(TextUtils.isEmpty(mqttData.getFunc())) {
-            Timber.e("publishOpenOrCloseDuressPwd mqttData.getFunc() is empty");
-            return;
-        }
-        if(mqttData.getFunc().equals(MQttConstant.SET_LOCK_ATTR)) {*/
         dismissLoading();
-          /*  Timber.d("publishOpenOrCloseDuressPwd 设置属性: %1s", mqttData);
-            WifiLockSetLockAttrDuressRspBean bean;
-            try {
-                bean = GsonUtils.fromJson(mqttData.getPayload(), WifiLockSetLockAttrDuressRspBean.class);
-            } catch (JsonSyntaxException e) {
-                Timber.e(e);
-                return;
-            }*/
         if (bean == null) {
             Timber.e("publishOpenOrCloseDuressPwd bean == null");
             return;

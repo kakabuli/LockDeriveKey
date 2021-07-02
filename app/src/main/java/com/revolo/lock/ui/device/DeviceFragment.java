@@ -263,7 +263,7 @@ public class DeviceFragment extends Fragment {
 //                        updateData(App.getInstance().getDeviceLists());
                         WifiLockBaseResponseBean wifiLockBaseResponseBean = lockMessage.getWifiLockBaseResponseBean();
                         if (wifiLockBaseResponseBean != null) {
-                            updateLockState((WifiLockOperationEventBean) wifiLockBaseResponseBean);
+                            updateLockState();
                         }
                         break;
                     default:
@@ -297,38 +297,7 @@ public class DeviceFragment extends Fragment {
         }
     }
 
-    private void updateLockState(WifiLockOperationEventBean wifiLockBaseResponseBean) {
-        WifiLockOperationEventBean.EventparamsBean eventparams = wifiLockBaseResponseBean.getEventparams();
-        String wfId = wifiLockBaseResponseBean.getWfId();
-        List<BleDeviceLocal> deviceLists = App.getInstance().getDeviceLists();
-        for (BleDeviceLocal bleDeviceLocal : deviceLists) {
-            if (bleDeviceLocal.getEsn().equals(wfId) && eventparams != null) {
-                if (eventparams.getOperatingMode() == 1) {
-                    bleDeviceLocal.setLockState(LocalState.LOCK_STATE_PRIVATE);
-                }
-                if (wifiLockBaseResponseBean.getEventtype().equals("wifiState")) {
-                    int state = wifiLockBaseResponseBean.getState();
-                    switch (bleDeviceLocal.getConnectedType()) {
-                        case LocalState.DEVICE_CONNECT_TYPE_BLE: // 之前是蓝牙
-                        case LocalState.DEVICE_CONNECT_TYPE_DIS: // 之前是断线
-                            if (state == 1) {
-                                bleDeviceLocal.setConnectedType(LocalState.DEVICE_CONNECT_TYPE_WIFI);
-                            }
-                            break;
-                        case LocalState.DEVICE_CONNECT_TYPE_WIFI: // 之前是wifi
-                            if (state == 0) {
-                                bleDeviceLocal.setConnectedType(LocalState.DEVICE_CONNECT_TYPE_DIS);
-                            }
-                            break;
-                        case LocalState.DEVICE_CONNECT_TYPE_WIFI_BLE: //之前是wifi ble双链接
-                            if (state == 0) {
-                                bleDeviceLocal.setConnectedType(LocalState.DEVICE_CONNECT_TYPE_BLE);
-                            }
-                            break;
-                    }
-                }
-            }
-        }
+    private void updateLockState() {
         mHomeLockListAdapter.notifyDataSetChanged();
     }
 

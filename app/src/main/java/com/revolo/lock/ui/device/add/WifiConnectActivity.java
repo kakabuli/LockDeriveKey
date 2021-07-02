@@ -88,6 +88,7 @@ public class WifiConnectActivity extends BaseActivity {
         mHandler.sendEmptyMessageDelayed(MSG_ADD_WIFI_OUT_TIME, 30000);
 
     }
+
     @Override
     protected void onDestroy() {
         super.onDestroy();
@@ -109,6 +110,10 @@ public class WifiConnectActivity extends BaseActivity {
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0) {
+//            finish();
+//            ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show("WiFi Setting...!Please Not Exit!");
+            mBleDeviceLocal.setConnectedWifiName("");
+            mBleDeviceLocal.setConnectedType(LocalState.DEVICE_CONNECT_TYPE_BLE);
             finish();
             return true;
         }
@@ -301,7 +306,7 @@ public class WifiConnectActivity extends BaseActivity {
         runOnUiThread(() -> mWifiCircleProgress.setValue(value));
     }
 
-    private final Handler mHandler = new Handler(Looper.getMainLooper()){
+    private final Handler mHandler = new Handler(Looper.getMainLooper()) {
         @Override
         public void handleMessage(@NonNull Message msg) {
             if (msg.what == MSG_ADD_WIFI_OUT_TIME) {

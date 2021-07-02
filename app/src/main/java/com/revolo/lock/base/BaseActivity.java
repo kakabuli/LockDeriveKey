@@ -56,7 +56,7 @@ public abstract class BaseActivity extends AppCompatActivity
     private final View.OnClickListener mClickListener = this::onDebouncingClick;
     //public CompositeDisposable mCompositeDisposable = new CompositeDisposable();
     //public MqttService mMQttService = App.getInstance().getMQttService();
-    private TitleBar mTitleBar;
+    private static TitleBar mTitleBar;
 
     public View mContentView;
     public Activity mActivity;
@@ -195,7 +195,6 @@ public abstract class BaseActivity extends AppCompatActivity
     public void stopKeepAlive() {
         KeepAliveManager.stopWork(getApplication());
     }
-
 
     public TitleBar useCommonTitleBar(String title) {
         setStatusBarColor(R.color.white);

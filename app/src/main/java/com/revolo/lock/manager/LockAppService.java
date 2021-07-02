@@ -22,6 +22,7 @@ import com.a1anwang.okble.client.scan.BLEScanResult;
 import com.blankj.utilcode.util.ActivityUtils;
 import com.blankj.utilcode.util.ConvertUtils;
 import com.blankj.utilcode.util.LogUtils;
+import com.blankj.utilcode.util.NetworkUtils;
 import com.blankj.utilcode.util.TimeUtils;
 import com.revolo.lock.App;
 import com.revolo.lock.Constant;
@@ -123,10 +124,10 @@ public class LockAppService extends Service {
         }
     }
 
-    private final Runnable mRunnable = new Runnable() {
+    private final Thread mRunnable = new Thread() {
         @Override
         public void run() {
-            boolean ping = ping();// ping 百度判断网络连接
+            boolean ping = ping();
             Constant.pingResult = ping;
             sendBroadcast(new Intent().setAction(Constant.RECEIVE_ACTION_NETWORKS).putExtra(PING_RESULT, ping));
             mHandler.postDelayed(this, 10 * 1000);
@@ -433,7 +434,7 @@ public class LockAppService extends Service {
                 mDeviceLists = new ArrayList<>();
             }
             boolean bleState = onGetConnectedState(bleDeviceLocal.getMac());//当前蓝牙设的设备的状态
-            boolean mqttState = bleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI ? true : false;//当前锁与服务器的连接状态
+            boolean mqttState = bleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI || bleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI_BLE;//当前锁与服务器的连接状态
 //            boolean appMqttState = MQTTManager.getInstance().onGetMQTTConnectedState();//当前APP与MQTT服务器端的连接状态
             bleDeviceLocal.setConnectedType(checkDeviceState(bleState, mqttState));//ble
             Timber.d("add device：type:%s;bleState:%s;mqttState:%s", bleDeviceLocal.getConnectedType() + "", bleState, mqttState);
@@ -600,7 +601,7 @@ public class LockAppService extends Service {
             //判断蓝牙mac和sn码
             if ((null != esn && esn.equals(mDeviceLists.get(i).getEsn())) || (null != mac && mac.equals(mDeviceLists.get(i).getMac()))) {
                 boolean bleState = onGetConnectedState(mDeviceLists.get(i).getMac());//当前蓝牙设的设备的状态
-                boolean mqttState = mDeviceLists.get(i).getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI ? true : false;//当前锁与服务器的连接状态
+                boolean mqttState = mDeviceLists.get(i).getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI || mDeviceLists.get(i).getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI_BLE;//当前锁与服务器的连接状态
 //                boolean appMqttState = MQTTManager.getInstance().onGetMQTTConnectedState();//当前APP与MQTT服务器端的连接状态
                 mDeviceLists.get(i).setConnectedType(checkDeviceState(bleState, mqttState));//ble
                 Timber.d("add device：type:%s;bleState:%s;mqttState:%s;", mDeviceLists.get(i).getConnectedType() + "", bleState, mqttState);
@@ -627,7 +628,7 @@ public class LockAppService extends Service {
         for (int i = 0; i < mDeviceLists.size(); i++) {
             //判断蓝牙mac和sn码
             boolean bleState = false;//当前蓝牙设的设备的状态
-            boolean mqttState = mDeviceLists.get(i).getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI ? true : false;//当前锁与服务器的连接状态
+            boolean mqttState = mDeviceLists.get(i).getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI || mDeviceLists.get(i).getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI_BLE;//当前锁与服务器的连接状态
 //            boolean appMqttState = MQTTManager.getInstance().onGetMQTTConnectedState();//当前APP与MQTT服务器端的连接状态
             mDeviceLists.get(i).setConnectedType(checkDeviceState(bleState, mqttState));//ble
         }
@@ -649,10 +650,9 @@ public class LockAppService extends Service {
         for (int i = 0; i < mDeviceLists.size(); i++) {
             //判断蓝牙mac和sn码
             boolean bleState = onGetConnectedState(mDeviceLists.get(i).getMac());//当前蓝牙设的设备的状态
-            boolean mqttState = mDeviceLists.get(i).getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI ? true : false;//当前锁与服务器的连接状态
+            boolean mqttState = mDeviceLists.get(i).getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI || mDeviceLists.get(i).getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI_BLE;//当前锁与服务器的连接状态
 //            boolean appMqttState = MQTTManager.getInstance().onGetMQTTConnectedState();//当前APP与MQTT服务器端的连接状态
             mDeviceLists.get(i).setConnectedType(checkDeviceState(bleState, mqttState));//ble
-            break;
         }
         //  lock.unlock();
     }
@@ -2004,14 +2004,16 @@ public class LockAppService extends Service {
     }
 
     public static boolean ping() {
-        try {
-            Runtime runtime = Runtime.getRuntime();
-            Process exec = runtime.exec("ping -c 3 www.baidu.com");
-            int i = exec.waitFor();
-            return i == 0;
-        } catch (InterruptedException | IOException e) {
-            e.printStackTrace();
-        }
-        return false;
+//        try {
+//            Runtime runtime = Runtime.getRuntime();
+//            Process exec = runtime.exec("ping -c 3 www.baidu.com");
+//            int i = exec.waitFor();
+//            return i == 0;
+//        } catch (InterruptedException | IOException e) {
+//            e.printStackTrace();
+//        }
+//        return false;
+
+        return NetworkUtils.isConnected();
     }
 }

@@ -157,7 +157,7 @@ public class DoorSensorCheckActivity extends BaseActivity {
 
     @Override
     public void doBusiness() {
-        if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI || mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI_BLE) {
+        if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI) {
             publishSetMagnetic(mBleDeviceLocal.getEsn(), BleCommandState.DOOR_CALIBRATION_STATE_CLOSE_SE);
         } else {
             /*BleBean bleBean = App.getInstance().getBleBeanFromMac(mBleDeviceLocal.getMac());
@@ -195,21 +195,21 @@ public class DoorSensorCheckActivity extends BaseActivity {
             switch (mDoorState) {
                 case DOOR_OPEN:
                 case DOOR_OPEN_AGAIN:
-                    if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI || mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI_BLE) {
+                    if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI) {
                         publishSetMagnetic(mBleDeviceLocal.getEsn(), BleCommandState.DOOR_CALIBRATION_STATE_OPEN);
                     } else {
                         sendCommand(BleCommandState.DOOR_CALIBRATION_STATE_OPEN);
                     }
                     break;
                 case DOOR_CLOSE:
-                    if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI || mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI_BLE) {
+                    if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI) {
                         publishSetMagnetic(mBleDeviceLocal.getEsn(), BleCommandState.DOOR_CALIBRATION_STATE_CLOSE);
                     } else {
                         sendCommand(BleCommandState.DOOR_CALIBRATION_STATE_CLOSE);
                     }
                     break;
                 case DOOR_HALF:
-                    if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI || mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI_BLE) {
+                    if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI) {
                         publishSetMagnetic(mBleDeviceLocal.getEsn(), BleCommandState.DOOR_CALIBRATION_STATE_HALF);
                     } else {
                         sendCommand(BleCommandState.DOOR_CALIBRATION_STATE_HALF);

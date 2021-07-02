@@ -242,7 +242,9 @@ public class MQTTReply {
             if (null != mqttDataLinstener) {
                 mqttDataLinstener.onOperationCallback(LockMessageCode.MSG_LOCK_MESSAGE_WF_EVEN, bean);
             }
+            updateLockState(bean);
             postMessage(LockMessageCode.MSG_LOCK_MESSAGE_CODE_SUCCESS, LockMessageCode.MSG_LOCK_MESSAGE_WF_EVEN, bean);
+
         } else if (MQttConstant.RECORD.equals(mqttData.getFunc())) {
             // 记录
             postMessage(LockMessageCode.MSG_LOCK_MESSAGE_CODE_SUCCESS, LockMessageCode.MSG_LOCK_MESSAGE_RECORD, null);
@@ -256,6 +258,48 @@ public class MQTTReply {
         messageRes.setMessageCode(messageCode);
         messageRes.setWifiLockBaseResponseBean(bean);
         EventBus.getDefault().post(messageRes);
+    }
+
+    private void updateLockState(WifiLockOperationEventBean bean) {
+        WifiLockOperationEventBean.EventparamsBean eventparams = bean.getEventparams();
+        String wfId = bean.getWfId();
+        List<BleDeviceLocal> deviceLists = App.getInstance().getDeviceLists();
+        for (BleDeviceLocal bleDeviceLocal : deviceLists) {
+            if (bleDeviceLocal.getEsn().equals(wfId) && eventparams != null) {
+                if (eventparams.getOperatingMode() == 1) {
+                    bleDeviceLocal.setLockState(LocalState.LOCK_STATE_PRIVATE);
+                }
+                if (bean.getEventtype().equals("wifiState")) {
+                    int state = bean.getState();
+                    switch (bleDeviceLocal.getConnectedType()) {
+                        case LocalState.DEVICE_CONNECT_TYPE_BLE: // 之前是蓝牙
+                            if (state == 1) {
+                                bleDeviceLocal.setConnectedType(LocalState.DEVICE_CONNECT_TYPE_WIFI_BLE);
+                            }
+                            break;
+                        case LocalState.DEVICE_CONNECT_TYPE_DIS: // 之前是断线
+                            if (state == 1) {
+                                bleDeviceLocal.setConnectedType(LocalState.DEVICE_CONNECT_TYPE_WIFI);
+                            }
+                            break;
+                        case LocalState.DEVICE_CONNECT_TYPE_WIFI: // 之前是wifi
+                            if (state == 0) {
+                                bleDeviceLocal.setConnectedType(LocalState.DEVICE_CONNECT_TYPE_DIS);
+                            }
+                            break;
+                        case LocalState.DEVICE_CONNECT_TYPE_WIFI_BLE: //之前是wifi ble双链接
+                            if (state == 0) {
+                                bleDeviceLocal.setConnectedType(LocalState.DEVICE_CONNECT_TYPE_BLE);
+                            }
+                            break;
+                    }
+                } else if (bean.getEventtype().equals("action")) {
+                    bleDeviceLocal.setMute(eventparams.getVolume() == 1);
+                    bleDeviceLocal.setOpenDoorSensor(eventparams.getDoorSensor() == 1);
+                    bleDeviceLocal.setDuress(eventparams.getDuress() == 1);
+                }
+            }
+        }
     }
 
     /**

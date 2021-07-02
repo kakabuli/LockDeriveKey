@@ -258,7 +258,7 @@ public class AddWifiActivity extends BaseActivity {
         public void onFail(int code, String errMsg) {
             Timber.e("openControlNotify onFail errMsg: %1s", errMsg);
             // TODO 暂定
-            ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show("Please turn on Bluetooth");
+            ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show("WiFi Setting Failed");
             finish();
         }
 
