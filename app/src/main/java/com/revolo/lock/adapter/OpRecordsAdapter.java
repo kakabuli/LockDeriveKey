@@ -14,6 +14,7 @@ import androidx.core.content.ContextCompat;
 import com.blankj.utilcode.util.TimeUtils;
 import com.revolo.lock.R;
 import com.revolo.lock.bean.OperationRecords;
+import com.revolo.lock.util.ZoneUtil;
 
 import java.util.List;
 
@@ -28,6 +29,16 @@ public class OpRecordsAdapter extends BaseExpandableListAdapter {
 
     List<OperationRecords> mOperationRecords;
     private final Context mContext;
+    //时区
+    private String timeZone;
+
+    public String getTimeZone() {
+        return timeZone;
+    }
+
+    public void setTimeZone(String timeZone) {
+        this.timeZone = timeZone;
+    }
 
     public OpRecordsAdapter(List<OperationRecords> operationRecords, Context context) {
         mOperationRecords = operationRecords;
@@ -129,7 +140,7 @@ public class OpRecordsAdapter extends BaseExpandableListAdapter {
             if(TimeUtils.isToday(time+86400000)) {
                 return "Yesterday";
             } else {
-                return TimeUtils.millis2String(time, "MMM dd yyyy");
+                return ZoneUtil.getDate(timeZone,time, "MMM dd yyyy");
             }
         }
     }
@@ -141,7 +152,7 @@ public class OpRecordsAdapter extends BaseExpandableListAdapter {
 //        tvMessage.setTextColor(ContextCompat.getColor(mContext, R.color.cFF556D));
         ivLogState.setImageResource(imageResId);
         tvMessage.setText(operationRecord.getMessage());
-        tvTime.setText(TimeUtils.millis2String(operationRecord.getOperationTime(), "HH:mm:ss"));
+        tvTime.setText(ZoneUtil.getDate(timeZone,operationRecord.getOperationTime(), "HH:mm:ss"));
     }
 
 }

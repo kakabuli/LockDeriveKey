@@ -88,12 +88,15 @@ public class LockGeoFenceService extends Service implements OnMapReadyCallback, 
         super.onCreate();
         lockGeoFenceEns = new ArrayList<>();
         Timber.e("init lock geofence service");
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                initMap();
-            }
-        }).start();
+        Timber.e("init lock map");
+        if (null == mGeoFencingClient) {
+            Timber.e("init lock map2");
+            mGeoFencingClient = LocationServices.getGeofencingClient(LockGeoFenceService.this);
+        }
+        if (null == fusedLocationClient) {
+            Timber.e("init lock map3");
+            fusedLocationClient = LocationServices.getFusedLocationProviderClient(LockGeoFenceService.this);
+        }
         startGeo();
 
     }
@@ -132,7 +135,6 @@ public class LockGeoFenceService extends Service implements OnMapReadyCallback, 
                 for (LockGeoFenceEn fenceEn : lockGeoFenceEns) {
                     float[] results = new float[1];
                     Location.distanceBetween(fenceEn.getLatitude(), fenceEn.getLongitude(), location.getLatitude(), location.getLongitude(), results);
-                    Timber.e("距离：%s", results[0] + "米" + "设置间隔时间15秒");
                     if (null != lockGeoget) {
                         Timber.e("当前时间间距：%s", lockGeoget.threadSleep + "");
                     }
@@ -209,12 +211,16 @@ public class LockGeoFenceService extends Service implements OnMapReadyCallback, 
 
     private void startGeo() {
         stopGeo();
-        lockGeoget = new LockGeoget();
-        lockGeoget.start();
+        if (null != lockGeoFenceEns && lockGeoFenceEns.size() > 0) {
+            Timber.e("开始电子围栏线程");
+            lockGeoget = new LockGeoget();
+            lockGeoget.start();
+        }
     }
 
     private void stopGeo() {
         if (null != lockGeoget) {
+            Timber.e("结束电子围栏线程");
             lockGeoget.isRun = false;
             lockGeoget.interrupt();
             lockGeoget = null;
@@ -228,6 +234,7 @@ public class LockGeoFenceService extends Service implements OnMapReadyCallback, 
         @Override
 
         public void run() {
+
             while (isRun) {
                 if (null != lockGeoFenceEns && lockGeoFenceEns.size() > 0) {
                     if (null != fusedLocationClient) {
@@ -267,58 +274,6 @@ public class LockGeoFenceService extends Service implements OnMapReadyCallback, 
 
     }
 
-    private void initMap() {
-        Timber.e("init lock map");
-        if (null == mGeoFencingClient) {
-            Timber.e("init lock map2");
-            mGeoFencingClient = LocationServices.getGeofencingClient(this);
-        }
-        if (null == fusedLocationClient) {
-            Timber.e("init lock map3");
-            fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
-            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                return;
-            }
-
-
-
-
-        /*locationRequest = new LocationRequest();
-        locationRequest.setInterval(10);
-        locationRequest.setFastestInterval(50);
-        locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-
-        locationCallback = new LocationCallback() {
-            @Override
-            public void onLocationResult(LocationResult locationResult) {
-                super.onLocationResult(locationResult);
-                Location location = locationResult.getLastLocation();
-                Timber.e("Latitude:%s",location.getLatitude()+"");
-                if (location != null) {
-                    if (null != mHandler) {
-                        LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
-                        mHandler.obtainMessage(MSG_LOCK_GEO_FEN_SERIVE_UPDATE, latLng).sendToTarget();
-                        Timber.e("SG_LOCK_GEO_FEN_SERIVE_UPDATE");
-                    }
-                    // Logic to handle location object
-                    //location.getLatitude(), location.getLongitude()
-                }
-            }
-        };
-
-
-        fusedLocationClient.requestLocationUpdates(locationRequest,locationCallback, this.getMainLooper());*/
-        }
-        if(null!=fusedLocationClient){
-            Timber.e("init lock map4");
-            fusedLocationClient.getLastLocation().addOnSuccessListener(location -> {
-                // Got last known location. In some rare situations this can be null.
-                Timber.e("lock geo locaion");
-                sendLoacl(location);
-            });
-        }
-    }
-
 
     /**
      * 开始添加
@@ -345,6 +300,7 @@ public class LockGeoFenceService extends Service implements OnMapReadyCallback, 
      * @param esn
      */
     public void clearBleDevice(String esn) {
+        Timber.e("清理电子围栏：" + esn);
         if (null != lockGeoFenceEns) {
             for (int i = 0; i < lockGeoFenceEns.size(); i++) {
                 if (null != lockGeoFenceEns.get(i).getBleDeviceLocal()) {
@@ -353,6 +309,9 @@ public class LockGeoFenceService extends Service implements OnMapReadyCallback, 
                     }
                 }
             }
+        }
+        if (lockGeoFenceEns.size() < 1) {
+            stopGeo();
         }
     }
 
@@ -376,6 +335,9 @@ public class LockGeoFenceService extends Service implements OnMapReadyCallback, 
                         }
                     }
                     lockGeoFenceEns.remove(i);
+                    if (lockGeoFenceEns.size() < 1) {
+                        stopGeo();
+                    }
                     break;
                 } else {
                     if (lockGeoFenceEns.get(i).getLatitude() == bleDeviceLocal.getLatitude() && lockGeoFenceEns.get(i).getLongitude() == bleDeviceLocal.getLongitude()) {
@@ -431,6 +393,9 @@ public class LockGeoFenceService extends Service implements OnMapReadyCallback, 
                         }
                     }
                     lockGeoFenceEns.remove(i);
+                    if (lockGeoFenceEns.size() < 1) {
+                        stopGeo();
+                    }
                     break;
                 } else {
                     if (lockGeoFenceEns.get(i).getLatitude() == latLng.latitude && lockGeoFenceEns.get(i).getLongitude() == latLng.longitude) {
@@ -483,6 +448,7 @@ public class LockGeoFenceService extends Service implements OnMapReadyCallback, 
 
         fenceEn.setPendingIntent(fenceEn.getmGeoFenceHelper().getPendingIntent());
         lockGeoFenceEns.add(fenceEn);
+        startGeo();
         mGeoFencingClient.addGeofences(fenceEn.getGeofencingRequest(), fenceEn.getPendingIntent())
                 .addOnSuccessListener(aVoid -> Timber.d("onSuccess: GeoFence Added........"))
                 .addOnFailureListener(e -> {

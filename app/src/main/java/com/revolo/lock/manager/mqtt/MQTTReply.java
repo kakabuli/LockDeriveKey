@@ -316,7 +316,9 @@ public class MQTTReply {
 
         if (!TextUtils.isEmpty(wifiListBean.getLockNickname()))
             bleDeviceLocal.setName(wifiListBean.getLockNickname());
-
+        //门磁状态
+        bleDeviceLocal.setDoorSensor(wifiListBean.getMagneticStatus());
+        //启用门门磁
         bleDeviceLocal.setOpenDoorSensor(wifiListBean.getDoorSensor() == 1);
 
 //        bleDeviceLocal.setDoNotDisturbMode(wifiListBean.get);
@@ -350,6 +352,9 @@ public class MQTTReply {
         Timber.e("设备 更新后 lockState： %s", bleDeviceLocal.getLockState() + "");
 
         bleDeviceLocal.setMute(wifiListBean.getVolume() == 1);
+        if (null != wifiListBean.getTimeZone() && !"".equals(wifiListBean.getTimeZone()))
+            bleDeviceLocal.setTimeZone(wifiListBean.getTimeZone());
+        else Timber.e("set time zone=null");
 
 //        bleDeviceLocal.setSetElectricFenceSensitivity();
 //        bleDeviceLocal.setSetElectricFenceTime();

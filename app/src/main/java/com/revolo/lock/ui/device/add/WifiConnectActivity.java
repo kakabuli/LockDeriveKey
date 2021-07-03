@@ -213,12 +213,13 @@ public class WifiConnectActivity extends BaseActivity {
         req.setVolume(mBleDeviceLocal.isMute() ? 1 : 0);
         req.setAmMode(mBleDeviceLocal.isAutoLock() ? 0 : 1);
         req.setDuress(mBleDeviceLocal.isDuress() ? 0 : 1);
-        req.setDoorSensor(mBleDeviceLocal.getDoorSensor());
+        req.setMagneticStatus(mBleDeviceLocal.getDoorSensor());
+        req.setDoorSensor(mBleDeviceLocal.isOpenDoorSensor()?1:0);
         req.setElecFence(mBleDeviceLocal.isOpenElectricFence() ? 0 : 1);
         req.setAutoLockTime(mBleDeviceLocal.getSetAutoLockTime());
         req.setElecFenceTime(mBleDeviceLocal.getSetElectricFenceTime());
         req.setElecFenceSensitivity(mBleDeviceLocal.getSetElectricFenceSensitivity());
-
+        Timber.e("std44445:%s", req.toString());
         Observable<UpdateLockInfoRsp> observable = HttpRequest.getInstance().updateLockInfo(token, req);
         ObservableDecorator.decorate(observable).safeSubscribe(new Observer<UpdateLockInfoRsp>() {
             @Override

@@ -37,6 +37,7 @@ public class AdminAddDeviceBeanReq implements Parcelable {
     private String bleVersion;                   // 固件版本号
     private String functionSet;                  // 功能集
     private String systemID;                     // 参数，扫描所得(现在的锁已经取消了这个)
+    private String timeZone;                     //时区绑定
 
     public String getDevmac() {
         return devmac;
@@ -126,6 +127,13 @@ public class AdminAddDeviceBeanReq implements Parcelable {
         this.systemID = systemID;
     }
 
+    public String getTimeZone() {
+        return timeZone;
+    }
+
+    public void setTimeZone(String timeZone) {
+        this.timeZone = timeZone;
+    }
 
     @Override
     public int describeContents() {
@@ -145,6 +153,7 @@ public class AdminAddDeviceBeanReq implements Parcelable {
         dest.writeString(this.bleVersion);
         dest.writeString(this.functionSet);
         dest.writeString(this.systemID);
+        dest.writeString(this.timeZone);
     }
 
     public AdminAddDeviceBeanReq() {
@@ -162,6 +171,7 @@ public class AdminAddDeviceBeanReq implements Parcelable {
         this.bleVersion = in.readString();
         this.functionSet = in.readString();
         this.systemID = in.readString();
+        this.timeZone=in.readString();
     }
 
     public static final Parcelable.Creator<AdminAddDeviceBeanReq> CREATOR = new Parcelable.Creator<AdminAddDeviceBeanReq>() {
@@ -190,6 +200,7 @@ public class AdminAddDeviceBeanReq implements Parcelable {
                 ", bleVersion='" + bleVersion + '\'' +
                 ", functionSet='" + functionSet + '\'' +
                 ", systemID='" + systemID + '\'' +
+                ", timeZone='" + timeZone + '\'' +
                 '}';
     }
 }

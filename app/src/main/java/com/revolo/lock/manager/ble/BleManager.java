@@ -11,7 +11,6 @@ import com.a1anwang.okble.client.scan.BLEScanResult;
 import com.a1anwang.okble.client.scan.DeviceScanCallBack;
 import com.a1anwang.okble.client.scan.OKBLEScanManager;
 import com.blankj.utilcode.util.ConvertUtils;
-import com.blankj.utilcode.util.TimeUtils;
 import com.revolo.lock.App;
 import com.revolo.lock.ble.BleByteUtil;
 import com.revolo.lock.ble.BleCommandFactory;
@@ -19,6 +18,7 @@ import com.revolo.lock.ble.OnBleDeviceListener;
 import com.revolo.lock.ble.bean.BleBean;
 import com.revolo.lock.manager.LockMessageReplyErrCode;
 import com.revolo.lock.manager.LockMessageRes;
+import com.revolo.lock.util.ZoneUtil;
 
 import org.greenrobot.eventbus.EventBus;
 import org.jetbrains.annotations.NotNull;
@@ -439,7 +439,7 @@ public class BleManager {
 
     private void syNowTime(@NotNull BleBean bleBean) {
         new Handler(Looper.getMainLooper()).postDelayed(() -> {
-            long nowTime = TimeUtils.getNowMills() / 1000;
+            long nowTime = ZoneUtil.getTime() / 1000;
             writeControlMsg(BleCommandFactory
                     .syLockTime(nowTime, bleBean.getPwd1(), bleBean.getPwd3()), bleBean.getOKBLEDeviceImp());
         }, 20);

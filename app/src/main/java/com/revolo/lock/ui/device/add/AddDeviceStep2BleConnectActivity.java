@@ -44,6 +44,7 @@ import com.revolo.lock.net.ObservableDecorator;
 import com.revolo.lock.room.AppDatabase;
 import com.revolo.lock.room.entity.BleDeviceLocal;
 import com.revolo.lock.room.entity.User;
+import com.revolo.lock.util.ZoneUtil;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -51,6 +52,7 @@ import org.greenrobot.eventbus.ThreadMode;
 import org.jetbrains.annotations.NotNull;
 
 import java.nio.charset.StandardCharsets;
+import java.util.TimeZone;
 
 import io.reactivex.Observable;
 import io.reactivex.Observer;
@@ -404,6 +406,8 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
             // 设置初始默认值为30s
             bleDeviceLocal.setSetAutoLockTime(30);
             bleDeviceLocal.setDoorSensor(LocalState.DOOR_SENSOR_INIT);
+
+            bleDeviceLocal.setTimeZone(ZoneUtil.getZone());
             bleDeviceLocal.setUserId(user.getAdminUid());
             bleDeviceLocal.setConnectedType(LocalState.DEVICE_CONNECT_TYPE_BLE);
             bleDeviceLocal.setLockState(LocalState.LOCK_STATE_CLOSE);
@@ -441,6 +445,8 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
             System.arraycopy(mPwd1, 0, realPwd1, 0, realPwd1.length);
             req.setPassword1(ConvertUtils.bytes2HexString(realPwd1));
             req.setPassword2(ConvertUtils.bytes2HexString(bleBean.getPwd2()));
+
+            req.setTimeZone(ZoneUtil.getZone());
             Timber.d("addDeviceToService req: %1s", req.toString());
             Observable<AdminAddDeviceBeanRsp> observable = HttpRequest
                     .getInstance().adminAddDevice(App.getInstance().getUserBean().getToken(), req);
@@ -534,7 +540,7 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
         handler.removeMessages(MSG_BLE_SCAN_OUT_TIME);
         if (handler.hasMessages(MSG_BLE_ADDDEVICE_CONNECT_FAIL))
             handler.removeMessages(MSG_BLE_ADDDEVICE_CONNECT_FAIL);
-         handler.removeMessages(MSG_BLE_CONNECT_FAIL);
+        handler.removeMessages(MSG_BLE_CONNECT_FAIL);
         Intent intent = new Intent(this, BleConnectFailActivity.class);
         Intent preIntent = getIntent();
         if (!preIntent.hasExtra(Constant.PRE_A)) return;

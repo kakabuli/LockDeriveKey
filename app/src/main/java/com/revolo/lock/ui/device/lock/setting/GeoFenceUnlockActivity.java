@@ -41,6 +41,7 @@ import com.revolo.lock.ble.bean.BleResultBean;
 import com.revolo.lock.manager.LockMessage;
 import com.revolo.lock.manager.LockMessageCode;
 import com.revolo.lock.manager.LockMessageRes;
+import com.revolo.lock.manager.ble.BleManager;
 import com.revolo.lock.mqtt.MQttConstant;
 import com.revolo.lock.mqtt.MqttCommandFactory;
 import com.revolo.lock.mqtt.bean.publishbean.attrparams.ElecFenceSensitivityParams;
@@ -244,6 +245,11 @@ public class GeoFenceUnlockActivity extends BaseActivity implements OnMapReadyCa
                 mBleDeviceLocal.setOpenElectricFence(false);
                 AppDatabase.getInstance(this).bleDeviceDao().update(mBleDeviceLocal);
                 mIvGeoFenceUnlockEnable.setImageResource(mBleDeviceLocal.isOpenElectricFence() ? R.drawable.ic_icon_switch_open : R.drawable.ic_icon_switch_close);
+                // 更新电子围栏状态
+                if (null != App.getInstance().getLockGeoFenceService()) {
+                    App.getInstance().getLockGeoFenceService().clearBleDevice(mBleDeviceLocal.getEsn());
+                }
+
 //                if (mBleDeviceLocal.isOpenElectricFence()) {
 //                    mConstraintLayout.setVisibility(View.VISIBLE);
 //                } else {

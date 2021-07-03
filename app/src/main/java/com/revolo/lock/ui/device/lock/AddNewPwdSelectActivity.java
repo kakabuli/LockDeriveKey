@@ -21,7 +21,6 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 
 import com.blankj.utilcode.util.AdaptScreenUtils;
 import com.blankj.utilcode.util.ConvertUtils;
-import com.blankj.utilcode.util.TimeUtils;
 import com.blankj.utilcode.util.ToastUtils;
 import com.revolo.lock.App;
 import com.revolo.lock.Constant;
@@ -51,6 +50,7 @@ import com.revolo.lock.mqtt.bean.publishresultbean.WifiLockAddPwdRspBean;
 import com.revolo.lock.net.HttpRequest;
 import com.revolo.lock.net.ObservableDecorator;
 import com.revolo.lock.room.entity.BleDeviceLocal;
+import com.revolo.lock.util.ZoneUtil;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -453,35 +453,38 @@ public class AddNewPwdSelectActivity extends BaseActivity {
     private long mTemEndDateTimeMill;
     private String mTemStartDateTimeStr = "10:00:00";
     private String mTemEndDateTimeStr = "14:00:00";
-    private final String mNowDateStr = TimeUtils.millis2String(TimeUtils.getNowMills(), TimeUtils.getSafeDateFormat("yyyy-MM-dd"));
+    private final String mNowDateStr = ZoneUtil.getDate(App.getInstance().getBleDeviceLocal().getTimeZone(),ZoneUtil.getTime(), "yyyy-MM-dd");
 
     private String mTemStartDateStr = mNowDateStr;
     private String mTemEndDateStr = mNowDateStr;
 
     private void initScheduleStartTimeMill() {
         String date = mNowDateStr + " 00:00:00";
-        mScheduleStartTimeMill = TimeUtils.string2Millis(date);
+        //mScheduleStartTimeMill = TimeUtils.string2Millis(date);
+        mScheduleStartTimeMill = ZoneUtil.getTime(mBleDeviceLocal.getTimeZone(),date);
     }
 
     private void initScheduleEndTimeMill() {
         String date = mNowDateStr + " 23:59:00";
-        mScheduleEndTimeMill = TimeUtils.string2Millis(date);
+        mScheduleEndTimeMill =  ZoneUtil.getTime(mBleDeviceLocal.getTimeZone(),date);
+
     }
 
     private void initTemStartDateTimeMill() {
-        String nowDate = TimeUtils.millis2String(TimeUtils.getNowMills(), TimeUtils.getSafeDateFormat("yyyy-MM-dd"));
+        String nowDate = ZoneUtil.getDate(mBleDeviceLocal.getTimeZone(),ZoneUtil.getTime(), "yyyy-MM-dd");
         mTemStartDateStr = nowDate;
         mTvStartDate.setText(mTemStartDateStr);
         String date = nowDate + " 10:00:00";
-        mTemStartDateTimeMill = TimeUtils.string2Millis(date);
+        mTemStartDateTimeMill =  ZoneUtil.getTime(mBleDeviceLocal.getTimeZone(),date);
     }
 
     private void initTemEndDateTimeMill() {
-        String nowDate = TimeUtils.millis2String(TimeUtils.getNowMills(), TimeUtils.getSafeDateFormat("yyyy-MM-dd"));
+        String nowDate = ZoneUtil.getDate(mBleDeviceLocal.getTimeZone(),System.currentTimeMillis(), "yyyy-MM-dd");
         mTemEndDateStr = nowDate;
         mTvEndDate.setText(mTemEndDateStr);
         String date = nowDate + " 14:00:00";
-        mTemEndDateTimeMill = TimeUtils.string2Millis(date);
+        mTemEndDateTimeMill =  ZoneUtil.getTime(mBleDeviceLocal.getTimeZone(),date);
+
     }
 
     private void showTimePicker(@IdRes int id) {
@@ -489,7 +492,7 @@ public class AddNewPwdSelectActivity extends BaseActivity {
                 (view, hourOfDay, minute) -> {
                     String time = (hourOfDay < 10 ? "0" + hourOfDay : hourOfDay) + ":" + (minute < 10 ? "0" + minute : minute);
                     if (id == R.id.tvStartTime) {
-                        long scheduleStartTimeMill = TimeUtils.string2Millis(mNowDateStr + " " + time + ":00");
+                        long scheduleStartTimeMill =  ZoneUtil.getTime(mBleDeviceLocal.getTimeZone(),mNowDateStr + " " + time + ":00");
                         if (scheduleStartTimeMill >= mScheduleEndTimeMill) {
                             // 开始时间大于结束时间
                             ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_the_start_time_cannot_be_greater_than_the_end_time);
@@ -497,9 +500,10 @@ public class AddNewPwdSelectActivity extends BaseActivity {
                         }
                         mTvStartTime.setText(time);
                         mScheduleStartTimeMill = scheduleStartTimeMill;
-                        Timber.d("startTime 选择的时间%1s, 时间流：%2d, 转换的时间：%3s", time, mScheduleStartTimeMill, TimeUtils.millis2String(mScheduleStartTimeMill));
+                        Timber.d("startTime 选择的时间%1s, 时间流：%2d, 转换的时间：%3s", time, mScheduleStartTimeMill,
+                                ZoneUtil.getDate(mBleDeviceLocal.getTimeZone(),mScheduleStartTimeMill));
                     } else if (id == R.id.tvEndTime) {
-                        long scheduleEndTimeMill = TimeUtils.string2Millis(mNowDateStr + " " + time + ":00");
+                        long scheduleEndTimeMill =  ZoneUtil.getTime(mBleDeviceLocal.getTimeZone(),mNowDateStr + " " + time + ":00");
                         if (scheduleEndTimeMill <= mScheduleStartTimeMill) {
                             // 结束时间小于开始时间
                             ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_the_end_time_cannot_be_less_than_the_start_time);
@@ -507,9 +511,9 @@ public class AddNewPwdSelectActivity extends BaseActivity {
                         }
                         mTvEndTime.setText(time);
                         mScheduleEndTimeMill = scheduleEndTimeMill;
-                        Timber.d("endTime 选择的时间%1s, 时间流：%2d, 转换的时间：%3s", time, mScheduleEndTimeMill, TimeUtils.millis2String(mScheduleEndTimeMill));
+                        Timber.d("endTime 选择的时间%1s, 时间流：%2d, 转换的时间：%3s", time, mScheduleEndTimeMill, ZoneUtil.getDate(mBleDeviceLocal.getTimeZone(),mScheduleEndTimeMill));
                     } else if (id == R.id.tvEndDateTime) {
-                        long temEndDateTimeMill = TimeUtils.string2Millis(mTemEndDateStr + " " + time + ":00");
+                        long temEndDateTimeMill =  ZoneUtil.getTime(mBleDeviceLocal.getTimeZone(),mTemEndDateStr + " " + time + ":00");
                         if (temEndDateTimeMill <= mTemStartDateTimeMill) {
                             // 结束时间小于开始时间
                             ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_the_end_time_cannot_be_less_than_the_start_time);
@@ -525,7 +529,7 @@ public class AddNewPwdSelectActivity extends BaseActivity {
                         mTemEndDateTimeMill = temEndDateTimeMill;
                         Timber.d("endDateTime 选择的时间%1s, 时间流：%2d", time, mTemEndDateTimeMill);
                     } else if (id == R.id.tvStartDateTime) {
-                        long temStartDateTimeMill = TimeUtils.string2Millis(mTemStartDateStr + " " + time + ":00");
+                        long temStartDateTimeMill =  ZoneUtil.getTime(mBleDeviceLocal.getTimeZone(),mTemStartDateStr + " " + time + ":00");
                         if (temStartDateTimeMill >= mTemEndDateTimeMill) {
                             // 开始时间大于结束时间
                             ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_the_start_time_cannot_be_greater_than_the_end_time);
@@ -548,7 +552,7 @@ public class AddNewPwdSelectActivity extends BaseActivity {
             month += 1;
             String date = year + "-" + (month < 10 ? "0" + month : month) + "-" + (dayOfMonth < 10 ? "0" + dayOfMonth : dayOfMonth);
             if (id == R.id.tvStartDate) {
-                long temStartDateTimeMill = TimeUtils.string2Millis(date + " " + mTemStartDateTimeStr);
+                long temStartDateTimeMill =  ZoneUtil.getTime(mBleDeviceLocal.getTimeZone(),date + " " + mTemStartDateTimeStr);
                 if (temStartDateTimeMill >= mTemEndDateTimeMill) {
                     // 开始时间大于结束时间
                     ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_the_start_time_cannot_be_greater_than_the_end_time);
@@ -559,7 +563,7 @@ public class AddNewPwdSelectActivity extends BaseActivity {
                 mTvStartDate.setText(mTemStartDateStr);
                 Timber.d("startDate 选择的日期%1s, 时间流：%2d", date, mTemStartDateTimeMill);
             } else if (id == R.id.tvEndDate) {
-                long temEndDateTimeMill = TimeUtils.string2Millis(date + " " + mTemEndDateTimeStr);
+                long temEndDateTimeMill =  ZoneUtil.getTime(mBleDeviceLocal.getTimeZone(),date + " " + mTemEndDateTimeStr);
                 if (temEndDateTimeMill <= mTemStartDateTimeMill) {
                     // 开始时间大于结束时间
                     ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_the_end_time_cannot_be_less_than_the_start_time);
@@ -602,7 +606,7 @@ public class AddNewPwdSelectActivity extends BaseActivity {
         mNum = bleResultBean.getPayload()[1];
         mDevicePwdBean.setPwdNum(mNum);
         // 使用秒存储，所以除以1000
-        mDevicePwdBean.setCreateTime(TimeUtils.getNowMills() / 1000);
+        mDevicePwdBean.setCreateTime(ZoneUtil.getTime() / 1000);
         mDevicePwdBean.setDeviceId(mBleDeviceLocal.getId());
         mDevicePwdBean.setAttribute(BleCommandState.KEY_SET_ATTRIBUTE_ALWAYS);
         if (mSelectedPwdState == PERMANENT_STATE) {
@@ -848,7 +852,7 @@ public class AddNewPwdSelectActivity extends BaseActivity {
         mNum = bean.getParams().getKeyNum();
         mDevicePwdBean.setPwdNum(mNum);
         // 使用秒存储，所以除以1000
-        mDevicePwdBean.setCreateTime(TimeUtils.getNowMills() / 1000);
+        mDevicePwdBean.setCreateTime(ZoneUtil.getTime() / 1000);
         mDevicePwdBean.setDeviceId(mBleDeviceLocal.getId());
         mDevicePwdBean.setAttribute(BleCommandState.KEY_SET_ATTRIBUTE_ALWAYS);
         if (mSelectedPwdState == PERMANENT_STATE) {

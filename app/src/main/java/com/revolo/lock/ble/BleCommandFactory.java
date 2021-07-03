@@ -2,6 +2,7 @@ package com.revolo.lock.ble;
 
 import com.blankj.utilcode.util.ConvertUtils;
 import com.blankj.utilcode.util.EncryptUtils;
+import com.revolo.lock.util.ZoneUtil;
 
 import java.lang.reflect.Array;
 
@@ -971,8 +972,16 @@ public class BleCommandFactory {
      * @param time 手机当前的时间
      */
     public static byte[] syLockTime(long time, byte[] pwd1, byte[] pwd3) {
-        byte[] realTime = littleMode(BleByteUtil.longToUnsigned32Bytes(time));
-        return commandPackage(true, (byte) 0x23, commandTSN(), realTime, pwd1, pwd3);
+        String zones = ZoneUtil.getZone();
+        byte zone = 0x01;
+        if (zones.indexOf("-") > 0) {
+            zone = 0x00;
+        }
+        String szone = zones.substring(1, 3);
+        Timber.e("zone:" + szone);
+        return setTimezone(zone,ZoneUtil.getZoneByte(szone), time, pwd1, pwd3);
+       /* byte[] realTime = littleMode(BleByteUtil.longToUnsigned32Bytes(time));
+        return commandPackage(true, (byte) 0x23, commandTSN(), realTime, pwd1, pwd3);*/
     }
 
 

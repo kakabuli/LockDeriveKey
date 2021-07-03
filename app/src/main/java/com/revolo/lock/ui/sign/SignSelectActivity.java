@@ -24,6 +24,7 @@ import com.revolo.lock.room.entity.User;
 import com.revolo.lock.ui.MainActivity;
 import com.revolo.lock.util.FingerprintUtils;
 
+import java.util.TimeZone;
 import java.util.concurrent.Executor;
 
 import timber.log.Timber;

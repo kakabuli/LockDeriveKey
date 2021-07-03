@@ -662,6 +662,7 @@ public class WifiLockGetAllBindDeviceRspBean extends WifiLockBaseResponseBean {
             private int doorSensor = -1;
             private int duress = 1;
             private String duressEmail;
+            private String timeZone;
             @SerializedName("switch")
             private SwitchBean switchX;
             /**
@@ -711,6 +712,14 @@ public class WifiLockGetAllBindDeviceRspBean extends WifiLockBaseResponseBean {
 
             public void setDuressEmail(String duressEmail) {
                 this.duressEmail = duressEmail;
+            }
+
+            public String getTimeZone() {
+                return timeZone;
+            }
+
+            public void setTimeZone(String timeZone) {
+                this.timeZone = timeZone;
             }
 
             public String get_id() {

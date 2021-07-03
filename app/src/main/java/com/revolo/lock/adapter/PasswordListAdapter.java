@@ -7,12 +7,12 @@ import android.widget.TextView;
 
 import androidx.core.content.ContextCompat;
 
-import com.blankj.utilcode.util.TimeUtils;
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.chad.library.adapter.base.viewholder.BaseViewHolder;
 import com.revolo.lock.R;
 import com.revolo.lock.bean.DevicePwdBean;
 import com.revolo.lock.ble.BleByteUtil;
+import com.revolo.lock.util.ZoneUtil;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -30,7 +30,16 @@ import static com.revolo.lock.ble.BleCommandState.KEY_SET_ATTRIBUTE_WEEK_KEY;
  */
 public class PasswordListAdapter extends BaseQuickAdapter<DevicePwdBean, BaseViewHolder> {
 
+    private String timeZone;
     private OnDeletePassWordListener mOnDeleteListener;
+
+    public String getTimeZone() {
+        return timeZone;
+    }
+
+    public void setTimeZone(String timeZone) {
+        this.timeZone = timeZone;
+    }
 
     public PasswordListAdapter(int layoutResId) {
         super(layoutResId);
@@ -72,9 +81,9 @@ public class PasswordListAdapter extends BaseQuickAdapter<DevicePwdBean, BaseVie
             long startTimeMill = devicePwdBean.getStartTime() * 1000;
             long endTimeMill = devicePwdBean.getEndTime() * 1000;
             detail = "start: "
-                    + TimeUtils.millis2String(startTimeMill, "MM,dd,yyyy   HH:mm")
+                    + ZoneUtil.getDate(timeZone,startTimeMill, "MM,dd,yyyy   HH:mm")
                     + "\n" + "end: "
-                    + TimeUtils.millis2String(endTimeMill, "MM,dd,yyyy   HH:mm");
+                    + ZoneUtil.getDate(timeZone,endTimeMill, "MM,dd,yyyy   HH:mm");
         } else if (attribute == KEY_SET_ATTRIBUTE_WEEK_KEY) {
             byte[] weekBytes = BleByteUtil.byteToBit(devicePwdBean.getWeekly());
             String weekly = "";
@@ -103,9 +112,9 @@ public class PasswordListAdapter extends BaseQuickAdapter<DevicePwdBean, BaseVie
             long startTimeMill = devicePwdBean.getStartTime() * 1000;
             long endTimeMill = devicePwdBean.getEndTime() * 1000;
             detail = weekly
-                    + TimeUtils.millis2String(startTimeMill, "HH:mm")
+                    + ZoneUtil.getDate(timeZone,startTimeMill, "HH:mm")
                     + " - "
-                    + TimeUtils.millis2String(endTimeMill, "HH:mm");
+                    + ZoneUtil.getDate(timeZone,endTimeMill, "HH:mm");
         }
         return detail;
     }

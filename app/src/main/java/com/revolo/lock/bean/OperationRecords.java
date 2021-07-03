@@ -5,7 +5,8 @@ import android.os.Parcelable;
 
 import androidx.annotation.DrawableRes;
 
-import com.blankj.utilcode.util.TimeUtils;
+import com.revolo.lock.App;
+import com.revolo.lock.util.ZoneUtil;
 
 import java.util.List;
 
@@ -33,7 +34,7 @@ public class OperationRecords implements Parcelable {
             this.message = message;
             this.drawablePic = drawablePic;
             this.isAlarmRecord = isAlarmRecord;
-            date = TimeUtils.millis2String(operationTime, "yyyy-MM-dd");
+            date = ZoneUtil.getDate(App.getInstance().getBleDeviceLocal().getTimeZone(),operationTime, "yyyy-MM-dd");
         }
 
         public long getOperationTime() {
@@ -42,7 +43,7 @@ public class OperationRecords implements Parcelable {
 
         public void setOperationTime(long operationTime) {
             this.operationTime = operationTime;
-            date = TimeUtils.millis2String(operationTime, "yyyy-MM-dd");
+            date = ZoneUtil.getDate(App.getInstance().getBleDeviceLocal().getTimeZone(),operationTime, "yyyy-MM-dd");
         }
 
         public String getMessage() {

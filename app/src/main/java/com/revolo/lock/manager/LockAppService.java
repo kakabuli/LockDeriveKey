@@ -23,7 +23,6 @@ import com.blankj.utilcode.util.ActivityUtils;
 import com.blankj.utilcode.util.ConvertUtils;
 import com.blankj.utilcode.util.LogUtils;
 import com.blankj.utilcode.util.NetworkUtils;
-import com.blankj.utilcode.util.TimeUtils;
 import com.revolo.lock.App;
 import com.revolo.lock.Constant;
 import com.revolo.lock.LocalState;
@@ -51,6 +50,7 @@ import com.revolo.lock.mqtt.bean.publishresultbean.WifiLockSetLockAttrSensitivit
 import com.revolo.lock.mqtt.bean.publishresultbean.WifiLockSetLockAttrVolumeRspBean;
 import com.revolo.lock.room.AppDatabase;
 import com.revolo.lock.room.entity.BleDeviceLocal;
+import com.revolo.lock.util.ZoneUtil;
 
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.IMqttToken;
@@ -1232,7 +1232,7 @@ public class LockAppService extends Service {
             return;
         }
         new Handler(Looper.getMainLooper()).postDelayed(() -> {
-            long nowTime = TimeUtils.getNowMills() / 1000;
+            long nowTime = ZoneUtil.getTime() / 1000;
             BleManager.getInstance().writeControlMsg(BleCommandFactory
                     .syLockTime(nowTime, bleBean.getPwd1(), bleBean.getPwd3()), bleBean.getOKBLEDeviceImp());
         }, 20);
