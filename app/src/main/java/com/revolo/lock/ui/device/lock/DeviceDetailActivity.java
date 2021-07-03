@@ -211,11 +211,6 @@ public class DeviceDetailActivity extends BaseActivity {
                 message.setBytes(BleCommandFactory
                         .checkLockBaseInfoCommand(bleBean.getPwd1(), bleBean.getPwd3()));
                 EventBus.getDefault().post(message);
-                /*
-                App.getInstance().writeControlMsg(BleCommandFactory
-                                .checkLockBaseInfoCommand(bleBean.getPwd1(), bleBean.getPwd3()),
-                        bleBean.getOKBLEDeviceImp());
- */
             }
         }
     }
@@ -459,9 +454,6 @@ public class DeviceDetailActivity extends BaseActivity {
             message.setMessageType(3);
             EventBus.getDefault().post(message);
 
-           /* App.getInstance().writeControlMsg(BleCommandFactory
-                    .lockControlCommand((byte) (mBleDeviceLocal.getLockState() == LocalState.LOCK_STATE_OPEN ? LOCK_SETTING_CLOSE : LOCK_SETTING_OPEN),
-                            (byte) 0x04, (byte) 0x01, bleBean.getPwd1(), bleBean.getPwd3()), bleBean.getOKBLEDeviceImp());*/
         } else {
             // TODO: 2021/4/1 主编号是0，分享用户再使用分享用户的编号
             publishOpenOrCloseLock(
@@ -482,15 +474,6 @@ public class DeviceDetailActivity extends BaseActivity {
             Timber.e("publishOpenOrCloseDoor App.getInstance().getUserBean() == null");
             return;
         }
-       /* if (mMQttService == null) {
-            Timber.e("publishOpenOrCloseDoor mMQttService == null");
-            return;
-        }*/
-//        if (doorOpt == LocalState.DOOR_STATE_OPEN) {
-//            showLoading("Lock Opening...");
-//        } else if (doorOpt == LocalState.DOOR_STATE_CLOSE) {
-//            showLoading("Lock Closing...");
-//        }
         mCount++;
         LockMessage message = new LockMessage();
         message.setMessageType(2);

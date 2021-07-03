@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -22,16 +21,17 @@
 
     <TextView
         android:id="@+id/tvLockName"
-        android:layout_width="wrap_content"
+        android:layout_width="180dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="25pt"
-        android:layout_marginTop="34pt"
+        android:maxLines="1"
+        android:layout_marginTop="30pt"
+        android:ellipsize="end"
         android:textColor="@color/c333333"
-        android:maxLength="20"
         android:textSize="16pt"
+        app:layout_constraintRight_toLeftOf="@id/ivNetState"
         app:layout_constraintStart_toEndOf="@+id/ivLockState"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintRight_toLeftOf="@id/ivNetState"
         tools:text="10V0204110001" />
 
     <ImageView
@@ -61,9 +61,9 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="10pt"
         app:layout_constraintBottom_toBottomOf="@+id/tvLockName"
+        app:layout_constraintRight_toLeftOf="parent"
         app:layout_constraintStart_toEndOf="@+id/tvLockName"
         app:layout_constraintTop_toTopOf="@+id/tvLockName"
-        app:layout_constraintRight_toLeftOf="parent"
         tools:srcCompat="@drawable/ic_home_icon_wifi" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

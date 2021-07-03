@@ -261,9 +261,6 @@ public class DoorLockInformationActivity extends BaseActivity {
             }
 
         });
-//        new Handler(Looper.getMainLooper()).postDelayed(() -> App.getInstance().writeControlMsg(BleCommandFactory
-//                .lockParameterCheckCommand((byte) 0x03,
-//                        bleBean.getPwd1(), bleBean.getPwd3()), bleBean.getOKBLEDeviceImp()), 50);
         // 查询前板的版本信息
         new Handler(Looper.getMainLooper()).postDelayed(() -> {
                     LockMessage message = new LockMessage();
@@ -274,11 +271,6 @@ public class DoorLockInformationActivity extends BaseActivity {
                                     bleBean.getPwd3()));
                     message.setMessageType(3);
                     EventBus.getDefault().post(message);
-                  /*  App.getInstance().writeControlMsg(BleCommandFactory
-                                    .checkHardVer(HARD_TYPE_FRONT_PANEL,
-                                            bleBean.getPwd1(),
-                                            bleBean.getPwd3()),
-                            bleBean.getOKBLEDeviceImp())*/
                 },
                 50);
         // 查询wifi的版本信息
@@ -291,11 +283,6 @@ public class DoorLockInformationActivity extends BaseActivity {
                                     bleBean.getPwd1(),
                                     bleBean.getPwd3()));
                     EventBus.getDefault().post(message);
-                   /* App.getInstance().writeControlMsg(BleCommandFactory
-                                    .checkHardVer(HARD_TYPE_WIFI_LOCK,
-                                            bleBean.getPwd1(),
-                                            bleBean.getPwd3()),
-                            bleBean.getOKBLEDeviceImp())*/
                 },
                 100);
     }

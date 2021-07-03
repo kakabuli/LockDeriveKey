@@ -216,9 +216,27 @@ public class AddNewPwdSelectActivity extends BaseActivity {
         RelativeLayout rlPermanent = findViewById(R.id.rlPermanent);
         RelativeLayout rlSchedule = findViewById(R.id.rlSchedule);
         RelativeLayout rlTemporary = findViewById(R.id.rlTemporary);
-        applyDebouncingClickListener(rlPermanent, rlSchedule, rlTemporary, mBtnNext,
-                tvSun, tvMon, tvTues, tvWed, tvThur, tvFri, tvSat, mTvStartTime,
-                mTvEndTime, mTvStartDate, mTvStartDateTime, mTvEndDate, mTvEndDateTime);
+//        applyDebouncingClickListener(rlPermanent, rlSchedule, rlTemporary, mBtnNext,
+//                tvSun, tvMon, tvTues, tvWed, tvThur, tvFri, tvSat, mTvStartTime,
+//                mTvEndTime, mTvStartDate, mTvStartDateTime, mTvEndDate, mTvEndDateTime);
+        tvSun.setOnClickListener(this::onDebouncingClick);
+        tvMon.setOnClickListener(this::onDebouncingClick);
+        tvTues.setOnClickListener(this::onDebouncingClick);
+        tvWed.setOnClickListener(this::onDebouncingClick);
+        tvThur.setOnClickListener(this::onDebouncingClick);
+        tvFri.setOnClickListener(this::onDebouncingClick);
+        tvSat.setOnClickListener(this::onDebouncingClick);
+        rlPermanent.setOnClickListener(this::onDebouncingClick);
+        rlSchedule.setOnClickListener(this::onDebouncingClick);
+        rlTemporary.setOnClickListener(this::onDebouncingClick);
+        mBtnNext.setOnClickListener(this::onDebouncingClick);
+        mTvStartTime.setOnClickListener(this::onDebouncingClick);
+        mTvEndTime.setOnClickListener(this::onDebouncingClick);
+        mTvStartDate.setOnClickListener(this::onDebouncingClick);
+        mTvStartDateTime.setOnClickListener(this::onDebouncingClick);
+        mTvEndDate.setOnClickListener(this::onDebouncingClick);
+        mTvEndDateTime.setOnClickListener(this::onDebouncingClick);
+
     }
 
     private void initGlobalView() {
@@ -262,7 +280,6 @@ public class AddNewPwdSelectActivity extends BaseActivity {
         }
     }
 
-    @Override
     public void onDebouncingClick(@NonNull View view) {
         if (view.getId() == R.id.rlPermanent) {
             permanentSwitch();
