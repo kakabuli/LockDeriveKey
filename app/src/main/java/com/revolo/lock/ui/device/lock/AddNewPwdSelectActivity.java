@@ -299,11 +299,6 @@ public class AddNewPwdSelectActivity extends BaseActivity {
         if (view.getId() == R.id.btnNext) {
             if (mSelectedPwdState == SCHEDULE_STATE) {
                 if (isSelectedFri || isSelectedMon || isSelectedSat || isSelectedSun || isSelectedThur || isSelectedTues || isSelectedWed) {
-                    if (mScheduleEndTimeMill < mScheduleStartTimeMill) {
-                        ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_the_end_time_cannot_be_less_than_the_start_time);
-                    } else {
-                        nextStep();
-                    }
                     nextStep();
                 } else {
                     ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show("Repeat Not Choose");
@@ -312,8 +307,6 @@ public class AddNewPwdSelectActivity extends BaseActivity {
             } else if (mSelectedPwdState == TEMPORARY_STATE) {
                 if (mTemEndDateTimeMill < new Date().getTime()) {
                     ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_the_end_time_cannot_be_less_than_the_current_time);
-                } else if (mTemEndDateTimeMill < mTemStartDateTimeMill) {
-                    ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_the_end_time_cannot_be_less_than_the_start_time);
                 } else {
                     nextStep();
                 }
@@ -477,7 +470,7 @@ public class AddNewPwdSelectActivity extends BaseActivity {
     private long mTemEndDateTimeMill;
     private String mTemStartDateTimeStr = "10:00:00";
     private String mTemEndDateTimeStr = "14:00:00";
-    private final String mNowDateStr = ZoneUtil.getDate(App.getInstance().getBleDeviceLocal().getTimeZone(), ZoneUtil.getTime(), "yyyy-MM-dd");
+    private final String mNowDateStr = ZoneUtil.getDate(App.getInstance().getBleDeviceLocal().getTimeZone(),ZoneUtil.getTime(), "yyyy-MM-dd");
 
     private String mTemStartDateStr = mNowDateStr;
     private String mTemEndDateStr = mNowDateStr;
@@ -485,29 +478,29 @@ public class AddNewPwdSelectActivity extends BaseActivity {
     private void initScheduleStartTimeMill() {
         String date = mNowDateStr + " 00:00:00";
         //mScheduleStartTimeMill = TimeUtils.string2Millis(date);
-        mScheduleStartTimeMill = ZoneUtil.getTime(mBleDeviceLocal.getTimeZone(), date);
+        mScheduleStartTimeMill = ZoneUtil.getTime(mBleDeviceLocal.getTimeZone(),date);
     }
 
     private void initScheduleEndTimeMill() {
         String date = mNowDateStr + " 23:59:00";
-        mScheduleEndTimeMill = ZoneUtil.getTime(mBleDeviceLocal.getTimeZone(), date);
+        mScheduleEndTimeMill =  ZoneUtil.getTime(mBleDeviceLocal.getTimeZone(),date);
 
     }
 
     private void initTemStartDateTimeMill() {
-        String nowDate = ZoneUtil.getDate(mBleDeviceLocal.getTimeZone(), ZoneUtil.getTime(), "yyyy-MM-dd");
+        String nowDate = ZoneUtil.getDate(mBleDeviceLocal.getTimeZone(),ZoneUtil.getTime(), "yyyy-MM-dd");
         mTemStartDateStr = nowDate;
         mTvStartDate.setText(mTemStartDateStr);
         String date = nowDate + " 10:00:00";
-        mTemStartDateTimeMill = ZoneUtil.getTime(mBleDeviceLocal.getTimeZone(), date);
+        mTemStartDateTimeMill =  ZoneUtil.getTime(mBleDeviceLocal.getTimeZone(),date);
     }
 
     private void initTemEndDateTimeMill() {
-        String nowDate = ZoneUtil.getDate(mBleDeviceLocal.getTimeZone(), System.currentTimeMillis(), "yyyy-MM-dd");
+        String nowDate = ZoneUtil.getDate(mBleDeviceLocal.getTimeZone(),System.currentTimeMillis(), "yyyy-MM-dd");
         mTemEndDateStr = nowDate;
         mTvEndDate.setText(mTemEndDateStr);
         String date = nowDate + " 14:00:00";
-        mTemEndDateTimeMill = ZoneUtil.getTime(mBleDeviceLocal.getTimeZone(), date);
+        mTemEndDateTimeMill =  ZoneUtil.getTime(mBleDeviceLocal.getTimeZone(),date);
 
     }
 
@@ -516,49 +509,49 @@ public class AddNewPwdSelectActivity extends BaseActivity {
                 (view, hourOfDay, minute) -> {
                     String time = (hourOfDay < 10 ? "0" + hourOfDay : hourOfDay) + ":" + (minute < 10 ? "0" + minute : minute);
                     if (id == R.id.tvStartTime) {
-                        long scheduleStartTimeMill = ZoneUtil.getTime(mBleDeviceLocal.getTimeZone(), mNowDateStr + " " + time + ":00");
-//                        if (scheduleStartTimeMill >= mScheduleEndTimeMill) {
-//                            // 开始时间大于结束时间
-//                            ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_the_start_time_cannot_be_greater_than_the_end_time);
-//                            return;
-//                        }
+                        long scheduleStartTimeMill =  ZoneUtil.getTime(mBleDeviceLocal.getTimeZone(),mNowDateStr + " " + time + ":00");
+                        if (scheduleStartTimeMill >= mScheduleEndTimeMill) {
+                            // 开始时间大于结束时间
+                            ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_the_start_time_cannot_be_greater_than_the_end_time);
+                            return;
+                        }
                         mTvStartTime.setText(time);
                         mScheduleStartTimeMill = scheduleStartTimeMill;
                         Timber.d("startTime 选择的时间%1s, 时间流：%2d, 转换的时间：%3s", time, mScheduleStartTimeMill,
-                                ZoneUtil.getDate(mBleDeviceLocal.getTimeZone(), mScheduleStartTimeMill));
+                                ZoneUtil.getDate(mBleDeviceLocal.getTimeZone(),mScheduleStartTimeMill));
                     } else if (id == R.id.tvEndTime) {
-                        long scheduleEndTimeMill = ZoneUtil.getTime(mBleDeviceLocal.getTimeZone(), mNowDateStr + " " + time + ":00");
-//                        if (scheduleEndTimeMill <= mScheduleStartTimeMill) {
-//                            // 结束时间小于开始时间
-//                            ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_the_end_time_cannot_be_less_than_the_start_time);
-//                            return;
-//                        }
+                        long scheduleEndTimeMill =  ZoneUtil.getTime(mBleDeviceLocal.getTimeZone(),mNowDateStr + " " + time + ":00");
+                        if (scheduleEndTimeMill <= mScheduleStartTimeMill) {
+                            // 结束时间小于开始时间
+                            ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_the_end_time_cannot_be_less_than_the_start_time);
+                            return;
+                        }
                         mTvEndTime.setText(time);
                         mScheduleEndTimeMill = scheduleEndTimeMill;
-                        Timber.d("endTime 选择的时间%1s, 时间流：%2d, 转换的时间：%3s", time, mScheduleEndTimeMill, ZoneUtil.getDate(mBleDeviceLocal.getTimeZone(), mScheduleEndTimeMill));
+                        Timber.d("endTime 选择的时间%1s, 时间流：%2d, 转换的时间：%3s", time, mScheduleEndTimeMill, ZoneUtil.getDate(mBleDeviceLocal.getTimeZone(),mScheduleEndTimeMill));
                     } else if (id == R.id.tvEndDateTime) {
-                        long temEndDateTimeMill = ZoneUtil.getTime(mBleDeviceLocal.getTimeZone(), mTemEndDateStr + " " + time + ":00");
-//                        if (temEndDateTimeMill <= mTemStartDateTimeMill) {
-//                            // 结束时间小于开始时间
-//                            ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_the_end_time_cannot_be_less_than_the_start_time);
-//                            return;
-//                        }
-//                        if (mSelectedPwdState == TEMPORARY_STATE && temEndDateTimeMill < (new Date().getTime())) {
-//                            // 临时密码 && 结束时间小于当前时间
-//                            ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_the_end_time_cannot_be_less_than_the_current_time);
-//                            return;
-//                        }
+                        long temEndDateTimeMill =  ZoneUtil.getTime(mBleDeviceLocal.getTimeZone(),mTemEndDateStr + " " + time + ":00");
+                        if (temEndDateTimeMill <= mTemStartDateTimeMill) {
+                            // 结束时间小于开始时间
+                            ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_the_end_time_cannot_be_less_than_the_start_time);
+                            return;
+                        }
+                        if (mSelectedPwdState == TEMPORARY_STATE && temEndDateTimeMill < (new Date().getTime())) {
+                            // 临时密码 && 结束时间小于当前时间
+                            ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_the_end_time_cannot_be_less_than_the_current_time);
+                            return;
+                        }
                         mTvEndDateTime.setText(time);
                         mTemEndDateTimeStr = time;
                         mTemEndDateTimeMill = temEndDateTimeMill;
                         Timber.d("endDateTime 选择的时间%1s, 时间流：%2d", time, mTemEndDateTimeMill);
                     } else if (id == R.id.tvStartDateTime) {
-                        long temStartDateTimeMill = ZoneUtil.getTime(mBleDeviceLocal.getTimeZone(), mTemStartDateStr + " " + time + ":00");
-//                        if (temStartDateTimeMill >= mTemEndDateTimeMill) {
-//                            // 开始时间大于结束时间
-//                            ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_the_start_time_cannot_be_greater_than_the_end_time);
-//                            return;
-//                        }
+                        long temStartDateTimeMill =  ZoneUtil.getTime(mBleDeviceLocal.getTimeZone(),mTemStartDateStr + " " + time + ":00");
+                        if (temStartDateTimeMill >= mTemEndDateTimeMill) {
+                            // 开始时间大于结束时间
+                            ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_the_start_time_cannot_be_greater_than_the_end_time);
+                            return;
+                        }
                         mTvStartDateTime.setText(time);
                         mTemStartDateTimeStr = time;
                         mTemStartDateTimeMill = temStartDateTimeMill;
@@ -576,28 +569,34 @@ public class AddNewPwdSelectActivity extends BaseActivity {
             month += 1;
             String date = year + "-" + (month < 10 ? "0" + month : month) + "-" + (dayOfMonth < 10 ? "0" + dayOfMonth : dayOfMonth);
             if (id == R.id.tvStartDate) {
-                long temStartDateTimeMill = ZoneUtil.getTime(mBleDeviceLocal.getTimeZone(), date + " " + mTemStartDateTimeStr);
-//                if (temStartDateTimeMill >= mTemEndDateTimeMill) {
-//                    // 开始时间大于结束时间
-//                    ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_the_start_time_cannot_be_greater_than_the_end_time);
-//                    return;
-//                }
+                if(null!=mTemStartDateTimeStr&&mTemStartDateTimeStr.length()<8){
+                    mTemStartDateTimeStr=mTemStartDateTimeStr+":00";
+                }
+                long temStartDateTimeMill =  ZoneUtil.getTime(mBleDeviceLocal.getTimeZone(),date + " " + mTemStartDateTimeStr);
+                if (temStartDateTimeMill >= mTemEndDateTimeMill) {
+                    // 开始时间大于结束时间
+                    ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_the_start_time_cannot_be_greater_than_the_end_time);
+                    return;
+                }
                 mTemStartDateStr = date;
                 mTemStartDateTimeMill = temStartDateTimeMill;
                 mTvStartDate.setText(mTemStartDateStr);
                 Timber.d("startDate 选择的日期%1s, 时间流：%2d", date, mTemStartDateTimeMill);
             } else if (id == R.id.tvEndDate) {
-                long temEndDateTimeMill = ZoneUtil.getTime(mBleDeviceLocal.getTimeZone(), date + " " + mTemEndDateTimeStr);
-//                if (temEndDateTimeMill <= mTemStartDateTimeMill) {
-//                    // 开始时间大于结束时间
-//                    ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_the_end_time_cannot_be_less_than_the_start_time);
-//                    return;
-//                }
-//                if (mSelectedPwdState == TEMPORARY_STATE && temEndDateTimeMill < (new Date().getTime())) {
-//                    // 临时密码 && 结束时间小于当前时间
-//                    ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_the_end_time_cannot_be_less_than_the_current_time);
-//                    return;
-//                }
+                if(null!=mTemStartDateTimeStr&&mTemStartDateTimeStr.length()<8){
+                    mTemStartDateTimeStr=mTemStartDateTimeStr+":00";
+                }
+                long temEndDateTimeMill =  ZoneUtil.getTime(mBleDeviceLocal.getTimeZone(),date + " " + mTemEndDateTimeStr);
+                if (temEndDateTimeMill <= mTemStartDateTimeMill) {
+                    // 开始时间大于结束时间
+                    ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_the_end_time_cannot_be_less_than_the_start_time);
+                    return;
+                }
+                if (mSelectedPwdState == TEMPORARY_STATE && temEndDateTimeMill < (new Date().getTime())) {
+                    // 临时密码 && 结束时间小于当前时间
+                    ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_the_end_time_cannot_be_less_than_the_current_time);
+                    return;
+                }
                 mTemEndDateStr = date;
                 mTemEndDateTimeMill = temEndDateTimeMill;
                 mTvEndDate.setText(mTemEndDateStr);
