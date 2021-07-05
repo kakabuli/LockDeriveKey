@@ -21,18 +21,29 @@
 
     <TextView
         android:id="@+id/tvLockName"
-        android:layout_width="180dp"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="25pt"
-        android:maxLines="1"
         android:layout_marginTop="30pt"
         android:ellipsize="end"
+        android:maxLines="1"
         android:textColor="@color/c333333"
         android:textSize="16pt"
+        app:layout_constraintLeft_toRightOf="@+id/ivLockState"
         app:layout_constraintRight_toLeftOf="@id/ivNetState"
-        app:layout_constraintStart_toEndOf="@+id/ivLockState"
         app:layout_constraintTop_toTopOf="parent"
-        tools:text="10V0204110001" />
+        tools:text="10V020411000110V020411000110V0204110001" />
+
+    <ImageView
+        android:id="@+id/ivNetState"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="10pt"
+        android:layout_marginEnd="56pt"
+        app:layout_constraintBottom_toBottomOf="@id/tvLockName"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="@id/tvLockName"
+        tools:srcCompat="@drawable/ic_home_icon_wifi" />
 
     <ImageView
         android:id="@+id/ivDoorState"
@@ -54,16 +65,5 @@
         app:layout_constraintStart_toEndOf="@+id/ivDoorState"
         app:layout_constraintTop_toBottomOf="@+id/tvLockName"
         tools:text="Door opened" />
-
-    <ImageView
-        android:id="@+id/ivNetState"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="10pt"
-        app:layout_constraintBottom_toBottomOf="@+id/tvLockName"
-        app:layout_constraintRight_toLeftOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/tvLockName"
-        app:layout_constraintTop_toTopOf="@+id/tvLockName"
-        tools:srcCompat="@drawable/ic_home_icon_wifi" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

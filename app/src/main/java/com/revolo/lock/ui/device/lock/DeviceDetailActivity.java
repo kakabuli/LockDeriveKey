@@ -57,6 +57,8 @@ public class DeviceDetailActivity extends BaseActivity {
     private BleDeviceLocal mBleDeviceLocal;
     private SignalWeakDialog mSignalWeakDialog;
     private MessageDialog mMessageDialog;
+    private ImageView mIvBatteryState;
+    private TextView mTvBatteryState;
     //private Disposable mOpenOrCloseLockDisposable;
     //private Disposable mWfEventDisposable;
 
@@ -240,6 +242,8 @@ public class DeviceDetailActivity extends BaseActivity {
         llSetting = findViewById(R.id.llSetting);
         llDoorState = findViewById(R.id.llDoorState);
         tvPrivateMode = findViewById(R.id.tvPrivateMode);
+        mIvBatteryState = findViewById(R.id.ivBatteryState);
+        mTvBatteryState = findViewById(R.id.tvBatteryState);
         applyDebouncingClickListener(llNotification, llPwd, llUser, llSetting, ivLockState);
         // updateView();
     }
@@ -252,7 +256,9 @@ public class DeviceDetailActivity extends BaseActivity {
             return;
         }
         // 低电量
-        llLowBattery.setVisibility(mBleDeviceLocal.getLockPower() <= 20 ? View.VISIBLE : View.GONE);
+        mIvBatteryState.setImageResource(mBleDeviceLocal.getLockPower() <= 20 ? R.drawable.ic_icon_low_battery : R.mipmap.ic_icon_battery);
+        mTvBatteryState.setVisibility(mBleDeviceLocal.getLockPower() <= 20 ? View.VISIBLE : View.GONE);
+//        llLowBattery.setVisibility(mBleDeviceLocal.getLockPower() <= 20 ? View.VISIBLE : View.GONE);
         if (mBleDeviceLocal.getLockState() == LocalState.LOCK_STATE_PRIVATE) {
             doorShow(ivDoorState, tvDoorState);
             ivLockState.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_home_img_lock_privacymodel));
@@ -264,7 +270,7 @@ public class DeviceDetailActivity extends BaseActivity {
             boolean isUseDoorSensor = mBleDeviceLocal.isOpenDoorSensor();
             Timber.d("door sensor state: %1d, isUseDoorSensor: %2b", mBleDeviceLocal.getDoorSensor(), isUseDoorSensor);
             if (mBleDeviceLocal.getLockState() == LocalState.LOCK_STATE_OPEN) {
-                ivLockState.setImageResource(R.drawable.ic_home_img_lock_open);
+                ivLockState.setImageResource(R.mipmap.ic_home_img_lock_open_icon);
                 if (isUseDoorSensor) {
                     doorShow(ivDoorState, tvDoorState);
                     switch (mBleDeviceLocal.getDoorSensor()) {
@@ -284,7 +290,7 @@ public class DeviceDetailActivity extends BaseActivity {
                 }
 
             } else if (mBleDeviceLocal.getLockState() == LocalState.LOCK_STATE_CLOSE || mBleDeviceLocal.getLockState() == LocalState.LOCK_STATE_SENSOR_CLOSE) {
-                ivLockState.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_home_img_lock_close));
+                ivLockState.setImageDrawable(ContextCompat.getDrawable(this, R.mipmap.ic_home_img_lock_close_icon));
                 if (isUseDoorSensor) {
                     doorShow(ivDoorState, tvDoorState);
                     switch (mBleDeviceLocal.getDoorSensor()) {
@@ -303,7 +309,7 @@ public class DeviceDetailActivity extends BaseActivity {
 //                    doorClose(ivDoorState, tvDoorState);
                 }
             } else {
-                ivLockState.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_home_img_lock_close));
+                ivLockState.setImageDrawable(ContextCompat.getDrawable(this, R.mipmap.ic_home_img_lock_close_icon));
                 // TODO: 2021/3/31 其他选择
                 Timber.e("其他选择");
                 doorClose(ivDoorState, tvDoorState);

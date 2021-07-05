@@ -254,12 +254,10 @@ public class DuressCodeActivity extends BaseActivity {
         LockMessage lockMessage = new LockMessage();
         lockMessage.setMessageType(2);
         lockMessage.setMqtt_message_code(MQttConstant.SET_LOCK_ATTR);
-        MqttMessage mqttMessage = MqttCommandFactory.setLockAttr(wifiID, duressParams,
+        lockMessage.setMqttMessage(MqttCommandFactory.setLockAttr(wifiID, duressParams,
                 BleCommandFactory.getPwd(
                         ConvertUtils.hexString2Bytes(mBleDeviceLocal.getPwd1()),
-                        ConvertUtils.hexString2Bytes(mBleDeviceLocal.getPwd2())));
-        mqttMessage.setQos(0);
-        lockMessage.setMqttMessage(mqttMessage);
+                        ConvertUtils.hexString2Bytes(mBleDeviceLocal.getPwd2()))));
         lockMessage.setMqtt_topic(MQttConstant.getCallTopic(App.getInstance().getUserBean().getUid()));
         EventBus.getDefault().post(lockMessage);
     }
