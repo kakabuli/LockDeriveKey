@@ -8,7 +8,6 @@
     tools:context=".ui.device.DeviceFragment"
     android:background="@drawable/home_bg">
 
-
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/clNoDevice"
         android:layout_width="match_parent"

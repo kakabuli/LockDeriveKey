@@ -21,6 +21,7 @@ import com.revolo.lock.bean.request.SystemMessageListReq;
 import com.revolo.lock.bean.respone.SystemMessageListBeanRsp;
 import com.revolo.lock.net.HttpRequest;
 import com.revolo.lock.net.ObservableDecorator;
+import com.revolo.lock.ui.view.SmartClassicsHeaderView;
 import com.revolo.lock.widget.SlideRecyclerView;
 import com.scwang.smart.refresh.layout.SmartRefreshLayout;
 
@@ -58,6 +59,7 @@ public class MessageListActivity extends BaseActivity {
     public int bindLayout() {
         return R.layout.activity_message_list;
     }
+
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0) {
@@ -66,11 +68,13 @@ public class MessageListActivity extends BaseActivity {
         }
         return super.onKeyDown(keyCode, event);
     }
+
     @Override
     public void initView(@Nullable Bundle savedInstanceState, @Nullable View contentView) {
         useCommonTitleBar(getString(R.string.title_message));
 
         mSmartRefreshLayout = findViewById(R.id.smartRefresh);
+        mSmartRefreshLayout.setRefreshHeader(new SmartClassicsHeaderView(this));
         mIvNoMessage = findViewById(R.id.ivNoMessage);
         mTvNoMessage = findViewById(R.id.tvNoMessage);
         SlideRecyclerView rvMessage = findViewById(R.id.rvMessage);
