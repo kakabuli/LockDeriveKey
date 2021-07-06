@@ -546,4 +546,7 @@
     <string name="t_text_content_offline">Offline</string>
     <string name="t_text_content_wrong_password">Wrong password</string>
     <string name="t_text_content_offline_devices">Devices offline</string>
+    <string name="dialog_content_ota_update">The door lock is upgrading. Please wait...</string>
+    <string name="tip_content_ota_update_success">The door lock is Upgrade successful!</string>
+    <string name="tip_content_ota_update_failed">The door lock is Upgrade failed!</string>
 </resources>

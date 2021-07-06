@@ -64,12 +64,19 @@ public abstract class BaseActivity extends AppCompatActivity
     public boolean isShowNetState = true;
     private BluetoothAdapter mBluetoothAdapter;
 
-    private BroadcastReceiver mReceiver = new BroadcastReceiver() {
+    private final BroadcastReceiver mReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             if (intent != null) {
-                boolean pingResult = intent.getBooleanExtra(PING_RESULT, true);
-                noteNetworks(pingResult);
+                if (intent.getAction().equals(RECEIVE_ACTION_NETWORKS)) {
+                    boolean pingResult = intent.getBooleanExtra(PING_RESULT, true);
+                    noteNetworks(pingResult);
+                } else if (intent.getAction().equals(Intent.ACTION_SCREEN_ON)) {
+                    // 屏幕打开了
+                    Timber.d("###########################   screen on   ###########################");
+                    boolean pingResult = intent.getBooleanExtra(PING_RESULT, true);
+                    noteNetworks(pingResult);
+                }
             }
         }
     };
@@ -104,14 +111,17 @@ public abstract class BaseActivity extends AppCompatActivity
 //        startKeepAlive();
 
         if (!isRegisterReceiver) {  // 判断广播是否注册
-            Timber.e("#################  广播注册成功  #####################");
-            registerReceiver(mReceiver, new IntentFilter(RECEIVE_ACTION_NETWORKS));
+            Timber.d("###########################   广播注册成功   ###########################");
+            IntentFilter intentFilter = new IntentFilter();
+            intentFilter.addAction(RECEIVE_ACTION_NETWORKS);
+            intentFilter.addAction(Intent.ACTION_SCREEN_ON);
+            registerReceiver(mReceiver, intentFilter);
             isRegisterReceiver = true;
         }
     }
 
     public void noteNetworks(boolean pingResult) {
-        Timber.e(" ###########################  pingResult = " + pingResult + "  ####################################");
+        Timber.d("###########################   pingResult = " + pingResult + "   ####################################");
         if (mTitleBar != null) {
             mTitleBar.setNetError(pingResult);
         }
@@ -155,7 +165,7 @@ public abstract class BaseActivity extends AppCompatActivity
             EventBus.getDefault().unregister(this);
         }
         if (mReceiver != null && LockAppManager.getAppManager().getActivitySize() == 0) {
-            Timber.e("####################  注销广播  ########################");
+            Timber.d("####################   注销广播   ########################");
             unregisterReceiver(mReceiver);
             isRegisterReceiver = false;
         }

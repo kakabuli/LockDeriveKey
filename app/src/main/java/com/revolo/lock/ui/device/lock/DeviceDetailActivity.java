@@ -59,8 +59,6 @@ public class DeviceDetailActivity extends BaseActivity {
     private MessageDialog mMessageDialog;
     private ImageView mIvBatteryState;
     private TextView mTvBatteryState;
-    //private Disposable mOpenOrCloseLockDisposable;
-    //private Disposable mWfEventDisposable;
 
     @Override
     public void initData(@Nullable Bundle bundle) {

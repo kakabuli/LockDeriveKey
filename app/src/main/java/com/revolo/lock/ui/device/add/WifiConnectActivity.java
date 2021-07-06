@@ -186,9 +186,6 @@ public class WifiConnectActivity extends BaseActivity {
      * 更新锁服务器存储的数据
      */
     private void updateLockInfoToService() {
-        if (null == this) {
-            return;
-        }
         if (App.getInstance().getUserBean() == null) {
             Timber.e("updateLockInfoToService App.getInstance().getUserBean() == null");
             return;

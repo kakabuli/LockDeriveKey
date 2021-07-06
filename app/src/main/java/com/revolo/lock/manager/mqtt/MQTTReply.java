@@ -318,7 +318,7 @@ public class MQTTReply {
             bleDeviceLocal.setName(wifiListBean.getLockNickname());
         //门磁状态
         bleDeviceLocal.setDoorSensor(wifiListBean.getMagneticStatus());
-        //启用门门磁
+        //启用门磁
         bleDeviceLocal.setOpenDoorSensor(wifiListBean.getDoorSensor() == 1);
 
 //        bleDeviceLocal.setDoNotDisturbMode(wifiListBean.get);
@@ -372,6 +372,8 @@ public class MQTTReply {
 
         if (!TextUtils.isEmpty(wifiListBean.getPassword2()))
             bleDeviceLocal.setPwd2(wifiListBean.getPassword2());
+
+        bleDeviceLocal.setDetectionLock(true);
 
         if (!TextUtils.isEmpty(wifiListBean.getPassword1()))
             bleDeviceLocal.setPwd1(wifiListBean.getPassword1());

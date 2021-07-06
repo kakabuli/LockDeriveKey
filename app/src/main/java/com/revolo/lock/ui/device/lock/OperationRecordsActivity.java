@@ -119,7 +119,6 @@ public class OperationRecordsActivity extends BaseActivity {
 
         mRefreshLayout = findViewById(R.id.refreshLayout);
         mRefreshLayout.setEnableRefresh(true);
-        mRefreshLayout.setRefreshFooter(new SmartClassicsFooterView((this)));
         mRefreshLayout.setOnRefreshListener(refreshLayout -> {
             mPage = 1;
             if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI || mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI_BLE) {

@@ -74,16 +74,27 @@ public class DeviceFragment extends Fragment {
     private TitleBar titleBar;
     private BluetoothAdapter mBluetoothAdapter;
 
-    private BroadcastReceiver mReceiver = new BroadcastReceiver() {
+    private final BroadcastReceiver mReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             if (intent != null) {
-                boolean pingResult = intent.getBooleanExtra(PING_RESULT, true);
-                if (titleBar != null) {
-                    titleBar.setNetError(pingResult);
-                }
-                if (mHomeLockListAdapter != null) {
-                    mHomeLockListAdapter.notifyDataSetChanged();
+                if (intent.getAction().equals(RECEIVE_ACTION_NETWORKS)) {
+                    boolean pingResult = intent.getBooleanExtra(PING_RESULT, true);
+                    if (titleBar != null) {
+                        titleBar.setNetError(pingResult);
+                    }
+                    if (mHomeLockListAdapter != null) {
+                        mHomeLockListAdapter.notifyDataSetChanged();
+                    }
+                } else if (intent.getAction().equals(Intent.ACTION_SCREEN_ON)) {
+                    // 屏幕打开了
+                    Timber.d("###########################   screen on   ###########################");
+                    if (titleBar != null) {
+                        titleBar.setNetError(true);
+                    }
+                    if (mHomeLockListAdapter != null) {
+                        mHomeLockListAdapter.notifyDataSetChanged();
+                    }
                 }
             }
         }
@@ -176,8 +187,10 @@ public class DeviceFragment extends Fragment {
         if (titleBar != null) {
             titleBar.setNetError(Constant.pingResult);
         }
-
-        requireActivity().registerReceiver(mReceiver, new IntentFilter(RECEIVE_ACTION_NETWORKS));
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(RECEIVE_ACTION_NETWORKS);
+        intentFilter.addAction(Intent.ACTION_SCREEN_ON);
+        requireActivity().registerReceiver(mReceiver, intentFilter);
         return root;
     }
 

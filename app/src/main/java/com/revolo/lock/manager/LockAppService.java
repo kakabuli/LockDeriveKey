@@ -63,7 +63,6 @@ import org.jetbrains.annotations.NotNull;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
@@ -224,8 +223,8 @@ public class LockAppService extends Service {
                                 break;
                             case BluetoothAdapter.STATE_ON:
                                 Timber.e("蓝牙已经打开");
-                                List<BleDeviceLocal> bleDe=new ArrayList<>();
-                                if(null!=mDeviceLists){
+                                List<BleDeviceLocal> bleDe = new ArrayList<>();
+                                if (null != mDeviceLists) {
                                     bleDe.addAll(mDeviceLists);
                                 }
 
@@ -351,37 +350,6 @@ public class LockAppService extends Service {
 
         }
     }
-
-
-    //*****************************************************网络监听**********************************************************************
-   /* private void registerNetReceive() {
-        IntentFilter netIntent = new IntentFilter();
-        netIntent.addAction("android.net.conn.CONNECTIVITY_CHANGE");
-        registerReceiver(netReceiver, netIntent);
-    }
-
-    private void unRegisterNetReceive() {
-        unregisterReceiver(netReceiver);
-    }
-
-    private BroadcastReceiver netReceiver = new BroadcastReceiver() {
-
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(
-                    Context.CONNECTIVITY_SERVICE);
-            NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
-            if (networkInfo != null && networkInfo.isAvailable()) {
-                //有网络
-            } else {
-                // 无网络
-            }
-        }
-    };*/
-
-    //*****************************************************网络监听 end**********************************************************************
-
-    //******************************************************设备管理**********************************************************************
 
     /**
      * 清理连接设备list
@@ -1070,22 +1038,23 @@ public class LockAppService extends Service {
             return;
         }
         if (null != mDeviceLists.get(index)) {
-            if (mDeviceLists.get(index).getLockState() == LocalState.LOCK_STATE_PRIVATE && state != LocalState.LOCK_STATE_OPEN) {
+            BleDeviceLocal bleDeviceLocal = mDeviceLists.get(index);
+            if (bleDeviceLocal.getLockState() == LocalState.LOCK_STATE_PRIVATE && state != LocalState.LOCK_STATE_OPEN) {
                 Timber.e("设置门的状态过滤：%s", state + "");
                 return;
             }
-            mDeviceLists.get(index).setLockState(state);
-            Timber.d("setLockState wifiId: %1s %2s", mDeviceLists.get(index).getEsn(), state == LocalState.LOCK_STATE_OPEN ? "锁开了" : "锁关了");
-            AppDatabase.getInstance(getApplicationContext()).bleDeviceDao().update(mDeviceLists.get(index));
+            bleDeviceLocal.setLockState(state);
+            Timber.d("setLockState wifiId: %1s %2s", bleDeviceLocal.getEsn(), state == LocalState.LOCK_STATE_OPEN ? "锁开了" : "锁关了");
+            AppDatabase.getInstance(getApplicationContext()).bleDeviceDao().update(bleDeviceLocal);
             Timber.e("app service setLockState curr mac: %s", App.getInstance().getmCurrMac());
             Timber.e("app service setLockState curr sn: %s", App.getInstance().getmCurrSn());
 
-            Timber.e("app service setLockState  mac: %s", mDeviceLists.get(index).getMac());
-            Timber.e("app service setLockState  sn: %s", mDeviceLists.get(index).getEsn());
-            if ((null != mDeviceLists.get(index).getMac() && mDeviceLists.get(index).getMac().equals(App.getInstance().getmCurrMac())) ||
-                    (null != mDeviceLists.get(index).getEsn() && mDeviceLists.get(index).getEsn().equals(App.getInstance().getmCurrSn()))) {
+            Timber.e("app service setLockState  mac: %s", bleDeviceLocal.getMac());
+            Timber.e("app service setLockState  sn: %s", bleDeviceLocal.getEsn());
+            if ((null != bleDeviceLocal.getMac() && bleDeviceLocal.getMac().equals(App.getInstance().getmCurrMac())) ||
+                    (null != bleDeviceLocal.getEsn() && bleDeviceLocal.getEsn().equals(App.getInstance().getmCurrSn()))) {
                 Timber.e("app service setLockState set BleDeviceLocal");
-                App.getInstance().setBleDeviceLocal(mDeviceLists.get(index));
+                App.getInstance().setBleDeviceLocal(bleDeviceLocal);
             }
         }
     }
@@ -1445,7 +1414,7 @@ public class LockAppService extends Service {
                 String msgtype = "";
                 try {
                     if (payload.contains("returnCode")) {
-                        returnCode = jsonObject.getString("returnCode");
+                        returnCode = (String) jsonObject.opt("returnCode");
                     }
 
                     if (payload.contains("msgId")) {
