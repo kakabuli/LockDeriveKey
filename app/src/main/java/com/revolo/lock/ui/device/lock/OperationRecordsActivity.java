@@ -40,6 +40,7 @@ import com.revolo.lock.room.AppDatabase;
 import com.revolo.lock.room.entity.BleDeviceLocal;
 import com.revolo.lock.room.entity.LockRecord;
 import com.revolo.lock.ui.view.SmartClassicsFooterView;
+import com.revolo.lock.ui.view.SmartClassicsHeaderView;
 import com.revolo.lock.util.ZoneUtil;
 import com.scwang.smart.refresh.layout.api.RefreshLayout;
 
@@ -119,6 +120,7 @@ public class OperationRecordsActivity extends BaseActivity {
 
         mRefreshLayout = findViewById(R.id.refreshLayout);
         mRefreshLayout.setEnableRefresh(true);
+        mRefreshLayout.setRefreshHeader(new SmartClassicsHeaderView(this));
         mRefreshLayout.setOnRefreshListener(refreshLayout -> {
             mPage = 1;
             if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI || mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI_BLE) {
