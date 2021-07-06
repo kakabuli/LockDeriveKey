@@ -77,6 +77,7 @@
     <string name="tip_low_battery">Low battery</string>
     <string name="tip_online">Online</string>
     <string name="tip_private_mode">Private mode</string>
+    <string name="tip_door_sensor_error">Door sensor closed</string>
     <string name="tip_door_opened">Door opened</string>
     <string name="tip_door_closed">Door closed</string>
     <string name="tip_opened">Opened</string>
@@ -160,7 +161,7 @@
     <!-- AutoLockActivity -->
     <string name="title_auto_lock">Auto lock</string>
     <string name="tip_auto_lock">Auto-lock</string>
-    <string name="set_lock_time">Auto0lock Timing</string>
+    <string name="set_lock_time">Auto lock Timing</string>
     <string name="tip_the_timer_will_start_when_your_door_is_closed">The timer will start when your door is closed.</string>
     <string name="tip_door_will_be_locked_when_time_is_up">Door will be locked when time is up.</string>
     <string name="second">%1$ds</string>
@@ -453,6 +454,7 @@
     <string name="t_please_input_name">Please input name</string>
     <string name="t_please_input_name_2">Name length should be greater than 2</string>
     <string name="t_ota_update_suc">OTA update success</string>
+    <string name="t_ota_updating">OTA updating...</string>
     <string name="t_please_input_right_mail_address">Please input right mail address</string>
     <string name="t_setting_email_suc">Setting Email success</string>
     <string name="t_setting_sensitivity_fail">Setting sensitivity fail!</string>
@@ -532,4 +534,19 @@
     <string name="t_can_not_contain_more_than_4_sequential_numbers">·Can not contain more than 4 sequential numbers</string>
     <string name="t_how_to_use_the_password_securely">How to use the password securely?</string>
     <string name="t_add_new_input_pin_text">· After the password setting is completed. · When opening the door, if necessary, you can add any random number before and after you set the password, which will better protect your password security.</string>
+    <string name="t_load_content_setting">Setting...</string>
+    <string name="t_load_content_accepting">Accepting...</string>
+    <string name="t_load_content_loading">Loading...</string>
+    <string name="t_load_content_password_generating">Password Generating</string>
+    <string name="t_load_content_creating">Creating...</string>
+    <string name="t_load_content_deleting">Deleting...</string>
+    <string name="t_load_content_feed_back">FeedBack...</string>
+    <string name="t_load_content_updating">Updating</string>
+    <string name="t_load_content_registering">Registering</string>
+    <string name="t_text_content_offline">Offline</string>
+    <string name="t_text_content_wrong_password">Wrong password</string>
+    <string name="t_text_content_offline_devices">Devices offline</string>
+    <string name="dialog_content_ota_update">The door lock is upgrading. Please wait...</string>
+    <string name="tip_content_ota_update_success">The door lock is Upgrade successful!</string>
+    <string name="tip_content_ota_update_failed">The door lock is Upgrade failed!</string>
 </resources>

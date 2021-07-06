@@ -156,7 +156,7 @@ public class DoorSensorAlignmentActivity extends BaseActivity {
 
     @Override
     public void doBusiness() {
-        if (mBleDeviceLocal.getConnectedType() != LocalState.DEVICE_CONNECT_TYPE_WIFI) {
+        if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_BLE) {
             // initBleListener();
             checkDoorSensorState();
         }
@@ -169,7 +169,7 @@ public class DoorSensorAlignmentActivity extends BaseActivity {
             return;
         }
         if (view.getId() == R.id.ivDoorMagneticEnable) {
-            if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI) {
+            if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI || mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI_BLE) {
                 if (mBleDeviceLocal.isOpenDoorSensor()) {
                     publishSetMagnetic(mBleDeviceLocal.getEsn(), BleCommandState.DOOR_CALIBRATION_STATE_CLOSE_SE);
                 } else {
@@ -268,7 +268,7 @@ public class DoorSensorAlignmentActivity extends BaseActivity {
                 // TODO: 2021/3/6 出错的情况
             }
         } else if (bleResultBean.getCMD() == CMD_LOCK_INFO) {
-            byte[] state = BleByteUtil.byteToBit(bleResultBean.getPayload()[4]);
+            byte[] state = BleByteUtil.byteToBit(bleResultBean.getPayload()[3]);
             byte doorSensorState = state[3];
             Timber.d("LockState 7~0: %1s", ConvertUtils.bytes2HexString(state));
             // 更新最新的门磁状态
@@ -338,16 +338,9 @@ public class DoorSensorAlignmentActivity extends BaseActivity {
         lockMessage.setMac(bleBean.getOKBLEDeviceImp().getMacAddress());
         EventBus.getDefault().post(lockMessage);
 
-        //App.getInstance().writeControlMsg(BleCommandFactory.checkLockBaseInfoCommand(pwd1, pwd3), bleBean.getOKBLEDeviceImp());
     }
 
-    //private Disposable mSetMagneticDisposable;
-
     public void publishSetMagnetic(String wifiID, @BleCommandState.DoorCalibrationState int mode) {
-       /* if (mMQttService == null) {
-            Timber.e("publishSetMagnetic mMQttService == null");
-            return;
-        }*/
         showLoading();
         LockMessage message = new LockMessage();
         message.setMqtt_topic(MQttConstant.getCallTopic(App.getInstance().getUserBean().getUid()));
@@ -357,41 +350,10 @@ public class DoorSensorAlignmentActivity extends BaseActivity {
         message.setMqtt_message_code(MQttConstant.SET_MAGNETIC);
         message.setMessageType(2);
         EventBus.getDefault().post(message);
-
-       /* toDisposable(mSetMagneticDisposable);
-        mSetMagneticDisposable = mMQttService.mqttPublish(MQttConstant.getCallTopic(App.getInstance().getUserBean().getUid()),
-                MqttCommandFactory.setMagnetic(wifiID, mode, BleCommandFactory.getPwd(
-                        ConvertUtils.hexString2Bytes(mBleDeviceLocal.getPwd1()),
-                        ConvertUtils.hexString2Bytes(mBleDeviceLocal.getPwd2()))))
-                .filter(mqttData -> mqttData.getFunc().equals(MQttConstant.SET_MAGNETIC))
-                .timeout(DEFAULT_TIMEOUT_SEC_VALUE, TimeUnit.SECONDS)
-                .subscribe(mqttData -> {
-                    toDisposable(mSetMagneticDisposable);
-                    processSetMagnetic(mqttData);
-                }, e -> {
-                    // TODO: 2021/3/3 错误处理
-                    // 超时或者其他错误
-                    dismissLoading();
-                    Timber.e(e);
-                });
-        mCompositeDisposable.add(mSetMagneticDisposable);*/
     }
 
     private void processSetMagnetic(WifiLockSetMagneticResponseBean bean) {
-      /*  if (TextUtils.isEmpty(mqttData.getFunc())) {
-            Timber.e("publishSetMagnetic mqttData.getFunc() is empty");
-            return;
-        }
-        if (mqttData.getFunc().equals(MQttConstant.SET_MAGNETIC)) {*/
         dismissLoading();
-            /*Timber.d("publishSetMagnetic 设置门磁: %1s", mqttData);
-            WifiLockSetMagneticResponseBean bean;
-            try {
-                bean = GsonUtils.fromJson(mqttData.getPayload(), WifiLockSetMagneticResponseBean.class);
-            } catch (JsonSyntaxException e) {
-                Timber.e(e);
-                return;
-            }*/
         if (bean == null) {
             Timber.e("publishSetMagnetic bean == null");
             return;
@@ -444,12 +406,13 @@ public class DoorSensorAlignmentActivity extends BaseActivity {
         req.setVolume(mBleDeviceLocal.isMute() ? 1 : 0);
         req.setAmMode(mBleDeviceLocal.isAutoLock() ? 0 : 1);
         req.setDuress(mBleDeviceLocal.isDuress() ? 0 : 1);
-        req.setDoorSensor(mBleDeviceLocal.getDoorSensor());
+        req.setMagneticStatus(mBleDeviceLocal.getDoorSensor());
+        req.setDoorSensor(mBleDeviceLocal.isOpenDoorSensor()?1:0);
         req.setElecFence(mBleDeviceLocal.isOpenElectricFence() ? 0 : 1);
         req.setAutoLockTime(mBleDeviceLocal.getSetAutoLockTime());
         req.setElecFenceTime(mBleDeviceLocal.getSetElectricFenceTime());
         req.setElecFenceSensitivity(mBleDeviceLocal.getSetElectricFenceSensitivity());
-
+        Timber.e("std442222445:%s", req.toString());
         Observable<UpdateLockInfoRsp> observable = HttpRequest.getInstance().updateLockInfo(token, req);
         ObservableDecorator.decorate(observable).safeSubscribe(new Observer<UpdateLockInfoRsp>() {
             @Override

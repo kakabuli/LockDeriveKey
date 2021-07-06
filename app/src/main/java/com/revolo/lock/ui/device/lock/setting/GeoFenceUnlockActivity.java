@@ -41,6 +41,7 @@ import com.revolo.lock.ble.bean.BleResultBean;
 import com.revolo.lock.manager.LockMessage;
 import com.revolo.lock.manager.LockMessageCode;
 import com.revolo.lock.manager.LockMessageRes;
+import com.revolo.lock.manager.ble.BleManager;
 import com.revolo.lock.mqtt.MQttConstant;
 import com.revolo.lock.mqtt.MqttCommandFactory;
 import com.revolo.lock.mqtt.bean.publishbean.attrparams.ElecFenceSensitivityParams;
@@ -101,7 +102,7 @@ public class GeoFenceUnlockActivity extends BaseActivity implements OnMapReadyCa
         mTvIntroduceTitle = findViewById(R.id.tvIntroduceTitle);
         mSeekBarSensitivity = findViewById(R.id.seekBarSensitivity);
         mConstraintLayout = findViewById(R.id.constraintLayout);
-        initLoading("Setting...");
+        initLoading(getString(R.string.t_load_content_setting));
         mSeekBarTime.setMax(230);
         mSeekBarTime.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
@@ -244,6 +245,11 @@ public class GeoFenceUnlockActivity extends BaseActivity implements OnMapReadyCa
                 mBleDeviceLocal.setOpenElectricFence(false);
                 AppDatabase.getInstance(this).bleDeviceDao().update(mBleDeviceLocal);
                 mIvGeoFenceUnlockEnable.setImageResource(mBleDeviceLocal.isOpenElectricFence() ? R.drawable.ic_icon_switch_open : R.drawable.ic_icon_switch_close);
+                // 更新电子围栏状态
+                if (null != App.getInstance().getLockGeoFenceService()) {
+                    App.getInstance().getLockGeoFenceService().clearBleDevice(mBleDeviceLocal.getEsn());
+                }
+
 //                if (mBleDeviceLocal.isOpenElectricFence()) {
 //                    mConstraintLayout.setVisibility(View.VISIBLE);
 //                } else {
@@ -430,7 +436,7 @@ public class GeoFenceUnlockActivity extends BaseActivity implements OnMapReadyCa
             seekBar.setProgress(100);
         }
         if (isSendCommand) {
-            if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI) {
+            if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI || mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI_BLE) {
                 publishSensitivity(mBleDeviceLocal.getEsn(), mSensitivity);
             } else {
                 setSensitivityFromBle();
@@ -586,5 +592,4 @@ public class GeoFenceUnlockActivity extends BaseActivity implements OnMapReadyCa
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
     }
-
 }

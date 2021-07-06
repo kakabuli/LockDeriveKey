@@ -85,6 +85,9 @@ public class BleDeviceLocal implements Parcelable {
     @ColumnInfo(name = "d_is_detection_lock", defaultValue = "false")
     private boolean isDetectionLock;                                // 是否检测门锁
 
+    @ColumnInfo(name = "timeZone")    //时区
+    private String timeZone;
+
     @ColumnInfo(name = "d_set_electric_fence_time")
     private int setElectricFenceTime;                               // 设置电子围栏时间
 
@@ -230,6 +233,7 @@ public class BleDeviceLocal implements Parcelable {
         return doorSensor;
     }
 
+    //门磁的状态
     public void setDoorSensor(@LocalState.DoorSensor int doorSensor) {
         this.doorSensor = doorSensor;
     }
@@ -284,6 +288,14 @@ public class BleDeviceLocal implements Parcelable {
         isDetectionLock = detectionLock;
     }
 
+    public String getTimeZone() {
+        return timeZone;
+    }
+
+    public void setTimeZone(String timeZone) {
+        this.timeZone = timeZone;
+    }
+
     public int getSetElectricFenceTime() {
         return setElectricFenceTime;
     }
@@ -312,9 +324,10 @@ public class BleDeviceLocal implements Parcelable {
         return isOpenDoorSensor;
     }
 
+    //是否开启门磁
     public void setOpenDoorSensor(boolean openDoorSensor) {
         isOpenDoorSensor = openDoorSensor;
-        setDoorSensor(openDoorSensor?LocalState.DOOR_SENSOR_OPEN:LocalState.DOOR_SENSOR_CLOSE);
+        //setDoorSensor(openDoorSensor?LocalState.DOOR_SENSOR_OPEN:LocalState.DOOR_SENSOR_CLOSE);
     }
 
     public boolean isMute() {
@@ -408,6 +421,7 @@ public class BleDeviceLocal implements Parcelable {
         dest.writeInt(this.lockPower);
         dest.writeInt(this.setAutoLockTime);
         dest.writeByte(this.isDetectionLock ? (byte) 1 : (byte) 0);
+        dest.writeString(this.timeZone);
         dest.writeInt(this.setElectricFenceTime);
         dest.writeInt(this.setElectricFenceSensitivity);
         dest.writeByte(this.isAutoLock ? (byte) 0 : (byte) 1);
@@ -442,6 +456,7 @@ public class BleDeviceLocal implements Parcelable {
         this.lockPower = source.readInt();
         this.setAutoLockTime = source.readInt();
         this.isDetectionLock = source.readByte() != 0;
+        this.timeZone = source.readString();
         this.setElectricFenceTime = source.readInt();
         this.setElectricFenceSensitivity = source.readInt();
         this.isAutoLock = source.readByte() != 0;
@@ -479,6 +494,7 @@ public class BleDeviceLocal implements Parcelable {
         this.lockPower = in.readInt();
         this.setAutoLockTime = in.readInt();
         this.isDetectionLock = in.readByte() != 0;
+        this.timeZone = in.readString();
         this.setElectricFenceTime = in.readInt();
         this.setElectricFenceSensitivity = in.readInt();
         this.isAutoLock = in.readByte() != 0;
@@ -527,6 +543,7 @@ public class BleDeviceLocal implements Parcelable {
                 ", lockPower=" + lockPower +
                 ", setAutoLockTime=" + setAutoLockTime +
                 ", isDetectionLock=" + isDetectionLock +
+                ", timeZone=" + timeZone +
                 ", setElectricFenceTime=" + setElectricFenceTime +
                 ", setElectricFenceSensitivity=" + setElectricFenceSensitivity +
                 ", isAutoLock=" + isAutoLock +

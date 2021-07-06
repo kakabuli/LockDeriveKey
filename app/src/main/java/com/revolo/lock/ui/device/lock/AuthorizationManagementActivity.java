@@ -78,13 +78,14 @@ public class AuthorizationManagementActivity extends BaseActivity {
         mIvGuest = findViewById(R.id.ivGuest);
         mIvFamily = findViewById(R.id.ivFamily);
         applyDebouncingClickListener(findViewById(R.id.clFamily), findViewById(R.id.clGuest), findViewById(R.id.btnShare));
-        initLoading("Creating...");
+        initLoading(getString(R.string.t_load_content_creating));
     }
 
     @Override
     public void doBusiness() {
 
     }
+
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0) {
@@ -192,8 +193,8 @@ public class AuthorizationManagementActivity extends BaseActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if(requestCode == SHARE_REQ) {
-            if(resultCode ==  RESULT_OK) {
+        if (requestCode == SHARE_REQ) {
+            if (resultCode == RESULT_OK) {
                 ActivityUtils.finishActivity(AddNewShareUserInputNameActivity.class);
                 ActivityUtils.finishActivity(UserManagementActivity.class);
                 ActivityUtils.finishActivity(DeviceDetailActivity.class);

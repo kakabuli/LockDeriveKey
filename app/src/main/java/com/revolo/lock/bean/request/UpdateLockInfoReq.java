@@ -17,6 +17,7 @@ public class UpdateLockInfoReq {
     private Integer amMode;
     private Integer duress;
     private Integer doorSensor;
+    private Integer magneticStatus;
     private Integer elecFence;
     private Integer autoLockTime;
     private Integer elecFenceTime;
@@ -86,6 +87,14 @@ public class UpdateLockInfoReq {
         this.doorSensor = doorSensor;
     }
 
+    public Integer getMagneticStatus() {
+        return magneticStatus;
+    }
+
+    public void setMagneticStatus(Integer magneticStatus) {
+        this.magneticStatus = magneticStatus;
+    }
+
     public Integer getElecFence() {
         return elecFence;
     }
@@ -116,5 +125,24 @@ public class UpdateLockInfoReq {
 
     public void setElecFenceSensitivity(Integer elecFenceSensitivity) {
         this.elecFenceSensitivity = elecFenceSensitivity;
+    }
+
+    @Override
+    public String toString() {
+        return "UpdateLockInfoReq{" +
+                "sn='" + sn + '\'' +
+                ", wifiName='" + wifiName + '\'' +
+                ", safeMode=" + safeMode +
+                ", language='" + language + '\'' +
+                ", volume=" + volume +
+                ", amMode=" + amMode +
+                ", duress=" + duress +
+                ", doorSensor=" + doorSensor +
+                ", magneticStatus=" + magneticStatus +
+                ", elecFence=" + elecFence +
+                ", autoLockTime=" + autoLockTime +
+                ", elecFenceTime=" + elecFenceTime +
+                ", elecFenceSensitivity=" + elecFenceSensitivity +
+                '}';
     }
 }

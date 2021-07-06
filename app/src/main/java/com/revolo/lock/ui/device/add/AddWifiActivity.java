@@ -93,7 +93,7 @@ public class AddWifiActivity extends BaseActivity {
         });
         applyDebouncingClickListener(findViewById(R.id.btnNext), findViewById(R.id.ivDropdown),
                 findViewById(R.id.ivEye), findViewById(R.id.tvSkip));
-        initLoading("Loading...");
+        initLoading(getString(R.string.t_load_content_loading));
 
         mDefaultName = getIntent().getStringExtra("WiFiName");
         if (!TextUtils.isEmpty(mDefaultName)) mEtWifiName.setText(mDefaultName);
@@ -258,7 +258,7 @@ public class AddWifiActivity extends BaseActivity {
         public void onFail(int code, String errMsg) {
             Timber.e("openControlNotify onFail errMsg: %1s", errMsg);
             // TODO 暂定
-            ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show("Please turn on Bluetooth");
+            ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show("WiFi Setting Failed");
             finish();
         }
 

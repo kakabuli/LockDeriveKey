@@ -140,7 +140,7 @@ public class MqttCommandFactory {
                 new WifiLockCloseWifiPublishBean.ParamsBean(),
                 (System.currentTimeMillis() / 1000) + "");
         String base64Json = getEncryptString(pwd, wifiLockCloseWifiPublishBean);
-        return sendEncryptData(messageId, wifiID, base64Json);
+        return sendEncryptData(messageId, wifiID, base64Json, 0);
     }
 
     /**
@@ -343,7 +343,7 @@ public class MqttCommandFactory {
                 bean,
                 (System.currentTimeMillis() / 1000) + "");
         String base64Json = getEncryptString(pwd, wifiLockSetLockAttrPublishBean);
-        return sendEncryptData(messageId, wifiID, base64Json);
+        return sendEncryptData(messageId, wifiID, base64Json, 0);
 
     }
 

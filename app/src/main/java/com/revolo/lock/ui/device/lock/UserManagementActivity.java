@@ -90,8 +90,9 @@ public class UserManagementActivity extends BaseActivity {
         mRvSharedUser.setLayoutManager(new LinearLayoutManager(this));
         mRvSharedUser.setAdapter(mSharedUserListAdapter);
         mSharedUserListAdapter.setEmptyView(R.layout.empty_view_share_user_list);
-        initLoading("Loading...");
+        initLoading(getString(R.string.t_load_content_loading));
     }
+
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0) {
@@ -100,6 +101,7 @@ public class UserManagementActivity extends BaseActivity {
         }
         return super.onKeyDown(keyCode, event);
     }
+
     @Override
     public void doBusiness() {
         mLinearLayout.setVisibility(View.GONE);

@@ -88,6 +88,7 @@ public class WifiConnectActivity extends BaseActivity {
         mHandler.sendEmptyMessageDelayed(MSG_ADD_WIFI_OUT_TIME, 30000);
 
     }
+
     @Override
     protected void onDestroy() {
         super.onDestroy();
@@ -109,6 +110,10 @@ public class WifiConnectActivity extends BaseActivity {
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0) {
+//            finish();
+//            ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show("WiFi Setting...!Please Not Exit!");
+            mBleDeviceLocal.setConnectedWifiName("");
+            mBleDeviceLocal.setConnectedType(LocalState.DEVICE_CONNECT_TYPE_BLE);
             finish();
             return true;
         }
@@ -181,9 +186,6 @@ public class WifiConnectActivity extends BaseActivity {
      * 更新锁服务器存储的数据
      */
     private void updateLockInfoToService() {
-        if (null == this) {
-            return;
-        }
         if (App.getInstance().getUserBean() == null) {
             Timber.e("updateLockInfoToService App.getInstance().getUserBean() == null");
             return;
@@ -208,12 +210,13 @@ public class WifiConnectActivity extends BaseActivity {
         req.setVolume(mBleDeviceLocal.isMute() ? 1 : 0);
         req.setAmMode(mBleDeviceLocal.isAutoLock() ? 0 : 1);
         req.setDuress(mBleDeviceLocal.isDuress() ? 0 : 1);
-        req.setDoorSensor(mBleDeviceLocal.getDoorSensor());
+        req.setMagneticStatus(mBleDeviceLocal.getDoorSensor());
+        req.setDoorSensor(mBleDeviceLocal.isOpenDoorSensor()?1:0);
         req.setElecFence(mBleDeviceLocal.isOpenElectricFence() ? 0 : 1);
         req.setAutoLockTime(mBleDeviceLocal.getSetAutoLockTime());
         req.setElecFenceTime(mBleDeviceLocal.getSetElectricFenceTime());
         req.setElecFenceSensitivity(mBleDeviceLocal.getSetElectricFenceSensitivity());
-
+        Timber.e("std44445:%s", req.toString());
         Observable<UpdateLockInfoRsp> observable = HttpRequest.getInstance().updateLockInfo(token, req);
         ObservableDecorator.decorate(observable).safeSubscribe(new Observer<UpdateLockInfoRsp>() {
             @Override
@@ -228,7 +231,7 @@ public class WifiConnectActivity extends BaseActivity {
                 if (code.equals("200")) {
                     String msg = updateLockInfoRsp.getMsg();
                     Timber.e("updateLockInfoToService code: %1s, msg: %2s", code, msg);
-                    if (!TextUtils.isEmpty(msg)) ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(msg);
+//                    if (!TextUtils.isEmpty(msg)) ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(msg);
                     mHandler.removeMessages(MSG_ADD_WIFI_OUT_TIME);
                     runOnUiThread(() -> new Handler(Looper.getMainLooper()).postDelayed(() -> {
                         startActivity(new Intent(WifiConnectActivity.this, AddWifiSucActivity.class));
@@ -301,7 +304,7 @@ public class WifiConnectActivity extends BaseActivity {
         runOnUiThread(() -> mWifiCircleProgress.setValue(value));
     }
 
-    private final Handler mHandler = new Handler(Looper.getMainLooper()){
+    private final Handler mHandler = new Handler(Looper.getMainLooper()) {
         @Override
         public void handleMessage(@NonNull Message msg) {
             if (msg.what == MSG_ADD_WIFI_OUT_TIME) {

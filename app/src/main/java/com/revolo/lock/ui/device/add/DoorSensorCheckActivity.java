@@ -152,7 +152,7 @@ public class DoorSensorCheckActivity extends BaseActivity {
         mTvStep = findViewById(R.id.tvStep);
         applyDebouncingClickListener(mBtnNext, mTvSkip);
 
-        initLoading("Loading...");
+        initLoading(getString(R.string.t_load_content_loading));
     }
 
     @Override
@@ -256,14 +256,15 @@ public class DoorSensorCheckActivity extends BaseActivity {
             finish();
         }, 50);*/
 //        }
-        mBleDeviceLocal.setOpenDoorSensor(true);
-        AppDatabase.getInstance(this).bleDeviceDao().update(mBleDeviceLocal);
+      /*  mBleDeviceLocal.setOpenDoorSensor(true);
+        AppDatabase.getInstance(this).bleDeviceDao().update(mBleDeviceLocal);*/
         new Handler(Looper.getMainLooper()).postDelayed(() -> {
             Intent intent = new Intent(DoorSensorCheckActivity.this, AddWifiActivity.class);
             startActivity(intent);
             finish();
         }, 50);
     }
+
     /**
      * 更新锁服务器存储的数据
      */
@@ -295,12 +296,14 @@ public class DoorSensorCheckActivity extends BaseActivity {
         req.setVolume(mBleDeviceLocal.isMute() ? 1 : 0);
         req.setAmMode(mBleDeviceLocal.isAutoLock() ? 0 : 1);
         req.setDuress(mBleDeviceLocal.isDuress() ? 0 : 1);
-        req.setDoorSensor(mBleDeviceLocal.getDoorSensor());
+        req.setMagneticStatus(mBleDeviceLocal.getDoorSensor());
+        req.setDoorSensor(mBleDeviceLocal.isOpenDoorSensor() ? 1 : 0);
         req.setElecFence(mBleDeviceLocal.isOpenElectricFence() ? 0 : 1);
         req.setAutoLockTime(mBleDeviceLocal.getSetAutoLockTime());
         req.setElecFenceTime(mBleDeviceLocal.getSetElectricFenceTime());
         req.setElecFenceSensitivity(mBleDeviceLocal.getSetElectricFenceSensitivity());
-
+        Timber.e("std48900444:%s", mBleDeviceLocal.toString());
+        Timber.e("std489004445:%s", req.toString());
         Observable<UpdateLockInfoRsp> observable = HttpRequest.getInstance().updateLockInfo(token, req);
         ObservableDecorator.decorate(observable).safeSubscribe(new Observer<UpdateLockInfoRsp>() {
             @Override
@@ -315,7 +318,7 @@ public class DoorSensorCheckActivity extends BaseActivity {
                 if (code.equals("200")) {
                     String msg = updateLockInfoRsp.getMsg();
                     Timber.e("updateLockInfoToService code: %1s, msg: %2s", code, msg);
-                    if (!TextUtils.isEmpty(msg)) ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(msg);
+//                    if (!TextUtils.isEmpty(msg)) ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(msg);
 
                 }
             }
@@ -477,9 +480,10 @@ public class DoorSensorCheckActivity extends BaseActivity {
         if (bean.getParams().getMode() == BleCommandState.DOOR_CALIBRATION_STATE_START_SE) {
             mDoorState = DOOR_SUC;
         }
+        refreshCurrentUI();
         //更新到服务器
         updateLockInfoToService();
-        refreshCurrentUI();
+
     }
 
     /*--------------------------------- 蓝牙 -----------------------------------*/
@@ -534,9 +538,9 @@ public class DoorSensorCheckActivity extends BaseActivity {
                 if (mCalibrationState == BleCommandState.DOOR_CALIBRATION_STATE_START_SE) {
                     mDoorState = DOOR_SUC;
                 }
+                refreshCurrentUI();
                 //更新到服务器
                 updateLockInfoToService();
-                refreshCurrentUI();
             } else {
                 gotoFailAct();
             }
@@ -556,6 +560,7 @@ public class DoorSensorCheckActivity extends BaseActivity {
     private void gotoFailAct() {
         mDoorState = DOOR_FAIL;
         Intent intent = new Intent(this, DoorCheckFailActivity.class);
+        intent.putExtra(Constant.IS_GO_TO_ADD_WIFI, isGoToAddWifi);
         startActivity(intent);
         finish();
     }

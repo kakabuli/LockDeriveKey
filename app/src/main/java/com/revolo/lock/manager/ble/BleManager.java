@@ -11,7 +11,6 @@ import com.a1anwang.okble.client.scan.BLEScanResult;
 import com.a1anwang.okble.client.scan.DeviceScanCallBack;
 import com.a1anwang.okble.client.scan.OKBLEScanManager;
 import com.blankj.utilcode.util.ConvertUtils;
-import com.blankj.utilcode.util.TimeUtils;
 import com.revolo.lock.App;
 import com.revolo.lock.ble.BleByteUtil;
 import com.revolo.lock.ble.BleCommandFactory;
@@ -19,6 +18,7 @@ import com.revolo.lock.ble.OnBleDeviceListener;
 import com.revolo.lock.ble.bean.BleBean;
 import com.revolo.lock.manager.LockMessageReplyErrCode;
 import com.revolo.lock.manager.LockMessageRes;
+import com.revolo.lock.util.ZoneUtil;
 
 import org.greenrobot.eventbus.EventBus;
 import org.jetbrains.annotations.NotNull;
@@ -69,8 +69,18 @@ public class BleManager {
 
     /*-------------------------------- 蓝牙搜索 end --------------------------------*/
     public void connectDevice(String sn, BLEScanResult bleScanResult, BluetoothDevice device, byte[] pwd1, byte[] pwd2, boolean isAppPair) {
-        OKBLEDeviceImp deviceImp = null;
         String mac = "";
+        if (null == bleScanResult && null != device) {
+            mac = device.getAddress().toUpperCase();
+        } else {
+            mac = bleScanResult.getMacAddress().toUpperCase();
+        }
+        if (!checkConnectedBle(mac)) {
+            Timber.e("当前设备设备正在连接或是已连接：%s", mac);
+            return;
+        }
+
+        OKBLEDeviceImp deviceImp = null;
         if (null == bleScanResult && null != device) {
             Timber.e("connectDevice: %1s", "device:" + device.getAddress());
             deviceImp = new OKBLEDeviceImp(App.getInstance().getApplicationContext());
@@ -98,7 +108,7 @@ public class BleManager {
         if (addConnectedBleBean(bleBean)) {
             // 自动重连
             bleBean.setBleConning(1);
-            deviceImp.connect(true);
+            deviceImp.connect(false);
         }
     }
 
@@ -125,6 +135,25 @@ public class BleManager {
         mConnectedBleBeanList.add(bleBean);
         return true;
     }
+
+    private boolean checkConnectedBle(String mac) {
+        for (BleBean conDe : mConnectedBleBeanList) {
+            if (conDe.getMac().equals(mac)) {
+                //重复设备  未连接或是断开中  就连接
+                if (conDe.getBleConning() == 0 || conDe.getBleConning() == 3) {
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+        }
+        if (mConnectedBleBeanList.size() == DEFAULT_CONNECTED_CAPACITY) {
+            return false;
+        }
+        return true;
+    }
+
+
         /*if (mConnectedBleBeanList.size() == DEFAULT_CONNECTED_CAPACITY) {
 
 
@@ -147,10 +176,10 @@ public class BleManager {
         if (mConnectedBleBeanList.isEmpty()) {
             return;
         }
-        if(null==mConnectedBleBeanList){
+        if (null == mConnectedBleBeanList) {
             return;
         }
-        for (int i=0;i< mConnectedBleBeanList.size();i++) {
+        for (int i = 0; i < mConnectedBleBeanList.size(); i++) {
             if (mConnectedBleBeanList.get(i).getEsn().equals(bean.getEsn())) {
                 mConnectedBleBeanList.remove(i);
             }
@@ -184,7 +213,7 @@ public class BleManager {
      */
     public void disConnect() {
         if (null != mConnectedBleBeanList) {
-            for (int i=0;i<mConnectedBleBeanList.size();i++) {
+            for (int i = 0; i < mConnectedBleBeanList.size(); i++) {
                 if (null != mConnectedBleBeanList.get(i).getOKBLEDeviceImp()) {
                     removeConnectedBleBeanAndDisconnect(mConnectedBleBeanList.get(i));
                 }
@@ -195,7 +224,7 @@ public class BleManager {
 
     public void removeBleConnected() {
         if (null != mConnectedBleBeanList) {
-            for (int i=0;i<mConnectedBleBeanList.size();i++) {
+            for (int i = 0; i < mConnectedBleBeanList.size(); i++) {
                 if (null != mConnectedBleBeanList.get(i).getOKBLEDeviceImp()) {
                     mConnectedBleBeanList.get(i).getOKBLEDeviceImp().disConnect(false);
                     Timber.d("removeBleConnected device: %1s", mConnectedBleBeanList.size() + "");
@@ -382,7 +411,7 @@ public class BleManager {
             getPwd3(BleCommandFactory.ackCommand(BleByteUtil.byteToInt(value[1]), (byte) 0x00, cmd), decryptPayload, bleBean);
             bleBean.setAuth(false);
             // 鉴权成功后，同步当前时间
-            syNowTime(bleBean);
+            // syNowTime(bleBean);
         }
     }
 
@@ -439,7 +468,7 @@ public class BleManager {
 
     private void syNowTime(@NotNull BleBean bleBean) {
         new Handler(Looper.getMainLooper()).postDelayed(() -> {
-            long nowTime = TimeUtils.getNowMills() / 1000;
+            long nowTime = ZoneUtil.getTime() / 1000;
             writeControlMsg(BleCommandFactory
                     .syLockTime(nowTime, bleBean.getPwd1(), bleBean.getPwd3()), bleBean.getOKBLEDeviceImp());
         }, 20);

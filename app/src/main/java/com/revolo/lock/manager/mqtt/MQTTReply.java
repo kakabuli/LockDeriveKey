@@ -32,7 +32,6 @@ import com.revolo.lock.room.entity.BleDeviceLocal;
 import org.greenrobot.eventbus.EventBus;
 
 import java.util.List;
-import java.util.Timer;
 
 import timber.log.Timber;
 
@@ -243,7 +242,9 @@ public class MQTTReply {
             if (null != mqttDataLinstener) {
                 mqttDataLinstener.onOperationCallback(LockMessageCode.MSG_LOCK_MESSAGE_WF_EVEN, bean);
             }
+            updateLockState(bean);
             postMessage(LockMessageCode.MSG_LOCK_MESSAGE_CODE_SUCCESS, LockMessageCode.MSG_LOCK_MESSAGE_WF_EVEN, bean);
+
         } else if (MQttConstant.RECORD.equals(mqttData.getFunc())) {
             // 记录
             postMessage(LockMessageCode.MSG_LOCK_MESSAGE_CODE_SUCCESS, LockMessageCode.MSG_LOCK_MESSAGE_RECORD, null);
@@ -257,6 +258,48 @@ public class MQTTReply {
         messageRes.setMessageCode(messageCode);
         messageRes.setWifiLockBaseResponseBean(bean);
         EventBus.getDefault().post(messageRes);
+    }
+
+    private void updateLockState(WifiLockOperationEventBean bean) {
+        WifiLockOperationEventBean.EventparamsBean eventparams = bean.getEventparams();
+        String wfId = bean.getWfId();
+        List<BleDeviceLocal> deviceLists = App.getInstance().getDeviceLists();
+        for (BleDeviceLocal bleDeviceLocal : deviceLists) {
+            if (bleDeviceLocal.getEsn().equals(wfId) && eventparams != null) {
+                if (eventparams.getOperatingMode() == 1) {
+                    bleDeviceLocal.setLockState(LocalState.LOCK_STATE_PRIVATE);
+                }
+                if (bean.getEventtype().equals("wifiState")) {
+                    int state = bean.getState();
+                    switch (bleDeviceLocal.getConnectedType()) {
+                        case LocalState.DEVICE_CONNECT_TYPE_BLE: // 之前是蓝牙
+                            if (state == 1) {
+                                bleDeviceLocal.setConnectedType(LocalState.DEVICE_CONNECT_TYPE_WIFI_BLE);
+                            }
+                            break;
+                        case LocalState.DEVICE_CONNECT_TYPE_DIS: // 之前是断线
+                            if (state == 1) {
+                                bleDeviceLocal.setConnectedType(LocalState.DEVICE_CONNECT_TYPE_WIFI);
+                            }
+                            break;
+                        case LocalState.DEVICE_CONNECT_TYPE_WIFI: // 之前是wifi
+                            if (state == 0) {
+                                bleDeviceLocal.setConnectedType(LocalState.DEVICE_CONNECT_TYPE_DIS);
+                            }
+                            break;
+                        case LocalState.DEVICE_CONNECT_TYPE_WIFI_BLE: //之前是wifi ble双链接
+                            if (state == 0) {
+                                bleDeviceLocal.setConnectedType(LocalState.DEVICE_CONNECT_TYPE_BLE);
+                            }
+                            break;
+                    }
+                } else if (bean.getEventtype().equals("action")) {
+                    bleDeviceLocal.setMute(eventparams.getVolume() == 1);
+                    bleDeviceLocal.setOpenDoorSensor(eventparams.getDoorSensor() == 1);
+                    bleDeviceLocal.setDuress(eventparams.getDuress() == 1);
+                }
+            }
+        }
     }
 
     /**
@@ -273,7 +316,9 @@ public class MQTTReply {
 
         if (!TextUtils.isEmpty(wifiListBean.getLockNickname()))
             bleDeviceLocal.setName(wifiListBean.getLockNickname());
-
+        //门磁状态
+        bleDeviceLocal.setDoorSensor(wifiListBean.getMagneticStatus());
+        //启用门磁
         bleDeviceLocal.setOpenDoorSensor(wifiListBean.getDoorSensor() == 1);
 
 //        bleDeviceLocal.setDoNotDisturbMode(wifiListBean.get);
@@ -300,9 +345,16 @@ public class MQTTReply {
             }
             //     bleDeviceLocal.setLockState(wifiListBean.getOpenStatus());
         }
+
+        if (wifiListBean.getOperatingMode() == 1) {
+            bleDeviceLocal.setLockState(LocalState.LOCK_STATE_PRIVATE);
+        }
         Timber.e("设备 更新后 lockState： %s", bleDeviceLocal.getLockState() + "");
 
         bleDeviceLocal.setMute(wifiListBean.getVolume() == 1);
+        if (null != wifiListBean.getTimeZone() && !"".equals(wifiListBean.getTimeZone()))
+            bleDeviceLocal.setTimeZone(wifiListBean.getTimeZone());
+        else Timber.e("set time zone=null");
 
 //        bleDeviceLocal.setSetElectricFenceSensitivity();
 //        bleDeviceLocal.setSetElectricFenceTime();
@@ -320,6 +372,8 @@ public class MQTTReply {
 
         if (!TextUtils.isEmpty(wifiListBean.getPassword2()))
             bleDeviceLocal.setPwd2(wifiListBean.getPassword2());
+
+        bleDeviceLocal.setDetectionLock(true);
 
         if (!TextUtils.isEmpty(wifiListBean.getPassword1()))
             bleDeviceLocal.setPwd1(wifiListBean.getPassword1());

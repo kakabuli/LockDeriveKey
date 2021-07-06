@@ -150,6 +150,7 @@ public class MQTTManager {
                     }
                     //连接成功之后订阅主题
                     mqttSubscribe(mqttClient, MQttConstant.getSubscribeTopic(userId), 2);
+
                     Log.e("topic:", MQttConstant.getSubscribeTopic(userId));
                     reconnectionNum = 10;
                 }
@@ -223,7 +224,7 @@ public class MQTTManager {
     }
 
     //订阅
-    private void mqttSubscribe(MqttAndroidClient mqttClient, String topic, int qos) {
+    public void mqttSubscribe(MqttAndroidClient mqttClient, String topic, int qos) {
         Timber.d("订阅    " + topic + "   " + (mqttClient != null));
         try {
             if (mqttClient != null) {
@@ -254,6 +255,8 @@ public class MQTTManager {
     public void mqttPublish(String topic, MqttMessage mqttMessage) throws MqttException {
         if (mqttClient != null && mqttClient.isConnected()) {
             LogUtils.e("发布mqtt消息 " + "topic: " + topic + "  mqttMessage: " + mqttMessage.toString() + "qos = " + mqttMessage.getQos());
+            LogUtils.e("发布mqtt消息 " + "topic: " + topic + "  mqttMessage: " + mqttMessage.toString());
+            LogUtils.e("发布mqtt消息 QOS:" + mqttMessage.getQos());
             mqttClient.publish(topic, mqttMessage, null, new IMqttActionListener() {
                 @Override
                 public void onSuccess(IMqttToken asyncActionToken) {

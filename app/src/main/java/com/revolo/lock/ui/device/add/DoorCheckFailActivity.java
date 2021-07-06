@@ -58,9 +58,11 @@ public class DoorCheckFailActivity extends BaseActivity {
     @Override
     public void onDebouncingClick(@NonNull View view) {
         if (view.getId() == R.id.btnCancel) {
-            Intent intent = new Intent(this, AddWifiActivity.class);
-            intent.putExtra(Constant.IS_GO_TO_ADD_WIFI, isGoToAddWifi);
-            startActivity(intent);
+            if (isGoToAddWifi) {
+                Intent intent = new Intent(this, AddWifiActivity.class);
+                intent.putExtra(Constant.IS_GO_TO_ADD_WIFI, isGoToAddWifi);
+                startActivity(intent);
+            }
             finish();
             return;
         }

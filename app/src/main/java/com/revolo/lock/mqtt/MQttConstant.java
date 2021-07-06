@@ -1,11 +1,6 @@
 package com.revolo.lock.mqtt;
 
 
-import com.blankj.utilcode.util.SPUtils;
-import com.revolo.lock.Constant;
-
-import static com.revolo.lock.Constant.REVOLO_SP;
-
 /**
  * 常量
  *
@@ -18,12 +13,12 @@ public class MQttConstant {
     private MQttConstant() {
     }
 
-    public static final String MQTT_ALPHA = "tcp://mqtt.irevolohome.com:1883";      // alpha 生产服务器
+    public static final String MQTT_ALPHA = "tcp://mqtt.irevolohome.com:28883";      // alpha 生产服务器
     public static final String MQTT_ABROAD_URL = "tcp://revolotest.sfeiya.com:1883";     // 海外服务器
     public static final String MQTT_TEST_URL = "tcp://internal.irevolo.com:1883";   // 国内测试服务器
     public static final String MQTT_CHANGSHA_TEST_URL_248 = "tcp://192.168.118.248:1883";
     public static final String MQTT_CHANGSHA_TEST_URL_249 = "tcp://192.168.118.249:1883";
-    public static final String MQTT_BASE_URL = MQTT_CHANGSHA_TEST_URL_248;
+    public static final String MQTT_BASE_URL = MQTT_CHANGSHA_TEST_URL_249;
     // test
 //    public static final String MQTT_BASE_URL = "".equals(SPUtils.getInstance("test").getString("test")) ? MQTT_CHANGSHA_TEST_URL_249 : MQTT_CHANGSHA_TEST_URL_248;
     public static final String MQTT_REQUEST_APP = "/request/app/func";
@@ -64,7 +59,6 @@ public class MQttConstant {
     public static final String PUBLISH_TO_SERVER = "/request/app/func";
     //发布给服务器中转网关消息的主题，/clientid/rpc/call
     public static String PUBLISH_TO_GATEWAY = "/rpc/call";
-    public static final String PUBLISH_GET_RANDOM_CODE_TOPIC = "orangeiot/sn/encreport";
 
     //==================================revolo============================
 

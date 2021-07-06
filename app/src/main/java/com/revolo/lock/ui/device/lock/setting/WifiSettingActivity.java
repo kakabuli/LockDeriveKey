@@ -85,7 +85,7 @@ public class WifiSettingActivity extends BaseActivity {
         mIvWifiEnable = findViewById(R.id.ivWifiEnable);
         mTvWifiName = findViewById(R.id.tvWifiName);
         mCltip = findViewById(R.id.clTip);
-        initLoading("Setting...");
+        initLoading(getString(R.string.t_load_content_setting));
         applyDebouncingClickListener(mIvWifiEnable, findViewById(R.id.tvSettingTitle), findViewById(R.id.clTip));
 
         mPowerLowDialog = new MessageDialog(this);
@@ -153,7 +153,7 @@ public class WifiSettingActivity extends BaseActivity {
         }
         if (view.getId() == R.id.clTip || view.getId() == R.id.tvSettingTitle) {
             //更改设备网络配置
-            if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI) {
+            if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI || mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI_BLE) {
                 //当前是WiFi连接，在WiFi下判断当前蓝牙是否连接
                 Timber.e("WiFi 模式下");
                 BleBean bean = App.getInstance().getUserBleBean(mBleDeviceLocal.getMac());
@@ -221,24 +221,6 @@ public class WifiSettingActivity extends BaseActivity {
                         .getPwd(ConvertUtils.hexString2Bytes(mBleDeviceLocal.getPwd1()),
                                 ConvertUtils.hexString2Bytes(mBleDeviceLocal.getPwd2()))));
         EventBus.getDefault().post(message);
-
-        /**toDisposable(mCloseWifiFromMQttDisposable);
-         mCloseWifiFromMQttDisposable = mMQttService.mqttPublish(MQttConstant.getCallTopic(App.getInstance().getUserBean().getUid()),
-         MqttCommandFactory.closeWifi(
-         mBleDeviceLocal.getEsn(),
-         BleCommandFactory
-         .getPwd(ConvertUtils.hexString2Bytes(mBleDeviceLocal.getPwd1()),
-         ConvertUtils.hexString2Bytes(mBleDeviceLocal.getPwd2()))))
-         .filter(mqttData -> mqttData.getFunc().equals(MQttConstant.CLOSE_WIFI))
-         .timeout(DEFAULT_TIMEOUT_SEC_VALUE, TimeUnit.SECONDS)
-         .subscribe(mqttData -> {
-         toDisposable(mCloseWifiFromMQttDisposable);
-         processCloseWifiFromMQtt(mqttData);
-         }, e -> {
-         dismissLoading();
-         Timber.e(e);
-         });
-         mCompositeDisposable.add(mCloseWifiFromMQttDisposable);*/
     }
 
     private void processCloseWifiFromMQtt(WifiLockCloseWifiResponseBean bean) {
@@ -486,7 +468,6 @@ public class WifiSettingActivity extends BaseActivity {
         runOnUiThread(() -> {
             mIvWifiEnable.setImageResource(R.drawable.ic_icon_switch_close);
             isWifiConnected = false;
-//            mCltip.setVisibility(View.GONE);
         });
     }
 

@@ -67,6 +67,7 @@ public class ShareDeviceActivity extends BaseActivity {
         super.onNewIntent(intent);
         getShareUserIntent(getIntent());
     }
+
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0) {
@@ -75,6 +76,7 @@ public class ShareDeviceActivity extends BaseActivity {
         }
         return super.onKeyDown(keyCode, event);
     }
+
     @Override
     public int bindLayout() {
         return R.layout.activity_share_device;
@@ -86,7 +88,7 @@ public class ShareDeviceActivity extends BaseActivity {
         tvShareUser = findViewById(R.id.tvShareUser);
         tvJoinTip = findViewById(R.id.tvJoinTip);
         applyDebouncingClickListener(findViewById(R.id.btnAccept));
-        initLoading("Accepting...");
+        initLoading(getString(R.string.t_load_content_accepting));
     }
 
     @Override
@@ -96,7 +98,7 @@ public class ShareDeviceActivity extends BaseActivity {
 
     @Override
     public void onDebouncingClick(@NonNull View view) {
-        if(view.getId() == R.id.btnAccept) {
+        if (view.getId() == R.id.btnAccept) {
             acceptShare();
         }
     }
@@ -107,28 +109,28 @@ public class ShareDeviceActivity extends BaseActivity {
     }
 
     private void acceptShare() {
-        if(!checkNetConnectFail()) {
+        if (!checkNetConnectFail()) {
             return;
         }
         // TODO: 2021/4/23 跳转到登录页面
-        if(App.getInstance() == null) {
+        if (App.getInstance() == null) {
             Timber.e("acceptShare App.getInstance() == null");
             ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_please_sign_in);
             return;
         }
-        if(App.getInstance().getUserBean() == null) {
+        if (App.getInstance().getUserBean() == null) {
             Timber.e("acceptShare App.getInstance().getUserBean() == null");
             ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_please_sign_in);
             return;
         }
         String uid = App.getInstance().getUserBean().getUid();
-        if(TextUtils.isEmpty(uid)) {
+        if (TextUtils.isEmpty(uid)) {
             Timber.e("acceptShare uid is empty");
             ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_please_sign_in);
             return;
         }
         String token = App.getInstance().getUserBean().getToken();
-        if(TextUtils.isEmpty(token)) {
+        if (TextUtils.isEmpty(token)) {
             Timber.e("acceptShare token is empty");
             ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_please_sign_in);
             return;
@@ -150,17 +152,17 @@ public class ShareDeviceActivity extends BaseActivity {
             public void onNext(@NonNull AcceptShareBeanRsp acceptShareBeanRsp) {
                 dismissLoading();
                 String code = acceptShareBeanRsp.getCode();
-                if(TextUtils.isEmpty(code)) {
+                if (TextUtils.isEmpty(code)) {
                     return;
                 }
-                if(!code.equals("200")) {
-                    if(code.equals("444")) {
+                if (!code.equals("200")) {
+                    if (code.equals("444")) {
                         App.getInstance().logout(true, ShareDeviceActivity.this);
                         return;
                     }
                     String msg = acceptShareBeanRsp.getMsg();
                     Timber.e("code: %1s, msg: %2s", code, msg);
-                    if(!TextUtils.isEmpty(msg)) {
+                    if (!TextUtils.isEmpty(msg)) {
                         ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(msg);
                     }
                     return;
@@ -184,7 +186,7 @@ public class ShareDeviceActivity extends BaseActivity {
 
     private void getShareUserIntent(Intent intent) {
         String action = intent.getAction();
-        if(Intent.ACTION_VIEW.equals(action)) {
+        if (Intent.ACTION_VIEW.equals(action)) {
             Uri data = getIntent().getData();
 
             if (data != null) {

@@ -31,6 +31,7 @@ import com.revolo.lock.ble.BleProtocolState;
 import com.revolo.lock.ble.bean.BleBean;
 import com.revolo.lock.ble.bean.BleResultBean;
 import com.revolo.lock.dialog.iosloading.CustomerLoadingDialog;
+import com.revolo.lock.manager.LockAppService;
 import com.revolo.lock.manager.LockMessage;
 import com.revolo.lock.manager.LockMessageCode;
 import com.revolo.lock.manager.LockMessageRes;
@@ -66,7 +67,6 @@ import static com.revolo.lock.manager.LockMessageCode.MSG_LOCK_MESSAGE_MQTT;
 
 public class DeviceFragment extends Fragment {
     private View root;
-    private DeviceViewModel mDeviceViewModel;
     private HomeLockListAdapter mHomeLockListAdapter;
     private ConstraintLayout mClNoDevice, mClHadDevice;
     private CustomerLoadingDialog mLoadingDialog;
@@ -74,16 +74,27 @@ public class DeviceFragment extends Fragment {
     private TitleBar titleBar;
     private BluetoothAdapter mBluetoothAdapter;
 
-    private BroadcastReceiver mReceiver = new BroadcastReceiver() {
+    private final BroadcastReceiver mReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             if (intent != null) {
-                boolean pingResult = intent.getBooleanExtra(PING_RESULT, true);
-                if (titleBar != null) {
-                    titleBar.setNetError(pingResult);
-                }
-                if (mHomeLockListAdapter != null){
-                    mHomeLockListAdapter.notifyDataSetChanged();
+                if (intent.getAction().equals(RECEIVE_ACTION_NETWORKS)) {
+                    boolean pingResult = intent.getBooleanExtra(PING_RESULT, true);
+                    if (titleBar != null) {
+                        titleBar.setNetError(pingResult);
+                    }
+                    if (mHomeLockListAdapter != null) {
+                        mHomeLockListAdapter.notifyDataSetChanged();
+                    }
+                } else if (intent.getAction().equals(Intent.ACTION_SCREEN_ON)) {
+                    // 屏幕打开了
+                    Timber.d("###########################   screen on   ###########################");
+                    if (titleBar != null) {
+                        titleBar.setNetError(true);
+                    }
+                    if (mHomeLockListAdapter != null) {
+                        mHomeLockListAdapter.notifyDataSetChanged();
+                    }
                 }
             }
         }
@@ -91,13 +102,10 @@ public class DeviceFragment extends Fragment {
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
-//        mDeviceViewModel =
-//                new ViewModelProvider(this).get(DeviceViewModel.class);
         if (null == root) {
             root = inflater.inflate(R.layout.fragment_device, container, false);
             mClNoDevice = root.findViewById(R.id.clNoDevice);
             mClHadDevice = root.findViewById(R.id.clHadDevice);
-//        mDeviceViewModel.getWifiListBeans().observe(getViewLifecycleOwner(), this::updateDataFromNet);
             // 无设备的时候控件UI
             ImageView ivAdd = root.findViewById(R.id.ivAdd);
             ivAdd.setOnClickListener(v -> startActivity(new Intent(getContext(), AddDeviceActivity.class)));
@@ -116,6 +124,7 @@ public class DeviceFragment extends Fragment {
                     }
                     @LocalState.LockState int connectedState = ((BleDeviceLocal) adapter.getItem(position)).getConnectedType();
                     if (LocalState.DEVICE_CONNECT_TYPE_DIS == connectedState) {
+                        ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_text_content_offline_devices);
                         return;
                     }
                     if (adapter.getItem(position) instanceof BleDeviceLocal) {
@@ -167,7 +176,6 @@ public class DeviceFragment extends Fragment {
             mRefreshLayout.setEnableLoadMore(false);
             mRefreshLayout.setRefreshHeader(new SmartClassicsHeaderView(getContext()));
             mRefreshLayout.setOnRefreshListener(refreshLayout -> {
-//            mDeviceViewModel.refreshGetAllBindDevicesFromMQTT();
                 refreshGetAllBindDevicesFromMQTT();
             });
             onRegisterEventBus();
@@ -179,8 +187,10 @@ public class DeviceFragment extends Fragment {
         if (titleBar != null) {
             titleBar.setNetError(Constant.pingResult);
         }
-
-        requireActivity().registerReceiver(mReceiver, new IntentFilter(RECEIVE_ACTION_NETWORKS));
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(RECEIVE_ACTION_NETWORKS);
+        intentFilter.addAction(Intent.ACTION_SCREEN_ON);
+        requireActivity().registerReceiver(mReceiver, intentFilter);
         return root;
     }
 
@@ -202,10 +212,6 @@ public class DeviceFragment extends Fragment {
         super.onResume();
         initBaseData();
         refreshGetAllBindDevicesFromMQTT();
-        /*initData(mBleDeviceLocals);
-        initSignalWeakDialog();
-        initWfEven();*/
-//        mDeviceViewModel.refreshGetAllBindDevicesFromMQTT();
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
@@ -218,24 +224,19 @@ public class DeviceFragment extends Fragment {
         if (lockMessage.getMessgaeType() == LockMessageCode.MSG_LOCK_MESSAGE_USER) {
             if (lockMessage.getResultCode() == LockMessageCode.MSG_LOCK_MESSAGE_CODE_SUCCESS) {
                 //数据正常
-                switch (lockMessage.getMessageCode()) {
-                    case LockMessageCode.MSG_LOCK_MESSAGE_UPDATE_DEVICE_STATE:
-                        //  mBleDeviceLocals = App.getInstance().getDeviceLists();
-                        updateData(App.getInstance().getDeviceLists());
-                        break;
+                if (lockMessage.getMessageCode() == LockMessageCode.MSG_LOCK_MESSAGE_UPDATE_DEVICE_STATE) {
+                    updateData(App.getInstance().getDeviceLists());
                 }
-            } else {
-                //数据异常
-            }
+            }  //数据异常
+
 
         } else if (lockMessage.getMessgaeType() == LockMessageCode.MSG_LOCK_MESSAGE_BLE) {
             //蓝牙消息
             if (lockMessage.getResultCode() == LockMessageCode.MSG_LOCK_MESSAGE_CODE_SUCCESS) {
                 //数据正常
                 processBleResult(lockMessage.getMac(), lockMessage.getBleResultBea());
-            } else {
-                //数据异常
-            }
+            }  //数据异常
+
 
         } else if (lockMessage.getMessgaeType() == MSG_LOCK_MESSAGE_MQTT) {
             //MQTT
@@ -252,16 +253,14 @@ public class DeviceFragment extends Fragment {
                         if (null != lockMessage.getWifiLockBaseResponseBean()) {
                             if (MQttConstant.SET_LOCK.equals(lockMessage.getWifiLockBaseResponseBean().getFunc())) {
                                 dismissLoading();
-                                // processSetLock((WifiLockDoorOptResponseBean) lockMessage.getWifiLockBaseResponseBean());
                             }
                         }
                         break;
                     case LockMessageCode.MSG_LOCK_MESSAGE_WF_EVEN:
                         dismissLoading();
-//                        updateData(App.getInstance().getDeviceLists());
                         WifiLockBaseResponseBean wifiLockBaseResponseBean = lockMessage.getWifiLockBaseResponseBean();
                         if (wifiLockBaseResponseBean != null) {
-                            updateLockState((WifiLockOperationEventBean) wifiLockBaseResponseBean);
+                            updateLockState();
                         }
                         break;
                     default:
@@ -271,45 +270,14 @@ public class DeviceFragment extends Fragment {
                 }
             } else {
                 //数据异常
-                switch (lockMessage.getResultCode()) {
-                    case LockMessageCode.MSG_LOCK_MESSAGE_SET_LOCK:
-                        //开关锁异常
-                        dismissLoading();
-//                    ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(doorOpt == LocalState.DOOR_STATE_OPEN ? "Locking Failed" : "Unlocking Failed");
-//                    if (mCount == 3) {
-//                        // 3次机会,超时失败开始连接蓝牙
-//                        mCount = 0;
-//                        mBleDeviceLocal = bleDeviceLocal;
-//                        if (getActivity() == null) return;
-//                        getActivity().runOnUiThread(() -> {
-//                            if (mSignalWeakDialog != null) {
-//                                mSignalWeakDialog.show();
-//                            }
-//                        });
-//                    }
-                        break;
+                if (lockMessage.getResultCode() == LockMessageCode.MSG_LOCK_MESSAGE_SET_LOCK) {//开关锁异常
+                    dismissLoading();
                 }
             }
-        } else {
-
         }
     }
 
-    private void updateLockState(WifiLockOperationEventBean wifiLockBaseResponseBean) {
-        WifiLockOperationEventBean.EventparamsBean eventparams = wifiLockBaseResponseBean.getEventparams();
-        String wfId = wifiLockBaseResponseBean.getWfId();
-        List<BleDeviceLocal> deviceLists = App.getInstance().getDeviceLists();
-        for (BleDeviceLocal bleDeviceLocal : deviceLists) {
-            if (bleDeviceLocal.getEsn().equals(wfId) && eventparams != null) {
-                if (eventparams.getOperatingMode() == 1) {
-                    bleDeviceLocal.setLockState(LocalState.LOCK_STATE_PRIVATE);
-                }
-                if (wifiLockBaseResponseBean.getEventtype().equals("wifiState")) {
-                    int state = wifiLockBaseResponseBean.getState();
-                    bleDeviceLocal.setConnectedType(state);
-                }
-            }
-        }
+    private void updateLockState() {
         mHomeLockListAdapter.notifyDataSetChanged();
     }
 

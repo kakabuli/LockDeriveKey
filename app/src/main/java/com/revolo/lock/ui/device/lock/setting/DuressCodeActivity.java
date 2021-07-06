@@ -1,9 +1,6 @@
 package com.revolo.lock.ui.device.lock.setting;
 
-import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
 import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.KeyEvent;
@@ -17,10 +14,8 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 
 import com.blankj.utilcode.util.ConvertUtils;
 import com.blankj.utilcode.util.RegexUtils;
-import com.blankj.utilcode.util.SPUtils;
 import com.blankj.utilcode.util.ToastUtils;
 import com.revolo.lock.App;
-import com.revolo.lock.Constant;
 import com.revolo.lock.LocalState;
 import com.revolo.lock.R;
 import com.revolo.lock.base.BaseActivity;
@@ -44,9 +39,6 @@ import com.revolo.lock.net.HttpRequest;
 import com.revolo.lock.net.ObservableDecorator;
 import com.revolo.lock.room.AppDatabase;
 import com.revolo.lock.room.entity.BleDeviceLocal;
-import com.revolo.lock.ui.device.add.AddWifiFailActivity;
-import com.revolo.lock.ui.device.add.AddWifiSucActivity;
-import com.revolo.lock.ui.device.add.WifiConnectActivity;
 
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.greenrobot.eventbus.EventBus;
@@ -59,7 +51,6 @@ import io.reactivex.Observer;
 import io.reactivex.disposables.Disposable;
 import timber.log.Timber;
 
-import static com.revolo.lock.Constant.REVOLO_SP;
 import static com.revolo.lock.ble.BleProtocolState.CMD_DURESS_PWD_SWITCH;
 
 /**
@@ -96,7 +87,7 @@ public class DuressCodeActivity extends BaseActivity {
         mClInputEmail = findViewById(R.id.clInputEmail);
         mIvDuressCodeEnable = findViewById(R.id.ivDuressCodeEnable);
         mEtEmail = findViewById(R.id.etEmail);
-        initLoading("Setting...");
+        initLoading(getString(R.string.t_load_content_setting));
         initUI();
         applyDebouncingClickListener(findViewById(R.id.ivDuressCodeEnable), findViewById(R.id.btnSave));
         onRegisterEventBus();
@@ -152,7 +143,7 @@ public class DuressCodeActivity extends BaseActivity {
     @Override
     public void onDebouncingClick(@NonNull View view) {
         if (view.getId() == R.id.ivDuressCodeEnable) {
-            if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI) {
+            if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI || mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI_BLE) {
                 publishOpenOrCloseDuressPwd(mBleDeviceLocal.getEsn());
             } else {
                 openOrCloseDuressPwd();
@@ -250,8 +241,6 @@ public class DuressCodeActivity extends BaseActivity {
         });
     }
 
-    //private Disposable mOpenOrCloseDuressPwdDisposable;
-
     private void publishOpenOrCloseDuressPwd(String wifiID) {
         /*if(mMQttService == null) {
             Timber.e("publishOpenOrCloseDuressPwd mMQttService == null");
@@ -265,50 +254,16 @@ public class DuressCodeActivity extends BaseActivity {
         LockMessage lockMessage = new LockMessage();
         lockMessage.setMessageType(2);
         lockMessage.setMqtt_message_code(MQttConstant.SET_LOCK_ATTR);
-        MqttMessage mqttMessage = MqttCommandFactory.setLockAttr(wifiID, duressParams,
+        lockMessage.setMqttMessage(MqttCommandFactory.setLockAttr(wifiID, duressParams,
                 BleCommandFactory.getPwd(
                         ConvertUtils.hexString2Bytes(mBleDeviceLocal.getPwd1()),
-                        ConvertUtils.hexString2Bytes(mBleDeviceLocal.getPwd2())));
-        mqttMessage.setQos(0);
-        lockMessage.setMqttMessage(mqttMessage);
+                        ConvertUtils.hexString2Bytes(mBleDeviceLocal.getPwd2()))));
         lockMessage.setMqtt_topic(MQttConstant.getCallTopic(App.getInstance().getUserBean().getUid()));
         EventBus.getDefault().post(lockMessage);
-
-       /* toDisposable(mOpenOrCloseDuressPwdDisposable);
-        mOpenOrCloseDuressPwdDisposable = mMQttService.mqttPublish(MQttConstant.getCallTopic(App.getInstance().getUserBean().getUid()),
-                MqttCommandFactory.setLockAttr(wifiID, duressParams,
-                        BleCommandFactory.getPwd(
-                                ConvertUtils.hexString2Bytes(mBleDeviceLocal.getPwd1()),
-                                ConvertUtils.hexString2Bytes(mBleDeviceLocal.getPwd2()))))
-                .filter(mqttData -> mqttData.getFunc().equals(MQttConstant.SET_LOCK_ATTR))
-                .timeout(DEFAULT_TIMEOUT_SEC_VALUE, TimeUnit.SECONDS)
-                .subscribe(mqttData -> {
-                    toDisposable(mOpenOrCloseDuressPwdDisposable);
-                    processOpenOrCloseDuressPwd(mqttData);
-                }, e -> {
-                    // TODO: 2021/3/3 错误处理
-                    // 超时或者其他错误
-                    dismissLoading();
-                    Timber.e(e);
-                });
-        mCompositeDisposable.add(mOpenOrCloseDuressPwdDisposable);*/
     }
 
     private void processOpenOrCloseDuressPwd(WifiLockSetLockAttrDuressRspBean bean) {
-        /*if(TextUtils.isEmpty(mqttData.getFunc())) {
-            Timber.e("publishOpenOrCloseDuressPwd mqttData.getFunc() is empty");
-            return;
-        }
-        if(mqttData.getFunc().equals(MQttConstant.SET_LOCK_ATTR)) {*/
         dismissLoading();
-          /*  Timber.d("publishOpenOrCloseDuressPwd 设置属性: %1s", mqttData);
-            WifiLockSetLockAttrDuressRspBean bean;
-            try {
-                bean = GsonUtils.fromJson(mqttData.getPayload(), WifiLockSetLockAttrDuressRspBean.class);
-            } catch (JsonSyntaxException e) {
-                Timber.e(e);
-                return;
-            }*/
         if (bean == null) {
             Timber.e("publishOpenOrCloseDuressPwd bean == null");
             return;
@@ -415,12 +370,13 @@ public class DuressCodeActivity extends BaseActivity {
         req.setVolume(mBleDeviceLocal.isMute() ? 1 : 0);
         req.setAmMode(mBleDeviceLocal.isAutoLock() ? 0 : 1);
         req.setDuress(mBleDeviceLocal.isDuress() ? 0 : 1);
-        req.setDoorSensor(mBleDeviceLocal.getDoorSensor());
+        req.setMagneticStatus(mBleDeviceLocal.getDoorSensor());
+        req.setDoorSensor(mBleDeviceLocal.isOpenDoorSensor()?1:0);
         req.setElecFence(mBleDeviceLocal.isOpenElectricFence() ? 0 : 1);
         req.setAutoLockTime(mBleDeviceLocal.getSetAutoLockTime());
         req.setElecFenceTime(mBleDeviceLocal.getSetElectricFenceTime());
         req.setElecFenceSensitivity(mBleDeviceLocal.getSetElectricFenceSensitivity());
-
+        Timber.e("std44444565:%s", req.toString());
         Observable<UpdateLockInfoRsp> observable = HttpRequest.getInstance().updateLockInfo(token, req);
         ObservableDecorator.decorate(observable).safeSubscribe(new Observer<UpdateLockInfoRsp>() {
             @Override

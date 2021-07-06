@@ -53,7 +53,7 @@ public class FeedbackActivity extends BaseActivity {
         useCommonTitleBar(getString(R.string.title_feedback));
         applyDebouncingClickListener(findViewById(R.id.btnSubmit));
 
-        initLoading("Feedback...");
+        initLoading(getString(R.string.t_load_content_feed_back));
 
         mFontCount = findViewById(R.id.tvCount);
         mEtFeed = findViewById(R.id.etFeedback);

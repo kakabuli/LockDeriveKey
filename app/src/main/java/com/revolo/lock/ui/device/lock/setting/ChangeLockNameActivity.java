@@ -62,7 +62,7 @@ public class ChangeLockNameActivity extends BaseActivity {
         etLockName=findViewById(R.id.etLockName);
         etLockName.setText(mTvName);
         applyDebouncingClickListener(findViewById(R.id.btnComplete));
-        initLoading("Setting...");
+        initLoading(getString(R.string.t_load_content_setting));
     }
 
     @Override

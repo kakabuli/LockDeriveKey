@@ -41,6 +41,7 @@ public class HomeLockListAdapter extends BaseQuickAdapter<BleDeviceLocal, BaseVi
                 : name);
         if (deviceLocal.getLockState() == LocalState.LOCK_STATE_PRIVATE) {
             baseViewHolder.setImageResource(R.id.ivLockState, R.mipmap.ic_home_img_lock_privacymodel);
+            doorShow(ivDoorState, tvDoorState);
             baseViewHolder.setText(R.id.tvDoorState, getContext().getString(R.string.tip_private_mode));
             baseViewHolder.setGone(R.id.ivDoorState, true);
         } else {
@@ -49,6 +50,7 @@ public class HomeLockListAdapter extends BaseQuickAdapter<BleDeviceLocal, BaseVi
             if (deviceLocal.getLockState() == LocalState.LOCK_STATE_OPEN) {
                 baseViewHolder.setImageResource(R.id.ivLockState, R.mipmap.ic_home_img_lock_open);
                 if (isUseDoorSensor) {
+                    doorShow(ivDoorState, tvDoorState);
                     switch (deviceLocal.getDoorSensor()) {
                         case LocalState.DOOR_SENSOR_CLOSE:
                             doorClose(ivDoorState, tvDoorState);
@@ -61,11 +63,13 @@ public class HomeLockListAdapter extends BaseQuickAdapter<BleDeviceLocal, BaseVi
                             break;
                     }
                 } else {
-                    doorClose(ivDoorState, tvDoorState);
+                    doorHide(ivDoorState, tvDoorState);
+//                    doorClose(ivDoorState, tvDoorState);
                 }
             } else if (deviceLocal.getLockState() == LocalState.LOCK_STATE_CLOSE || deviceLocal.getLockState() == LocalState.LOCK_STATE_SENSOR_CLOSE) {
                 baseViewHolder.setImageResource(R.id.ivLockState, R.mipmap.ic_home_img_lock_close);
                 if (isUseDoorSensor) {
+                    doorShow(ivDoorState, tvDoorState);
                     switch (deviceLocal.getDoorSensor()) {
                         case LocalState.DOOR_SENSOR_CLOSE:
                         case LocalState.DOOR_SENSOR_EXCEPTION:
@@ -78,7 +82,8 @@ public class HomeLockListAdapter extends BaseQuickAdapter<BleDeviceLocal, BaseVi
                             break;
                     }
                 } else {
-                    doorClose(ivDoorState, tvDoorState);
+                    doorHide(ivDoorState, tvDoorState);
+//                    doorClose(ivDoorState, tvDoorState);
                 }
             } else {
                 //异常处理

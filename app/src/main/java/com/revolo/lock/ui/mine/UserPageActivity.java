@@ -44,7 +44,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.List;
@@ -159,13 +158,13 @@ public class UserPageActivity extends BaseActivity implements EasyPermissions.Pe
             }
         }
         RequestOptions requestOptions = RequestOptions.circleCropTransform()
-                .diskCacheStrategy(DiskCacheStrategy.NONE)        //不做磁盘缓存
-                .skipMemoryCache(true)                            //不做内存缓存
-                .error(R.drawable.mine_personal_img_headportrait_default)          //错误图片
-                .placeholder(R.drawable.mine_personal_img_headportrait_default);   //预加载图片
+                .diskCacheStrategy(DiskCacheStrategy.AUTOMATIC)        //缓存
+                .skipMemoryCache(false)
+                .error(R.drawable.mine_personal_img_headportrait_default);           //错误图片
+//                .placeholder(R.drawable.mine_personal_img_headportrait_default);   //预加载图片
         Glide.with(this)
                 .load(url)
-                .placeholder(R.drawable.mine_personal_img_headportrait_default)
+//                .placeholder(R.drawable.mine_personal_img_headportrait_default)
                 .apply(requestOptions)
                 .into(mIvAvatar);
     }

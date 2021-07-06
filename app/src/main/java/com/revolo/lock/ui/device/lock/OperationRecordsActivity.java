@@ -15,7 +15,6 @@ import androidx.annotation.Nullable;
 
 import com.bigkoo.pickerview.builder.TimePickerBuilder;
 import com.bigkoo.pickerview.view.TimePickerView;
-import com.blankj.utilcode.util.TimeUtils;
 import com.blankj.utilcode.util.ToastUtils;
 import com.contrarywind.view.WheelView;
 import com.revolo.lock.App;
@@ -41,8 +40,9 @@ import com.revolo.lock.room.AppDatabase;
 import com.revolo.lock.room.entity.BleDeviceLocal;
 import com.revolo.lock.room.entity.LockRecord;
 import com.revolo.lock.ui.view.SmartClassicsFooterView;
+import com.revolo.lock.ui.view.SmartClassicsHeaderView;
+import com.revolo.lock.util.ZoneUtil;
 import com.scwang.smart.refresh.layout.api.RefreshLayout;
-import com.scwang.smart.refresh.layout.listener.OnRefreshListener;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -109,19 +109,21 @@ public class OperationRecordsActivity extends BaseActivity {
                 .setRight(R.drawable.ic_icon_date, v -> {
                     showDatePicker();
                 });
+        mBleDeviceLocal=App.getInstance().getBleDeviceLocal();
         mElOperationRecords = findViewById(R.id.elOperationRecords);
         mElOperationRecords.setGroupIndicator(null);
         mllNoRecord = findViewById(R.id.llNoRecord);
         mOpRecordsAdapter = new OpRecordsAdapter(new ArrayList<>(), this);
+        mOpRecordsAdapter.setTimeZone(mBleDeviceLocal.getTimeZone());
         mElOperationRecords.setAdapter(mOpRecordsAdapter);
-        initLoading("Loading...");
+        initLoading(getString(R.string.t_load_content_loading));
 
         mRefreshLayout = findViewById(R.id.refreshLayout);
         mRefreshLayout.setEnableRefresh(true);
-        mRefreshLayout.setRefreshFooter(new SmartClassicsFooterView((this)));
+        mRefreshLayout.setRefreshHeader(new SmartClassicsHeaderView(this));
         mRefreshLayout.setOnRefreshListener(refreshLayout -> {
             mPage = 1;
-            if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI) {
+            if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI || mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI_BLE) {
                 searchRecordFromNet(mPage, false);
             } else {
                 initDevice();
@@ -129,7 +131,7 @@ public class OperationRecordsActivity extends BaseActivity {
             }
         });
         mRefreshLayout.setOnLoadMoreListener(refreshLayout -> {
-            if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI) {
+            if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI || mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI_BLE) {
                 searchRecordFromNet(mPage, false);
             } else {
                 initDevice();
@@ -169,7 +171,7 @@ public class OperationRecordsActivity extends BaseActivity {
 
     @Override
     public void doBusiness() {
-        if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI) {
+        if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI || mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI_BLE) {
             searchRecordFromNet(mPage, false);
         } else {
             initDevice();
@@ -284,7 +286,7 @@ public class OperationRecordsActivity extends BaseActivity {
     private void cancelGetRecordFromBle() {
         isNeedToReceiveRecord = false;
         dismissLoading();
-        uploadRecordsToService(mWillUploadRecord);
+       // uploadRecordsToService(mWillUploadRecord);
         searchRecordFromNet(mPage, false);
     }
 
@@ -798,7 +800,7 @@ public class OperationRecordsActivity extends BaseActivity {
         List<OperationRecords> recordsList = new ArrayList<>();
         for (String key : sortCollect.keySet()) {
             Timber.d("processRightRecords key: %1s", key);
-            OperationRecords operationRecords = new OperationRecords(TimeUtils.string2Millis(key, "yyyy-MM-dd"), collect.get(key));
+            OperationRecords operationRecords = new OperationRecords(ZoneUtil.getTime(mBleDeviceLocal.getTimeZone(),key, "yyyy-MM-dd"), collect.get(key));
             recordsList.add(operationRecords);
         }
         runOnUiThread(() -> {
@@ -824,8 +826,8 @@ public class OperationRecordsActivity extends BaseActivity {
         TimePickerBuilder timePickerBuilder = new TimePickerBuilder(this, (date, v) -> {
             OperationRecordsActivity.this.showLoading();
             String time = dateFormat.format(date);
-            long startTime = TimeUtils.string2Millis(time + " 00:00:00");
-            long endTime = TimeUtils.string2Millis(time + " 23:59:59");
+            long startTime = ZoneUtil.getTime(mBleDeviceLocal.getTimeZone(),time + " 00:00:00");
+            long endTime = ZoneUtil.getTime(mBleDeviceLocal.getTimeZone(),time + " 23:59:59");
             searchRecordsFromDate(time, startTime, endTime);
         });
 

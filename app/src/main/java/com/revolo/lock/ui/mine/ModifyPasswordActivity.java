@@ -75,7 +75,7 @@ public class ModifyPasswordActivity extends BaseActivity {
         mIvEye = findViewById(R.id.ivEye);
         mTvGetCode = findViewById(R.id.tvGetCode);
         applyDebouncingClickListener(mIvOldPwdEye, mIvEye, mTvGetCode, findViewById(R.id.btnComplete));
-        initLoading("Updating...");
+        initLoading(getString(R.string.t_load_content_updating));
     }
 
     @Override

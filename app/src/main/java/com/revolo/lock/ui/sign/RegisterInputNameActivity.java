@@ -56,7 +56,7 @@ public class RegisterInputNameActivity extends BaseActivity {
         etFirstName = findViewById(R.id.etFirstName);
         etLastName = findViewById(R.id.etLastName);
         applyDebouncingClickListener(findViewById(R.id.btnNext));
-        initLoading("Updating...");
+        initLoading(getString(R.string.t_load_content_updating));
     }
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {

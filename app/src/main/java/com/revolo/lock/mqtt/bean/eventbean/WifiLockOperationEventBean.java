@@ -99,6 +99,51 @@ public class WifiLockOperationEventBean extends WifiLockBaseResponseBean {
         private int doorSensor;
         private int autoLockTime;
         private int elecFenceSensitivity;
+        private int returnCode;
+        private int status;
+        private int devNum;
+        private String SW;
+        private int hwerrcode;
+
+        public int getDevNum() {
+            return devNum;
+        }
+
+        public void setDevNum(int devNum) {
+            this.devNum = devNum;
+        }
+
+        public String getSW() {
+            return SW;
+        }
+
+        public void setSW(String SW) {
+            this.SW = SW;
+        }
+
+        public int getReturnCode() {
+            return returnCode;
+        }
+
+        public void setReturnCode(int returnCode) {
+            this.returnCode = returnCode;
+        }
+
+        public int getStatus() {
+            return status;
+        }
+
+        public void setStatus(int status) {
+            this.status = status;
+        }
+
+        public int getHwerrcode() {
+            return hwerrcode;
+        }
+
+        public void setHwerrcode(int hwerrcode) {
+            this.hwerrcode = hwerrcode;
+        }
 
         public int getAmMode() {
             return amMode;

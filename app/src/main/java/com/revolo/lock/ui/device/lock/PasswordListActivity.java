@@ -13,10 +13,8 @@ import android.view.View;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
 import com.blankj.utilcode.util.ConvertUtils;
-import com.blankj.utilcode.util.TimeUtils;
 import com.blankj.utilcode.util.ToastUtils;
 import com.revolo.lock.App;
 import com.revolo.lock.Constant;
@@ -46,6 +44,7 @@ import com.revolo.lock.net.ObservableDecorator;
 import com.revolo.lock.room.AppDatabase;
 import com.revolo.lock.room.entity.BleDeviceLocal;
 import com.revolo.lock.ui.view.SmartClassicsHeaderView;
+import com.revolo.lock.util.ZoneUtil;
 import com.revolo.lock.widget.SlideRecyclerView;
 import com.scwang.smart.refresh.layout.api.RefreshLayout;
 
@@ -130,6 +129,11 @@ public class PasswordListActivity extends BaseActivity {
         SlideRecyclerView rvPwdList = findViewById(R.id.rvPwdList);
         rvPwdList.setLayoutManager(new LinearLayoutManager(this));
         mPasswordListAdapter = new PasswordListAdapter(R.layout.item_pwd_list_rv);
+        mBleDeviceLocal = App.getInstance().getBleDeviceLocal();
+        String zone=mBleDeviceLocal.getTimeZone();
+        Timber.e("zone:"+zone);
+        //设置时区
+        mPasswordListAdapter.setTimeZone(zone);
         mPasswordListAdapter.setOnItemClickListener((adapter, view, position) -> {
             if (position >= 0 && adapter.getItem(position) instanceof DevicePwdBean) {
                 Intent intent = new Intent(PasswordListActivity.this, PasswordDetailActivity.class);
@@ -151,7 +155,7 @@ public class PasswordListActivity extends BaseActivity {
                 rvPwdList.closeMenu();
             }
         });
-        initLoading("Loading...");
+        initLoading(getString(R.string.t_load_content_loading));
 
         mRefreshLayout = findViewById(R.id.refreshLayout);
         mRefreshLayout.setEnableLoadMore(false);
@@ -201,7 +205,7 @@ public class PasswordListActivity extends BaseActivity {
     }
 
     private void initData() {
-        if (mBleDeviceLocal.getConnectedType() != LocalState.DEVICE_CONNECT_TYPE_WIFI) {
+        if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_BLE) {
             BleBean bleBean = App.getInstance().getUserBleBean(mBleDeviceLocal.getMac());
             if (bleBean != null) {
                 new Handler(Looper.getMainLooper()).postDelayed(this::checkHadPwdFromBle, 20);
@@ -326,7 +330,7 @@ public class PasswordListActivity extends BaseActivity {
             // 默认可用
             // TODO: 2021/2/24 后面需要修改通过策略和时间判断是否可用
             devicePwdBean.setPwdState(1);
-            if (mBleDeviceLocal.getConnectedType() != LocalState.DEVICE_CONNECT_TYPE_WIFI) {
+            if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_BLE) {
                 Timber.d("bean num: %1d", bean.getNum());
                 if (!mWillSearchList.contains(BleByteUtil.intToByte(bean.getNum()))) {
                     mWillDelPwd.add(bean.getNum());
@@ -541,7 +545,7 @@ public class PasswordListActivity extends BaseActivity {
         devicePwdBean.setPwdNum(mCurrentSearchNum);
         // 使用秒存储，所以除以1000
         // TODO: 2021/2/24 后续需要改掉，存在问题，不可能使用这个创建时间
-        devicePwdBean.setCreateTime(TimeUtils.getNowMills() / 1000);
+        devicePwdBean.setCreateTime(ZoneUtil.getTime()/ 1000);
         devicePwdBean.setDeviceId(mBleDeviceLocal.getId());
         devicePwdBean.setAttribute(BleCommandState.KEY_SET_ATTRIBUTE_ALWAYS);
         devicePwdBean.setPwdName("" + mCurrentSearchNum);
@@ -691,24 +695,13 @@ public class PasswordListActivity extends BaseActivity {
 
     private void delPwd(DevicePwdBean devicePwdBean) {
         showLoading();
-        if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI) {
+        if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI || mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI_BLE) {
             publishDelPwd(mBleDeviceLocal.getEsn(), devicePwdBean);
         } else {
             BleBean bleBean = App.getInstance().getUserBleBean(mBleDeviceLocal.getMac());
-            if (bleBean == null) {
+            if (bleBean == null || bleBean.getOKBLEDeviceImp() == null || bleBean.getPwd1() == null || bleBean.getPwd3() == null) {
                 Timber.e("delPwd bleBean == null");
-                return;
-            }
-            if (bleBean.getOKBLEDeviceImp() == null) {
-                Timber.e("delPwd bleBean.getOKBLEDeviceImp() == null");
-                return;
-            }
-            if (bleBean.getPwd1() == null) {
-                Timber.e("delPwd bleBean.getPwd1() == null");
-                return;
-            }
-            if (bleBean.getPwd3() == null) {
-                Timber.e("delPwd bleBean.getPwd3() == null");
+                ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show("Delete failed, Bluetooth connection failed");
                 return;
             }
             LockMessage lockMessage = new LockMessage();

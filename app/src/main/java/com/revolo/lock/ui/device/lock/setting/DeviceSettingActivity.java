@@ -177,6 +177,14 @@ public class DeviceSettingActivity extends BaseActivity {
 
     @Override
     public void onDebouncingClick(@NonNull View view) {
+        if (view.getId() == R.id.clUnbind) {
+            showUnbindDialog();
+            return;
+        }
+        if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_DIS) {
+            ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_text_content_offline_devices);
+            return;
+        }
         if (view.getId() == R.id.tvName || view.getId() == R.id.ivLockName) {
             Intent intent = new Intent(this, ChangeLockNameActivity.class);
             intent.putExtra("tvName", mTvName.getText().toString());
@@ -213,7 +221,7 @@ public class DeviceSettingActivity extends BaseActivity {
             return;
         }
         if (view.getId() == R.id.clGeoFenceLock) {
-            if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI) {
+            if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI || mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI_BLE) {
                 Intent intent = new Intent(this, GeoFenceUnlockActivity.class);
                 startActivity(intent);
             } else {
@@ -226,12 +234,8 @@ public class DeviceSettingActivity extends BaseActivity {
             startActivity(intent);
             return;
         }
-        if (view.getId() == R.id.clUnbind) {
-            showUnbindDialog();
-            return;
-        }
         if (view.getId() == R.id.clMute) {
-            if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI) {
+            if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI || mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI_BLE) {
                 showLoading("Loading...");
                 publishSetVolume(mBleDeviceLocal.getEsn(),
                         mBleDeviceLocal.isMute() ? LocalState.VOLUME_STATE_OPEN : LocalState.VOLUME_STATE_MUTE);
@@ -270,7 +274,7 @@ public class DeviceSettingActivity extends BaseActivity {
         String wifiName = mBleDeviceLocal.getConnectedWifiName();
         //同时得保持WiFi连接
         if (null != wifiName && !"".equals(wifiName)) {
-            mTvWifiName.setText(mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI ? wifiName : getString(R.string.tip_wifi_not_connected));
+            mTvWifiName.setText(mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI || mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI_BLE ? wifiName : getString(R.string.tip_wifi_not_connected));
         } else {
             mTvWifiName.setText(R.string.tip_wifi_not_connected);
         }
@@ -565,12 +569,14 @@ public class DeviceSettingActivity extends BaseActivity {
         req.setVolume(mBleDeviceLocal.isMute() ? 1 : 0);
         req.setAmMode(mBleDeviceLocal.isAutoLock() ? 0 : 1);
         req.setDuress(mBleDeviceLocal.isDuress() ? 0 : 1);
-        req.setDoorSensor(mBleDeviceLocal.getDoorSensor());
+        req.setMagneticStatus(mBleDeviceLocal.getDoorSensor());
+        req.setDoorSensor(mBleDeviceLocal.isOpenDoorSensor()?1:0);
         req.setElecFence(mBleDeviceLocal.isOpenElectricFence() ? 0 : 1);
         req.setAutoLockTime(mBleDeviceLocal.getSetAutoLockTime());
         req.setElecFenceTime(mBleDeviceLocal.getSetElectricFenceTime());
         req.setElecFenceSensitivity(mBleDeviceLocal.getSetElectricFenceSensitivity());
-
+        Timber.e("std44555554445:%s",
+                req.toString());
         Observable<UpdateLockInfoRsp> observable = HttpRequest.getInstance().updateLockInfo(token, req);
         ObservableDecorator.decorate(observable).safeSubscribe(new Observer<UpdateLockInfoRsp>() {
             @Override
@@ -585,7 +591,8 @@ public class DeviceSettingActivity extends BaseActivity {
                 if (!code.equals("200")) {
                     String msg = updateLockInfoRsp.getMsg();
                     Timber.e("updateLockInfoToService code: %1s, msg: %2s", code, msg);
-                    if (!TextUtils.isEmpty(msg)) ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(msg);
+                    if (!TextUtils.isEmpty(msg))
+                        ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(msg);
                 }
             }
 

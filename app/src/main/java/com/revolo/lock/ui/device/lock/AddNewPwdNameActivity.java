@@ -65,13 +65,14 @@ public class AddNewPwdNameActivity extends BaseActivity {
     public void initView(@Nullable Bundle savedInstanceState, @Nullable View contentView) {
         useCommonTitleBar(getString(R.string.title_add_password));
         applyDebouncingClickListener(findViewById(R.id.btnComplete), findViewById(R.id.tvAddNextTime));
-        initLoading("Loading...");
+        initLoading(getString(R.string.t_load_content_loading));
     }
 
     @Override
     public void doBusiness() {
 
     }
+
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0) {

@@ -14,7 +14,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.blankj.utilcode.util.ConvertUtils;
-import com.blankj.utilcode.util.TimeUtils;
 import com.blankj.utilcode.util.ToastUtils;
 import com.revolo.lock.App;
 import com.revolo.lock.Constant;
@@ -40,6 +39,7 @@ import com.revolo.lock.net.HttpRequest;
 import com.revolo.lock.net.ObservableDecorator;
 import com.revolo.lock.room.AppDatabase;
 import com.revolo.lock.room.entity.BleDeviceLocal;
+import com.revolo.lock.util.ZoneUtil;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -115,7 +115,7 @@ public class PasswordDetailActivity extends BaseActivity {
         //   initZeroTimeZoneDate();
         initSucMessageDialog();
         initFailMessageDialog();
-        initLoading("Deleting...");
+        initLoading(getString(R.string.t_load_content_deleting));
         onRegisterEventBus();
     }
 
@@ -204,7 +204,7 @@ public class PasswordDetailActivity extends BaseActivity {
             }
             mTvPwd.setText("***********");
             mTvPwdCharacteristic.setText(getPwdCharacteristic(mDevicePwdBean));
-            mTvCreationDate.setText(TimeUtils.millis2String(mDevicePwdBean.getCreateTime() * 1000, "MM,dd,yyyy HH:mm:ss"));
+            mTvCreationDate.setText(ZoneUtil.getDate(mBleDeviceLocal.getTimeZone(),mDevicePwdBean.getCreateTime() * 1000, "MM,dd,yyyy HH:mm:ss"));
         }
     }
 
@@ -216,8 +216,8 @@ public class PasswordDetailActivity extends BaseActivity {
         } else if (attribute == KEY_SET_ATTRIBUTE_TIME_KEY) {
             long startTimeMill = devicePwdBean.getStartTime() * 1000;
             long endTimeMill = devicePwdBean.getEndTime() * 1000;
-            detail = TimeUtils.millis2String(startTimeMill, "MM,dd,yyyy   HH:mm")
-                    + "-" + TimeUtils.millis2String(endTimeMill, "MM,dd,yyyy   HH:mm");
+            detail = ZoneUtil.getDate(mBleDeviceLocal.getTimeZone(),startTimeMill, "MM,dd,yyyy   HH:mm")
+                    + "-" + ZoneUtil.getDate(mBleDeviceLocal.getTimeZone(),endTimeMill, "MM,dd,yyyy   HH:mm");
         } else if (attribute == KEY_SET_ATTRIBUTE_WEEK_KEY) {
             byte[] weekBytes = BleByteUtil.byteToBit(devicePwdBean.getWeekly());
             String weekly = "";
@@ -246,9 +246,9 @@ public class PasswordDetailActivity extends BaseActivity {
             long startTimeMill = devicePwdBean.getStartTime() * 1000;
             long endTimeMill = devicePwdBean.getEndTime() * 1000;
             detail = weekly
-                    + TimeUtils.millis2String(startTimeMill, "HH:mm")
+                    + ZoneUtil.getDate(mBleDeviceLocal.getTimeZone(), startTimeMill, "HH:mm")
                     + " - "
-                    + TimeUtils.millis2String(endTimeMill, "HH:mm");
+                    + ZoneUtil.getDate(mBleDeviceLocal.getTimeZone(), endTimeMill, "HH:mm");
         }
         return detail;
     }
@@ -334,7 +334,7 @@ public class PasswordDetailActivity extends BaseActivity {
 
     private void delPwd() {
         showLoading();
-        if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI) {
+        if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI || mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI_BLE) {
             publishDelPwd(mBleDeviceLocal.getEsn(), mDevicePwdBean.getPwdNum());
         } else {
             BleBean bleBean = App.getInstance().getUserBleBean(mBleDeviceLocal.getMac());
