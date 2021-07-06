@@ -21,6 +21,7 @@ public class ZoneUtil {
     public static long getTime() {
         return System.currentTimeMillis();
     }
+
     public static long getTime(String timeZone, String timeStr, String pattern) {
         SimpleDateFormat formatter = new SimpleDateFormat(pattern);
         formatter.setTimeZone(TimeZone.getTimeZone("GMT" + timeZone));
@@ -28,6 +29,7 @@ public class ZoneUtil {
         Date result = formatter.parse(timeStr, pos);
         return result.getTime();
     }
+
     public static long getTime(String timeZone, String timeStr) {
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
         formatter.setTimeZone(TimeZone.getTimeZone("GMT" + timeZone));
@@ -53,35 +55,18 @@ public class ZoneUtil {
     }
 
     public static byte getZoneByte(String zone) {
-        byte bzone = 0x00;
-        if ("00".equals(zone)) {
-            bzone = 0x00;
-        } else if ("01".equals(zone)) {
-            bzone = 0x01;
-        } else if ("02".equals(zone)) {
-            bzone = 0x02;
-        } else if ("03".equals(zone)) {
-            bzone = 0x03;
-        } else if ("04".equals(zone)) {
-            bzone = 0x04;
-        } else if ("05".equals(zone)) {
-            bzone = 0x05;
-        } else if ("06".equals(zone)) {
-            bzone = 0x06;
-        } else if ("07".equals(zone)) {
-            bzone = 0x07;
-        } else if ("08".equals(zone)) {
-            bzone = 0x08;
-        } else if ("09".equals(zone)) {
-            bzone = 0x09;
-        } else if ("10".equals(zone)) {
-            bzone = 0x10;
-        } else if ("11".equals(zone)) {
-            bzone = 0x11;
-        } else if ("12".equals(zone)) {
-            bzone = 0x12;
+        String z1 = zone.substring(1, 3);
+        String z2 = zone.substring(4, 6);
+        try {
+            int zoneValer = Integer.parseInt(z1) * 4 + (Integer.parseInt(z2)/15);
+            if (zone.indexOf("-") > -1) {
+                zoneValer = zoneValer * -1;
+            }
+            return (byte) zoneValer;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return 0;
         }
-        return bzone;
     }
 
 }

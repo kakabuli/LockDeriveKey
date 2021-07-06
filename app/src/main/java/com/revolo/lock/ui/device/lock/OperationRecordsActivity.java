@@ -286,7 +286,7 @@ public class OperationRecordsActivity extends BaseActivity {
     private void cancelGetRecordFromBle() {
         isNeedToReceiveRecord = false;
         dismissLoading();
-        uploadRecordsToService(mWillUploadRecord);
+       // uploadRecordsToService(mWillUploadRecord);
         searchRecordFromNet(mPage, false);
     }
 
