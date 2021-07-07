@@ -2,6 +2,7 @@ package com.revolo.lock.ui.sign;
 
 import android.content.Intent;
 import android.hardware.fingerprint.FingerprintManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -16,10 +17,12 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import com.blankj.utilcode.util.GsonUtils;
 import com.blankj.utilcode.util.SPUtils;
 import com.revolo.lock.App;
+import com.revolo.lock.BuildConfig;
 import com.revolo.lock.Constant;
 import com.revolo.lock.R;
 import com.revolo.lock.base.BaseActivity;
 import com.revolo.lock.bean.respone.MailLoginBeanRsp;
+import com.revolo.lock.dialog.SelectServerDialog;
 import com.revolo.lock.room.entity.User;
 import com.revolo.lock.ui.MainActivity;
 import com.revolo.lock.util.FingerprintUtils;
@@ -35,6 +38,7 @@ public class SignSelectActivity extends BaseActivity {
     private String signSelctMode = "";
     private static final int REQUEST_CODE_DRAW_GESTURE_CODE = 1999;
     private ConstraintLayout constraintLayout;
+    private SelectServerDialog selectServerDialog;
 
     private Handler handler = new Handler();
 
@@ -57,6 +61,7 @@ public class SignSelectActivity extends BaseActivity {
         constraintLayout = findViewById(R.id.activity_sign_select_view);
         constraintLayout.setVisibility(View.GONE);
         signSelctMode = getIntent().getStringExtra(Constant.SIGN_SELECT_MODE);
+        selectServerDialog = new SelectServerDialog(this);
         if (TextUtils.isEmpty(signSelctMode)) {
             verification();
         }
@@ -88,11 +93,6 @@ public class SignSelectActivity extends BaseActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-       /* if(requestCode == REQUEST_CODE_DRAW_GESTURE_CODE) {
-            if(resultCode == RESULT_OK) {
-                autoLogin();
-            }
-        }*/
     }
 
     private void verification() {
@@ -101,6 +101,11 @@ public class SignSelectActivity extends BaseActivity {
 
         User user = App.getInstance().getUser();
         if (user == null) {
+            if (BuildConfig.DEBUG) {
+                if (selectServerDialog != null) {
+                    selectServerDialog.show();
+                }
+            }
             constraintLayout.setVisibility(View.VISIBLE);
             return;
         }

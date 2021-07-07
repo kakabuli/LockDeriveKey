@@ -786,17 +786,15 @@ public class DoorLockInformationActivity extends BaseActivity {
                             ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(getString(R.string.tip_content_ota_update_success));
                             int devNum = eventparams.getDevNum();
                             if (devNum == 2) { // wifi锁
-                                String fireVer = mBleDeviceLocal.getLockVer();
                                 String wifiVer = eventparams.getSW();
-                                if (!TextUtils.isEmpty(fireVer) || !TextUtils.isEmpty(wifiVer)) {
-                                    checkAllOTAVer(fireVer, wifiVer);
-                                }
+                                mTvWifiVersion.setText(wifiVer);
+                                isCanUpdateWifiVer = false;
+                                mVVersion.setVisibility(isCanUpdateWifiVer ? View.VISIBLE : View.GONE);
                             } else if (devNum == 6) { //
                                 String fireVer = eventparams.getSW();
-                                String wifiVer = mBleDeviceLocal.getWifiVer();
-                                if (!TextUtils.isEmpty(fireVer) || !TextUtils.isEmpty(wifiVer)) {
-                                    checkAllOTAVer(fireVer, wifiVer);
-                                }
+                                mTvFirmwareVersion.setText(fireVer);
+                                isCanUpdateFirmwareVer = false;
+                                vFirmwareVersion.setVisibility(isCanUpdateFirmwareVer ? View.VISIBLE : View.GONE);
                             }
                         }
                     } else {
