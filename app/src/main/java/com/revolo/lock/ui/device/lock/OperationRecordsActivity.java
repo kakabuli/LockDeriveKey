@@ -277,6 +277,8 @@ public class OperationRecordsActivity extends BaseActivity {
             }
         } else {
             // 最后一包的数据
+            mWillShowRecords.addAll(mWillUploadRecord);
+            refreshUIFromFinalData();
             cancelGetRecordFromBle();
 //            return;
         }
