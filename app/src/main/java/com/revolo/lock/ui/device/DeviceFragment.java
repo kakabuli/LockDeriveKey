@@ -122,11 +122,11 @@ public class DeviceFragment extends Fragment {
                     if (mLockstate == LocalState.LOCK_STATE_PRIVATE) {
                         return;
                     }
-                    @LocalState.LockState int connectedState = ((BleDeviceLocal) adapter.getItem(position)).getConnectedType();
-                    if (LocalState.DEVICE_CONNECT_TYPE_DIS == connectedState) {
-                        ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_text_content_offline_devices);
-                        return;
-                    }
+//                    @LocalState.LockState int connectedState = ((BleDeviceLocal) adapter.getItem(position)).getConnectedType();
+//                    if (LocalState.DEVICE_CONNECT_TYPE_DIS == connectedState) {
+//                        ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_text_content_offline_devices);
+//                        return;
+//                    }
                     if (adapter.getItem(position) instanceof BleDeviceLocal) {
                         if (position < 0 || position >= adapter.getData().size()) return;
                         BleDeviceLocal deviceLocal = (BleDeviceLocal) adapter.getItem(position);

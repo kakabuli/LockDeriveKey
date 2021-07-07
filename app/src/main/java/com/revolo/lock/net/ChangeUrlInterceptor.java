@@ -29,7 +29,7 @@ class ChangeUrlInterceptor implements Interceptor {
             String headerValue = headerValues.get(0);
             HttpUrl newBaseUrl;
             if ("normal".equals(headerValue)) {
-                newBaseUrl = HttpUrl.parse(HttpRequest.HOST);
+                newBaseUrl = HttpUrl.parse(HttpRequest.HTTP_BASE_HOST);
             } else if ("otaCheck".equals(headerValue)) {
                 newBaseUrl = HttpUrl.parse(HttpRequest.CHECK_OTA_HOST);
             } else {

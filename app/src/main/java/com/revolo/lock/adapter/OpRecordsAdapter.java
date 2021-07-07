@@ -16,11 +16,7 @@ import com.revolo.lock.R;
 import com.revolo.lock.bean.OperationRecords;
 import com.revolo.lock.util.ZoneUtil;
 
-import java.sql.Time;
-import java.util.Date;
 import java.util.List;
-
-import timber.log.Timber;
 
 
 /**
@@ -156,8 +152,6 @@ public class OpRecordsAdapter extends BaseExpandableListAdapter {
         // TODO: 2021/3/29 有筛选并进行颜色更换
         ivLogState.setImageResource(imageResId);
         tvMessage.setText(operationRecord.getMessage());
-        Timber.e("*******************************   operationRecord.getOperationTime() = " + operationRecord.getOperationTime() + " timeZone = " + timeZone + "   ***********************************");
         tvTime.setText(ZoneUtil.getDate(timeZone, operationRecord.getOperationTime(), "HH:mm:ss"));
     }
-
 }
