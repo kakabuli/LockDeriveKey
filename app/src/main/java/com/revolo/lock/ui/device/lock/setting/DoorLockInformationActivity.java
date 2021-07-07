@@ -559,7 +559,9 @@ public class DoorLockInformationActivity extends BaseActivity {
                     return;
                 }
 //                ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_ota_updating);
-                initLoading("Updating");
+                if (mOTAUpdateDialog != null) {
+                    mOTAUpdateDialog.show();
+                }
             }
 
             @Override
@@ -682,7 +684,10 @@ public class DoorLockInformationActivity extends BaseActivity {
         selectDialog.setMessage(getString(R.string.dialog_tip_there_is_a_new_version_available_do_you_want_to_update));
         selectDialog.setOnConfirmListener(v -> {
             selectDialog.dismiss();
-            checkOrUseAllOTAUpdateVer();
+//            checkOrUseAllOTAUpdateVer();
+            if (mOTAUpdateDialog != null) {
+                mOTAUpdateDialog.show();
+            }
         });
         selectDialog.setOnCancelClickListener(v -> selectDialog.dismiss());
         selectDialog.show();
