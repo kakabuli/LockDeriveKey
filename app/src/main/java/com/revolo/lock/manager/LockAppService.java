@@ -1202,6 +1202,7 @@ public class LockAppService extends Service {
         }
         new Handler(Looper.getMainLooper()).postDelayed(() -> {
             long nowTime = ZoneUtil.getTime() / 1000;
+            Timber.e("#############################   nowTime = " + nowTime + " timeZone = +" + ZoneUtil.getZone() + "    ############################");
             BleManager.getInstance().writeControlMsg(BleCommandFactory
                     .syLockTime(nowTime, bleBean.getPwd1(), bleBean.getPwd3()), bleBean.getOKBLEDeviceImp());
         }, 20);
@@ -1214,7 +1215,6 @@ public class LockAppService extends Service {
             //蓝牙鉴定连接
             //更新队列中对象的连接状态
             updateDevice("", mac);
-
         }
 
         @Override

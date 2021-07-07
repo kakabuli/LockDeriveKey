@@ -505,7 +505,6 @@ public class AddNewPwdSelectActivity extends BaseActivity {
         mTvEndDate.setText(mTemEndDateStr);
         String date = nowDate + " 14:00:00";
         mTemEndDateTimeMill = ZoneUtil.getTime(mBleDeviceLocal.getTimeZone(), date);
-
     }
 
     private void showTimePicker(@IdRes int id) {
@@ -958,5 +957,4 @@ public class AddNewPwdSelectActivity extends BaseActivity {
         }
         return list;
     }
-
 }

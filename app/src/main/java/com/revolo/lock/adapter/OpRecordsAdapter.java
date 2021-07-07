@@ -16,7 +16,11 @@ import com.revolo.lock.R;
 import com.revolo.lock.bean.OperationRecords;
 import com.revolo.lock.util.ZoneUtil;
 
+import java.sql.Time;
+import java.util.Date;
 import java.util.List;
+
+import timber.log.Timber;
 
 
 /**
@@ -126,6 +130,7 @@ public class OpRecordsAdapter extends BaseExpandableListAdapter {
     static class GroupViewHolder {
         TextView tvTimeTitle;
     }
+
     static class ChildViewHolder {
         TextView tvMessage;
         ImageView ivLogState;
@@ -133,26 +138,26 @@ public class OpRecordsAdapter extends BaseExpandableListAdapter {
     }
 
     private String getDay(long time) {
-        if(TimeUtils.isToday(time)) {
+        if (TimeUtils.isToday(time)) {
             return "Today";
         } else {
             // 减掉一天的时间
-            if(TimeUtils.isToday(time+86400000)) {
+            if (TimeUtils.isToday(time + 86400000)) {
                 return "Yesterday";
             } else {
-                return ZoneUtil.getDate(timeZone,time, "MMM dd yyyy");
+                return ZoneUtil.getDate(timeZone, time, "MMM dd yyyy");
             }
         }
     }
 
-    private void refreshUI(OperationRecords.OperationRecord operationRecord, TextView tvMessage, ImageView ivLogState,TextView tvTime) {
+    private void refreshUI(OperationRecords.OperationRecord operationRecord, TextView tvMessage, ImageView ivLogState, TextView tvTime) {
         tvMessage.setTextColor(ContextCompat.getColor(mContext, R.color.c333333));
         @DrawableRes int imageResId = operationRecord.getDrawablePic();
         // TODO: 2021/3/29 有筛选并进行颜色更换
-//        tvMessage.setTextColor(ContextCompat.getColor(mContext, R.color.cFF556D));
         ivLogState.setImageResource(imageResId);
         tvMessage.setText(operationRecord.getMessage());
-        tvTime.setText(ZoneUtil.getDate(timeZone,operationRecord.getOperationTime(), "HH:mm:ss"));
+        Timber.e("*******************************   operationRecord.getOperationTime() = " + operationRecord.getOperationTime() + " timeZone = " + timeZone + "   ***********************************");
+        tvTime.setText(ZoneUtil.getDate(timeZone, operationRecord.getOperationTime(), "HH:mm:ss"));
     }
 
 }

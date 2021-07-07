@@ -109,7 +109,7 @@ public class OperationRecordsActivity extends BaseActivity {
                 .setRight(R.drawable.ic_icon_date, v -> {
                     showDatePicker();
                 });
-        mBleDeviceLocal=App.getInstance().getBleDeviceLocal();
+        mBleDeviceLocal = App.getInstance().getBleDeviceLocal();
         mElOperationRecords = findViewById(R.id.elOperationRecords);
         mElOperationRecords.setGroupIndicator(null);
         mllNoRecord = findViewById(R.id.llNoRecord);
@@ -286,7 +286,7 @@ public class OperationRecordsActivity extends BaseActivity {
     private void cancelGetRecordFromBle() {
         isNeedToReceiveRecord = false;
         dismissLoading();
-       // uploadRecordsToService(mWillUploadRecord);
+        // uploadRecordsToService(mWillUploadRecord);
         searchRecordFromNet(mPage, false);
     }
 
@@ -307,6 +307,9 @@ public class OperationRecordsActivity extends BaseActivity {
         }
         if (lockRecords.isEmpty()) {
             return;
+        }
+        if (mPage == 1) {
+            mWillShowRecords.clear();
         }
         mWillShowRecords.addAll(lockRecords);
         refreshUIFromFinalData();
@@ -446,10 +449,13 @@ public class OperationRecordsActivity extends BaseActivity {
                 list.add(lockRecord);
             }
             AppDatabase.getInstance(this).lockRecordDao().insert(list);
-            mPage++;
 
+            if (mPage == 1) {
+                mWillShowRecords.clear();
+            }
             mWillShowRecords.addAll(list);
             refreshUIFromFinalData();
+            mPage++;
         }
     }
 
@@ -800,7 +806,7 @@ public class OperationRecordsActivity extends BaseActivity {
         List<OperationRecords> recordsList = new ArrayList<>();
         for (String key : sortCollect.keySet()) {
             Timber.d("processRightRecords key: %1s", key);
-            OperationRecords operationRecords = new OperationRecords(ZoneUtil.getTime(mBleDeviceLocal.getTimeZone(),key, "yyyy-MM-dd"), collect.get(key));
+            OperationRecords operationRecords = new OperationRecords(ZoneUtil.getTime(mBleDeviceLocal.getTimeZone(), key, "yyyy-MM-dd"), collect.get(key));
             recordsList.add(operationRecords);
         }
         runOnUiThread(() -> {
@@ -826,8 +832,8 @@ public class OperationRecordsActivity extends BaseActivity {
         TimePickerBuilder timePickerBuilder = new TimePickerBuilder(this, (date, v) -> {
             OperationRecordsActivity.this.showLoading();
             String time = dateFormat.format(date);
-            long startTime = ZoneUtil.getTime(mBleDeviceLocal.getTimeZone(),time + " 00:00:00");
-            long endTime = ZoneUtil.getTime(mBleDeviceLocal.getTimeZone(),time + " 23:59:59");
+            long startTime = ZoneUtil.getTime(mBleDeviceLocal.getTimeZone(), time + " 00:00:00");
+            long endTime = ZoneUtil.getTime(mBleDeviceLocal.getTimeZone(), time + " 23:59:59");
             searchRecordsFromDate(time, startTime, endTime);
         });
 
