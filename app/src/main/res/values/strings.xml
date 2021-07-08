@@ -88,7 +88,7 @@
 
     <!-- AddNewPwdActivity -->
     <string name="tip_you_can_set_4_10_valid_passwords">You can set 4&#8211;10 valid passwords</string>
-    <string name="hint_please_enter_password">Enter pincode</string>
+    <string name="hint_please_enter_password">Please enter password</string>
     <string name="title_add_password">Add password</string>
     <string name="select_permanent">Permanent</string>
     <string name="select_schedule">Schedule</string>
