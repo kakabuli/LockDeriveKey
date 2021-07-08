@@ -141,7 +141,7 @@ public class PasswordListAdapter extends BaseQuickAdapter<DevicePwdBean, BaseVie
             long endTime = devicePwdBean.getEndTime() * 1000;
             long nowTime = ZoneUtil.getTestTime(timeZone);
             // new Date().getTime();
-            if (startTime <= nowTime && nowTime <= endTime) {
+            if (nowTime <= endTime) {
                 return false;
             } else {
                 return true;
