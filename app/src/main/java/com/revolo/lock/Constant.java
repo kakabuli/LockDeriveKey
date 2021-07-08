@@ -86,8 +86,23 @@ public class Constant {
 
     public static final String PING_RESULT = "pingResult";
 
+    /**
+     * 网络是否能访问
+     */
     public static boolean pingResult = true;
 
+    /**
+     * 是否注册广播
+     */
     public static boolean isRegisterReceiver = false;
 
+    /**
+     * 验证码是否正在倒计时
+     */
+    public static boolean isVerificationCodeTime = false;
+
+    /**
+     * 验证码倒计时
+     */
+    public static int verificationCodeTimeCount = 60;
 }

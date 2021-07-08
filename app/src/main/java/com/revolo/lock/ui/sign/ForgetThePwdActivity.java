@@ -16,6 +16,7 @@ import androidx.annotation.Nullable;
 
 import com.blankj.utilcode.util.RegexUtils;
 import com.blankj.utilcode.util.ToastUtils;
+import com.revolo.lock.Constant;
 import com.revolo.lock.R;
 import com.revolo.lock.base.BaseActivity;
 import com.revolo.lock.bean.request.ForgotPwdBeanReq;
@@ -41,6 +42,8 @@ public class ForgetThePwdActivity extends BaseActivity {
     private boolean isShowPwd = true;
     private boolean isCountdown = false;
     private TextView mTvGetCode;
+    private int verificationCodeTimeCount = 60;
+    private CountDownTimer mCountDownTimer = null;
 
     @Override
     public void initData(@Nullable Bundle bundle) {
@@ -66,6 +69,30 @@ public class ForgetThePwdActivity extends BaseActivity {
             etEmail.setText(mail);
         }
         initLoading(getString(R.string.t_load_content_loading));
+        verificationCodeTimeCount = Constant.verificationCodeTimeCount;
+        mCountDownTimer = new CountDownTimer(60 * 1000, 1000) {
+            @Override
+            public void onTick(long millisUntilFinished) {
+                int sec = (int) (millisUntilFinished / 1000);
+                int time = sec - (60 - verificationCodeTimeCount);
+                String value = String.valueOf(time);
+                mTvGetCode.setText(value);
+                if (time <= 0) {
+                    onFinish();
+                    cancel();
+                }
+            }
+
+            @Override
+            public void onFinish() {
+                isCountdown = false;
+                mTvGetCode.setText(getString(R.string.get_code));
+                verificationCodeTimeCount = 60;
+            }
+        };
+        if (Constant.isVerificationCodeTime) {
+            mCountDownTimer.start();
+        }
     }
 
     @Override
@@ -104,7 +131,12 @@ public class ForgetThePwdActivity extends BaseActivity {
         }
         if (view.getId() == R.id.tvGetCode) {
             if (!isCountdown) {
-                getCode();
+//                getCode();
+                isCountdown = true;
+                if (mCountDownTimer != null) {
+                    mCountDownTimer.start();
+                }
+                mHandler.sendEmptyMessage(VERIFICATION_CODE_TIME);
             }
         }
     }
@@ -154,7 +186,10 @@ public class ForgetThePwdActivity extends BaseActivity {
                     return;
                 }
                 isCountdown = true;
-                mCountDownTimer.start();
+                if (mCountDownTimer != null) {
+                    mCountDownTimer.start();
+                }
+                mHandler.sendEmptyMessage(VERIFICATION_CODE_TIME);
                 ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_success);
             }
 
@@ -244,17 +279,8 @@ public class ForgetThePwdActivity extends BaseActivity {
         });
     }
 
-    private final CountDownTimer mCountDownTimer = new CountDownTimer(60000, 1000) {
-        @Override
-        public void onTick(long millisUntilFinished) {
-            String value = String.valueOf((int) (millisUntilFinished / 1000));
-            mTvGetCode.setText(value);
-        }
-
-        @Override
-        public void onFinish() {
-            isCountdown = false;
-            mTvGetCode.setText(getString(R.string.get_code));
-        }
-    };
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+    }
 }

@@ -749,8 +749,9 @@ public class OperationRecordsActivity extends BaseActivity {
                     default:
                         break;
                 }
-            } else {
-                Timber.e("");
+            } else if (lockRecord.getEventType() == 4) {
+                // 门磁开关门
+
             }
 
             if (TextUtils.isEmpty(message)) {
