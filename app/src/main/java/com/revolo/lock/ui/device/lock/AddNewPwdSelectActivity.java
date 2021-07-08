@@ -301,7 +301,6 @@ public class AddNewPwdSelectActivity extends BaseActivity {
                     } else {
                         nextStep();
                     }
-                    nextStep();
                 } else {
                     ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show("Repeat Not Choose");
                     dismissLoading();
