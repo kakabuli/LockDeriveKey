@@ -69,7 +69,12 @@ public class ZoneUtil {
         date.setTime(time);
         return formatter.format(date);
     }
-    public static long getTestTime(String zone){
+
+    public static long getTestTime(String zone) {
+        return (getTime("", getDate("", System.currentTimeMillis())) +getTestTime2(zone));
+    }
+
+    public static long getTestTime2(String zone) {
         String z1 = zone.substring(1, 3);
         String z2 = zone.substring(4, 6);
         int zoneValer = 0;
@@ -83,11 +88,18 @@ public class ZoneUtil {
             zoneValer = 0;
         }
 
-        return (getTime("",getDate("",System.currentTimeMillis()))+ (zoneValer * 15 * 60 * 1000));
+        return zoneValer * 15 * 60 * 1000;
     }
 
     public static String getDate(String timeZone, long time, String pattern) {
         timeZone = "+00:00";
+        SimpleDateFormat formatter = new SimpleDateFormat(pattern);
+        formatter.setTimeZone(TimeZone.getTimeZone("GMT" + timeZone));
+        Date date = new Date();
+        date.setTime(time);
+        return formatter.format(date);
+    }
+    public static String getTestDate(String timeZone, long time, String pattern) {
         SimpleDateFormat formatter = new SimpleDateFormat(pattern);
         formatter.setTimeZone(TimeZone.getTimeZone("GMT" + timeZone));
         Date date = new Date();
