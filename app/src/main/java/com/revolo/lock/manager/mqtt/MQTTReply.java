@@ -317,7 +317,9 @@ public class MQTTReply {
         if (!TextUtils.isEmpty(wifiListBean.getLockNickname()))
             bleDeviceLocal.setName(wifiListBean.getLockNickname());
         //门磁状态
-        bleDeviceLocal.setDoorSensor(wifiListBean.getMagneticStatus() == 1 ? LocalState.DOOR_SENSOR_OPEN : wifiListBean.getMagneticStatus() == 2 ? LocalState.DOOR_SENSOR_CLOSE : LocalState.DOOR_SENSOR_EXCEPTION);
+        bleDeviceLocal.setDoorSensor(wifiListBean.getMagneticStatus() == 1 || wifiListBean.getMagneticStatus() == 3
+                ? LocalState.DOOR_SENSOR_OPEN : wifiListBean.getMagneticStatus() == 2
+                ? LocalState.DOOR_SENSOR_CLOSE : LocalState.DOOR_SENSOR_EXCEPTION); // 1 是开门  2 是关门  3是虚掩
         //启用门磁
         bleDeviceLocal.setOpenDoorSensor(wifiListBean.getDoorSensor() == 1);
 
