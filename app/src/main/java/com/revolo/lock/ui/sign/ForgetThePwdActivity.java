@@ -131,12 +131,7 @@ public class ForgetThePwdActivity extends BaseActivity {
         }
         if (view.getId() == R.id.tvGetCode) {
             if (!isCountdown) {
-//                getCode();
-                isCountdown = true;
-                if (mCountDownTimer != null) {
-                    mCountDownTimer.start();
-                }
-                mHandler.sendEmptyMessage(VERIFICATION_CODE_TIME);
+                getCode();
             }
         }
     }
