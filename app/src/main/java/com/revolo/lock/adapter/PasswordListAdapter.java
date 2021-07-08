@@ -66,6 +66,9 @@ public class PasswordListAdapter extends BaseQuickAdapter<DevicePwdBean, BaseVie
             String pwdName = devicePwdBean.getPwdName();
             if (TextUtils.isEmpty(pwdName)) {
                 pwdName = String.format("%03d", devicePwdBean.getPwdNum());
+            } else if (pwdName.matches("[0-9]+")) {
+
+                pwdName = String.format("%03d", Integer.parseInt(pwdName));
             }
             baseViewHolder.setText(R.id.tvPwdName, pwdName);
             baseViewHolder.setText(R.id.tvDetail, getPwdDetail(devicePwdBean));
@@ -83,9 +86,9 @@ public class PasswordListAdapter extends BaseQuickAdapter<DevicePwdBean, BaseVie
             long startTimeMill = devicePwdBean.getStartTime() * 1000;
             long endTimeMill = devicePwdBean.getEndTime() * 1000;
             detail = "start: "
-                    + ZoneUtil.getDate(timeZone,startTimeMill, "MM,dd,yyyy   HH:mm")
+                    + ZoneUtil.getDate(timeZone, startTimeMill, "MM,dd,yyyy   HH:mm")
                     + "\n" + "end: "
-                    + ZoneUtil.getDate(timeZone,endTimeMill, "MM,dd,yyyy   HH:mm");
+                    + ZoneUtil.getDate(timeZone, endTimeMill, "MM,dd,yyyy   HH:mm");
         } else if (attribute == KEY_SET_ATTRIBUTE_WEEK_KEY) {
             byte[] weekBytes = BleByteUtil.byteToBit(devicePwdBean.getWeekly());
             String weekly = "";
@@ -114,9 +117,9 @@ public class PasswordListAdapter extends BaseQuickAdapter<DevicePwdBean, BaseVie
             long startTimeMill = devicePwdBean.getStartTime() * 1000;
             long endTimeMill = devicePwdBean.getEndTime() * 1000;
             detail = weekly
-                    + ZoneUtil.getDate(timeZone,startTimeMill, "HH:mm")
+                    + ZoneUtil.getDate(timeZone, startTimeMill, "HH:mm")
                     + " - "
-                    + ZoneUtil.getDate(timeZone,endTimeMill, "HH:mm");
+                    + ZoneUtil.getDate(timeZone, endTimeMill, "HH:mm");
         }
         return detail;
     }

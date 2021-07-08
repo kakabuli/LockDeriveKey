@@ -277,6 +277,7 @@ public class DeviceDetailActivity extends BaseActivity {
                             break;
                         case LocalState.DOOR_SENSOR_EXCEPTION:
                         case LocalState.DOOR_SENSOR_INIT:
+                            break;
                         case LocalState.DOOR_SENSOR_OPEN:
                             // 因为异常，所以与锁的状态同步
                             doorOpen(ivDoorState, tvDoorState);
@@ -292,9 +293,10 @@ public class DeviceDetailActivity extends BaseActivity {
                 if (isUseDoorSensor) {
                     doorShow(ivDoorState, tvDoorState);
                     switch (mBleDeviceLocal.getDoorSensor()) {
-                        case LocalState.DOOR_SENSOR_CLOSE:
                         case LocalState.DOOR_SENSOR_EXCEPTION:
                         case LocalState.DOOR_SENSOR_INIT:
+                            break;
+                        case LocalState.DOOR_SENSOR_CLOSE:
                             // 因为异常，所以与锁的状态同步
                             doorClose(ivDoorState, tvDoorState);
                             break;

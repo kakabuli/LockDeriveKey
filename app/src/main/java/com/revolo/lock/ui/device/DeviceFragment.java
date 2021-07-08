@@ -88,7 +88,6 @@ public class DeviceFragment extends Fragment {
                     }
                 } else if (intent.getAction().equals(Intent.ACTION_SCREEN_ON)) {
                     // 屏幕打开了
-                    Timber.d("###########################   screen on   ###########################");
                     if (titleBar != null) {
                         titleBar.setNetError(true);
                     }
