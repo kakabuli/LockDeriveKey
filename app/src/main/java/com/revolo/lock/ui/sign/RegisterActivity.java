@@ -64,7 +64,8 @@ public class RegisterActivity extends BaseActivity {
     private boolean isCountdown = false;
     private EditText mEtEmail;
     private TextView mTvGetCode;
-//    private String emailName = "";
+    private int verificationCodeTimeCount = 60;
+    private CountDownTimer mCountDownTimer = null;
 
     @Override
     public void initData(@Nullable Bundle bundle) {
@@ -103,48 +104,30 @@ public class RegisterActivity extends BaseActivity {
         initLoading(getString(R.string.t_load_content_registering));
 
         mEtEmail = findViewById(R.id.etEmail);
-        /*mEtEmail.setOnFocusChangeListener(new android.view.View.
-                OnFocusChangeListener() {
+        verificationCodeTimeCount = Constant.verificationCodeTimeCount;
+        mCountDownTimer = new CountDownTimer(60000, 1000) {
             @Override
-            public void onFocusChange(View v, boolean hasFocus) {
-                if (hasFocus) {
-                    // 此处为得到焦点时的处理内容
-                    mEtEmail.setText(emailName);
-                } else {
-                    // 此处为失去焦点时的处理内容
-                    emailName = mEtEmail.getText().toString();
-                    if (null != emailName && !"".equals(emailName) && emailName.length() > 15) {
-                        String hintText = emailName.substring(0, 5) + "..." + emailName.substring(emailName.length() - 7, emailName.length());
-                        mEtEmail.setText(hintText);
-                    } else {
-                        mEtEmail.setText(emailName);
-                    }
-                }
-            }
-        });
-        mEtEmail.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                if (s.toString().indexOf("...") > 0) {
-                    return;
-                }
-                if (s.length() > 0) {
-                    emailName = s.toString();
-                } else {
-                    emailName = "";
+            public void onTick(long millisUntilFinished) {
+                int sec = (int) (millisUntilFinished / 1000);
+                int time = sec - (60 - verificationCodeTimeCount);
+                String value = String.valueOf(time);
+                mTvGetCode.setText(value);
+                if (time <= 0) {
+                    onFinish();
+                    cancel();
                 }
             }
 
             @Override
-            public void afterTextChanged(Editable s) {
+            public void onFinish() {
+                isCountdown = false;
+                mTvGetCode.setText(getString(R.string.get_code));
+                verificationCodeTimeCount = 60;
             }
-        });*/
-
-
+        };
+        if (Constant.isVerificationCodeTime) {
+            mCountDownTimer.start();
+        }
     }
 
     @Override
@@ -198,8 +181,6 @@ public class RegisterActivity extends BaseActivity {
         req.setMail(mail);
         req.setWorld(2);
         Observable<GetCodeBeanRsp> observable = HttpRequest.getInstance().getCode(req);
-        isCountdown = true;
-        mCountDownTimer.start();
         ObservableDecorator.decorate(observable).safeSubscribe(new Observer<GetCodeBeanRsp>() {
             @Override
             public void onSubscribe(@NonNull Disposable d) {
@@ -221,6 +202,9 @@ public class RegisterActivity extends BaseActivity {
                     return;
                 }
                 ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_success);
+                isCountdown = true;
+                mCountDownTimer.start();
+                mHandler.sendEmptyMessage(VERIFICATION_CODE_TIME);
             }
 
             @Override
@@ -317,20 +301,6 @@ public class RegisterActivity extends BaseActivity {
             }
         });
     }
-
-    private final CountDownTimer mCountDownTimer = new CountDownTimer(60000, 1000) {
-        @Override
-        public void onTick(long millisUntilFinished) {
-            String value = String.valueOf((int) (millisUntilFinished / 1000));
-            mTvGetCode.setText(value);
-        }
-
-        @Override
-        public void onFinish() {
-            isCountdown = false;
-            mTvGetCode.setText(getString(R.string.get_code));
-        }
-    };
 
     private void addUserToLocal(String mail) {
         User user = new User();
