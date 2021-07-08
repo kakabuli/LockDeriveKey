@@ -18,6 +18,8 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Date;
 
+import timber.log.Timber;
+
 import static com.revolo.lock.ble.BleCommandState.KEY_SET_ATTRIBUTE_ALWAYS;
 import static com.revolo.lock.ble.BleCommandState.KEY_SET_ATTRIBUTE_TIME_KEY;
 import static com.revolo.lock.ble.BleCommandState.KEY_SET_ATTRIBUTE_WEEK_KEY;
@@ -134,7 +136,8 @@ public class PasswordListAdapter extends BaseQuickAdapter<DevicePwdBean, BaseVie
             // 时间策略秘钥
             long startTime = devicePwdBean.getStartTime() * 1000;
             long endTime = devicePwdBean.getEndTime() * 1000;
-            long nowTime = new Date().getTime();
+            long nowTime = ZoneUtil.getTestTime(timeZone);
+            // new Date().getTime();
             if (startTime <= nowTime && nowTime <= endTime) {
                 return false;
             } else {

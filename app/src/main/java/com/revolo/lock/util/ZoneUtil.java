@@ -21,8 +21,30 @@ public class ZoneUtil {
     public static long getTime() {
         return System.currentTimeMillis();
     }
+    public static long getZoneTime(long zoneTime,String zone){
+        String z1 = zone.substring(1, 3);
+        String z2 = zone.substring(4, 6);
+        int zoneValer = 0;
+        try {
+            zoneValer = Integer.parseInt(z1) * 4 + (Integer.parseInt(z2) / 15);
+            if (zone.indexOf("-") > -1) {
+                zoneValer = zoneValer * -1;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            zoneValer = 0;
+        }
+
+        long time = zoneTime - (zoneValer * 15 * 60 * 1000);
+
+        Timber.e("dagd:" + time);
+        Timber.e("dagd2:" + zoneTime);
+
+        return time;
+    }
 
     public static long getTime(String timeZone, String timeStr, String pattern) {
+        timeZone = "+00:00";
         SimpleDateFormat formatter = new SimpleDateFormat(pattern);
         formatter.setTimeZone(TimeZone.getTimeZone("GMT" + timeZone));
         ParsePosition pos = new ParsePosition(0);
@@ -31,6 +53,7 @@ public class ZoneUtil {
     }
 
     public static long getTime(String timeZone, String timeStr) {
+        timeZone = "+00:00";
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
         formatter.setTimeZone(TimeZone.getTimeZone("GMT" + timeZone));
         ParsePosition pos = new ParsePosition(0);
@@ -39,14 +62,32 @@ public class ZoneUtil {
     }
 
     public static String getDate(String timeZone, long time) {
-        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        timeZone = "+00:00";
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
         formatter.setTimeZone(TimeZone.getTimeZone("GMT" + timeZone));
         Date date = new Date();
         date.setTime(time);
         return formatter.format(date);
     }
+    public static long getTestTime(String zone){
+        String z1 = zone.substring(1, 3);
+        String z2 = zone.substring(4, 6);
+        int zoneValer = 0;
+        try {
+            zoneValer = Integer.parseInt(z1) * 4 + (Integer.parseInt(z2) / 15);
+            if (zone.indexOf("-") > -1) {
+                zoneValer = zoneValer * -1;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            zoneValer = 0;
+        }
+
+        return (getTime("",getDate("",System.currentTimeMillis()))+ (zoneValer * 15 * 60 * 1000));
+    }
 
     public static String getDate(String timeZone, long time, String pattern) {
+        timeZone = "+00:00";
         SimpleDateFormat formatter = new SimpleDateFormat(pattern);
         formatter.setTimeZone(TimeZone.getTimeZone("GMT" + timeZone));
         Date date = new Date();
