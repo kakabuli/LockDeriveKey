@@ -2,7 +2,6 @@ package com.revolo.lock.ui.sign;
 
 import android.content.Intent;
 import android.hardware.fingerprint.FingerprintManager;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -27,7 +26,6 @@ import com.revolo.lock.room.entity.User;
 import com.revolo.lock.ui.MainActivity;
 import com.revolo.lock.util.FingerprintUtils;
 
-import java.util.TimeZone;
 import java.util.concurrent.Executor;
 
 import timber.log.Timber;

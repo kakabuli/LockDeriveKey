@@ -684,10 +684,7 @@ public class DoorLockInformationActivity extends BaseActivity {
         selectDialog.setMessage(getString(R.string.dialog_tip_there_is_a_new_version_available_do_you_want_to_update));
         selectDialog.setOnConfirmListener(v -> {
             selectDialog.dismiss();
-//            checkOrUseAllOTAUpdateVer();
-            if (mOTAUpdateDialog != null) {
-                mOTAUpdateDialog.show();
-            }
+            checkOrUseAllOTAUpdateVer();
         });
         selectDialog.setOnCancelClickListener(v -> selectDialog.dismiss());
         selectDialog.show();
