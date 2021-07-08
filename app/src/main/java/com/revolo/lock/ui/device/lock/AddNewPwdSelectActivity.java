@@ -393,7 +393,7 @@ public class AddNewPwdSelectActivity extends BaseActivity {
         showLoading();
         if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI || mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI_BLE) {
             publishAddPwd(mBleDeviceLocal.getEsn(), mKey);
-        } else {
+        } else if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_BLE) {
             if (mBleBean == null) {
                 Timber.e("nextStep mBleBean == null");
                 return;
@@ -411,10 +411,9 @@ public class AddNewPwdSelectActivity extends BaseActivity {
             message.setBytes(BleCommandFactory.addKey(KEY_SET_KEY_TYPE_PWD,
                     mKey.getBytes(StandardCharsets.UTF_8), mBleBean.getPwd1(), mBleBean.getPwd3()));
             message.setMac(mBleBean.getOKBLEDeviceImp().getMacAddress());
-            EventBus.getDefault().post(message);/*
-            App.getInstance().writeControlMsg(,
-                    mBleBean.getOKBLEDeviceImp());*/
-            // TODO: 2021/1/29 需要做超时操作
+            EventBus.getDefault().post(message);
+        } else {
+            ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(getString(R.string.t_text_content_offline_devices));
         }
     }
 
