@@ -460,7 +460,7 @@ public class WifiSettingActivity extends BaseActivity {
             String wifiName = mBleDeviceLocal.getConnectedWifiName();
             mTvWifiName.setText(TextUtils.isEmpty(wifiName) ? "" : wifiName);
             isWifiConnected = true;
-//            mCltip.setVisibility(View.VISIBLE);
+            mCltip.setVisibility(View.VISIBLE);
         });
     }
 
@@ -468,6 +468,7 @@ public class WifiSettingActivity extends BaseActivity {
         runOnUiThread(() -> {
             mIvWifiEnable.setImageResource(R.drawable.ic_icon_switch_close);
             isWifiConnected = false;
+            mCltip.setVisibility(View.INVISIBLE);
         });
     }
 
