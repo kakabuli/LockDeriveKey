@@ -332,7 +332,8 @@ public class LockAppService extends Service {
             } else if (bleConnected.getConnectType() == 3) {
                 BleDeviceLocal bleDeviceLocal = bleConnected.getBleDeviceLocal();
                 if (null != bleDeviceLocal) {
-                    BluetoothDevice device = null;
+                    connectDevice(bleDeviceLocal);
+                  /*  BluetoothDevice device = null;
                     try {
                         device = getBluetoothAdapter().getRemoteDevice(bleDeviceLocal.getMac());
                     } catch (Exception e) {
@@ -344,7 +345,7 @@ public class LockAppService extends Service {
                     System.arraycopy(bytes, 0, mPwd1, 0, bytes.length);
                     Timber.e("connected type:3");
                     onBleConnect(bleDeviceLocal.getEsn(), null, device, mPwd1, ConvertUtils.hexString2Bytes(bleDeviceLocal.getPwd2())
-                    );
+                    );*/
                 }
             }
 
@@ -427,7 +428,8 @@ public class LockAppService extends Service {
             }
             //判断当前ble的连接情况
             if (!bleState) {
-                if (!getBluetoothAdapter().isEnabled()) {
+                connectDevice(bleDeviceLocal);
+               /* if (!getBluetoothAdapter().isEnabled()) {
                     Timber.e("当前蓝牙已关闭，无法进行连接");
                 } else {
                     Timber.e("当前蓝牙正常，正进行连接");
@@ -443,7 +445,7 @@ public class LockAppService extends Service {
                     System.arraycopy(bytes, 0, mPwd1, 0, bytes.length);
                     onBleConnect(bleDeviceLocal.getEsn(), null, device, mPwd1, ConvertUtils.hexString2Bytes(bleDeviceLocal.getPwd2())
                     );
-                }
+                }*/
             }
         }
         //lock.unlock();
@@ -456,6 +458,26 @@ public class LockAppService extends Service {
         lockMessageRes.setResultCode(MSG_LOCK_MESSAGE_CODE_SUCCESS);
         lockMessageRes.setMessageCode(LockMessageCode.MSG_LOCK_MESSAGE_ADD_DEVICE);//添加到设备到主页
         EventBus.getDefault().post(lockMessageRes);
+    }
+
+    private void connectDevice(BleDeviceLocal bleDeviceLocal){
+        if (!getBluetoothAdapter().isEnabled()) {
+            Timber.e("当前蓝牙已关闭，无法进行连接");
+        } else {
+            Timber.e("当前蓝牙正常，正进行连接");
+            BluetoothDevice device = null;
+            try {
+                device = getBluetoothAdapter().getRemoteDevice(bleDeviceLocal.getMac());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            //bleScanResult.
+            byte[] mPwd1 = new byte[16];
+            byte[] bytes = ConvertUtils.hexString2Bytes(bleDeviceLocal.getPwd1());
+            System.arraycopy(bytes, 0, mPwd1, 0, bytes.length);
+            onBleConnect(bleDeviceLocal.getEsn(), null, device, mPwd1, ConvertUtils.hexString2Bytes(bleDeviceLocal.getPwd2())
+            );
+        }
     }
 
     /**

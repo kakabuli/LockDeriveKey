@@ -150,11 +150,11 @@ public class WifiConnectActivity extends BaseActivity {
                     if (bleResultBean.getPayload()[0] == 0x00) {
                         // 连接wifi成功
                         changeValue(100);
-                        App.getInstance().removeConnectedBleDisconnect(mBleBean);
+                     //   App.getInstance().removeConnectedBleDisconnect(mBleBean);
                         /*替换
                         App.getInstance().removeConnectedBleBeanAndDisconnect(mBleBean);*/
                         // 设置为wifi模式
-                        mBleDeviceLocal.setConnectedType(LocalState.DEVICE_CONNECT_TYPE_WIFI);
+                       // mBleDeviceLocal.setConnectedType(LocalState.DEVICE_CONNECT_TYPE_WIFI);
                         mBleDeviceLocal.setConnectedWifiName(mWifiName);
                         App.getInstance().setBleDeviceLocal(mBleDeviceLocal);
                         AppDatabase.getInstance(this).bleDeviceDao().update(mBleDeviceLocal);
