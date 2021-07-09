@@ -28,6 +28,8 @@ import com.revolo.lock.App;
 import com.revolo.lock.Constant;
 import com.revolo.lock.R;
 import com.revolo.lock.base.BaseActivity;
+import com.revolo.lock.bean.request.DeleteDeviceTokenBeanReq;
+import com.revolo.lock.bean.respone.DeviceTokenBeanRsp;
 import com.revolo.lock.bean.respone.LogoutBeanRsp;
 import com.revolo.lock.bean.respone.UploadUserAvatarBeanRsp;
 import com.revolo.lock.dialog.SelectDialog;
@@ -449,7 +451,7 @@ public class UserPageActivity extends BaseActivity implements EasyPermissions.Pe
                 //清理mqtt连接
                 //关闭MQTT
                 MQTTManager.getInstance().mqttDisconnect();
-
+                deleteDeviceToken();
                 User user = App.getInstance().getUser();
                 AppDatabase.getInstance(getApplicationContext()).userDao().delete(user);
                 App.getInstance().getUserBean().setToken(""); // 清空token
@@ -489,6 +491,37 @@ public class UserPageActivity extends BaseActivity implements EasyPermissions.Pe
             fos.close();
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+
+    private void deleteDeviceToken() {
+        if (App.getInstance().getUserBean() != null) {
+            Timber.d("**************************   delete google token to server   **************************");
+            DeleteDeviceTokenBeanReq req = new DeleteDeviceTokenBeanReq();
+            req.setUid(App.getInstance().getUserBean().getUid());
+            Observable<DeviceTokenBeanRsp> deviceTokenBeanRspObservable = HttpRequest.getInstance().deleteDeviceToken(App.getInstance().getUserBean().getToken(), req);
+            ObservableDecorator.decorate(deviceTokenBeanRspObservable).safeSubscribe(new Observer<DeviceTokenBeanRsp>() {
+                @Override
+                public void onSubscribe(@io.reactivex.annotations.NonNull Disposable d) {
+
+                }
+
+                @Override
+                public void onNext(@io.reactivex.annotations.NonNull DeviceTokenBeanRsp deviceTokenBeanRsp) {
+
+                }
+
+                @Override
+                public void onError(@io.reactivex.annotations.NonNull Throwable e) {
+
+                }
+
+                @Override
+                public void onComplete() {
+
+
+                }
+            });
         }
     }
 }

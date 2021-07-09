@@ -20,7 +20,9 @@ import com.revolo.lock.bean.request.DelDeviceBeanReq;
 import com.revolo.lock.bean.request.DelInvalidShareBeanReq;
 import com.revolo.lock.bean.request.DelKeyBeanReq;
 import com.revolo.lock.bean.request.DelSharedUserBeanReq;
+import com.revolo.lock.bean.request.DeleteDeviceTokenBeanReq;
 import com.revolo.lock.bean.request.DeleteSystemMessageReq;
+import com.revolo.lock.bean.request.DeviceTokenBeanReq;
 import com.revolo.lock.bean.request.DeviceUnbindBeanReq;
 import com.revolo.lock.bean.request.EnableSharedUserBeanReq;
 import com.revolo.lock.bean.request.FeedBackBeanReq;
@@ -71,6 +73,7 @@ import com.revolo.lock.bean.respone.DelDeviceBeanRsp;
 import com.revolo.lock.bean.respone.DelInvalidShareBeanRsp;
 import com.revolo.lock.bean.respone.DelKeyBeanRsp;
 import com.revolo.lock.bean.respone.DelSharedUserBeanRsp;
+import com.revolo.lock.bean.respone.DeviceTokenBeanRsp;
 import com.revolo.lock.bean.respone.DeviceUnbindBeanRsp;
 import com.revolo.lock.bean.respone.EnableSharedUserBeanRsp;
 import com.revolo.lock.bean.respone.FeedBackBeanRsp;
@@ -134,7 +137,7 @@ public class HttpRequest {
     public static final String LOCAL_HOST_ABROAD = "https://revolotest.sfeiya.com:8090";                      // 海外服务器测试接口
     public static final String LOCAL_HOST_248 = "https://192.168.118.248:443";                           // 长沙本地服务器测试接口
     public static final String LOCAL_HOST_249 = "https://192.168.118.249:443";                           // 长沙本地服务器-*/测试接口2
-    public static String HTTP_BASE_HOST = LOCAL_HOST_ALPHA;
+    public static String HTTP_BASE_HOST = LOCAL_HOST_248;
     private static final String CHECK_OTA_HOST_TEST = "https://test1.juziwulian.com:9111";          // 国内服务器测试接口
     private static final String CHECK_OTA_HOST_ABROAD = "https://ota-global.juziwulian.com:9111";   // 海外服务器接口
     public static final String CHECK_OTA_HOST = CHECK_OTA_HOST_ABROAD;
@@ -484,5 +487,13 @@ public class HttpRequest {
 
     public Observable<AlexaSkillEnableBeanRsp> skillEnable(String token, AlexaSkillEnableReq req) {
         return service.skillEnable(token, req);
+    }
+
+    public Observable<DeviceTokenBeanRsp> deviceToken(String token, DeviceTokenBeanReq req) {
+        return service.deviceToken(token, req);
+    }
+
+    public Observable<DeviceTokenBeanRsp> deleteDeviceToken(String token, DeleteDeviceTokenBeanReq req) {
+        return service.deleteDeviceToken(token, req);
     }
 }

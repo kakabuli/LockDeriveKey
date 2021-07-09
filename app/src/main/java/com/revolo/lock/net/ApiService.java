@@ -18,7 +18,9 @@ import com.revolo.lock.bean.request.DelDeviceBeanReq;
 import com.revolo.lock.bean.request.DelInvalidShareBeanReq;
 import com.revolo.lock.bean.request.DelKeyBeanReq;
 import com.revolo.lock.bean.request.DelSharedUserBeanReq;
+import com.revolo.lock.bean.request.DeleteDeviceTokenBeanReq;
 import com.revolo.lock.bean.request.DeleteSystemMessageReq;
+import com.revolo.lock.bean.request.DeviceTokenBeanReq;
 import com.revolo.lock.bean.request.DeviceUnbindBeanReq;
 import com.revolo.lock.bean.request.EnableSharedUserBeanReq;
 import com.revolo.lock.bean.request.FeedBackBeanReq;
@@ -69,6 +71,7 @@ import com.revolo.lock.bean.respone.DelDeviceBeanRsp;
 import com.revolo.lock.bean.respone.DelInvalidShareBeanRsp;
 import com.revolo.lock.bean.respone.DelKeyBeanRsp;
 import com.revolo.lock.bean.respone.DelSharedUserBeanRsp;
+import com.revolo.lock.bean.respone.DeviceTokenBeanRsp;
 import com.revolo.lock.bean.respone.DeviceUnbindBeanRsp;
 import com.revolo.lock.bean.respone.EnableSharedUserBeanRsp;
 import com.revolo.lock.bean.respone.FeedBackBeanRsp;
@@ -698,4 +701,24 @@ public interface ApiService {
     @Headers({"Content-Type: application/json"})
     @POST("/zetark-oauth2-server/skillEnable")
     Observable<AlexaSkillEnableBeanRsp> skillEnable(@Header("token") String token, @Body AlexaSkillEnableReq req);
+
+    /**
+     * 添加推送token
+     *
+     * @param token 用户权限码
+     * @param req   请求实体
+     */
+    @Headers({"Content-Type: application/json"})
+    @POST("/user/upload/deviceToken")
+    Observable<DeviceTokenBeanRsp> deviceToken(@Header("token") String token, @Body DeviceTokenBeanReq req);
+
+    /**
+     * 删除推送token
+     *
+     * @param token 用户权限码
+     * @param req   请求实体
+     */
+    @Headers({"Content-Type: application/json"})
+    @POST("/user/del/deviceToken")
+    Observable<DeviceTokenBeanRsp> deleteDeviceToken(@Header("token") String token, @Body DeleteDeviceTokenBeanReq req);
 }

@@ -99,11 +99,6 @@ public class SignSelectActivity extends BaseActivity {
 
         User user = App.getInstance().getUser();
         if (user == null) {
-            if (BuildConfig.DEBUG) {
-                if (selectServerDialog != null) {
-                    selectServerDialog.show();
-                }
-            }
             constraintLayout.setVisibility(View.VISIBLE);
             return;
         }

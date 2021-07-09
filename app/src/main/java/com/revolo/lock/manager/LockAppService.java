@@ -1224,7 +1224,7 @@ public class LockAppService extends Service {
         }
         new Handler(Looper.getMainLooper()).postDelayed(() -> {
             long nowTime = ZoneUtil.getTime() / 1000;
-            Timber.e("#############################   nowTime = " + nowTime + " timeZone = +" + ZoneUtil.getZone() + "    ############################");
+            Timber.e("**************************   nowTime = " + nowTime + " timeZone = +" + ZoneUtil.getZone() + "    **************************");
             BleManager.getInstance().writeControlMsg(BleCommandFactory
                     .syLockTime(nowTime, bleBean.getPwd1(), bleBean.getPwd3()), bleBean.getOKBLEDeviceImp());
         }, 20);

@@ -412,7 +412,9 @@ public class DoorLockInformationActivity extends BaseActivity {
                     Timber.e("checkOrUseOTAUpdateVer code: %1s,  msg: %2s", code, msg);
                     return;
                 }
-                initLoading("Updating");
+                if (mOTAUpdateDialog != null) {
+                    mOTAUpdateDialog.show();
+                }
             }
 
             @Override
@@ -635,9 +637,9 @@ public class DoorLockInformationActivity extends BaseActivity {
                     String msg = checkAllOTABeanRsp.getMsg();
                     Timber.e("checkAllOTAVer code: %1s  msg: %2s",
                             checkAllOTABeanRsp.getCode(), msg);
-                    if (!TextUtils.isEmpty(msg)) {
-                        ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(msg);
-                    }
+//                    if (!TextUtils.isEmpty(msg)) {
+//                        ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(msg);
+//                    }
                     return;
                 }
                 if (checkAllOTABeanRsp.getData() == null) {

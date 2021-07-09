@@ -178,7 +178,7 @@ public class MqttCommandFactory {
                 MQttConstant.SET_LOCK, setLock,
                 (System.currentTimeMillis() / 1000) + "");
         String base64Json = getEncryptString(pwd, mWifiLockDoorOptPublishBean);
-        return sendEncryptData(messageId, wifiID, base64Json, 0);
+        return sendEncryptData(messageId, wifiID, base64Json, 2);
     }
 
     private static String getPassword(String wifiEsn, String randomCode) {

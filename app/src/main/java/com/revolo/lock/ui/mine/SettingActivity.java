@@ -288,6 +288,7 @@ public class SettingActivity extends BaseActivity {
                                               @NonNull CharSequence errString) {
                 super.onAuthenticationError(errorCode, errString);
                 Timber.e("Authentication error: %s", errString);
+                biometricSet(isFace);
             }
 
             //认证成功的回调

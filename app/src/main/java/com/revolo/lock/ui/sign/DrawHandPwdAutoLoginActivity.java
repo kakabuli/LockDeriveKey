@@ -54,7 +54,7 @@ public class DrawHandPwdAutoLoginActivity extends BaseActivity {
     @Override
     public void initView(@Nullable Bundle savedInstanceState, @Nullable View contentView) {
         TitleBar titleBar = useCommonTitleBar("Gesture password");
-        titleBar.getIvLeft().setVisibility(View.GONE);
+        titleBar.getIvLeft().setVisibility(View.INVISIBLE);
 
         tvDrawTip = findViewById(R.id.tvDrawTip);
         FrameLayout gestureContainer = findViewById(R.id.gesture_container);
