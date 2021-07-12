@@ -456,6 +456,10 @@ public class UserPageActivity extends BaseActivity implements EasyPermissions.Pe
                 AppDatabase.getInstance(getApplicationContext()).userDao().delete(user);
                 App.getInstance().getUserBean().setToken(""); // 清空token
                 SPUtils.getInstance(REVOLO_SP).put(Constant.USER_LOGIN_INFO, ""); // 清空登录信息
+                //清理电子围栏信息
+                if(null!=App.getInstance().getLockGeoFenceService()){
+                    App.getInstance().getLockGeoFenceService().clearBleDevice();
+                }
                 //清理设备信息
                 App.getInstance().removeDeviceList();
                 startActivity(new Intent(UserPageActivity.this, LoginActivity.class).putExtra("logout", true));

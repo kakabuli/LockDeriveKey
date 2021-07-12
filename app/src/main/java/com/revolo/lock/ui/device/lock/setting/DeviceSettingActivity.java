@@ -390,7 +390,10 @@ public class DeviceSettingActivity extends BaseActivity {
                 message.setMessageCode(MSG_LOCK_MESSAGE_REMOVE_DEVICE);
                 message.setMac(mBleDeviceLocal.getMac().toUpperCase());
                 EventBus.getDefault().post(message);
-
+                //清理电子围栏
+                if (null != App.getInstance().getLockGeoFenceService()) {
+                    App.getInstance().getLockGeoFenceService().clearBleDevice(mBleDeviceLocal.getEsn());
+                }
                 App.getInstance().removeConnectedBleDisconnect(mBleDeviceLocal.getMac());
                 AppDatabase.getInstance(getApplicationContext()).bleDeviceDao().delete(mBleDeviceLocal);
                 ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_unbind_success);

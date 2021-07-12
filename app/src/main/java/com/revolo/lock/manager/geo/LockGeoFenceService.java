@@ -88,13 +88,10 @@ public class LockGeoFenceService extends Service implements OnMapReadyCallback, 
         super.onCreate();
         lockGeoFenceEns = new ArrayList<>();
         Timber.e("init lock geofence service");
-        Timber.e("init lock map");
         if (null == mGeoFencingClient) {
-            Timber.e("init lock map2");
             mGeoFencingClient = LocationServices.getGeofencingClient(LockGeoFenceService.this);
         }
         if (null == fusedLocationClient) {
-            Timber.e("init lock map3");
             fusedLocationClient = LocationServices.getFusedLocationProviderClient(LockGeoFenceService.this);
         }
         startGeo();
@@ -309,11 +306,24 @@ public class LockGeoFenceService extends Service implements OnMapReadyCallback, 
                     }
                 }
             }
-        }
-        if (lockGeoFenceEns.size() < 1) {
+            if (lockGeoFenceEns.size() < 1) {
+                stopGeo();
+            }
+        } else {
             stopGeo();
         }
     }
+
+    public void clearBleDevice() {
+        Timber.e("清理全部电子围栏");
+        if (null != lockGeoFenceEns) {
+            lockGeoFenceEns.clear();
+            stopGeo();
+        } else {
+            stopGeo();
+        }
+    }
+
 
     /**
      * 更新

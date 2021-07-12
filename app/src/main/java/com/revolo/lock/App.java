@@ -84,10 +84,7 @@ public class App extends Application {
     public void onCreate() {
         super.onCreate();
         instance = this;
-//        if (BuildConfig.DEBUG) {
         Timber.plant(new Timber.DebugTree());
-//        }
-        //initMQttService();
         initLockAppService();
         initLockGeoService();
 
@@ -102,16 +99,7 @@ public class App extends Application {
         CrashReport.initCrashReport(getApplicationContext(), "22dc9fa410", true);
     }
 
-    // TODO: 2021/3/8 临时存个MainActivity 后期删除
-    private MainActivity mMainActivity;
 
-    public MainActivity getMainActivity() {
-        return mMainActivity;
-    }
-
-    public void setMainActivity(MainActivity mainActivity) {
-        mMainActivity = mainActivity;
-    }
 
     private User mUser;
     private String mMail;
