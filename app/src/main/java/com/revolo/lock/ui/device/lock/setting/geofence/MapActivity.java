@@ -43,6 +43,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.revolo.lock.App;
 import com.revolo.lock.R;
 import com.revolo.lock.base.BaseActivity;
+import com.revolo.lock.dialog.SelectDialog;
 import com.revolo.lock.manager.geo.LockGeoFenceService;
 import com.revolo.lock.room.AppDatabase;
 import com.revolo.lock.room.entity.BleDeviceLocal;
@@ -70,6 +71,7 @@ public class MapActivity extends BaseActivity implements OnMapReadyCallback, Goo
     //  private FusedLocationProviderClient fusedLocationClient;
 
     private BleDeviceLocal mBleDeviceLocal;
+    private SelectDialog canApplyDialog, refuseDialog;
 
     @Override
     public void initData(@Nullable Bundle bundle) {
@@ -159,6 +161,41 @@ public class MapActivity extends BaseActivity implements OnMapReadyCallback, Goo
                 });*/
     }
 
+    /**
+     * 可申请蓝牙状态
+     */
+    private void updateApplyDialog() {
+        if (null == canApplyDialog) {
+            canApplyDialog = new SelectDialog(this);
+            canApplyDialog.setMessage(getString(R.string.dialog_we_need_to_permission_for_location));
+            canApplyDialog.setOnCancelClickListener(v -> canApplyDialog.dismiss());
+            canApplyDialog.setOnConfirmListener(v -> {
+                canApplyDialog.dismiss();
+                ActivityCompat.requestPermissions(MapActivity.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, FINE_LOCATION_ACCESS_REQUEST_CODE);
+            });
+            if (!canApplyDialog.isShowing())
+                canApplyDialog.show();
+        }
+    }
+
+    /**
+     * 申请权限拒绝提示
+     */
+    private void refuseDialog(){
+        if (null == refuseDialog) {
+            refuseDialog = new SelectDialog(this);
+            refuseDialog.setMessage(getString(R.string.dialog_go_to_settings_enable_this_permission));
+            refuseDialog.setOnCancelClickListener(v -> refuseDialog.dismiss());
+            refuseDialog.setOnConfirmListener(v -> {
+                refuseDialog.dismiss();
+                gotoApplicationSettings();
+            });
+            if (!refuseDialog.isShowing())
+                refuseDialog.show();
+        }
+    }
+
+
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0) {
@@ -232,16 +269,7 @@ public class MapActivity extends BaseActivity implements OnMapReadyCallback, Goo
             //Ask for permission
             if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_FINE_LOCATION)) {
                 //We need to show a dialog for displaying why the permission is needed and the ask the permission
-                new AlertDialog.Builder(this)
-                        .setMessage(R.string.dialog_we_need_to_permission_for_location)
-                        .setCancelable(true)
-                        .setPositiveButton(R.string.dialog_ok, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
-                                ActivityCompat.requestPermissions(MapActivity.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, FINE_LOCATION_ACCESS_REQUEST_CODE);
-                            }
-                        }).show();
-
+                updateApplyDialog();
             } else {
                 ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, FINE_LOCATION_ACCESS_REQUEST_CODE);
             }
@@ -260,17 +288,7 @@ public class MapActivity extends BaseActivity implements OnMapReadyCallback, Goo
                 //Permission is not Granted
                 if (!ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_FINE_LOCATION)) {
                     //This block here means PERMANENTLY DENIED PERMISSION
-                    new AlertDialog.Builder(MapActivity.this)
-                            .setMessage(R.string.dialog_go_to_settings_enable_this_permission)
-                            .setPositiveButton(R.string.dialog_go_to_settings, new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialogInterface, int i) {
-                                    gotoApplicationSettings();
-                                }
-                            })
-                            .setNegativeButton(R.string.dialog_cancel, null)
-                            .setCancelable(false)
-                            .show();
+                    refuseDialog();
                 }
             }
         }
