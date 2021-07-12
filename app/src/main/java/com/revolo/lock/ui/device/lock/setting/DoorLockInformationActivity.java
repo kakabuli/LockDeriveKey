@@ -16,6 +16,7 @@ import androidx.annotation.Nullable;
 import com.blankj.utilcode.util.ToastUtils;
 import com.revolo.lock.App;
 import com.revolo.lock.Constant;
+import com.revolo.lock.LocalState;
 import com.revolo.lock.R;
 import com.revolo.lock.base.BaseActivity;
 import com.revolo.lock.bean.request.CheckAllOTABeanReq;
@@ -686,7 +687,11 @@ public class DoorLockInformationActivity extends BaseActivity {
         selectDialog.setMessage(getString(R.string.dialog_tip_there_is_a_new_version_available_do_you_want_to_update));
         selectDialog.setOnConfirmListener(v -> {
             selectDialog.dismiss();
-            checkOrUseAllOTAUpdateVer();
+            if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI_BLE || mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI) {
+                checkOrUseAllOTAUpdateVer();
+            } else {
+                ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(getString(R.string.tip_content_ble_not_update));
+            }
         });
         selectDialog.setOnCancelClickListener(v -> selectDialog.dismiss());
         selectDialog.show();

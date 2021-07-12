@@ -277,6 +277,7 @@ public class DeviceDetailActivity extends BaseActivity {
                             break;
                         case LocalState.DOOR_SENSOR_EXCEPTION:
                         case LocalState.DOOR_SENSOR_INIT:
+                            doorError(ivDoorState, tvDoorState);
                             break;
                         case LocalState.DOOR_SENSOR_OPEN:
                             // 因为异常，所以与锁的状态同步
@@ -295,6 +296,7 @@ public class DeviceDetailActivity extends BaseActivity {
                     switch (mBleDeviceLocal.getDoorSensor()) {
                         case LocalState.DOOR_SENSOR_EXCEPTION:
                         case LocalState.DOOR_SENSOR_INIT:
+                            doorError(ivDoorState, tvDoorState);
                             break;
                         case LocalState.DOOR_SENSOR_CLOSE:
                             // 因为异常，所以与锁的状态同步
@@ -400,6 +402,12 @@ public class DeviceDetailActivity extends BaseActivity {
     private void doorClose(ImageView ivDoorState, TextView tvDoorState) {
         ivDoorState.setImageResource(R.drawable.ic_home_icon_door_closed);
         tvDoorState.setText(R.string.tip_closed);
+    }
+
+    private void doorError(ImageView ivDoorState, TextView tvDoorState) {
+        ivDoorState.setImageResource(R.drawable.ic_home_icon_door_closed);
+        tvDoorState.setText(R.string.tip_error);
+        tvDoorState.setTextColor(getColor(R.color.cFF6A36));
     }
 
     private void doorOpen(ImageView ivDoorState, TextView tvDoorState) {

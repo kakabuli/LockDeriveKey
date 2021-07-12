@@ -18,14 +18,14 @@ public class MQttConstant {
     //    public static final String MQTT_URL = "tcp://internal.irevolo.com:1883";   // 国内测试服务器
     public static final String MQTT_URL_248 = "tcp://192.168.118.248:1883";
     public static final String MQTT_URL_249 = "tcp://192.168.118.249:1883";
-    public static String MQTT_BASE_URL = MQTT_URL_248;
+    public static String MQTT_BASE_URL = MQTT_URL_249;
     public static final String MQTT_REQUEST_APP = "/request/app/func";
 
     //断开后，是否自动连接
     public static final boolean MQTT_AUTOMATIC_RECONNECT = true;
 
     //是否清空客户端的连接记录。若为true，则断开后，broker将自动清除该客户端连接信息
-    public static final boolean MQTT_CLEANSE_SSION = false;
+    public static final boolean MQTT_CLEANSE_SION = false;
 
     //设置超时时间，单位为秒
     public static final int MQTT_CONNECTION_TIMEOUT = 10;

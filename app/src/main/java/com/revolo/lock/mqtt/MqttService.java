@@ -107,7 +107,7 @@ public class MqttService extends Service {
         //断开后，是否自动连接
         connOpts.setAutomaticReconnect(true);
         //是否清空客户端的连接记录。若为true，则断开后，broker将自动清除该客户端连接信息
-        connOpts.setCleanSession(MQttConstant.MQTT_CLEANSE_SSION);
+        connOpts.setCleanSession(MQttConstant.MQTT_CLEANSE_SION);
         //设置超时时间，单位为秒 10
         connOpts.setConnectionTimeout(MQttConstant.MQTT_CONNECTION_TIMEOUT);
         //设置心跳时间，单位为秒 20

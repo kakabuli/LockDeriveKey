@@ -21,7 +21,8 @@ public class ZoneUtil {
     public static long getTime() {
         return System.currentTimeMillis();
     }
-    public static long getZoneTime(long zoneTime,String zone){
+
+    public static long getZoneTime(long zoneTime, String zone) {
         String z1 = zone.substring(1, 3);
         String z2 = zone.substring(4, 6);
         int zoneValer = 0;
@@ -71,7 +72,7 @@ public class ZoneUtil {
     }
 
     public static long getTestTime(String zone) {
-        return (getTime("", getDate("", System.currentTimeMillis())) +getTestTime2(zone));
+        return (getTime("", getDate("", System.currentTimeMillis())) + getTestTime2(zone));
     }
 
     public static long getTestTime2(String zone) {
@@ -99,6 +100,7 @@ public class ZoneUtil {
         date.setTime(time);
         return formatter.format(date);
     }
+
     public static String getTestDate(String timeZone, long time, String pattern) {
         SimpleDateFormat formatter = new SimpleDateFormat(pattern);
         formatter.setTimeZone(TimeZone.getTimeZone("GMT" + timeZone));
@@ -111,7 +113,7 @@ public class ZoneUtil {
         String z1 = zone.substring(1, 3);
         String z2 = zone.substring(4, 6);
         try {
-            int zoneValer = Integer.parseInt(z1) * 4 + (Integer.parseInt(z2)/15);
+            int zoneValer = Integer.parseInt(z1) * 4 + (Integer.parseInt(z2) / 15);
             if (zone.indexOf("-") > -1) {
                 zoneValer = zoneValer * -1;
             }

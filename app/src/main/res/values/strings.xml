@@ -80,8 +80,10 @@
     <string name="tip_door_sensor_error">Door sensor closed</string>
     <string name="tip_door_opened">Door opened</string>
     <string name="tip_door_closed">Door closed</string>
+    <string name="tip_door_error">State Error</string>
     <string name="tip_opened">Opened</string>
     <string name="tip_closed">Closed</string>
+    <string name="tip_error">Error</string>
 
     <!-- OperationRecordsActivity -->
     <string name="title_operation_records">Operation Records</string>
@@ -551,4 +553,5 @@
     <string name="tip_content_ota_update_failed">The door lock is Upgrade failed!</string>
     <string name="tip_content_registered_mail">The mail has bean Registered!</string>
     <string name="tip_content_no_registered_mail">The mail not Registered!</string>
+    <string name="tip_content_ble_not_update">The device is not connected to WiFi</string>
 </resources>

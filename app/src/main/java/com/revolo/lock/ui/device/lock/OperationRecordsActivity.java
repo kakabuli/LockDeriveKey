@@ -15,6 +15,7 @@ import androidx.annotation.Nullable;
 
 import com.bigkoo.pickerview.builder.TimePickerBuilder;
 import com.bigkoo.pickerview.view.TimePickerView;
+import com.blankj.utilcode.util.TimeUtils;
 import com.blankj.utilcode.util.ToastUtils;
 import com.contrarywind.view.WheelView;
 import com.revolo.lock.App;
@@ -48,6 +49,7 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
+import java.sql.Time;
 import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -86,6 +88,9 @@ public class OperationRecordsActivity extends BaseActivity {
 
     private int mPage = 1;
 
+    private long startTime = 0;
+    private long endTime = 0;
+
     @Override
     public void initData(@Nullable Bundle bundle) {
         mBleDeviceLocal = App.getInstance().getBleDeviceLocal();
@@ -123,19 +128,21 @@ public class OperationRecordsActivity extends BaseActivity {
         mRefreshLayout.setRefreshHeader(new SmartClassicsHeaderView(this));
         mRefreshLayout.setOnRefreshListener(refreshLayout -> {
             mPage = 1;
+            getNowDateTime();
             if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI || mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI_BLE) {
-                searchRecordFromNet(mPage, false);
+                searchRecordFromNet(mPage, false, startTime, endTime);
             } else {
                 initDevice();
-                searchRecordFromNet(mPage, true);
+                searchRecordFromNet(mPage, true, startTime, endTime);
             }
         });
         mRefreshLayout.setOnLoadMoreListener(refreshLayout -> {
+            getNowDateTime();
             if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI || mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI_BLE) {
-                searchRecordFromNet(mPage, false);
+                searchRecordFromNet(mPage, false, startTime, endTime);
             } else {
                 initDevice();
-                searchRecordFromNet(mPage, true);
+                searchRecordFromNet(mPage, true, startTime, endTime);
             }
         });
         onRegisterEventBus();
@@ -171,11 +178,12 @@ public class OperationRecordsActivity extends BaseActivity {
 
     @Override
     public void doBusiness() {
+        getNowDateTime();
         if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI || mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI_BLE) {
-            searchRecordFromNet(mPage, false);
+            searchRecordFromNet(mPage, false, startTime, endTime);
         } else {
             initDevice();
-            searchRecordFromNet(mPage, true);
+            searchRecordFromNet(mPage, true, startTime, endTime);
         }
     }
 
@@ -289,7 +297,14 @@ public class OperationRecordsActivity extends BaseActivity {
         isNeedToReceiveRecord = false;
         dismissLoading();
 //        uploadRecordsToService(mWillUploadRecord);
-        searchRecordFromNet(mPage, false);
+        getNowDateTime();
+        searchRecordFromNet(mPage, false, startTime, endTime);
+    }
+
+    private void getNowDateTime() {
+        String s = TimeUtils.date2String(new Date(), "yyyy-MM-dd");
+        startTime = ZoneUtil.getTime(mBleDeviceLocal.getTimeZone(), s + " 00:00:00") / 1000;
+        endTime = ZoneUtil.getTime(mBleDeviceLocal.getTimeZone(), s + " 23:59:59") / 1000;
     }
 
     private final ArrayList<LockRecord> mWillUploadRecord = new ArrayList<>();
@@ -338,7 +353,7 @@ public class OperationRecordsActivity extends BaseActivity {
 
     /*--------------------------------- 服务器 -------------------------------------*/
 
-    private void searchRecordFromNet(int page, boolean isNeedBleGetRecords) {
+    private void searchRecordFromNet(int page, boolean isNeedBleGetRecords, long startTime, long endTime) {
         if (!checkNetConnectFail()) {
             return;
         }
@@ -361,10 +376,13 @@ public class OperationRecordsActivity extends BaseActivity {
             Timber.e("searchRecordFromNet esn is empty");
             return;
         }
+
         LockRecordBeanReq req = new LockRecordBeanReq();
         req.setPage(page);
         req.setUid(uid);
         req.setDeviceSN(esn);
+        req.setStartTime(startTime);
+        req.setEndTime(endTime);
         showLoading();
         Observable<LockRecordBeanRsp> observable = HttpRequest.getInstance().getLockRecordList(token, req);
         ObservableDecorator.decorate(observable).safeSubscribe(new Observer<LockRecordBeanRsp>() {
@@ -532,7 +550,8 @@ public class OperationRecordsActivity extends BaseActivity {
                     return;
                 }
                 mWillUploadRecord.clear();
-                searchRecordFromNet(mPage, false);
+                getNowDateTime();
+                searchRecordFromNet(mPage, false, startTime, endTime);
             }
 
             @Override
@@ -837,7 +856,12 @@ public class OperationRecordsActivity extends BaseActivity {
             String time = dateFormat.format(date);
             long startTime = ZoneUtil.getTime(mBleDeviceLocal.getTimeZone(), time + " 00:00:00");
             long endTime = ZoneUtil.getTime(mBleDeviceLocal.getTimeZone(), time + " 23:59:59");
-            searchRecordsFromDate(time, startTime, endTime);
+            if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI || mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI_BLE) {
+                searchRecordFromNet(mPage, false, startTime, endTime);
+            } else {
+                initDevice();
+                searchRecordFromNet(mPage, true, startTime, endTime);
+            }
         });
 
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
