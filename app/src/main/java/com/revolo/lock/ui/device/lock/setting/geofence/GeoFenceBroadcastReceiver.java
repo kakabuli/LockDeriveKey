@@ -60,11 +60,26 @@ public class GeoFenceBroadcastReceiver extends BroadcastReceiver {
             case Geofence.GEOFENCE_TRANSITION_ENTER:
                 ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_you_have_entered_the_range_of_the_geo_fence);
                 notificationHelper.sendHighPriorityNotification(context.getString(R.string.n_geo_fence), context.getString(R.string.t_you_have_entered_the_range_of_the_geo_fence), MapActivity.class);
-                BleDeviceLocal deviceLocal = App.getInstance().getBleDeviceLocal();
-                if(deviceLocal == null) {
+                BleDeviceLocal deviceLocal = null;
+                String esn = intent.getStringExtra("esn");
+                if (null != esn && !"".equals(esn)) {
+                    Timber.e("local:" + esn);
+                    List<BleDeviceLocal> blsList = App.getInstance().getDeviceLists();
+                    if (null != blsList) {
+                        for (BleDeviceLocal deviceLo : blsList) {
+                            if (deviceLo.getEsn().equals(esn)) {
+                                deviceLocal = deviceLo;
+                                break;
+                            }
+                        }
+                    }
+                } else {
+                    Timber.e("local: null");
+                }
+                if (deviceLocal == null) {
                     return;
                 }
-               /* App.getInstance().publishApproachOpen(*/pushMessage(deviceLocal.getEsn(), deviceLocal.getSetElectricFenceTime());
+                 pushMessage(deviceLocal);
                 break;
             case Geofence.GEOFENCE_TRANSITION_DWELL:
                 // TODO: 2021/4/23 停留
@@ -77,14 +92,10 @@ public class GeoFenceBroadcastReceiver extends BroadcastReceiver {
                 break;
         }
     }
-    private void pushMessage(String wifiID, int broadcastTime){
-        BleDeviceLocal deviceLocal = App.getInstance().getBleDeviceLocal();
-        if (deviceLocal == null) {
-            Timber.e("publishApproachOpen deviceLocal == null");
-            return;
-        }
-        LockMessage lockMessage=new LockMessage();
-        lockMessage.setMqttMessage( MqttCommandFactory.approachOpen(wifiID, broadcastTime,
+
+    private void pushMessage(BleDeviceLocal deviceLocal) {
+        LockMessage lockMessage = new LockMessage();
+        lockMessage.setMqttMessage(MqttCommandFactory.approachOpen(deviceLocal.getEsn(), deviceLocal.getSetElectricFenceTime(),
                 BleCommandFactory.getPwd(
                         ConvertUtils.hexString2Bytes(deviceLocal.getPwd1()),
                         ConvertUtils.hexString2Bytes(deviceLocal.getPwd2()))));

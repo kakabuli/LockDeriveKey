@@ -187,7 +187,16 @@ public class LockGeoFenceService extends Service implements OnMapReadyCallback, 
     }
 
     private void pushMessage(String wifiID, int broadcastTime) {
-        BleDeviceLocal deviceLocal = App.getInstance().getBleDeviceLocal();
+        BleDeviceLocal deviceLocal=null;
+       List<BleDeviceLocal> blsList= App.getInstance().getDeviceLists();
+       if(null!=blsList){
+           for(BleDeviceLocal deviceLo:blsList){
+               if(deviceLo.getEsn().equals(wifiID)){
+                   deviceLocal=deviceLo;
+                   break;
+               }
+           }
+       }
         if (deviceLocal == null) {
             Timber.e("publishApproachOpen deviceLocal == null");
             return;
@@ -456,7 +465,7 @@ public class LockGeoFenceService extends Service implements OnMapReadyCallback, 
         ));
         fenceEn.setGeofencingRequest(fenceEn.getmGeoFenceHelper().getGeoFencingRequest(fenceEn.getGeofence()));
 
-        fenceEn.setPendingIntent(fenceEn.getmGeoFenceHelper().getPendingIntent());
+        fenceEn.setPendingIntent(fenceEn.getmGeoFenceHelper().getPendingIntent(bleDeviceLocal.getEsn()));
         lockGeoFenceEns.add(fenceEn);
         startGeo();
         mGeoFencingClient.addGeofences(fenceEn.getGeofencingRequest(), fenceEn.getPendingIntent())
