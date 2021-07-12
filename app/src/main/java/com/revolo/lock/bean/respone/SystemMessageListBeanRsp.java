@@ -43,10 +43,12 @@ public class SystemMessageListBeanRsp {
 
     public static class DataBean {
         private String _id;
-        private int type;
-        private String title;
-        private String content;
-        private int createTime;
+        private String uid;
+        private String alertTitle;
+        private String alertBody;
+        private String msgType;
+        private String clientType;
+        private String pushAt;
 
         public String get_id() {
             return _id;
@@ -56,36 +58,52 @@ public class SystemMessageListBeanRsp {
             this._id = _id;
         }
 
-        public int getType() {
-            return type;
+        public String getUid() {
+            return uid;
         }
 
-        public void setType(int type) {
-            this.type = type;
+        public void setUid(String uid) {
+            this.uid = uid;
         }
 
-        public String getTitle() {
-            return title;
+        public String getAlertTitle() {
+            return alertTitle;
         }
 
-        public void setTitle(String title) {
-            this.title = title;
+        public void setAlertTitle(String alertTitle) {
+            this.alertTitle = alertTitle;
         }
 
-        public String getContent() {
-            return content;
+        public String getAlertBody() {
+            return alertBody;
         }
 
-        public void setContent(String content) {
-            this.content = content;
+        public void setAlertBody(String alertBody) {
+            this.alertBody = alertBody;
         }
 
-        public int getCreateTime() {
-            return createTime;
+        public String getMsgType() {
+            return msgType;
         }
 
-        public void setCreateTime(int createTime) {
-            this.createTime = createTime;
+        public void setMsgType(String msgType) {
+            this.msgType = msgType;
+        }
+
+        public String getClientType() {
+            return clientType;
+        }
+
+        public void setClientType(String clientType) {
+            this.clientType = clientType;
+        }
+
+        public String getPushAt() {
+            return pushAt;
+        }
+
+        public void setPushAt(String pushAt) {
+            this.pushAt = pushAt;
         }
     }
 }

@@ -33,9 +33,9 @@ public class MessageListAdapter extends BaseQuickAdapter<SystemMessageListBeanRs
     @Override
     protected void convert(@NotNull BaseViewHolder holder, SystemMessageListBeanRsp.DataBean dataBean) {
         if (dataBean != null) {
-            holder.setText(R.id.tvMessageTitle, dataBean.getTitle());
-            holder.setText(R.id.tvTime, simpleDateFormat.format(new Date(dataBean.getCreateTime() * 1000)));
-            holder.setText(R.id.tv_message_answer, dataBean.getContent());
+            holder.setText(R.id.tvMessageTitle, dataBean.getAlertTitle());
+            holder.setText(R.id.tvTime, dataBean.getPushAt());
+            holder.setText(R.id.tv_message_answer, dataBean.getAlertBody());
             TextView textView = holder.getView(R.id.tv_delete);
             textView.setOnClickListener(v -> {
                 if (mOnDeleteListener != null) {

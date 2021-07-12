@@ -96,8 +96,6 @@ public class SettingActivity extends BaseActivity {
                 //指纹验证失败，指纹识别失败，可再验，错误原因为：该指纹不是系统录入的指纹。
             }
         });
-
-        initFaceID();
     }
 
     @Override
@@ -111,6 +109,7 @@ public class SettingActivity extends BaseActivity {
 
     @Override
     public void doBusiness() {
+        initFaceID();
         refreshUI();
     }
 
@@ -126,7 +125,7 @@ public class SettingActivity extends BaseActivity {
             }
         } else if (view.getId() == R.id.ivEnableTouchIDEnable) {
             if (android.os.Build.VERSION.SDK_INT > 27) {
-                showBiometricPrompt(false);
+                biometricSet(false);
             } else {
                 mFingerprintUtils.openFingerprintAuth();
             }
@@ -180,7 +179,7 @@ public class SettingActivity extends BaseActivity {
             ivEnableTouchIDEnable.setImageResource(mUser.isUseTouchId() ? R.drawable.ic_icon_switch_open : R.drawable.ic_icon_switch_close);
             ivEnableFaceIDEnable.setImageResource(mUser.isUseFaceId() ? R.drawable.ic_icon_switch_open : R.drawable.ic_icon_switch_close);
             clChangeGesturePassword.setVisibility(mUser.isUseGesturePassword() ? View.VISIBLE : View.GONE);
-            mClEnableFaceID.setVisibility(android.os.Build.VERSION.SDK_INT > 27 ? View.VISIBLE : View.GONE);
+//            mClEnableFaceID.setVisibility(android.os.Build.VERSION.SDK_INT > 27 ? View.VISIBLE : View.GONE);
         });
     }
 
@@ -191,13 +190,7 @@ public class SettingActivity extends BaseActivity {
 
         switch (mFaceIDCode) {
             case 0:
-                if (isFace) {
-                    mUser.setUseFaceId(!mUser.isUseFaceId());
-                } else {
-                    mUser.setUseTouchId(!mUser.isUseTouchId());
-                }
-                AppDatabase.getInstance(this).userDao().update(mUser);
-                refreshUI();
+                showBiometricPrompt(isFace);
                 break;
             case 1:
             case -1:
@@ -288,7 +281,7 @@ public class SettingActivity extends BaseActivity {
                                               @NonNull CharSequence errString) {
                 super.onAuthenticationError(errorCode, errString);
                 Timber.e("Authentication error: %s", errString);
-                biometricSet(isFace);
+
             }
 
             //认证成功的回调
@@ -296,7 +289,14 @@ public class SettingActivity extends BaseActivity {
             public void onAuthenticationSucceeded(
                     @NonNull BiometricPrompt.AuthenticationResult result) {
                 super.onAuthenticationSucceeded(result);
-                biometricSet(isFace);
+                if (isFace) {
+                    mUser.setUseFaceId(!mUser.isUseFaceId());
+                } else {
+                    mUser.setUseTouchId(!mUser.isUseTouchId());
+                }
+                AppDatabase.getInstance(SettingActivity.this).userDao().update(mUser);
+                refreshUI();
+
             }
 
             //认证失败的回调

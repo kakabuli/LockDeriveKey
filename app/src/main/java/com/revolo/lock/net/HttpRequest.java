@@ -55,6 +55,7 @@ import com.revolo.lock.bean.request.UpdateUserAuthorityTypeBeanReq;
 import com.revolo.lock.bean.request.UpdateUserFirstLastNameBeanReq;
 import com.revolo.lock.bean.request.UploadAlarmRecordBeanReq;
 import com.revolo.lock.bean.request.UploadOpenDoorRecordBeanReq;
+import com.revolo.lock.bean.request.UserByMailExistsBeanReq;
 import com.revolo.lock.bean.respone.AcceptShareBeanRsp;
 import com.revolo.lock.bean.respone.AdminAddDeviceBeanRsp;
 import com.revolo.lock.bean.respone.AlexaAppUrlAndWebUrlBeanRsp;
@@ -109,6 +110,7 @@ import com.revolo.lock.bean.respone.UpdateUserFirstLastNameBeanRsp;
 import com.revolo.lock.bean.respone.UploadAlarmRecordBeanRsp;
 import com.revolo.lock.bean.respone.UploadOpenDoorRecordBeanRsp;
 import com.revolo.lock.bean.respone.UploadUserAvatarBeanRsp;
+import com.revolo.lock.bean.respone.UserByMailExistsBeanRsp;
 
 import java.io.File;
 import java.security.cert.CertificateException;
@@ -495,5 +497,9 @@ public class HttpRequest {
 
     public Observable<DeviceTokenBeanRsp> deleteDeviceToken(String token, DeleteDeviceTokenBeanReq req) {
         return service.deleteDeviceToken(token, req);
+    }
+
+    public Observable<UserByMailExistsBeanRsp> getUserByMailExists(UserByMailExistsBeanReq req) {
+        return service.getUserByMailExists(req);
     }
 }

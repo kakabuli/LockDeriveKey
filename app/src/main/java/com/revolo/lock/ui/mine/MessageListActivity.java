@@ -133,7 +133,7 @@ public class MessageListActivity extends BaseActivity {
         }
 
         SystemMessageListReq messageListReq = new SystemMessageListReq();
-        messageListReq.setPage(page);
+        messageListReq.setPageNum(page);
         messageListReq.setUid(App.getInstance().getUserBean().getUid());
         Observable<SystemMessageListBeanRsp> observable = HttpRequest.getInstance().systemMessageList(token, messageListReq);
         ObservableDecorator.decorate(observable).safeSubscribe(new Observer<SystemMessageListBeanRsp>() {
@@ -168,6 +168,13 @@ public class MessageListActivity extends BaseActivity {
         mSmartRefreshLayout.finishRefresh(true);
         mSmartRefreshLayout.finishLoadMore(true);
         List<SystemMessageListBeanRsp.DataBean> data = systemMessageListBeanRsp.getData();
+        if (data == null || data.isEmpty()) {
+            mIvNoMessage.setVisibility(View.VISIBLE);
+            mTvNoMessage.setVisibility(View.VISIBLE);
+        } else {
+            mIvNoMessage.setVisibility(View.GONE);
+            mTvNoMessage.setVisibility(View.GONE);
+        }
         if (page == 1) {
             mDataBeanList.clear();
         }

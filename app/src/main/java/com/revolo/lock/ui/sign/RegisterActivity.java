@@ -32,9 +32,11 @@ import com.revolo.lock.base.BaseActivity;
 import com.revolo.lock.bean.request.GetCodeBeanReq;
 import com.revolo.lock.bean.request.MailLoginBeanReq;
 import com.revolo.lock.bean.request.MailRegisterBeanReq;
+import com.revolo.lock.bean.request.UserByMailExistsBeanReq;
 import com.revolo.lock.bean.respone.GetCodeBeanRsp;
 import com.revolo.lock.bean.respone.MailLoginBeanRsp;
 import com.revolo.lock.bean.respone.MailRegisterBeanRsp;
+import com.revolo.lock.bean.respone.UserByMailExistsBeanRsp;
 import com.revolo.lock.net.HttpRequest;
 import com.revolo.lock.net.ObservableDecorator;
 import com.revolo.lock.room.AppDatabase;
@@ -159,9 +161,54 @@ public class RegisterActivity extends BaseActivity {
         }
         if (view.getId() == R.id.tvGetCode) {
             if (!isCountdown) {
-                getCode();
+                userByMailExists();
             }
         }
+    }
+
+    private void userByMailExists() {
+        if (!checkNetConnectFail()) {
+            return;
+        }
+        String mail = mEtEmail.getText().toString().trim();
+        if (TextUtils.isEmpty(mail)) {
+            ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.err_tip_please_input_email);
+            return;
+        }
+        if (!RegexUtils.isEmail(mail)) {
+            ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_please_input_right_mail_address);
+            return;
+        }
+        UserByMailExistsBeanReq req = new UserByMailExistsBeanReq();
+        req.setMail(mail);
+        Observable<UserByMailExistsBeanRsp> observable = HttpRequest.getInstance().getUserByMailExists(req);
+        ObservableDecorator.decorate(observable).safeSubscribe(new Observer<UserByMailExistsBeanRsp>() {
+            @Override
+            public void onSubscribe(@io.reactivex.annotations.NonNull Disposable d) {
+
+            }
+
+            @Override
+            public void onNext(@io.reactivex.annotations.NonNull UserByMailExistsBeanRsp userByMailExistsBeanRsp) {
+                if (userByMailExistsBeanRsp.getData() != null) {
+                    if (!userByMailExistsBeanRsp.getData().isExsist()) {
+                        getCode();
+                    } else {
+                        ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(getString(R.string.tip_content_registered_mail));
+                    }
+                }
+            }
+
+            @Override
+            public void onError(@io.reactivex.annotations.NonNull Throwable e) {
+
+            }
+
+            @Override
+            public void onComplete() {
+
+            }
+        });
     }
 
     private void getCode() {

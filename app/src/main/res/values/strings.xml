@@ -237,7 +237,7 @@
     <!-- SettingActivity -->
     <string name="gesture_code">Gesture code</string>
     <string name="change_gesture_password">Change gesture password</string>
-    <string name="enable_touch_id">Enable touch ID</string>
+    <string name="enable_touch_id">Enable touch/face ID</string>
     <string name="enable_face_id">Enable face ID</string>
     <string name="account_cancellation">Account cancellation</string>
     <string name="account_cancellation_title">Gate magnet abnormal</string>
@@ -549,4 +549,6 @@
     <string name="dialog_content_ota_update">The door lock is upgrading. Please wait...</string>
     <string name="tip_content_ota_update_success">The door lock is Upgrade successful!</string>
     <string name="tip_content_ota_update_failed">The door lock is Upgrade failed!</string>
+    <string name="tip_content_registered_mail">The mail has bean Registered!</string>
+    <string name="tip_content_no_registered_mail">The mail not Registered!</string>
 </resources>

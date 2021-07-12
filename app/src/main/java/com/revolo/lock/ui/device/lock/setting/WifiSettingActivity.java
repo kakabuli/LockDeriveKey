@@ -130,15 +130,15 @@ public class WifiSettingActivity extends BaseActivity {
     public void onDebouncingClick(@NonNull View view) {
         if (view.getId() == R.id.ivWifiEnable) {
 
-            if (mBleDeviceLocal.getLockPower() <= 20) {
-                // 低电量
-                if (mPowerLowDialog != null) {
-                    mPowerLowDialog.show();
+            if (isWifiConnected) {
+                if (mSelectDialog != null) {
+                    mSelectDialog.show();
                 }
             } else {
-                if (isWifiConnected) {
-                    if (mSelectDialog != null) {
-                        mSelectDialog.show();
+                if (mBleDeviceLocal.getLockPower() <= 20) {
+                    // 低电量
+                    if (mPowerLowDialog != null) {
+                        mPowerLowDialog.show();
                     }
                 } else {
                     String wifiName = mBleDeviceLocal.getConnectedWifiName();
@@ -148,8 +148,8 @@ public class WifiSettingActivity extends BaseActivity {
                         openWifiFromBle();
                     }
                 }
-                return;
             }
+            return;
         }
         if (view.getId() == R.id.clTip || view.getId() == R.id.tvSettingTitle) {
             //更改设备网络配置
@@ -182,6 +182,7 @@ public class WifiSettingActivity extends BaseActivity {
                 gotoAddWifiAct();
             }*/
         }
+
     }
 
     private void gotoAddWifiAct() {

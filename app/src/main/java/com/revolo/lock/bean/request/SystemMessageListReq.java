@@ -9,7 +9,7 @@ package com.revolo.lock.bean.request;
 public class SystemMessageListReq {
 
     private String uid;
-    private int page;
+    private int pageNum;
 
     public String getUid() {
         return uid;
@@ -19,11 +19,11 @@ public class SystemMessageListReq {
         this.uid = uid;
     }
 
-    public int getPage() {
-        return page;
+    public int getPageNum() {
+        return pageNum;
     }
 
-    public void setPage(int page) {
-        this.page = page;
+    public void setPageNum(int pageNum) {
+        this.pageNum = pageNum;
     }
 }

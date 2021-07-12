@@ -53,6 +53,7 @@ import com.revolo.lock.bean.request.UpdateUserAuthorityTypeBeanReq;
 import com.revolo.lock.bean.request.UpdateUserFirstLastNameBeanReq;
 import com.revolo.lock.bean.request.UploadAlarmRecordBeanReq;
 import com.revolo.lock.bean.request.UploadOpenDoorRecordBeanReq;
+import com.revolo.lock.bean.request.UserByMailExistsBeanReq;
 import com.revolo.lock.bean.respone.AcceptShareBeanRsp;
 import com.revolo.lock.bean.respone.AdminAddDeviceBeanRsp;
 import com.revolo.lock.bean.respone.AlexaAppUrlAndWebUrlBeanRsp;
@@ -107,6 +108,7 @@ import com.revolo.lock.bean.respone.UpdateUserFirstLastNameBeanRsp;
 import com.revolo.lock.bean.respone.UploadAlarmRecordBeanRsp;
 import com.revolo.lock.bean.respone.UploadOpenDoorRecordBeanRsp;
 import com.revolo.lock.bean.respone.UploadUserAvatarBeanRsp;
+import com.revolo.lock.bean.respone.UserByMailExistsBeanRsp;
 
 import java.util.List;
 
@@ -669,7 +671,7 @@ public interface ApiService {
      * @param req   请求实体
      */
     @Headers({"Content-Type: application/json"})
-    @POST("/systemMessage/list")
+    @POST("/user/notification/record")
     Observable<SystemMessageListBeanRsp> systemMessageList(@Header("token") String token, @Body SystemMessageListReq req);
 
     /**
@@ -721,4 +723,14 @@ public interface ApiService {
     @Headers({"Content-Type: application/json"})
     @POST("/user/del/deviceToken")
     Observable<DeviceTokenBeanRsp> deleteDeviceToken(@Header("token") String token, @Body DeleteDeviceTokenBeanReq req);
+
+    /**
+     * 验证邮箱是否注册
+     *
+     * @param token 用户权限码
+     * @param req   请求实体
+     */
+    @Headers({"Content-Type: application/json"})
+    @POST("/user/login/getuserbymailexists")
+    Observable<UserByMailExistsBeanRsp> getUserByMailExists(@Body UserByMailExistsBeanReq req);
 }
