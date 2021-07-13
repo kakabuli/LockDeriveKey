@@ -414,6 +414,7 @@ public class DoorLockInformationActivity extends BaseActivity {
                     return;
                 }
                 if (mOTAUpdateDialog != null) {
+                    mOTAUpdateDialog.setTimeOut(3);
                     mOTAUpdateDialog.show();
                 }
             }
@@ -563,6 +564,7 @@ public class DoorLockInformationActivity extends BaseActivity {
                 }
 //                ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_ota_updating);
                 if (mOTAUpdateDialog != null) {
+                    mOTAUpdateDialog.setTimeOut(3);
                     mOTAUpdateDialog.show();
                 }
             }
@@ -761,6 +763,7 @@ public class DoorLockInformationActivity extends BaseActivity {
                 }
 //                ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_ota_update_success);
                 if (mOTAUpdateDialog != null) {
+                    mOTAUpdateDialog.setTimeOut(mUpdateType == 6 ? 1 : 3);
                     mOTAUpdateDialog.show();
                 }
             }
@@ -797,14 +800,17 @@ public class DoorLockInformationActivity extends BaseActivity {
                             if (devNum == 2) { // wifi锁
                                 String wifiVer = eventparams.getSW();
                                 mTvWifiVersion.setText(wifiVer);
+                                mBleDeviceLocal.setWifiVer(wifiVer);
                                 isCanUpdateWifiVer = false;
                                 mVVersion.setVisibility(isCanUpdateWifiVer ? View.VISIBLE : View.GONE);
                             } else if (devNum == 6) { //
                                 String fireVer = eventparams.getSW();
                                 mTvFirmwareVersion.setText(fireVer);
+                                mBleDeviceLocal.setLockVer(fireVer);
                                 isCanUpdateFirmwareVer = false;
                                 vFirmwareVersion.setVisibility(isCanUpdateFirmwareVer ? View.VISIBLE : View.GONE);
                             }
+                            App.getInstance().setBleDeviceLocal(mBleDeviceLocal);
                         }
                     } else {
                         int hwerrcode = eventparams.getHwerrcode();

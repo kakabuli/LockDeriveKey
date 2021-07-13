@@ -26,6 +26,8 @@ public class OTAUpdateDialog extends Dialog {
 
     private Context mContext;
 
+    private int minutes = 3;
+
     public OTAUpdateDialog(Context context) {
         super(context);
         mContext = context;
@@ -71,10 +73,14 @@ public class OTAUpdateDialog extends Dialog {
         }
     }
 
+    public void setTimeOut(int minutes) {
+        this.minutes = minutes;
+    }
+
     @Override
     public void show() {
         super.show();
-        mHandler.sendEmptyMessageDelayed(MSG_DIALOG_SHOW_OUT_TIME, 5 * 60 * 1000);
+        mHandler.sendEmptyMessageDelayed(MSG_DIALOG_SHOW_OUT_TIME, minutes * 60 * 1000);
     }
 
     @Override
