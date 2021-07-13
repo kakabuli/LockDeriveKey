@@ -490,17 +490,17 @@ public class AddNewPwdSelectActivity extends BaseActivity {
     }
 
     private void initTemStartDateTimeMill() {
-        String nowDate = ZoneUtil.getDate(mBleDeviceLocal.getTimeZone(), ZoneUtil.getTime(), "yyyy-MM-dd");
+        String nowDate = ZoneUtil.getDate(mBleDeviceLocal.getTimeZone(), ZoneUtil.getTime(), "dd-MM-yyyy");
         mTemStartDateStr = nowDate;
-        mTvStartDate.setText(mTemStartDateStr);
+        mTvStartDate.setText(nowDate.replace("-", "."));
         String date = nowDate + " 10:00:00";
         mTemStartDateTimeMill = ZoneUtil.getTime(mBleDeviceLocal.getTimeZone(), date);
     }
 
     private void initTemEndDateTimeMill() {
-        String nowDate = ZoneUtil.getDate(mBleDeviceLocal.getTimeZone(), System.currentTimeMillis(), "yyyy-MM-dd");
+        String nowDate = ZoneUtil.getDate(mBleDeviceLocal.getTimeZone(), System.currentTimeMillis(), "dd-MM-yyyy");
         mTemEndDateStr = nowDate;
-        mTvEndDate.setText(mTemEndDateStr);
+        mTvEndDate.setText(nowDate.replace("-", "."));
         String date = nowDate + " 14:00:00";
         mTemEndDateTimeMill = ZoneUtil.getTime(mBleDeviceLocal.getTimeZone(), date);
     }
@@ -544,6 +544,7 @@ public class AddNewPwdSelectActivity extends BaseActivity {
             // 月份需要加1
             month += 1;
             String date = year + "-" + (month < 10 ? "0" + month : month) + "-" + (dayOfMonth < 10 ? "0" + dayOfMonth : dayOfMonth);
+            String showDate = (dayOfMonth < 10 ? "0" + dayOfMonth : dayOfMonth) + "." + (month < 10 ? "0" + month : month) + "." + year;
             if (id == R.id.tvStartDate) {
                 if (null != mTemStartDateTimeStr && mTemStartDateTimeStr.length() < 8) {
                     mTemStartDateTimeStr = mTemStartDateTimeStr + ":00";
@@ -551,7 +552,7 @@ public class AddNewPwdSelectActivity extends BaseActivity {
                 long temStartDateTimeMill = ZoneUtil.getTime(mBleDeviceLocal.getTimeZone(), date + " " + mTemStartDateTimeStr);
                 mTemStartDateStr = date;
                 mTemStartDateTimeMill = temStartDateTimeMill;
-                mTvStartDate.setText(mTemStartDateStr);
+                mTvStartDate.setText(showDate);
                 Timber.d("startDate 选择的日期%1s, 时间流：%2d", date, mTemStartDateTimeMill);
             } else if (id == R.id.tvEndDate) {
                 if (null != mTemStartDateTimeStr && mTemStartDateTimeStr.length() < 8) {
@@ -560,7 +561,7 @@ public class AddNewPwdSelectActivity extends BaseActivity {
                 long temEndDateTimeMill = ZoneUtil.getTime(mBleDeviceLocal.getTimeZone(), date + " " + mTemEndDateTimeStr);
                 mTemEndDateStr = date;
                 mTemEndDateTimeMill = temEndDateTimeMill;
-                mTvEndDate.setText(mTemEndDateStr);
+                mTvEndDate.setText(showDate);
                 Timber.d("startDate 选择的日期%1s, 时间流：%2d", date, mTemStartDateTimeMill);
             }
         });

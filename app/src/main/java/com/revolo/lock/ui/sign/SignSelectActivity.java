@@ -57,6 +57,7 @@ public class SignSelectActivity extends BaseActivity {
     @Override
     public void initView(@Nullable Bundle savedInstanceState, @Nullable View contentView) {
         Bundle extras = getIntent().getExtras();
+        isFcmMessage = false;
         if (extras != null) {
             Timber.d("**************************   onCreate 接收推送的数据   ****************************");
             isFcmMessage = true;

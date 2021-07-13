@@ -5,7 +5,9 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ExpandableListView;
 import android.widget.LinearLayout;
 
@@ -869,7 +871,6 @@ public class OperationRecordsActivity extends BaseActivity {
         Date strtodate = formatter.parse("2019-01-01", pos);
         Calendar startTime = Calendar.getInstance();
         startTime.setTime(strtodate);
-
 
         timePickerBuilder.setCancelColor(Color.parseColor("#999999"))
                 .setDividerColor(Color.parseColor("#f7f7f7"))

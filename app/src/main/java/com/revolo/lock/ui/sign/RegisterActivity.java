@@ -5,10 +5,12 @@ import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
 import android.os.Looper;
+import android.text.Editable;
 import android.text.InputType;
 import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.text.method.LinkMovementMethod;
 import android.view.Gravity;
 import android.view.View;
@@ -68,6 +70,7 @@ public class RegisterActivity extends BaseActivity {
     private TextView mTvGetCode;
     private int verificationCodeTimeCount = 60;
     private CountDownTimer mCountDownTimer = null;
+    private EditText etPwd;
 
     @Override
     public void initData(@Nullable Bundle bundle) {
@@ -88,6 +91,27 @@ public class RegisterActivity extends BaseActivity {
                 findViewById(R.id.ivSelect),
                 mTvGetCode);
 
+        etPwd = findViewById(R.id.etPwd);
+        etPwd.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                if (!RegexUtils.isMatch("^(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{8,15}$", s)) {
+                    etPwd.setTextColor(getColor(R.color.cFF6A36));
+                } else {
+                    etPwd.setTextColor(getColor(R.color.c333333));
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
         TextView tvAgreement = findViewById(R.id.tvAgreement);
         String agreementStr = getString(R.string.terms_of_use);
         SpannableString spannableString = new SpannableString(agreementStr);
@@ -100,36 +124,47 @@ public class RegisterActivity extends BaseActivity {
             }
         };
         spannableString.setSpan(span, 0, agreementStr.length(), Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
-        tvAgreement.append(getString(R.string.i_agree_to));
+        tvAgreement.append(
+
+                getString(R.string.i_agree_to));
         tvAgreement.append(spannableString);
         tvAgreement.setMovementMethod(LinkMovementMethod.getInstance());
+
         initLoading(getString(R.string.t_load_content_registering));
 
-        mEtEmail = findViewById(R.id.etEmail);
-        verificationCodeTimeCount = Constant.verificationCodeTimeCount;
-        mCountDownTimer = new CountDownTimer(60000, 1000) {
-            @Override
-            public void onTick(long millisUntilFinished) {
-                int sec = (int) (millisUntilFinished / 1000);
-                int time = sec - (60 - verificationCodeTimeCount);
-                String value = String.valueOf(time);
-                mTvGetCode.setText(value);
-                if (time <= 0) {
-                    onFinish();
-                    cancel();
-                }
-            }
+        mEtEmail =
 
-            @Override
-            public void onFinish() {
-                isCountdown = false;
-                mTvGetCode.setText(getString(R.string.get_code));
-                verificationCodeTimeCount = 60;
-            }
-        };
+                findViewById(R.id.etEmail);
+
+        verificationCodeTimeCount = Constant.verificationCodeTimeCount;
+        mCountDownTimer = new
+
+                CountDownTimer(60000, 1000) {
+                    @Override
+                    public void onTick(long millisUntilFinished) {
+                        int sec = (int) (millisUntilFinished / 1000);
+                        int time = sec - (60 - verificationCodeTimeCount);
+                        String value = String.valueOf(time);
+                        mTvGetCode.setText(value);
+                        if (time <= 0) {
+                            onFinish();
+                            cancel();
+                        }
+                    }
+
+                    @Override
+                    public void onFinish() {
+                        isCountdown = false;
+                        mTvGetCode.setText(getString(R.string.get_code));
+                        verificationCodeTimeCount = 60;
+                    }
+                }
+
+        ;
         if (Constant.isVerificationCodeTime) {
             mCountDownTimer.start();
         }
+
     }
 
     @Override
@@ -146,7 +181,6 @@ public class RegisterActivity extends BaseActivity {
         if (view.getId() == R.id.ivEye) {
             ImageView ivEye = findViewById(R.id.ivEye);
             ivEye.setImageResource(isShowPwd ? R.drawable.ic_login_icon_display : R.drawable.ic_login_icon_hide);
-            EditText etPwd = findViewById(R.id.etPwd);
             etPwd.setInputType(isShowPwd ?
                     InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
                     : (InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD));
@@ -288,7 +322,7 @@ public class RegisterActivity extends BaseActivity {
             ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.err_tip_please_input_verification_code);
             return;
         }
-        String pwd = ((EditText) findViewById(R.id.etPwd)).getText().toString().trim();
+        String pwd = etPwd.getText().toString().trim();
         if (TextUtils.isEmpty(pwd)) {
             ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_please_input_pwd);
             return;
