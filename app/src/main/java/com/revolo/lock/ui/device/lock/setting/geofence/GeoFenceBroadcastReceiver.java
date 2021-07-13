@@ -3,6 +3,8 @@ package com.revolo.lock.ui.device.lock.setting.geofence;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.Gravity;
 
 import com.blankj.utilcode.util.ConvertUtils;
@@ -12,7 +14,9 @@ import com.google.android.gms.location.GeofencingEvent;
 import com.revolo.lock.App;
 import com.revolo.lock.R;
 import com.revolo.lock.ble.BleCommandFactory;
+import com.revolo.lock.ble.bean.BleBean;
 import com.revolo.lock.manager.LockMessage;
+import com.revolo.lock.manager.ble.BleManager;
 import com.revolo.lock.mqtt.MQttConstant;
 import com.revolo.lock.mqtt.MqttCommandFactory;
 import com.revolo.lock.room.entity.BleDeviceLocal;
@@ -58,12 +62,10 @@ public class GeoFenceBroadcastReceiver extends BroadcastReceiver {
 
         switch (transitionType) {
             case Geofence.GEOFENCE_TRANSITION_ENTER:
-                ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_you_have_entered_the_range_of_the_geo_fence);
-                notificationHelper.sendHighPriorityNotification(context.getString(R.string.n_geo_fence), context.getString(R.string.t_you_have_entered_the_range_of_the_geo_fence), MapActivity.class);
                 BleDeviceLocal deviceLocal = null;
                 String esn = intent.getStringExtra("esn");
                 if (null != esn && !"".equals(esn)) {
-                    Timber.e("local:" + esn);
+                    Timber.e("google 定位" + esn);
                     List<BleDeviceLocal> blsList = App.getInstance().getDeviceLists();
                     if (null != blsList) {
                         for (BleDeviceLocal deviceLo : blsList) {
@@ -77,9 +79,20 @@ public class GeoFenceBroadcastReceiver extends BroadcastReceiver {
                     Timber.e("local: null");
                 }
                 if (deviceLocal == null) {
+                    Timber.e("google 定位 device =null");
                     return;
                 }
-                 pushMessage(deviceLocal);
+                //电子围栏是否开启
+                if (deviceLocal.isOpenElectricFence()) {
+                    Timber.e("google 定位 电子围栏开启");
+                    ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_you_have_entered_the_range_of_the_geo_fence);
+                    notificationHelper.sendHighPriorityNotification(context.getString(R.string.n_geo_fence), context.getString(R.string.t_you_have_entered_the_range_of_the_geo_fence), MapActivity.class);
+                    pushMessage(deviceLocal);
+
+                }else{
+                    Timber.e("google 定位 电子围栏未开启");
+                }
+
                 break;
             case Geofence.GEOFENCE_TRANSITION_DWELL:
                 // TODO: 2021/4/23 停留
@@ -94,6 +107,26 @@ public class GeoFenceBroadcastReceiver extends BroadcastReceiver {
     }
 
     private void pushMessage(BleDeviceLocal deviceLocal) {
+        Timber.e("google local check ble connect");
+        if (null != App.getInstance().getLockAppService()) {
+            BleBean bleBean = App.getInstance().getLockAppService().getUserBleBean(deviceLocal.getMac());
+            if (null != bleBean) {
+                if (bleBean.getBleConning() == 2) {
+                    new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                        if (bleBean == null) {
+                            Timber.e("mOnBleDeviceListener bleBean == null");
+                            return;
+                        }
+                        // TODO: 2021/4/7 抽离0x01
+                        Timber.e("google local send ble cmd");
+                        BleManager.getInstance().writeControlMsg(BleCommandFactory
+                                .setKnockDoorAndUnlockTime(0x01, bleBean.getPwd1(), bleBean.getPwd3()), bleBean.getOKBLEDeviceImp());
+                    }, 200);
+                    return;
+                }
+            }
+        }
+        Timber.e("google local send mqtt cmd");
         LockMessage lockMessage = new LockMessage();
         lockMessage.setMqttMessage(MqttCommandFactory.approachOpen(deviceLocal.getEsn(), deviceLocal.getSetElectricFenceTime(),
                 BleCommandFactory.getPwd(
