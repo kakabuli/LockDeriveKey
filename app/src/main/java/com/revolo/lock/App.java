@@ -259,17 +259,6 @@ public class App extends Application {
     }
 
     /**
-     * 设置用户列表
-     *
-     * @param bleDeviceLocals
-     */
-    public void setDeviceLists(List<BleDeviceLocal> bleDeviceLocals) {
-        if (null != lockAppService) {
-            lockAppService.add(bleDeviceLocals);
-        }
-    }
-
-    /**
      * 获取用户设备
      *
      * @return

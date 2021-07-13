@@ -257,7 +257,7 @@ public class LockAppService extends Service {
 
     @Subscribe(threadMode = ThreadMode.ASYNC)
     public void getEventBus(LockMessage lockMessage) {
-        Timber.e("service 执行获取设备信息");
+        Timber.e("service cmd");
         if (lockMessage == null) {
             return;
         }
@@ -429,30 +429,9 @@ public class LockAppService extends Service {
             //判断当前ble的连接情况
             if (!bleState) {
                 connectDevice(bleDeviceLocal);
-               /* if (!getBluetoothAdapter().isEnabled()) {
-                    Timber.e("当前蓝牙已关闭，无法进行连接");
-                } else {
-                    Timber.e("当前蓝牙正常，正进行连接");
-                    BluetoothDevice device = null;
-                    try {
-                        device = getBluetoothAdapter().getRemoteDevice(bleDeviceLocal.getMac());
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                    //bleScanResult.
-                    byte[] mPwd1 = new byte[16];
-                    byte[] bytes = ConvertUtils.hexString2Bytes(bleDeviceLocal.getPwd1());
-                    System.arraycopy(bytes, 0, mPwd1, 0, bytes.length);
-                    onBleConnect(bleDeviceLocal.getEsn(), null, device, mPwd1, ConvertUtils.hexString2Bytes(bleDeviceLocal.getPwd2())
-                    );
-                }*/
             }
         }
         //lock.unlock();
-        Timber.e("getEventBus send");
-        for (BleDeviceLocal deviceLocal : mDeviceLists) {
-            Timber.e("device state:%s", deviceLocal.toString());
-        }
         LockMessageRes lockMessageRes = new LockMessageRes();
         lockMessageRes.setMessgaeType(LockMessageCode.MSG_LOCK_MESSAGE_MQTT);//蓝牙消息
         lockMessageRes.setResultCode(MSG_LOCK_MESSAGE_CODE_SUCCESS);
@@ -460,7 +439,7 @@ public class LockAppService extends Service {
         EventBus.getDefault().post(lockMessageRes);
     }
 
-    private void connectDevice(BleDeviceLocal bleDeviceLocal){
+    private void connectDevice(BleDeviceLocal bleDeviceLocal) {
         if (!getBluetoothAdapter().isEnabled()) {
             Timber.e("当前蓝牙已关闭，无法进行连接");
         } else {

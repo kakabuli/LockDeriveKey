@@ -191,7 +191,6 @@ public class DeviceFragment extends Fragment {
         if (mBluetoothAdapter == null) {
             mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         }
-        refreshGetAllBindDevicesFromMQTT();
         if (titleBar != null) {
             titleBar.setNetError(Constant.pingResult);
         }
@@ -200,6 +199,15 @@ public class DeviceFragment extends Fragment {
         intentFilter.addAction(Intent.ACTION_SCREEN_ON);
         requireActivity().registerReceiver(mReceiver, intentFilter);
         return root;
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        boolean registered = EventBus.getDefault().isRegistered(this);
+        if (registered) {
+            EventBus.getDefault().unregister(this);
+        }
     }
 
     public void onRegisterEventBus() {
@@ -469,20 +477,7 @@ public class DeviceFragment extends Fragment {
     }
 
     private void initBaseData() {
-        User user = App.getInstance().getUser();
-        //   mBleDeviceLocals = App.getInstance().getDeviceLists();
         updateData(App.getInstance().getDeviceLists());
-        if (user == null) {
-            return;
-        }
-        List<BleDeviceLocal> locals = AppDatabase.getInstance(App.getInstance()).bleDeviceDao().findBleDevicesFromUserIdByCreateTimeDesc(user.getAdminUid());
-        if (locals == null) {
-            return;
-        }
-        if (locals.isEmpty()) {
-            return;
-        }
-        App.getInstance().setDeviceLists(locals);
     }
 
     private void dismissLoading() {

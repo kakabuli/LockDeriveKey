@@ -120,6 +120,7 @@ public class DeviceSettingActivity extends BaseActivity {
                 findViewById(R.id.clGeoFenceLock), findViewById(R.id.clDoorMagneticSwitch),
                 findViewById(R.id.clUnbind), findViewById(R.id.clMute), findViewById(R.id.clWifi),
                 mIvDoNotDisturbModeEnable, findViewById(R.id.ivLockName), findViewById(R.id.clJoinAlexa), findViewById(R.id.clVideoMode));
+        mBleDeviceLocal = App.getInstance().getBleDeviceLocal();
         mIvDoNotDisturbModeEnable.setImageResource(mBleDeviceLocal.isDoNotDisturbMode() ? R.drawable.ic_icon_switch_open : R.drawable.ic_icon_switch_close);
         mIvMuteEnable.setImageResource(mBleDeviceLocal.isMute() ? R.drawable.ic_icon_switch_close : R.drawable.ic_icon_switch_open);
         onRegisterEventBus();
