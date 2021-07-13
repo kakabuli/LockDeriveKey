@@ -60,7 +60,12 @@ public class SignSelectActivity extends BaseActivity {
         isFcmMessage = false;
         if (extras != null) {
             Timber.d("**************************   onCreate 接收推送的数据   ****************************");
-            isFcmMessage = true;
+            for (String s : extras.keySet()) {
+                if (s.equals("type")) {
+                    isFcmMessage = true;
+                    break;
+                }
+            }
         }
         applyDebouncingClickListener(findViewById(R.id.btnRegister), findViewById(R.id.btnSignIn));
         setStatusBarColor(R.color.white);
@@ -80,7 +85,12 @@ public class SignSelectActivity extends BaseActivity {
         Bundle extras = intent.getExtras();
         if (extras != null) {
             Timber.d("**************************   onNewIntent 接收推送的数据   ****************************");
-            isFcmMessage = true;
+            for (String s : extras.keySet()) {
+                if (s.equals("type")) {
+                    isFcmMessage = true;
+                    break;
+                }
+            }
         }
     }
 

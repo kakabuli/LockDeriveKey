@@ -31,6 +31,7 @@ import com.revolo.lock.bean.request.GetAllSharedUserFromLockBeanReq;
 import com.revolo.lock.bean.request.GetCodeBeanReq;
 import com.revolo.lock.bean.request.GetDevicesFromUidAndSharedUidBeanReq;
 import com.revolo.lock.bean.request.GetLockKeyNickBeanReq;
+import com.revolo.lock.bean.request.GetNotDisturbModeBeanReq;
 import com.revolo.lock.bean.request.GetPwd1BeanReq;
 import com.revolo.lock.bean.request.LockIsBindBeanReq;
 import com.revolo.lock.bean.request.LockKeyAddBeanReq;
@@ -38,6 +39,7 @@ import com.revolo.lock.bean.request.LockRecordBeanReq;
 import com.revolo.lock.bean.request.MailLoginBeanReq;
 import com.revolo.lock.bean.request.MailRegisterBeanReq;
 import com.revolo.lock.bean.request.OpenDoorRecordSearchBeanReq;
+import com.revolo.lock.bean.request.PostNotDisturbModeBeanReq;
 import com.revolo.lock.bean.request.SearchAlarmRecordBeanReq;
 import com.revolo.lock.bean.request.SearchKeyListBeanReq;
 import com.revolo.lock.bean.request.SearchProductNoBeanReq;
@@ -90,6 +92,7 @@ import com.revolo.lock.bean.respone.LockRecordBeanRsp;
 import com.revolo.lock.bean.respone.LogoutBeanRsp;
 import com.revolo.lock.bean.respone.MailLoginBeanRsp;
 import com.revolo.lock.bean.respone.MailRegisterBeanRsp;
+import com.revolo.lock.bean.respone.NotDisturbModeBeanRsp;
 import com.revolo.lock.bean.respone.OpenDoorRecordSearchBeanRsp;
 import com.revolo.lock.bean.respone.QuestionBeanRsp;
 import com.revolo.lock.bean.respone.SearchAlarmRecordBeanRsp;
@@ -727,10 +730,29 @@ public interface ApiService {
     /**
      * 验证邮箱是否注册
      *
-     * @param token 用户权限码
-     * @param req   请求实体
+     * @param req 请求实体
      */
     @Headers({"Content-Type: application/json"})
     @POST("/user/login/getuserbymailexists")
     Observable<UserByMailExistsBeanRsp> getUserByMailExists(@Body UserByMailExistsBeanReq req);
+
+    /**
+     * 设置勿打扰模式
+     *
+     * @param token 用户权限码
+     * @param req   请求实体
+     */
+    @Headers({"Content-Type: application/json"})
+    @POST("/user/edit/postPushSwitch")
+    Observable<NotDisturbModeBeanRsp> postPushSwitch(@Header("token") String token, @Body PostNotDisturbModeBeanReq req);
+
+    /**
+     * 勿打扰模式状态
+     *
+     * @param token 用户权限码
+     * @param req   请求实体
+     */
+    @Headers({"Content-Type: application/json"})
+    @POST("/user/get/getPushSwitch")
+    Observable<NotDisturbModeBeanRsp> getPushSwitch(@Header("token") String token, @Body GetNotDisturbModeBeanReq req);
 }

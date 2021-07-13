@@ -30,10 +30,12 @@ import com.revolo.lock.base.BaseActivity;
 import com.revolo.lock.bean.request.AlexaAppUrlAndWebUrlReq;
 import com.revolo.lock.bean.request.AlexaSkillEnableReq;
 import com.revolo.lock.bean.request.DeviceUnbindBeanReq;
+import com.revolo.lock.bean.request.PostNotDisturbModeBeanReq;
 import com.revolo.lock.bean.request.UpdateLockInfoReq;
 import com.revolo.lock.bean.respone.AlexaAppUrlAndWebUrlBeanRsp;
 import com.revolo.lock.bean.respone.AlexaSkillEnableBeanRsp;
 import com.revolo.lock.bean.respone.DeviceUnbindBeanRsp;
+import com.revolo.lock.bean.respone.NotDisturbModeBeanRsp;
 import com.revolo.lock.bean.respone.UpdateLockInfoRsp;
 import com.revolo.lock.ble.BleByteUtil;
 import com.revolo.lock.ble.BleCommandFactory;
@@ -260,10 +262,41 @@ public class DeviceSettingActivity extends BaseActivity {
     }
 
     private void openOrCloseNotification() {
-        mBleDeviceLocal.setDoNotDisturbMode(!mBleDeviceLocal.isDoNotDisturbMode());
-        App.getInstance().setBleDeviceLocal(mBleDeviceLocal);
-        AppDatabase.getInstance(this).bleDeviceDao().update(mBleDeviceLocal);
-        mIvDoNotDisturbModeEnable.setImageResource(mBleDeviceLocal.isDoNotDisturbMode() ? R.drawable.ic_icon_switch_open : R.drawable.ic_icon_switch_close);
+
+        String token = App.getInstance().getUserBean().getToken();
+        String uid = App.getInstance().getUserBean().getUid();
+        PostNotDisturbModeBeanReq req = new PostNotDisturbModeBeanReq();
+        req.setOpenlockPushSwitch(!mBleDeviceLocal.isDoNotDisturbMode());
+        req.setUid(uid);
+        Observable<NotDisturbModeBeanRsp> notDisturbModeBeanRspObservable = HttpRequest.getInstance().postPushSwitch(token, req);
+        ObservableDecorator.decorate(notDisturbModeBeanRspObservable).safeSubscribe(new Observer<NotDisturbModeBeanRsp>() {
+            @Override
+            public void onSubscribe(@io.reactivex.annotations.NonNull Disposable d) {
+
+            }
+
+            @Override
+            public void onNext(@io.reactivex.annotations.NonNull NotDisturbModeBeanRsp notDisturbModeBeanRsp) {
+                if (notDisturbModeBeanRsp.getCode().equals("200")) {
+                    mBleDeviceLocal.setDoNotDisturbMode(!mBleDeviceLocal.isDoNotDisturbMode());
+                    App.getInstance().setBleDeviceLocal(mBleDeviceLocal);
+                    AppDatabase.getInstance(DeviceSettingActivity.this).bleDeviceDao().update(mBleDeviceLocal);
+                    mIvDoNotDisturbModeEnable.setImageResource(mBleDeviceLocal.isDoNotDisturbMode() ? R.drawable.ic_icon_switch_open : R.drawable.ic_icon_switch_close);
+                } else if (notDisturbModeBeanRsp.equals("444")) {
+                    App.getInstance().logout(true, DeviceSettingActivity.this);
+                }
+            }
+
+            @Override
+            public void onError(@io.reactivex.annotations.NonNull Throwable e) {
+
+            }
+
+            @Override
+            public void onComplete() {
+
+            }
+        });
     }
 
     private void initData() {
@@ -573,7 +606,7 @@ public class DeviceSettingActivity extends BaseActivity {
         req.setAmMode(mBleDeviceLocal.isAutoLock() ? 0 : 1);
         req.setDuress(mBleDeviceLocal.isDuress() ? 0 : 1);
         req.setMagneticStatus(mBleDeviceLocal.getDoorSensor());
-        req.setDoorSensor(mBleDeviceLocal.isOpenDoorSensor()?1:0);
+        req.setDoorSensor(mBleDeviceLocal.isOpenDoorSensor() ? 1 : 0);
         req.setElecFence(mBleDeviceLocal.isOpenElectricFence() ? 0 : 1);
         req.setAutoLockTime(mBleDeviceLocal.getSetAutoLockTime());
         req.setElecFenceTime(mBleDeviceLocal.getSetElectricFenceTime());

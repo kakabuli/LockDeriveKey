@@ -25,6 +25,8 @@ import com.revolo.lock.Constant;
 import com.revolo.lock.LocalState;
 import com.revolo.lock.R;
 import com.revolo.lock.adapter.HomeLockListAdapter;
+import com.revolo.lock.bean.request.GetNotDisturbModeBeanReq;
+import com.revolo.lock.bean.respone.NotDisturbModeBeanRsp;
 import com.revolo.lock.ble.BleByteUtil;
 import com.revolo.lock.ble.BleCommandFactory;
 import com.revolo.lock.ble.BleProtocolState;
@@ -39,10 +41,13 @@ import com.revolo.lock.mqtt.MQttConstant;
 import com.revolo.lock.mqtt.MqttCommandFactory;
 import com.revolo.lock.mqtt.bean.eventbean.WifiLockOperationEventBean;
 import com.revolo.lock.mqtt.bean.publishresultbean.WifiLockBaseResponseBean;
+import com.revolo.lock.net.HttpRequest;
+import com.revolo.lock.net.ObservableDecorator;
 import com.revolo.lock.room.AppDatabase;
 import com.revolo.lock.room.entity.BleDeviceLocal;
 import com.revolo.lock.room.entity.User;
 import com.revolo.lock.ui.MainActivity;
+import com.revolo.lock.ui.ShareDeviceActivity;
 import com.revolo.lock.ui.TitleBar;
 import com.revolo.lock.ui.device.add.AddDeviceActivity;
 import com.revolo.lock.ui.device.lock.DeviceDetailActivity;
@@ -57,6 +62,10 @@ import org.jetbrains.annotations.NotNull;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
+import io.reactivex.Notification;
+import io.reactivex.Observable;
+import io.reactivex.Observer;
+import io.reactivex.disposables.Disposable;
 import timber.log.Timber;
 
 import static com.revolo.lock.Constant.PING_RESULT;
@@ -213,6 +222,47 @@ public class DeviceFragment extends Fragment {
         refreshGetAllBindDevicesFromMQTT();
     }
 
+    private void initNotDisturbMode() {
+
+        GetNotDisturbModeBeanReq req = new GetNotDisturbModeBeanReq();
+        String token = App.getInstance().getUserBean().getToken();
+        String uid = App.getInstance().getUserBean().getUid();
+        req.setUid(uid);
+        Observable<NotDisturbModeBeanRsp> pushSwitch = HttpRequest.getInstance().getPushSwitch(token, req);
+        ObservableDecorator.decorate(pushSwitch).safeSubscribe(new Observer<NotDisturbModeBeanRsp>() {
+            @Override
+            public void onSubscribe(@io.reactivex.annotations.NonNull Disposable d) {
+
+            }
+
+            @Override
+            public void onNext(@io.reactivex.annotations.NonNull NotDisturbModeBeanRsp notDisturbModeBeanRsp) {
+                NotDisturbModeBeanRsp.DataBean data = notDisturbModeBeanRsp.getData();
+                if (notDisturbModeBeanRsp.getCode().equals("200") && data != null) {
+                    boolean openlockPushSwitch = data.isOpenlockPushSwitch();
+                    List<BleDeviceLocal> bleDeviceLocals = mHomeLockListAdapter.getData();
+                    if (bleDeviceLocals != null && !bleDeviceLocals.isEmpty()) {
+                        for (BleDeviceLocal bleDeviceLocal : bleDeviceLocals) {
+                            bleDeviceLocal.setDoNotDisturbMode(openlockPushSwitch);
+                        }
+                    }
+                } else if (notDisturbModeBeanRsp.getCode().equals("444")) {
+                    App.getInstance().logout(true, getActivity());
+                }
+            }
+
+            @Override
+            public void onError(@io.reactivex.annotations.NonNull Throwable e) {
+
+            }
+
+            @Override
+            public void onComplete() {
+
+            }
+        });
+    }
+
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void getEventBus(LockMessageRes lockMessage) {
 
@@ -247,6 +297,7 @@ public class DeviceFragment extends Fragment {
                         //获取当前用户绑定设备返回
                         //   mBleDeviceLocals = App.getInstance().getDeviceLists();
                         updateData(App.getInstance().getDeviceLists());
+                        initNotDisturbMode();
                         break;
                     case LockMessageCode.MSG_LOCK_MESSAGE_SET_LOCK://开关锁
                         if (null != lockMessage.getWifiLockBaseResponseBean()) {

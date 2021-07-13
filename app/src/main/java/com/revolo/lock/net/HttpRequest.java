@@ -33,6 +33,7 @@ import com.revolo.lock.bean.request.GetAllSharedUserFromLockBeanReq;
 import com.revolo.lock.bean.request.GetCodeBeanReq;
 import com.revolo.lock.bean.request.GetDevicesFromUidAndSharedUidBeanReq;
 import com.revolo.lock.bean.request.GetLockKeyNickBeanReq;
+import com.revolo.lock.bean.request.GetNotDisturbModeBeanReq;
 import com.revolo.lock.bean.request.GetPwd1BeanReq;
 import com.revolo.lock.bean.request.LockIsBindBeanReq;
 import com.revolo.lock.bean.request.LockKeyAddBeanReq;
@@ -40,6 +41,7 @@ import com.revolo.lock.bean.request.LockRecordBeanReq;
 import com.revolo.lock.bean.request.MailLoginBeanReq;
 import com.revolo.lock.bean.request.MailRegisterBeanReq;
 import com.revolo.lock.bean.request.OpenDoorRecordSearchBeanReq;
+import com.revolo.lock.bean.request.PostNotDisturbModeBeanReq;
 import com.revolo.lock.bean.request.SearchAlarmRecordBeanReq;
 import com.revolo.lock.bean.request.SearchKeyListBeanReq;
 import com.revolo.lock.bean.request.SearchProductNoBeanReq;
@@ -92,6 +94,7 @@ import com.revolo.lock.bean.respone.LockRecordBeanRsp;
 import com.revolo.lock.bean.respone.LogoutBeanRsp;
 import com.revolo.lock.bean.respone.MailLoginBeanRsp;
 import com.revolo.lock.bean.respone.MailRegisterBeanRsp;
+import com.revolo.lock.bean.respone.NotDisturbModeBeanRsp;
 import com.revolo.lock.bean.respone.OpenDoorRecordSearchBeanRsp;
 import com.revolo.lock.bean.respone.QuestionBeanRsp;
 import com.revolo.lock.bean.respone.SearchAlarmRecordBeanRsp;
@@ -501,5 +504,13 @@ public class HttpRequest {
 
     public Observable<UserByMailExistsBeanRsp> getUserByMailExists(UserByMailExistsBeanReq req) {
         return service.getUserByMailExists(req);
+    }
+
+    public Observable<NotDisturbModeBeanRsp> postPushSwitch(String token, PostNotDisturbModeBeanReq req) {
+        return service.postPushSwitch(token, req);
+    }
+
+    public Observable<NotDisturbModeBeanRsp> getPushSwitch(String token, GetNotDisturbModeBeanReq req) {
+        return service.getPushSwitch(token, req);
     }
 }
