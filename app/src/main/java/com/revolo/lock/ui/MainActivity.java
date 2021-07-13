@@ -37,6 +37,7 @@ import com.revolo.lock.net.HttpRequest;
 import com.revolo.lock.net.ObservableDecorator;
 import com.revolo.lock.ui.device.DeviceFragment;
 import com.revolo.lock.ui.device.add.AddDeviceActivity;
+import com.revolo.lock.ui.mine.MessageListActivity;
 import com.revolo.lock.ui.mine.MineFragment;
 import com.revolo.lock.ui.user.UserFragment;
 
@@ -73,6 +74,9 @@ public class MainActivity extends BaseActivity {
         if (intent.hasExtra(Constant.COMMAND)) {
             String command = intent.getStringExtra(Constant.COMMAND);
             isGotoAddDeviceAct = command.equals(Constant.ADD_DEVICE);
+        } else if (intent.hasExtra("isFcmMessage")) {
+            boolean isFcmMessage = intent.getBooleanExtra("isFcmMessage", false);
+            if (isFcmMessage) startActivity(new Intent(this, MessageListActivity.class));
         }
         getAlexaIntent(getIntent());
 
@@ -170,6 +174,7 @@ public class MainActivity extends BaseActivity {
             }
         }
     }
+
     private void addDeviceFragment() {
 
         if (deviceFragment == null) {
@@ -276,5 +281,4 @@ public class MainActivity extends BaseActivity {
             }
         }
     }
-
 }

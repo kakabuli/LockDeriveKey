@@ -24,6 +24,7 @@ import com.revolo.lock.bean.respone.MailLoginBeanRsp;
 import com.revolo.lock.dialog.SelectServerDialog;
 import com.revolo.lock.room.entity.User;
 import com.revolo.lock.ui.MainActivity;
+import com.revolo.lock.ui.mine.MessageListActivity;
 import com.revolo.lock.util.FingerprintUtils;
 
 import java.util.concurrent.Executor;
@@ -37,6 +38,7 @@ public class SignSelectActivity extends BaseActivity {
     private static final int REQUEST_CODE_DRAW_GESTURE_CODE = 1999;
     private ConstraintLayout constraintLayout;
     private SelectServerDialog selectServerDialog;
+    private boolean isFcmMessage = false;
 
     private Handler handler = new Handler();
 
@@ -54,6 +56,11 @@ public class SignSelectActivity extends BaseActivity {
 
     @Override
     public void initView(@Nullable Bundle savedInstanceState, @Nullable View contentView) {
+        Bundle extras = getIntent().getExtras();
+        if (extras != null) {
+            Timber.d("**************************   onCreate 接收推送的数据   ****************************");
+            isFcmMessage = true;
+        }
         applyDebouncingClickListener(findViewById(R.id.btnRegister), findViewById(R.id.btnSignIn));
         setStatusBarColor(R.color.white);
         constraintLayout = findViewById(R.id.activity_sign_select_view);
@@ -62,6 +69,16 @@ public class SignSelectActivity extends BaseActivity {
         selectServerDialog = new SelectServerDialog(this);
         if (TextUtils.isEmpty(signSelctMode)) {
             verification();
+        }
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        Bundle extras = intent.getExtras();
+        if (extras != null) {
+            Timber.d("**************************   onNewIntent 接收推送的数据   ****************************");
+            isFcmMessage = true;
         }
     }
 
@@ -156,6 +173,7 @@ public class SignSelectActivity extends BaseActivity {
 
     private void gestureCode() {
         Intent intent = new Intent(this, DrawHandPwdAutoLoginActivity.class);
+        intent.putExtra("isFcmMessage", isFcmMessage);
         startActivity(intent);
         finish();
     }
@@ -177,6 +195,7 @@ public class SignSelectActivity extends BaseActivity {
         new Handler(Looper.getMainLooper()).postDelayed(() -> {
             Intent intent = new Intent(SignSelectActivity.this, MainActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            intent.putExtra("isFcmMessage", isFcmMessage);
             intent.addCategory(Intent.CATEGORY_HOME);
             startActivity(intent);
             finish();

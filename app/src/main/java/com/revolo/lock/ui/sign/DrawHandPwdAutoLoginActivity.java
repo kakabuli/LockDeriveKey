@@ -40,6 +40,7 @@ public class DrawHandPwdAutoLoginActivity extends BaseActivity {
     private TextView tvDrawTip;
 
     private int mCount = 3;
+    private boolean isFcmMessage = false;
 
     @Override
     public void initData(@Nullable Bundle bundle) {
@@ -55,6 +56,8 @@ public class DrawHandPwdAutoLoginActivity extends BaseActivity {
     public void initView(@Nullable Bundle savedInstanceState, @Nullable View contentView) {
         TitleBar titleBar = useCommonTitleBar("Gesture password");
         titleBar.getIvLeft().setVisibility(View.INVISIBLE);
+
+        isFcmMessage = getIntent().getBooleanExtra("isFcmMessage", false);
 
         tvDrawTip = findViewById(R.id.tvDrawTip);
         FrameLayout gestureContainer = findViewById(R.id.gesture_container);
@@ -156,6 +159,7 @@ public class DrawHandPwdAutoLoginActivity extends BaseActivity {
             Intent intent = new Intent(DrawHandPwdAutoLoginActivity.this, MainActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             intent.addCategory(Intent.CATEGORY_HOME);
+            intent.putExtra("isFcmMessage", isFcmMessage);
 
             startActivity(intent);
             finish();
