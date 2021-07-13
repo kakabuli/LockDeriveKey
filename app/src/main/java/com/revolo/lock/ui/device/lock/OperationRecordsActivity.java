@@ -8,14 +8,18 @@ import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ExpandableListView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.bigkoo.pickerview.builder.TimePickerBuilder;
+import com.bigkoo.pickerview.listener.CustomListener;
 import com.bigkoo.pickerview.view.TimePickerView;
 import com.blankj.utilcode.util.TimeUtils;
 import com.blankj.utilcode.util.ToastUtils;
@@ -45,6 +49,8 @@ import com.revolo.lock.room.entity.LockRecord;
 import com.revolo.lock.ui.view.SmartClassicsFooterView;
 import com.revolo.lock.ui.view.SmartClassicsHeaderView;
 import com.revolo.lock.util.ZoneUtil;
+import com.revolo.lock.widget.MyTimePickBuilder;
+import com.revolo.lock.widget.MyTimePickerView;
 import com.scwang.smart.refresh.layout.api.RefreshLayout;
 
 import org.greenrobot.eventbus.EventBus;
@@ -455,6 +461,8 @@ public class OperationRecordsActivity extends BaseActivity {
             // TODO: 2021/3/18 时间错误就不能存储
             if (beans.isEmpty()) {
                 Timber.e("processRecordFromNet beans is empty");
+                mWillShowRecords.clear();
+                refreshUIFromFinalData();
                 return;
             }
             // 不做校验，直接做存储并数据库做了插入去重
@@ -853,7 +861,7 @@ public class OperationRecordsActivity extends BaseActivity {
 
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
-        TimePickerBuilder timePickerBuilder = new TimePickerBuilder(this, (date, v) -> {
+        MyTimePickBuilder timePickerBuilder = new MyTimePickBuilder(this, (date, v) -> {
             OperationRecordsActivity.this.showLoading();
             String time = dateFormat.format(date);
             long startTime = ZoneUtil.getTime(mBleDeviceLocal.getTimeZone(), time + " 00:00:00") / 1000;
@@ -872,7 +880,8 @@ public class OperationRecordsActivity extends BaseActivity {
         Calendar startTime = Calendar.getInstance();
         startTime.setTime(strtodate);
 
-        timePickerBuilder.setCancelColor(Color.parseColor("#999999"))
+        timePickerBuilder.setLayoutRes(R.layout.dialog_picker_view_time, null)
+                .setCancelColor(Color.parseColor("#999999"))
                 .setDividerColor(Color.parseColor("#f7f7f7"))
                 .setSubmitColor(Color.parseColor("#2c68ff"))
                 .setTitleColor(Color.parseColor("#333333"))
@@ -890,28 +899,10 @@ public class OperationRecordsActivity extends BaseActivity {
                 .setRangDate(startTime, Calendar.getInstance())
                 .setTextXOffset(0, 0, 0, 0, 0, 0);
 
-
-        TimePickerView timePickerView = timePickerBuilder.build();
+        MyTimePickerView timePickerView = timePickerBuilder.build();
         timePickerView.setDate(Calendar.getInstance());
         timePickerView.setTitleText("Date");
         timePickerView.show();
-
-
-//        DatePickerDialog datePickerDialog = new DatePickerDialog(this, R.style.MyTimePickerDialogTheme);
-//        datePickerDialog.setOnDateSetListener((view, year, month, dayOfMonth) -> {
-//            // TODO: 2021/2/4 date
-//            showLoading();
-//            month += 1;
-//            String date = year + "-" + (month < 10 ? "0" + month : month) + "-" + (dayOfMonth < 10 ? "0" + dayOfMonth : dayOfMonth);
-//            long startTime = TimeUtils.string2Millis(date + " 00:00:00");
-//            long endTime = TimeUtils.string2Millis(date + " 23:59:59");
-//            ThreadUtils.getSinglePool().execute(() -> {
-//                searchRecordsFromDate(date, startTime, endTime);
-//            });
-//
-//        });
-//        datePickerDialog.setCancelable(true);
-//        datePickerDialog.show();
     }
 
     private void searchRecordsFromDate(String date, long startTime, long endTime) {
