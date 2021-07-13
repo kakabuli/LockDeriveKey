@@ -11,6 +11,7 @@ import android.location.Location;
 import android.os.Binder;
 import android.os.Handler;
 import android.os.IBinder;
+import android.os.Looper;
 import android.util.Log;
 
 import androidx.annotation.Nullable;
@@ -33,8 +34,10 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
 import com.revolo.lock.App;
 import com.revolo.lock.ble.BleCommandFactory;
+import com.revolo.lock.ble.bean.BleBean;
 import com.revolo.lock.manager.LockAppService;
 import com.revolo.lock.manager.LockMessage;
+import com.revolo.lock.manager.ble.BleManager;
 import com.revolo.lock.mqtt.MQttConstant;
 import com.revolo.lock.mqtt.MqttCommandFactory;
 import com.revolo.lock.room.entity.BleDeviceLocal;
@@ -173,7 +176,7 @@ public class LockGeoFenceService extends Service implements OnMapReadyCallback, 
                     if (lockGeoget.threadSleep < 21) {
                         if (null != fenceEn.getBleDeviceLocal()) {
                             Timber.e("距离少于30米，开始发送命令");
-                            pushMessage(fenceEn.getBleDeviceLocal().getEsn(), fenceEn.getBleDeviceLocal().getSetElectricFenceTime());
+                            pushMessage(fenceEn.getBleDeviceLocal());
                         }
 
                         //sendBroadcast(new Intent(this, GeoFenceBroadcastReceiver.class));
@@ -186,30 +189,39 @@ public class LockGeoFenceService extends Service implements OnMapReadyCallback, 
         }
     }
 
-    private void pushMessage(String wifiID, int broadcastTime) {
-        BleDeviceLocal deviceLocal=null;
-       List<BleDeviceLocal> blsList= App.getInstance().getDeviceLists();
-       if(null!=blsList){
-           for(BleDeviceLocal deviceLo:blsList){
-               if(deviceLo.getEsn().equals(wifiID)){
-                   deviceLocal=deviceLo;
-                   break;
-               }
-           }
-       }
-        if (deviceLocal == null) {
-            Timber.e("publishApproachOpen deviceLocal == null");
-            return;
+    private void pushMessage(BleDeviceLocal deviceLocal) {
+        //电子围栏是否开启
+        Timber.e("lock local check ble connected");
+        if (deviceLocal.isOpenElectricFence()) {
+            if (null != App.getInstance().getLockAppService()) {
+                BleBean bleBean = App.getInstance().getLockAppService().getUserBleBean(deviceLocal.getMac());
+                if (null != bleBean) {
+                    if (bleBean.getBleConning() == 2) {
+                        new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                            if (bleBean == null) {
+                                Timber.e("mOnBleDeviceListener bleBean == null");
+                                return;
+                            }
+                            // TODO: 2021/4/7 抽离0x01
+                            Timber.e("lock local send ble cmd");
+                            BleManager.getInstance().writeControlMsg(BleCommandFactory
+                                    .setKnockDoorAndUnlockTime(0x01, bleBean.getPwd1(), bleBean.getPwd3()), bleBean.getOKBLEDeviceImp());
+                        }, 200);
+                        return;
+                    }
+                }
+            }
+            Timber.e("lock local send mqtt cmd");
+            LockMessage lockMessage = new LockMessage();
+            lockMessage.setMqttMessage(MqttCommandFactory.approachOpen(deviceLocal.getEsn(), deviceLocal.getSetElectricFenceTime(),
+                    BleCommandFactory.getPwd(
+                            ConvertUtils.hexString2Bytes(deviceLocal.getPwd1()),
+                            ConvertUtils.hexString2Bytes(deviceLocal.getPwd2()))));
+            lockMessage.setMqtt_topic(MQttConstant.getCallTopic(App.getInstance().getUserBean().getUid()));
+            lockMessage.setMessageType(2);
+            lockMessage.setMqtt_message_code(MQttConstant.APP_ROACH_OPEN);
+            EventBus.getDefault().post(lockMessage);
         }
-        LockMessage lockMessage = new LockMessage();
-        lockMessage.setMqttMessage(MqttCommandFactory.approachOpen(wifiID, broadcastTime,
-                BleCommandFactory.getPwd(
-                        ConvertUtils.hexString2Bytes(deviceLocal.getPwd1()),
-                        ConvertUtils.hexString2Bytes(deviceLocal.getPwd2()))));
-        lockMessage.setMqtt_topic(MQttConstant.getCallTopic(App.getInstance().getUserBean().getUid()));
-        lockMessage.setMessageType(2);
-        lockMessage.setMqtt_message_code(MQttConstant.APP_ROACH_OPEN);
-        EventBus.getDefault().post(lockMessage);
 
     }
 
