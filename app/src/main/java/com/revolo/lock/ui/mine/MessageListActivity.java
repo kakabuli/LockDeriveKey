@@ -93,9 +93,9 @@ public class MessageListActivity extends BaseActivity {
 //                    constraintLayout.setVisibility(View.GONE);
 //                }
 //            }
-            SystemMessageListBeanRsp.DataBean dataBean = (SystemMessageListBeanRsp.DataBean) adapter.getItem(position);
-            if (dataBean != null)
-                startActivity(new Intent(MessageListActivity.this, MessageDetailActivity.class).putExtra(Constant.MESSAGE_DETAIL, dataBean));
+//            SystemMessageListBeanRsp.DataBean dataBean = (SystemMessageListBeanRsp.DataBean) adapter.getItem(position);
+//            if (dataBean != null)
+//                startActivity(new Intent(MessageListActivity.this, MessageDetailActivity.class).putExtra(Constant.MESSAGE_DETAIL, dataBean));
         });
         rvMessage.setAdapter(mMessageListAdapter);
         mMessageListAdapter.setOnDeleteListener(dataBean -> {
