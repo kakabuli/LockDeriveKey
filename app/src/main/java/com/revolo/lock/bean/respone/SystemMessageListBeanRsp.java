@@ -1,13 +1,35 @@
 package com.revolo.lock.bean.respone;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import java.util.List;
 
-public class SystemMessageListBeanRsp {
+public class SystemMessageListBeanRsp implements Parcelable {
 
     private String code;
     private String msg;
     private int nowTime;
     private List<DataBean> data;
+
+    protected SystemMessageListBeanRsp(Parcel in) {
+        code = in.readString();
+        msg = in.readString();
+        nowTime = in.readInt();
+        data = in.createTypedArrayList(DataBean.CREATOR);
+    }
+
+    public static final Creator<SystemMessageListBeanRsp> CREATOR = new Creator<SystemMessageListBeanRsp>() {
+        @Override
+        public SystemMessageListBeanRsp createFromParcel(Parcel in) {
+            return new SystemMessageListBeanRsp(in);
+        }
+
+        @Override
+        public SystemMessageListBeanRsp[] newArray(int size) {
+            return new SystemMessageListBeanRsp[size];
+        }
+    };
 
     public String getCode() {
         return code;
@@ -41,7 +63,20 @@ public class SystemMessageListBeanRsp {
         this.data = data;
     }
 
-    public static class DataBean {
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(code);
+        dest.writeString(msg);
+        dest.writeInt(nowTime);
+        dest.writeTypedList(data);
+    }
+
+    public static class DataBean implements Parcelable {
         private String _id;
         private String uid;
         private String alertTitle;
@@ -49,6 +84,28 @@ public class SystemMessageListBeanRsp {
         private String msgType;
         private String clientType;
         private String pushAt;
+
+        protected DataBean(Parcel in) {
+            _id = in.readString();
+            uid = in.readString();
+            alertTitle = in.readString();
+            alertBody = in.readString();
+            msgType = in.readString();
+            clientType = in.readString();
+            pushAt = in.readString();
+        }
+
+        public static final Creator<DataBean> CREATOR = new Creator<DataBean>() {
+            @Override
+            public DataBean createFromParcel(Parcel in) {
+                return new DataBean(in);
+            }
+
+            @Override
+            public DataBean[] newArray(int size) {
+                return new DataBean[size];
+            }
+        };
 
         public String get_id() {
             return _id;
@@ -104,6 +161,22 @@ public class SystemMessageListBeanRsp {
 
         public void setPushAt(String pushAt) {
             this.pushAt = pushAt;
+        }
+
+        @Override
+        public int describeContents() {
+            return 0;
+        }
+
+        @Override
+        public void writeToParcel(Parcel dest, int flags) {
+            dest.writeString(_id);
+            dest.writeString(uid);
+            dest.writeString(alertTitle);
+            dest.writeString(alertBody);
+            dest.writeString(msgType);
+            dest.writeString(clientType);
+            dest.writeString(pushAt);
         }
     }
 }

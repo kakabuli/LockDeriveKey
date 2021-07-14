@@ -1,19 +1,12 @@
 package com.revolo.lock.receiver;
 
-import android.app.NotificationManager;
-import android.app.PendingIntent;
-import android.content.Context;
-import android.content.Intent;
-import android.graphics.Color;
+import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
-import androidx.core.app.NotificationCompat;
 
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 import com.revolo.lock.App;
-import com.revolo.lock.LockAppManager;
-import com.revolo.lock.R;
 import com.revolo.lock.bean.request.DeviceTokenBeanReq;
 import com.revolo.lock.bean.respone.DeviceTokenBeanRsp;
 import com.revolo.lock.net.HttpRequest;
@@ -69,7 +62,14 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         Timber.d("**************************   onMessageReceived   **************************");
         NotificationHelper notificationHelper = new NotificationHelper(getBaseContext());
         if (remoteMessage.getNotification() != null && remoteMessage.getNotification().getBody() != null) {
-            notificationHelper.sendHighPriorityNotification(remoteMessage.getNotification().getTitle(), remoteMessage.getNotification().getBody(), MessageListActivity.class);
+            Map<String, String> data = remoteMessage.getData();
+            if (data != null) {
+                Timber.d("*****************    data = " + data.toString() + "   ********************");
+                String type = data.get("type");
+                if (TextUtils.isEmpty(type) || !type.equals("3")) {
+                    notificationHelper.sendHighPriorityNotification(remoteMessage.getNotification().getTitle(), remoteMessage.getNotification().getBody(), MessageListActivity.class);
+                }
+            }
         } else {
             notificationHelper.sendHighPriorityNotification(remoteMessage.getData().get("title"), remoteMessage.getData().get("body"), MessageListActivity.class);
         }

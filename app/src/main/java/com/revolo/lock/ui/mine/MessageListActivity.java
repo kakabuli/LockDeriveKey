@@ -1,5 +1,6 @@
 package com.revolo.lock.ui.mine;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.KeyEvent;
@@ -13,6 +14,7 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.revolo.lock.App;
+import com.revolo.lock.Constant;
 import com.revolo.lock.R;
 import com.revolo.lock.adapter.MessageListAdapter;
 import com.revolo.lock.base.BaseActivity;
@@ -83,14 +85,17 @@ public class MessageListActivity extends BaseActivity {
         rvMessage.setLayoutManager(new LinearLayoutManager(this));
         mMessageListAdapter = new MessageListAdapter(R.layout.item_message_rv);
         mMessageListAdapter.setOnItemClickListener((adapter, view, position) -> {
-            ConstraintLayout constraintLayout = view.findViewById(R.id.cl_message);
-            if (constraintLayout != null) {
-                if (constraintLayout.getVisibility() == View.GONE) {
-                    constraintLayout.setVisibility(View.VISIBLE);
-                } else {
-                    constraintLayout.setVisibility(View.GONE);
-                }
-            }
+//            ConstraintLayout constraintLayout = view.findViewById(R.id.cl_message);
+//            if (constraintLayout != null) {
+//                if (constraintLayout.getVisibility() == View.GONE) {
+//                    constraintLayout.setVisibility(View.VISIBLE);
+//                } else {
+//                    constraintLayout.setVisibility(View.GONE);
+//                }
+//            }
+            SystemMessageListBeanRsp.DataBean dataBean = (SystemMessageListBeanRsp.DataBean) adapter.getItem(position);
+            if (dataBean != null)
+                startActivity(new Intent(MessageListActivity.this, MessageDetailActivity.class).putExtra(Constant.MESSAGE_DETAIL, dataBean));
         });
         rvMessage.setAdapter(mMessageListAdapter);
         mMessageListAdapter.setOnDeleteListener(dataBean -> {

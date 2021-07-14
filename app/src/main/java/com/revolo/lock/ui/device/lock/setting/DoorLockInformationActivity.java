@@ -33,6 +33,7 @@ import com.revolo.lock.ble.BleResultProcess;
 import com.revolo.lock.ble.OnBleDeviceListener;
 import com.revolo.lock.ble.bean.BleBean;
 import com.revolo.lock.ble.bean.BleResultBean;
+import com.revolo.lock.dialog.MessageDialog;
 import com.revolo.lock.dialog.OTAUpdateDialog;
 import com.revolo.lock.dialog.SelectDialog;
 import com.revolo.lock.manager.LockMessage;
@@ -82,6 +83,7 @@ public class DoorLockInformationActivity extends BaseActivity {
     private boolean isCanUpdateWifiVer = false;
 
     private OTAUpdateDialog mOTAUpdateDialog;
+    private MessageDialog mMessageDialog;
 
     // -1 不做任何升级， 2 wifi锁， 6 前板
     private int mUpdateType = -1;
@@ -123,6 +125,13 @@ public class DoorLockInformationActivity extends BaseActivity {
         onRegisterEventBus();
 
         mOTAUpdateDialog = new OTAUpdateDialog.Builder(this).setMessage(getString(R.string.dialog_content_ota_update)).create();
+
+        mMessageDialog = new MessageDialog(this);
+        mMessageDialog.setOnListener(v -> {
+            if (mMessageDialog != null) {
+                mMessageDialog.dismiss();
+            }
+        });
     }
 
     @Override
@@ -795,7 +804,10 @@ public class DoorLockInformationActivity extends BaseActivity {
                     if (returnCode == 200) { // 成功
                         int status = eventparams.getStatus();
                         if (status == 3) { // 升级完成
-                            ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(getString(R.string.tip_content_ota_update_success));
+                            if (mMessageDialog != null) {
+                                mMessageDialog.setMessage(getString(R.string.tip_content_ota_update_success));
+                                mMessageDialog.show();
+                            }
                             int devNum = eventparams.getDevNum();
                             if (devNum == 2) { // wifi锁
                                 String wifiVer = eventparams.getSW();
@@ -815,7 +827,10 @@ public class DoorLockInformationActivity extends BaseActivity {
                     } else {
                         int hwerrcode = eventparams.getHwerrcode();
                         Timber.d(hwerrcode == 1 ? "下载文件失败" : hwerrcode == 2 ? "文件MD5校验失败" : hwerrcode == 3 ? "版本号相同无法升级" : "其他错误");
-                        ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(getString(R.string.tip_content_ota_update_failed));
+                        if (mMessageDialog != null) {
+                            mMessageDialog.setMessage(getString(R.string.tip_content_ota_update_failed));
+                            mMessageDialog.show();
+                        }
                     }
                 }
             }

@@ -21,6 +21,7 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
+import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.revolo.lock.App;
@@ -46,6 +47,7 @@ import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import io.reactivex.Observable;
 import io.reactivex.Observer;
@@ -74,10 +76,21 @@ public class MainActivity extends BaseActivity {
         if (intent.hasExtra(Constant.COMMAND)) {
             String command = intent.getStringExtra(Constant.COMMAND);
             isGotoAddDeviceAct = command.equals(Constant.ADD_DEVICE);
-        } else if (intent.hasExtra("isFcmMessage")) {
-            boolean isFcmMessage = intent.getBooleanExtra("isFcmMessage", false);
-            if (isFcmMessage) startActivity(new Intent(this, MessageListActivity.class));
         }
+
+        Bundle extras = intent.getExtras();
+        if (extras != null) {
+            Set<String> strings = extras.keySet();
+            for (String s : strings) {
+                if (s.equals("type")) {
+                    String type = extras.getString(s);
+                    if (!type.equals("3")) {
+                        startActivity(new Intent(this, MessageListActivity.class));
+                    }
+                }
+            }
+        }
+
         getAlexaIntent(getIntent());
 
         //onRegisterEventBus();
@@ -119,6 +132,44 @@ public class MainActivity extends BaseActivity {
         if (isGotoAddDeviceAct) {
             startActivity(new Intent(this, AddDeviceActivity.class));
         }
+
+        FirebaseMessaging.getInstance().getToken().addOnCompleteListener(task -> {
+            if (!task.isSuccessful()) {
+                Timber.d("**********   failed   ************");
+                GoogleApiAvailability.getInstance().makeGooglePlayServicesAvailable(MainActivity.this);
+                return;
+            }
+            String token = task.getResult();
+            if (App.getInstance().getUserBean() != null) {
+                Timber.d("**************************   set google token to server   **************************");
+                DeviceTokenBeanReq req = new DeviceTokenBeanReq();
+                req.setType(1);
+                req.setDeviceToken(token);
+                req.setUid(App.getInstance().getUserBean().getUid());
+                Observable<DeviceTokenBeanRsp> deviceTokenBeanRspObservable = HttpRequest.getInstance().deviceToken(App.getInstance().getUserBean().getToken(), req);
+                ObservableDecorator.decorate(deviceTokenBeanRspObservable).safeSubscribe(new Observer<DeviceTokenBeanRsp>() {
+                    @Override
+                    public void onSubscribe(@io.reactivex.annotations.NonNull Disposable d) {
+
+                    }
+
+                    @Override
+                    public void onNext(@io.reactivex.annotations.NonNull DeviceTokenBeanRsp deviceTokenBeanRsp) {
+
+                    }
+
+                    @Override
+                    public void onError(@io.reactivex.annotations.NonNull Throwable e) {
+
+                    }
+
+                    @Override
+                    public void onComplete() {
+
+                    }
+                });
+            }
+        });
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
@@ -226,41 +277,6 @@ public class MainActivity extends BaseActivity {
     @Override
     public void doBusiness() {
 
-        FirebaseMessaging.getInstance().getToken().addOnCompleteListener(task -> {
-            if (!task.isSuccessful()) {
-                return;
-            }
-            String token = task.getResult();
-            if (App.getInstance().getUserBean() != null) {
-                Timber.d("**************************   set google token to server   **************************");
-                DeviceTokenBeanReq req = new DeviceTokenBeanReq();
-                req.setType(1);
-                req.setDeviceToken(token);
-                req.setUid(App.getInstance().getUserBean().getUid());
-                Observable<DeviceTokenBeanRsp> deviceTokenBeanRspObservable = HttpRequest.getInstance().deviceToken(App.getInstance().getUserBean().getToken(), req);
-                ObservableDecorator.decorate(deviceTokenBeanRspObservable).safeSubscribe(new Observer<DeviceTokenBeanRsp>() {
-                    @Override
-                    public void onSubscribe(@io.reactivex.annotations.NonNull Disposable d) {
-
-                    }
-
-                    @Override
-                    public void onNext(@io.reactivex.annotations.NonNull DeviceTokenBeanRsp deviceTokenBeanRsp) {
-
-                    }
-
-                    @Override
-                    public void onError(@io.reactivex.annotations.NonNull Throwable e) {
-
-                    }
-
-                    @Override
-                    public void onComplete() {
-
-                    }
-                });
-            }
-        });
     }
 
     @Override

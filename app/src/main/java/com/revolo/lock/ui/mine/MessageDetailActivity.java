@@ -13,7 +13,7 @@ import com.blankj.utilcode.util.TimeUtils;
 import com.revolo.lock.Constant;
 import com.revolo.lock.R;
 import com.revolo.lock.base.BaseActivity;
-import com.revolo.lock.bean.test.TestMessageBean;
+import com.revolo.lock.bean.respone.SystemMessageListBeanRsp;
 
 /**
  * author : Jack
@@ -23,12 +23,12 @@ import com.revolo.lock.bean.test.TestMessageBean;
  */
 public class MessageDetailActivity extends BaseActivity {
 
-    private TestMessageBean mTestMessageBean;
+    private SystemMessageListBeanRsp.DataBean mTestMessageBean;
 
     @Override
     public void initData(@Nullable Bundle bundle) {
         Intent intent = getIntent();
-        if(intent.hasExtra(Constant.MESSAGE_DETAIL)) {
+        if (intent.hasExtra(Constant.MESSAGE_DETAIL)) {
             mTestMessageBean = intent.getParcelableExtra(Constant.MESSAGE_DETAIL);
         }
     }
@@ -47,6 +47,7 @@ public class MessageDetailActivity extends BaseActivity {
     public void doBusiness() {
         initMessageData();
     }
+
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0) {
@@ -55,16 +56,17 @@ public class MessageDetailActivity extends BaseActivity {
         }
         return super.onKeyDown(keyCode, event);
     }
+
     @Override
     public void onDebouncingClick(@NonNull View view) {
 
     }
 
     private void initMessageData() {
-        if(mTestMessageBean != null) {
-            ((TextView) findViewById(R.id.tvMessageTitle)).setText(mTestMessageBean.getTitle());
-            ((TextView) findViewById(R.id.tvTime)).setText(TimeUtils.millis2String(mTestMessageBean.getCreateTime(), "yyyy.MM.dd"));
-            ((TextView) findViewById(R.id.tvContent)).setText(mTestMessageBean.getContent());
+        if (mTestMessageBean != null) {
+            ((TextView) findViewById(R.id.tvMessageTitle)).setText(mTestMessageBean.getAlertTitle());
+            ((TextView) findViewById(R.id.tvTime)).setText(mTestMessageBean.getPushAt());
+            ((TextView) findViewById(R.id.tvContent)).setText(mTestMessageBean.getAlertBody());
         }
     }
 

@@ -220,6 +220,7 @@ public class DeviceFragment extends Fragment {
         super.onResume();
         initBaseData();
         refreshGetAllBindDevicesFromMQTT();
+        initNotDisturbMode();
     }
 
     private void initNotDisturbMode() {
@@ -243,7 +244,7 @@ public class DeviceFragment extends Fragment {
                     List<BleDeviceLocal> bleDeviceLocals = mHomeLockListAdapter.getData();
                     if (bleDeviceLocals != null && !bleDeviceLocals.isEmpty()) {
                         for (BleDeviceLocal bleDeviceLocal : bleDeviceLocals) {
-                            bleDeviceLocal.setDoNotDisturbMode(openlockPushSwitch);
+                            bleDeviceLocal.setDoNotDisturbMode(!openlockPushSwitch);
                         }
                     }
                 } else if (notDisturbModeBeanRsp.getCode().equals("444")) {
@@ -297,7 +298,6 @@ public class DeviceFragment extends Fragment {
                         //获取当前用户绑定设备返回
                         //   mBleDeviceLocals = App.getInstance().getDeviceLists();
                         updateData(App.getInstance().getDeviceLists());
-                        initNotDisturbMode();
                         break;
                     case LockMessageCode.MSG_LOCK_MESSAGE_SET_LOCK://开关锁
                         if (null != lockMessage.getWifiLockBaseResponseBean()) {

@@ -266,7 +266,7 @@ public class DeviceSettingActivity extends BaseActivity {
         String token = App.getInstance().getUserBean().getToken();
         String uid = App.getInstance().getUserBean().getUid();
         PostNotDisturbModeBeanReq req = new PostNotDisturbModeBeanReq();
-        req.setOpenlockPushSwitch(!mBleDeviceLocal.isDoNotDisturbMode());
+        req.setOpenlockPushSwitch(mBleDeviceLocal.isDoNotDisturbMode());
         req.setUid(uid);
         Observable<NotDisturbModeBeanRsp> notDisturbModeBeanRspObservable = HttpRequest.getInstance().postPushSwitch(token, req);
         ObservableDecorator.decorate(notDisturbModeBeanRspObservable).safeSubscribe(new Observer<NotDisturbModeBeanRsp>() {
