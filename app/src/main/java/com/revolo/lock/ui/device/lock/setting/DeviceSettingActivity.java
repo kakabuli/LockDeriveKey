@@ -428,6 +428,7 @@ public class DeviceSettingActivity extends BaseActivity {
                 if (null != App.getInstance().getLockGeoFenceService()) {
                     App.getInstance().getLockGeoFenceService().clearBleDevice(mBleDeviceLocal.getEsn());
                 }
+                App.getInstance().removeRecords(mBleDeviceLocal.getEsn());
                 App.getInstance().removeConnectedBleDisconnect(mBleDeviceLocal.getMac());
                 AppDatabase.getInstance(getApplicationContext()).bleDeviceDao().delete(mBleDeviceLocal);
                 ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_unbind_success);

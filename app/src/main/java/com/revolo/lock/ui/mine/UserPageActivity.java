@@ -460,6 +460,7 @@ public class UserPageActivity extends BaseActivity implements EasyPermissions.Pe
                 if(null!=App.getInstance().getLockGeoFenceService()){
                     App.getInstance().getLockGeoFenceService().clearBleDevice();
                 }
+                App.getInstance().removeRecords(null);
                 //清理设备信息
                 App.getInstance().removeDeviceList();
                 startActivity(new Intent(UserPageActivity.this, LoginActivity.class).putExtra("logout", true));

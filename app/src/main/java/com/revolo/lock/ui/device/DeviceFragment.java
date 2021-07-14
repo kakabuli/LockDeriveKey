@@ -477,7 +477,22 @@ public class DeviceFragment extends Fragment {
     }
 
     private void initBaseData() {
-        updateData(App.getInstance().getDeviceLists());
+        if (null == App.getInstance().getDeviceLists() || App.getInstance().getDeviceLists().size() == 0) {
+            User user = App.getInstance().getUser();
+            if (user == null) {
+                return;
+            }
+            List<BleDeviceLocal> locals = AppDatabase.getInstance(App.getInstance()).bleDeviceDao().findBleDevicesFromUserIdByCreateTimeDesc(user.getAdminUid());
+            if (locals == null) {
+                return;
+            }
+            if (locals.isEmpty()) {
+                return;
+            }
+            updateData(locals);
+        } else {
+            updateData(App.getInstance().getDeviceLists());
+        }
     }
 
     private void dismissLoading() {
