@@ -14,9 +14,11 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.provider.Settings;
+import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
+import android.widget.RelativeLayout;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -43,13 +45,20 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.revolo.lock.App;
 import com.revolo.lock.R;
 import com.revolo.lock.base.BaseActivity;
+import com.revolo.lock.bean.request.UpdateLockInfoReq;
+import com.revolo.lock.bean.respone.UpdateLockInfoRsp;
 import com.revolo.lock.dialog.SelectDialog;
 import com.revolo.lock.manager.geo.LockGeoFenceService;
+import com.revolo.lock.net.HttpRequest;
+import com.revolo.lock.net.ObservableDecorator;
 import com.revolo.lock.room.AppDatabase;
 import com.revolo.lock.room.entity.BleDeviceLocal;
 
 import org.jetbrains.annotations.NotNull;
 
+import io.reactivex.Observable;
+import io.reactivex.Observer;
+import io.reactivex.disposables.Disposable;
 import timber.log.Timber;
 
 /**
@@ -58,20 +67,16 @@ import timber.log.Timber;
  * E-mail : wengmaowei@kaadas.com
  * desc   :
  */
-public class MapActivity extends BaseActivity implements OnMapReadyCallback, GoogleMap.OnMapLongClickListener {
+public class MapActivity extends BaseActivity implements OnMapReadyCallback, GoogleMap.OnMapLongClickListener, GoogleMap.OnMapClickListener {
 
     private static final int FINE_LOCATION_ACCESS_REQUEST_CODE = 1001;
     private int BACKGROUND_LOCATION_ACCESS_REQUEST_CODE = 10002;
-    private String GEO_FENCE_ID = "SOME_GEO_FENCE_ID";
     private GoogleMap mMap;
-    /*private GeofencingClient mGeoFencingClient;
-    private GeoFenceHelper mGeoFenceHelper;*/
     public float GEO_FENCE_RADIUS = 50;
-
-    //  private FusedLocationProviderClient fusedLocationClient;
-
     private BleDeviceLocal mBleDeviceLocal;
     private SelectDialog canApplyDialog, refuseDialog;
+    private RelativeLayout addLocation;
+    private LatLng mCurrLat = null;
 
     @Override
     public void initData(@Nullable Bundle bundle) {
@@ -119,46 +124,21 @@ public class MapActivity extends BaseActivity implements OnMapReadyCallback, Goo
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         setStatusBarColor(R.color.white);
+        addLocation = findViewById(R.id.map_activity_add_location);
+        addLocation.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (null != mCurrLat) {
+                    saveLatLngToLocal(mCurrLat);
+                }
+            }
+        });
         if (mapFragment != null) {
             mapFragment.getMapAsync(this);
         }
         if (null != App.getInstance().getLockGeoFenceService()) {
             App.getInstance().getLockGeoFenceService().setHandler(handler);
         }
-        /*mGeoFencingClient = LocationServices.getGeofencingClient(this);
-        mGeoFenceHelper = new GeoFenceHelper(this);
-        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
-            return;
-        }
-        fusedLocationClient.getLastLocation()
-                .addOnSuccessListener(this, location -> {
-                    // Got last known location. In some rare situations this can be null.
-                    if (location != null) {
-                        // Logic to handle location object
-                        if (mMap != null) {
-                            LatLng dhaka = new LatLng(location.getLatitude(), location.getLongitude());
-                            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(dhaka, 16));
-                            if (mBleDeviceLocal.isOpenElectricFence()) {
-                                double la = mBleDeviceLocal.getLatitude();
-                                double lo = mBleDeviceLocal.getLongitude();
-                                if (mMap != null) {
-                                    mMap.clear();
-                                    LatLng latLng = new LatLng(la, lo);
-                                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 16));
-                                    handleMapLongClick(latLng);
-                                }
-                            }
-                        }
-                    }
-                });*/
     }
 
     /**
@@ -181,7 +161,7 @@ public class MapActivity extends BaseActivity implements OnMapReadyCallback, Goo
     /**
      * 申请权限拒绝提示
      */
-    private void refuseDialog(){
+    private void refuseDialog() {
         if (null == refuseDialog) {
             refuseDialog = new SelectDialog(this);
             refuseDialog.setMessage(getString(R.string.dialog_go_to_settings_enable_this_permission));
@@ -225,7 +205,7 @@ public class MapActivity extends BaseActivity implements OnMapReadyCallback, Goo
 
     @Override
     public void onMapLongClick(LatLng latLng) {
-        if (Build.VERSION.SDK_INT >= 29) {
+       /* if (Build.VERSION.SDK_INT >= 29) {
             //We need background permission
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_BACKGROUND_LOCATION) == PackageManager.PERMISSION_GRANTED) {
                 handleMapLongClick(latLng);
@@ -241,7 +221,7 @@ public class MapActivity extends BaseActivity implements OnMapReadyCallback, Goo
         } else {
             handleMapLongClick(latLng);
             saveLatLngToLocal(latLng);
-        }
+        }*/
     }
 
     /**
@@ -258,6 +238,7 @@ public class MapActivity extends BaseActivity implements OnMapReadyCallback, Goo
         mMap = googleMap;
         enableUserLocation();
         mMap.setOnMapLongClickListener(this);
+        mMap.setOnMapClickListener(this);
     }
 
     @SuppressLint("MissingPermission")
@@ -308,10 +289,11 @@ public class MapActivity extends BaseActivity implements OnMapReadyCallback, Goo
         mMap.clear();
         addMarker(latLng);
         addCircle(latLng, GEO_FENCE_RADIUS);
-        addGeoFence(latLng, GEO_FENCE_RADIUS);
+        mCurrLat=latLng;
     }
 
     private void saveLatLngToLocal(@NotNull LatLng latLng) {
+        addGeoFence(latLng, GEO_FENCE_RADIUS);
         mBleDeviceLocal.setLatitude(latLng.latitude);
         mBleDeviceLocal.setLongitude(latLng.longitude);
         mBleDeviceLocal.setOpenElectricFence(true);
@@ -323,24 +305,79 @@ public class MapActivity extends BaseActivity implements OnMapReadyCallback, Goo
         Timber.d("addGeoFence: started");
         if (null != App.getInstance().getLockGeoFenceService()) {
             mBleDeviceLocal.setOpenElectricFence(true);
-            App.getInstance().getLockGeoFenceService().updateDeviceGeo(mBleDeviceLocal, latLng, radius);
+            if(App.getInstance().getLockGeoFenceService().updateDeviceGeo(mBleDeviceLocal, latLng, radius)){
+                ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.geofence_added_successfully);
+            }else{
+                ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.failed_to_add_geofence);
+            }
         }
-        /*Geofence geofence = mGeoFenceHelper.getGeoFence(
-                GEO_FENCE_ID,
-                latLng,
-                radius,
-                Geofence.GEOFENCE_TRANSITION_ENTER | Geofence.GEOFENCE_TRANSITION_DWELL | Geofence.GEOFENCE_TRANSITION_EXIT
-        );
+    }
+    /**
+     * 更新锁服务器存储的数据
+     */
+    private void updateLockInfoToService(LatLng latLng) {
+        if (App.getInstance().getUserBean() == null) {
+            Timber.e("updateLockInfoToService App.getInstance().getUserBean() == null");
+            return;
+        }
+        String uid = App.getInstance().getUserBean().getUid();
+        if (TextUtils.isEmpty(uid)) {
+            Timber.e("updateLockInfoToService uid is empty");
+            return;
+        }
+        String token = App.getInstance().getUserBean().getToken();
+        if (TextUtils.isEmpty(token)) {
+            Timber.e("updateLockInfoToService token is empty");
+            return;
+        }
+        showLoading();
 
-        GeofencingRequest geofencingRequest = mGeoFenceHelper.getGeoFencingRequest(geofence);
+        UpdateLockInfoReq req = new UpdateLockInfoReq();
+        req.setSn(mBleDeviceLocal.getEsn());
+        req.setWifiName(mBleDeviceLocal.getConnectedWifiName());
+        req.setSafeMode(0);   // 没有使用这个
+        req.setLanguage("en"); // 暂时也没使用这个
+        req.setVolume(mBleDeviceLocal.isMute() ? 1 : 0);
+        req.setAmMode(mBleDeviceLocal.isAutoLock() ? 0 : 1);
+        req.setDuress(mBleDeviceLocal.isDuress() ? 0 : 1);
+        req.setMagneticStatus(mBleDeviceLocal.getDoorSensor());
+        req.setDoorSensor(mBleDeviceLocal.isOpenDoorSensor() ? 1 : 0);
+        req.setElecFence(mBleDeviceLocal.isOpenElectricFence() ? 0 : 1);
+        req.setAutoLockTime(mBleDeviceLocal.getSetAutoLockTime());
+        req.setElecFenceTime(mBleDeviceLocal.getSetElectricFenceTime());
+        req.setElecFenceSensitivity(mBleDeviceLocal.getSetElectricFenceSensitivity());
+        Timber.e("std44555554445:%s",
+                req.toString());
+        Observable<UpdateLockInfoRsp> observable = HttpRequest.getInstance().updateLockInfo(token, req);
+        ObservableDecorator.decorate(observable).safeSubscribe(new Observer<UpdateLockInfoRsp>() {
+            @Override
+            public void onSubscribe(@NotNull Disposable d) {
 
-        PendingIntent pendingIntent = mGeoFenceHelper.getPendingIntent();
-        mGeoFencingClient.addGeofences(geofencingRequest, pendingIntent)
-                .addOnSuccessListener(aVoid -> Timber.d("onSuccess: GeoFence Added........"))
-                .addOnFailureListener(e -> {
-                    String errorMessage = mGeoFenceHelper.getErrorString(e);
-                    Timber.d("GeoFence onFailure: %1s", errorMessage);
-                });*/
+            }
+
+            @Override
+            public void onNext(@NotNull UpdateLockInfoRsp updateLockInfoRsp) {
+                dismissLoading();
+                String code = updateLockInfoRsp.getCode();
+                if (!code.equals("200")) {
+                    String msg = updateLockInfoRsp.getMsg();
+                    Timber.e("updateLockInfoToService code: %1s, msg: %2s", code, msg);
+                    if (!TextUtils.isEmpty(msg))
+                        ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(msg);
+                }
+            }
+
+            @Override
+            public void onError(@NotNull Throwable e) {
+                dismissLoading();
+                Timber.e(e);
+            }
+
+            @Override
+            public void onComplete() {
+
+            }
+        });
     }
 
     private void addMarker(LatLng latLng) {
@@ -368,4 +405,22 @@ public class MapActivity extends BaseActivity implements OnMapReadyCallback, Goo
         startActivity(intent);
     }
 
+    @Override
+    public void onMapClick(LatLng latLng) {
+        if (Build.VERSION.SDK_INT >= 29) {
+            //We need background permission
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_BACKGROUND_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                handleMapLongClick(latLng);
+            } else {
+                if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_BACKGROUND_LOCATION)) {
+                    //We show a dialog and ask for permission
+                    ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_BACKGROUND_LOCATION}, BACKGROUND_LOCATION_ACCESS_REQUEST_CODE);
+                } else {
+                    ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_BACKGROUND_LOCATION}, BACKGROUND_LOCATION_ACCESS_REQUEST_CODE);
+                }
+            }
+        } else {
+            handleMapLongClick(latLng);
+        }
+    }
 }

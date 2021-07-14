@@ -37,6 +37,8 @@ import com.revolo.lock.ble.BleCommandFactory;
 import com.revolo.lock.ble.bean.BleBean;
 import com.revolo.lock.manager.LockAppService;
 import com.revolo.lock.manager.LockMessage;
+import com.revolo.lock.manager.LockMessageCode;
+import com.revolo.lock.manager.LockMessageRes;
 import com.revolo.lock.manager.ble.BleManager;
 import com.revolo.lock.mqtt.MQttConstant;
 import com.revolo.lock.mqtt.MqttCommandFactory;
@@ -375,6 +377,7 @@ public class LockGeoFenceService extends Service implements OnMapReadyCallback, 
                         //重复
                         Timber.e("电子围栏中重复:%s", bleDeviceLocal.getEsn());
                         lockGeoFenceEns.get(i).setBleDeviceLocal(bleDeviceLocal);
+                        sendOpenPer();
                     } else {
                         lockGeoFenceEns.get(i).setLatitude(bleDeviceLocal.getLatitude());
                         lockGeoFenceEns.get(i).setLongitude(bleDeviceLocal.getLongitude());
@@ -388,7 +391,7 @@ public class LockGeoFenceService extends Service implements OnMapReadyCallback, 
                         lockGeoFenceEns.get(i).setGeofencingRequest(lockGeoFenceEns.get(i).getmGeoFenceHelper().getGeoFencingRequest(lockGeoFenceEns.get(i).getGeofence()));
                         addGeoFence(lockGeoFenceEns.get(i));
                         Timber.e("电子围栏中重复，修改坐标点:%s", bleDeviceLocal.getEsn());
-
+                        sendOpenPer();
                     }
 
                     break;
@@ -398,6 +401,7 @@ public class LockGeoFenceService extends Service implements OnMapReadyCallback, 
         }
         if (index == -1) {
             if (bleDeviceLocal.isOpenElectricFence()) {
+                sendOpenPer();
                 Timber.e("start get list bledevicelocal addGeo mac：%s", bleDeviceLocal.getMac() + ";" + bleDeviceLocal.getEsn());
                 addGeoFence(bleDeviceLocal, new LatLng(bleDeviceLocal.getLatitude(), bleDeviceLocal.getLongitude()), 50);
             }
@@ -405,12 +409,24 @@ public class LockGeoFenceService extends Service implements OnMapReadyCallback, 
     }
 
     /**
+     * 申请打开权限
+     */
+    private void sendOpenPer() {
+        LockMessageRes lockMessageRes = new LockMessageRes();
+        lockMessageRes.setMessgaeType(LockMessageCode.MSG_LOCK_MESSAGE_USER);
+        lockMessageRes.setResultCode(LockMessageCode.MSG_LOCK_MESSAGE_CODE_SUCCESS);
+        lockMessageRes.setMessageCode(LockMessageCode.MSG_LOCK_MESSAGE_OPEN_PERMISSION);
+        EventBus.getDefault().post(lockMessageRes);
+    }
+
+    /**
      * 更新
      *
      * @param bleDeviceLocal
      */
-    public void updateDeviceGeo(BleDeviceLocal bleDeviceLocal, LatLng latLng, float radius) {
+    public boolean updateDeviceGeo(BleDeviceLocal bleDeviceLocal, LatLng latLng, float radius) {
         int index = -1;
+        boolean isAdd = false;
         Timber.e("电子围栏中的个数:%s", lockGeoFenceEns.size() + "");
         for (int i = 0; i < lockGeoFenceEns.size(); i++) {
             if (lockGeoFenceEns.get(i).getBleDeviceLocal().getEsn().equals(bleDeviceLocal.getEsn())) {
@@ -445,6 +461,7 @@ public class LockGeoFenceService extends Service implements OnMapReadyCallback, 
                         lockGeoFenceEns.get(i).setGeofencingRequest(lockGeoFenceEns.get(i).getmGeoFenceHelper().getGeoFencingRequest(lockGeoFenceEns.get(i).getGeofence()));
                         addGeoFence(lockGeoFenceEns.get(i));
                         Timber.e("电子围栏中重复，修改坐标点:%s", bleDeviceLocal.getEsn());
+                        isAdd = true;
 
                     }
 
@@ -457,8 +474,10 @@ public class LockGeoFenceService extends Service implements OnMapReadyCallback, 
             if (bleDeviceLocal.isOpenElectricFence()) {
                 Timber.e("start get list bledevicelocal addGeo mac：%s", bleDeviceLocal.getMac() + ";" + bleDeviceLocal.getEsn());
                 addGeoFence(bleDeviceLocal, new LatLng(bleDeviceLocal.getLatitude(), bleDeviceLocal.getLongitude()), 50);
+                isAdd = true;
             }
         }
+        return isAdd;
     }
 
     @SuppressLint("MissingPermission")

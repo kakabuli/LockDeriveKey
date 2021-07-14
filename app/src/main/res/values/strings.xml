@@ -464,6 +464,8 @@
     <string name="t_you_have_entered_the_range_of_the_geo_fence">You have entered the range of the geo fence</string>
     <string name="t_you_have_exited_the_geo_fence">You have exited the geo fence</string>
     <string name="n_geo_fence">Geo Fence</string>
+    <string name="geofence_added_successfully">Geofence added successfully</string>
+    <string name="failed_to_add_geofence">Failed to add geofence</string>
     <string name="t_you_can_add_geo_fences">You can add geo fences&#8230;</string>
     <string name="t_bg_loc_access_is_necessary_for_geo_fences_to_trigger">Background location access is necessary for geo fences to trigger&#8230;</string>
     <string name="t_please_enter_feedback_content">Please enter feedback content!</string>
@@ -554,4 +556,6 @@
     <string name="tip_content_registered_mail">The mail has bean Registered!</string>
     <string name="tip_content_no_registered_mail">The mail not Registered!</string>
     <string name="tip_content_ble_not_update">The device is not connected to WiFi</string>
+    <string name="geo_fence_map_activity_add_location_but_text">Confirm</string>
+    <string name="geo_fence_map_activity_add_location_hint">You can choose the position of the door lock. The automatic lock picking function will be activated when you leave the fence setting range</string>
 </resources>

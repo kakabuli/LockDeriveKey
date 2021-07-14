@@ -25,6 +25,7 @@ public class LockMessageCode {
     public static final int MSG_LOCK_MESSAGE_RECORD = 133; // 记录
     public static final int MSG_LOCK_MESSAGE_UPDATE_DEVICE_STATE = 134; // 更新当前设备的状态
     public static final int MSG_LOCK_MESSAGE_CLASE_DEVICE = 135;//清理蓝牙连接
+    public static final int MSG_LOCK_MESSAGE_OPEN_PERMISSION = 136;//清理蓝牙连接
 
     public static final int MSG_LOCK_MESSAGE_SET_LOCK_ATTRAUTO = 125; // 开关门指令
     public static final int MSG_LOCK_MESSAGE_SET_LOCK_ATTRAUTOTIME = 126; // 开关门指令

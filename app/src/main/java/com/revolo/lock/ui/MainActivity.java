@@ -174,7 +174,14 @@ public class MainActivity extends BaseActivity {
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void getEventBus(LockMessageRes lockMessage) {
-        if (lockMessage.getMessgaeType() == MSG_LOCK_MESSAGE_MQTT) {
+        if (lockMessage.getMessgaeType() == LockMessageCode.MSG_LOCK_MESSAGE_USER) {
+            if (lockMessage.getResultCode() == LockMessageCode.MSG_LOCK_MESSAGE_CODE_SUCCESS) {
+                //数据正常
+                if (lockMessage.getMessageCode() == LockMessageCode.MSG_LOCK_MESSAGE_OPEN_PERMISSION) {
+                    checkLocation();
+                }
+            }  //数据异常
+        } else if (lockMessage.getMessgaeType() == MSG_LOCK_MESSAGE_MQTT) {
             //MQTT
             if (lockMessage.getResultCode() == LockMessageCode.MSG_LOCK_MESSAGE_CODE_SUCCESS) {
                 //数据正常
@@ -182,7 +189,7 @@ public class MainActivity extends BaseActivity {
                     case LockMessageCode.MSG_LOCK_MESSAGE_ADD_DEVICE://添加到设备到主页
                         Timber.e("getEventBus2");
                         //获取当前用户绑定设备返回
-                        checkLocation();
+                        updateGeoFence();
                         break;
                 }
             }
@@ -201,7 +208,6 @@ public class MainActivity extends BaseActivity {
     public void checkLocation() {
         if (ContextCompat.checkSelfPermission(App.getInstance().getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             Timber.e("Location定位权限开启");
-            updateGeoFence();
         } else {
             //Ask for permission
             if (ActivityCompat.shouldShowRequestPermissionRationale(MainActivity.this, Manifest.permission.ACCESS_FINE_LOCATION)) {
@@ -220,7 +226,6 @@ public class MainActivity extends BaseActivity {
         if (requestCode == FINE_LOCATION_ACCESS_REQUEST_CODE) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 Timber.e("Location定位权限允许");
-                checkLocation();
             }
         }
     }

@@ -250,11 +250,6 @@ public class GeoFenceUnlockActivity extends BaseActivity implements OnMapReadyCa
                     App.getInstance().getLockGeoFenceService().clearBleDevice(mBleDeviceLocal.getEsn());
                 }
 
-//                if (mBleDeviceLocal.isOpenElectricFence()) {
-//                    mConstraintLayout.setVisibility(View.VISIBLE);
-//                } else {
-//                    mConstraintLayout.setVisibility(View.GONE);
-//                }
             } else {
                 Intent intent = new Intent(this, MapActivity.class);
                 startActivity(intent);
