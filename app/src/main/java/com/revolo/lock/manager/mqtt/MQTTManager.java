@@ -255,8 +255,6 @@ public class MQTTManager {
     public void mqttPublish(String topic, MqttMessage mqttMessage) throws MqttException {
         if (mqttClient != null && mqttClient.isConnected()) {
             LogUtils.e("发布mqtt消息 " + "topic: " + topic + "  mqttMessage: " + mqttMessage.toString() + "qos = " + mqttMessage.getQos());
-            LogUtils.e("发布mqtt消息 " + "topic: " + topic + "  mqttMessage: " + mqttMessage.toString());
-            LogUtils.e("发布mqtt消息 QOS:" + mqttMessage.getQos());
             mqttClient.publish(topic, mqttMessage, null, new IMqttActionListener() {
                 @Override
                 public void onSuccess(IMqttToken asyncActionToken) {

@@ -26,6 +26,7 @@ import com.revolo.lock.net.HttpRequest;
 import com.revolo.lock.net.ObservableDecorator;
 import com.revolo.lock.room.AppDatabase;
 import com.revolo.lock.room.entity.BleDeviceLocal;
+import com.revolo.lock.room.entity.LockRecord;
 import com.revolo.lock.room.entity.User;
 import com.revolo.lock.ui.MainActivity;
 import com.revolo.lock.ui.sign.LoginActivity;
@@ -37,7 +38,9 @@ import com.tencent.bugly.crashreport.CrashReport;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import io.reactivex.Observable;
 import io.reactivex.Observer;
@@ -71,6 +74,23 @@ public class App extends Application {
 
     private MailLoginBeanRsp.DataBean mUserBean;
     private static App instance;
+    private Map<String, List<LockRecord>> lockRecords = new HashMap<>();
+
+    public void addLockRecords(String esn, List<LockRecord> records) {
+        lockRecords.put(esn, records);
+    }
+
+    public List<LockRecord> getLockRecords(String esn) {
+        return lockRecords.get(esn);
+    }
+
+    public void removeRecords(String esn) {
+        if (null == esn || "".equals(esn)) {
+            lockRecords.clear();
+            return;
+        }
+        lockRecords.remove(esn);
+    }
 
     public static App getInstance() {
         return instance;
@@ -98,7 +118,6 @@ public class App extends Application {
 
         CrashReport.initCrashReport(getApplicationContext(), "22dc9fa410", true);
     }
-
 
 
     private User mUser;
@@ -255,17 +274,6 @@ public class App extends Application {
 
                 }
             });
-        }
-    }
-
-    /**
-     * 设置用户列表
-     *
-     * @param bleDeviceLocals
-     */
-    public void setDeviceLists(List<BleDeviceLocal> bleDeviceLocals) {
-        if (null != lockAppService) {
-            lockAppService.add(bleDeviceLocals);
         }
     }
 

@@ -193,7 +193,6 @@ public class MainActivity extends BaseActivity {
      * 更新电子围栏
      */
     public void updateGeoFence() {
-        Timber.e("onResume()!5");
         if (null != App.getInstance().getLockGeoFenceService()) {
             App.getInstance().getLockGeoFenceService().addBleDevice();
         }

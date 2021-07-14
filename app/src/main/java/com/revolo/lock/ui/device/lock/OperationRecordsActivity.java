@@ -19,7 +19,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.bigkoo.pickerview.builder.TimePickerBuilder;
-import com.bigkoo.pickerview.listener.CustomListener;
 import com.bigkoo.pickerview.view.TimePickerView;
 import com.blankj.utilcode.util.TimeUtils;
 import com.blankj.utilcode.util.ToastUtils;
@@ -106,9 +105,6 @@ public class OperationRecordsActivity extends BaseActivity {
             finish();
         }
         mBleBean = App.getInstance().getUserBleBean(mBleDeviceLocal.getMac());
-//        if(mBleBean == null) {
-//            finish();
-//        }
     }
 
     @Override
@@ -136,25 +132,68 @@ public class OperationRecordsActivity extends BaseActivity {
         mRefreshLayout.setRefreshHeader(new SmartClassicsHeaderView(this));
         mRefreshLayout.setOnRefreshListener(refreshLayout -> {
             mPage = 1;
-            getNowDateTime();
-            if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI || mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI_BLE) {
-                searchRecordFromNet(mPage, false, startTime, endTime);
-            } else {
-                initDevice();
-                searchRecordFromNet(mPage, true, startTime, endTime);
-            }
+            searchRecord(0);
         });
         mRefreshLayout.setOnLoadMoreListener(refreshLayout -> {
-            getNowDateTime();
-            if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI || mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI_BLE) {
-                searchRecordFromNet(mPage, false, startTime, endTime);
-            } else {
-                initDevice();
-                searchRecordFromNet(mPage, true, startTime, endTime);
-            }
+            searchRecord(1);
         });
         onRegisterEventBus();
+        if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_BLE) {
+            mWillShowRecords = App.getInstance().getLockRecords(mBleDeviceLocal.getEsn());
+            if (null == mWillShowRecords) {
+                mWillShowRecords = new ArrayList<>();
+            }
+            refreshUIFromFinalData();
+        }
+        if (null == mWillShowRecords) {
+            mWillShowRecords = new ArrayList<>();
+        }
+
     }
+
+    /**
+     * 获取记录
+     */
+    private void searchRecord(long startTime, long endTime) {
+        if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_BLE) {
+            //蓝牙模式
+            searchBle();
+        } else {
+            //WiFi模式 、WiFi和蓝牙同时连接、掉线模式
+            getNowDateTime();
+            searchRecordFromNet(mPage, startTime, endTime);
+        }
+
+    }
+
+    private void searchRecord(int getType) {
+        if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_BLE) {
+            //蓝牙模式
+            if(getType==0){
+                mBleSearchStart = 0;
+                mBleSearchEnd = 14;
+                searchBle();
+            }else{
+                mBleSearchStart = (short) (mWillShowRecords.size()-1);
+                mBleSearchEnd = (short) (mWillShowRecords.size()+13);
+                searchBle();
+            }
+        } else {
+            //WiFi模式 、WiFi和蓝牙同时连接、掉线模式
+            getNowDateTime();
+            searchRecordFromNet(mPage, startTime, endTime);
+        }
+
+    }
+
+    /**
+     * 从蓝牙端获取记录
+     */
+    private void searchBle() {
+        // 开始检索, 每次检索5条
+        searchRecordFromBle(mBleSearchStart, mBleSearchEnd);
+    }
+
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
@@ -186,13 +225,7 @@ public class OperationRecordsActivity extends BaseActivity {
 
     @Override
     public void doBusiness() {
-        getNowDateTime();
-        if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI || mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI_BLE) {
-            searchRecordFromNet(mPage, false, startTime, endTime);
-        } else {
-            initDevice();
-            searchRecordFromNet(mPage, true, startTime, endTime);
-        }
+        searchRecord(0);
     }
 
     @Override
@@ -203,23 +236,14 @@ public class OperationRecordsActivity extends BaseActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-    }
-
-
-    /*------------------------------ 蓝牙 -----------------------------------*/
-
-    private void initDevice() {
-        if (mBleBean == null) {
-            Timber.e("initDevice mBleBean == null");
-            return;
-        }
-        if (mBleBean.getOKBLEDeviceImp() != null) {
-            //替换
-            // App.getInstance().openPairNotify(mBleBean.getOKBLEDeviceImp());
+        if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_BLE) {
+            App.getInstance().addLockRecords(mBleDeviceLocal.getEsn(), mWillShowRecords);
         }
     }
 
     private void searchRecordFromBle(short start, short end) {
+        isNeedToReceiveRecord = true;
+        mWillUploadRecord.clear();
         if (mBleBean.getOKBLEDeviceImp() != null) {
             if (mBleBean.getOKBLEDeviceImp().isConnected()) {
                 // 因为shortToBytes转出来就是小端模式，所以调用直接使用小端模式的方法
@@ -230,9 +254,6 @@ public class OperationRecordsActivity extends BaseActivity {
                 message.setMac(mBleBean.getOKBLEDeviceImp().getMacAddress());
                 message.setMessageType(3);
                 EventBus.getDefault().post(message);
-               /* App.getInstance().writeControlMsg(BleCommandFactory
-                        .readAllRecordFromSmallEndian(BleByteUtil.shortToBytes(start), BleByteUtil.shortToBytes(end),
-                                mBleBean.getPwd1(), mBleBean.getPwd3()), mBleBean.getOKBLEDeviceImp());*/
             } else {
                 // TODO: 2021/1/26 没有连接上，需要连接上才能发送指令
             }
@@ -240,9 +261,13 @@ public class OperationRecordsActivity extends BaseActivity {
     }
 
     private boolean isNeedToReceiveRecord = true;
-    private static final short mWillAddCheckCount = 5;
+    private static final short mWillAddCheckCount = 15;
 
     private void updateRecordFormBle(BleResultBean bean) {
+        if (mRefreshLayout != null) {
+            mRefreshLayout.finishLoadMore(true);
+            mRefreshLayout.finishRefresh(true);
+        }
         if (!isNeedToReceiveRecord) {
             // 不再接收数据的标志位, 不再处理数据
             return;
@@ -268,11 +293,9 @@ public class OperationRecordsActivity extends BaseActivity {
         Timber.d("记录 total: %1d, index: %2d, eventType: %3d, eventSource: %4d, eventCode: %5d, userId: %6d, appId: %7d, time: %8d",
                 totalShort, indexShort, eventType, eventSource, eventCode, userId, appId, realTime * 1000);
 
-        if (mLatestCreateTime != 0) {
-            if (realTime == mLatestCreateTime) {
-                cancelGetRecordFromBle();
-                return;
-            }
+        if (totalShort == mWillShowRecords.size()) {
+            Timber.e("数据相等");
+            return;
         }
         LockRecord lockRecord = new LockRecord();
         lockRecord.setDeviceId(mBleDeviceLocal.getId());
@@ -287,26 +310,44 @@ public class OperationRecordsActivity extends BaseActivity {
         if ((totalShort - (indexShort + 1)) > 0) {
             if (indexShort == mBleSearchEnd) {
                 // 当前下标的是预设最后的数据记录 预示着读取记录结束了, 开始下一次的记录读取
+                if (!isNextSean(mBleSearchStart, mWillUploadRecord)) {
+                    return;
+                }
                 mBleSearchStart = (short) (mBleSearchStart + mWillAddCheckCount);
                 mBleSearchEnd = (totalShort - (indexShort + 1)) >= mWillAddCheckCount ? ((short) (mBleSearchEnd + mWillAddCheckCount)) : ((short) (totalShort - 1));
                 searchRecordFromBle(mBleSearchStart, mBleSearchEnd);
             }
         } else {
             // 最后一包的数据
-            mWillShowRecords.addAll(mWillUploadRecord);
-            refreshUIFromFinalData();
-            cancelGetRecordFromBle();
-//            return;
+            isNextSean(mBleSearchStart, mWillUploadRecord);
         }
 
     }
 
-    private void cancelGetRecordFromBle() {
-        isNeedToReceiveRecord = false;
-        dismissLoading();
-//        uploadRecordsToService(mWillUploadRecord);
-        getNowDateTime();
-        searchRecordFromNet(mPage, false, startTime, endTime);
+    /**
+     * @param startIndex 开始index位置
+     * @param records    待添加的数据集
+     * @return true 继续加载、false停止加载
+     */
+    private boolean isNextSean(int startIndex, List<LockRecord> records) {
+        boolean isNext = true;
+        for (int i = 0; i < records.size(); i++) {
+            if (i + startIndex < mWillShowRecords.size()) {
+                //当前index 存在
+                if (records.get(i).getContentStr().equals(mWillShowRecords.get(i + startIndex).getContentStr())) {
+                    isNext = false;
+                    break;
+                } else {
+                    mWillShowRecords.add(i + startIndex, records.get(i));
+                }
+            } else {
+                //当前index 不存在，直接添加
+                mWillShowRecords.add(records.get(i));
+            }
+        }
+        refreshUIFromFinalData();
+        Timber.e("will len:" + mWillShowRecords.size() + ";;;;;;;;;" + isNext);
+        return isNext;
     }
 
     private void getNowDateTime() {
@@ -318,7 +359,7 @@ public class OperationRecordsActivity extends BaseActivity {
     private final ArrayList<LockRecord> mWillUploadRecord = new ArrayList<>();
 
     private short mBleSearchStart = 0;
-    private short mBleSearchEnd = 4;
+    private short mBleSearchEnd = 14;
 
     /*--------------------------------- 本地数据库 -------------------------------------*/
 
@@ -361,7 +402,7 @@ public class OperationRecordsActivity extends BaseActivity {
 
     /*--------------------------------- 服务器 -------------------------------------*/
 
-    private void searchRecordFromNet(int page, boolean isNeedBleGetRecords, long startTime, long endTime) {
+    private void searchRecordFromNet(int page, long startTime, long endTime) {
         if (!checkNetConnectFail()) {
             return;
         }
@@ -420,7 +461,7 @@ public class OperationRecordsActivity extends BaseActivity {
                     return;
                 }
                 List<LockRecordBeanRsp.DataBean> beans = lockRecordBeanRsp.getData();
-                processRecordFromNet(isNeedBleGetRecords, beans);
+                processRecordFromNet(beans);
                 if (mRefreshLayout != null) {
                     mRefreshLayout.finishLoadMore(true);
                     mRefreshLayout.finishRefresh(true);
@@ -446,137 +487,37 @@ public class OperationRecordsActivity extends BaseActivity {
     }
 
     private long mLatestCreateTime = 0L;
-    private final List<LockRecord> mWillShowRecords = new ArrayList<>();
+    private List<LockRecord> mWillShowRecords;
 
-    private void processRecordFromNet(boolean isNeedBleGetRecords, List<LockRecordBeanRsp.DataBean> beans) {
-        if (isNeedBleGetRecords) {
-            if (!beans.isEmpty()) {
-                mLatestCreateTime = beans.get(0).getTimesTamp();
-            }
-            // 开始检索, 每次检索5条
-            mBleSearchStart = 0;
-            mBleSearchEnd = 4;
-            searchRecordFromBle(mBleSearchStart, mBleSearchEnd);
-        } else {
-            // TODO: 2021/3/18 时间错误就不能存储
-            if (beans.isEmpty()) {
-                Timber.e("processRecordFromNet beans is empty");
-                mWillShowRecords.clear();
-                refreshUIFromFinalData();
-                return;
-            }
-            // 不做校验，直接做存储并数据库做了插入去重
-            List<LockRecord> list = new ArrayList<>();
-            for (LockRecordBeanRsp.DataBean bean : beans) {
-                LockRecord lockRecord = new LockRecord();
-                lockRecord.setUserId(bean.getUserId());
-                lockRecord.setEventType(bean.getEventType());
-                lockRecord.setEventSource(bean.getEventSource());
-                lockRecord.setEventCode(bean.getEventCode());
-                lockRecord.setCreateTime(bean.getTimesTamp());
-                lockRecord.setAppId(bean.getAppId());
-                lockRecord.setDeviceId(mBleDeviceLocal.getId());
-                list.add(lockRecord);
-            }
-            AppDatabase.getInstance(this).lockRecordDao().insert(list);
-
-            if (mPage == 1) {
-                mWillShowRecords.clear();
-            }
-            mWillShowRecords.addAll(list);
-            refreshUIFromFinalData();
-            mPage++;
+    private void processRecordFromNet(List<LockRecordBeanRsp.DataBean> beans) {
+        // TODO: 2021/3/18 时间错误就不能存储
+        if (beans.isEmpty()) {
+            Timber.e("processRecordFromNet beans is empty");
+            return;
         }
+        // 不做校验，直接做存储并数据库做了插入去重
+        List<LockRecord> list = new ArrayList<>();
+        for (LockRecordBeanRsp.DataBean bean : beans) {
+            LockRecord lockRecord = new LockRecord();
+            lockRecord.setUserId(bean.getUserId());
+            lockRecord.setEventType(bean.getEventType());
+            lockRecord.setEventSource(bean.getEventSource());
+            lockRecord.setEventCode(bean.getEventCode());
+            lockRecord.setCreateTime(bean.getTimesTamp());
+            lockRecord.setAppId(bean.getAppId());
+            lockRecord.setDeviceId(mBleDeviceLocal.getId());
+            list.add(lockRecord);
+        }
+        AppDatabase.getInstance(this).lockRecordDao().insert(list);
+
+        if (mPage == 1) {
+            mWillShowRecords.clear();
+        }
+        mWillShowRecords.addAll(list);
+        refreshUIFromFinalData();
+        mPage++;
+
     }
-
-    private void uploadRecordsToService(List<LockRecord> records) {
-        if (!checkNetConnectFail()) {
-            return;
-        }
-        if (records.isEmpty()) {
-            Timber.e("updateLockRecord records is empty");
-            return;
-        }
-        if (App.getInstance().getUserBean() == null) {
-            Timber.e("updateLockRecord App.getInstance().getUserBean() == null");
-            return;
-        }
-        String token = App.getInstance().getUserBean().getToken();
-        if (TextUtils.isEmpty(token)) {
-            Timber.e("updateLockRecord token is empty");
-            return;
-        }
-        String esn = mBleDeviceLocal.getEsn();
-        if (TextUtils.isEmpty(esn)) {
-            Timber.e("updateLockRecord esn is empty");
-            return;
-        }
-        String uid = App.getInstance().getUserBean().getUid();
-        if (TextUtils.isEmpty(uid)) {
-            Timber.e("updateLockRecord uid is empty");
-            return;
-        }
-        UpdateLockRecordBeanReq req = new UpdateLockRecordBeanReq();
-        List<UpdateLockRecordBeanReq.OperationListBean> beans = new ArrayList<>();
-        for (LockRecord record : records) {
-            UpdateLockRecordBeanReq.OperationListBean bean = new UpdateLockRecordBeanReq.OperationListBean();
-            bean.setAppId(record.getAppId());
-            bean.setEventCode(record.getEventCode());
-            bean.setEventSource(record.getEventSource());
-            bean.setEventType(record.getEventType());
-            bean.setTimesTamp(record.getCreateTime());
-            bean.setUserId(record.getUserId());
-            beans.add(bean);
-        }
-        req.setDeviceSN(esn);
-        req.setUid(uid);
-        req.setOperationList(beans);
-        showLoading();
-        Observable<UpdateLockRecordBeanRsp> observable = HttpRequest.getInstance().updateLockRecordList(token, req);
-        ObservableDecorator.decorate(observable).safeSubscribe(new Observer<UpdateLockRecordBeanRsp>() {
-            @Override
-            public void onSubscribe(@NonNull Disposable d) {
-
-            }
-
-            @Override
-            public void onNext(@NonNull UpdateLockRecordBeanRsp updateLockRecordBeanRsp) {
-                dismissLoading();
-                String code = updateLockRecordBeanRsp.getCode();
-                if (TextUtils.isEmpty(code)) {
-                    Timber.e("updateLockRecord code is empty");
-                    return;
-                }
-                if (!code.equals("200")) {
-                    if (code.equals("444")) {
-                        App.getInstance().logout(true, OperationRecordsActivity.this);
-                        return;
-                    }
-                    String msg = updateLockRecordBeanRsp.getMsg();
-                    Timber.d("updateLockRecord code: %1s, msg: %2s", code, msg);
-                    if (!TextUtils.isEmpty(msg)) {
-                        ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(msg);
-                    }
-                    return;
-                }
-                mWillUploadRecord.clear();
-                getNowDateTime();
-                searchRecordFromNet(mPage, false, startTime, endTime);
-            }
-
-            @Override
-            public void onError(@NonNull Throwable e) {
-                dismissLoading();
-                Timber.e(e);
-            }
-
-            @Override
-            public void onComplete() {
-
-            }
-        });
-    }
-
     /*--------------------------------- UI更新 -------------------------------------*/
 
     private void showOrDismissNoRecord(boolean isShow) {
@@ -866,12 +807,7 @@ public class OperationRecordsActivity extends BaseActivity {
             String time = dateFormat.format(date);
             long startTime = ZoneUtil.getTime(mBleDeviceLocal.getTimeZone(), time + " 00:00:00") / 1000;
             long endTime = ZoneUtil.getTime(mBleDeviceLocal.getTimeZone(), time + " 23:59:59") / 1000;
-            if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI || mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI_BLE) {
-                searchRecordFromNet(mPage, false, startTime, endTime);
-            } else {
-                initDevice();
-                searchRecordFromNet(mPage, true, startTime, endTime);
-            }
+            searchRecord(startTime, endTime);
         });
 
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
@@ -903,6 +839,7 @@ public class OperationRecordsActivity extends BaseActivity {
         timePickerView.setDate(Calendar.getInstance());
         timePickerView.setTitleText("Date");
         timePickerView.show();
+
     }
 
     private void searchRecordsFromDate(String date, long startTime, long endTime) {
