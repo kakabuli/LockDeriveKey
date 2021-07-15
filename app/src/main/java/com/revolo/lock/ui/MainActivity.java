@@ -136,7 +136,6 @@ public class MainActivity extends BaseActivity {
         FirebaseMessaging.getInstance().getToken().addOnCompleteListener(task -> {
             if (!task.isSuccessful()) {
                 Timber.d("**********   failed   ************");
-                GoogleApiAvailability.getInstance().makeGooglePlayServicesAvailable(MainActivity.this);
                 return;
             }
             String token = task.getResult();

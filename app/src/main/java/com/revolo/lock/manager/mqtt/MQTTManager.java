@@ -5,6 +5,7 @@ import android.util.Log;
 
 import com.blankj.utilcode.util.LogUtils;
 import com.revolo.lock.App;
+import com.revolo.lock.LockAppManager;
 import com.revolo.lock.mqtt.MQttConstant;
 import com.revolo.lock.mqtt.MqttExceptionHandle;
 
@@ -180,6 +181,8 @@ public class MQTTManager {
                 if (null != mqttDataLinstener) {
                     mqttDataLinstener.connectionLost(cause);
                 }
+                // 连接丢失退出登录
+                App.getInstance().logout(true, LockAppManager.getAppManager().currentActivity());
             }
 
             @Override

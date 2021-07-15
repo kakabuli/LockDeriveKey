@@ -555,14 +555,14 @@ public class AddNewPwdSelectActivity extends BaseActivity {
                 mTvStartDate.setText(showDate);
                 Timber.d("startDate 选择的日期%1s, 时间流：%2d", date, mTemStartDateTimeMill);
             } else if (id == R.id.tvEndDate) {
-                if (null != mTemStartDateTimeStr && mTemStartDateTimeStr.length() < 8) {
-                    mTemStartDateTimeStr = mTemStartDateTimeStr + ":00";
+                if (null != mTemEndDateTimeStr && mTemEndDateTimeStr.length() < 8) {
+                    mTemEndDateTimeStr = mTemEndDateTimeStr + ":00";
                 }
                 long temEndDateTimeMill = ZoneUtil.getTime(mBleDeviceLocal.getTimeZone(), date + " " + mTemEndDateTimeStr);
                 mTemEndDateStr = date;
                 mTemEndDateTimeMill = temEndDateTimeMill;
                 mTvEndDate.setText(showDate);
-                Timber.d("startDate 选择的日期%1s, 时间流：%2d", date, mTemStartDateTimeMill);
+                Timber.d("startDate 选择的日期%1s, 时间流：%2d", date, mTemEndDateTimeMill);
             }
         });
         datePickerDialog.setCancelable(true);

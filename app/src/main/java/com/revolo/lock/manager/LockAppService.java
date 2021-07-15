@@ -26,6 +26,7 @@ import com.blankj.utilcode.util.NetworkUtils;
 import com.revolo.lock.App;
 import com.revolo.lock.Constant;
 import com.revolo.lock.LocalState;
+import com.revolo.lock.LockAppManager;
 import com.revolo.lock.ble.BleByteUtil;
 import com.revolo.lock.ble.BleCommandFactory;
 import com.revolo.lock.ble.BleProtocolState;
@@ -1366,6 +1367,7 @@ public class LockAppService extends Service {
                     break;
 
                 case MQTTErrCode.MQTT_CONNECTION_LOST_CODE://连接丢失
+
                     break;
                 case MQTTErrCode.MQTT_CONNECTED_ERR://MQTT连接异常
                     break;
