@@ -1548,6 +1548,7 @@ public class LockAppService extends Service {
             } else if (bean.getEventparams().getEventCode() == 3) {
                 // 门磁异常
                 Timber.e("processRecord 门磁异常");
+                setDoorState(checkDeviceList(bean.getWfId(), bean.getWfId()), LocalState.DOOR_SENSOR_EXCEPTION);
             }
         }
     }
