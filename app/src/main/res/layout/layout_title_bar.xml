@@ -40,17 +40,30 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@id/ivLeft" />
 
-    <TextView
-        android:id="@+id/tvNetError"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/cCCCCCC"
-        android:gravity="center"
-        android:paddingTop="2pt"
-        android:paddingBottom="2pt"
-        android:text="Network connection not available"
-        android:textSize="12pt"
-        android:visibility="gone"
-        app:layout_constraintTop_toBottomOf="@id/tvTitle" />
+        android:layout_marginTop="8pt"
+        android:background="@color/cFDECF0"
+        android:gravity="center_horizontal"
+        android:orientation="horizontal"
+        app:layout_constraintTop_toBottomOf="@id/tvTitle">
+
+        <TextView
+            android:id="@+id/tvNetError"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6pt"
+            android:layout_marginBottom="6pt"
+            android:drawableStart="@mipmap/icon_lock_network_error"
+            android:drawablePadding="8pt"
+            android:gravity="center"
+            android:paddingTop="2pt"
+            android:paddingBottom="2pt"
+            android:text="Network connection not available"
+            android:textColor="@color/cFF6A36"
+            android:textSize="14pt"
+            android:visibility="visible" />
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
