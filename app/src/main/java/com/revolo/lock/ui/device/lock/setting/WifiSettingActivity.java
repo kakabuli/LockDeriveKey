@@ -204,6 +204,8 @@ public class WifiSettingActivity extends BaseActivity {
             updateBleState();
         } else {
             // TODO: 2021/2/26 do something
+            //掉线
+            updateBleState();
         }
     }
 
@@ -491,7 +493,25 @@ public class WifiSettingActivity extends BaseActivity {
 
     private void refreshWifiConnectState() {
         isWifiConnected = !isWifiConnected;
-        mBleDeviceLocal.setConnectedType(isWifiConnected ? LocalState.DEVICE_CONNECT_TYPE_WIFI : LocalState.DEVICE_CONNECT_TYPE_BLE);
+        if (isWifiConnected) {
+            BleBean bleBean = App.getInstance().getUserBleBean(mBleDeviceLocal.getMac());
+            if (null != bleBean && bleBean.getBleConning() == 2) {
+                mBleDeviceLocal.setConnectedType(LocalState.DEVICE_CONNECT_TYPE_WIFI_BLE);
+            } else {
+                mBleDeviceLocal.setConnectedType(LocalState.DEVICE_CONNECT_TYPE_WIFI);
+            }
+        } else {
+            BleBean bleBean = App.getInstance().getUserBleBean(mBleDeviceLocal.getMac());
+            int state = LocalState.DEVICE_CONNECT_TYPE_BLE;
+            if (null == bleBean) {
+                state = LocalState.DEVICE_CONNECT_TYPE_DIS;
+            } else {
+                if (bleBean.getBleConning() != 2) {
+                    state = LocalState.DEVICE_CONNECT_TYPE_DIS;
+                }
+            }
+            mBleDeviceLocal.setConnectedType(state);
+        }
         App.getInstance().setBleDeviceLocal(mBleDeviceLocal);
         AppDatabase.getInstance(this).bleDeviceDao().update(mBleDeviceLocal);
     }
