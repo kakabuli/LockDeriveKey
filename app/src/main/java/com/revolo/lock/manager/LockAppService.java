@@ -926,7 +926,6 @@ public class LockAppService extends Service {
         byte[] lockFunBytes = new byte[4];
         System.arraycopy(bean.getPayload(), 0, lockFunBytes, 0, lockFunBytes.length);
         // 以下标来命名区分 bit0~7
-        byte[] bit7_0 = BleByteUtil.byteToBit(lockFunBytes[3]);
         // bit8~15
         byte[] bit15_8 = BleByteUtil.byteToBit(lockFunBytes[2]);
         // bit16~23
@@ -936,6 +935,7 @@ public class LockAppService extends Service {
         System.arraycopy(bean.getPayload(), 4, lockState, 0, lockState.length);
         byte[] lockStateBit7_0 = BleByteUtil.byteToBit(lockState[3]);
         byte[] lockStateBit15_8 = BleByteUtil.byteToBit(lockState[2]);
+        byte[] bit7_0 = BleByteUtil.byteToBit(lockState[0]);
         int soundVolume = bean.getPayload()[8];
         byte[] language = new byte[2];
         System.arraycopy(bean.getPayload(), 9, language, 0, language.length);
@@ -952,7 +952,7 @@ public class LockAppService extends Service {
         mDeviceLists.get(index).setLockPower(power);
         boolean isMute = (soundVolume == LocalState.VOLUME_STATE_MUTE);
         mDeviceLists.get(index).setMute(isMute);
-        byte doorSensorState = bit7_0[3];
+        byte doorSensorState = bit7_0[4];
         boolean isOpenDoorSensor = (doorSensorState == 0x01);
         // TODO: 2021/4/21 暂时屏蔽掉开始的基本信息检查
 //        mBleDeviceLocal.setOpenDoorSensor(isOpenDoorSensor);

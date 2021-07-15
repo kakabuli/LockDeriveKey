@@ -306,7 +306,7 @@ public class AddNewPwdSelectActivity extends BaseActivity {
                     dismissLoading();
                 }
             } else if (mSelectedPwdState == TEMPORARY_STATE) {
-                if (mTemEndDateTimeMill < new Date().getTime()) {
+                if (mTemEndDateTimeMill < ZoneUtil.getTestTime(mBleDeviceLocal.getTimeZone())) {
                     ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_the_end_time_cannot_be_less_than_the_current_time);
                 } else if (mTemEndDateTimeMill < mTemStartDateTimeMill) {
                     ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_the_end_time_cannot_be_less_than_the_start_time);
