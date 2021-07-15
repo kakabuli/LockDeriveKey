@@ -61,7 +61,7 @@
             android:paddingTop="2pt"
             android:paddingBottom="2pt"
             android:text="Network connection not available"
-            android:textColor="@color/cFF6A36"
+            android:textColor="@color/c333333"
             android:textSize="14pt"
             android:visibility="visible" />
     </LinearLayout>
