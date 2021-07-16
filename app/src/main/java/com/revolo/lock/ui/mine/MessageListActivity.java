@@ -134,6 +134,7 @@ public class MessageListActivity extends BaseActivity {
             return;
         }
         if (App.getInstance().getUserBean() == null) {
+            Timber.e("App.getInstance().getUserBean()");
             return;
         }
 
@@ -158,7 +159,9 @@ public class MessageListActivity extends BaseActivity {
 
             @Override
             public void onError(@io.reactivex.annotations.NonNull Throwable e) {
-
+                Timber.e("onError()");
+                mSmartRefreshLayout.finishRefresh(false);
+                mSmartRefreshLayout.finishLoadMore(false);
             }
 
             @Override
@@ -173,21 +176,23 @@ public class MessageListActivity extends BaseActivity {
         mSmartRefreshLayout.finishRefresh(true);
         mSmartRefreshLayout.finishLoadMore(true);
         List<SystemMessageListBeanRsp.DataBean> data = systemMessageListBeanRsp.getData();
-        if (data == null || data.isEmpty()) {
+        if (null != data) {
+            if (page == 1) {
+                mDataBeanList.clear();
+            }
+            mDataBeanList.addAll(data);
+            if (mDataBeanList.isEmpty()) {
+                mSmartRefreshLayout.setNoMoreData(true);
+            }
+        }
+        if (mDataBeanList == null || mDataBeanList.isEmpty() || mDataBeanList.size() == 0) {
             mIvNoMessage.setVisibility(View.VISIBLE);
             mTvNoMessage.setVisibility(View.VISIBLE);
         } else {
             mIvNoMessage.setVisibility(View.GONE);
             mTvNoMessage.setVisibility(View.GONE);
         }
-        if (page == 1) {
-            mDataBeanList.clear();
-        }
-        mDataBeanList.addAll(data);
-        if (mDataBeanList.isEmpty()) {
-            mSmartRefreshLayout.setNoMoreData(true);
-        }
-        mMessageListAdapter.setList(data);
+        mMessageListAdapter.setList(mDataBeanList);
     }
 
     private void deleteSystemMessage(String messageId) {
