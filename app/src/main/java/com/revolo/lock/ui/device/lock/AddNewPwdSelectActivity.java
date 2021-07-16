@@ -521,13 +521,13 @@ public class AddNewPwdSelectActivity extends BaseActivity {
                         mScheduleEndTimeMill = scheduleEndTimeMill;
                         Timber.d("endTime 选择的时间%1s, 时间流：%2d, 转换的时间：%3s", time, mScheduleEndTimeMill, ZoneUtil.getDate(mBleDeviceLocal.getTimeZone(), mScheduleEndTimeMill));
                     } else if (id == R.id.tvEndDateTime) {
-                        long temEndDateTimeMill = ZoneUtil.getTime(mBleDeviceLocal.getTimeZone(), mTemEndDateStr + " " + time + ":00");
+                        long temEndDateTimeMill = ZoneUtil.getTime( mTemEndDateStr + " " + time + ":00");
                         mTvEndDateTime.setText(time);
                         mTemEndDateTimeStr = time;
                         mTemEndDateTimeMill = temEndDateTimeMill;
                         Timber.d("endDateTime 选择的时间%1s, 时间流：%2d", time, mTemEndDateTimeMill);
                     } else if (id == R.id.tvStartDateTime) {
-                        long temStartDateTimeMill = ZoneUtil.getTime(mBleDeviceLocal.getTimeZone(), mTemStartDateStr + " " + time + ":00");
+                        long temStartDateTimeMill = ZoneUtil.getTime(mTemStartDateStr + " " + time + ":00");
                         mTvStartDateTime.setText(time);
                         mTemStartDateTimeStr = time;
                         mTemStartDateTimeMill = temStartDateTimeMill;
