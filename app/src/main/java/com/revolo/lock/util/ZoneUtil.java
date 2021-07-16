@@ -62,6 +62,15 @@ public class ZoneUtil {
         return result.getTime();
     }
 
+    public static long getTime(String timeStr) {
+        String timeZone = "+00:00";
+        SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy hh:mm:ss");
+        formatter.setTimeZone(TimeZone.getTimeZone("GMT" + timeZone));
+        ParsePosition pos = new ParsePosition(0);
+        Date result = formatter.parse(timeStr, pos);
+        return result.getTime();
+    }
+
     public static String getDate(String timeZone, long time) {
         timeZone = "+00:00";
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");

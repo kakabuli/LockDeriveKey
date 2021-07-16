@@ -439,7 +439,6 @@ public class DeviceFragment extends Fragment {
             return;
         }
         if (bean.getCMD() == BleProtocolState.CMD_LOCK_INFO) {
-            lockInfo(mac, bean);
             dismissLoading();
         } else if (bean.getCMD() == BleProtocolState.CMD_LOCK_UPLOAD) {
             mHomeLockListAdapter.notifyDataSetChanged();
@@ -447,35 +446,7 @@ public class DeviceFragment extends Fragment {
         }
     }
 
-    private void lockInfo(@NotNull String mac, BleResultBean bean) {
-        // TODO: 2021/2/8 锁基本信息处理
-        byte[] lockFunBytes = new byte[4];
-        System.arraycopy(bean.getPayload(), 0, lockFunBytes, 0, lockFunBytes.length);
-        // 以下标来命名区分 bit0~7
-        byte[] bit0_7 = BleByteUtil.byteToBit(lockFunBytes[3]);
-        // bit8~15
-        byte[] bit8_15 = BleByteUtil.byteToBit(lockFunBytes[2]);
-        // bit16~23
-        byte[] bit16_23 = BleByteUtil.byteToBit(lockFunBytes[1]);
 
-        byte[] lockState = new byte[4];
-        System.arraycopy(bean.getPayload(), 4, lockState, 0, lockState.length);
-        byte[] lockStateBit0_7 = BleByteUtil.byteToBit(lockState[3]);
-        byte[] lockStateBit8_15 = BleByteUtil.byteToBit(lockState[2]);
-        int soundVolume = bean.getPayload()[8];
-        byte[] language = new byte[2];
-        System.arraycopy(bean.getPayload(), 9, language, 0, language.length);
-        String languageStr = new String(language, StandardCharsets.UTF_8);
-        int battery = bean.getPayload()[11];
-        byte[] time = new byte[4];
-        System.arraycopy(bean.getPayload(), 12, time, 0, time.length);
-        long realTime = (BleByteUtil.bytesToLong(BleCommandFactory.littleMode(time)) + Constant.WILL_ADD_TIME) * 1000;
-        Timber.d("CMD: %1d, lockFunBytes: bit0_7: %2s, bit8_15: %3s, bit16_23: %4s, lockStateBit0_7: %5s, lockStateBit8_15: %6s, soundVolume: %7d, language: %8s, battery: %9d, time: %10d",
-                bean.getCMD(), ConvertUtils.bytes2HexString(bit0_7), ConvertUtils.bytes2HexString(bit8_15),
-                ConvertUtils.bytes2HexString(bit16_23), ConvertUtils.bytes2HexString(lockStateBit0_7),
-                ConvertUtils.bytes2HexString(lockStateBit8_15), soundVolume, languageStr, battery, realTime);
-
-    }
 
     private void initBaseData() {
         if (null == App.getInstance().getDeviceLists() || App.getInstance().getDeviceLists().size() == 0) {
