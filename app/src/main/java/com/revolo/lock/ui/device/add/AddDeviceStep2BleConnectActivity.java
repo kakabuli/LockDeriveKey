@@ -33,9 +33,11 @@ import com.revolo.lock.bean.respone.AdminAddDeviceBeanRsp;
 import com.revolo.lock.bean.respone.GetPwd1BeanRsp;
 import com.revolo.lock.bean.respone.LockIsBindBeanRsp;
 import com.revolo.lock.ble.BleByteUtil;
+import com.revolo.lock.ble.BleCommandFactory;
 import com.revolo.lock.ble.bean.BleBean;
 import com.revolo.lock.ble.bean.BleResultBean;
 import com.revolo.lock.manager.LockConnected;
+import com.revolo.lock.manager.LockMessage;
 import com.revolo.lock.manager.LockMessageCode;
 import com.revolo.lock.manager.LockMessageReplyErrCode;
 import com.revolo.lock.manager.LockMessageRes;
@@ -420,8 +422,19 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
             long deviceId = AppDatabase.getInstance(this).bleDeviceDao().insert(bleDeviceLocal);
             BleDeviceLocal deviceLocal = AppDatabase.getInstance(this).bleDeviceDao().findBleDeviceFromId(deviceId);
             Timber.d("addDeviceToLocal autoTime: %1d", bleDeviceLocal.getSetAutoLockTime());
+            //加入设备列表中
+            App.getInstance().addBleDeviceLocal(deviceLocal);
             App.getInstance().setBleDeviceLocal(deviceLocal);
-            //  App.getInstance().addBleDeviceLocal(deviceLocal);
+            //获取当前设备的信息
+            BleBean mBleBean = App.getInstance().getUserBleBean(bleDeviceLocal.getMac());
+            if(null!=mBleBean){
+                LockMessage lockMessage = new LockMessage();
+                lockMessage.setMessageType(3);
+                lockMessage.setBytes(BleCommandFactory
+                        .checkLockBaseInfoCommand(mBleBean.getPwd1(), mBleBean.getPwd3()));
+                lockMessage.setMac(mBleBean.getOKBLEDeviceImp().getMacAddress());
+                EventBus.getDefault().post(lockMessage);
+            }
         }
     }
 

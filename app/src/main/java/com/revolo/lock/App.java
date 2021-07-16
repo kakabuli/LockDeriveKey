@@ -246,6 +246,18 @@ public class App extends Application {
         }
     }
 
+    /**
+     * 绑定成功后，添加在设备列表中
+     * @param bleDeviceLocal
+     */
+    public void addBleDeviceLocal(BleDeviceLocal bleDeviceLocal) {
+        if (null != lockAppService) {
+            List<BleDeviceLocal> bleDeviceLocalList = new ArrayList<>();
+            bleDeviceLocalList.add(bleDeviceLocal);
+            lockAppService.add(bleDeviceLocalList);
+        }
+    }
+
     private void deleteDeviceToken() {
         if (App.getInstance().getUserBean() != null) {
             Timber.d("**************************   delete google token to server   **************************");
