@@ -490,7 +490,7 @@ public class AddNewPwdSelectActivity extends BaseActivity {
     }
 
     private void initTemStartDateTimeMill() {
-        String nowDate = ZoneUtil.getDate(mBleDeviceLocal.getTimeZone(), ZoneUtil.getTime(), "dd-MM-yyyy");
+        String nowDate = ZoneUtil.getDate(mBleDeviceLocal.getTimeZone(), System.currentTimeMillis(), "dd-MM-yyyy");
         mTemStartDateStr = nowDate;
         mTvStartDate.setText(nowDate.replace("-", "."));
         String date = nowDate + " 10:00:00";
