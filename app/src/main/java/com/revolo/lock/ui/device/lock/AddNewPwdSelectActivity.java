@@ -491,17 +491,19 @@ public class AddNewPwdSelectActivity extends BaseActivity {
 
     private void initTemStartDateTimeMill() {
         String nowDate = ZoneUtil.getDate(mBleDeviceLocal.getTimeZone(), ZoneUtil.getTime(), "dd-MM-yyyy");
-        mTemStartDateStr = nowDate;
+        String startDate = ZoneUtil.getDate(mBleDeviceLocal.getTimeZone(), ZoneUtil.getTime(), "yyyy-MM-dd");
+        mTemStartDateStr = startDate;
         mTvStartDate.setText(nowDate.replace("-", "."));
-        String date = nowDate + " 10:00:00";
+        String date = startDate + " 10:00:00";
         mTemStartDateTimeMill = ZoneUtil.getTime(mBleDeviceLocal.getTimeZone(), date);
     }
 
     private void initTemEndDateTimeMill() {
         String nowDate = ZoneUtil.getDate(mBleDeviceLocal.getTimeZone(), System.currentTimeMillis(), "dd-MM-yyyy");
-        mTemEndDateStr = nowDate;
+        String endDate = ZoneUtil.getDate(mBleDeviceLocal.getTimeZone(), System.currentTimeMillis(), "yyyy-MM-dd");
+        mTemEndDateStr = endDate;
         mTvEndDate.setText(nowDate.replace("-", "."));
-        String date = nowDate + " 14:00:00";
+        String date = endDate + " 14:00:00";
         mTemEndDateTimeMill = ZoneUtil.getTime(mBleDeviceLocal.getTimeZone(), date);
     }
 

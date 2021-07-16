@@ -63,7 +63,7 @@
             android:text="Network connection not available"
             android:textColor="@color/c333333"
             android:textSize="14pt"
-            android:visibility="visible" />
+            android:visibility="gone" />
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

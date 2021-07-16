@@ -1,6 +1,9 @@
 package com.revolo.lock.ui.user;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.Gravity;
@@ -36,13 +39,35 @@ import io.reactivex.Observer;
 import io.reactivex.disposables.Disposable;
 import timber.log.Timber;
 
+import static com.revolo.lock.Constant.PING_RESULT;
+import static com.revolo.lock.Constant.RECEIVE_ACTION_NETWORKS;
+
 public class UserFragment extends Fragment {
 
     private UserViewModel mUserViewModel;
     private CustomerLoadingDialog mLoadingDialog;
     private UserListAdapter mUserListAdapter;
     private LinearLayout mLlNoUser;
+    private TitleBar titleBar;
     private RecyclerView mRvLockList;
+    private final BroadcastReceiver mReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (intent != null) {
+                if (intent.getAction().equals(RECEIVE_ACTION_NETWORKS)) {
+                    boolean pingResult = intent.getBooleanExtra(PING_RESULT, true);
+                    if (titleBar != null) {
+                        titleBar.setNetError(pingResult);
+                    }
+                } else if (intent.getAction().equals(Intent.ACTION_SCREEN_ON)) {
+                    // 屏幕打开了
+                    if (titleBar != null) {
+                        titleBar.setNetError(true);
+                    }
+                }
+            }
+        }
+    };
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -50,7 +75,7 @@ public class UserFragment extends Fragment {
                 new ViewModelProvider(this).get(UserViewModel.class);
         View root = inflater.inflate(R.layout.fragment_user, container, false);
         if (getContext() != null) {
-            new TitleBar(root).setTitle(getString(R.string.title_user))
+            titleBar = new TitleBar(root).setTitle(getString(R.string.title_user))
                     .setRight(R.drawable.ic_home_icon_add, v -> {
                         Intent intent = new Intent(getContext(), AddDeviceForSharedUserActivity.class);
                         startActivity(intent);
@@ -75,9 +100,16 @@ public class UserFragment extends Fragment {
 //                }
 //            });
         }
+        if (titleBar != null) {
+            titleBar.setNetError(Constant.pingResult);
+        }
         initLoading("Loading...");
         mLlNoUser.setVisibility(View.VISIBLE);
         mRvLockList.setVisibility(View.GONE);
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(RECEIVE_ACTION_NETWORKS);
+        intentFilter.addAction(Intent.ACTION_SCREEN_ON);
+        requireActivity().registerReceiver(mReceiver, intentFilter);
         return root;
     }
 
@@ -88,16 +120,17 @@ public class UserFragment extends Fragment {
     }
 
     @Override
+    public void onDestroy() {
+        super.onDestroy();
+        requireActivity().unregisterReceiver(mReceiver);
+    }
+
+    @Override
     public void onStart() {
         super.onStart();
     }
 
     private void getAllSharedUserFromAdminUser() {
-//        if (getActivity() instanceof BaseActivity) {
-//            if (!((BaseActivity) getActivity()).checkNetConnectFail()) {
-//                return;
-//            }
-//        }
         if (App.getInstance().getUserBean() == null) {
             Timber.e("getAllSharedUserFromAdminUser App.getInstance().getUserBean() == null");
             return;

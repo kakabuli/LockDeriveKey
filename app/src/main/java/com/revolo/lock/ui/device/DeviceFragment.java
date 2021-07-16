@@ -208,6 +208,7 @@ public class DeviceFragment extends Fragment {
         if (registered) {
             EventBus.getDefault().unregister(this);
         }
+        requireActivity().unregisterReceiver(mReceiver);
     }
 
     public void onRegisterEventBus() {
