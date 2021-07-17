@@ -1,35 +1,13 @@
 package com.revolo.lock.bean.respone;
 
-import android.os.Parcel;
-import android.os.Parcelable;
-
 import java.util.List;
 
-public class SystemMessageListBeanRsp implements Parcelable {
+public class SystemMessageListBeanRsp {
 
     private String code;
     private String msg;
     private int nowTime;
     private List<DataBean> data;
-
-    protected SystemMessageListBeanRsp(Parcel in) {
-        code = in.readString();
-        msg = in.readString();
-        nowTime = in.readInt();
-        data = in.createTypedArrayList(DataBean.CREATOR);
-    }
-
-    public static final Creator<SystemMessageListBeanRsp> CREATOR = new Creator<SystemMessageListBeanRsp>() {
-        @Override
-        public SystemMessageListBeanRsp createFromParcel(Parcel in) {
-            return new SystemMessageListBeanRsp(in);
-        }
-
-        @Override
-        public SystemMessageListBeanRsp[] newArray(int size) {
-            return new SystemMessageListBeanRsp[size];
-        }
-    };
 
     public String getCode() {
         return code;
@@ -63,49 +41,15 @@ public class SystemMessageListBeanRsp implements Parcelable {
         this.data = data;
     }
 
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(code);
-        dest.writeString(msg);
-        dest.writeInt(nowTime);
-        dest.writeTypedList(data);
-    }
-
-    public static class DataBean implements Parcelable {
+    public static class DataBean {
         private String _id;
+        private int isShowAgreeShare;
         private String uid;
         private String alertTitle;
         private String alertBody;
-        private String msgType;
-        private String clientType;
-        private String pushAt;
-
-        protected DataBean(Parcel in) {
-            _id = in.readString();
-            uid = in.readString();
-            alertTitle = in.readString();
-            alertBody = in.readString();
-            msgType = in.readString();
-            clientType = in.readString();
-            pushAt = in.readString();
-        }
-
-        public static final Creator<DataBean> CREATOR = new Creator<DataBean>() {
-            @Override
-            public DataBean createFromParcel(Parcel in) {
-                return new DataBean(in);
-            }
-
-            @Override
-            public DataBean[] newArray(int size) {
-                return new DataBean[size];
-            }
-        };
+        private ShareDataBean shareData;
+        private int msgType;
+        private long pushAt;
 
         public String get_id() {
             return _id;
@@ -113,6 +57,14 @@ public class SystemMessageListBeanRsp implements Parcelable {
 
         public void set_id(String _id) {
             this._id = _id;
+        }
+
+        public int getIsShowAgreeShare() {
+            return isShowAgreeShare;
+        }
+
+        public void setIsShowAgreeShare(int isShowAgreeShare) {
+            this.isShowAgreeShare = isShowAgreeShare;
         }
 
         public String getUid() {
@@ -139,44 +91,157 @@ public class SystemMessageListBeanRsp implements Parcelable {
             this.alertBody = alertBody;
         }
 
-        public String getMsgType() {
+        public ShareDataBean getShareData() {
+            return shareData;
+        }
+
+        public void setShareData(ShareDataBean shareData) {
+            this.shareData = shareData;
+        }
+
+        public int getMsgType() {
             return msgType;
         }
 
-        public void setMsgType(String msgType) {
+        public void setMsgType(int msgType) {
             this.msgType = msgType;
         }
 
-        public String getClientType() {
-            return clientType;
-        }
-
-        public void setClientType(String clientType) {
-            this.clientType = clientType;
-        }
-
-        public String getPushAt() {
+        public long getPushAt() {
             return pushAt;
         }
 
-        public void setPushAt(String pushAt) {
+        public void setPushAt(long pushAt) {
             this.pushAt = pushAt;
         }
 
-        @Override
-        public int describeContents() {
-            return 0;
-        }
+        public static class ShareDataBean {
+            private String sharekey;
+            private String adminUid;
+            private String adminName;
+            private String shareUid;
+            private int isAgree;
+            private int isEnable;
+            private int deadTime;
+            private int createTime;
+            private String agreeTime;
+            private String lastName;
+            private String firstName;
+            private String deviceSN;
+            private String shareAccount;
+            private int shareUserType;
 
-        @Override
-        public void writeToParcel(Parcel dest, int flags) {
-            dest.writeString(_id);
-            dest.writeString(uid);
-            dest.writeString(alertTitle);
-            dest.writeString(alertBody);
-            dest.writeString(msgType);
-            dest.writeString(clientType);
-            dest.writeString(pushAt);
+            public String getSharekey() {
+                return sharekey;
+            }
+
+            public void setSharekey(String sharekey) {
+                this.sharekey = sharekey;
+            }
+
+            public String getAdminUid() {
+                return adminUid;
+            }
+
+            public void setAdminUid(String adminUid) {
+                this.adminUid = adminUid;
+            }
+
+            public String getAdminName() {
+                return adminName;
+            }
+
+            public void setAdminName(String adminName) {
+                this.adminName = adminName;
+            }
+
+            public String getShareUid() {
+                return shareUid;
+            }
+
+            public void setShareUid(String shareUid) {
+                this.shareUid = shareUid;
+            }
+
+            public int getIsAgree() {
+                return isAgree;
+            }
+
+            public void setIsAgree(int isAgree) {
+                this.isAgree = isAgree;
+            }
+
+            public int getIsEnable() {
+                return isEnable;
+            }
+
+            public void setIsEnable(int isEnable) {
+                this.isEnable = isEnable;
+            }
+
+            public int getDeadTime() {
+                return deadTime;
+            }
+
+            public void setDeadTime(int deadTime) {
+                this.deadTime = deadTime;
+            }
+
+            public int getCreateTime() {
+                return createTime;
+            }
+
+            public void setCreateTime(int createTime) {
+                this.createTime = createTime;
+            }
+
+            public String getAgreeTime() {
+                return agreeTime;
+            }
+
+            public void setAgreeTime(String agreeTime) {
+                this.agreeTime = agreeTime;
+            }
+
+            public String getLastName() {
+                return lastName;
+            }
+
+            public void setLastName(String lastName) {
+                this.lastName = lastName;
+            }
+
+            public String getFirstName() {
+                return firstName;
+            }
+
+            public void setFirstName(String firstName) {
+                this.firstName = firstName;
+            }
+
+            public String getDeviceSN() {
+                return deviceSN;
+            }
+
+            public void setDeviceSN(String deviceSN) {
+                this.deviceSN = deviceSN;
+            }
+
+            public String getShareAccount() {
+                return shareAccount;
+            }
+
+            public void setShareAccount(String shareAccount) {
+                this.shareAccount = shareAccount;
+            }
+
+            public int getShareUserType() {
+                return shareUserType;
+            }
+
+            public void setShareUserType(int shareUserType) {
+                this.shareUserType = shareUserType;
+            }
         }
     }
 }

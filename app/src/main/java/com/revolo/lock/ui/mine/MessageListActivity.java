@@ -3,6 +3,7 @@ package com.revolo.lock.ui.mine;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.ImageView;
@@ -13,16 +14,20 @@ import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
+import com.blankj.utilcode.util.ToastUtils;
 import com.revolo.lock.App;
 import com.revolo.lock.Constant;
 import com.revolo.lock.R;
 import com.revolo.lock.adapter.MessageListAdapter;
 import com.revolo.lock.base.BaseActivity;
+import com.revolo.lock.bean.request.AcceptShareBeanReq;
 import com.revolo.lock.bean.request.DeleteSystemMessageReq;
 import com.revolo.lock.bean.request.SystemMessageListReq;
+import com.revolo.lock.bean.respone.AcceptShareBeanRsp;
 import com.revolo.lock.bean.respone.SystemMessageListBeanRsp;
 import com.revolo.lock.net.HttpRequest;
 import com.revolo.lock.net.ObservableDecorator;
+import com.revolo.lock.ui.ShareDeviceActivity;
 import com.revolo.lock.ui.view.SmartClassicsHeaderView;
 import com.revolo.lock.widget.SlideRecyclerView;
 import com.scwang.smart.refresh.layout.SmartRefreshLayout;
@@ -84,14 +89,19 @@ public class MessageListActivity extends BaseActivity {
         rvMessage.getItemAnimator().setMoveDuration(300);
         rvMessage.setLayoutManager(new LinearLayoutManager(this));
         mMessageListAdapter = new MessageListAdapter(R.layout.item_message_rv);
-        mMessageListAdapter.setOnItemChildClickListener((adapter, view, position) -> {
-            // @TODO 点击接收邀请
-            SystemMessageListBeanRsp.DataBean dataBean = (SystemMessageListBeanRsp.DataBean) adapter.getItem(position);
+        mMessageListAdapter.setOnItemClickListener((adapter, view, position) -> {
+            // TODO 不能删除
         });
         rvMessage.setAdapter(mMessageListAdapter);
         mMessageListAdapter.setOnDeleteListener(dataBean -> {
             if (dataBean != null) {
                 deleteSystemMessage(dataBean.get_id());
+            }
+        });
+
+        mMessageListAdapter.setOnAcceptingListener((position, dataBean) -> {
+            if (dataBean != null && dataBean.getShareData() != null) {
+                acceptShare(dataBean.getShareData().getSharekey(), dataBean.getShareData().getAdminUid());
             }
         });
 
@@ -217,6 +227,78 @@ public class MessageListActivity extends BaseActivity {
             @Override
             public void onError(@io.reactivex.annotations.NonNull Throwable e) {
 
+            }
+
+            @Override
+            public void onComplete() {
+
+            }
+        });
+    }
+
+    private void acceptShare(String mShareKey, String adminUid) {
+        if (!checkNetConnectFail()) {
+            return;
+        }
+        // TODO: 2021/4/23 跳转到登录页面
+        if (TextUtils.isEmpty(mShareKey)) {
+            Timber.e("mShareKey == null");
+            ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_please_sign_in);
+            return;
+        }
+        if (App.getInstance().getUserBean() == null) {
+            Timber.e("acceptShare App.getInstance().getUserBean() == null");
+            ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_please_sign_in);
+            return;
+        }
+        if (TextUtils.isEmpty(adminUid)) {
+            Timber.e("acceptShare adminUid is empty");
+            ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_please_sign_in);
+            return;
+        }
+        String token = App.getInstance().getUserBean().getToken();
+        if (TextUtils.isEmpty(token)) {
+            Timber.e("acceptShare token is empty");
+            ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_please_sign_in);
+            return;
+        }
+
+        AcceptShareBeanReq req = new AcceptShareBeanReq();
+        req.setShareKey(mShareKey);
+        req.setUid(adminUid);
+        Observable<AcceptShareBeanRsp> observable = HttpRequest.getInstance().acceptShare(token, req);
+        // TODO: 2021/3/12 暂时屏蔽
+        showLoading();
+        ObservableDecorator.decorate(observable).safeSubscribe(new Observer<AcceptShareBeanRsp>() {
+            @Override
+            public void onSubscribe(@NonNull Disposable d) {
+
+            }
+
+            @Override
+            public void onNext(@NonNull AcceptShareBeanRsp acceptShareBeanRsp) {
+                dismissLoading();
+                String code = acceptShareBeanRsp.getCode();
+                if (!code.equals("200")) {
+                    if (code.equals("444")) {
+                        App.getInstance().logout(true, MessageListActivity.this);
+                        return;
+                    }
+                    String msg = acceptShareBeanRsp.getMsg();
+                    Timber.e("code: %1s, msg: %2s", code, msg);
+                    if (!TextUtils.isEmpty(msg)) {
+                        ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(msg);
+                    }
+                    return;
+                }
+                ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_success);
+                getSystemMessageList();
+            }
+
+            @Override
+            public void onError(@NonNull Throwable e) {
+                dismissLoading();
+                Timber.e(e);
             }
 
             @Override

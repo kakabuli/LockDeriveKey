@@ -1,5 +1,6 @@
 package com.revolo.lock.ui.user;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -14,6 +15,7 @@ import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.blankj.utilcode.util.ActivityUtils;
 import com.blankj.utilcode.util.ToastUtils;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
@@ -23,7 +25,9 @@ import com.revolo.lock.Constant;
 import com.revolo.lock.R;
 import com.revolo.lock.adapter.AuthUserDetailDevicesAdapter;
 import com.revolo.lock.base.BaseActivity;
+import com.revolo.lock.bean.request.GainKeyBeanReq;
 import com.revolo.lock.bean.request.GetDevicesFromUidAndSharedUidBeanReq;
+import com.revolo.lock.bean.respone.GainKeyBeanRsp;
 import com.revolo.lock.bean.respone.GetAllSharedUserFromAdminUserBeanRsp;
 import com.revolo.lock.bean.respone.GetAllSharedUserFromLockBeanRsp;
 import com.revolo.lock.bean.respone.GetDevicesFromUidAndSharedUidBeanRsp;
@@ -84,20 +88,16 @@ public class AuthUserDetailActivity extends BaseActivity {
         mTvAccount = findViewById(R.id.tvAccount);
         mDevicesAdapter = new AuthUserDetailDevicesAdapter(R.layout.item_user_devices_rv);
         mDevicesAdapter.setOnItemClickListener((adapter, view, position) -> {
-            if (position >= 0 && adapter.getItem(position) != null) {
-                GetAllSharedUserFromLockBeanRsp.DataBean dataBean = (GetAllSharedUserFromLockBeanRsp.DataBean) adapter.getItem(position);
-                if (dataBean.getShareUserType() == 3) { // 超时
-
-                } else {
-                    Intent intent = new Intent(AuthUserDetailActivity.this, SharedUserDetailActivity.class);
-                    intent.putExtra(Constant.PRE_A, Constant.AUTH_USER_DETAIL_A);
-                    intent.putExtra(Constant.SHARE_USER_DEVICE_DATA, dataBean);
-                    intent.putExtra(Constant.SHARE_USER_DATA, mShareUser);
-                    startActivity(intent);
-                }
+            GetAllSharedUserFromLockBeanRsp.DataBean dataBean = (GetAllSharedUserFromLockBeanRsp.DataBean) adapter.getItem(position);
+            if (dataBean != null) {
+                Intent intent = new Intent(AuthUserDetailActivity.this, SharedUserDetailActivity.class);
+                intent.putExtra(Constant.PRE_A, Constant.AUTH_USER_DETAIL_A);
+                intent.putExtra(Constant.SHARE_USER_DEVICE_DATA, dataBean);
+                intent.putExtra(Constant.SHARE_USER_DATA, mShareUser);
+                startActivity(intent);
             }
-
         });
+        mDevicesAdapter.setOnReInviteListener(this::share);
         rvLockList.setLayoutManager(new LinearLayoutManager(this));
         rvLockList.setAdapter(mDevicesAdapter);
         applyDebouncingClickListener(findViewById(R.id.clUserName));
@@ -125,12 +125,13 @@ public class AuthUserDetailActivity extends BaseActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        assert data != null;
-        String firstName = data.getStringExtra(Constant.SHARE_USER_FIRST_NAME);
-        String lastName = data.getStringExtra(Constant.SHARE_USER_LAST_NAME);
-        mShareUser.setFirstName(firstName);
-        mShareUser.setLastName(lastName);
-        refreshUI();
+        if (data != null && resultCode == Activity.RESULT_OK) {
+            String firstName = data.getStringExtra(Constant.SHARE_USER_FIRST_NAME);
+            String lastName = data.getStringExtra(Constant.SHARE_USER_LAST_NAME);
+            mShareUser.setFirstName(TextUtils.isEmpty(firstName) ? "" : firstName);
+            mShareUser.setLastName(TextUtils.isEmpty(lastName) ? "" : lastName);
+            refreshUI();
+        }
     }
 
     private void refreshUI() {
@@ -193,6 +194,67 @@ public class AuthUserDetailActivity extends BaseActivity {
                     ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(msg);
                 }
                 refreshUI();
+            }
+
+            @Override
+            public void onError(@NonNull Throwable e) {
+                dismissLoading();
+                Timber.e(e);
+            }
+
+            @Override
+            public void onComplete() {
+
+            }
+        });
+    }
+
+    private void share(GetAllSharedUserFromLockBeanRsp.DataBean dataBean) {
+        if (!checkNetConnectFail()) {
+            return;
+        }
+        if (App.getInstance().getUserBean() == null) {
+            Timber.e("share App.getInstance().getUserBean() == null");
+            return;
+        }
+        String uid = App.getInstance().getUserBean().getUid();
+        if (TextUtils.isEmpty(uid)) {
+            Timber.e("share uid is empty");
+            return;
+        }
+        String token = App.getInstance().getUserBean().getToken();
+        if (TextUtils.isEmpty(token)) {
+            Timber.e("share token is empty");
+            return;
+        }
+        GainKeyBeanReq req = new GainKeyBeanReq();
+        req.setDeviceSN(dataBean.getLockNickname());
+        req.setShareUserType(dataBean.getShareUserType());
+        req.setAdminUid(uid);
+        req.setFirstName(mShareUser.getFirstName());
+        req.setLastName(mShareUser.getLastName());
+        req.setShareAccount(mShareUser.getUserMail());
+        showLoading();
+        Observable<GainKeyBeanRsp> observable = HttpRequest.getInstance().gainKey(token, req);
+        ObservableDecorator.decorate(observable).safeSubscribe(new Observer<GainKeyBeanRsp>() {
+            @Override
+            public void onSubscribe(@NonNull Disposable d) {
+
+            }
+
+            @Override
+            public void onNext(@NonNull GainKeyBeanRsp gainKeyBeanRsp) {
+                dismissLoading();
+                String code = gainKeyBeanRsp.getCode();
+                String msg = gainKeyBeanRsp.getMsg();
+                if (code.equals("200")) {
+                    ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(getString(R.string.tip_content_share_successful));
+                    searchUserDevice();
+                } else if (code.equals("444")) {
+                    App.getInstance().logout(true, AuthUserDetailActivity.this);
+                } else {
+                    ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(msg);
+                }
             }
 
             @Override

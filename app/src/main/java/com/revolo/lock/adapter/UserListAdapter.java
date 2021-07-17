@@ -28,7 +28,7 @@ public class UserListAdapter extends BaseQuickAdapter<GetAllSharedUserFromAdminU
     @Override
     protected void convert(@NotNull BaseViewHolder baseViewHolder, GetAllSharedUserFromAdminUserBeanRsp.DataBean bean) {
         if (bean != null) {
-            baseViewHolder.setText(R.id.tvName, (TextUtils.isEmpty(bean.getFirstName()) ? "" : bean.getFirstName()) + (TextUtils.isEmpty(bean.getLastName()) ? "" : bean.getLastName()));
+            baseViewHolder.setText(R.id.tvName, (TextUtils.isEmpty(bean.getFirstName()) ? "" : bean.getFirstName()) + " " + (TextUtils.isEmpty(bean.getLastName()) ? "" : bean.getLastName()));
             baseViewHolder.setText(R.id.tvPermission, TextUtils.isEmpty(bean.getDeviceCount()) ? "0" : bean.getDeviceCount() + " devices");
 
             RequestOptions requestOptions = RequestOptions.circleCropTransform()

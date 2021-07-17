@@ -22,6 +22,14 @@
         <item name="android:gravity">center</item>
     </style>
 
+    <style name="ButtonStyle2" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="textAllCaps">false</item>
+        <item name="android:textColor">@color/c2C68FF</item>
+        <item name="android:background">@drawable/shape_btn_bg_2</item>
+        <item name="android:textSize">14pt</item>
+        <item name="android:gravity">center</item>
+    </style>
+
     <style name="InputEditTextTheme" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <item name="colorControlNormal">@color/cA5A4DA</item>
         <item name="colorControlActivated">@color/c2C68FF</item>

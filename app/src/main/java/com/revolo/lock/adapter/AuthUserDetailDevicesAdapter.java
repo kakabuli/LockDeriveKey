@@ -18,8 +18,14 @@ import org.jetbrains.annotations.NotNull;
  */
 public class AuthUserDetailDevicesAdapter extends BaseQuickAdapter<GetAllSharedUserFromLockBeanRsp.DataBean, BaseViewHolder> {
 
+    private OnReInviteListener onReInviteListener;
+
     public AuthUserDetailDevicesAdapter(int layoutResId) {
         super(layoutResId);
+    }
+
+    public void setOnReInviteListener(OnReInviteListener onReInviteListener) {
+        this.onReInviteListener = onReInviteListener;
     }
 
     @Override
@@ -40,6 +46,7 @@ public class AuthUserDetailDevicesAdapter extends BaseQuickAdapter<GetAllSharedU
                 baseViewHolder.setText(R.id.tvDetail, R.string.accepting);
                 baseViewHolder.setGone(R.id.ivState, true);
                 baseViewHolder.setVisible(R.id.tvReInvite, true);
+                baseViewHolder.setImageResource(R.id.ivState, R.mipmap.ic_icon_close);
             } else {
                 baseViewHolder.setGone(R.id.ivState, true);
                 baseViewHolder.setVisible(R.id.ivMore, true);
@@ -48,11 +55,12 @@ public class AuthUserDetailDevicesAdapter extends BaseQuickAdapter<GetAllSharedU
                     baseViewHolder.setText(R.id.tvDetail, R.string.unable_to_add_user_and_password);
                 } else if (bean.getShareUserType() == 2) {
                     baseViewHolder.setText(R.id.tvDetail, R.string.per_app_unlock_only);
-                } else {
-                    // TODO: 2021/1/15 缺少对应的提示
                 }
             }
             initPer(baseViewHolder, bean);
+            baseViewHolder.getView(R.id.tvReInvite).setOnClickListener(v -> {
+                onReInviteListener.onReInviteListener(bean);
+            });
         }
     }
 
@@ -66,4 +74,7 @@ public class AuthUserDetailDevicesAdapter extends BaseQuickAdapter<GetAllSharedU
         }
     }
 
+    public interface OnReInviteListener {
+        void onReInviteListener(GetAllSharedUserFromLockBeanRsp.DataBean bean);
+    }
 }

@@ -19,7 +19,6 @@ public class AcceptShareBeanRsp {
     private String code;
     private String msg;
     private int nowTime;
-    private DataBean data;
 
     public String getCode() {
         return code;
@@ -45,14 +44,4 @@ public class AcceptShareBeanRsp {
         this.nowTime = nowTime;
     }
 
-    public DataBean getData() {
-        return data;
-    }
-
-    public void setData(DataBean data) {
-        this.data = data;
-    }
-
-    public static class DataBean {
-    }
 }
