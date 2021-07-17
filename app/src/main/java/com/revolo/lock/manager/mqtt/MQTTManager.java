@@ -181,8 +181,6 @@ public class MQTTManager {
                 if (null != mqttDataLinstener) {
                     mqttDataLinstener.connectionLost(cause);
                 }
-                // 连接丢失退出登录
-                App.getInstance().logout(true, LockAppManager.getAppManager().currentActivity());
             }
 
             @Override
