@@ -48,7 +48,7 @@
 
     <TextView
         android:id="@+id/tv_delete"
-        android:layout_width="110pt"
+        android:layout_width="90pt"
         android:layout_height="match_parent"
         android:background="#FFF55030"
         android:gravity="center"
