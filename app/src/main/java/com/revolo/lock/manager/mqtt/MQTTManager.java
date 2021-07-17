@@ -172,7 +172,7 @@ public class MQTTManager {
 //                //连接丢失--需要进行重连
                 Timber.d("connectionLost 连接丢失需要重连");
                 String userId = App.getInstance().getUserBean().getUid();
-                String userToken = App.getInstance().getUserBean().getUid();
+                String userToken = App.getInstance().getUserBean().getToken();
                 Timber.d(userId + "用户id" + "用户tonken" + userToken);
                 if (TextUtils.isEmpty(userId) || TextUtils.isEmpty(userToken)) {
                     Timber.d("connectionLost 用户id或者token为空无法重连");
