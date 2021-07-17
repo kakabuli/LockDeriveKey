@@ -2,7 +2,7 @@
     <!-- Base application theme. -->
     <style name="Theme.RevoloLock" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <!-- Primary brand color. -->
-        <item name="colorPrimary">@color/white</item>
+        <item name="colorPrimary">@color/c2C68FF</item>
         <item name="colorPrimaryVariant">@color/c2C68FF</item>
         <item name="colorOnPrimary">@color/c2C68FF</item>
         <!-- Secondary brand color. -->

@@ -27,7 +27,7 @@ public class MessageListAdapter extends BaseQuickAdapter<SystemMessageListBeanRs
 
     private OnDeleteListener mOnDeleteListener;
     private OnAcceptingListener mOnAcceptingListener;
-    private SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+    private SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
 
     public MessageListAdapter(int layoutResId) {
         super(layoutResId);
