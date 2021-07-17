@@ -4,6 +4,8 @@ import android.Manifest;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
+import android.media.ExifInterface;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.Gravity;
@@ -219,11 +221,15 @@ public class UserPageActivity extends BaseActivity implements EasyPermissions.Pe
                     if (TextUtils.isEmpty(path)) {
                         return;
                     }
-                    File avatarFile = new File(path);
-                    compress(avatarFile, 70);
-                    uploadUserAvatar(avatarFile);
-                    dismissPicSelect();
-
+                    mHandler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            File avatarFile = new File(path);
+                            compress(avatarFile, 20);
+                            uploadUserAvatar(avatarFile);
+                            dismissPicSelect();
+                        }
+                    });
                     break;
                 default:
                     break;
@@ -457,7 +463,7 @@ public class UserPageActivity extends BaseActivity implements EasyPermissions.Pe
                 App.getInstance().getUserBean().setToken(""); // 清空token
                 SPUtils.getInstance(REVOLO_SP).put(Constant.USER_LOGIN_INFO, ""); // 清空登录信息
                 //清理电子围栏信息
-                if(null!=App.getInstance().getLockGeoFenceService()){
+                if (null != App.getInstance().getLockGeoFenceService()) {
                     App.getInstance().getLockGeoFenceService().clearBleDevice();
                 }
                 App.getInstance().removeRecords(null);
@@ -487,6 +493,7 @@ public class UserPageActivity extends BaseActivity implements EasyPermissions.Pe
      */
     public static void compress(File avatarFile, int quality) {
         Bitmap originBitmap = BitmapFactory.decodeFile(avatarFile.getAbsolutePath());
+        originBitmap = rotateBitmap(originBitmap, readPictureDegree(avatarFile.getAbsolutePath()));
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         originBitmap.compress(Bitmap.CompressFormat.WEBP, quality, bos);
         try {
@@ -497,6 +504,48 @@ public class UserPageActivity extends BaseActivity implements EasyPermissions.Pe
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    /**
+     * 获取图片旋转角度
+     *
+     * @param srcPath
+     * @return
+     */
+    private static int readPictureDegree(String srcPath) {
+        int degree = 0;
+        try {
+            ExifInterface exifInterface = new ExifInterface(srcPath);
+            int orientation = exifInterface.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
+            switch (orientation) {
+                case ExifInterface.ORIENTATION_ROTATE_90:
+                    degree = 90;
+                    break;
+                case ExifInterface.ORIENTATION_ROTATE_180:
+                    degree = 180;
+                    break;
+                case ExifInterface.ORIENTATION_ROTATE_270:
+                    degree = 270;
+                    break;
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return degree;
+    }
+
+    //处理图片旋转
+    private static Bitmap rotateBitmap(Bitmap bitmap, int rotate) {
+        if (bitmap == null)
+            return null;
+
+        int w = bitmap.getWidth();
+        int h = bitmap.getHeight();
+
+        // Setting post rotate to 90
+        Matrix mtx = new Matrix();
+        mtx.postRotate(rotate);
+        return Bitmap.createBitmap(bitmap, 0, 0, w, h, mtx, true);
     }
 
     private void deleteDeviceToken() {
