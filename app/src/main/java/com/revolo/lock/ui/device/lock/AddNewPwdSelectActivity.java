@@ -22,6 +22,7 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import com.blankj.utilcode.util.AdaptScreenUtils;
 import com.blankj.utilcode.util.ConvertUtils;
 import com.blankj.utilcode.util.ToastUtils;
+import com.google.gson.internal.$Gson$Preconditions;
 import com.revolo.lock.App;
 import com.revolo.lock.Constant;
 import com.revolo.lock.LocalState;
@@ -491,20 +492,18 @@ public class AddNewPwdSelectActivity extends BaseActivity {
 
     private void initTemStartDateTimeMill() {
         String nowDate = ZoneUtil.getDate(mBleDeviceLocal.getTimeZone(), System.currentTimeMillis(), "dd-MM-yyyy");
-        String startDate = ZoneUtil.getDate(mBleDeviceLocal.getTimeZone(), ZoneUtil.getTime(), "yyyy-MM-dd");
-        mTemStartDateStr = startDate;
+        mTemStartDateStr = nowDate;
         mTvStartDate.setText(nowDate.replace("-", "."));
-        String date = startDate + " 10:00:00";
-        mTemStartDateTimeMill = ZoneUtil.getTime(mBleDeviceLocal.getTimeZone(), date);
+        String date = nowDate + " 10:00:00";
+        mTemStartDateTimeMill = ZoneUtil.getTime(date);
     }
 
     private void initTemEndDateTimeMill() {
         String nowDate = ZoneUtil.getDate(mBleDeviceLocal.getTimeZone(), System.currentTimeMillis(), "dd-MM-yyyy");
-        String endDate = ZoneUtil.getDate(mBleDeviceLocal.getTimeZone(), System.currentTimeMillis(), "yyyy-MM-dd");
-        mTemEndDateStr = endDate;
+        mTemEndDateStr = nowDate;
         mTvEndDate.setText(nowDate.replace("-", "."));
-        String date = endDate + " 14:00:00";
-        mTemEndDateTimeMill = ZoneUtil.getTime(mBleDeviceLocal.getTimeZone(), date);
+        String date = nowDate + " 14:00:00";
+        mTemEndDateTimeMill = ZoneUtil.getTime(date);
     }
 
     private void showTimePicker(@IdRes int id) {
@@ -622,6 +621,7 @@ public class AddNewPwdSelectActivity extends BaseActivity {
         mDevicePwdBean.setStartTime(mTemStartDateTimeMill / 1000);
         mDevicePwdBean.setEndTime(mTemEndDateTimeMill / 1000);
         mDevicePwdBean.setAttribute(KEY_SET_ATTRIBUTE_TIME_KEY);
+        mDevicePwdBean.setCreateTime(ZoneUtil.getTime() / 1000);
         if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI || mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI_BLE) {
             publishAddPwdAttr(mBleDeviceLocal.getEsn(),
                     KEY_SET_ATTRIBUTE_TIME_KEY,
@@ -669,6 +669,7 @@ public class AddNewPwdSelectActivity extends BaseActivity {
         mDevicePwdBean.setStartTime(mScheduleStartTimeMill / 1000);
         mDevicePwdBean.setEndTime(mScheduleEndTimeMill / 1000);
         mDevicePwdBean.setAttribute(KEY_SET_ATTRIBUTE_WEEK_KEY);
+        mDevicePwdBean.setCreateTime(ZoneUtil.getTime() / 1000);
         if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI || mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI_BLE) {
             publishAddPwdAttr(mBleDeviceLocal.getEsn(),
                     KEY_SET_ATTRIBUTE_WEEK_KEY,
@@ -839,6 +840,8 @@ public class AddNewPwdSelectActivity extends BaseActivity {
         LockKeyAddBeanReq.PwdListBean pwdListBean = new LockKeyAddBeanReq.PwdListBean();
         pwdListBean.setNum(devicePwdBean.getPwdNum());
         pwdListBean.setNickName(devicePwdBean.getPwdNum() + "");
+        Timber.e("create time:"+devicePwdBean.getCreateTime());
+        pwdListBean.setCreateTime(devicePwdBean.getCreateTime());
         pwdListBean.setPwdType(1);
         if (devicePwdBean.getAttribute() == BleCommandState.KEY_SET_ATTRIBUTE_ALWAYS) {
             pwdListBean.setType(BleCommandState.KEY_SET_ATTRIBUTE_ALWAYS);
