@@ -1,6 +1,5 @@
 package com.revolo.lock.ui.mine;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.Gravity;
@@ -11,12 +10,10 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.blankj.utilcode.util.ToastUtils;
 import com.revolo.lock.App;
-import com.revolo.lock.Constant;
 import com.revolo.lock.R;
 import com.revolo.lock.adapter.MessageListAdapter;
 import com.revolo.lock.base.BaseActivity;
@@ -24,10 +21,10 @@ import com.revolo.lock.bean.request.AcceptShareBeanReq;
 import com.revolo.lock.bean.request.DeleteSystemMessageReq;
 import com.revolo.lock.bean.request.SystemMessageListReq;
 import com.revolo.lock.bean.respone.AcceptShareBeanRsp;
+import com.revolo.lock.bean.respone.DelInvalidShareBeanRsp;
 import com.revolo.lock.bean.respone.SystemMessageListBeanRsp;
 import com.revolo.lock.net.HttpRequest;
 import com.revolo.lock.net.ObservableDecorator;
-import com.revolo.lock.ui.ShareDeviceActivity;
 import com.revolo.lock.ui.view.SmartClassicsHeaderView;
 import com.revolo.lock.widget.SlideRecyclerView;
 import com.scwang.smart.refresh.layout.SmartRefreshLayout;
@@ -203,23 +200,19 @@ public class MessageListActivity extends BaseActivity {
             Timber.e("updateLockInfoToService token is empty");
             return;
         }
-        if (App.getInstance().getUserBean() == null) {
-            return;
-        }
 
         DeleteSystemMessageReq deleteSystemMessageReq = new DeleteSystemMessageReq();
         deleteSystemMessageReq.setMid(messageId);
-        deleteSystemMessageReq.setUid(App.getInstance().getUserBean().getUid());
-        Observable<SystemMessageListBeanRsp> stringObservable = HttpRequest.getInstance().deleteSystemMessage(token, deleteSystemMessageReq);
-        ObservableDecorator.decorate(stringObservable).safeSubscribe(new Observer<SystemMessageListBeanRsp>() {
+        Observable<DelInvalidShareBeanRsp> stringObservable = HttpRequest.getInstance().deleteSystemMessage(token, deleteSystemMessageReq);
+        ObservableDecorator.decorate(stringObservable).safeSubscribe(new Observer<DelInvalidShareBeanRsp>() {
             @Override
             public void onSubscribe(@io.reactivex.annotations.NonNull Disposable d) {
 
             }
 
             @Override
-            public void onNext(@io.reactivex.annotations.NonNull SystemMessageListBeanRsp beanRsp) {
-                if (beanRsp != null && beanRsp.getCode().equals("200")) {
+            public void onNext(@io.reactivex.annotations.NonNull DelInvalidShareBeanRsp beanRsp) {
+                if (beanRsp.getCode().equals("200")) {
                     getSystemMessageList();
                 }
             }

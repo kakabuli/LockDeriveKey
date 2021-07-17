@@ -47,6 +47,15 @@ public class UserByMailExistsBeanRsp {
     public class DataBean {
 
         private boolean isExsist;
+        private String uid;
+
+        public String getUid() {
+            return uid;
+        }
+
+        public void setUid(String uid) {
+            this.uid = uid;
+        }
 
         public boolean isExsist() {
             return isExsist;

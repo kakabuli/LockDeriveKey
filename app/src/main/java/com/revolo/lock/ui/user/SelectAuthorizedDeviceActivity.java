@@ -45,7 +45,7 @@ public class SelectAuthorizedDeviceActivity extends BaseActivity {
     private BleDeviceLocal mBleDeviceLocal;
     private TextView tvUserName, tvSn, tvUserTip;
     private ImageView mIvGuest, mIvFamily;
-    private String mShareUserMail, mShareUserFirstName, mShareUserLastName;
+    private String mShareUserMail, mShareUserFirstName, mShareUserLastName, uid;
 
     // TODO: 2021/3/8 后续写成enum
     private int mCurrentUserType = 1;                // 1 Family  2 Guest
@@ -92,6 +92,7 @@ public class SelectAuthorizedDeviceActivity extends BaseActivity {
         mShareUserMail = getIntent().getStringExtra(Constant.SHARE_USER_MAIL);
         mShareUserFirstName = getIntent().getStringExtra(Constant.SHARE_USER_FIRST_NAME);
         mShareUserLastName = getIntent().getStringExtra(Constant.SHARE_USER_LAST_NAME);
+        uid = getIntent().getStringExtra(Constant.SHARE_USER_DATA);
     }
 
     @Override
@@ -129,9 +130,9 @@ public class SelectAuthorizedDeviceActivity extends BaseActivity {
             Timber.e("share App.getInstance().getUserBean() == null");
             return;
         }
-        String uid = App.getInstance().getUserBean().getUid();
-        if (TextUtils.isEmpty(uid)) {
-            Timber.e("share uid is empty");
+        String adminUid = App.getInstance().getUserBean().getUid();
+        if (TextUtils.isEmpty(adminUid)) {
+            Timber.e("share adminUid is empty");
             return;
         }
         String token = App.getInstance().getUserBean().getToken();
@@ -139,10 +140,15 @@ public class SelectAuthorizedDeviceActivity extends BaseActivity {
             Timber.e("share token is empty");
             return;
         }
+        if (TextUtils.isEmpty(uid)) {
+            Timber.e("share uid is empty");
+            return;
+        }
         GainKeyBeanReq req = new GainKeyBeanReq();
         req.setDeviceSN(mBleDeviceLocal.getEsn());
         req.setShareUserType(mCurrentUserType);
-        req.setAdminUid(uid);
+        req.setAdminUid(adminUid);
+        req.setUid(uid);
         req.setFirstName(mShareUserFirstName);
         req.setLastName(mShareUserLastName);
         req.setShareAccount(mShareUserMail);

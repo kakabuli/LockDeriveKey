@@ -482,7 +482,7 @@ public class HttpRequest {
         return service.systemMessageList(token, req);
     }
 
-    public Observable<SystemMessageListBeanRsp> deleteSystemMessage(String token, DeleteSystemMessageReq req) {
+    public Observable<DelInvalidShareBeanRsp> deleteSystemMessage(String token, DeleteSystemMessageReq req) {
         return service.systemMessageDelete(token, req);
     }
 

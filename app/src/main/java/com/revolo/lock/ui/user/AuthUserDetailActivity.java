@@ -80,6 +80,7 @@ public class AuthUserDetailActivity extends BaseActivity {
                 .setRight(R.drawable.ic_home_icon_add, v -> {
                     Intent intent = new Intent(AuthUserDetailActivity.this, AddDeviceForSharedUserActivity.class);
                     intent.putExtra(Constant.SHARE_USER_MAIL, mShareUser.getUserMail());
+                    intent.putExtra(Constant.SHARE_USER_DATA, mShareUser.getShareUid());
                     intent.putExtra(Constant.SHARE_USER_FIRST_NAME, mShareUser.getFirstName());
                     intent.putExtra(Constant.SHARE_USER_LAST_NAME, mShareUser.getLastName());
                     startActivity(intent);

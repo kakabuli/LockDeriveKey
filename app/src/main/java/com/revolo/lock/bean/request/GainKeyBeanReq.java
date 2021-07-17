@@ -20,10 +20,19 @@ public class GainKeyBeanReq {
 
     private String adminUid;             // 用户uid
     private String deviceSN;        // 设备SN
+    private String uid;
     private int shareUserType;      // 分享用户类型。1为 family 用户，2为 guest 用户
     private String shareAccount;   // 用户昵称
     private String firstName;
     private String lastName;
+
+    public String getUid() {
+        return uid;
+    }
+
+    public void setUid(String uid) {
+        this.uid = uid;
+    }
 
     public String getAdminUid() {
         return adminUid;

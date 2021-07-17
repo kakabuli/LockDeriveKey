@@ -37,14 +37,12 @@ public class InviteUsersMailActivity extends BaseActivity {
     private EditText mEtEmail, mEtFirstName, mEtLastName;
     private boolean isNext = false;
     private String mail;
+    private String uid;
     private BleDeviceLocal mBleDeviceLocal;
 
     @Override
     public void initData(@Nullable Bundle bundle) {
         mBleDeviceLocal = App.getInstance().getBleDeviceLocal();
-        if (mBleDeviceLocal == null) {
-            finish();
-        }
     }
 
     @Override
@@ -81,6 +79,7 @@ public class InviteUsersMailActivity extends BaseActivity {
                     intent.putExtra(Constant.SHARE_USER_MAIL, mail);
                     intent.putExtra(Constant.SHARE_USER_FIRST_NAME, firstName);
                     intent.putExtra(Constant.SHARE_USER_LAST_NAME, lastName);
+                    intent.putExtra(Constant.SHARE_USER_DATA, uid);
                     startActivity(intent);
                 } else {
                     Intent intent = new Intent(InviteUsersMailActivity.this, SelectAuthorizedDeviceActivity.class);
@@ -88,6 +87,7 @@ public class InviteUsersMailActivity extends BaseActivity {
                     intent.putExtra(Constant.SHARE_USER_MAIL, mail);
                     intent.putExtra(Constant.SHARE_USER_FIRST_NAME, firstName);
                     intent.putExtra(Constant.SHARE_USER_LAST_NAME, lastName);
+                    intent.putExtra(Constant.SHARE_USER_DATA, uid);
                     startActivity(intent);
                 }
             } else {
@@ -147,6 +147,10 @@ public class InviteUsersMailActivity extends BaseActivity {
                         isNext = false;
                     } else {
                         isNext = true;
+                    }
+                    UserByMailExistsBeanRsp.DataBean data = userByMailExistsBeanRsp.getData();
+                    if (data != null) {
+                        uid = data.getUid();
                     }
                 }
             }

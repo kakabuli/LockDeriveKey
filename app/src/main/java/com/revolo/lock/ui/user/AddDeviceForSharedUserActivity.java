@@ -32,6 +32,7 @@ public class AddDeviceForSharedUserActivity extends BaseActivity {
 
     private AuthUserDeviceAdapter mAuthUserDeviceAdapter;
     private String mShareUserMail, mShareFirstNameText, mShareLastNameText;
+    private String uid;
 
     @Override
     public void initData(@Nullable Bundle bundle) {
@@ -49,6 +50,7 @@ public class AddDeviceForSharedUserActivity extends BaseActivity {
         mShareUserMail = getIntent().getStringExtra(Constant.SHARE_USER_MAIL);
         mShareFirstNameText = getIntent().getStringExtra(Constant.SHARE_USER_FIRST_NAME);
         mShareLastNameText = getIntent().getStringExtra(Constant.SHARE_USER_LAST_NAME);
+        uid = getIntent().getStringExtra(Constant.SHARE_USER_DATA);
         RecyclerView rvDevice = findViewById(R.id.rvDevice);
         mAuthUserDeviceAdapter = new AuthUserDeviceAdapter(R.layout.item_auth_user_device_rv);
         rvDevice.setLayoutManager(new LinearLayoutManager(this));
@@ -59,6 +61,7 @@ public class AddDeviceForSharedUserActivity extends BaseActivity {
             Intent intent = new Intent(AddDeviceForSharedUserActivity.this, SelectAuthorizedDeviceActivity.class);
             intent.putExtra(Constant.LOCK_DETAIL, mAuthUserDeviceAdapter.getItem(position));
             intent.putExtra(Constant.SHARE_USER_MAIL, mShareUserMail);
+            intent.putExtra(Constant.SHARE_USER_DATA, uid);
             intent.putExtra(Constant.SHARE_USER_FIRST_NAME, mShareFirstNameText);
             intent.putExtra(Constant.SHARE_USER_LAST_NAME, mShareLastNameText);
             startActivity(intent);
