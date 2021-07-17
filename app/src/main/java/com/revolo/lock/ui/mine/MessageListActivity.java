@@ -84,18 +84,9 @@ public class MessageListActivity extends BaseActivity {
         rvMessage.getItemAnimator().setMoveDuration(300);
         rvMessage.setLayoutManager(new LinearLayoutManager(this));
         mMessageListAdapter = new MessageListAdapter(R.layout.item_message_rv);
-        mMessageListAdapter.setOnItemClickListener((adapter, view, position) -> {
-//            ConstraintLayout constraintLayout = view.findViewById(R.id.cl_message);
-//            if (constraintLayout != null) {
-//                if (constraintLayout.getVisibility() == View.GONE) {
-//                    constraintLayout.setVisibility(View.VISIBLE);
-//                } else {
-//                    constraintLayout.setVisibility(View.GONE);
-//                }
-//            }
-//            SystemMessageListBeanRsp.DataBean dataBean = (SystemMessageListBeanRsp.DataBean) adapter.getItem(position);
-//            if (dataBean != null)
-//                startActivity(new Intent(MessageListActivity.this, MessageDetailActivity.class).putExtra(Constant.MESSAGE_DETAIL, dataBean));
+        mMessageListAdapter.setOnItemChildClickListener((adapter, view, position) -> {
+            // @TODO 点击接收邀请
+            SystemMessageListBeanRsp.DataBean dataBean = (SystemMessageListBeanRsp.DataBean) adapter.getItem(position);
         });
         rvMessage.setAdapter(mMessageListAdapter);
         mMessageListAdapter.setOnDeleteListener(dataBean -> {
@@ -113,12 +104,13 @@ public class MessageListActivity extends BaseActivity {
             page = 1;
             getSystemMessageList();
         });
+
+        getSystemMessageList();
     }
 
     @Override
     public void doBusiness() {
 
-        getSystemMessageList();
     }
 
     @Override

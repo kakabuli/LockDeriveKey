@@ -1,5 +1,11 @@
 package com.revolo.lock.adapter;
 
+import android.text.TextUtils;
+import android.widget.ImageView;
+
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.request.RequestOptions;
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.chad.library.adapter.base.viewholder.BaseViewHolder;
 import com.revolo.lock.R;
@@ -21,12 +27,18 @@ public class UserListAdapter extends BaseQuickAdapter<GetAllSharedUserFromAdminU
 
     @Override
     protected void convert(@NotNull BaseViewHolder baseViewHolder, GetAllSharedUserFromAdminUserBeanRsp.DataBean bean) {
-        if(bean != null) {
-            baseViewHolder.setText(R.id.tvName, bean.getUserNickname());
-            baseViewHolder.setText(R.id.tvPermission,
-                    bean.getShareUserType()==1?
-                            getContext().getString(R.string.family)
-                            :getContext().getString(R.string.guest));
+        if (bean != null) {
+            baseViewHolder.setText(R.id.tvName, (TextUtils.isEmpty(bean.getFirstName()) ? "" : bean.getFirstName()) + (TextUtils.isEmpty(bean.getLastName()) ? "" : bean.getLastName()));
+            baseViewHolder.setText(R.id.tvPermission, TextUtils.isEmpty(bean.getDeviceCount()) ? "0" : bean.getDeviceCount() + " devices");
+
+            RequestOptions requestOptions = RequestOptions.circleCropTransform()
+                    .diskCacheStrategy(DiskCacheStrategy.AUTOMATIC)        //缓存
+                    .skipMemoryCache(false)
+                    .error(R.drawable.home_user_authorization_user);
+            Glide.with(getContext())
+                    .load(TextUtils.isEmpty(bean.getAvatarPath()) ? "" : bean.getAvatarPath())
+                    .apply(requestOptions)
+                    .into((ImageView) baseViewHolder.getView(R.id.ivAvatar));
         }
     }
 }

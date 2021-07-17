@@ -8,28 +8,22 @@ package com.revolo.lock.bean.request;
  */
 public class GetDevicesFromUidAndSharedUidBeanReq {
 
+    private String adminUid;           // 管理员ID
+    private String shareUId;       // 分享用户ID
 
-    /**
-     * uid : 5c4fe492dc93897aa7d8600b
-     * shareId : 5c4fe492dc93897aa7d8123456
-     */
-
-    private String uid;           // 管理员ID
-    private String shareId;       // 分享用户ID
-
-    public String getUid() {
-        return uid;
+    public String getAdminUid() {
+        return adminUid;
     }
 
-    public void setUid(String uid) {
-        this.uid = uid;
+    public void setAdminUid(String adminUid) {
+        this.adminUid = adminUid;
     }
 
-    public String getShareId() {
-        return shareId;
+    public String getShareUId() {
+        return shareUId;
     }
 
-    public void setShareId(String shareId) {
-        this.shareId = shareId;
+    public void setShareUId(String shareUId) {
+        this.shareUId = shareUId;
     }
 }

@@ -1,5 +1,7 @@
 package com.revolo.lock.adapter;
 
+import android.text.TextUtils;
+import android.view.View;
 import android.widget.TextView;
 
 import com.chad.library.adapter.base.BaseQuickAdapter;
@@ -33,9 +35,12 @@ public class MessageListAdapter extends BaseQuickAdapter<SystemMessageListBeanRs
     @Override
     protected void convert(@NotNull BaseViewHolder holder, SystemMessageListBeanRsp.DataBean dataBean) {
         if (dataBean != null) {
-            holder.setText(R.id.tvMessageTitle, dataBean.getAlertTitle());
-            holder.setText(R.id.tvTime, dataBean.getPushAt());
-            holder.setText(R.id.tv_message_answer, dataBean.getAlertBody());
+            holder.setText(R.id.tvMessageTitle, TextUtils.isEmpty(dataBean.getAlertTitle()) ? "" : dataBean.getAlertTitle());
+            holder.setText(R.id.tvTime, TextUtils.isEmpty(dataBean.getPushAt()) ? "" : dataBean.getPushAt());
+            holder.setText(R.id.tv_message_answer, TextUtils.isEmpty(dataBean.getAlertBody()) ? "" : dataBean.getAlertBody());
+            addChildClickViewIds(R.id.tvAccepting);
+            // TODO 分享的消息类型 等服务器定
+            holder.setVisible(R.id.tvAccepting, dataBean.getMsgType().equals("4"));
             TextView textView = holder.getView(R.id.tv_delete);
             textView.setOnClickListener(v -> {
                 if (mOnDeleteListener != null) {

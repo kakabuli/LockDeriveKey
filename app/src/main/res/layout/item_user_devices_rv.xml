@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="127pt"
-    android:background="@color/white"
-    android:layout_marginTop="5pt">
+    android:layout_marginTop="5pt"
+    android:background="@color/white">
 
     <TextView
         android:id="@+id/textView3"
@@ -26,9 +25,9 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="16pt"
         android:layout_marginTop="30pt"
+        android:text="@string/device_permissions"
         android:textColor="@color/c333333"
         android:textSize="15pt"
-        android:text="@string/device_permissions"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView3" />
 
@@ -37,8 +36,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/permission_family"
-        android:textSize="14pt"
         android:textColor="@color/c666666"
+        android:textSize="14pt"
         app:layout_constraintBottom_toBottomOf="@+id/textView47"
         app:layout_constraintStart_toEndOf="@+id/textView47"
         app:layout_constraintTop_toTopOf="@+id/textView47" />
@@ -49,10 +48,10 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="44pt"
         android:layout_marginEnd="15pt"
+        android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tvDeviceName"
-        app:srcCompat="@drawable/ic_icon_wait"
-        android:visibility="gone"/>
+        app:srcCompat="@drawable/ic_icon_wait" />
 
     <TextView
         android:id="@+id/tvDeviceName"
@@ -70,11 +69,11 @@
         android:id="@+id/tvDetail"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="5pt"
         android:layout_marginStart="15pt"
-        android:textSize="14pt"
-        android:textColor="@color/c666666"
+        android:layout_marginTop="5pt"
         android:text="@string/unable_to_add_user_and_password"
+        android:textColor="@color/c666666"
+        android:textSize="14pt"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView47" />
 
@@ -87,4 +86,17 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tvDeviceName"
         app:srcCompat="@drawable/ic_icon_more" />
+
+    <TextView
+        android:id="@+id/tvReInvite"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="44pt"
+        android:layout_marginEnd="15pt"
+        android:padding="4pt"
+        android:text="Re invite"
+        android:textColor="@color/c666666"
+        android:textSize="14pt"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tvDeviceName" />
 </androidx.constraintlayout.widget.ConstraintLayout>

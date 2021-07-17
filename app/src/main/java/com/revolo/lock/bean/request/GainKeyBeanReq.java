@@ -18,21 +18,19 @@ public class GainKeyBeanReq {
      * endTime : 2019-12-12 15:00:00
      */
 
-    private String uid;             // 用户uid
+    private String adminUid;             // 用户uid
     private String deviceSN;        // 设备SN
     private int shareUserType;      // 分享用户类型。1为 family 用户，2为 guest 用户
-    private int openPurview;        // 分享权限类型。1：一次性开锁，2：时间段开锁，3：无限开锁
-    private long startTime;         // 开始时间
-    private long endTime;           // 结束结束
-    private String shareNickName;   // 用户昵称
+    private String shareAccount;   // 用户昵称
+    private String firstName;
+    private String lastName;
 
-
-    public String getUid() {
-        return uid;
+    public String getAdminUid() {
+        return adminUid;
     }
 
-    public void setUid(String uid) {
-        this.uid = uid;
+    public void setAdminUid(String adminUid) {
+        this.adminUid = adminUid;
     }
 
     public String getDeviceSN() {
@@ -51,36 +49,27 @@ public class GainKeyBeanReq {
         this.shareUserType = shareUserType;
     }
 
-    public int getOpenPurview() {
-        return openPurview;
+    public String getShareAccount() {
+        return shareAccount;
     }
 
-    public void setOpenPurview(int openPurview) {
-        this.openPurview = openPurview;
+    public void setShareAccount(String shareAccount) {
+        this.shareAccount = shareAccount;
     }
 
-    public long getStartTime() {
-        return startTime;
+    public String getFirstName() {
+        return firstName;
     }
 
-    public void setStartTime(long startTime) {
-        this.startTime = startTime;
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
     }
 
-    public long getEndTime() {
-        return endTime;
+    public String getLastName() {
+        return lastName;
     }
 
-    public void setEndTime(long endTime) {
-        this.endTime = endTime;
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
     }
-
-    public String getShareNickName() {
-        return shareNickName;
-    }
-
-    public void setShareNickName(String shareNickName) {
-        this.shareNickName = shareNickName;
-    }
-
 }

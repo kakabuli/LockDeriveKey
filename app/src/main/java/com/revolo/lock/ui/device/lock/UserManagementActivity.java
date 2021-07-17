@@ -13,8 +13,6 @@ import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.chad.library.adapter.base.BaseQuickAdapter;
-import com.chad.library.adapter.base.listener.OnItemClickListener;
 import com.revolo.lock.App;
 import com.revolo.lock.Constant;
 import com.revolo.lock.R;
@@ -25,6 +23,7 @@ import com.revolo.lock.bean.respone.GetAllSharedUserFromLockBeanRsp;
 import com.revolo.lock.net.HttpRequest;
 import com.revolo.lock.net.ObservableDecorator;
 import com.revolo.lock.room.entity.BleDeviceLocal;
+import com.revolo.lock.ui.user.InviteUsersMailActivity;
 
 import io.reactivex.Observable;
 import io.reactivex.Observer;
@@ -63,29 +62,26 @@ public class UserManagementActivity extends BaseActivity {
         useCommonTitleBar(getString(R.string.title_user_management))
                 .setRight(R.drawable.ic_home_icon_add,
                         v -> {
-                            Intent intent = new Intent(this, AddNewShareUserInputNameActivity.class);
+                            Intent intent = new Intent(this, InviteUsersMailActivity.class);
                             intent.putExtra(Constant.LOCK_ESN, mBleDeviceLocal.getEsn());
                             startActivity(intent);
                         });
         mRvSharedUser = findViewById(R.id.rvSharedUser);
         mLinearLayout = findViewById(R.id.linearLayout);
         mSharedUserListAdapter = new SharedUserListAdapter(R.layout.item_shared_user_rv);
-        mSharedUserListAdapter.setOnItemClickListener(new OnItemClickListener() {
-            @Override
-            public void onItemClick(@NonNull BaseQuickAdapter<?, ?> adapter, @NonNull View view, int position) {
-                if (position < 0) {
-                    Timber.e("position: %1d", position);
-                    return;
-                }
-                int shareType = mSharedUserListAdapter.getItem(position).getShareType();
-                if (shareType == 3 || shareType == 4 || shareType == 5) {
-                    return;
-                }
-                Intent intent = new Intent(UserManagementActivity.this, SharedUserDetailActivity.class);
-                intent.putExtra(Constant.PRE_A, Constant.USER_MANAGEMENT_A);
-                intent.putExtra(Constant.SHARED_USER_DATA, mSharedUserListAdapter.getItem(position));
-                startActivity(intent);
+        mSharedUserListAdapter.setOnItemClickListener((adapter, view, position) -> {
+            if (position < 0) {
+                Timber.e("position: %1d", position);
+                return;
             }
+            int shareType = mSharedUserListAdapter.getItem(position).getShareUserType();
+            if (shareType == 3 || shareType == 4 || shareType == 5) {
+                return;
+            }
+            Intent intent = new Intent(UserManagementActivity.this, SharedUserDetailActivity.class);
+            intent.putExtra(Constant.PRE_A, Constant.USER_MANAGEMENT_A);
+            intent.putExtra(Constant.SHARE_USER_DEVICE_DATA, mSharedUserListAdapter.getItem(position));
+            startActivity(intent);
         });
         mRvSharedUser.setLayoutManager(new LinearLayoutManager(this));
         mRvSharedUser.setAdapter(mSharedUserListAdapter);

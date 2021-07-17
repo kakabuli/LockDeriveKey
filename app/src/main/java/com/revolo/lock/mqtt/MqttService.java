@@ -73,8 +73,9 @@ public class MqttService extends Service {
     }
 
 
-    private  String userId;
-    private  String token;
+    private String userId;
+    private String token;
+
     @Override
     public void onCreate() {
         super.onCreate();
@@ -115,10 +116,10 @@ public class MqttService extends Service {
         //允许同时发送几条消息（未收到broker确认信息）
         connOpts.setMaxInflight(MQttConstant.MQTT_MAX_INFLIGHT);
         //用户的id,和token
-        if (!TextUtils.isEmpty(user_id)&&!TextUtils.isEmpty(user_token)) {
+        if (!TextUtils.isEmpty(user_id) && !TextUtils.isEmpty(user_token)) {
             connOpts.setUserName(user_id);
             connOpts.setPassword(user_token.toCharArray());
-            Timber.d("Mqtt设置token"+user_token+"     connopt"+connOpts.getPassword());
+            Timber.d("Mqtt设置token" + user_token + "     connopt" + connOpts.getPassword());
         }
         return connOpts;
     }
@@ -138,15 +139,15 @@ public class MqttService extends Service {
 
     //连接
     public void mqttConnection() {
-        if(App.getInstance().getUserBean() == null) {
+        if (App.getInstance().getUserBean() == null) {
             return;
         }
-        userId= App.getInstance().getUserBean().getUid();
-        token= App.getInstance().getUserBean().getToken();
-        Timber.d("userId-->"+userId+" ----token--->" + token);
+        userId = App.getInstance().getUserBean().getUid();
+        token = App.getInstance().getUserBean().getToken();
+        Timber.d("userId-->" + userId + " ----token--->" + token);
         //TODO: 2019/4/25  此处为空   应该重新读取一下本地文件，延时100ms吧，如果再读取不到？直接退出   mqtt不能不登录的  不登录  这个APP就废了
         if (TextUtils.isEmpty(userId) || TextUtils.isEmpty(token)) {
-           return;
+            return;
         }
         //
 
@@ -160,11 +161,10 @@ public class MqttService extends Service {
                 Timber.d("mqttConnection  mqtt已连接");
                 return;
             }
-        }catch (Exception e){
+        } catch (Exception e) {
             Timber.e("获取客户端连接状况失败   " + e.getMessage());
             return;
         }
-
 
 
         MqttConnectOptions mqttConnectOptions = connectOption(userId, token);
@@ -179,8 +179,8 @@ public class MqttService extends Service {
                 disconnectedBufferOptions.setBufferSize(100);
                 disconnectedBufferOptions.setPersistBuffer(false);
                 disconnectedBufferOptions.setDeleteOldestMessages(false);
-                if (mqttClient!=null){
-                    if (disconnectedBufferOptions!=null){
+                if (mqttClient != null) {
+                    if (disconnectedBufferOptions != null) {
                         mqttClient.setBufferOpts(disconnectedBufferOptions);
                     }
                     //连接成功之后订阅主题
@@ -200,12 +200,12 @@ public class MqttService extends Service {
                 Timber.d("connectionLost 连接丢失需要重连");
                 String userId = App.getInstance().getUserBean().getUid();
                 String userToken = App.getInstance().getUserBean().getUid();
-                Timber.d(userId+"用户id"+"用户tonken"+userToken);
+                Timber.d(userId + "用户id" + "用户tonken" + userToken);
                 if (TextUtils.isEmpty(userId) || TextUtils.isEmpty(userToken)) {
                     Timber.d("connectionLost 用户id或者token为空无法重连");
                     return;
                 }
-               // App.getInstance().getMQttService().mqttConnection();
+                // App.getInstance().getMQttService().mqttConnection();
 
 
             }
@@ -218,27 +218,27 @@ public class MqttService extends Service {
                 }
                 //收到消息
                 String payload = new String(message.getPayload());
-                LogUtils.d("收到MQtt消息" +  payload + "---topic" + topic + "  messageID  " + message.getId());
+                LogUtils.d("收到MQtt消息" + payload + "---topic" + topic + "  messageID  " + message.getId());
                 //String func, String topic, String payload, MqttMessage mqttMessage
                 JSONObject jsonObject = new JSONObject(payload);
                 int messageId = -1;
                 String returnCode = "";
                 String msgtype = "";
                 try {
-                    if (payload.contains("returnCode")){
+                    if (payload.contains("returnCode")) {
                         returnCode = jsonObject.getString("returnCode");
                     }
 
-                    if (payload.contains("msgId")){
+                    if (payload.contains("msgId")) {
                         messageId = jsonObject.getInt("msgId");
                     }
 
-                    if (messageId == -1){
-                        if (payload.contains("msgid")){
+                    if (messageId == -1) {
+                        if (payload.contains("msgid")) {
                             messageId = jsonObject.getInt("msgid");
                         }
                     }
-                    if (payload.contains("msgtype")){
+                    if (payload.contains("msgtype")) {
                         msgtype = jsonObject.getString("msgtype");
                     }
                 } catch (JSONException e) {
@@ -250,7 +250,7 @@ public class MqttService extends Service {
 
                 onReceiverDataObservable.onNext(mqttData);
 
-                if(MQttConstant.WF_EVENT.equals(mqttData.getFunc())) {
+                if (MQttConstant.WF_EVENT.equals(mqttData.getFunc())) {
                     notifyEventObservable.onNext(mqttData);
                 }
 
@@ -274,10 +274,11 @@ public class MqttService extends Service {
                     //TODO:中文下的连接返回，需测试一下，在英文下返回的连接异常
                     //可能出现无权连接（5）---用户在其他手机登录
                     if (reconnectionNum > 0) {
-                        Timber.d("mqtt连接" + " 连接失败1     " + exception.toString()+"token是"+token+"用户名"+userId);
+                        Timber.d("mqtt连接" + " 连接失败1     " + exception.toString() + "token是" + token + "用户名" + userId);
                         MqttExceptionHandle.onFail(MqttExceptionHandle.ConnectException, asyncActionToken, exception);
                         if (exception.toString().endsWith(" (5)")) {
                             // TODO: 2019/4/1  该用户在其他手机登录(清除所有数据）---暂时未处理
+
                             if (mqttClient != null) {
                                 mqttDisconnect();
                             }
@@ -285,7 +286,7 @@ public class MqttService extends Service {
                         }
                         if (exception.toString().endsWith(" (4)")) {
                             Timber.d("mqtt的用户名或密码错误");
-                            if (mqttClient!=null){
+                            if (mqttClient != null) {
                                 mqttDisconnect();
                             }
                             return;
@@ -312,7 +313,7 @@ public class MqttService extends Service {
                         }
                         if ("错误的用户名或密码 (4)".equals(exception.toString())) {
                             Timber.d("mqtt的用户名或密码错误");
-                            if (mqttClient!=null){
+                            if (mqttClient != null) {
                                 mqttDisconnect();
                             }
                             return;
@@ -329,10 +330,9 @@ public class MqttService extends Service {
     }
 
 
-
     //订阅
     private void mqttSubscribe(MqttAndroidClient mqttClient, String topic, int qos) {
-        Timber.d("订阅    "+topic +"   "+(mqttClient != null));
+        Timber.d("订阅    " + topic + "   " + (mqttClient != null));
         try {
             if (mqttClient != null) {
                 if (!TextUtils.isEmpty(topic) && mqttClient.isConnected()) {
@@ -341,7 +341,7 @@ public class MqttService extends Service {
                                 @Override
                                 public void onSuccess(IMqttToken asyncActionToken) {
                                     mSubscribe.onNext(true);
-                                    Timber.d("mqttSubscribe "+ "订阅成功");
+                                    Timber.d("mqttSubscribe " + "订阅成功");
                                     //TODO:订阅成功，立即拿设备列表,此时拿设备列表，从mqtt转成以http方式
 
                                 }
@@ -349,7 +349,7 @@ public class MqttService extends Service {
                                 @Override
                                 public void onFailure(IMqttToken asyncActionToken, Throwable exception) {
                                     mSubscribe.onNext(false);
-                                    Timber.d("mqttSubscribe "+ "订阅失败");
+                                    Timber.d("mqttSubscribe " + "订阅失败");
                                     MqttExceptionHandle.onFail(MqttExceptionHandle.SubscribeException, asyncActionToken, exception);
                                 }
                             });
@@ -368,8 +368,8 @@ public class MqttService extends Service {
     //发布
     public Observable<MqttData> mqttPublish(String topic, MqttMessage mqttMessage) {
         try {
-            if (mqttClient!=null&&mqttClient.isConnected()) {
-                Timber.d("发布mqtt消息 "+ "topic: "+topic+"  mqttMessage: "+mqttMessage.toString());
+            if (mqttClient != null && mqttClient.isConnected()) {
+                Timber.d("发布mqtt消息 " + "topic: " + topic + "  mqttMessage: " + mqttMessage.toString());
                 mqttClient.publish(topic, mqttMessage, null, new IMqttActionListener() {
                     @Override
                     public void onSuccess(IMqttToken asyncActionToken) {
@@ -384,7 +384,7 @@ public class MqttService extends Service {
                         publishObservable.onNext(new PublishResult(false, asyncActionToken, mqttMessage));
                     }
                 });
-            }else{
+            } else {
                 mqttConnection();
             }
         } catch (MqttException e) {
@@ -395,13 +395,13 @@ public class MqttService extends Service {
 
     //mqtt先断开，后退出http
     public void mqttDisconnect() {
-        String token= App.getInstance().getUserBean().getUid();
+        String token = App.getInstance().getUserBean().getUid();
         reconnectionNum = 10;
         if (mqttClient == null) {
             Timber.d("mqttClient为空");
             return;
         }
-        if (TextUtils.isEmpty(token)){
+        if (TextUtils.isEmpty(token)) {
             return;
         }
 
@@ -415,7 +415,7 @@ public class MqttService extends Service {
                         mqttClient.unregisterResources();
                         mqttClient = null;
                         App.getInstance().tokenInvalid(true);
-                        Timber.d("mqttDisconnect "+ "断开连接成功");
+                        Timber.d("mqttDisconnect " + "断开连接成功");
                         disconnectObservable.onNext(true);
                     }
 
@@ -430,23 +430,23 @@ public class MqttService extends Service {
             }
         } else {
             //被挤出
-                Timber.d("正在断开连接被挤出");
-                disconnectObservable.onNext(true);
-                mqttClient.unregisterResources();
-                mqttClient = null;
-                App.getInstance().tokenInvalid(true);
+            Timber.d("正在断开连接被挤出");
+            disconnectObservable.onNext(true);
+            mqttClient.unregisterResources();
+            mqttClient = null;
+            App.getInstance().tokenInvalid(true);
         }
     }
 
     //http退出，mqtt断开
-    public void httpMqttDisconnect(){
-        String token= App.getInstance().getUserBean().getUid();
+    public void httpMqttDisconnect() {
+        String token = App.getInstance().getUserBean().getUid();
         reconnectionNum = 10;
         if (mqttClient == null) {
             Timber.d("mqttClient为空");
             return;
         }
-        if (TextUtils.isEmpty(token)){
+        if (TextUtils.isEmpty(token)) {
             return;
         }
 
@@ -459,7 +459,7 @@ public class MqttService extends Service {
                         Timber.d("正在断开连接正常情况");
                         mqttClient.unregisterResources();
                         mqttClient = null;
-                        Timber.d("mqttDisconnect "+"断开连接成功");
+                        Timber.d("mqttDisconnect " + "断开连接成功");
                         disconnectObservable.onNext(true);
                     }
 

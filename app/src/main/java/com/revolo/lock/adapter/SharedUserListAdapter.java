@@ -27,15 +27,15 @@ public class SharedUserListAdapter extends BaseQuickAdapter<GetAllSharedUserFrom
 
     @Override
     protected void convert(@NotNull BaseViewHolder baseViewHolder, GetAllSharedUserFromLockBeanRsp.DataBean bean) {
-        if(bean != null) {
-            baseViewHolder.setText(R.id.tvUserName, TextUtils.isEmpty(bean.getUserNickname())?"":bean.getUserNickname());
+        if (bean != null) {
+            baseViewHolder.setText(R.id.tvUserName, TextUtils.isEmpty(bean.getNickName()) ? "" : bean.getNickName());
             TextView tvPermission = baseViewHolder.getView(R.id.tvPermission);
             TextView tvUnableAddUser = baseViewHolder.getView(R.id.tvUnableAddUser);
             TextView tvUnableAddPwd = baseViewHolder.getView(R.id.tvUnableAddPwd);
             TextView tvUnlockOnly = baseViewHolder.getView(R.id.tvUnlockOnly);
             ImageView ivState = baseViewHolder.getView(R.id.ivState);
             ImageView ivMore = baseViewHolder.getView(R.id.ivMore);
-            if(bean.getShareUserType() == 1) {
+            if (bean.getShareUserType() == 1) {
                 tvPermission.setText(getContext().getString(R.string.permission_family));
                 tvUnableAddUser.setVisibility(View.VISIBLE);
                 tvUnableAddPwd.setVisibility(View.VISIBLE);
@@ -46,11 +46,11 @@ public class SharedUserListAdapter extends BaseQuickAdapter<GetAllSharedUserFrom
                 tvUnableAddPwd.setVisibility(View.GONE);
                 tvUnlockOnly.setVisibility(View.VISIBLE);
             }
-            if(bean.getShareType() == 1) {
+            if (bean.getShareUserType() == 1) {
                 ivMore.setVisibility(View.GONE);
                 ivState.setImageResource(R.drawable.ic_icon_wait);
                 ivState.setVisibility(View.VISIBLE);
-            } else if(bean.getShareType() == 3||bean.getShareType() == 4||bean.getShareType() == 5) {
+            } else if (bean.getShareUserType() == 3 || bean.getShareUserType() == 4 || bean.getShareUserType() == 5) {
                 ivMore.setVisibility(View.GONE);
                 ivState.setImageResource(R.drawable.ic_icon_invalid);
                 ivState.setVisibility(View.VISIBLE);

@@ -1,5 +1,6 @@
 package com.revolo.lock.ui.user;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -17,7 +18,6 @@ import com.revolo.lock.Constant;
 import com.revolo.lock.R;
 import com.revolo.lock.base.BaseActivity;
 import com.revolo.lock.bean.request.UpdateSharedUserNickNameBeanReq;
-import com.revolo.lock.bean.respone.GetAllSharedUserFromAdminUserBeanRsp;
 import com.revolo.lock.bean.respone.UpdateSharedUserNickNameBeanRsp;
 import com.revolo.lock.net.HttpRequest;
 import com.revolo.lock.net.ObservableDecorator;
@@ -35,17 +35,20 @@ import timber.log.Timber;
  */
 public class ChangeSharedUserNameActivity extends BaseActivity {
 
-    private GetAllSharedUserFromAdminUserBeanRsp.DataBean mSharedUserData;
-    private EditText etName;
+    private EditText etFirstName, etLastName;
+    private String mShareUserUId, mShareFirstName, mShareLastName;
 
     @Override
     public void initData(@Nullable Bundle bundle) {
         Intent intent = getIntent();
-        if(intent.hasExtra(Constant.SHARED_USER_DATA)) {
-            mSharedUserData = intent.getParcelableExtra(Constant.SHARED_USER_DATA);
+        if (intent.hasExtra(Constant.SHARE_USER_DATA)) {
+            mShareUserUId = intent.getStringExtra(Constant.SHARE_USER_DATA);
         }
-        if(mSharedUserData == null) {
-            finish();
+        if (intent.hasExtra(Constant.SHARE_USER_FIRST_NAME)) {
+            mShareFirstName = intent.getStringExtra(Constant.SHARE_USER_FIRST_NAME);
+        }
+        if (intent.hasExtra(Constant.SHARE_USER_LAST_NAME)) {
+            mShareLastName = intent.getStringExtra(Constant.SHARE_USER_LAST_NAME);
         }
     }
 
@@ -57,10 +60,16 @@ public class ChangeSharedUserNameActivity extends BaseActivity {
     @Override
     public void initView(@Nullable Bundle savedInstanceState, @Nullable View contentView) {
         useCommonTitleBar(getString(R.string.title_change_the_name));
-        etName = findViewById(R.id.etName);
-        applyDebouncingClickListener(findViewById(R.id.btnComplete));
+        etFirstName = findViewById(R.id.etFirstName);
+        etLastName = findViewById(R.id.etLastName);
+        findViewById(R.id.btnComplete).setOnClickListener(v -> {
+            updateSharedUserName();
+        });
         initLoading(getString(R.string.t_load_content_updating));
+        etFirstName.setText(TextUtils.isEmpty(mShareFirstName) ? "" : mShareFirstName);
+        etLastName.setText(TextUtils.isEmpty(mShareLastName) ? "" : mShareLastName);
     }
+
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0) {
@@ -69,6 +78,7 @@ public class ChangeSharedUserNameActivity extends BaseActivity {
         }
         return super.onKeyDown(keyCode, event);
     }
+
     @Override
     public void doBusiness() {
 
@@ -76,34 +86,41 @@ public class ChangeSharedUserNameActivity extends BaseActivity {
 
     @Override
     public void onDebouncingClick(@NonNull View view) {
-        if(view.getId() == R.id.btnComplete) {
-            updateSharedUserName();
-        }
+
     }
 
     private void updateSharedUserName() {
-        if(!checkNetConnectFail()) {
+        if (!checkNetConnectFail()) {
             return;
         }
-        String name = etName.getText().toString().trim();
-        if(TextUtils.isEmpty(name)) {
-            ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_please_input_the_new_name);
+        String firstName = etFirstName.getText().toString().trim();
+        String lastName = etLastName.getText().toString().trim();
+        if (TextUtils.isEmpty(firstName)) {
+            ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_please_input_your_first_name);
+            return;
+        }
+        if (TextUtils.isEmpty(lastName)) {
+            ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_please_input_your_last_name);
+            return;
+        }
+        if ((firstName.length() < 2 || firstName.length() > 30) || (lastName.length() < 2 || lastName.length() > 30)) {
+            ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.tip_modify_user_name_length);
+            return;
+        }
+        if (App.getInstance().getUserBean() == null) {
+            Timber.e("removeUser App.getInstance().getUserBean() == null");
             return;
         }
         String token = App.getInstance().getUserBean().getToken();
-        if(TextUtils.isEmpty(token)) {
-            Timber.e("updateSharedUserName token is empty");
-            return;
-        }
-        String uid = App.getInstance().getUserBean().getUid();
-        if(TextUtils.isEmpty(uid)) {
-            Timber.e("updateSharedUserName uid is empty");
+        if (TextUtils.isEmpty(token)) {
+            Timber.e("removeUser token is empty");
             return;
         }
         UpdateSharedUserNickNameBeanReq req = new UpdateSharedUserNickNameBeanReq();
-        req.setNickname(name);
-        req.setShareId(mSharedUserData.get_id());
-        req.setUid(uid);
+        req.setFirstName(firstName);
+        req.setLastName(lastName);
+        req.setShareUId(mShareUserUId);
+        req.setAdminUId(App.getInstance().getUserBean().getUid());
         showLoading();
         Observable<UpdateSharedUserNickNameBeanRsp> observable = HttpRequest.getInstance().updateSharedUserNickName(token, req);
         ObservableDecorator.decorate(observable).safeSubscribe(new Observer<UpdateSharedUserNickNameBeanRsp>() {
@@ -116,23 +133,27 @@ public class ChangeSharedUserNameActivity extends BaseActivity {
             public void onNext(@NonNull UpdateSharedUserNickNameBeanRsp updateSharedUserNickNameBeanRsp) {
                 dismissLoading();
                 String code = updateSharedUserNickNameBeanRsp.getCode();
-                if(TextUtils.isEmpty(code)) {
+                if (TextUtils.isEmpty(code)) {
                     Timber.e("updateSharedUserName code is empty");
                     return;
                 }
-                if(!code.equals("200")) {
-                    if(code.equals("444")) {
+                if (!code.equals("200")) {
+                    if (code.equals("444")) {
                         App.getInstance().logout(true, ChangeSharedUserNameActivity.this);
                         return;
                     }
                     String msg = updateSharedUserNickNameBeanRsp.getMsg();
-                    if(!TextUtils.isEmpty(msg)) {
+                    if (!TextUtils.isEmpty(msg)) {
                         ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(msg);
                     }
                     Timber.e("updateSharedUserName code: %1s, msg: %2s", code, msg);
                     return;
                 }
                 ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_success);
+                Intent intent = new Intent();
+                intent.putExtra(Constant.SHARE_USER_FIRST_NAME, firstName);
+                intent.putExtra(Constant.SHARE_USER_LAST_NAME, lastName);
+                setResult(Activity.RESULT_OK, intent);
                 finish();
             }
 
