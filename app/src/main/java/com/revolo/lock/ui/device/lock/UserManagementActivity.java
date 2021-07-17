@@ -64,6 +64,7 @@ public class UserManagementActivity extends BaseActivity {
                         v -> {
                             Intent intent = new Intent(this, InviteUsersMailActivity.class);
                             intent.putExtra(Constant.LOCK_ESN, mBleDeviceLocal.getEsn());
+                            intent.putExtra(Constant.PRE_A, Constant.USER_MANAGEMENT_A);
                             startActivity(intent);
                         });
         mRvSharedUser = findViewById(R.id.rvSharedUser);

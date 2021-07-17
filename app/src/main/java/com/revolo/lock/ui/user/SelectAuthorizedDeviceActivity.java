@@ -115,10 +115,10 @@ public class SelectAuthorizedDeviceActivity extends BaseActivity {
 
     private void refreshUI() {
         String name = mBleDeviceLocal.getName();
-        tvUserName.setText(TextUtils.isEmpty(name) ? "" : name);
+        tvUserName.setText((TextUtils.isEmpty(mShareUserFirstName) ? "" : mShareUserFirstName) + " " + (TextUtils.isEmpty(mShareUserLastName) ? "" : mShareUserLastName));
         String esn = mBleDeviceLocal.getEsn();
         tvSn.setText(TextUtils.isEmpty(esn) ? "" : getString(R.string.equipment_n_esn, esn));
-        tvUserTip.setText("You will invite " + mShareUserLastName + " users to use the lock");
+        tvUserTip.setText("You will invite " + name + " users to use the lock");
     }
 
     private void share() {

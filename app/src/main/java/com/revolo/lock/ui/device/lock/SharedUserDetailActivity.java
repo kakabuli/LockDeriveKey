@@ -22,9 +22,11 @@ import com.revolo.lock.App;
 import com.revolo.lock.Constant;
 import com.revolo.lock.R;
 import com.revolo.lock.base.BaseActivity;
+import com.revolo.lock.bean.request.DelInvalidShareBeanReq;
 import com.revolo.lock.bean.request.DelSharedUserBeanReq;
 import com.revolo.lock.bean.request.EnableSharedUserBeanReq;
 import com.revolo.lock.bean.request.UpdateUserAuthorityTypeBeanReq;
+import com.revolo.lock.bean.respone.DelInvalidShareBeanRsp;
 import com.revolo.lock.bean.respone.DelSharedUserBeanRsp;
 import com.revolo.lock.bean.respone.EnableSharedUserBeanRsp;
 import com.revolo.lock.bean.respone.GetAllSharedUserFromAdminUserBeanRsp;
@@ -185,10 +187,6 @@ public class SharedUserDetailActivity extends BaseActivity {
         if (!checkNetConnectFail()) {
             return;
         }
-        if (mSharedUserData == null) {
-            Timber.e("removeUser mSharedUserData == null");
-            return;
-        }
         if (App.getInstance().getUserBean() == null) {
             Timber.e("removeUser App.getInstance().getUserBean() == null");
             return;
@@ -198,25 +196,20 @@ public class SharedUserDetailActivity extends BaseActivity {
             Timber.e("removeUser token is empty");
             return;
         }
-        DelSharedUserBeanReq req = new DelSharedUserBeanReq();
-        if (mPreA.equals(Constant.USER_MANAGEMENT_A)) {
-            req.setShareUid(mSharedUserData.getShareUid());
-        } else {
-            req.setShareUid(mShareUser.getShareUid());
-        }
-        req.setUid(App.getInstance().getUserBean().getUid());
+        DelInvalidShareBeanReq req = new DelInvalidShareBeanReq();
+        req.setShareId(mSharedUserData.getShareId());
         showLoading();
-        Observable<DelSharedUserBeanRsp> observable = HttpRequest.getInstance().delSharedUser(token, req);
-        ObservableDecorator.decorate(observable).safeSubscribe(new Observer<DelSharedUserBeanRsp>() {
+        Observable<DelInvalidShareBeanRsp> observable = HttpRequest.getInstance().delInvalidShare(token, req);
+        ObservableDecorator.decorate(observable).safeSubscribe(new Observer<DelInvalidShareBeanRsp>() {
             @Override
             public void onSubscribe(@NonNull Disposable d) {
 
             }
 
             @Override
-            public void onNext(@NonNull DelSharedUserBeanRsp delSharedUserBeanRsp) {
+            public void onNext(@NonNull DelInvalidShareBeanRsp delInvalidShareBeanRsp) {
                 dismissLoading();
-                String code = delSharedUserBeanRsp.getCode();
+                String code = delInvalidShareBeanRsp.getCode();
                 if (TextUtils.isEmpty(code)) {
                     Timber.e("removeUser code is empty");
                     return;
@@ -226,7 +219,7 @@ public class SharedUserDetailActivity extends BaseActivity {
                         App.getInstance().logout(true, SharedUserDetailActivity.this);
                         return;
                     }
-                    String msg = delSharedUserBeanRsp.getMsg();
+                    String msg = delInvalidShareBeanRsp.getMsg();
                     Timber.e("removeUser code: %1s, msg: %2s", code, msg);
                     if (!TextUtils.isEmpty(msg)) {
                         ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(msg);

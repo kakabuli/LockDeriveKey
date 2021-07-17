@@ -37,10 +37,14 @@ public class InviteUsersMailActivity extends BaseActivity {
     private EditText mEtEmail, mEtFirstName, mEtLastName;
     private boolean isNext = false;
     private String mail;
+    private BleDeviceLocal mBleDeviceLocal;
 
     @Override
     public void initData(@Nullable Bundle bundle) {
-
+        mBleDeviceLocal = App.getInstance().getBleDeviceLocal();
+        if (mBleDeviceLocal == null) {
+            finish();
+        }
     }
 
     @Override
@@ -52,6 +56,7 @@ public class InviteUsersMailActivity extends BaseActivity {
     public void initView(@Nullable Bundle savedInstanceState, @Nullable View contentView) {
         useCommonTitleBar(getString(R.string.title_invite_users));
 
+        String stringExtra = getIntent().getStringExtra(Constant.PRE_A);
         mEtEmail = findViewById(R.id.etEmail);
         mEtFirstName = findViewById(R.id.etFirstName);
         mEtLastName = findViewById(R.id.etLastName);
@@ -71,12 +76,20 @@ public class InviteUsersMailActivity extends BaseActivity {
                     ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.tip_modify_user_name_length);
                     return;
                 }
-
-                Intent intent = new Intent(InviteUsersMailActivity.this, AddDeviceForSharedUserActivity.class);
-                intent.putExtra(Constant.SHARE_USER_MAIL, mail);
-                intent.putExtra(Constant.SHARE_USER_FIRST_NAME, firstName);
-                intent.putExtra(Constant.SHARE_USER_LAST_NAME, lastName);
-                startActivity(intent);
+                if (TextUtils.isEmpty(stringExtra)) {
+                    Intent intent = new Intent(InviteUsersMailActivity.this, AddDeviceForSharedUserActivity.class);
+                    intent.putExtra(Constant.SHARE_USER_MAIL, mail);
+                    intent.putExtra(Constant.SHARE_USER_FIRST_NAME, firstName);
+                    intent.putExtra(Constant.SHARE_USER_LAST_NAME, lastName);
+                    startActivity(intent);
+                } else {
+                    Intent intent = new Intent(InviteUsersMailActivity.this, SelectAuthorizedDeviceActivity.class);
+                    intent.putExtra(Constant.LOCK_DETAIL, mBleDeviceLocal);
+                    intent.putExtra(Constant.SHARE_USER_MAIL, mail);
+                    intent.putExtra(Constant.SHARE_USER_FIRST_NAME, firstName);
+                    intent.putExtra(Constant.SHARE_USER_LAST_NAME, lastName);
+                    startActivity(intent);
+                }
             } else {
                 ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(getString(R.string.t_please_input_right_mail_address));
             }

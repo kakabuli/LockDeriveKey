@@ -25,12 +25,15 @@ import com.revolo.lock.Constant;
 import com.revolo.lock.R;
 import com.revolo.lock.adapter.AuthUserDetailDevicesAdapter;
 import com.revolo.lock.base.BaseActivity;
+import com.revolo.lock.bean.request.DelSharedUserBeanReq;
 import com.revolo.lock.bean.request.GainKeyBeanReq;
 import com.revolo.lock.bean.request.GetDevicesFromUidAndSharedUidBeanReq;
+import com.revolo.lock.bean.respone.DelSharedUserBeanRsp;
 import com.revolo.lock.bean.respone.GainKeyBeanRsp;
 import com.revolo.lock.bean.respone.GetAllSharedUserFromAdminUserBeanRsp;
 import com.revolo.lock.bean.respone.GetAllSharedUserFromLockBeanRsp;
 import com.revolo.lock.bean.respone.GetDevicesFromUidAndSharedUidBeanRsp;
+import com.revolo.lock.dialog.SelectDialog;
 import com.revolo.lock.net.HttpRequest;
 import com.revolo.lock.net.ObservableDecorator;
 import com.revolo.lock.ui.device.lock.SharedUserDetailActivity;
@@ -96,6 +99,9 @@ public class AuthUserDetailActivity extends BaseActivity {
                 intent.putExtra(Constant.SHARE_USER_DATA, mShareUser);
                 startActivity(intent);
             }
+        });
+        findViewById(R.id.btnDelete).setOnClickListener(v -> {
+            showRemoveUserDialog();
         });
         mDevicesAdapter.setOnReInviteListener(this::share);
         rvLockList.setLayoutManager(new LinearLayoutManager(this));
@@ -187,6 +193,8 @@ public class AuthUserDetailActivity extends BaseActivity {
                     List<GetAllSharedUserFromLockBeanRsp.DataBean> dataBeans = getDevicesFromUidAndSharedUidBeanRsp.getData();
                     if (dataBeans != null && !dataBeans.isEmpty()) {
                         mDevicesAdapter.setList(dataBeans);
+                    } else {
+                        finish();
                     }
                 } else if (code.equals("444")) {
                     App.getInstance().logout(true, AuthUserDetailActivity.this);
@@ -270,4 +278,75 @@ public class AuthUserDetailActivity extends BaseActivity {
         });
     }
 
+    private void showRemoveUserDialog() {
+        SelectDialog dialog = new SelectDialog(this);
+        dialog.setMessage(getString(R.string.dialog_tip_are_you_sure_to_remove_this_user));
+        dialog.setOnCancelClickListener(v -> dialog.dismiss());
+        dialog.setOnConfirmListener(v -> {
+            dialog.dismiss();
+            removeUser();
+        });
+        dialog.show();
+    }
+
+    private void removeUser() {
+        if (!checkNetConnectFail()) {
+            return;
+        }
+        if (App.getInstance().getUserBean() == null) {
+            Timber.e("removeUser App.getInstance().getUserBean() == null");
+            return;
+        }
+        String token = App.getInstance().getUserBean().getToken();
+        if (TextUtils.isEmpty(token)) {
+            Timber.e("removeUser token is empty");
+            return;
+        }
+        DelSharedUserBeanReq req = new DelSharedUserBeanReq();
+        req.setShareUid(mShareUser.getShareUid());
+        req.setUid(App.getInstance().getUserBean().getUid());
+        showLoading();
+        Observable<DelSharedUserBeanRsp> observable = HttpRequest.getInstance().delSharedUser(token, req);
+        ObservableDecorator.decorate(observable).safeSubscribe(new Observer<DelSharedUserBeanRsp>() {
+            @Override
+            public void onSubscribe(@NonNull Disposable d) {
+
+            }
+
+            @Override
+            public void onNext(@NonNull DelSharedUserBeanRsp delSharedUserBeanRsp) {
+                dismissLoading();
+                String code = delSharedUserBeanRsp.getCode();
+                if (TextUtils.isEmpty(code)) {
+                    Timber.e("removeUser code is empty");
+                    return;
+                }
+                if (!code.equals("200")) {
+                    if (code.equals("444")) {
+                        App.getInstance().logout(true, AuthUserDetailActivity.this);
+                        return;
+                    }
+                    String msg = delSharedUserBeanRsp.getMsg();
+                    Timber.e("removeUser code: %1s, msg: %2s", code, msg);
+                    if (!TextUtils.isEmpty(msg)) {
+                        ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(msg);
+                    }
+                    return;
+                }
+                ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_delete_share_user_suc);
+                finish();
+            }
+
+            @Override
+            public void onError(@NonNull Throwable e) {
+                dismissLoading();
+                Timber.e(e);
+            }
+
+            @Override
+            public void onComplete() {
+
+            }
+        });
+    }
 }
