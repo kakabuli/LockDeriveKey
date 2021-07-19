@@ -40,26 +40,6 @@ public class ShareDeviceActivity extends BaseActivity {
     @Override
     public void initData(@Nullable Bundle bundle) {
         getShareUserIntent(getIntent());
-//        Uri uri = getIntent().getData();
-//        // TODO: 2021/3/12 弹出对应的提示
-//        if(uri == null) {
-//            finish();
-//            return;
-//        }
-//        mShareKey = uri.getQueryParameter("shareKey");
-//        if(TextUtils.isEmpty(mShareKey)) {
-//            finish();
-//            return;
-//        }
-//        mUserName = uri.getQueryParameter("userName");
-//        if(TextUtils.isEmpty(mUserName)) {
-//            finish();
-//            return;
-//        }
-//        mLockName = uri.getQueryParameter("lockName");
-//        if(TextUtils.isEmpty(mLockName)) {
-//            finish();
-//        }
     }
 
     @Override
@@ -138,7 +118,6 @@ public class ShareDeviceActivity extends BaseActivity {
 
         AcceptShareBeanReq req = new AcceptShareBeanReq();
         req.setShareKey(mShareKey);
-        req.setUid(uid);
         Observable<AcceptShareBeanRsp> observable = HttpRequest.getInstance().acceptShare(token, req);
         // TODO: 2021/3/12 暂时屏蔽
         showLoading();

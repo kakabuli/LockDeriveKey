@@ -97,8 +97,8 @@ public class MessageListActivity extends BaseActivity {
         });
 
         mMessageListAdapter.setOnAcceptingListener((position, dataBean) -> {
-            if (dataBean != null && dataBean.getShareData() != null) {
-                acceptShare(dataBean.getShareData().getSharekey(), dataBean.getShareData().getAdminUid());
+            if (dataBean != null) {
+                acceptShare(dataBean.getShareKey());
             }
         });
 
@@ -229,36 +229,27 @@ public class MessageListActivity extends BaseActivity {
         });
     }
 
-    private void acceptShare(String mShareKey, String adminUid) {
+    private void acceptShare(String mShareKey) {
         if (!checkNetConnectFail()) {
             return;
         }
         // TODO: 2021/4/23 跳转到登录页面
         if (TextUtils.isEmpty(mShareKey)) {
             Timber.e("mShareKey == null");
-            ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_please_sign_in);
             return;
         }
         if (App.getInstance().getUserBean() == null) {
             Timber.e("acceptShare App.getInstance().getUserBean() == null");
-            ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_please_sign_in);
-            return;
-        }
-        if (TextUtils.isEmpty(adminUid)) {
-            Timber.e("acceptShare adminUid is empty");
-            ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_please_sign_in);
             return;
         }
         String token = App.getInstance().getUserBean().getToken();
         if (TextUtils.isEmpty(token)) {
             Timber.e("acceptShare token is empty");
-            ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_please_sign_in);
             return;
         }
 
         AcceptShareBeanReq req = new AcceptShareBeanReq();
         req.setShareKey(mShareKey);
-        req.setUid(adminUid);
         Observable<AcceptShareBeanRsp> observable = HttpRequest.getInstance().acceptShare(token, req);
         // TODO: 2021/3/12 暂时屏蔽
         showLoading();

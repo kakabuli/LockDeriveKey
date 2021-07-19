@@ -101,6 +101,7 @@ public class AutoLockActivity extends BaseActivity {
         mSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                Timber.d("*********************   progress = " + progress + "   **********************");
                 progressChange(progress);
                 mBeforeTime = mTime;
             }
@@ -377,7 +378,7 @@ public class AutoLockActivity extends BaseActivity {
         } else if (progress >= 120 && progress < 130) {
             mTvTime.setText("20min");
             mTime = 20 * 60;
-        } else if (progress >= 130 && progress < 140) {
+        } else if (progress >= 130 && progress < 141) {
             mTvTime.setText("30min");
             mTime = 30 * 60;
         }
@@ -490,7 +491,7 @@ public class AutoLockActivity extends BaseActivity {
             mTvTime.setText("15min");
         } else if (progress >= 120 && progress < 130) {
             mTvTime.setText("20min");
-        } else if (progress >= 130 && progress < 140) {
+        } else if (progress >= 130 && progress < 141) {
             mTvTime.setText("30min");
         }
     }
@@ -577,7 +578,7 @@ public class AutoLockActivity extends BaseActivity {
         req.setAmMode(mBleDeviceLocal.isAutoLock() ? 0 : 1);
         req.setDuress(mBleDeviceLocal.isDuress() ? 0 : 1);
         req.setMagneticStatus(mBleDeviceLocal.getDoorSensor());
-        req.setDoorSensor(mBleDeviceLocal.isOpenDoorSensor()?1:0);
+        req.setDoorSensor(mBleDeviceLocal.isOpenDoorSensor() ? 1 : 0);
         req.setElecFence(mBleDeviceLocal.isOpenElectricFence() ? 0 : 1);
         req.setAutoLockTime(mBleDeviceLocal.getSetAutoLockTime());
         req.setElecFenceTime(mBleDeviceLocal.getSetElectricFenceTime());

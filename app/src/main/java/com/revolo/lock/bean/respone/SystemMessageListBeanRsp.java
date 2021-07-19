@@ -47,9 +47,35 @@ public class SystemMessageListBeanRsp {
         private String uid;
         private String alertTitle;
         private String alertBody;
-        private ShareDataBean shareData;
         private int msgType;
         private long pushAt;
+        private int isAgree;
+        private String shareKey;
+        private String adminUid;
+
+        public String getShareKey() {
+            return shareKey;
+        }
+
+        public void setShareKey(String shareKey) {
+            this.shareKey = shareKey;
+        }
+
+        public String getAdminUid() {
+            return adminUid;
+        }
+
+        public void setAdminUid(String adminUid) {
+            this.adminUid = adminUid;
+        }
+
+        public int getIsAgree() {
+            return isAgree;
+        }
+
+        public void setIsAgree(int isAgree) {
+            this.isAgree = isAgree;
+        }
 
         public String get_id() {
             return _id;
@@ -91,14 +117,6 @@ public class SystemMessageListBeanRsp {
             this.alertBody = alertBody;
         }
 
-        public ShareDataBean getShareData() {
-            return shareData;
-        }
-
-        public void setShareData(ShareDataBean shareData) {
-            this.shareData = shareData;
-        }
-
         public int getMsgType() {
             return msgType;
         }
@@ -113,135 +131,6 @@ public class SystemMessageListBeanRsp {
 
         public void setPushAt(long pushAt) {
             this.pushAt = pushAt;
-        }
-
-        public static class ShareDataBean {
-            private String sharekey;
-            private String adminUid;
-            private String adminName;
-            private String shareUid;
-            private int isAgree;
-            private int isEnable;
-            private int deadTime;
-            private int createTime;
-            private String agreeTime;
-            private String lastName;
-            private String firstName;
-            private String deviceSN;
-            private String shareAccount;
-            private int shareUserType;
-
-            public String getSharekey() {
-                return sharekey;
-            }
-
-            public void setSharekey(String sharekey) {
-                this.sharekey = sharekey;
-            }
-
-            public String getAdminUid() {
-                return adminUid;
-            }
-
-            public void setAdminUid(String adminUid) {
-                this.adminUid = adminUid;
-            }
-
-            public String getAdminName() {
-                return adminName;
-            }
-
-            public void setAdminName(String adminName) {
-                this.adminName = adminName;
-            }
-
-            public String getShareUid() {
-                return shareUid;
-            }
-
-            public void setShareUid(String shareUid) {
-                this.shareUid = shareUid;
-            }
-
-            public int getIsAgree() {
-                return isAgree;
-            }
-
-            public void setIsAgree(int isAgree) {
-                this.isAgree = isAgree;
-            }
-
-            public int getIsEnable() {
-                return isEnable;
-            }
-
-            public void setIsEnable(int isEnable) {
-                this.isEnable = isEnable;
-            }
-
-            public int getDeadTime() {
-                return deadTime;
-            }
-
-            public void setDeadTime(int deadTime) {
-                this.deadTime = deadTime;
-            }
-
-            public int getCreateTime() {
-                return createTime;
-            }
-
-            public void setCreateTime(int createTime) {
-                this.createTime = createTime;
-            }
-
-            public String getAgreeTime() {
-                return agreeTime;
-            }
-
-            public void setAgreeTime(String agreeTime) {
-                this.agreeTime = agreeTime;
-            }
-
-            public String getLastName() {
-                return lastName;
-            }
-
-            public void setLastName(String lastName) {
-                this.lastName = lastName;
-            }
-
-            public String getFirstName() {
-                return firstName;
-            }
-
-            public void setFirstName(String firstName) {
-                this.firstName = firstName;
-            }
-
-            public String getDeviceSN() {
-                return deviceSN;
-            }
-
-            public void setDeviceSN(String deviceSN) {
-                this.deviceSN = deviceSN;
-            }
-
-            public String getShareAccount() {
-                return shareAccount;
-            }
-
-            public void setShareAccount(String shareAccount) {
-                this.shareAccount = shareAccount;
-            }
-
-            public int getShareUserType() {
-                return shareUserType;
-            }
-
-            public void setShareUserType(int shareUserType) {
-                this.shareUserType = shareUserType;
-            }
         }
     }
 }
