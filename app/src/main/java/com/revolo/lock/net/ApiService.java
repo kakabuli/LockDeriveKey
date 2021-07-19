@@ -48,6 +48,7 @@ import com.revolo.lock.bean.request.StartAllOTAUpdateBeanReq;
 import com.revolo.lock.bean.request.StartOTAUpdateBeanReq;
 import com.revolo.lock.bean.request.SystemMessageListReq;
 import com.revolo.lock.bean.request.UpdateDoorSensorStateBeanReq;
+import com.revolo.lock.bean.request.UpdateLocalBeanReq;
 import com.revolo.lock.bean.request.UpdateLockInfoReq;
 import com.revolo.lock.bean.request.UpdateLockRecordBeanReq;
 import com.revolo.lock.bean.request.UpdateSharedUserNickNameBeanReq;
@@ -103,6 +104,7 @@ import com.revolo.lock.bean.respone.StartAllOTAUpdateBeanRsp;
 import com.revolo.lock.bean.respone.StartOTAUpdateBeanRsp;
 import com.revolo.lock.bean.respone.SystemMessageListBeanRsp;
 import com.revolo.lock.bean.respone.UpdateDoorSensorStateBeanRsp;
+import com.revolo.lock.bean.respone.UpdateLocalBeanRsp;
 import com.revolo.lock.bean.respone.UpdateLockInfoRsp;
 import com.revolo.lock.bean.respone.UpdateLockRecordBeanRsp;
 import com.revolo.lock.bean.respone.UpdateSharedUserNickNameBeanRsp;
@@ -357,6 +359,18 @@ public interface ApiService {
     @Headers({"Content-Type: application/json"})
     @POST("/wpflock/device/updateMagneticStatus")
     Observable<UpdateDoorSensorStateBeanRsp> updateDoorSensorState(@Header("token") String token, @Body UpdateDoorSensorStateBeanReq req, @Header("url_name") String urlName);
+
+    /**
+     * 更新地理围栏数据
+     *
+     * @param token   用户权限码
+     * @param req     请求实体
+     * @param urlName 用于区分，可能后期替换不一样的接口
+     */
+    @Headers({"Content-Type: application/json"})
+    @POST("/wpflock/device/update/setlockelecfence")
+    Observable<UpdateLocalBeanRsp> updateockeLecfence(@Header("token") String token, @Body UpdateLocalBeanReq req, @Header("url_name") String urlName);
+
 
     /**
      * 查询门磁状态

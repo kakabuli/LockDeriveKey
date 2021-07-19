@@ -42,6 +42,7 @@ import com.revolo.lock.manager.LockMessageRes;
 import com.revolo.lock.manager.ble.BleManager;
 import com.revolo.lock.mqtt.MQttConstant;
 import com.revolo.lock.mqtt.MqttCommandFactory;
+import com.revolo.lock.room.AppDatabase;
 import com.revolo.lock.room.entity.BleDeviceLocal;
 import com.revolo.lock.ui.device.lock.setting.geofence.GeoFenceBroadcastReceiver;
 import com.revolo.lock.ui.device.lock.setting.geofence.GeoFenceHelper;
@@ -146,12 +147,28 @@ public class LockGeoFenceService extends Service implements OnMapReadyCallback, 
                                 lockGeoget.threadSleep = 5 * 60;
                             Timber.e("距离：%s", results[0] + "米" + "设置间隔时间5分钟");
                         }
+                        if (null != App.getInstance().getLockAppService()) {
+                            if (null != fenceEn.getBleDeviceLocal()) {
+                                if (fenceEn.getBleDeviceLocal().setLockElecFenceState(true)) {
+                                    App.getInstance().getLockAppService().pushServiceGeoState(fenceEn.getBleDeviceLocal());
+                                }
+                                App.getInstance().getLockAppService().updateDeviceGeoState(fenceEn.getBleDeviceLocal().getMac(), fenceEn.getBleDeviceLocal());
+                            }
+                        }
                     }
                     if (results[0] < 500 && results[0] > 200) {
                         if (null != lockGeoget) {
                             if (lockGeoget.threadSleep != 1 * 60)
                                 lockGeoget.threadSleep = 1 * 60;
                             Timber.e("距离：%s", results[0] + "米" + "设置间隔时间1分钟");
+                        }
+                        if (null != App.getInstance().getLockAppService()) {
+                            if (null != fenceEn.getBleDeviceLocal()) {
+                                if (fenceEn.getBleDeviceLocal().setLockElecFenceState(true)) {
+                                    App.getInstance().getLockAppService().pushServiceGeoState(fenceEn.getBleDeviceLocal());
+                                }
+                                App.getInstance().getLockAppService().updateDeviceGeoState(fenceEn.getBleDeviceLocal().getMac(), fenceEn.getBleDeviceLocal());
+                            }
                         }
                     }
                     if (results[0] > 50 && results[0] < 200) {
@@ -178,6 +195,10 @@ public class LockGeoFenceService extends Service implements OnMapReadyCallback, 
                     if (lockGeoget.threadSleep < 21) {
                         if (null != fenceEn.getBleDeviceLocal()) {
                             Timber.e("距离少于30米，开始发送命令");
+                            if (!fenceEn.getBleDeviceLocal().getElecFenceState()) {
+                                Timber.e("当前设备非为从200米外进入设备，暂不发送命令");
+                                return;
+                            }
                             pushMessage(fenceEn.getBleDeviceLocal());
                         }
 

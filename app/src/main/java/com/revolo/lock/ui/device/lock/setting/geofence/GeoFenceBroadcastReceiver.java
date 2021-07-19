@@ -85,11 +85,15 @@ public class GeoFenceBroadcastReceiver extends BroadcastReceiver {
                 //电子围栏是否开启
                 if (deviceLocal.isOpenElectricFence()) {
                     Timber.e("google 定位 电子围栏开启");
+                    if (!deviceLocal.getElecFenceState()) {
+                        Timber.e("google 定位当前设备未200米外进入");
+                        return;
+                    }
                     ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_you_have_entered_the_range_of_the_geo_fence);
                     notificationHelper.sendHighPriorityNotification(context.getString(R.string.n_geo_fence), context.getString(R.string.t_you_have_entered_the_range_of_the_geo_fence), MapActivity.class);
                     pushMessage(deviceLocal);
 
-                }else{
+                } else {
                     Timber.e("google 定位 电子围栏未开启");
                 }
 
