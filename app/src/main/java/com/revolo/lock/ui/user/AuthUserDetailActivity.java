@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.Gravity;
-import android.view.KeyEvent;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -13,9 +12,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
-import com.blankj.utilcode.util.ActivityUtils;
 import com.blankj.utilcode.util.ToastUtils;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
@@ -25,9 +22,11 @@ import com.revolo.lock.Constant;
 import com.revolo.lock.R;
 import com.revolo.lock.adapter.AuthUserDetailDevicesAdapter;
 import com.revolo.lock.base.BaseActivity;
+import com.revolo.lock.bean.request.DelInvalidShareBeanReq;
 import com.revolo.lock.bean.request.DelSharedUserBeanReq;
 import com.revolo.lock.bean.request.GainKeyBeanReq;
 import com.revolo.lock.bean.request.GetDevicesFromUidAndSharedUidBeanReq;
+import com.revolo.lock.bean.respone.DelInvalidShareBeanRsp;
 import com.revolo.lock.bean.respone.DelSharedUserBeanRsp;
 import com.revolo.lock.bean.respone.GainKeyBeanRsp;
 import com.revolo.lock.bean.respone.GetAllSharedUserFromAdminUserBeanRsp;
@@ -37,8 +36,7 @@ import com.revolo.lock.dialog.SelectDialog;
 import com.revolo.lock.net.HttpRequest;
 import com.revolo.lock.net.ObservableDecorator;
 import com.revolo.lock.ui.device.lock.SharedUserDetailActivity;
-
-import org.w3c.dom.Text;
+import com.revolo.lock.widget.SlideRecyclerView;
 
 import java.util.List;
 
@@ -85,7 +83,7 @@ public class AuthUserDetailActivity extends BaseActivity {
                     intent.putExtra(Constant.SHARE_USER_LAST_NAME, mShareUser.getLastName());
                     startActivity(intent);
                 });
-        RecyclerView rvLockList = findViewById(R.id.rvLockList);
+        SlideRecyclerView rvLockList = findViewById(R.id.rvLockList);
         ivAvatar = findViewById(R.id.ivAvatar);
         mTvDeviceNum = findViewById(R.id.tvDeviceNum);
         mTvUserName = findViewById(R.id.tvUserName);
@@ -105,6 +103,7 @@ public class AuthUserDetailActivity extends BaseActivity {
             showRemoveUserDialog();
         });
         mDevicesAdapter.setOnReInviteListener(this::share);
+        mDevicesAdapter.setOnDeleteListener(this::removeUser);
         rvLockList.setLayoutManager(new LinearLayoutManager(this));
         rvLockList.setAdapter(mDevicesAdapter);
         applyDebouncingClickListener(findViewById(R.id.clUserName));
@@ -326,6 +325,66 @@ public class AuthUserDetailActivity extends BaseActivity {
                         return;
                     }
                     String msg = delSharedUserBeanRsp.getMsg();
+                    Timber.e("removeUser code: %1s, msg: %2s", code, msg);
+                    if (!TextUtils.isEmpty(msg)) {
+                        ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(msg);
+                    }
+                    return;
+                }
+                ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_delete_share_user_suc);
+                finish();
+            }
+
+            @Override
+            public void onError(@NonNull Throwable e) {
+                dismissLoading();
+                Timber.e(e);
+            }
+
+            @Override
+            public void onComplete() {
+
+            }
+        });
+    }
+
+    private void removeUser(GetAllSharedUserFromLockBeanRsp.DataBean dataBean) {
+        if (!checkNetConnectFail()) {
+            return;
+        }
+        if (App.getInstance().getUserBean() == null) {
+            Timber.e("removeUser App.getInstance().getUserBean() == null");
+            return;
+        }
+        String token = App.getInstance().getUserBean().getToken();
+        if (TextUtils.isEmpty(token)) {
+            Timber.e("removeUser token is empty");
+            return;
+        }
+        DelInvalidShareBeanReq req = new DelInvalidShareBeanReq();
+        req.setShareId(dataBean.getShareId());
+        showLoading();
+        Observable<DelInvalidShareBeanRsp> observable = HttpRequest.getInstance().delInvalidShare(token, req);
+        ObservableDecorator.decorate(observable).safeSubscribe(new Observer<DelInvalidShareBeanRsp>() {
+            @Override
+            public void onSubscribe(@NonNull Disposable d) {
+
+            }
+
+            @Override
+            public void onNext(@NonNull DelInvalidShareBeanRsp delInvalidShareBeanRsp) {
+                dismissLoading();
+                String code = delInvalidShareBeanRsp.getCode();
+                if (TextUtils.isEmpty(code)) {
+                    Timber.e("removeUser code is empty");
+                    return;
+                }
+                if (!code.equals("200")) {
+                    if (code.equals("444")) {
+                        App.getInstance().logout(true, AuthUserDetailActivity.this);
+                        return;
+                    }
+                    String msg = delInvalidShareBeanRsp.getMsg();
                     Timber.e("removeUser code: %1s, msg: %2s", code, msg);
                     if (!TextUtils.isEmpty(msg)) {
                         ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(msg);

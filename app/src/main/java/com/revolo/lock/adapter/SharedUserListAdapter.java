@@ -39,14 +39,20 @@ public class SharedUserListAdapter extends BaseQuickAdapter<GetAllSharedUserFrom
                 tvUnlockOnly.setText(R.string.per_app_unlock_only);
                 tvPermission.setText(getContext().getString(R.string.permission_guest));
             }
-            if (bean.getShareUserType() == 1) {
-                ivMore.setImageResource(R.drawable.ic_icon_wait);
-                ivMore.setVisibility(View.VISIBLE);
-            } else if (bean.getShareUserType() == 3 || bean.getShareUserType() == 4 || bean.getShareUserType() == 5) {
-                ivMore.setImageResource(R.mipmap.ic_icon_share);
-                ivMore.setVisibility(View.VISIBLE);
-            } else {
-                ivMore.setVisibility(View.VISIBLE);
+
+            switch (bean.getShareState()) {
+                case 0:
+                    ivMore.setImageResource(R.drawable.ic_icon_more);
+                    break;
+                case 1:
+                    ivMore.setImageResource(R.mipmap.ic_icon_prohibit);
+                    break;
+                case 2:
+                    ivMore.setImageResource(R.drawable.ic_icon_wait);
+                    break;
+                case 3:
+                    ivMore.setImageResource(R.mipmap.ic_icon_share);
+                    break;
             }
         }
     }

@@ -59,12 +59,12 @@ public class MessageListAdapter extends BaseQuickAdapter<SystemMessageListBeanRs
         }
     }
 
-    public void setOnDeleteListener(OnDeleteListener onDeleteListener) {
-        this.mOnDeleteListener = onDeleteListener;
-    }
-
     public void setOnAcceptingListener(OnAcceptingListener onAcceptingListener) {
         this.mOnAcceptingListener = onAcceptingListener;
+    }
+
+    public void setOnDeleteListener(OnDeleteListener onDeleteListener) {
+        this.mOnDeleteListener = onDeleteListener;
     }
 
     public interface OnDeleteListener {

@@ -6,7 +6,6 @@ import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.chad.library.adapter.base.viewholder.BaseViewHolder;
 import com.revolo.lock.R;
 import com.revolo.lock.bean.respone.GetAllSharedUserFromLockBeanRsp;
-import com.revolo.lock.bean.respone.GetDevicesFromUidAndSharedUidBeanRsp;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -19,6 +18,8 @@ import org.jetbrains.annotations.NotNull;
 public class AuthUserDetailDevicesAdapter extends BaseQuickAdapter<GetAllSharedUserFromLockBeanRsp.DataBean, BaseViewHolder> {
 
     private OnReInviteListener onReInviteListener;
+
+    private OnDeleteListener mOnDeleteListener;
 
     public AuthUserDetailDevicesAdapter(int layoutResId) {
         super(layoutResId);
@@ -34,18 +35,19 @@ public class AuthUserDetailDevicesAdapter extends BaseQuickAdapter<GetAllSharedU
             String name = bean.getLockNickname();
             // TODO: 2021/3/14 应该是设备名字，需要修改
             baseViewHolder.setText(R.id.tvDeviceName, TextUtils.isEmpty(name) ? "" : name);
-            baseViewHolder.setVisible(R.id.ivState, true);
-            baseViewHolder.setGone(R.id.ivMore, true);
-            if (bean.getShareState() == 2) {
-                // 等待
-                baseViewHolder.setImageResource(R.id.ivState, R.drawable.ic_icon_wait);
-            } else if (bean.getShareState() == 3) {
-                // 超时
-                baseViewHolder.setGone(R.id.ivState, true);
-                baseViewHolder.setImageResource(R.id.ivState, R.mipmap.ic_icon_share);
-            } else {
-                baseViewHolder.setGone(R.id.ivState, true);
-                baseViewHolder.setVisible(R.id.ivMore, true);
+            switch (bean.getShareState()) {
+                case 0:
+                    baseViewHolder.setImageResource(R.id.ivMore, R.drawable.ic_icon_more);
+                    break;
+                case 1:
+                    baseViewHolder.setImageResource(R.id.ivMore, R.mipmap.ic_icon_prohibit);
+                    break;
+                case 2:
+                    baseViewHolder.setImageResource(R.id.ivMore, R.drawable.ic_icon_wait);
+                    break;
+                case 3:
+                    baseViewHolder.setImageResource(R.id.ivMore, R.mipmap.ic_icon_share);
+                    break;
             }
             if (bean.getShareUserType() == 1) {
                 baseViewHolder.setText(R.id.tvDetail, R.string.unable_to_add_user_and_password);
@@ -53,8 +55,11 @@ public class AuthUserDetailDevicesAdapter extends BaseQuickAdapter<GetAllSharedU
                 baseViewHolder.setText(R.id.tvDetail, R.string.per_app_unlock_only);
             }
             initPer(baseViewHolder, bean);
-            baseViewHolder.getView(R.id.ivState).setOnClickListener(v -> {
+            baseViewHolder.getView(R.id.ivMore).setOnClickListener(v -> {
                 onReInviteListener.onReInviteListener(bean);
+            });
+            baseViewHolder.getView(R.id.tv_delete).setOnClickListener(v -> {
+                mOnDeleteListener.onDeleteClickListener(bean);
             });
         }
     }
@@ -71,5 +76,14 @@ public class AuthUserDetailDevicesAdapter extends BaseQuickAdapter<GetAllSharedU
 
     public interface OnReInviteListener {
         void onReInviteListener(GetAllSharedUserFromLockBeanRsp.DataBean bean);
+    }
+
+    public void setOnDeleteListener(OnDeleteListener onDeleteListener) {
+        this.mOnDeleteListener = onDeleteListener;
+    }
+
+    public interface OnDeleteListener {
+
+        void onDeleteClickListener(GetAllSharedUserFromLockBeanRsp.DataBean dataBean);
     }
 }
