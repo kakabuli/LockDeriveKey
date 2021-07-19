@@ -186,13 +186,13 @@ public class WifiSettingActivity extends BaseActivity {
     }
 
     private void gotoAddWifiAct() {
-
         String trim = mTvWifiName.getText().toString().trim();
         Intent intent = new Intent(this, AddWifiActivity.class);
         if (!TextUtils.isEmpty(trim)) {
             intent.putExtra("WiFiName", trim);
         }
         startActivity(intent);
+        dismissLoading();
     }
 
     private void updateUI() {
@@ -208,8 +208,6 @@ public class WifiSettingActivity extends BaseActivity {
             updateBleState();
         }
     }
-
-    // private Disposable mCloseWifiFromMQttDisposable;
 
     private void closeWifiFromMQtt() {
 
@@ -227,7 +225,6 @@ public class WifiSettingActivity extends BaseActivity {
     }
 
     private void processCloseWifiFromMQtt(WifiLockCloseWifiResponseBean bean) {
-        dismissLoading();
         if (bean == null) {
             Timber.e("closeWifiFromMqtt bean == null");
             return;
@@ -250,13 +247,7 @@ public class WifiSettingActivity extends BaseActivity {
 
     }
 
-    //private Disposable mOpenBleFromMQttDisposable;
-
     private void openBleFromMQtt() {
-     /*   if (mMQttService == null) {
-            Timber.e("openBleFromMQtt mMQttService == null");
-            return;
-        }*/
         showLoading();
         LockMessage lockMessage = new LockMessage();
         lockMessage.setMqttMessage(MqttCommandFactory.approachOpen(
@@ -268,24 +259,6 @@ public class WifiSettingActivity extends BaseActivity {
         lockMessage.setMqtt_message_code(MQttConstant.APP_ROACH_OPEN);
         lockMessage.setMqtt_topic(MQttConstant.getCallTopic(App.getInstance().getUserBean().getUid()));
         EventBus.getDefault().post(lockMessage);
-
-    /*    toDisposable(mOpenBleFromMQttDisposable);
-        mOpenBleFromMQttDisposable = mMQttService.mqttPublish(MQttConstant.getCallTopic(App.getInstance().getUserBean().getUid()),
-                MqttCommandFactory.approachOpen(
-                        mBleDeviceLocal.getEsn(), 60*//*用于临时开启蓝牙，用于使用蓝牙来重新配网*//*,
-                        BleCommandFactory.getPwd(
-                                ConvertUtils.hexString2Bytes(mBleDeviceLocal.getPwd1()),
-                                ConvertUtils.hexString2Bytes(mBleDeviceLocal.getPwd2()))))
-                .filter(mqttData -> mqttData.getFunc().equals(MQttConstant.APP_ROACH_OPEN))
-                .timeout(DEFAULT_TIMEOUT_SEC_VALUE, TimeUnit.SECONDS)
-                .subscribe(mqttData -> {
-                    toDisposable(mOpenBleFromMQttDisposable);
-                    processOpenBleFromMQtt(mqttData);
-                }, e -> {
-                    dismissLoading();
-                    Timber.e(e);
-                });
-        mCompositeDisposable.add(mOpenBleFromMQttDisposable);*/
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN, sticky = true)
@@ -330,8 +303,6 @@ public class WifiSettingActivity extends BaseActivity {
             } else {
                 switch (lockMessage.getResultCode()) {
                     case LockMessageCode.MSG_LOCK_MESSAGE_CLOSE_WIFI:
-                        dismissLoading();
-                        break;
                     case LockMessageCode.MSG_LOCK_MESSAGE_APP_ROACH_OPEN:
                         dismissLoading();
                         break;
@@ -358,7 +329,6 @@ public class WifiSettingActivity extends BaseActivity {
         // TODO: 2021/3/5 开启成功，然后开启蓝牙并不断搜索设备
         connectBle();
         new Handler(Looper.getMainLooper()).postDelayed(() -> {
-            dismissLoading();
             App.getInstance().setWifiSettingNeedToCloseBle(true);
             gotoAddWifiAct();
         }, 10000);
@@ -371,34 +341,6 @@ public class WifiSettingActivity extends BaseActivity {
         bleConnected.setConnectType(3);
         bleConnected.setBleDeviceLocal(mBleDeviceLocal);
         EventBus.getDefault().post(bleConnected);
-
-     /*   BleBean bleBean = App.getInstance().getUserBleBean(mBleDeviceLocal.getMac());
-        // TODO: 2021/1/26 处理为空的情况
-        if (bleBean == null) {
-            BLEScanResult bleScanResult = ConvertUtils.bytes2Parcelable(mBleDeviceLocal.getScanResultJson(), BLEScanResult.CREATOR);
-            if (bleScanResult != null) {
-             *//*   bleBean = App.getInstance().connectDevice(
-                        bleScanResult,
-                        ConvertUtils.hexString2Bytes(mBleDeviceLocal.getPwd1()),
-                        ConvertUtils.hexString2Bytes(mBleDeviceLocal.getPwd2()),
-                        onBleDeviceListener, false);*//*
-                bleBean.setEsn(mBleDeviceLocal.getEsn());
-            } else {
-                // TODO: 2021/1/26 处理为空的情况
-            }
-        } else {
-            if (bleBean.getOKBLEDeviceImp() != null) {
-              *//*  bleBean.setOnBleDeviceListener(onBleDeviceListener);
-                if (!bleBean.getOKBLEDeviceImp().isConnected()) {
-                    bleBean.getOKBLEDeviceImp().connect(true);
-                }
-                bleBean.setPwd1(ConvertUtils.hexString2Bytes(mBleDeviceLocal.getPwd1()));
-                bleBean.setPwd2(ConvertUtils.hexString2Bytes(mBleDeviceLocal.getPwd2()));
-                bleBean.setEsn(mBleDeviceLocal.getEsn());*//*
-            } else {
-                // TODO: 2021/1/26 为空的处理
-            }
-        }*/
     }
 
     private void openWifiFromBle() {

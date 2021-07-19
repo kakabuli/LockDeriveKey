@@ -694,7 +694,7 @@ public interface ApiService {
      * @param req   请求实体
      */
     @Headers({"Content-Type: application/json"})
-    @POST("/user/edit/getAppUrlAndWebUrl")
+    @POST("/smart/authorize")
     Observable<AlexaAppUrlAndWebUrlBeanRsp> getAppUrlAndWebUrl(@Header("token") String token, @Body AlexaAppUrlAndWebUrlReq req);
 
     /**
