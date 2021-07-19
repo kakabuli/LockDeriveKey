@@ -106,7 +106,11 @@ public class MqttCommandFactory {
     }
 
     /**
-     * 无感开门
+     * 无感开门 设置蓝牙广播时间
+     * @param wifiID
+     * @param broadcastTime
+     * @param pwd
+     * @return
      */
     public static MqttMessage approachOpen(String wifiID, int broadcastTime, byte[] pwd) {
         int messageId = getMessageId();

@@ -414,6 +414,18 @@ public class MQTTReply {
             bleDeviceLocal.setLockPower(wifiListBean.getPower());
         // 0 锁端wifi没有与服务器连接   1 锁端wifi与服务器连接成功
         Timber.d("wifi 连接状态: %1s", wifiListBean.getWifiStatus());
+        //地理围栏
+        //地理围栏是否开启
+        bleDeviceLocal.setOpenElectricFence(wifiListBean.getElecFence()==0);
+        //地理围栏经纬度
+        bleDeviceLocal.setLatitude(Double.parseDouble(wifiListBean.getLatitude()));
+        bleDeviceLocal.setLongitude(Double.parseDouble(wifiListBean.getLongitude()));
+        //地理围栏时间
+        bleDeviceLocal.setSetElectricFenceTime(wifiListBean.getElecFenceTime());
+        bleDeviceLocal.setSetElectricFenceSensitivity(wifiListBean.getElecFenceSensitivity());
+        //地理围栏 从200米外到内
+        bleDeviceLocal.setLockElecFenceState(wifiListBean.getElecFenceState()==0);
+
         return bleDeviceLocal;
     }
 }

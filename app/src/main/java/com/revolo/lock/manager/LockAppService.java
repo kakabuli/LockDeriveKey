@@ -15,6 +15,8 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
 import android.os.Message;
+import android.text.TextUtils;
+import android.view.Gravity;
 
 import androidx.annotation.NonNull;
 
@@ -23,10 +25,13 @@ import com.blankj.utilcode.util.ActivityUtils;
 import com.blankj.utilcode.util.ConvertUtils;
 import com.blankj.utilcode.util.LogUtils;
 import com.blankj.utilcode.util.NetworkUtils;
+import com.blankj.utilcode.util.ToastUtils;
 import com.revolo.lock.App;
 import com.revolo.lock.Constant;
 import com.revolo.lock.LocalState;
 import com.revolo.lock.LockAppManager;
+import com.revolo.lock.bean.request.UpdateLocalBeanReq;
+import com.revolo.lock.bean.respone.UpdateLocalBeanRsp;
 import com.revolo.lock.ble.BleByteUtil;
 import com.revolo.lock.ble.BleCommandFactory;
 import com.revolo.lock.ble.BleProtocolState;
@@ -49,8 +54,11 @@ import com.revolo.lock.mqtt.bean.publishresultbean.WifiLockSetLockAttrAutoTimeRs
 import com.revolo.lock.mqtt.bean.publishresultbean.WifiLockSetLockAttrDuressRspBean;
 import com.revolo.lock.mqtt.bean.publishresultbean.WifiLockSetLockAttrSensitivityRspBean;
 import com.revolo.lock.mqtt.bean.publishresultbean.WifiLockSetLockAttrVolumeRspBean;
+import com.revolo.lock.net.HttpRequest;
+import com.revolo.lock.net.ObservableDecorator;
 import com.revolo.lock.room.AppDatabase;
 import com.revolo.lock.room.entity.BleDeviceLocal;
+import com.revolo.lock.ui.device.lock.setting.GeoFenceUnlockActivity;
 import com.revolo.lock.util.ZoneUtil;
 
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
@@ -70,6 +78,8 @@ import java.util.List;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+import io.reactivex.Observable;
+import io.reactivex.Observer;
 import io.reactivex.disposables.Disposable;
 import timber.log.Timber;
 
@@ -774,7 +784,7 @@ public class LockAppService extends Service {
                     break;
                 case BleProtocolState.CMD_KNOCK_DOOR_AND_UNLOCK_TIME:// 0x22;      // 敲门开锁指令
                     if (bleResultBean.getPayload()[0] == 0) {
-                        // 设置敲击开锁成功
+                        // 设置敲击开锁成功 清理当前地理位置监控
                         updateDeviceState(mac);
                     }
                     break;
@@ -861,17 +871,20 @@ public class LockAppService extends Service {
         if (null != bleBean) {
             for (int index = 0; index < mDeviceLists.size(); index++) {
                 if (null != mac && mac.equals(mDeviceLists.get(index).getMac())) {
+                    if (mDeviceLists.get(index).setLockElecFenceState(false)) {
+                        pushServiceGeoState(mDeviceLists.get(index));
+                    }
                     if (null != App.getInstance().getLockGeoFenceService()) {
                         App.getInstance().getLockGeoFenceService().clearBleDevice(mDeviceLists.get(index).getEsn());
-                        mDeviceLists.get(index).setOpenElectricFence(false);
+                        // mDeviceLists.get(index).setOpenElectricFence(false);
                         AppDatabase.getInstance(getApplicationContext()).bleDeviceDao().update(mDeviceLists.get(index));
-                        Timber.e("app service setDoorState curr mac: %s", App.getInstance().getmCurrMac());
-                        Timber.e("app service setDoorState curr sn: %s", App.getInstance().getmCurrSn());
-                        Timber.e("app service setDoorState  mac: %s", mDeviceLists.get(index).getMac());
-                        Timber.e("app service setDoorState  sn: %s", mDeviceLists.get(index).getEsn());
+                        Timber.e("app service updateDeviceState curr mac: %s", App.getInstance().getmCurrMac());
+                        Timber.e("app service updateDeviceState curr sn: %s", App.getInstance().getmCurrSn());
+                        Timber.e("app service updateDeviceState  mac: %s", mDeviceLists.get(index).getMac());
+                        Timber.e("app service updateDeviceState  sn: %s", mDeviceLists.get(index).getEsn());
                         if ((null != mDeviceLists.get(index).getMac() && mDeviceLists.get(index).getMac().equals(App.getInstance().getmCurrMac())) ||
                                 (null != mDeviceLists.get(index).getEsn() && mDeviceLists.get(index).getEsn().equals(App.getInstance().getmCurrSn()))) {
-                            Timber.e("app service setDoorState set BleDeviceLocal");
+                            Timber.e("app service updateDeviceState set BleDeviceLocal");
                             App.getInstance().setBleDeviceLocal(mDeviceLists.get(index));
                         }
                     }
@@ -880,6 +893,88 @@ public class LockAppService extends Service {
             }
 
         }
+    }
+
+    /**
+     * 更新地理围栏
+     *
+     * @param mac                        mac码
+     * @param "isOpenElectricFence"      是否开启地理围栏
+     * @param "electricFenceSensitivity" 灵敏度
+     * @param "electricFenceTime"        蓝牙广播时间
+     * @param "latitude"                 经纬度
+     * @param "longitude"                经纬度
+     * @param "elecFenceState"           是否从200米外进入
+     */
+    public void updateDeviceGeoState(String mac, BleDeviceLocal bleDeviceLocal) {
+        if (null != bleDeviceLocal) {
+            BleBean bleBean = BleManager.getInstance().getBleBeanFromMac(mac);
+            if (null != bleBean) {
+                for (int index = 0; index < mDeviceLists.size(); index++) {
+                    if (null != mac && mac.equals(mDeviceLists.get(index).getMac())) {
+                        if (null != App.getInstance().getLockGeoFenceService()) {
+                            mDeviceLists.get(index).setOpenElectricFence(bleDeviceLocal.isOpenElectricFence());
+                            mDeviceLists.get(index).setSetElectricFenceSensitivity(bleDeviceLocal.getSetElectricFenceSensitivity());
+                            mDeviceLists.get(index).setSetElectricFenceTime(bleDeviceLocal.getSetElectricFenceTime());
+                            mDeviceLists.get(index).setLongitude(bleDeviceLocal.getLongitude());
+                            mDeviceLists.get(index).setLatitude(bleDeviceLocal.getLatitude());
+                            mDeviceLists.get(index).setLockElecFenceState(bleDeviceLocal.getElecFenceState());
+                            AppDatabase.getInstance(getApplicationContext()).bleDeviceDao().update(mDeviceLists.get(index));
+                            Timber.e("app service updateDeviceGeo curr mac: %s", App.getInstance().getmCurrMac());
+                            Timber.e("app service updateDeviceGeo curr sn: %s", App.getInstance().getmCurrSn());
+                            Timber.e("app service updateDeviceGeo  mac: %s", mDeviceLists.get(index).getMac());
+                            Timber.e("app service updateDeviceGeo  sn: %s", mDeviceLists.get(index).getEsn());
+                            if ((null != mDeviceLists.get(index).getMac() && mDeviceLists.get(index).getMac().equals(App.getInstance().getmCurrMac())) ||
+                                    (null != mDeviceLists.get(index).getEsn() && mDeviceLists.get(index).getEsn().equals(App.getInstance().getmCurrSn()))) {
+                                Timber.e("app service updateDeviceGeo set BleDeviceLocal");
+                                App.getInstance().setBleDeviceLocal(mDeviceLists.get(index));
+                            }
+                        }
+                        break;
+                    }
+                }
+
+            }
+        }
+    }
+
+    public void pushServiceGeoState(BleDeviceLocal mBleDeviceLocal) {
+        mHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                UpdateLocalBeanReq lockLocal = new UpdateLocalBeanReq();
+                lockLocal.setSn(mBleDeviceLocal.getEsn());
+                lockLocal.setElecFence(mBleDeviceLocal.isOpenElectricFence() ? 0 : 1);
+                lockLocal.setElecFenceSensitivity(mBleDeviceLocal.getSetElectricFenceSensitivity());
+                lockLocal.setElecFenceTime(mBleDeviceLocal.getSetElectricFenceTime());
+                lockLocal.setLatitude(mBleDeviceLocal.getLatitude() + "");
+                lockLocal.setLongitude(mBleDeviceLocal.getLongitude() + "");
+                lockLocal.setElecFenceState(mBleDeviceLocal.getElecFenceState() ? 0 : 1);
+                String token = App.getInstance().getUserBean().getToken();
+                Observable<UpdateLocalBeanRsp> observable = HttpRequest.getInstance().updateockeLecfence(token, lockLocal);
+                ObservableDecorator.decorate(observable).safeSubscribe(new Observer<UpdateLocalBeanRsp>() {
+                    @Override
+                    public void onSubscribe(@NonNull Disposable d) {
+
+                    }
+
+                    @Override
+                    public void onNext(@NonNull UpdateLocalBeanRsp changeKeyNickBeanRsp) {
+                        Timber.e("上报地理围栏数据");
+                    }
+
+                    @Override
+                    public void onError(@NonNull Throwable e) {
+                        Timber.e(e);
+                    }
+
+                    @Override
+                    public void onComplete() {
+
+                    }
+                });
+            }
+        });
     }
 
     /**
@@ -995,7 +1090,17 @@ public class LockAppService extends Service {
 
         if (eventType == 0x01) {
             //0x01：Operation操作(动作类)
-            if (eventSource == 0x09) {
+            if (eventSource == 0x0a) {
+                //震动方式
+                updateDeviceState(mac);
+                removeBleConnect(mac);
+                Timber.e("震动方式：" + eventCode);
+            } else if (eventSource == 0x0b) {
+                //触摸方式
+                Timber.e("触摸方式：" + eventCode);
+                updateDeviceState(mac);
+                removeBleConnect(mac);
+            } else if (eventSource == 0x09) {
                 byte[] code = BleByteUtil.byteToBit((byte) eventCode);
                 Timber.e("dagaggg :%s", code[0] + "");
                 if (code[0] == 0x01) {
@@ -1025,6 +1130,11 @@ public class LockAppService extends Service {
                 // 门磁异常
                 // TODO: 2021/3/31 门磁异常的操作
                 Timber.d("lockUpdateInfo 门磁异常");
+            } else if (eventCode == 3) {
+                //电子围栏超时
+                Timber.e("电子围栏超时");
+                updateDeviceState(mac);
+                removeBleConnect(mac);
             }
         }
     }

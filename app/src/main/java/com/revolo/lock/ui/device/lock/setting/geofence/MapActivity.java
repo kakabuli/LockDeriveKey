@@ -45,7 +45,9 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.revolo.lock.App;
 import com.revolo.lock.R;
 import com.revolo.lock.base.BaseActivity;
+import com.revolo.lock.bean.request.UpdateLocalBeanReq;
 import com.revolo.lock.bean.request.UpdateLockInfoReq;
+import com.revolo.lock.bean.respone.UpdateLocalBeanRsp;
 import com.revolo.lock.bean.respone.UpdateLockInfoRsp;
 import com.revolo.lock.dialog.SelectDialog;
 import com.revolo.lock.manager.geo.LockGeoFenceService;
@@ -53,6 +55,7 @@ import com.revolo.lock.net.HttpRequest;
 import com.revolo.lock.net.ObservableDecorator;
 import com.revolo.lock.room.AppDatabase;
 import com.revolo.lock.room.entity.BleDeviceLocal;
+import com.revolo.lock.ui.device.lock.setting.GeoFenceUnlockActivity;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -289,15 +292,86 @@ public class MapActivity extends BaseActivity implements OnMapReadyCallback, Goo
         mMap.clear();
         addMarker(latLng);
         addCircle(latLng, GEO_FENCE_RADIUS);
-        mCurrLat=latLng;
+        mCurrLat = latLng;
     }
 
     private void saveLatLngToLocal(@NotNull LatLng latLng) {
         addGeoFence(latLng, GEO_FENCE_RADIUS);
-        mBleDeviceLocal.setLatitude(latLng.latitude);
-        mBleDeviceLocal.setLongitude(latLng.longitude);
-        mBleDeviceLocal.setOpenElectricFence(true);
-        AppDatabase.getInstance(this).bleDeviceDao().update(mBleDeviceLocal);
+    }
+
+    /**
+     * 上传给服务器
+     */
+    private void pushService() {
+        showLoading();
+        mHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                UpdateLocalBeanReq lockLocal = new UpdateLocalBeanReq();
+                lockLocal.setSn(mBleDeviceLocal.getEsn());
+                lockLocal.setElecFence(mBleDeviceLocal.isOpenElectricFence() ? 0 : 1);
+                lockLocal.setElecFenceSensitivity(mBleDeviceLocal.getSetElectricFenceSensitivity());
+                lockLocal.setElecFenceTime(mBleDeviceLocal.getSetElectricFenceTime());
+                lockLocal.setLatitude(mBleDeviceLocal.getLatitude() + "");
+                lockLocal.setLongitude(mBleDeviceLocal.getLongitude() + "");
+                lockLocal.setElecFenceState(mBleDeviceLocal.getElecFenceState() ? 0 : 1);
+                String token = App.getInstance().getUserBean().getToken();
+                Observable<UpdateLocalBeanRsp> observable = HttpRequest.getInstance().updateockeLecfence(token, lockLocal);
+                ObservableDecorator.decorate(observable).safeSubscribe(new Observer<UpdateLocalBeanRsp>() {
+                    @Override
+                    public void onSubscribe(@NonNull Disposable d) {
+
+                    }
+
+                    @Override
+                    public void onNext(@NonNull UpdateLocalBeanRsp changeKeyNickBeanRsp) {
+                        dismissLoading();
+                        String code = changeKeyNickBeanRsp.getCode();
+                        if (TextUtils.isEmpty(code)) {
+                            Timber.e("changeKeyNickBeanRsp.getCode() is Empty");
+                            return;
+                        }
+                        String msg = changeKeyNickBeanRsp.getMsg();
+                        Timber.e("code: %1s, msg: %2s", changeKeyNickBeanRsp.getCode(), msg);
+                        if (!code.equals("200")) {
+                            if (code.equals("444")) {
+                                App.getInstance().logout(true, MapActivity.this);
+                                return;
+                            }
+
+                            if (!TextUtils.isEmpty(msg)) {
+                                ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(msg);
+                            }
+                            return;
+                        } else {
+                            if (!TextUtils.isEmpty(msg)) {
+                                ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(msg);
+                            }
+                            mHandler.postDelayed(new Runnable() {
+                                @Override
+                                public void run() {
+                                    MapActivity.this.finish();
+                                }
+                            }, 1000);
+
+                        }
+                    }
+
+                    @Override
+                    public void onError(@NonNull Throwable e) {
+                        Timber.e(e);
+                        dismissLoading();
+
+                    }
+
+                    @Override
+                    public void onComplete() {
+
+                    }
+                });
+            }
+        });
+
     }
 
     @SuppressLint("MissingPermission")
@@ -305,80 +379,21 @@ public class MapActivity extends BaseActivity implements OnMapReadyCallback, Goo
         Timber.d("addGeoFence: started");
         if (null != App.getInstance().getLockGeoFenceService()) {
             mBleDeviceLocal.setOpenElectricFence(true);
-            if(App.getInstance().getLockGeoFenceService().updateDeviceGeo(mBleDeviceLocal, latLng, radius)){
-                ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.geofence_added_successfully);
-            }else{
+            mBleDeviceLocal.setLatitude(latLng.latitude);
+            mBleDeviceLocal.setLongitude(latLng.longitude);
+            if (App.getInstance().getLockGeoFenceService().updateDeviceGeo(mBleDeviceLocal, latLng, radius)) {
+                // ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.geofence_added_successfully);
+                AppDatabase.getInstance(this).bleDeviceDao().update(mBleDeviceLocal);
+                App.getInstance().getLockAppService().updateDeviceGeoState(mBleDeviceLocal.getMac(), mBleDeviceLocal);
+                pushService();
+            } else {
                 ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.failed_to_add_geofence);
             }
+        } else {
+            ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.failed_to_add_geofence);
         }
     }
-    /**
-     * 更新锁服务器存储的数据
-     */
-    private void updateLockInfoToService(LatLng latLng) {
-        if (App.getInstance().getUserBean() == null) {
-            Timber.e("updateLockInfoToService App.getInstance().getUserBean() == null");
-            return;
-        }
-        String uid = App.getInstance().getUserBean().getUid();
-        if (TextUtils.isEmpty(uid)) {
-            Timber.e("updateLockInfoToService uid is empty");
-            return;
-        }
-        String token = App.getInstance().getUserBean().getToken();
-        if (TextUtils.isEmpty(token)) {
-            Timber.e("updateLockInfoToService token is empty");
-            return;
-        }
-        showLoading();
 
-        UpdateLockInfoReq req = new UpdateLockInfoReq();
-        req.setSn(mBleDeviceLocal.getEsn());
-        req.setWifiName(mBleDeviceLocal.getConnectedWifiName());
-        req.setSafeMode(0);   // 没有使用这个
-        req.setLanguage("en"); // 暂时也没使用这个
-        req.setVolume(mBleDeviceLocal.isMute() ? 1 : 0);
-        req.setAmMode(mBleDeviceLocal.isAutoLock() ? 0 : 1);
-        req.setDuress(mBleDeviceLocal.isDuress() ? 0 : 1);
-        req.setMagneticStatus(mBleDeviceLocal.getDoorSensor());
-        req.setDoorSensor(mBleDeviceLocal.isOpenDoorSensor() ? 1 : 0);
-        req.setElecFence(mBleDeviceLocal.isOpenElectricFence() ? 0 : 1);
-        req.setAutoLockTime(mBleDeviceLocal.getSetAutoLockTime());
-        req.setElecFenceTime(mBleDeviceLocal.getSetElectricFenceTime());
-        req.setElecFenceSensitivity(mBleDeviceLocal.getSetElectricFenceSensitivity());
-        Timber.e("std44555554445:%s",
-                req.toString());
-        Observable<UpdateLockInfoRsp> observable = HttpRequest.getInstance().updateLockInfo(token, req);
-        ObservableDecorator.decorate(observable).safeSubscribe(new Observer<UpdateLockInfoRsp>() {
-            @Override
-            public void onSubscribe(@NotNull Disposable d) {
-
-            }
-
-            @Override
-            public void onNext(@NotNull UpdateLockInfoRsp updateLockInfoRsp) {
-                dismissLoading();
-                String code = updateLockInfoRsp.getCode();
-                if (!code.equals("200")) {
-                    String msg = updateLockInfoRsp.getMsg();
-                    Timber.e("updateLockInfoToService code: %1s, msg: %2s", code, msg);
-                    if (!TextUtils.isEmpty(msg))
-                        ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(msg);
-                }
-            }
-
-            @Override
-            public void onError(@NotNull Throwable e) {
-                dismissLoading();
-                Timber.e(e);
-            }
-
-            @Override
-            public void onComplete() {
-
-            }
-        });
-    }
 
     private void addMarker(LatLng latLng) {
         MarkerOptions markerOptions = new MarkerOptions().position(latLng);

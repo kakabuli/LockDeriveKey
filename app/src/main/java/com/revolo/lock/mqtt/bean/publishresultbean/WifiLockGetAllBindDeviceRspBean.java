@@ -697,6 +697,42 @@ public class WifiLockGetAllBindDeviceRspBean extends WifiLockBaseResponseBean {
             private String userNickname;
             private String wifiStatus;
             private int autoLockTime;
+            private int elecFence;//地理围栏
+            private int elecFenceTime;//地理围栏时间
+            private int elecFenceSensitivity;//地理围栏灵敏度
+            private int elecFenceState;//从200米外入内的状态
+
+            public int getElecFence() {
+                return elecFence;
+            }
+
+            public void setElecFence(int elecFence) {
+                this.elecFence = elecFence;
+            }
+
+            public int getElecFenceTime() {
+                return elecFenceTime;
+            }
+
+            public void setElecFenceTime(int elecFenceTime) {
+                this.elecFenceTime = elecFenceTime;
+            }
+
+            public int getElecFenceSensitivity() {
+                return elecFenceSensitivity;
+            }
+
+            public void setElecFenceSensitivity(int elecFenceSensitivity) {
+                this.elecFenceSensitivity = elecFenceSensitivity;
+            }
+
+            public int getElecFenceState() {
+                return elecFenceState;
+            }
+
+            public void setElecFenceState(int elecFenceState) {
+                this.elecFenceState = elecFenceState;
+            }
 
             public int getDuress() {
                 return duress;
@@ -1397,6 +1433,9 @@ public class WifiLockGetAllBindDeviceRspBean extends WifiLockBaseResponseBean {
                 dest.writeString(this.userNickname);
                 dest.writeString(this.wifiStatus);
                 dest.writeInt(this.autoLockTime);
+                dest.writeInt(this.elecFence);
+                dest.writeInt(elecFenceTime);//地理围栏时间
+                dest.writeInt(elecFenceSensitivity);//地理围栏灵敏度
             }
 
             public WifiListBean() {
@@ -1454,6 +1493,9 @@ public class WifiLockGetAllBindDeviceRspBean extends WifiLockBaseResponseBean {
                 this.userNickname = in.readString();
                 this.wifiStatus = in.readString();
                 this.autoLockTime = in.readInt();
+                this.elecFence=in.readInt();
+                this.elecFenceTime=in.readInt();//地理围栏时间
+                this.elecFenceSensitivity=in.readInt();//地理围栏灵敏度
             }
 
             public static final Creator<WifiListBean> CREATOR = new Creator<WifiListBean>() {
