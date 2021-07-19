@@ -58,7 +58,7 @@ public class LockKeyAddBeanReq implements Parcelable {
          * endTime : 1551774543
          * items : ["1","3"]
          */
-
+        private long createTime;                      // 创建时间
         private int pwdType;                // 密钥类型：1密码 2指纹密码 3卡片密码 4人脸（暂时没有）
         private int num;                    // 密钥编号
         private String nickName;            // 密钥昵称
@@ -66,6 +66,14 @@ public class LockKeyAddBeanReq implements Parcelable {
         private long startTime;             // 时间段密钥开始时间
         private long endTime;               // 时间段密钥结束时间
         private List<String> items;         // 周期密码星期几
+
+        public long getCreateTime() {
+            return createTime;
+        }
+
+        public void setCreateTime(long createTime) {
+            this.createTime = createTime;
+        }
 
         public int getPwdType() {
             return pwdType;

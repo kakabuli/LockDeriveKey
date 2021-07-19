@@ -204,7 +204,9 @@ public class PasswordDetailActivity extends BaseActivity {
             }
             mTvPwd.setText("***********");
             mTvPwdCharacteristic.setText(getPwdCharacteristic(mDevicePwdBean));
-            mTvCreationDate.setText(ZoneUtil.getDate(mBleDeviceLocal.getTimeZone(),mDevicePwdBean.getCreateTime() * 1000, "MM,dd,yyyy HH:mm:ss"));
+            mTvCreationDate.setText(ZoneUtil.getTestDate(mBleDeviceLocal.getTimeZone(),
+                    mDevicePwdBean.getCreateTime() * 1000, "MM,dd,yyyy   HH:mm:ss"));
+            //mTvCreationDate.setText(ZoneUtil.getDate(mBleDeviceLocal.getTimeZone(),mDevicePwdBean.getCreateTime() * 1000, "MM,dd,yyyy HH:mm:ss"));
         }
     }
 

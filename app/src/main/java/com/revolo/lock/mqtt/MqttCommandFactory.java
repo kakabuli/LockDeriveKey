@@ -106,14 +106,18 @@ public class MqttCommandFactory {
     }
 
     /**
-     * 无感开门
+     * 无感开门 设置蓝牙广播时间
+     * @param wifiID
+     * @param broadcastTime
+     * @param pwd
+     * @return
      */
     public static MqttMessage approachOpen(String wifiID, int broadcastTime, byte[] pwd) {
         int messageId = getMessageId();
         WifiLockApproachOpenPublishBean.ParamsBean approachOpenPublishBean = new WifiLockApproachOpenPublishBean.ParamsBean();
         approachOpenPublishBean.setBroadcast(broadcastTime);
         // 固定设置为0，不开启ibeacon
-        approachOpenPublishBean.setIbeacon(0);
+        approachOpenPublishBean.setIbeacon(1);
         WifiLockApproachOpenPublishBean wifiLockApproachOpenPublishBean = new WifiLockApproachOpenPublishBean(
                 MQttConstant.MSG_TYPE_REQUEST,
                 messageId,
@@ -140,7 +144,7 @@ public class MqttCommandFactory {
                 new WifiLockCloseWifiPublishBean.ParamsBean(),
                 (System.currentTimeMillis() / 1000) + "");
         String base64Json = getEncryptString(pwd, wifiLockCloseWifiPublishBean);
-        return sendEncryptData(messageId, wifiID, base64Json);
+        return sendEncryptData(messageId, wifiID, base64Json, 0);
     }
 
     /**
@@ -178,7 +182,7 @@ public class MqttCommandFactory {
                 MQttConstant.SET_LOCK, setLock,
                 (System.currentTimeMillis() / 1000) + "");
         String base64Json = getEncryptString(pwd, mWifiLockDoorOptPublishBean);
-        return sendEncryptData(messageId, wifiID, base64Json, 0);
+        return sendEncryptData(messageId, wifiID, base64Json, 2);
     }
 
     private static String getPassword(String wifiEsn, String randomCode) {
@@ -343,7 +347,7 @@ public class MqttCommandFactory {
                 bean,
                 (System.currentTimeMillis() / 1000) + "");
         String base64Json = getEncryptString(pwd, wifiLockSetLockAttrPublishBean);
-        return sendEncryptData(messageId, wifiID, base64Json);
+        return sendEncryptData(messageId, wifiID, base64Json, 0);
 
     }
 

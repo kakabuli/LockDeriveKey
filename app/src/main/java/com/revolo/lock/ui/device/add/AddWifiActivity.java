@@ -96,7 +96,6 @@ public class AddWifiActivity extends BaseActivity {
         initLoading(getString(R.string.t_load_content_loading));
 
         mDefaultName = getIntent().getStringExtra("WiFiName");
-        if (!TextUtils.isEmpty(mDefaultName)) mEtWifiName.setText(mDefaultName);
         onRegisterEventBus();
     }
 
@@ -373,6 +372,7 @@ public class AddWifiActivity extends BaseActivity {
                     processWifi();
                 }
             }
+            if (!TextUtils.isEmpty(mDefaultName)) mEtWifiName.setText(mDefaultName);
         }
         dismissLoading();
     }

@@ -124,6 +124,26 @@ public class BleDeviceLocal implements Parcelable {
     @ColumnInfo(name = "d_longitude")
     private double longitude;                                         // 地理围栏经度
 
+    @ColumnInfo(name = "elecFenceState")
+    private boolean elecFenceState;//从200米外进入电子围栏  true 是的，false 不是的
+
+    private int elecFenceCmd;
+
+    @ColumnInfo(name = "shareUserType")
+    private int shareUserType;  // 分享用户权限
+
+    public int getShareUserType() {
+        return shareUserType;
+    }
+
+    public void setShareUserType(int shareUserType) {
+        this.shareUserType = shareUserType;
+    }
+
+    public static Creator<BleDeviceLocal> getCREATOR() {
+        return CREATOR;
+    }
+
     public long getId() {
         return id;
     }
@@ -394,6 +414,30 @@ public class BleDeviceLocal implements Parcelable {
         this.longitude = longitude;
     }
 
+    public boolean getElecFenceState() {
+        return elecFenceState;
+    }
+
+    public void setElecFenceState(boolean elecFenceState) {
+        this.elecFenceState = elecFenceState;
+    }
+
+    public boolean setLockElecFenceState(boolean elecFenceState) {
+        if (this.elecFenceState != elecFenceState) {
+            setElecFenceState(elecFenceState);
+            return true;
+        }
+        return false;
+    }
+
+    public int getElecFenceCmd() {
+        return elecFenceCmd;
+    }
+
+    public void setElecFenceCmd(int elecFenceCmd) {
+        this.elecFenceCmd = elecFenceCmd;
+    }
+
     @Override
     public int describeContents() {
         return 0;
@@ -433,6 +477,8 @@ public class BleDeviceLocal implements Parcelable {
         dest.writeString(this.randomCode);
         dest.writeDouble(this.latitude);
         dest.writeDouble(this.longitude);
+        dest.writeByte(this.elecFenceState ? (byte) 0 : (byte) 1);
+        dest.writeInt(this.shareUserType);
     }
 
     public void readFromParcel(Parcel source) {
@@ -468,6 +514,8 @@ public class BleDeviceLocal implements Parcelable {
         this.randomCode = source.readString();
         this.latitude = source.readDouble();
         this.longitude = source.readDouble();
+        this.elecFenceState = source.readByte() != 0;
+        this.shareUserType = source.readInt();
     }
 
     public BleDeviceLocal() {
@@ -506,6 +554,8 @@ public class BleDeviceLocal implements Parcelable {
         this.randomCode = in.readString();
         this.latitude = in.readLong();
         this.longitude = in.readLong();
+        this.elecFenceState = in.readByte() != 0;
+        this.shareUserType = in.readInt();
     }
 
     public static final Creator<BleDeviceLocal> CREATOR = new Creator<BleDeviceLocal>() {
@@ -555,6 +605,9 @@ public class BleDeviceLocal implements Parcelable {
                 ", randomCode='" + randomCode + '\'' +
                 ", latitude=" + latitude +
                 ", longitude=" + longitude +
+                ",elecFenceState=" + elecFenceState +
+                ",shareUserType=" + shareUserType +
+                ",elecFenceCmd=" + elecFenceCmd +
                 '}';
     }
 }

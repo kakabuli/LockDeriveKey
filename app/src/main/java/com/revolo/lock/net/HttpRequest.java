@@ -20,7 +20,9 @@ import com.revolo.lock.bean.request.DelDeviceBeanReq;
 import com.revolo.lock.bean.request.DelInvalidShareBeanReq;
 import com.revolo.lock.bean.request.DelKeyBeanReq;
 import com.revolo.lock.bean.request.DelSharedUserBeanReq;
+import com.revolo.lock.bean.request.DeleteDeviceTokenBeanReq;
 import com.revolo.lock.bean.request.DeleteSystemMessageReq;
+import com.revolo.lock.bean.request.DeviceTokenBeanReq;
 import com.revolo.lock.bean.request.DeviceUnbindBeanReq;
 import com.revolo.lock.bean.request.EnableSharedUserBeanReq;
 import com.revolo.lock.bean.request.FeedBackBeanReq;
@@ -31,6 +33,7 @@ import com.revolo.lock.bean.request.GetAllSharedUserFromLockBeanReq;
 import com.revolo.lock.bean.request.GetCodeBeanReq;
 import com.revolo.lock.bean.request.GetDevicesFromUidAndSharedUidBeanReq;
 import com.revolo.lock.bean.request.GetLockKeyNickBeanReq;
+import com.revolo.lock.bean.request.GetNotDisturbModeBeanReq;
 import com.revolo.lock.bean.request.GetPwd1BeanReq;
 import com.revolo.lock.bean.request.LockIsBindBeanReq;
 import com.revolo.lock.bean.request.LockKeyAddBeanReq;
@@ -38,6 +41,7 @@ import com.revolo.lock.bean.request.LockRecordBeanReq;
 import com.revolo.lock.bean.request.MailLoginBeanReq;
 import com.revolo.lock.bean.request.MailRegisterBeanReq;
 import com.revolo.lock.bean.request.OpenDoorRecordSearchBeanReq;
+import com.revolo.lock.bean.request.PostNotDisturbModeBeanReq;
 import com.revolo.lock.bean.request.SearchAlarmRecordBeanReq;
 import com.revolo.lock.bean.request.SearchKeyListBeanReq;
 import com.revolo.lock.bean.request.SearchProductNoBeanReq;
@@ -46,6 +50,7 @@ import com.revolo.lock.bean.request.StartAllOTAUpdateBeanReq;
 import com.revolo.lock.bean.request.StartOTAUpdateBeanReq;
 import com.revolo.lock.bean.request.SystemMessageListReq;
 import com.revolo.lock.bean.request.UpdateDoorSensorStateBeanReq;
+import com.revolo.lock.bean.request.UpdateLocalBeanReq;
 import com.revolo.lock.bean.request.UpdateLockInfoReq;
 import com.revolo.lock.bean.request.UpdateLockRecordBeanReq;
 import com.revolo.lock.bean.request.UpdateSharedUserNickNameBeanReq;
@@ -53,6 +58,7 @@ import com.revolo.lock.bean.request.UpdateUserAuthorityTypeBeanReq;
 import com.revolo.lock.bean.request.UpdateUserFirstLastNameBeanReq;
 import com.revolo.lock.bean.request.UploadAlarmRecordBeanReq;
 import com.revolo.lock.bean.request.UploadOpenDoorRecordBeanReq;
+import com.revolo.lock.bean.request.UserByMailExistsBeanReq;
 import com.revolo.lock.bean.respone.AcceptShareBeanRsp;
 import com.revolo.lock.bean.respone.AdminAddDeviceBeanRsp;
 import com.revolo.lock.bean.respone.AlexaAppUrlAndWebUrlBeanRsp;
@@ -71,6 +77,7 @@ import com.revolo.lock.bean.respone.DelDeviceBeanRsp;
 import com.revolo.lock.bean.respone.DelInvalidShareBeanRsp;
 import com.revolo.lock.bean.respone.DelKeyBeanRsp;
 import com.revolo.lock.bean.respone.DelSharedUserBeanRsp;
+import com.revolo.lock.bean.respone.DeviceTokenBeanRsp;
 import com.revolo.lock.bean.respone.DeviceUnbindBeanRsp;
 import com.revolo.lock.bean.respone.EnableSharedUserBeanRsp;
 import com.revolo.lock.bean.respone.FeedBackBeanRsp;
@@ -88,6 +95,7 @@ import com.revolo.lock.bean.respone.LockRecordBeanRsp;
 import com.revolo.lock.bean.respone.LogoutBeanRsp;
 import com.revolo.lock.bean.respone.MailLoginBeanRsp;
 import com.revolo.lock.bean.respone.MailRegisterBeanRsp;
+import com.revolo.lock.bean.respone.NotDisturbModeBeanRsp;
 import com.revolo.lock.bean.respone.OpenDoorRecordSearchBeanRsp;
 import com.revolo.lock.bean.respone.QuestionBeanRsp;
 import com.revolo.lock.bean.respone.SearchAlarmRecordBeanRsp;
@@ -98,6 +106,7 @@ import com.revolo.lock.bean.respone.StartAllOTAUpdateBeanRsp;
 import com.revolo.lock.bean.respone.StartOTAUpdateBeanRsp;
 import com.revolo.lock.bean.respone.SystemMessageListBeanRsp;
 import com.revolo.lock.bean.respone.UpdateDoorSensorStateBeanRsp;
+import com.revolo.lock.bean.respone.UpdateLocalBeanRsp;
 import com.revolo.lock.bean.respone.UpdateLockInfoRsp;
 import com.revolo.lock.bean.respone.UpdateLockRecordBeanRsp;
 import com.revolo.lock.bean.respone.UpdateSharedUserNickNameBeanRsp;
@@ -106,6 +115,7 @@ import com.revolo.lock.bean.respone.UpdateUserFirstLastNameBeanRsp;
 import com.revolo.lock.bean.respone.UploadAlarmRecordBeanRsp;
 import com.revolo.lock.bean.respone.UploadOpenDoorRecordBeanRsp;
 import com.revolo.lock.bean.respone.UploadUserAvatarBeanRsp;
+import com.revolo.lock.bean.respone.UserByMailExistsBeanRsp;
 
 import java.io.File;
 import java.security.cert.CertificateException;
@@ -129,14 +139,12 @@ public class HttpRequest {
 
     private final ApiService service;
 
-    private static final String HOST_ALPHA = "https://api.irevolohome.com:443";                   // alpha 生产服务器
-    private static final String HOST_TEST = "https://internal.irevolo.com:8090";                    // 国内服务器测试接口
-    private static final String ABROAD_HOST = "https://revolotest.sfeiya.com:8090";                      // 海外服务器测试接口
-    private static final String LOCAL_HOST_248 = "https://192.168.118.248:443";                           // 长沙本地服务器测试接口
-    private static final String LOCAL_HOST_249 = "https://192.168.118.249:443";                           // 长沙本地服务器-*/测试接口2
-    public static final String HOST = LOCAL_HOST_249;
-    //test
-//    public static final String HOST = "".equals(SPUtils.getInstance("test").getString("test")) ? LOCAL_HOST_249 : LOCAL_HOST_248;
+    public static final String LOCAL_HOST_ALPHA = "https://api.irevolohome.com:443";                   // alpha 生产服务器
+    //    public static final String HOST_TEST = "https://internal.irevolo.com:8090";                    // 国内服务器测试接口
+    public static final String LOCAL_HOST_ABROAD = "https://revolotest.sfeiya.com:8090";                      // 海外服务器测试接口
+    public static final String LOCAL_HOST_248 = "https://192.168.118.248:443";                           // 长沙本地服务器测试接口
+    public static final String LOCAL_HOST_249 = "https://192.168.118.249:443";                           // 长沙本地服务器-*/测试接口2
+    public static String HTTP_BASE_HOST = LOCAL_HOST_249;
     private static final String CHECK_OTA_HOST_TEST = "https://test1.juziwulian.com:9111";          // 国内服务器测试接口
     private static final String CHECK_OTA_HOST_ABROAD = "https://ota-global.juziwulian.com:9111";   // 海外服务器接口
     public static final String CHECK_OTA_HOST = CHECK_OTA_HOST_ABROAD;
@@ -186,7 +194,7 @@ public class HttpRequest {
                 .create();
 
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(HOST)
+                .baseUrl(HTTP_BASE_HOST)
                 .addConverterFactory(GsonConverterFactory.create(gson))    // Gson
                 .addCallAdapterFactory(RxJava2CallAdapterFactory.create())    // RxJava
                 .client(client)
@@ -322,6 +330,9 @@ public class HttpRequest {
     }
 
     ;
+    public Observable<UpdateLocalBeanRsp> updateockeLecfence(String token, UpdateLocalBeanReq req) {
+        return service.updateockeLecfence(token, req, NORMAL);
+    }
 
     public Observable<CheckDoorSensorStateBeanRsp> checkDoorSensorState(String token, CheckDoorSensorStateBeanReq req) {
         return service.checkDoorSensorState(token, req, NORMAL);
@@ -476,7 +487,7 @@ public class HttpRequest {
         return service.systemMessageList(token, req);
     }
 
-    public Observable<SystemMessageListBeanRsp> deleteSystemMessage(String token, DeleteSystemMessageReq req) {
+    public Observable<DelInvalidShareBeanRsp> deleteSystemMessage(String token, DeleteSystemMessageReq req) {
         return service.systemMessageDelete(token, req);
     }
 
@@ -486,5 +497,25 @@ public class HttpRequest {
 
     public Observable<AlexaSkillEnableBeanRsp> skillEnable(String token, AlexaSkillEnableReq req) {
         return service.skillEnable(token, req);
+    }
+
+    public Observable<DeviceTokenBeanRsp> deviceToken(String token, DeviceTokenBeanReq req) {
+        return service.deviceToken(token, req);
+    }
+
+    public Observable<DeviceTokenBeanRsp> deleteDeviceToken(String token, DeleteDeviceTokenBeanReq req) {
+        return service.deleteDeviceToken(token, req);
+    }
+
+    public Observable<UserByMailExistsBeanRsp> getUserByMailExists(UserByMailExistsBeanReq req) {
+        return service.getUserByMailExists(req);
+    }
+
+    public Observable<NotDisturbModeBeanRsp> postPushSwitch(String token, PostNotDisturbModeBeanReq req) {
+        return service.postPushSwitch(token, req);
+    }
+
+    public Observable<NotDisturbModeBeanRsp> getPushSwitch(String token, GetNotDisturbModeBeanReq req) {
+        return service.getPushSwitch(token, req);
     }
 }

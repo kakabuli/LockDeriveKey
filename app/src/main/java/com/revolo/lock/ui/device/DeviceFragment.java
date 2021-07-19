@@ -25,20 +25,21 @@ import com.revolo.lock.Constant;
 import com.revolo.lock.LocalState;
 import com.revolo.lock.R;
 import com.revolo.lock.adapter.HomeLockListAdapter;
-import com.revolo.lock.ble.BleByteUtil;
+import com.revolo.lock.bean.request.GetNotDisturbModeBeanReq;
+import com.revolo.lock.bean.respone.NotDisturbModeBeanRsp;
 import com.revolo.lock.ble.BleCommandFactory;
 import com.revolo.lock.ble.BleProtocolState;
 import com.revolo.lock.ble.bean.BleBean;
 import com.revolo.lock.ble.bean.BleResultBean;
 import com.revolo.lock.dialog.iosloading.CustomerLoadingDialog;
-import com.revolo.lock.manager.LockAppService;
 import com.revolo.lock.manager.LockMessage;
 import com.revolo.lock.manager.LockMessageCode;
 import com.revolo.lock.manager.LockMessageRes;
 import com.revolo.lock.mqtt.MQttConstant;
 import com.revolo.lock.mqtt.MqttCommandFactory;
-import com.revolo.lock.mqtt.bean.eventbean.WifiLockOperationEventBean;
 import com.revolo.lock.mqtt.bean.publishresultbean.WifiLockBaseResponseBean;
+import com.revolo.lock.net.HttpRequest;
+import com.revolo.lock.net.ObservableDecorator;
 import com.revolo.lock.room.AppDatabase;
 import com.revolo.lock.room.entity.BleDeviceLocal;
 import com.revolo.lock.room.entity.User;
@@ -54,9 +55,11 @@ import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 import org.jetbrains.annotations.NotNull;
 
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 
+import io.reactivex.Observable;
+import io.reactivex.Observer;
+import io.reactivex.disposables.Disposable;
 import timber.log.Timber;
 
 import static com.revolo.lock.Constant.PING_RESULT;
@@ -74,16 +77,26 @@ public class DeviceFragment extends Fragment {
     private TitleBar titleBar;
     private BluetoothAdapter mBluetoothAdapter;
 
-    private BroadcastReceiver mReceiver = new BroadcastReceiver() {
+    private final BroadcastReceiver mReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             if (intent != null) {
-                boolean pingResult = intent.getBooleanExtra(PING_RESULT, true);
-                if (titleBar != null) {
-                    titleBar.setNetError(pingResult);
-                }
-                if (mHomeLockListAdapter != null) {
-                    mHomeLockListAdapter.notifyDataSetChanged();
+                if (intent.getAction().equals(RECEIVE_ACTION_NETWORKS)) {
+                    boolean pingResult = intent.getBooleanExtra(PING_RESULT, true);
+                    if (titleBar != null) {
+                        titleBar.setNetError(pingResult);
+                    }
+                    if (mHomeLockListAdapter != null) {
+                        mHomeLockListAdapter.notifyDataSetChanged();
+                    }
+                } else if (intent.getAction().equals(Intent.ACTION_SCREEN_ON)) {
+                    // 屏幕打开了
+                    if (titleBar != null) {
+                        titleBar.setNetError(true);
+                    }
+                    if (mHomeLockListAdapter != null) {
+                        mHomeLockListAdapter.notifyDataSetChanged();
+                    }
                 }
             }
         }
@@ -111,11 +124,6 @@ public class DeviceFragment extends Fragment {
                     if (mLockstate == LocalState.LOCK_STATE_PRIVATE) {
                         return;
                     }
-                    @LocalState.LockState int connectedState = ((BleDeviceLocal) adapter.getItem(position)).getConnectedType();
-                    if (LocalState.DEVICE_CONNECT_TYPE_DIS == connectedState) {
-                        ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_text_content_offline_devices);
-                        return;
-                    }
                     if (adapter.getItem(position) instanceof BleDeviceLocal) {
                         if (position < 0 || position >= adapter.getData().size()) return;
                         BleDeviceLocal deviceLocal = (BleDeviceLocal) adapter.getItem(position);
@@ -124,6 +132,10 @@ public class DeviceFragment extends Fragment {
                                 ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_please_open_bluetooth);
                             }
                             return; // 隐私模式
+                        }
+                        if (deviceLocal.getShareUserType() == 2) { // guest 用户
+                            // TODO Guest 用户只能列表开关锁
+                            return;
                         }
                         Intent intent = new Intent(getContext(), DeviceDetailActivity.class);
                         App.getInstance().setmCurrMac(deviceLocal.getMac());
@@ -172,13 +184,24 @@ public class DeviceFragment extends Fragment {
         if (mBluetoothAdapter == null) {
             mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         }
-        refreshGetAllBindDevicesFromMQTT();
         if (titleBar != null) {
             titleBar.setNetError(Constant.pingResult);
         }
-
-        requireActivity().registerReceiver(mReceiver, new IntentFilter(RECEIVE_ACTION_NETWORKS));
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(RECEIVE_ACTION_NETWORKS);
+        intentFilter.addAction(Intent.ACTION_SCREEN_ON);
+        requireActivity().registerReceiver(mReceiver, intentFilter);
         return root;
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        boolean registered = EventBus.getDefault().isRegistered(this);
+        if (registered) {
+            EventBus.getDefault().unregister(this);
+        }
+        requireActivity().unregisterReceiver(mReceiver);
     }
 
     public void onRegisterEventBus() {
@@ -199,6 +222,48 @@ public class DeviceFragment extends Fragment {
         super.onResume();
         initBaseData();
         refreshGetAllBindDevicesFromMQTT();
+        initNotDisturbMode();
+    }
+
+    private void initNotDisturbMode() {
+
+        GetNotDisturbModeBeanReq req = new GetNotDisturbModeBeanReq();
+        String token = App.getInstance().getUserBean().getToken();
+        String uid = App.getInstance().getUserBean().getUid();
+        req.setUid(uid);
+        Observable<NotDisturbModeBeanRsp> pushSwitch = HttpRequest.getInstance().getPushSwitch(token, req);
+        ObservableDecorator.decorate(pushSwitch).safeSubscribe(new Observer<NotDisturbModeBeanRsp>() {
+            @Override
+            public void onSubscribe(@io.reactivex.annotations.NonNull Disposable d) {
+
+            }
+
+            @Override
+            public void onNext(@io.reactivex.annotations.NonNull NotDisturbModeBeanRsp notDisturbModeBeanRsp) {
+                NotDisturbModeBeanRsp.DataBean data = notDisturbModeBeanRsp.getData();
+                if (notDisturbModeBeanRsp.getCode().equals("200") && data != null) {
+                    boolean openlockPushSwitch = data.isOpenlockPushSwitch();
+                    List<BleDeviceLocal> bleDeviceLocals = mHomeLockListAdapter.getData();
+                    if (bleDeviceLocals != null && !bleDeviceLocals.isEmpty()) {
+                        for (BleDeviceLocal bleDeviceLocal : bleDeviceLocals) {
+                            bleDeviceLocal.setDoNotDisturbMode(!openlockPushSwitch);
+                        }
+                    }
+                } else if (notDisturbModeBeanRsp.getCode().equals("444")) {
+                    App.getInstance().logout(true, getActivity());
+                }
+            }
+
+            @Override
+            public void onError(@io.reactivex.annotations.NonNull Throwable e) {
+
+            }
+
+            @Override
+            public void onComplete() {
+
+            }
+        });
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
@@ -367,7 +432,6 @@ public class DeviceFragment extends Fragment {
             return;
         }
         if (bean.getCMD() == BleProtocolState.CMD_LOCK_INFO) {
-            lockInfo(mac, bean);
             dismissLoading();
         } else if (bean.getCMD() == BleProtocolState.CMD_LOCK_UPLOAD) {
             mHomeLockListAdapter.notifyDataSetChanged();
@@ -375,51 +439,24 @@ public class DeviceFragment extends Fragment {
         }
     }
 
-    private void lockInfo(@NotNull String mac, BleResultBean bean) {
-        // TODO: 2021/2/8 锁基本信息处理
-        byte[] lockFunBytes = new byte[4];
-        System.arraycopy(bean.getPayload(), 0, lockFunBytes, 0, lockFunBytes.length);
-        // 以下标来命名区分 bit0~7
-        byte[] bit0_7 = BleByteUtil.byteToBit(lockFunBytes[3]);
-        // bit8~15
-        byte[] bit8_15 = BleByteUtil.byteToBit(lockFunBytes[2]);
-        // bit16~23
-        byte[] bit16_23 = BleByteUtil.byteToBit(lockFunBytes[1]);
-
-        byte[] lockState = new byte[4];
-        System.arraycopy(bean.getPayload(), 4, lockState, 0, lockState.length);
-        byte[] lockStateBit0_7 = BleByteUtil.byteToBit(lockState[3]);
-        byte[] lockStateBit8_15 = BleByteUtil.byteToBit(lockState[2]);
-        int soundVolume = bean.getPayload()[8];
-        byte[] language = new byte[2];
-        System.arraycopy(bean.getPayload(), 9, language, 0, language.length);
-        String languageStr = new String(language, StandardCharsets.UTF_8);
-        int battery = bean.getPayload()[11];
-        byte[] time = new byte[4];
-        System.arraycopy(bean.getPayload(), 12, time, 0, time.length);
-        long realTime = (BleByteUtil.bytesToLong(BleCommandFactory.littleMode(time)) + Constant.WILL_ADD_TIME) * 1000;
-        Timber.d("CMD: %1d, lockFunBytes: bit0_7: %2s, bit8_15: %3s, bit16_23: %4s, lockStateBit0_7: %5s, lockStateBit8_15: %6s, soundVolume: %7d, language: %8s, battery: %9d, time: %10d",
-                bean.getCMD(), ConvertUtils.bytes2HexString(bit0_7), ConvertUtils.bytes2HexString(bit8_15),
-                ConvertUtils.bytes2HexString(bit16_23), ConvertUtils.bytes2HexString(lockStateBit0_7),
-                ConvertUtils.bytes2HexString(lockStateBit8_15), soundVolume, languageStr, battery, realTime);
-
-    }
 
     private void initBaseData() {
-        User user = App.getInstance().getUser();
-        //   mBleDeviceLocals = App.getInstance().getDeviceLists();
-        updateData(App.getInstance().getDeviceLists());
-        if (user == null) {
-            return;
+        if (null == App.getInstance().getDeviceLists() || App.getInstance().getDeviceLists().size() == 0) {
+            User user = App.getInstance().getUser();
+            if (user == null) {
+                return;
+            }
+            List<BleDeviceLocal> locals = AppDatabase.getInstance(App.getInstance()).bleDeviceDao().findBleDevicesFromUserIdByCreateTimeDesc(user.getAdminUid());
+            if (locals == null) {
+                return;
+            }
+            if (locals.isEmpty()) {
+                return;
+            }
+            updateData(locals);
+        } else {
+            updateData(App.getInstance().getDeviceLists());
         }
-        List<BleDeviceLocal> locals = AppDatabase.getInstance(App.getInstance()).bleDeviceDao().findBleDevicesFromUserIdByCreateTimeDesc(user.getAdminUid());
-        if (locals == null) {
-            return;
-        }
-        if (locals.isEmpty()) {
-            return;
-        }
-        App.getInstance().setDeviceLists(locals);
     }
 
     private void dismissLoading() {

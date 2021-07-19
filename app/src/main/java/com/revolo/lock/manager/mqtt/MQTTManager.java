@@ -5,6 +5,7 @@ import android.util.Log;
 
 import com.blankj.utilcode.util.LogUtils;
 import com.revolo.lock.App;
+import com.revolo.lock.LockAppManager;
 import com.revolo.lock.mqtt.MQttConstant;
 import com.revolo.lock.mqtt.MqttExceptionHandle;
 
@@ -61,7 +62,7 @@ public class MQTTManager {
         //断开后，是否自动连接
         connOpts.setAutomaticReconnect(true);
         //是否清空客户端的连接记录。若为true，则断开后，broker将自动清除该客户端连接信息
-        connOpts.setCleanSession(MQttConstant.MQTT_CLEANSE_SSION);
+        connOpts.setCleanSession(MQttConstant.MQTT_CLEANSE_SION);
         //设置超时时间，单位为秒 10
         connOpts.setConnectionTimeout(MQttConstant.MQTT_CONNECTION_TIMEOUT);
         //设置心跳时间，单位为秒 20
@@ -171,7 +172,7 @@ public class MQTTManager {
 //                //连接丢失--需要进行重连
                 Timber.d("connectionLost 连接丢失需要重连");
                 String userId = App.getInstance().getUserBean().getUid();
-                String userToken = App.getInstance().getUserBean().getUid();
+                String userToken = App.getInstance().getUserBean().getToken();
                 Timber.d(userId + "用户id" + "用户tonken" + userToken);
                 if (TextUtils.isEmpty(userId) || TextUtils.isEmpty(userToken)) {
                     Timber.d("connectionLost 用户id或者token为空无法重连");
@@ -255,8 +256,6 @@ public class MQTTManager {
     public void mqttPublish(String topic, MqttMessage mqttMessage) throws MqttException {
         if (mqttClient != null && mqttClient.isConnected()) {
             LogUtils.e("发布mqtt消息 " + "topic: " + topic + "  mqttMessage: " + mqttMessage.toString() + "qos = " + mqttMessage.getQos());
-            LogUtils.e("发布mqtt消息 " + "topic: " + topic + "  mqttMessage: " + mqttMessage.toString());
-            LogUtils.e("发布mqtt消息 QOS:" + mqttMessage.getQos());
             mqttClient.publish(topic, mqttMessage, null, new IMqttActionListener() {
                 @Override
                 public void onSuccess(IMqttToken asyncActionToken) {

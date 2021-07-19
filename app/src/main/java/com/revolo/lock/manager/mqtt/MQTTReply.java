@@ -317,8 +317,17 @@ public class MQTTReply {
         if (!TextUtils.isEmpty(wifiListBean.getLockNickname()))
             bleDeviceLocal.setName(wifiListBean.getLockNickname());
         //门磁状态
-        bleDeviceLocal.setDoorSensor(wifiListBean.getMagneticStatus());
-        //启用门门磁
+        if (wifiListBean.getMagneticStatus() == 1) {
+            bleDeviceLocal.setDoorSensor(LocalState.DOOR_SENSOR_OPEN);
+        } else if (wifiListBean.getMagneticStatus() == 2) {
+            bleDeviceLocal.setDoorSensor(LocalState.DOOR_SENSOR_CLOSE);
+        } else if (wifiListBean.getMagneticStatus() == 3) {
+            bleDeviceLocal.setDoorSensor(LocalState.DOOR_SENSOR_EXCEPTION);
+        }
+        /*bleDeviceLocal.setDoorSensor(wifiListBean.getMagneticStatus() == 1 || wifiListBean.getMagneticStatus() == 3
+                ? LocalState.DOOR_SENSOR_OPEN : wifiListBean.getMagneticStatus() == 2
+                ? LocalState.DOOR_SENSOR_CLOSE : LocalState.DOOR_SENSOR_EXCEPTION);*/ // 1 是开门  2 是关门  3是虚掩
+        //启用门磁
         bleDeviceLocal.setOpenDoorSensor(wifiListBean.getDoorSensor() == 1);
 
 //        bleDeviceLocal.setDoNotDisturbMode(wifiListBean.get);
@@ -373,6 +382,8 @@ public class MQTTReply {
         if (!TextUtils.isEmpty(wifiListBean.getPassword2()))
             bleDeviceLocal.setPwd2(wifiListBean.getPassword2());
 
+        bleDeviceLocal.setDetectionLock(true);
+
         if (!TextUtils.isEmpty(wifiListBean.getPassword1()))
             bleDeviceLocal.setPwd1(wifiListBean.getPassword1());
 
@@ -394,6 +405,7 @@ public class MQTTReply {
         if (!TextUtils.isEmpty(firmwareVer)) {
             bleDeviceLocal.setLockVer(firmwareVer);
         }
+        bleDeviceLocal.setShareUserType(wifiListBean.getShareUserType());
         String wifiVer = wifiListBean.getWifiVersion();
         if (!TextUtils.isEmpty(wifiVer)) {
             bleDeviceLocal.setWifiVer(wifiVer);
@@ -403,6 +415,18 @@ public class MQTTReply {
             bleDeviceLocal.setLockPower(wifiListBean.getPower());
         // 0 锁端wifi没有与服务器连接   1 锁端wifi与服务器连接成功
         Timber.d("wifi 连接状态: %1s", wifiListBean.getWifiStatus());
+        //地理围栏
+        //地理围栏是否开启
+        bleDeviceLocal.setOpenElectricFence(wifiListBean.getElecFence()==0);
+        //地理围栏经纬度
+        bleDeviceLocal.setLatitude(Double.parseDouble(wifiListBean.getLatitude()));
+        bleDeviceLocal.setLongitude(Double.parseDouble(wifiListBean.getLongitude()));
+        //地理围栏时间
+        bleDeviceLocal.setSetElectricFenceTime(wifiListBean.getElecFenceTime());
+        bleDeviceLocal.setSetElectricFenceSensitivity(wifiListBean.getElecFenceSensitivity());
+        //地理围栏 从200米外到内
+        bleDeviceLocal.setLockElecFenceState(wifiListBean.getElecFenceState()==0);
+
         return bleDeviceLocal;
     }
 }

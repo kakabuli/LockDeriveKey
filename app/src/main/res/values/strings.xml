@@ -80,15 +80,17 @@
     <string name="tip_door_sensor_error">Door sensor closed</string>
     <string name="tip_door_opened">Door opened</string>
     <string name="tip_door_closed">Door closed</string>
+    <string name="tip_door_error">State Error</string>
     <string name="tip_opened">Opened</string>
     <string name="tip_closed">Closed</string>
+    <string name="tip_error">Error</string>
 
     <!-- OperationRecordsActivity -->
     <string name="title_operation_records">Operation Records</string>
 
     <!-- AddNewPwdActivity -->
     <string name="tip_you_can_set_4_10_valid_passwords">You can set 4&#8211;10 valid passwords</string>
-    <string name="hint_please_enter_password">Enter pincode</string>
+    <string name="hint_please_enter_password">Please enter password</string>
     <string name="title_add_password">Add password</string>
     <string name="select_permanent">Permanent</string>
     <string name="select_schedule">Schedule</string>
@@ -112,7 +114,7 @@
     <string name="title_user_management">User management</string>
     <string name="per_unable_to_add_user">Unable to add user</string>
     <string name="per_unable_to_add_password">Unable to add password</string>
-    <string name="per_app_unlock_only">APP unlock only</string>
+    <string name="per_app_unlock_only">· Able to lock and unlock door via Revolo App ONLY!</string>
     <string name="permission_family">（Family）</string>
     <string name="permission_guest">（Guest）</string>
 
@@ -190,7 +192,7 @@
     <string name="device_name">Device name</string>
     <string name="device_permissions">Device permissions</string>
     <string name="permission_closed_permission">（Closed permission）</string>
-    <string name="unable_to_add_user_and_password">Unable to add user and password</string>
+    <string name="unable_to_add_user_and_password">· Able to lock and unlock door via Revolo App. \n· Able to contoll all lock settings \n· Able to view activities. \n· Able to create/delet PIN Key. \n· Able to invite new users only as Guest.</string>
     <string name="accepting">accepting</string>
 
     <!-- AddDeviceForSharedUserActivity -->
@@ -237,7 +239,7 @@
     <!-- SettingActivity -->
     <string name="gesture_code">Gesture code</string>
     <string name="change_gesture_password">Change gesture password</string>
-    <string name="enable_touch_id">Enable touch ID</string>
+    <string name="enable_touch_id">Enable touch/face ID</string>
     <string name="enable_face_id">Enable face ID</string>
     <string name="account_cancellation">Account cancellation</string>
     <string name="account_cancellation_title">Gate magnet abnormal</string>
@@ -411,6 +413,7 @@
     <string name="at_least_4_points_please_redraw">At least 4 points, please redraw</string>
     <string name="inconsistent_with_the_previous_drawing_please_redraw">Inconsistent with the previous drawing, please redraw</string>
     <string name="title_change_gesture_password">Change gesture password</string>
+    <string name="title_invite_users">Invite users</string>
     <string name="album">Album</string>
 
 
@@ -462,6 +465,8 @@
     <string name="t_you_have_entered_the_range_of_the_geo_fence">You have entered the range of the geo fence</string>
     <string name="t_you_have_exited_the_geo_fence">You have exited the geo fence</string>
     <string name="n_geo_fence">Geo Fence</string>
+    <string name="geofence_added_successfully">Geofence added successfully</string>
+    <string name="failed_to_add_geofence">Failed to add geofence</string>
     <string name="t_you_can_add_geo_fences">You can add geo fences&#8230;</string>
     <string name="t_bg_loc_access_is_necessary_for_geo_fences_to_trigger">Background location access is necessary for geo fences to trigger&#8230;</string>
     <string name="t_please_enter_feedback_content">Please enter feedback content!</string>
@@ -546,4 +551,16 @@
     <string name="t_text_content_offline">Offline</string>
     <string name="t_text_content_wrong_password">Wrong password</string>
     <string name="t_text_content_offline_devices">Devices offline</string>
+    <string name="dialog_content_ota_update">The door lock is upgrading. Please wait...</string>
+    <string name="tip_content_ota_update_success">The door lock is Upgrade successful!</string>
+    <string name="tip_content_ota_update_failed">The door lock is Upgrade failed!</string>
+    <string name="tip_content_registered_mail">The mail has bean Registered!</string>
+    <string name="tip_content_no_registered_mail">The mail not Registered!</string>
+    <string name="tip_content_mail_not_find">The mail not Found!</string>
+    <string name="tip_content_ble_not_update">The device is not connected to WiFi</string>
+    <string name="geo_fence_map_activity_add_location_but_text">Confirm</string>
+    <string name="geo_fence_map_activity_add_location_hint">You can choose the position of the door lock. The automatic lock picking function will be activated when you leave the fence setting range</string>
+    <string name="hint_please_enter_the_invite_user_mail">Please enter the invite user\'s mail!</string>
+    <string name="tip_you_not_share_it_with_yourself">You can\'t share it with yourself</string>
+    <string name="tip_content_share_successful">Share successful</string>
 </resources>

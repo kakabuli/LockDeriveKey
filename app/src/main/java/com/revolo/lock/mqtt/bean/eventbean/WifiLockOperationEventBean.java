@@ -101,7 +101,25 @@ public class WifiLockOperationEventBean extends WifiLockBaseResponseBean {
         private int elecFenceSensitivity;
         private int returnCode;
         private int status;
+        private int devNum;
+        private String SW;
         private int hwerrcode;
+
+        public int getDevNum() {
+            return devNum;
+        }
+
+        public void setDevNum(int devNum) {
+            this.devNum = devNum;
+        }
+
+        public String getSW() {
+            return SW;
+        }
+
+        public void setSW(String SW) {
+            this.SW = SW;
+        }
 
         public int getReturnCode() {
             return returnCode;

@@ -13,21 +13,19 @@ public class MQttConstant {
     private MQttConstant() {
     }
 
-    public static final String MQTT_ALPHA = "tcp://mqtt.irevolohome.com:1883";      // alpha 生产服务器
-    public static final String MQTT_ABROAD_URL = "tcp://revolotest.sfeiya.com:1883";     // 海外服务器
-    public static final String MQTT_TEST_URL = "tcp://internal.irevolo.com:1883";   // 国内测试服务器
-    public static final String MQTT_CHANGSHA_TEST_URL_248 = "tcp://192.168.118.248:1883";
-    public static final String MQTT_CHANGSHA_TEST_URL_249 = "tcp://192.168.118.249:1883";
-    public static final String MQTT_BASE_URL = MQTT_CHANGSHA_TEST_URL_249;
-    // test
-//    public static final String MQTT_BASE_URL = "".equals(SPUtils.getInstance("test").getString("test")) ? MQTT_CHANGSHA_TEST_URL_249 : MQTT_CHANGSHA_TEST_URL_248;
+    public static final String MQTT_URL_ALPHA = "tcp://mqtt.irevolohome.com:28883";      // alpha 生产服务器
+    public static final String MQTT_URL_ABROAD = "tcp://revolotest.sfeiya.com:1883";     // 海外服务器
+    //    public static final String MQTT_URL = "tcp://internal.irevolo.com:1883";   // 国内测试服务器
+    public static final String MQTT_URL_248 = "tcp://192.168.118.248:1883";
+    public static final String MQTT_URL_249 = "tcp://192.168.118.249:1883";
+    public static String MQTT_BASE_URL = MQTT_URL_249;
     public static final String MQTT_REQUEST_APP = "/request/app/func";
 
     //断开后，是否自动连接
     public static final boolean MQTT_AUTOMATIC_RECONNECT = true;
 
     //是否清空客户端的连接记录。若为true，则断开后，broker将自动清除该客户端连接信息
-    public static final boolean MQTT_CLEANSE_SSION = false;
+    public static final boolean MQTT_CLEANSE_SION = false;
 
     //设置超时时间，单位为秒
     public static final int MQTT_CONNECTION_TIMEOUT = 10;
@@ -55,15 +53,10 @@ public class MQttConstant {
         return "/" + userId + "/rpc/call";
     }
 
-    public static String getOrangeIotEvent(String sn) {
-        return "/orangeiot/" + sn + "/event";
-    }
-
     //发布给服务器消息的主题，格式为/request/app/func
     public static final String PUBLISH_TO_SERVER = "/request/app/func";
     //发布给服务器中转网关消息的主题，/clientid/rpc/call
     public static String PUBLISH_TO_GATEWAY = "/rpc/call";
-    public static final String PUBLISH_GET_RANDOM_CODE_TOPIC = "orangeiot/sn/encreport";
 
     //==================================revolo============================
 

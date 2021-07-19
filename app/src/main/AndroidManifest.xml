@@ -19,21 +19,15 @@
 
     <!-- MQTT用到的权限 -->
     <uses-permission android:name="android.permission.WAKE_LOCK" />
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.READ_LOGS" />
+    <uses-permission
+        android:name="android.permission.READ_LOGS"
+        tools:ignore="ProtectedPermissions" />
 
-    <!-- 地理围栏要的权限 -->
-    <uses-permission android:name="android.permission.WAKE_LOCK" />
-    <!-- To request foreground location access, declare one of these permissions. -->
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-    <!-- Required only when requesting background location access on
-       Android 10 (API level 29) and higher. -->
     <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
     <!-- google推送权限 -->
     <uses-permission android:name="com.revolo.lock.permission.C2D_MESSAGE" />
-    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="com.google.android.c2dm.permission.SEND" />
 
     <!-- 指纹权限 -->
     <uses-permission android:name="android.permission.USE_FINGERPRINT" />
@@ -90,8 +84,8 @@
         <activity
             android:name=".ui.sign.SignSelectActivity"
             android:label="@string/app_name"
+            android:launchMode="singleTask"
             android:screenOrientation="portrait">
-
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -406,6 +400,10 @@
             android:name=".ui.mine.HelpActivity"
             android:launchMode="singleTask"
             android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.user.InviteUsersMailActivity"
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait" />
 
         <!--   <service android:name=".mqtt.MqttService" />-->
         <service android:name=".manager.LockAppService" />
@@ -417,5 +415,4 @@
             </intent-filter>
         </receiver>
     </application>
-
 </manifest>

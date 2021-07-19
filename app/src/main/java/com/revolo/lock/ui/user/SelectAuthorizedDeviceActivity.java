@@ -12,6 +12,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.blankj.utilcode.util.ActivityUtils;
 import com.blankj.utilcode.util.ToastUtils;
 import com.revolo.lock.App;
 import com.revolo.lock.Constant;
@@ -22,6 +23,9 @@ import com.revolo.lock.bean.respone.GainKeyBeanRsp;
 import com.revolo.lock.net.HttpRequest;
 import com.revolo.lock.net.ObservableDecorator;
 import com.revolo.lock.room.entity.BleDeviceLocal;
+import com.revolo.lock.ui.device.add.AddWifiActivity;
+import com.revolo.lock.ui.device.add.InputESNActivity;
+import com.revolo.lock.ui.device.add.WifiConnectActivity;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -39,8 +43,9 @@ import timber.log.Timber;
 public class SelectAuthorizedDeviceActivity extends BaseActivity {
 
     private BleDeviceLocal mBleDeviceLocal;
-    private TextView tvUserName, tvSn;
+    private TextView tvUserName, tvSn, tvUserTip;
     private ImageView mIvGuest, mIvFamily;
+    private String mShareUserMail, mShareUserFirstName, mShareUserLastName, uid;
 
     // TODO: 2021/3/8 后续写成enum
     private int mCurrentUserType = 1;                // 1 Family  2 Guest
@@ -67,9 +72,27 @@ public class SelectAuthorizedDeviceActivity extends BaseActivity {
         tvUserName = findViewById(R.id.tvUserName);
         tvSn = findViewById(R.id.tvSn);
         mIvGuest = findViewById(R.id.ivGuest);
+        tvUserTip = findViewById(R.id.tvUserTip);
         mIvFamily = findViewById(R.id.ivFamily);
-        applyDebouncingClickListener(findViewById(R.id.clFamily), findViewById(R.id.clGuest), findViewById(R.id.btnComplete));
+        findViewById(R.id.clFamily).setOnClickListener(v -> {
+            mCurrentUserType = 1;
+            mIvGuest.setImageResource(R.drawable.ic_home_password_icon_default);
+            mIvFamily.setImageResource(R.drawable.ic_home_password_icon_selected);
+        });
+        findViewById(R.id.clGuest).setOnClickListener(v -> {
+            mCurrentUserType = 2;
+            mIvGuest.setImageResource(R.drawable.ic_home_password_icon_selected);
+            mIvFamily.setImageResource(R.drawable.ic_home_password_icon_default);
+        });
+        findViewById(R.id.btnComplete).setOnClickListener(v -> {
+            share();
+        });
         initLoading(getString(R.string.t_load_content_creating));
+
+        mShareUserMail = getIntent().getStringExtra(Constant.SHARE_USER_MAIL);
+        mShareUserFirstName = getIntent().getStringExtra(Constant.SHARE_USER_FIRST_NAME);
+        mShareUserLastName = getIntent().getStringExtra(Constant.SHARE_USER_LAST_NAME);
+        uid = getIntent().getStringExtra(Constant.SHARE_USER_DATA);
     }
 
     @Override
@@ -88,28 +111,15 @@ public class SelectAuthorizedDeviceActivity extends BaseActivity {
 
     @Override
     public void onDebouncingClick(@NonNull View view) {
-        if (view.getId() == R.id.btnComplete) {
-            share();
-            return;
-        }
-        if (view.getId() == R.id.clFamily) {
-            mCurrentUserType = 1;
-            mIvGuest.setImageResource(R.drawable.ic_home_password_icon_default);
-            mIvFamily.setImageResource(R.drawable.ic_home_password_icon_selected);
-            return;
-        }
-        if (view.getId() == R.id.clGuest) {
-            mCurrentUserType = 2;
-            mIvGuest.setImageResource(R.drawable.ic_home_password_icon_selected);
-            mIvFamily.setImageResource(R.drawable.ic_home_password_icon_default);
-        }
+
     }
 
     private void refreshUI() {
         String name = mBleDeviceLocal.getName();
-        tvUserName.setText(TextUtils.isEmpty(name) ? "" : name);
+        tvUserName.setText((TextUtils.isEmpty(mShareUserFirstName) ? "" : mShareUserFirstName) + " " + (TextUtils.isEmpty(mShareUserLastName) ? "" : mShareUserLastName));
         String esn = mBleDeviceLocal.getEsn();
         tvSn.setText(TextUtils.isEmpty(esn) ? "" : getString(R.string.equipment_n_esn, esn));
+        tvUserTip.setText("You will invite " + name + " users to use the lock");
     }
 
     private void share() {
@@ -120,9 +130,9 @@ public class SelectAuthorizedDeviceActivity extends BaseActivity {
             Timber.e("share App.getInstance().getUserBean() == null");
             return;
         }
-        String uid = App.getInstance().getUserBean().getUid();
-        if (TextUtils.isEmpty(uid)) {
-            Timber.e("share uid is empty");
+        String adminUid = App.getInstance().getUserBean().getUid();
+        if (TextUtils.isEmpty(adminUid)) {
+            Timber.e("share adminUid is empty");
             return;
         }
         String token = App.getInstance().getUserBean().getToken();
@@ -130,13 +140,18 @@ public class SelectAuthorizedDeviceActivity extends BaseActivity {
             Timber.e("share token is empty");
             return;
         }
+        if (TextUtils.isEmpty(uid)) {
+            Timber.e("share uid is empty");
+            return;
+        }
         GainKeyBeanReq req = new GainKeyBeanReq();
         req.setDeviceSN(mBleDeviceLocal.getEsn());
         req.setShareUserType(mCurrentUserType);
+        req.setAdminUid(adminUid);
         req.setUid(uid);
-        req.setShareNickName(tvUserName.getText().toString().trim());
-        req.setStartTime(1);
-        req.setEndTime(2);
+        req.setFirstName(mShareUserFirstName);
+        req.setLastName(mShareUserLastName);
+        req.setShareAccount(mShareUserMail);
         showLoading();
         Observable<GainKeyBeanRsp> observable = HttpRequest.getInstance().gainKey(token, req);
         ObservableDecorator.decorate(observable).safeSubscribe(new Observer<GainKeyBeanRsp>() {
@@ -149,32 +164,17 @@ public class SelectAuthorizedDeviceActivity extends BaseActivity {
             public void onNext(@NonNull GainKeyBeanRsp gainKeyBeanRsp) {
                 dismissLoading();
                 String code = gainKeyBeanRsp.getCode();
-                if (TextUtils.isEmpty(code)) {
-                    Timber.e("share code empty");
-                    return;
+                String msg = gainKeyBeanRsp.getMsg();
+                if (code.equals("200")) {
+                    ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(getString(R.string.tip_content_share_successful));
+                    ActivityUtils.finishActivity(SelectAuthorizedDeviceActivity.class);
+                    ActivityUtils.finishActivity(AddDeviceForSharedUserActivity.class);
+                    ActivityUtils.finishActivity(InviteUsersMailActivity.class);
+                } else if (code.equals("444")) {
+                    App.getInstance().logout(true, SelectAuthorizedDeviceActivity.this);
+                } else {
+                    ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(msg);
                 }
-                if (!code.equals("200")) {
-                    if (code.equals("444")) {
-                        App.getInstance().logout(true, SelectAuthorizedDeviceActivity.this);
-                        return;
-                    }
-                    String msg = gainKeyBeanRsp.getMsg();
-                    if (!TextUtils.isEmpty(msg)) {
-                        ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(msg);
-                    }
-                    Timber.e("share code: %1s, msg: %2s", code, gainKeyBeanRsp.getMsg());
-                    return;
-                }
-                if (gainKeyBeanRsp.getData() == null) {
-                    Timber.e("share gainKeyBeanRsp.getData() == null");
-                    return;
-                }
-                String url = gainKeyBeanRsp.getData().getUrl();
-                if (TextUtils.isEmpty(url)) {
-                    Timber.e("share url is empty");
-                    return;
-                }
-                shareUrlToOtherApp(url);
             }
 
             @Override

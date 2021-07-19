@@ -1,6 +1,9 @@
 package com.revolo.lock.ui.user;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.Gravity;
@@ -16,8 +19,6 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.blankj.utilcode.util.ToastUtils;
-import com.chad.library.adapter.base.BaseQuickAdapter;
-import com.chad.library.adapter.base.listener.OnItemClickListener;
 import com.revolo.lock.App;
 import com.revolo.lock.Constant;
 import com.revolo.lock.R;
@@ -36,13 +37,35 @@ import io.reactivex.Observer;
 import io.reactivex.disposables.Disposable;
 import timber.log.Timber;
 
+import static com.revolo.lock.Constant.PING_RESULT;
+import static com.revolo.lock.Constant.RECEIVE_ACTION_NETWORKS;
+
 public class UserFragment extends Fragment {
 
     private UserViewModel mUserViewModel;
     private CustomerLoadingDialog mLoadingDialog;
     private UserListAdapter mUserListAdapter;
     private LinearLayout mLlNoUser;
+    private TitleBar titleBar;
     private RecyclerView mRvLockList;
+    private final BroadcastReceiver mReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (intent != null) {
+                if (intent.getAction().equals(RECEIVE_ACTION_NETWORKS)) {
+                    boolean pingResult = intent.getBooleanExtra(PING_RESULT, true);
+                    if (titleBar != null) {
+                        titleBar.setNetError(pingResult);
+                    }
+                } else if (intent.getAction().equals(Intent.ACTION_SCREEN_ON)) {
+                    // 屏幕打开了
+                    if (titleBar != null) {
+                        titleBar.setNetError(true);
+                    }
+                }
+            }
+        }
+    };
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -50,34 +73,32 @@ public class UserFragment extends Fragment {
                 new ViewModelProvider(this).get(UserViewModel.class);
         View root = inflater.inflate(R.layout.fragment_user, container, false);
         if (getContext() != null) {
-            new TitleBar(root).setTitle(getString(R.string.title_user))
+            titleBar = new TitleBar(root).setTitle(getString(R.string.title_user))
                     .setRight(R.drawable.ic_home_icon_add, v -> {
-                        Intent intent = new Intent(getContext(), AddDeviceForSharedUserActivity.class);
+                        Intent intent = new Intent(getContext(), InviteUsersMailActivity.class);
                         startActivity(intent);
                     });
             mLlNoUser = root.findViewById(R.id.llNoUser);
             mRvLockList = root.findViewById(R.id.rvLockList);
             mRvLockList.setLayoutManager(new LinearLayoutManager(getContext()));
             mUserListAdapter = new UserListAdapter(R.layout.item_user_list_rv);
-            mUserListAdapter.setOnItemClickListener(new OnItemClickListener() {
-                @Override
-                public void onItemClick(@NonNull BaseQuickAdapter<?, ?> adapter, @NonNull View view, int position) {
-                    Intent intent = new Intent(getActivity(), AuthUserDetailActivity.class);
-                    intent.putExtra(Constant.SHARED_USER_DATA, mUserListAdapter.getItem(position));
-                    startActivity(intent);
-                }
+            mUserListAdapter.setOnItemClickListener((adapter, view, position) -> {
+                Intent intent = new Intent(getActivity(), AuthUserDetailActivity.class);
+                intent.putExtra(Constant.SHARE_USER_DATA, mUserListAdapter.getItem(position));
+                startActivity(intent);
             });
             mRvLockList.setAdapter(mUserListAdapter);
-//            mUserViewModel.getUsers().observe(getViewLifecycleOwner(), new Observer<List<TestUserManagementBean>>() {
-//                @Override
-//                public void onChanged(List<TestUserManagementBean> testUserManagementBeans) {
-//                    userListAdapter.setList(testUserManagementBeans);
-//                }
-//            });
+        }
+        if (titleBar != null) {
+            titleBar.setNetError(Constant.pingResult);
         }
         initLoading("Loading...");
         mLlNoUser.setVisibility(View.VISIBLE);
         mRvLockList.setVisibility(View.GONE);
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(RECEIVE_ACTION_NETWORKS);
+        intentFilter.addAction(Intent.ACTION_SCREEN_ON);
+        requireActivity().registerReceiver(mReceiver, intentFilter);
         return root;
     }
 
@@ -88,16 +109,17 @@ public class UserFragment extends Fragment {
     }
 
     @Override
+    public void onDestroy() {
+        super.onDestroy();
+        requireActivity().unregisterReceiver(mReceiver);
+    }
+
+    @Override
     public void onStart() {
         super.onStart();
     }
 
     private void getAllSharedUserFromAdminUser() {
-//        if (getActivity() instanceof BaseActivity) {
-//            if (!((BaseActivity) getActivity()).checkNetConnectFail()) {
-//                return;
-//            }
-//        }
         if (App.getInstance().getUserBean() == null) {
             Timber.e("getAllSharedUserFromAdminUser App.getInstance().getUserBean() == null");
             return;
@@ -126,35 +148,26 @@ public class UserFragment extends Fragment {
             public void onNext(@NonNull GetAllSharedUserFromAdminUserBeanRsp userBeanRsp) {
                 dismissLoading();
                 String code = userBeanRsp.getCode();
-                if (TextUtils.isEmpty(code)) {
-                    Timber.e("getAllSharedUserFromAdminUser code is empty");
-                    return;
-                }
-                if (!code.equals("200")) {
-                    if (code.equals("444")) {
-                        App.getInstance().logout(true, getActivity());
+                String msg = userBeanRsp.getMsg();
+                if (code.equals("200")) {
+                    if (userBeanRsp.getData() == null) {
+                        mLlNoUser.setVisibility(View.VISIBLE);
+                        mRvLockList.setVisibility(View.GONE);
                         return;
                     }
-                    String msg = userBeanRsp.getMsg();
-                    if (!TextUtils.isEmpty(msg)) {
-                        ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(msg);
+                    if (userBeanRsp.getData().isEmpty()) {
+                        mLlNoUser.setVisibility(View.VISIBLE);
+                        mRvLockList.setVisibility(View.GONE);
+                    } else {
+                        mLlNoUser.setVisibility(View.GONE);
+                        mRvLockList.setVisibility(View.VISIBLE);
                     }
-                    Timber.e("getAllSharedUserFromAdminUser code: %1s, msg: %2s", code, userBeanRsp.getMsg());
-                    return;
-                }
-                if (userBeanRsp.getData() == null) {
-                    mLlNoUser.setVisibility(View.VISIBLE);
-                    mRvLockList.setVisibility(View.GONE);
-                    return;
-                }
-                if (userBeanRsp.getData().isEmpty()) {
-                    mLlNoUser.setVisibility(View.VISIBLE);
-                    mRvLockList.setVisibility(View.GONE);
+                    mUserListAdapter.setList(userBeanRsp.getData());
+                } else if (code.equals("444")) {
+                    App.getInstance().logout(true, requireActivity());
                 } else {
-                    mLlNoUser.setVisibility(View.GONE);
-                    mRvLockList.setVisibility(View.VISIBLE);
+                    ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(msg);
                 }
-                mUserListAdapter.setList(userBeanRsp.getData());
             }
 
             @Override

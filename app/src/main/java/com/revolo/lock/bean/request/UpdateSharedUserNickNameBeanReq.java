@@ -8,38 +8,40 @@ package com.revolo.lock.bean.request;
  */
 public class UpdateSharedUserNickNameBeanReq {
 
+    private String adminUId;
+    private String shareUId;
+    private String firstName;
+    private String lastName;
 
-    /**
-     * shareId : 5def53704d3ee13934ffbeea
-     * nickname : 老二
-     * uid : 5c4fe492dc93897aa7d8600b
-     */
-
-    private String shareId;      // 分享用户-设备关联ID
-    private String nickname;     // 分享用户昵称
-    private String uid;          // 管理员ID
-
-    public String getShareId() {
-        return shareId;
+    public String getAdminUId() {
+        return adminUId;
     }
 
-    public void setShareId(String shareId) {
-        this.shareId = shareId;
+    public void setAdminUId(String adminUId) {
+        this.adminUId = adminUId;
     }
 
-    public String getNickname() {
-        return nickname;
+    public String getShareUId() {
+        return shareUId;
     }
 
-    public void setNickname(String nickname) {
-        this.nickname = nickname;
+    public void setShareUId(String shareUId) {
+        this.shareUId = shareUId;
     }
 
-    public String getUid() {
-        return uid;
+    public String getFirstName() {
+        return firstName;
     }
 
-    public void setUid(String uid) {
-        this.uid = uid;
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
     }
 }

@@ -43,10 +43,39 @@ public class SystemMessageListBeanRsp {
 
     public static class DataBean {
         private String _id;
-        private int type;
-        private String title;
-        private String content;
-        private int createTime;
+        private int isShowAgreeShare;
+        private String uid;
+        private String alertTitle;
+        private String alertBody;
+        private int msgType;
+        private long pushAt;
+        private int isAgree;
+        private String shareKey;
+        private String adminUid;
+
+        public String getShareKey() {
+            return shareKey;
+        }
+
+        public void setShareKey(String shareKey) {
+            this.shareKey = shareKey;
+        }
+
+        public String getAdminUid() {
+            return adminUid;
+        }
+
+        public void setAdminUid(String adminUid) {
+            this.adminUid = adminUid;
+        }
+
+        public int getIsAgree() {
+            return isAgree;
+        }
+
+        public void setIsAgree(int isAgree) {
+            this.isAgree = isAgree;
+        }
 
         public String get_id() {
             return _id;
@@ -56,36 +85,52 @@ public class SystemMessageListBeanRsp {
             this._id = _id;
         }
 
-        public int getType() {
-            return type;
+        public int getIsShowAgreeShare() {
+            return isShowAgreeShare;
         }
 
-        public void setType(int type) {
-            this.type = type;
+        public void setIsShowAgreeShare(int isShowAgreeShare) {
+            this.isShowAgreeShare = isShowAgreeShare;
         }
 
-        public String getTitle() {
-            return title;
+        public String getUid() {
+            return uid;
         }
 
-        public void setTitle(String title) {
-            this.title = title;
+        public void setUid(String uid) {
+            this.uid = uid;
         }
 
-        public String getContent() {
-            return content;
+        public String getAlertTitle() {
+            return alertTitle;
         }
 
-        public void setContent(String content) {
-            this.content = content;
+        public void setAlertTitle(String alertTitle) {
+            this.alertTitle = alertTitle;
         }
 
-        public int getCreateTime() {
-            return createTime;
+        public String getAlertBody() {
+            return alertBody;
         }
 
-        public void setCreateTime(int createTime) {
-            this.createTime = createTime;
+        public void setAlertBody(String alertBody) {
+            this.alertBody = alertBody;
+        }
+
+        public int getMsgType() {
+            return msgType;
+        }
+
+        public void setMsgType(int msgType) {
+            this.msgType = msgType;
+        }
+
+        public long getPushAt() {
+            return pushAt;
+        }
+
+        public void setPushAt(long pushAt) {
+            this.pushAt = pushAt;
         }
     }
 }

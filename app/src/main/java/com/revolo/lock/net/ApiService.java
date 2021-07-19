@@ -18,7 +18,9 @@ import com.revolo.lock.bean.request.DelDeviceBeanReq;
 import com.revolo.lock.bean.request.DelInvalidShareBeanReq;
 import com.revolo.lock.bean.request.DelKeyBeanReq;
 import com.revolo.lock.bean.request.DelSharedUserBeanReq;
+import com.revolo.lock.bean.request.DeleteDeviceTokenBeanReq;
 import com.revolo.lock.bean.request.DeleteSystemMessageReq;
+import com.revolo.lock.bean.request.DeviceTokenBeanReq;
 import com.revolo.lock.bean.request.DeviceUnbindBeanReq;
 import com.revolo.lock.bean.request.EnableSharedUserBeanReq;
 import com.revolo.lock.bean.request.FeedBackBeanReq;
@@ -29,6 +31,7 @@ import com.revolo.lock.bean.request.GetAllSharedUserFromLockBeanReq;
 import com.revolo.lock.bean.request.GetCodeBeanReq;
 import com.revolo.lock.bean.request.GetDevicesFromUidAndSharedUidBeanReq;
 import com.revolo.lock.bean.request.GetLockKeyNickBeanReq;
+import com.revolo.lock.bean.request.GetNotDisturbModeBeanReq;
 import com.revolo.lock.bean.request.GetPwd1BeanReq;
 import com.revolo.lock.bean.request.LockIsBindBeanReq;
 import com.revolo.lock.bean.request.LockKeyAddBeanReq;
@@ -36,6 +39,7 @@ import com.revolo.lock.bean.request.LockRecordBeanReq;
 import com.revolo.lock.bean.request.MailLoginBeanReq;
 import com.revolo.lock.bean.request.MailRegisterBeanReq;
 import com.revolo.lock.bean.request.OpenDoorRecordSearchBeanReq;
+import com.revolo.lock.bean.request.PostNotDisturbModeBeanReq;
 import com.revolo.lock.bean.request.SearchAlarmRecordBeanReq;
 import com.revolo.lock.bean.request.SearchKeyListBeanReq;
 import com.revolo.lock.bean.request.SearchProductNoBeanReq;
@@ -44,6 +48,7 @@ import com.revolo.lock.bean.request.StartAllOTAUpdateBeanReq;
 import com.revolo.lock.bean.request.StartOTAUpdateBeanReq;
 import com.revolo.lock.bean.request.SystemMessageListReq;
 import com.revolo.lock.bean.request.UpdateDoorSensorStateBeanReq;
+import com.revolo.lock.bean.request.UpdateLocalBeanReq;
 import com.revolo.lock.bean.request.UpdateLockInfoReq;
 import com.revolo.lock.bean.request.UpdateLockRecordBeanReq;
 import com.revolo.lock.bean.request.UpdateSharedUserNickNameBeanReq;
@@ -51,6 +56,7 @@ import com.revolo.lock.bean.request.UpdateUserAuthorityTypeBeanReq;
 import com.revolo.lock.bean.request.UpdateUserFirstLastNameBeanReq;
 import com.revolo.lock.bean.request.UploadAlarmRecordBeanReq;
 import com.revolo.lock.bean.request.UploadOpenDoorRecordBeanReq;
+import com.revolo.lock.bean.request.UserByMailExistsBeanReq;
 import com.revolo.lock.bean.respone.AcceptShareBeanRsp;
 import com.revolo.lock.bean.respone.AdminAddDeviceBeanRsp;
 import com.revolo.lock.bean.respone.AlexaAppUrlAndWebUrlBeanRsp;
@@ -69,6 +75,7 @@ import com.revolo.lock.bean.respone.DelDeviceBeanRsp;
 import com.revolo.lock.bean.respone.DelInvalidShareBeanRsp;
 import com.revolo.lock.bean.respone.DelKeyBeanRsp;
 import com.revolo.lock.bean.respone.DelSharedUserBeanRsp;
+import com.revolo.lock.bean.respone.DeviceTokenBeanRsp;
 import com.revolo.lock.bean.respone.DeviceUnbindBeanRsp;
 import com.revolo.lock.bean.respone.EnableSharedUserBeanRsp;
 import com.revolo.lock.bean.respone.FeedBackBeanRsp;
@@ -86,6 +93,7 @@ import com.revolo.lock.bean.respone.LockRecordBeanRsp;
 import com.revolo.lock.bean.respone.LogoutBeanRsp;
 import com.revolo.lock.bean.respone.MailLoginBeanRsp;
 import com.revolo.lock.bean.respone.MailRegisterBeanRsp;
+import com.revolo.lock.bean.respone.NotDisturbModeBeanRsp;
 import com.revolo.lock.bean.respone.OpenDoorRecordSearchBeanRsp;
 import com.revolo.lock.bean.respone.QuestionBeanRsp;
 import com.revolo.lock.bean.respone.SearchAlarmRecordBeanRsp;
@@ -96,6 +104,7 @@ import com.revolo.lock.bean.respone.StartAllOTAUpdateBeanRsp;
 import com.revolo.lock.bean.respone.StartOTAUpdateBeanRsp;
 import com.revolo.lock.bean.respone.SystemMessageListBeanRsp;
 import com.revolo.lock.bean.respone.UpdateDoorSensorStateBeanRsp;
+import com.revolo.lock.bean.respone.UpdateLocalBeanRsp;
 import com.revolo.lock.bean.respone.UpdateLockInfoRsp;
 import com.revolo.lock.bean.respone.UpdateLockRecordBeanRsp;
 import com.revolo.lock.bean.respone.UpdateSharedUserNickNameBeanRsp;
@@ -104,6 +113,7 @@ import com.revolo.lock.bean.respone.UpdateUserFirstLastNameBeanRsp;
 import com.revolo.lock.bean.respone.UploadAlarmRecordBeanRsp;
 import com.revolo.lock.bean.respone.UploadOpenDoorRecordBeanRsp;
 import com.revolo.lock.bean.respone.UploadUserAvatarBeanRsp;
+import com.revolo.lock.bean.respone.UserByMailExistsBeanRsp;
 
 import java.util.List;
 
@@ -349,6 +359,18 @@ public interface ApiService {
     @Headers({"Content-Type: application/json"})
     @POST("/wpflock/device/updateMagneticStatus")
     Observable<UpdateDoorSensorStateBeanRsp> updateDoorSensorState(@Header("token") String token, @Body UpdateDoorSensorStateBeanReq req, @Header("url_name") String urlName);
+
+    /**
+     * 更新地理围栏数据
+     *
+     * @param token   用户权限码
+     * @param req     请求实体
+     * @param urlName 用于区分，可能后期替换不一样的接口
+     */
+    @Headers({"Content-Type: application/json"})
+    @POST("/wpflock/device/update/setlockelecfence")
+    Observable<UpdateLocalBeanRsp> updateockeLecfence(@Header("token") String token, @Body UpdateLocalBeanReq req, @Header("url_name") String urlName);
+
 
     /**
      * 查询门磁状态
@@ -666,7 +688,7 @@ public interface ApiService {
      * @param req   请求实体
      */
     @Headers({"Content-Type: application/json"})
-    @POST("/systemMessage/list")
+    @POST("/user/notification/record")
     Observable<SystemMessageListBeanRsp> systemMessageList(@Header("token") String token, @Body SystemMessageListReq req);
 
     /**
@@ -676,8 +698,8 @@ public interface ApiService {
      * @param req   请求实体
      */
     @Headers({"Content-Type: application/json"})
-    @POST("/systemMessage/delete")
-    Observable<SystemMessageListBeanRsp> systemMessageDelete(@Header("token") String token, @Body DeleteSystemMessageReq req);
+    @POST("/user/del/notification/record")
+    Observable<DelInvalidShareBeanRsp> systemMessageDelete(@Header("token") String token, @Body DeleteSystemMessageReq req);
 
     /**
      * 获取Alexa App和LWA Web登陆url
@@ -686,7 +708,7 @@ public interface ApiService {
      * @param req   请求实体
      */
     @Headers({"Content-Type: application/json"})
-    @POST("/user/edit/getAppUrlAndWebUrl")
+    @POST("/smart/authorize")
     Observable<AlexaAppUrlAndWebUrlBeanRsp> getAppUrlAndWebUrl(@Header("token") String token, @Body AlexaAppUrlAndWebUrlReq req);
 
     /**
@@ -698,4 +720,53 @@ public interface ApiService {
     @Headers({"Content-Type: application/json"})
     @POST("/zetark-oauth2-server/skillEnable")
     Observable<AlexaSkillEnableBeanRsp> skillEnable(@Header("token") String token, @Body AlexaSkillEnableReq req);
+
+    /**
+     * 添加推送token
+     *
+     * @param token 用户权限码
+     * @param req   请求实体
+     */
+    @Headers({"Content-Type: application/json"})
+    @POST("/user/upload/deviceToken")
+    Observable<DeviceTokenBeanRsp> deviceToken(@Header("token") String token, @Body DeviceTokenBeanReq req);
+
+    /**
+     * 删除推送token
+     *
+     * @param token 用户权限码
+     * @param req   请求实体
+     */
+    @Headers({"Content-Type: application/json"})
+    @POST("/user/del/deviceToken")
+    Observable<DeviceTokenBeanRsp> deleteDeviceToken(@Header("token") String token, @Body DeleteDeviceTokenBeanReq req);
+
+    /**
+     * 验证邮箱是否注册
+     *
+     * @param req 请求实体
+     */
+    @Headers({"Content-Type: application/json"})
+    @POST("/user/login/getuserbymailexists")
+    Observable<UserByMailExistsBeanRsp> getUserByMailExists(@Body UserByMailExistsBeanReq req);
+
+    /**
+     * 设置勿打扰模式
+     *
+     * @param token 用户权限码
+     * @param req   请求实体
+     */
+    @Headers({"Content-Type: application/json"})
+    @POST("/user/edit/postPushSwitch")
+    Observable<NotDisturbModeBeanRsp> postPushSwitch(@Header("token") String token, @Body PostNotDisturbModeBeanReq req);
+
+    /**
+     * 勿打扰模式状态
+     *
+     * @param token 用户权限码
+     * @param req   请求实体
+     */
+    @Headers({"Content-Type: application/json"})
+    @POST("/user/get/getPushSwitch")
+    Observable<NotDisturbModeBeanRsp> getPushSwitch(@Header("token") String token, @Body GetNotDisturbModeBeanReq req);
 }

@@ -157,8 +157,8 @@
             android:layout_width="6dp"
             android:layout_height="6dp"
             android:layout_marginRight="8dp"
-            android:visibility="gone"
             android:background="@drawable/ic_circle_red_bg"
+            android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintCircleRadius="@dimen/dp_10"
             app:layout_constraintRight_toLeftOf="@id/tv_version_new"
@@ -176,36 +176,4 @@
             app:layout_constraintTop_toTopOf="parent"
             tools:text="V1.0.0" />
     </androidx.constraintlayout.widget.ConstraintLayout>
-
-    <RelativeLayout
-        android:id="@+id/test_update_service"
-        android:layout_width="match_parent"
-        android:layout_height="51pt"
-        android:visibility="gone"
-        app:layout_constraintTop_toBottomOf="@+id/clVersionUpdate">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerVertical="true"
-            android:layout_marginStart="16pt"
-            android:text="service"
-            android:textColor="@color/c333333"
-            android:textSize="15pt"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-
-        <TextView
-            android:id="@+id/test_update_service_curr"
-            android:layout_width="100dp"
-            android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
-            android:layout_centerVertical="true"
-            android:layout_marginRight="10dp"
-            android:text="curr service"
-            android:textColor="@color/cFF556D"
-            android:textSize="15sp" />
-    </RelativeLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

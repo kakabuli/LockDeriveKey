@@ -14,13 +14,19 @@ import com.a1anwang.okble.client.scan.OKBLEScanManager;
 import com.blankj.utilcode.util.ActivityUtils;
 import com.blankj.utilcode.util.SPUtils;
 import com.google.firebase.messaging.FirebaseMessaging;
+import com.revolo.lock.bean.request.DeleteDeviceTokenBeanReq;
+import com.revolo.lock.bean.request.DeviceTokenBeanReq;
+import com.revolo.lock.bean.respone.DeviceTokenBeanRsp;
 import com.revolo.lock.bean.respone.MailLoginBeanRsp;
 import com.revolo.lock.ble.bean.BleBean;
 import com.revolo.lock.manager.LockAppService;
 import com.revolo.lock.manager.geo.LockGeoFenceService;
 import com.revolo.lock.manager.mqtt.MQTTManager;
+import com.revolo.lock.net.HttpRequest;
+import com.revolo.lock.net.ObservableDecorator;
 import com.revolo.lock.room.AppDatabase;
 import com.revolo.lock.room.entity.BleDeviceLocal;
+import com.revolo.lock.room.entity.LockRecord;
 import com.revolo.lock.room.entity.User;
 import com.revolo.lock.ui.MainActivity;
 import com.revolo.lock.ui.sign.LoginActivity;
@@ -32,8 +38,13 @@ import com.tencent.bugly.crashreport.CrashReport;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import io.reactivex.Observable;
+import io.reactivex.Observer;
+import io.reactivex.disposables.Disposable;
 import timber.log.Timber;
 
 import static com.revolo.lock.Constant.REVOLO_SP;
@@ -63,6 +74,23 @@ public class App extends Application {
 
     private MailLoginBeanRsp.DataBean mUserBean;
     private static App instance;
+    private Map<String, List<LockRecord>> lockRecords = new HashMap<>();
+
+    public void addLockRecords(String esn, List<LockRecord> records) {
+        lockRecords.put(esn, records);
+    }
+
+    public List<LockRecord> getLockRecords(String esn) {
+        return lockRecords.get(esn);
+    }
+
+    public void removeRecords(String esn) {
+        if (null == esn || "".equals(esn)) {
+            lockRecords.clear();
+            return;
+        }
+        lockRecords.remove(esn);
+    }
 
     public static App getInstance() {
         return instance;
@@ -76,10 +104,7 @@ public class App extends Application {
     public void onCreate() {
         super.onCreate();
         instance = this;
-//        if (BuildConfig.DEBUG) {
-            Timber.plant(new Timber.DebugTree());
-//        }
-        //initMQttService();
+        Timber.plant(new Timber.DebugTree());
         initLockAppService();
         initLockGeoService();
 
@@ -94,16 +119,6 @@ public class App extends Application {
         CrashReport.initCrashReport(getApplicationContext(), "22dc9fa410", true);
     }
 
-    // TODO: 2021/3/8 临时存个MainActivity 后期删除
-    private MainActivity mMainActivity;
-
-    public MainActivity getMainActivity() {
-        return mMainActivity;
-    }
-
-    public void setMainActivity(MainActivity mainActivity) {
-        mMainActivity = mainActivity;
-    }
 
     private User mUser;
     private String mMail;
@@ -232,13 +247,45 @@ public class App extends Application {
     }
 
     /**
-     * 设置用户列表
-     *
-     * @param bleDeviceLocals
+     * 绑定成功后，添加在设备列表中
+     * @param bleDeviceLocal
      */
-    public void setDeviceLists(List<BleDeviceLocal> bleDeviceLocals) {
+    public void addBleDeviceLocal(BleDeviceLocal bleDeviceLocal) {
         if (null != lockAppService) {
-            lockAppService.add(bleDeviceLocals);
+            List<BleDeviceLocal> bleDeviceLocalList = new ArrayList<>();
+            bleDeviceLocalList.add(bleDeviceLocal);
+            lockAppService.add(bleDeviceLocalList);
+        }
+    }
+
+    private void deleteDeviceToken() {
+        if (App.getInstance().getUserBean() != null) {
+            Timber.d("**************************   delete google token to server   **************************");
+            DeleteDeviceTokenBeanReq req = new DeleteDeviceTokenBeanReq();
+            req.setUid(App.getInstance().getUserBean().getUid());
+            Observable<DeviceTokenBeanRsp> deviceTokenBeanRspObservable = HttpRequest.getInstance().deleteDeviceToken(App.getInstance().getUserBean().getToken(), req);
+            ObservableDecorator.decorate(deviceTokenBeanRspObservable).safeSubscribe(new Observer<DeviceTokenBeanRsp>() {
+                @Override
+                public void onSubscribe(@io.reactivex.annotations.NonNull Disposable d) {
+
+                }
+
+                @Override
+                public void onNext(@io.reactivex.annotations.NonNull DeviceTokenBeanRsp deviceTokenBeanRsp) {
+
+                }
+
+                @Override
+                public void onError(@io.reactivex.annotations.NonNull Throwable e) {
+
+                }
+
+                @Override
+                public void onComplete() {
+
+
+                }
+            });
         }
     }
 
@@ -272,9 +319,6 @@ public class App extends Application {
             }
         }
     }
-   /* public MqttService getMQttService() {
-        return mMQttService;
-    }*/
 
     /**
      * @param isShowDialog 是否弹出对话框，提示用户token失效，需要重新登陆。如果是主动退出登录的那么不需要提示 是false
@@ -312,6 +356,7 @@ public class App extends Application {
         // TODO: 2021/3/30 logout的数据操作
         removeDeviceList();
         User user = App.getInstance().getUser();
+        deleteDeviceToken();
         AppDatabase.getInstance(getApplicationContext()).userDao().delete(user);
         App.getInstance().getUserBean().setToken(""); // 清空token
         MQTTManager.getInstance().mqttDisconnect(); // mqtt断开连接

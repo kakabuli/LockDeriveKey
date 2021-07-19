@@ -15,6 +15,8 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
 import android.os.Message;
+import android.text.TextUtils;
+import android.view.Gravity;
 
 import androidx.annotation.NonNull;
 
@@ -23,9 +25,13 @@ import com.blankj.utilcode.util.ActivityUtils;
 import com.blankj.utilcode.util.ConvertUtils;
 import com.blankj.utilcode.util.LogUtils;
 import com.blankj.utilcode.util.NetworkUtils;
+import com.blankj.utilcode.util.ToastUtils;
 import com.revolo.lock.App;
 import com.revolo.lock.Constant;
 import com.revolo.lock.LocalState;
+import com.revolo.lock.LockAppManager;
+import com.revolo.lock.bean.request.UpdateLocalBeanReq;
+import com.revolo.lock.bean.respone.UpdateLocalBeanRsp;
 import com.revolo.lock.ble.BleByteUtil;
 import com.revolo.lock.ble.BleCommandFactory;
 import com.revolo.lock.ble.BleProtocolState;
@@ -48,8 +54,11 @@ import com.revolo.lock.mqtt.bean.publishresultbean.WifiLockSetLockAttrAutoTimeRs
 import com.revolo.lock.mqtt.bean.publishresultbean.WifiLockSetLockAttrDuressRspBean;
 import com.revolo.lock.mqtt.bean.publishresultbean.WifiLockSetLockAttrSensitivityRspBean;
 import com.revolo.lock.mqtt.bean.publishresultbean.WifiLockSetLockAttrVolumeRspBean;
+import com.revolo.lock.net.HttpRequest;
+import com.revolo.lock.net.ObservableDecorator;
 import com.revolo.lock.room.AppDatabase;
 import com.revolo.lock.room.entity.BleDeviceLocal;
+import com.revolo.lock.ui.device.lock.setting.GeoFenceUnlockActivity;
 import com.revolo.lock.util.ZoneUtil;
 
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
@@ -63,13 +72,14 @@ import org.jetbrains.annotations.NotNull;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+import io.reactivex.Observable;
+import io.reactivex.Observer;
 import io.reactivex.disposables.Disposable;
 import timber.log.Timber;
 
@@ -224,8 +234,8 @@ public class LockAppService extends Service {
                                 break;
                             case BluetoothAdapter.STATE_ON:
                                 Timber.e("蓝牙已经打开");
-                                List<BleDeviceLocal> bleDe=new ArrayList<>();
-                                if(null!=mDeviceLists){
+                                List<BleDeviceLocal> bleDe = new ArrayList<>();
+                                if (null != mDeviceLists) {
                                     bleDe.addAll(mDeviceLists);
                                 }
 
@@ -258,7 +268,7 @@ public class LockAppService extends Service {
 
     @Subscribe(threadMode = ThreadMode.ASYNC)
     public void getEventBus(LockMessage lockMessage) {
-        Timber.e("service 执行获取设备信息");
+        Timber.e("service cmd");
         if (lockMessage == null) {
             return;
         }
@@ -333,7 +343,8 @@ public class LockAppService extends Service {
             } else if (bleConnected.getConnectType() == 3) {
                 BleDeviceLocal bleDeviceLocal = bleConnected.getBleDeviceLocal();
                 if (null != bleDeviceLocal) {
-                    BluetoothDevice device = null;
+                    connectDevice(bleDeviceLocal);
+                  /*  BluetoothDevice device = null;
                     try {
                         device = getBluetoothAdapter().getRemoteDevice(bleDeviceLocal.getMac());
                     } catch (Exception e) {
@@ -345,43 +356,12 @@ public class LockAppService extends Service {
                     System.arraycopy(bytes, 0, mPwd1, 0, bytes.length);
                     Timber.e("connected type:3");
                     onBleConnect(bleDeviceLocal.getEsn(), null, device, mPwd1, ConvertUtils.hexString2Bytes(bleDeviceLocal.getPwd2())
-                    );
+                    );*/
                 }
             }
 
         }
     }
-
-
-    //*****************************************************网络监听**********************************************************************
-   /* private void registerNetReceive() {
-        IntentFilter netIntent = new IntentFilter();
-        netIntent.addAction("android.net.conn.CONNECTIVITY_CHANGE");
-        registerReceiver(netReceiver, netIntent);
-    }
-
-    private void unRegisterNetReceive() {
-        unregisterReceiver(netReceiver);
-    }
-
-    private BroadcastReceiver netReceiver = new BroadcastReceiver() {
-
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(
-                    Context.CONNECTIVITY_SERVICE);
-            NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
-            if (networkInfo != null && networkInfo.isAvailable()) {
-                //有网络
-            } else {
-                // 无网络
-            }
-        }
-    };*/
-
-    //*****************************************************网络监听 end**********************************************************************
-
-    //******************************************************设备管理**********************************************************************
 
     /**
      * 清理连接设备list
@@ -459,35 +439,67 @@ public class LockAppService extends Service {
             }
             //判断当前ble的连接情况
             if (!bleState) {
-                if (!getBluetoothAdapter().isEnabled()) {
-                    Timber.e("当前蓝牙已关闭，无法进行连接");
-                } else {
-                    Timber.e("当前蓝牙正常，正进行连接");
-                    BluetoothDevice device = null;
-                    try {
-                        device = getBluetoothAdapter().getRemoteDevice(bleDeviceLocal.getMac());
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                    //bleScanResult.
-                    byte[] mPwd1 = new byte[16];
-                    byte[] bytes = ConvertUtils.hexString2Bytes(bleDeviceLocal.getPwd1());
-                    System.arraycopy(bytes, 0, mPwd1, 0, bytes.length);
-                    onBleConnect(bleDeviceLocal.getEsn(), null, device, mPwd1, ConvertUtils.hexString2Bytes(bleDeviceLocal.getPwd2())
-                    );
-                }
+                connectDevice(bleDeviceLocal);
             }
         }
         //lock.unlock();
-        Timber.e("getEventBus send");
-        for (BleDeviceLocal deviceLocal : mDeviceLists) {
-            Timber.e("device state:%s", deviceLocal.toString());
-        }
         LockMessageRes lockMessageRes = new LockMessageRes();
         lockMessageRes.setMessgaeType(LockMessageCode.MSG_LOCK_MESSAGE_MQTT);//蓝牙消息
         lockMessageRes.setResultCode(MSG_LOCK_MESSAGE_CODE_SUCCESS);
         lockMessageRes.setMessageCode(LockMessageCode.MSG_LOCK_MESSAGE_ADD_DEVICE);//添加到设备到主页
         EventBus.getDefault().post(lockMessageRes);
+    }
+
+    /**
+     * 检查当前蓝牙是否连接
+     * @param mac
+     */
+    public void checkBleConnect(String mac) {
+
+        boolean bleState = onGetConnectedState(mac);//当前蓝牙设的设备的状态
+        BleDeviceLocal bleDeviceLocal = null;
+        if (null != mDeviceLists) {
+            for (BleDeviceLocal bleDev : mDeviceLists) {
+                if (bleDev.getMac().equals(mac)) {
+                    bleDeviceLocal = bleDev;
+                    break;
+                }
+            }
+        }
+        if (null == bleDeviceLocal) {
+            return;
+        }
+        //判断当前ble的连接情况
+        if (!bleState) {
+            connectDevice(bleDeviceLocal);
+        }
+
+        //lock.unlock();
+        LockMessageRes lockMessageRes = new LockMessageRes();
+        lockMessageRes.setMessgaeType(LockMessageCode.MSG_LOCK_MESSAGE_MQTT);//蓝牙消息
+        lockMessageRes.setResultCode(MSG_LOCK_MESSAGE_CODE_SUCCESS);
+        lockMessageRes.setMessageCode(LockMessageCode.MSG_LOCK_MESSAGE_ADD_DEVICE);//添加到设备到主页
+        EventBus.getDefault().post(lockMessageRes);
+    }
+
+    private void connectDevice(BleDeviceLocal bleDeviceLocal) {
+        if (!getBluetoothAdapter().isEnabled()) {
+            Timber.e("当前蓝牙已关闭，无法进行连接");
+        } else {
+            Timber.e("当前蓝牙正常，正进行连接");
+            BluetoothDevice device = null;
+            try {
+                device = getBluetoothAdapter().getRemoteDevice(bleDeviceLocal.getMac());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            //bleScanResult.
+            byte[] mPwd1 = new byte[16];
+            byte[] bytes = ConvertUtils.hexString2Bytes(bleDeviceLocal.getPwd1());
+            System.arraycopy(bytes, 0, mPwd1, 0, bytes.length);
+            onBleConnect(bleDeviceLocal.getEsn(), null, device, mPwd1, ConvertUtils.hexString2Bytes(bleDeviceLocal.getPwd2())
+            );
+        }
     }
 
     /**
@@ -804,7 +816,7 @@ public class LockAppService extends Service {
                     break;
                 case BleProtocolState.CMD_KNOCK_DOOR_AND_UNLOCK_TIME:// 0x22;      // 敲门开锁指令
                     if (bleResultBean.getPayload()[0] == 0) {
-                        // 设置敲击开锁成功
+                        // 设置敲击开锁成功 清理当前地理位置监控
                         updateDeviceState(mac);
                     }
                     break;
@@ -891,17 +903,20 @@ public class LockAppService extends Service {
         if (null != bleBean) {
             for (int index = 0; index < mDeviceLists.size(); index++) {
                 if (null != mac && mac.equals(mDeviceLists.get(index).getMac())) {
+                    if (mDeviceLists.get(index).setLockElecFenceState(false)) {
+                        pushServiceGeoState(mDeviceLists.get(index));
+                    }
                     if (null != App.getInstance().getLockGeoFenceService()) {
                         App.getInstance().getLockGeoFenceService().clearBleDevice(mDeviceLists.get(index).getEsn());
-                        mDeviceLists.get(index).setOpenElectricFence(false);
+                        // mDeviceLists.get(index).setOpenElectricFence(false);
                         AppDatabase.getInstance(getApplicationContext()).bleDeviceDao().update(mDeviceLists.get(index));
-                        Timber.e("app service setDoorState curr mac: %s", App.getInstance().getmCurrMac());
-                        Timber.e("app service setDoorState curr sn: %s", App.getInstance().getmCurrSn());
-                        Timber.e("app service setDoorState  mac: %s", mDeviceLists.get(index).getMac());
-                        Timber.e("app service setDoorState  sn: %s", mDeviceLists.get(index).getEsn());
+                        Timber.e("app service updateDeviceState curr mac: %s", App.getInstance().getmCurrMac());
+                        Timber.e("app service updateDeviceState curr sn: %s", App.getInstance().getmCurrSn());
+                        Timber.e("app service updateDeviceState  mac: %s", mDeviceLists.get(index).getMac());
+                        Timber.e("app service updateDeviceState  sn: %s", mDeviceLists.get(index).getEsn());
                         if ((null != mDeviceLists.get(index).getMac() && mDeviceLists.get(index).getMac().equals(App.getInstance().getmCurrMac())) ||
                                 (null != mDeviceLists.get(index).getEsn() && mDeviceLists.get(index).getEsn().equals(App.getInstance().getmCurrSn()))) {
-                            Timber.e("app service setDoorState set BleDeviceLocal");
+                            Timber.e("app service updateDeviceState set BleDeviceLocal");
                             App.getInstance().setBleDeviceLocal(mDeviceLists.get(index));
                         }
                     }
@@ -910,6 +925,88 @@ public class LockAppService extends Service {
             }
 
         }
+    }
+
+    /**
+     * 更新地理围栏
+     *
+     * @param mac                        mac码
+     * @param "isOpenElectricFence"      是否开启地理围栏
+     * @param "electricFenceSensitivity" 灵敏度
+     * @param "electricFenceTime"        蓝牙广播时间
+     * @param "latitude"                 经纬度
+     * @param "longitude"                经纬度
+     * @param "elecFenceState"           是否从200米外进入
+     */
+    public void updateDeviceGeoState(String mac, BleDeviceLocal bleDeviceLocal) {
+        if (null != bleDeviceLocal) {
+            BleBean bleBean = BleManager.getInstance().getBleBeanFromMac(mac);
+            if (null != bleBean) {
+                for (int index = 0; index < mDeviceLists.size(); index++) {
+                    if (null != mac && mac.equals(mDeviceLists.get(index).getMac())) {
+                        if (null != App.getInstance().getLockGeoFenceService()) {
+                            mDeviceLists.get(index).setOpenElectricFence(bleDeviceLocal.isOpenElectricFence());
+                            mDeviceLists.get(index).setSetElectricFenceSensitivity(bleDeviceLocal.getSetElectricFenceSensitivity());
+                            mDeviceLists.get(index).setSetElectricFenceTime(bleDeviceLocal.getSetElectricFenceTime());
+                            mDeviceLists.get(index).setLongitude(bleDeviceLocal.getLongitude());
+                            mDeviceLists.get(index).setLatitude(bleDeviceLocal.getLatitude());
+                            mDeviceLists.get(index).setLockElecFenceState(bleDeviceLocal.getElecFenceState());
+                            AppDatabase.getInstance(getApplicationContext()).bleDeviceDao().update(mDeviceLists.get(index));
+                            Timber.e("app service updateDeviceGeo curr mac: %s", App.getInstance().getmCurrMac());
+                            Timber.e("app service updateDeviceGeo curr sn: %s", App.getInstance().getmCurrSn());
+                            Timber.e("app service updateDeviceGeo  mac: %s", mDeviceLists.get(index).getMac());
+                            Timber.e("app service updateDeviceGeo  sn: %s", mDeviceLists.get(index).getEsn());
+                            if ((null != mDeviceLists.get(index).getMac() && mDeviceLists.get(index).getMac().equals(App.getInstance().getmCurrMac())) ||
+                                    (null != mDeviceLists.get(index).getEsn() && mDeviceLists.get(index).getEsn().equals(App.getInstance().getmCurrSn()))) {
+                                Timber.e("app service updateDeviceGeo set BleDeviceLocal");
+                                App.getInstance().setBleDeviceLocal(mDeviceLists.get(index));
+                            }
+                        }
+                        break;
+                    }
+                }
+
+            }
+        }
+    }
+
+    public void pushServiceGeoState(BleDeviceLocal mBleDeviceLocal) {
+        mHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                UpdateLocalBeanReq lockLocal = new UpdateLocalBeanReq();
+                lockLocal.setSn(mBleDeviceLocal.getEsn());
+                lockLocal.setElecFence(mBleDeviceLocal.isOpenElectricFence() ? 0 : 1);
+                lockLocal.setElecFenceSensitivity(mBleDeviceLocal.getSetElectricFenceSensitivity());
+                lockLocal.setElecFenceTime(mBleDeviceLocal.getSetElectricFenceTime());
+                lockLocal.setLatitude(mBleDeviceLocal.getLatitude() + "");
+                lockLocal.setLongitude(mBleDeviceLocal.getLongitude() + "");
+                lockLocal.setElecFenceState(mBleDeviceLocal.getElecFenceState() ? 0 : 1);
+                String token = App.getInstance().getUserBean().getToken();
+                Observable<UpdateLocalBeanRsp> observable = HttpRequest.getInstance().updateockeLecfence(token, lockLocal);
+                ObservableDecorator.decorate(observable).safeSubscribe(new Observer<UpdateLocalBeanRsp>() {
+                    @Override
+                    public void onSubscribe(@NonNull Disposable d) {
+
+                    }
+
+                    @Override
+                    public void onNext(@NonNull UpdateLocalBeanRsp changeKeyNickBeanRsp) {
+                        Timber.e("上报地理围栏数据");
+                    }
+
+                    @Override
+                    public void onError(@NonNull Throwable e) {
+                        Timber.e(e);
+                    }
+
+                    @Override
+                    public void onComplete() {
+
+                    }
+                });
+            }
+        });
     }
 
     /**
@@ -956,7 +1053,6 @@ public class LockAppService extends Service {
         byte[] lockFunBytes = new byte[4];
         System.arraycopy(bean.getPayload(), 0, lockFunBytes, 0, lockFunBytes.length);
         // 以下标来命名区分 bit0~7
-        byte[] bit7_0 = BleByteUtil.byteToBit(lockFunBytes[3]);
         // bit8~15
         byte[] bit15_8 = BleByteUtil.byteToBit(lockFunBytes[2]);
         // bit16~23
@@ -966,6 +1062,7 @@ public class LockAppService extends Service {
         System.arraycopy(bean.getPayload(), 4, lockState, 0, lockState.length);
         byte[] lockStateBit7_0 = BleByteUtil.byteToBit(lockState[3]);
         byte[] lockStateBit15_8 = BleByteUtil.byteToBit(lockState[2]);
+        byte[] bit7_0 = BleByteUtil.byteToBit(lockState[0]);
         int soundVolume = bean.getPayload()[8];
         byte[] language = new byte[2];
         System.arraycopy(bean.getPayload(), 9, language, 0, language.length);
@@ -982,7 +1079,7 @@ public class LockAppService extends Service {
         mDeviceLists.get(index).setLockPower(power);
         boolean isMute = (soundVolume == LocalState.VOLUME_STATE_MUTE);
         mDeviceLists.get(index).setMute(isMute);
-        byte doorSensorState = bit7_0[3];
+        byte doorSensorState = bit7_0[4];
         boolean isOpenDoorSensor = (doorSensorState == 0x01);
         // TODO: 2021/4/21 暂时屏蔽掉开始的基本信息检查
 //        mBleDeviceLocal.setOpenDoorSensor(isOpenDoorSensor);
@@ -1025,7 +1122,17 @@ public class LockAppService extends Service {
 
         if (eventType == 0x01) {
             //0x01：Operation操作(动作类)
-            if (eventSource == 0x09) {
+            if (eventSource == 0x0a) {
+                //震动方式
+                updateDeviceState(mac);
+                removeBleConnect(mac);
+                Timber.e("震动方式：" + eventCode);
+            } else if (eventSource == 0x0b) {
+                //触摸方式
+                Timber.e("触摸方式：" + eventCode);
+                updateDeviceState(mac);
+                removeBleConnect(mac);
+            } else if (eventSource == 0x09) {
                 byte[] code = BleByteUtil.byteToBit((byte) eventCode);
                 Timber.e("dagaggg :%s", code[0] + "");
                 if (code[0] == 0x01) {
@@ -1055,6 +1162,11 @@ public class LockAppService extends Service {
                 // 门磁异常
                 // TODO: 2021/3/31 门磁异常的操作
                 Timber.d("lockUpdateInfo 门磁异常");
+            } else if (eventCode == 3) {
+                //电子围栏超时
+                Timber.e("电子围栏超时");
+                updateDeviceState(mac);
+                removeBleConnect(mac);
             }
         }
     }
@@ -1070,22 +1182,23 @@ public class LockAppService extends Service {
             return;
         }
         if (null != mDeviceLists.get(index)) {
-            if (mDeviceLists.get(index).getLockState() == LocalState.LOCK_STATE_PRIVATE && state != LocalState.LOCK_STATE_OPEN) {
+            BleDeviceLocal bleDeviceLocal = mDeviceLists.get(index);
+            if (bleDeviceLocal.getLockState() == LocalState.LOCK_STATE_PRIVATE && state != LocalState.LOCK_STATE_OPEN) {
                 Timber.e("设置门的状态过滤：%s", state + "");
                 return;
             }
-            mDeviceLists.get(index).setLockState(state);
-            Timber.d("setLockState wifiId: %1s %2s", mDeviceLists.get(index).getEsn(), state == LocalState.LOCK_STATE_OPEN ? "锁开了" : "锁关了");
-            AppDatabase.getInstance(getApplicationContext()).bleDeviceDao().update(mDeviceLists.get(index));
+            bleDeviceLocal.setLockState(state);
+            Timber.d("setLockState wifiId: %1s %2s", bleDeviceLocal.getEsn(), state == LocalState.LOCK_STATE_OPEN ? "锁开了" : "锁关了");
+            AppDatabase.getInstance(getApplicationContext()).bleDeviceDao().update(bleDeviceLocal);
             Timber.e("app service setLockState curr mac: %s", App.getInstance().getmCurrMac());
             Timber.e("app service setLockState curr sn: %s", App.getInstance().getmCurrSn());
 
-            Timber.e("app service setLockState  mac: %s", mDeviceLists.get(index).getMac());
-            Timber.e("app service setLockState  sn: %s", mDeviceLists.get(index).getEsn());
-            if ((null != mDeviceLists.get(index).getMac() && mDeviceLists.get(index).getMac().equals(App.getInstance().getmCurrMac())) ||
-                    (null != mDeviceLists.get(index).getEsn() && mDeviceLists.get(index).getEsn().equals(App.getInstance().getmCurrSn()))) {
+            Timber.e("app service setLockState  mac: %s", bleDeviceLocal.getMac());
+            Timber.e("app service setLockState  sn: %s", bleDeviceLocal.getEsn());
+            if ((null != bleDeviceLocal.getMac() && bleDeviceLocal.getMac().equals(App.getInstance().getmCurrMac())) ||
+                    (null != bleDeviceLocal.getEsn() && bleDeviceLocal.getEsn().equals(App.getInstance().getmCurrSn()))) {
                 Timber.e("app service setLockState set BleDeviceLocal");
-                App.getInstance().setBleDeviceLocal(mDeviceLists.get(index));
+                App.getInstance().setBleDeviceLocal(bleDeviceLocal);
             }
         }
     }
@@ -1233,6 +1346,7 @@ public class LockAppService extends Service {
         }
         new Handler(Looper.getMainLooper()).postDelayed(() -> {
             long nowTime = ZoneUtil.getTime() / 1000;
+            Timber.e("**************************   nowTime = " + nowTime + " timeZone = +" + ZoneUtil.getZone() + "    **************************");
             BleManager.getInstance().writeControlMsg(BleCommandFactory
                     .syLockTime(nowTime, bleBean.getPwd1(), bleBean.getPwd3()), bleBean.getOKBLEDeviceImp());
         }, 20);
@@ -1245,7 +1359,6 @@ public class LockAppService extends Service {
             //蓝牙鉴定连接
             //更新队列中对象的连接状态
             updateDevice("", mac);
-
         }
 
         @Override
@@ -1396,6 +1509,7 @@ public class LockAppService extends Service {
                     break;
 
                 case MQTTErrCode.MQTT_CONNECTION_LOST_CODE://连接丢失
+
                     break;
                 case MQTTErrCode.MQTT_CONNECTED_ERR://MQTT连接异常
                     break;
@@ -1445,7 +1559,7 @@ public class LockAppService extends Service {
                 String msgtype = "";
                 try {
                     if (payload.contains("returnCode")) {
-                        returnCode = jsonObject.getString("returnCode");
+                        returnCode = (String) jsonObject.opt("returnCode");
                     }
 
                     if (payload.contains("msgId")) {
@@ -1520,6 +1634,9 @@ public class LockAppService extends Service {
             Timber.e("无感开门 之蓝牙连接");
             BleDeviceLocal bleDeviceLoca = getDevice(wfId, wfId);
             if (null != bleDeviceLoca) {
+                if (null != App.getInstance().getLockGeoFenceService()) {
+                    App.getInstance().getLockGeoFenceService().updateLockCmdState(bleDeviceLoca.getEsn(), 1);
+                }
                 boolean bleState = onGetConnectedState(bleDeviceLoca.getMac());//当前蓝牙设的设备的状态
                 if (bleState) {
                     Timber.e("已连接蓝牙，发送开门命令");
@@ -1576,6 +1693,7 @@ public class LockAppService extends Service {
             } else if (bean.getEventparams().getEventCode() == 3) {
                 // 门磁异常
                 Timber.e("processRecord 门磁异常");
+                setDoorState(checkDeviceList(bean.getWfId(), bean.getWfId()), LocalState.DOOR_SENSOR_EXCEPTION);
             }
         }
     }

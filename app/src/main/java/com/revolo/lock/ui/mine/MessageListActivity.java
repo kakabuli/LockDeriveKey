@@ -2,6 +2,7 @@ package com.revolo.lock.ui.mine;
 
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.ImageView;
@@ -9,18 +10,22 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
+import com.blankj.utilcode.util.ToastUtils;
 import com.revolo.lock.App;
 import com.revolo.lock.R;
 import com.revolo.lock.adapter.MessageListAdapter;
 import com.revolo.lock.base.BaseActivity;
+import com.revolo.lock.bean.request.AcceptShareBeanReq;
 import com.revolo.lock.bean.request.DeleteSystemMessageReq;
 import com.revolo.lock.bean.request.SystemMessageListReq;
+import com.revolo.lock.bean.respone.AcceptShareBeanRsp;
+import com.revolo.lock.bean.respone.DelInvalidShareBeanRsp;
 import com.revolo.lock.bean.respone.SystemMessageListBeanRsp;
 import com.revolo.lock.net.HttpRequest;
 import com.revolo.lock.net.ObservableDecorator;
+import com.revolo.lock.ui.view.SmartClassicsHeaderView;
 import com.revolo.lock.widget.SlideRecyclerView;
 import com.scwang.smart.refresh.layout.SmartRefreshLayout;
 
@@ -58,6 +63,7 @@ public class MessageListActivity extends BaseActivity {
     public int bindLayout() {
         return R.layout.activity_message_list;
     }
+
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0) {
@@ -66,11 +72,13 @@ public class MessageListActivity extends BaseActivity {
         }
         return super.onKeyDown(keyCode, event);
     }
+
     @Override
     public void initView(@Nullable Bundle savedInstanceState, @Nullable View contentView) {
         useCommonTitleBar(getString(R.string.title_message));
 
         mSmartRefreshLayout = findViewById(R.id.smartRefresh);
+        mSmartRefreshLayout.setRefreshHeader(new SmartClassicsHeaderView(this));
         mIvNoMessage = findViewById(R.id.ivNoMessage);
         mTvNoMessage = findViewById(R.id.tvNoMessage);
         SlideRecyclerView rvMessage = findViewById(R.id.rvMessage);
@@ -79,19 +87,18 @@ public class MessageListActivity extends BaseActivity {
         rvMessage.setLayoutManager(new LinearLayoutManager(this));
         mMessageListAdapter = new MessageListAdapter(R.layout.item_message_rv);
         mMessageListAdapter.setOnItemClickListener((adapter, view, position) -> {
-            ConstraintLayout constraintLayout = view.findViewById(R.id.cl_message);
-            if (constraintLayout != null) {
-                if (constraintLayout.getVisibility() == View.GONE) {
-                    constraintLayout.setVisibility(View.VISIBLE);
-                } else {
-                    constraintLayout.setVisibility(View.GONE);
-                }
-            }
+            // TODO 不能删除
         });
         rvMessage.setAdapter(mMessageListAdapter);
         mMessageListAdapter.setOnDeleteListener(dataBean -> {
             if (dataBean != null) {
                 deleteSystemMessage(dataBean.get_id());
+            }
+        });
+
+        mMessageListAdapter.setOnAcceptingListener((position, dataBean) -> {
+            if (dataBean != null) {
+                acceptShare(dataBean.getShareKey());
             }
         });
 
@@ -104,12 +111,13 @@ public class MessageListActivity extends BaseActivity {
             page = 1;
             getSystemMessageList();
         });
+
+        getSystemMessageList();
     }
 
     @Override
     public void doBusiness() {
 
-        getSystemMessageList();
     }
 
     @Override
@@ -125,11 +133,12 @@ public class MessageListActivity extends BaseActivity {
             return;
         }
         if (App.getInstance().getUserBean() == null) {
+            Timber.e("App.getInstance().getUserBean()");
             return;
         }
 
         SystemMessageListReq messageListReq = new SystemMessageListReq();
-        messageListReq.setPage(page);
+        messageListReq.setPageNum(page);
         messageListReq.setUid(App.getInstance().getUserBean().getUid());
         Observable<SystemMessageListBeanRsp> observable = HttpRequest.getInstance().systemMessageList(token, messageListReq);
         ObservableDecorator.decorate(observable).safeSubscribe(new Observer<SystemMessageListBeanRsp>() {
@@ -149,7 +158,9 @@ public class MessageListActivity extends BaseActivity {
 
             @Override
             public void onError(@io.reactivex.annotations.NonNull Throwable e) {
-
+                Timber.e("onError()");
+                mSmartRefreshLayout.finishRefresh(false);
+                mSmartRefreshLayout.finishLoadMore(false);
             }
 
             @Override
@@ -164,14 +175,23 @@ public class MessageListActivity extends BaseActivity {
         mSmartRefreshLayout.finishRefresh(true);
         mSmartRefreshLayout.finishLoadMore(true);
         List<SystemMessageListBeanRsp.DataBean> data = systemMessageListBeanRsp.getData();
-        if (page == 1) {
-            mDataBeanList.clear();
+        if (null != data) {
+            if (page == 1) {
+                mDataBeanList.clear();
+            }
+            mDataBeanList.addAll(data);
+            if (mDataBeanList.isEmpty()) {
+                mSmartRefreshLayout.setNoMoreData(true);
+            }
         }
-        mDataBeanList.addAll(data);
-        if (mDataBeanList.isEmpty()) {
-            mSmartRefreshLayout.setNoMoreData(true);
+        if (mDataBeanList == null || mDataBeanList.isEmpty() || mDataBeanList.size() == 0) {
+            mIvNoMessage.setVisibility(View.VISIBLE);
+            mTvNoMessage.setVisibility(View.VISIBLE);
+        } else {
+            mIvNoMessage.setVisibility(View.GONE);
+            mTvNoMessage.setVisibility(View.GONE);
         }
-        mMessageListAdapter.setList(data);
+        mMessageListAdapter.setList(mDataBeanList);
     }
 
     private void deleteSystemMessage(String messageId) {
@@ -180,23 +200,19 @@ public class MessageListActivity extends BaseActivity {
             Timber.e("updateLockInfoToService token is empty");
             return;
         }
-        if (App.getInstance().getUserBean() == null) {
-            return;
-        }
 
         DeleteSystemMessageReq deleteSystemMessageReq = new DeleteSystemMessageReq();
         deleteSystemMessageReq.setMid(messageId);
-        deleteSystemMessageReq.setUid(App.getInstance().getUserBean().getUid());
-        Observable<SystemMessageListBeanRsp> stringObservable = HttpRequest.getInstance().deleteSystemMessage(token, deleteSystemMessageReq);
-        ObservableDecorator.decorate(stringObservable).safeSubscribe(new Observer<SystemMessageListBeanRsp>() {
+        Observable<DelInvalidShareBeanRsp> stringObservable = HttpRequest.getInstance().deleteSystemMessage(token, deleteSystemMessageReq);
+        ObservableDecorator.decorate(stringObservable).safeSubscribe(new Observer<DelInvalidShareBeanRsp>() {
             @Override
             public void onSubscribe(@io.reactivex.annotations.NonNull Disposable d) {
 
             }
 
             @Override
-            public void onNext(@io.reactivex.annotations.NonNull SystemMessageListBeanRsp beanRsp) {
-                if (beanRsp != null && beanRsp.getCode().equals("200")) {
+            public void onNext(@io.reactivex.annotations.NonNull DelInvalidShareBeanRsp beanRsp) {
+                if (beanRsp.getCode().equals("200")) {
                     getSystemMessageList();
                 }
             }
@@ -204,6 +220,69 @@ public class MessageListActivity extends BaseActivity {
             @Override
             public void onError(@io.reactivex.annotations.NonNull Throwable e) {
 
+            }
+
+            @Override
+            public void onComplete() {
+
+            }
+        });
+    }
+
+    private void acceptShare(String mShareKey) {
+        if (!checkNetConnectFail()) {
+            return;
+        }
+        // TODO: 2021/4/23 跳转到登录页面
+        if (TextUtils.isEmpty(mShareKey)) {
+            Timber.e("mShareKey == null");
+            return;
+        }
+        if (App.getInstance().getUserBean() == null) {
+            Timber.e("acceptShare App.getInstance().getUserBean() == null");
+            return;
+        }
+        String token = App.getInstance().getUserBean().getToken();
+        if (TextUtils.isEmpty(token)) {
+            Timber.e("acceptShare token is empty");
+            return;
+        }
+
+        AcceptShareBeanReq req = new AcceptShareBeanReq();
+        req.setShareKey(mShareKey);
+        Observable<AcceptShareBeanRsp> observable = HttpRequest.getInstance().acceptShare(token, req);
+        // TODO: 2021/3/12 暂时屏蔽
+        showLoading();
+        ObservableDecorator.decorate(observable).safeSubscribe(new Observer<AcceptShareBeanRsp>() {
+            @Override
+            public void onSubscribe(@NonNull Disposable d) {
+
+            }
+
+            @Override
+            public void onNext(@NonNull AcceptShareBeanRsp acceptShareBeanRsp) {
+                dismissLoading();
+                String code = acceptShareBeanRsp.getCode();
+                if (!code.equals("200")) {
+                    if (code.equals("444")) {
+                        App.getInstance().logout(true, MessageListActivity.this);
+                        return;
+                    }
+                    String msg = acceptShareBeanRsp.getMsg();
+                    Timber.e("code: %1s, msg: %2s", code, msg);
+                    if (!TextUtils.isEmpty(msg)) {
+                        ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(msg);
+                    }
+                    return;
+                }
+                ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_success);
+                getSystemMessageList();
+            }
+
+            @Override
+            public void onError(@NonNull Throwable e) {
+                dismissLoading();
+                Timber.e(e);
             }
 
             @Override

@@ -1,90 +1,86 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="127pt"
-    android:background="@color/white"
-    android:layout_marginTop="5pt">
+    android:layout_height="wrap_content">
 
-    <TextView
-        android:id="@+id/textView3"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16pt"
-        android:layout_marginTop="15pt"
-        android:text="@string/device_name"
-        android:textColor="@color/c333333"
-        android:textSize="15pt"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <TextView
-        android:id="@+id/textView47"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16pt"
-        android:layout_marginTop="30pt"
-        android:textColor="@color/c333333"
-        android:textSize="15pt"
-        android:text="@string/device_permissions"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView3" />
-
-    <TextView
-        android:id="@+id/tvPer"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/permission_family"
-        android:textSize="14pt"
-        android:textColor="@color/c666666"
-        app:layout_constraintBottom_toBottomOf="@+id/textView47"
-        app:layout_constraintStart_toEndOf="@+id/textView47"
-        app:layout_constraintTop_toTopOf="@+id/textView47" />
-
-    <ImageView
-        android:id="@+id/ivState"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="44pt"
-        android:layout_marginEnd="15pt"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tvDeviceName"
-        app:srcCompat="@drawable/ic_icon_wait"
-        android:visibility="gone"/>
-
-    <TextView
-        android:id="@+id/tvDeviceName"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16pt"
-        android:layout_marginEnd="15pt"
-        android:textColor="@color/c333333"
-        android:textSize="14pt"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:text="0123456" />
-
-    <TextView
-        android:id="@+id/tvDetail"
-        android:layout_width="wrap_content"
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/constraintLayout"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="5pt"
-        android:layout_marginStart="15pt"
-        android:textSize="14pt"
-        android:textColor="@color/c666666"
-        android:text="@string/unable_to_add_user_and_password"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView47" />
+        android:background="@color/white"
+        android:paddingBottom="8pt"
+        app:layout_constraintTop_toTopOf="parent">
 
-    <ImageView
-        android:id="@+id/ivMore"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="47pt"
-        android:layout_marginEnd="12pt"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tvDeviceName"
-        app:srcCompat="@drawable/ic_icon_more" />
+        <ImageView
+            android:id="@+id/imageView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12pt"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/ic_home_user_management_img_user" />
+
+        <TextView
+            android:id="@+id/tvDeviceName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12pt"
+            android:layout_marginTop="12pt"
+            android:text="@string/device_permissions"
+            android:textColor="@color/c333333"
+            android:textSize="15pt"
+            app:layout_constraintStart_toEndOf="@id/imageView"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/tvPer"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/permission_family"
+            android:textColor="@color/c666666"
+            android:textSize="14pt"
+            app:layout_constraintBottom_toBottomOf="@+id/tvDeviceName"
+            app:layout_constraintStart_toEndOf="@+id/tvDeviceName"
+            app:layout_constraintTop_toTopOf="@+id/tvDeviceName" />
+
+        <TextView
+            android:id="@+id/tvDetail"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12pt"
+            android:layout_marginTop="5pt"
+            android:layout_marginEnd="8pt"
+            android:text="@string/unable_to_add_user_and_password"
+            android:textColor="@color/c666666"
+            android:textSize="14pt"
+            app:layout_constraintEnd_toStartOf="@id/ivMore"
+            app:layout_constraintStart_toEndOf="@id/imageView"
+            app:layout_constraintTop_toBottomOf="@+id/tvDeviceName" />
+
+        <ImageView
+            android:id="@+id/ivMore"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="12pt"
+            app:layout_constraintBottom_toBottomOf="@id/tvDeviceName"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@id/tvDeviceName"
+            app:srcCompat="@drawable/ic_icon_more" />
+
+        <TextView
+            android:id="@+id/tv_delete"
+            android:layout_width="90pt"
+            android:layout_height="0dp"
+            android:background="#FFF55030"
+            android:gravity="center"
+            android:text="@string/delete"
+            android:textColor="#FFFFFFFF"
+            android:textSize="14sp"
+            app:layout_constraintBottom_toBottomOf="@id/constraintLayout"
+            app:layout_constraintLeft_toRightOf="@id/constraintLayout"
+            app:layout_constraintTop_toTopOf="@id/constraintLayout" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -10,8 +10,6 @@ import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.chad.library.adapter.base.BaseQuickAdapter;
-import com.chad.library.adapter.base.listener.OnItemClickListener;
 import com.revolo.lock.App;
 import com.revolo.lock.Constant;
 import com.revolo.lock.R;
@@ -33,6 +31,8 @@ import timber.log.Timber;
 public class AddDeviceForSharedUserActivity extends BaseActivity {
 
     private AuthUserDeviceAdapter mAuthUserDeviceAdapter;
+    private String mShareUserMail, mShareFirstNameText, mShareLastNameText;
+    private String uid;
 
     @Override
     public void initData(@Nullable Bundle bundle) {
@@ -47,19 +47,24 @@ public class AddDeviceForSharedUserActivity extends BaseActivity {
     @Override
     public void initView(@Nullable Bundle savedInstanceState, @Nullable View contentView) {
         useCommonTitleBar(getString(R.string.title_select_authorized_device));
+        mShareUserMail = getIntent().getStringExtra(Constant.SHARE_USER_MAIL);
+        mShareFirstNameText = getIntent().getStringExtra(Constant.SHARE_USER_FIRST_NAME);
+        mShareLastNameText = getIntent().getStringExtra(Constant.SHARE_USER_LAST_NAME);
+        uid = getIntent().getStringExtra(Constant.SHARE_USER_DATA);
         RecyclerView rvDevice = findViewById(R.id.rvDevice);
         mAuthUserDeviceAdapter = new AuthUserDeviceAdapter(R.layout.item_auth_user_device_rv);
         rvDevice.setLayoutManager(new LinearLayoutManager(this));
-        mAuthUserDeviceAdapter.setOnItemClickListener(new OnItemClickListener() {
-            @Override
-            public void onItemClick(@NonNull BaseQuickAdapter<?, ?> adapter, @NonNull View view, int position) {
-                if(position < 0) {
-                    return;
-                }
-                Intent intent = new Intent(AddDeviceForSharedUserActivity.this, SelectAuthorizedDeviceActivity.class);
-                intent.putExtra(Constant.LOCK_DETAIL, mAuthUserDeviceAdapter.getItem(position));
-                startActivity(intent);
+        mAuthUserDeviceAdapter.setOnItemClickListener((adapter, view, position) -> {
+            if (position < 0) {
+                return;
             }
+            Intent intent = new Intent(AddDeviceForSharedUserActivity.this, SelectAuthorizedDeviceActivity.class);
+            intent.putExtra(Constant.LOCK_DETAIL, mAuthUserDeviceAdapter.getItem(position));
+            intent.putExtra(Constant.SHARE_USER_MAIL, mShareUserMail);
+            intent.putExtra(Constant.SHARE_USER_DATA, uid);
+            intent.putExtra(Constant.SHARE_USER_FIRST_NAME, mShareFirstNameText);
+            intent.putExtra(Constant.SHARE_USER_LAST_NAME, mShareLastNameText);
+            startActivity(intent);
         });
         rvDevice.setAdapter(mAuthUserDeviceAdapter);
     }
@@ -73,6 +78,7 @@ public class AddDeviceForSharedUserActivity extends BaseActivity {
     public void onDebouncingClick(@NonNull View view) {
 
     }
+
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0) {
@@ -81,16 +87,17 @@ public class AddDeviceForSharedUserActivity extends BaseActivity {
         }
         return super.onKeyDown(keyCode, event);
     }
+
     private void initData() {
         List<BleDeviceLocal> list = AppDatabase
                 .getInstance(this)
                 .bleDeviceDao()
                 .findBleDevicesFromUserId(App.getInstance().getUser().getAdminUid());
-        if(list == null) {
+        if (list == null) {
             Timber.e("initData list == null");
             return;
         }
-        if(list.isEmpty()) {
+        if (list.isEmpty()) {
             Timber.e("initData list is empty");
             return;
         }

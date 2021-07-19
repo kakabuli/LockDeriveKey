@@ -5,10 +5,12 @@ import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
 import android.os.Looper;
+import android.text.Editable;
 import android.text.InputType;
 import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.text.method.LinkMovementMethod;
 import android.view.Gravity;
 import android.view.View;
@@ -32,9 +34,11 @@ import com.revolo.lock.base.BaseActivity;
 import com.revolo.lock.bean.request.GetCodeBeanReq;
 import com.revolo.lock.bean.request.MailLoginBeanReq;
 import com.revolo.lock.bean.request.MailRegisterBeanReq;
+import com.revolo.lock.bean.request.UserByMailExistsBeanReq;
 import com.revolo.lock.bean.respone.GetCodeBeanRsp;
 import com.revolo.lock.bean.respone.MailLoginBeanRsp;
 import com.revolo.lock.bean.respone.MailRegisterBeanRsp;
+import com.revolo.lock.bean.respone.UserByMailExistsBeanRsp;
 import com.revolo.lock.net.HttpRequest;
 import com.revolo.lock.net.ObservableDecorator;
 import com.revolo.lock.room.AppDatabase;
@@ -64,7 +68,9 @@ public class RegisterActivity extends BaseActivity {
     private boolean isCountdown = false;
     private EditText mEtEmail;
     private TextView mTvGetCode;
-//    private String emailName = "";
+    private int verificationCodeTimeCount = 60;
+    private CountDownTimer mCountDownTimer = null;
+    private EditText etPwd;
 
     @Override
     public void initData(@Nullable Bundle bundle) {
@@ -85,6 +91,27 @@ public class RegisterActivity extends BaseActivity {
                 findViewById(R.id.ivSelect),
                 mTvGetCode);
 
+        etPwd = findViewById(R.id.etPwd);
+        etPwd.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                if (!RegexUtils.isMatch("^(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{8,15}$", s)) {
+                    etPwd.setTextColor(getColor(R.color.cFF6A36));
+                } else {
+                    etPwd.setTextColor(getColor(R.color.c333333));
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
         TextView tvAgreement = findViewById(R.id.tvAgreement);
         String agreementStr = getString(R.string.terms_of_use);
         SpannableString spannableString = new SpannableString(agreementStr);
@@ -97,53 +124,46 @@ public class RegisterActivity extends BaseActivity {
             }
         };
         spannableString.setSpan(span, 0, agreementStr.length(), Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
-        tvAgreement.append(getString(R.string.i_agree_to));
+        tvAgreement.append(
+
+                getString(R.string.i_agree_to));
         tvAgreement.append(spannableString);
         tvAgreement.setMovementMethod(LinkMovementMethod.getInstance());
+
         initLoading(getString(R.string.t_load_content_registering));
 
-        mEtEmail = findViewById(R.id.etEmail);
-        /*mEtEmail.setOnFocusChangeListener(new android.view.View.
-                OnFocusChangeListener() {
-            @Override
-            public void onFocusChange(View v, boolean hasFocus) {
-                if (hasFocus) {
-                    // 此处为得到焦点时的处理内容
-                    mEtEmail.setText(emailName);
-                } else {
-                    // 此处为失去焦点时的处理内容
-                    emailName = mEtEmail.getText().toString();
-                    if (null != emailName && !"".equals(emailName) && emailName.length() > 15) {
-                        String hintText = emailName.substring(0, 5) + "..." + emailName.substring(emailName.length() - 7, emailName.length());
-                        mEtEmail.setText(hintText);
-                    } else {
-                        mEtEmail.setText(emailName);
+        mEtEmail =
+
+                findViewById(R.id.etEmail);
+
+        verificationCodeTimeCount = Constant.verificationCodeTimeCount;
+        mCountDownTimer = new
+
+                CountDownTimer(60000, 1000) {
+                    @Override
+                    public void onTick(long millisUntilFinished) {
+                        int sec = (int) (millisUntilFinished / 1000);
+                        int time = sec - (60 - verificationCodeTimeCount);
+                        String value = String.valueOf(time);
+                        mTvGetCode.setText(value);
+                        if (time <= 0) {
+                            onFinish();
+                            cancel();
+                        }
+                    }
+
+                    @Override
+                    public void onFinish() {
+                        isCountdown = false;
+                        mTvGetCode.setText(getString(R.string.get_code));
+                        verificationCodeTimeCount = 60;
                     }
                 }
-            }
-        });
-        mEtEmail.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-            }
 
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                if (s.toString().indexOf("...") > 0) {
-                    return;
-                }
-                if (s.length() > 0) {
-                    emailName = s.toString();
-                } else {
-                    emailName = "";
-                }
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-            }
-        });*/
-
+        ;
+        if (Constant.isVerificationCodeTime) {
+            mCountDownTimer.start();
+        }
 
     }
 
@@ -161,7 +181,6 @@ public class RegisterActivity extends BaseActivity {
         if (view.getId() == R.id.ivEye) {
             ImageView ivEye = findViewById(R.id.ivEye);
             ivEye.setImageResource(isShowPwd ? R.drawable.ic_login_icon_display : R.drawable.ic_login_icon_hide);
-            EditText etPwd = findViewById(R.id.etPwd);
             etPwd.setInputType(isShowPwd ?
                     InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
                     : (InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD));
@@ -176,9 +195,54 @@ public class RegisterActivity extends BaseActivity {
         }
         if (view.getId() == R.id.tvGetCode) {
             if (!isCountdown) {
-                getCode();
+                userByMailExists();
             }
         }
+    }
+
+    private void userByMailExists() {
+        if (!checkNetConnectFail()) {
+            return;
+        }
+        String mail = mEtEmail.getText().toString().trim();
+        if (TextUtils.isEmpty(mail)) {
+            ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.err_tip_please_input_email);
+            return;
+        }
+        if (!RegexUtils.isEmail(mail)) {
+            ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_please_input_right_mail_address);
+            return;
+        }
+        UserByMailExistsBeanReq req = new UserByMailExistsBeanReq();
+        req.setMail(mail);
+        Observable<UserByMailExistsBeanRsp> observable = HttpRequest.getInstance().getUserByMailExists(req);
+        ObservableDecorator.decorate(observable).safeSubscribe(new Observer<UserByMailExistsBeanRsp>() {
+            @Override
+            public void onSubscribe(@io.reactivex.annotations.NonNull Disposable d) {
+
+            }
+
+            @Override
+            public void onNext(@io.reactivex.annotations.NonNull UserByMailExistsBeanRsp userByMailExistsBeanRsp) {
+                if (userByMailExistsBeanRsp.getData() != null) {
+                    if (!userByMailExistsBeanRsp.getData().isExsist()) {
+                        getCode();
+                    } else {
+                        ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(getString(R.string.tip_content_registered_mail));
+                    }
+                }
+            }
+
+            @Override
+            public void onError(@io.reactivex.annotations.NonNull Throwable e) {
+
+            }
+
+            @Override
+            public void onComplete() {
+
+            }
+        });
     }
 
     private void getCode() {
@@ -198,8 +262,6 @@ public class RegisterActivity extends BaseActivity {
         req.setMail(mail);
         req.setWorld(2);
         Observable<GetCodeBeanRsp> observable = HttpRequest.getInstance().getCode(req);
-        isCountdown = true;
-        mCountDownTimer.start();
         ObservableDecorator.decorate(observable).safeSubscribe(new Observer<GetCodeBeanRsp>() {
             @Override
             public void onSubscribe(@NonNull Disposable d) {
@@ -221,6 +283,9 @@ public class RegisterActivity extends BaseActivity {
                     return;
                 }
                 ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_success);
+                isCountdown = true;
+                mCountDownTimer.start();
+                mHandler.sendEmptyMessage(VERIFICATION_CODE_TIME);
             }
 
             @Override
@@ -257,7 +322,7 @@ public class RegisterActivity extends BaseActivity {
             ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.err_tip_please_input_verification_code);
             return;
         }
-        String pwd = ((EditText) findViewById(R.id.etPwd)).getText().toString().trim();
+        String pwd = etPwd.getText().toString().trim();
         if (TextUtils.isEmpty(pwd)) {
             ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_please_input_pwd);
             return;
@@ -317,20 +382,6 @@ public class RegisterActivity extends BaseActivity {
             }
         });
     }
-
-    private final CountDownTimer mCountDownTimer = new CountDownTimer(60000, 1000) {
-        @Override
-        public void onTick(long millisUntilFinished) {
-            String value = String.valueOf((int) (millisUntilFinished / 1000));
-            mTvGetCode.setText(value);
-        }
-
-        @Override
-        public void onFinish() {
-            isCountdown = false;
-            mTvGetCode.setText(getString(R.string.get_code));
-        }
-    };
 
     private void addUserToLocal(String mail) {
         User user = new User();

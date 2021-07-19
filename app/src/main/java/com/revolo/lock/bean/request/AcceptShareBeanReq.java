@@ -14,16 +14,7 @@ public class AcceptShareBeanReq {
      * shareKey : 8f34e1b2-e6ea-4cb5-90be-c1d0dfa287d6
      */
 
-    private String uid;          // 用户uid
     private String shareKey;     // 分享钥匙
-
-    public String getUid() {
-        return uid;
-    }
-
-    public void setUid(String uid) {
-        this.uid = uid;
-    }
 
     public String getShareKey() {
         return shareKey;

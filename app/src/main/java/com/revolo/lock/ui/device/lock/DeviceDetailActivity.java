@@ -57,8 +57,8 @@ public class DeviceDetailActivity extends BaseActivity {
     private BleDeviceLocal mBleDeviceLocal;
     private SignalWeakDialog mSignalWeakDialog;
     private MessageDialog mMessageDialog;
-    //private Disposable mOpenOrCloseLockDisposable;
-    //private Disposable mWfEventDisposable;
+    private ImageView mIvBatteryState;
+    private TextView mTvBatteryState;
 
     @Override
     public void initData(@Nullable Bundle bundle) {
@@ -240,6 +240,8 @@ public class DeviceDetailActivity extends BaseActivity {
         llSetting = findViewById(R.id.llSetting);
         llDoorState = findViewById(R.id.llDoorState);
         tvPrivateMode = findViewById(R.id.tvPrivateMode);
+        mIvBatteryState = findViewById(R.id.ivBatteryState);
+        mTvBatteryState = findViewById(R.id.tvBatteryState);
         applyDebouncingClickListener(llNotification, llPwd, llUser, llSetting, ivLockState);
         // updateView();
     }
@@ -252,7 +254,9 @@ public class DeviceDetailActivity extends BaseActivity {
             return;
         }
         // 低电量
-        llLowBattery.setVisibility(mBleDeviceLocal.getLockPower() <= 20 ? View.VISIBLE : View.GONE);
+        mIvBatteryState.setImageResource(mBleDeviceLocal.getLockPower() <= 20 ? R.drawable.ic_icon_low_battery : R.mipmap.ic_icon_battery);
+        mTvBatteryState.setVisibility(mBleDeviceLocal.getLockPower() <= 20 ? View.VISIBLE : View.GONE);
+//        llLowBattery.setVisibility(mBleDeviceLocal.getLockPower() <= 20 ? View.VISIBLE : View.GONE);
         if (mBleDeviceLocal.getLockState() == LocalState.LOCK_STATE_PRIVATE) {
             doorShow(ivDoorState, tvDoorState);
             ivLockState.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_home_img_lock_privacymodel));
@@ -264,7 +268,7 @@ public class DeviceDetailActivity extends BaseActivity {
             boolean isUseDoorSensor = mBleDeviceLocal.isOpenDoorSensor();
             Timber.d("door sensor state: %1d, isUseDoorSensor: %2b", mBleDeviceLocal.getDoorSensor(), isUseDoorSensor);
             if (mBleDeviceLocal.getLockState() == LocalState.LOCK_STATE_OPEN) {
-                ivLockState.setImageResource(R.drawable.ic_home_img_lock_open);
+                ivLockState.setImageResource(R.mipmap.ic_home_img_lock_open_icon);
                 if (isUseDoorSensor) {
                     doorShow(ivDoorState, tvDoorState);
                     switch (mBleDeviceLocal.getDoorSensor()) {
@@ -273,6 +277,8 @@ public class DeviceDetailActivity extends BaseActivity {
                             break;
                         case LocalState.DOOR_SENSOR_EXCEPTION:
                         case LocalState.DOOR_SENSOR_INIT:
+                            doorError(ivDoorState, tvDoorState);
+                            break;
                         case LocalState.DOOR_SENSOR_OPEN:
                             // 因为异常，所以与锁的状态同步
                             doorOpen(ivDoorState, tvDoorState);
@@ -284,13 +290,15 @@ public class DeviceDetailActivity extends BaseActivity {
                 }
 
             } else if (mBleDeviceLocal.getLockState() == LocalState.LOCK_STATE_CLOSE || mBleDeviceLocal.getLockState() == LocalState.LOCK_STATE_SENSOR_CLOSE) {
-                ivLockState.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_home_img_lock_close));
+                ivLockState.setImageDrawable(ContextCompat.getDrawable(this, R.mipmap.ic_home_img_lock_close_icon));
                 if (isUseDoorSensor) {
                     doorShow(ivDoorState, tvDoorState);
                     switch (mBleDeviceLocal.getDoorSensor()) {
-                        case LocalState.DOOR_SENSOR_CLOSE:
                         case LocalState.DOOR_SENSOR_EXCEPTION:
                         case LocalState.DOOR_SENSOR_INIT:
+                            doorError(ivDoorState, tvDoorState);
+                            break;
+                        case LocalState.DOOR_SENSOR_CLOSE:
                             // 因为异常，所以与锁的状态同步
                             doorClose(ivDoorState, tvDoorState);
                             break;
@@ -303,7 +311,7 @@ public class DeviceDetailActivity extends BaseActivity {
 //                    doorClose(ivDoorState, tvDoorState);
                 }
             } else {
-                ivLockState.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_home_img_lock_close));
+                ivLockState.setImageDrawable(ContextCompat.getDrawable(this, R.mipmap.ic_home_img_lock_close_icon));
                 // TODO: 2021/3/31 其他选择
                 Timber.e("其他选择");
                 doorClose(ivDoorState, tvDoorState);
@@ -317,13 +325,18 @@ public class DeviceDetailActivity extends BaseActivity {
             ivNetState.setImageResource(R.drawable.ic_home_icon_bluetooth);
             ivNetState.setVisibility(View.VISIBLE);
             tvNetState.setVisibility(View.VISIBLE);
-        } else if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_DIS) {
+        } else {
             ivLockState.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_home_img_lock_privacymodel));
             tvPrivateMode.setVisibility(View.VISIBLE);
             tvPrivateMode.setText(getString(R.string.t_text_content_offline));
             llDoorState.setVisibility(View.GONE);
             ivNetState.setVisibility(View.GONE);
             tvNetState.setVisibility(View.GONE);
+        }
+        if (mBleDeviceLocal.getShareUserType() == 1) {
+            llUser.setVisibility(View.GONE);
+        } else if (mBleDeviceLocal.getShareUserType() == 2) {
+            finish();
         }
         tvNetState.setText(getString(R.string.tip_online));
     }
@@ -394,11 +407,19 @@ public class DeviceDetailActivity extends BaseActivity {
     private void doorClose(ImageView ivDoorState, TextView tvDoorState) {
         ivDoorState.setImageResource(R.drawable.ic_home_icon_door_closed);
         tvDoorState.setText(R.string.tip_closed);
+        tvDoorState.setTextColor(getColor(R.color.c666666));
+    }
+
+    private void doorError(ImageView ivDoorState, TextView tvDoorState) {
+        ivDoorState.setImageResource(R.drawable.ic_home_icon_door_closed);
+        tvDoorState.setText(R.string.tip_error);
+        tvDoorState.setTextColor(getColor(R.color.cFF6A36));
     }
 
     private void doorOpen(ImageView ivDoorState, TextView tvDoorState) {
         ivDoorState.setImageResource(R.drawable.ic_home_icon_door_open);
         tvDoorState.setText(R.string.tip_opened);
+        tvDoorState.setTextColor(getColor(R.color.c666666));
     }
 
     private void doorHide(ImageView ivDoorState, TextView tvDoorState) {

@@ -8,6 +8,9 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.res.Resources;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,6 +18,7 @@ import android.view.Window;
 import android.view.WindowManager;
 
 import androidx.annotation.ColorRes;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
@@ -35,6 +39,8 @@ import com.revolo.lock.ui.TitleBar;
 import org.greenrobot.eventbus.EventBus;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Timer;
+
 import io.reactivex.disposables.Disposable;
 import timber.log.Timber;
 
@@ -53,9 +59,9 @@ import static com.revolo.lock.Constant.isRegisterReceiver;
 public abstract class BaseActivity extends AppCompatActivity
         implements IBaseView {
 
+    public static final int VERIFICATION_CODE_TIME = 0xf01;
+
     private final View.OnClickListener mClickListener = this::onDebouncingClick;
-    //public CompositeDisposable mCompositeDisposable = new CompositeDisposable();
-    //public MqttService mMQttService = App.getInstance().getMQttService();
     private static TitleBar mTitleBar;
 
     public View mContentView;
@@ -64,12 +70,39 @@ public abstract class BaseActivity extends AppCompatActivity
     public boolean isShowNetState = true;
     private BluetoothAdapter mBluetoothAdapter;
 
-    private BroadcastReceiver mReceiver = new BroadcastReceiver() {
+    public static int mVerificationCodeTime = 60;
+
+    protected static final Handler mHandler = new Handler(Looper.myLooper()) {
+        @Override
+        public void dispatchMessage(@NonNull Message msg) {
+            super.dispatchMessage(msg);
+            if (msg.what == VERIFICATION_CODE_TIME) {
+                if (mVerificationCodeTime > 0) {
+                    mVerificationCodeTime--;
+                    sendEmptyMessageDelayed(VERIFICATION_CODE_TIME, 1000);
+                    Timber.d("**************************   mVerificationCodeTime = " + mVerificationCodeTime + "   **************************");
+                    Constant.isVerificationCodeTime = true;
+                    Constant.verificationCodeTimeCount = mVerificationCodeTime;
+                } else {
+                    Constant.isVerificationCodeTime = false;
+                }
+            }
+        }
+    };
+
+    private final BroadcastReceiver mReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             if (intent != null) {
-                boolean pingResult = intent.getBooleanExtra(PING_RESULT, true);
-                noteNetworks(pingResult);
+                if (intent.getAction().equals(RECEIVE_ACTION_NETWORKS)) {
+                    boolean pingResult = intent.getBooleanExtra(PING_RESULT, true);
+                    noteNetworks(pingResult);
+                } else if (intent.getAction().equals(Intent.ACTION_SCREEN_ON)) {
+                    // 屏幕打开了
+                    Timber.d("**************************   screen on   **************************");
+                    boolean pingResult = intent.getBooleanExtra(PING_RESULT, true);
+                    noteNetworks(pingResult);
+                }
             }
         }
     };
@@ -91,27 +124,22 @@ public abstract class BaseActivity extends AppCompatActivity
         bleConnected.setConnectType(0);
         EventBus.getDefault().post(bleConnected);
 
-      /*  if (mMQttService == null) {
-            mMQttService = App.getInstance().getMQttService();
-        }
-        if (mMQttService != null) {
-            if (mMQttService.getMqttClient() != null && !mMQttService.getMqttClient().isConnected()) {
-                mMQttService.mqttConnection();
-            }
-        }*/
         initView(savedInstanceState, mContentView);
 
 //        startKeepAlive();
 
         if (!isRegisterReceiver) {  // 判断广播是否注册
-            Timber.e("#################  广播注册成功  #####################");
-            registerReceiver(mReceiver, new IntentFilter(RECEIVE_ACTION_NETWORKS));
+            Timber.d("**************************   广播注册成功   **************************");
+            IntentFilter intentFilter = new IntentFilter();
+            intentFilter.addAction(RECEIVE_ACTION_NETWORKS);
+            intentFilter.addAction(Intent.ACTION_SCREEN_ON);
+            registerReceiver(mReceiver, intentFilter);
             isRegisterReceiver = true;
         }
     }
 
     public void noteNetworks(boolean pingResult) {
-        Timber.e(" ###########################  pingResult = " + pingResult + "  ####################################");
+        Timber.d("**************************   pingResult = " + pingResult + "   **************************");
         if (mTitleBar != null) {
             mTitleBar.setNetError(pingResult);
         }
@@ -136,9 +164,6 @@ public abstract class BaseActivity extends AppCompatActivity
 
     @Override
     protected void onStop() {
-       /* if (mCompositeDisposable != null) {
-            mCompositeDisposable.clear();
-        }*/
         super.onStop();
     }
 
@@ -155,7 +180,7 @@ public abstract class BaseActivity extends AppCompatActivity
             EventBus.getDefault().unregister(this);
         }
         if (mReceiver != null && LockAppManager.getAppManager().getActivitySize() == 0) {
-            Timber.e("####################  注销广播  ########################");
+            Timber.d("**************************   注销广播   **************************");
             unregisterReceiver(mReceiver);
             isRegisterReceiver = false;
         }

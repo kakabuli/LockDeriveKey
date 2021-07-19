@@ -130,10 +130,10 @@ public class GesturePoint {
                 this.image.setBackgroundResource(R.drawable.drag_gesture_blue_unselect);
                 break;
             case HandPwdConstants.POINT_STATE_SELECTED:
-                this.image.setBackgroundResource(R.drawable.drag_gesture_blue);
+                this.image.setBackgroundResource(R.drawable.icon_drag_gesture_blue);
                 break;
             case HandPwdConstants.POINT_STATE_WRONG:
-                this.image.setBackgroundResource(R.drawable.red_big_round);
+                this.image.setBackgroundResource(R.drawable.icon_drag_gesture_red);
                 break;
             default:
                 break;

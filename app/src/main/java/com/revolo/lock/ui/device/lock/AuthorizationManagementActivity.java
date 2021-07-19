@@ -23,8 +23,6 @@ import com.revolo.lock.net.ObservableDecorator;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Date;
-
 import io.reactivex.Observable;
 import io.reactivex.Observer;
 import io.reactivex.disposables.Disposable;
@@ -135,10 +133,7 @@ public class AuthorizationManagementActivity extends BaseActivity {
         GainKeyBeanReq req = new GainKeyBeanReq();
         req.setDeviceSN(mEsn);
         req.setShareUserType(mCurrentUserType);
-        req.setUid(uid);
-        req.setEndTime(new Date().getTime());
-        req.setStartTime(mStartTime);
-        req.setShareNickName(mName);
+        req.setAdminUid(uid);
         showLoading();
         Observable<GainKeyBeanRsp> observable = HttpRequest.getInstance().gainKey(token, req);
         ObservableDecorator.decorate(observable).safeSubscribe(new Observer<GainKeyBeanRsp>() {
@@ -150,29 +145,7 @@ public class AuthorizationManagementActivity extends BaseActivity {
             @Override
             public void onNext(@NonNull GainKeyBeanRsp gainKeyBeanRsp) {
                 dismissLoading();
-                String code = gainKeyBeanRsp.getCode();
-                if (TextUtils.isEmpty(code)) {
-                    Timber.e("share code empty");
-                    return;
-                }
-                if (!code.equals("200")) {
-                    if (code.equals("444")) {
-                        App.getInstance().logout(true, AuthorizationManagementActivity.this);
-                        return;
-                    }
-                    Timber.e("share code: %1s, msg: %2s", code, gainKeyBeanRsp.getMsg());
-                    return;
-                }
-                if (gainKeyBeanRsp.getData() == null) {
-                    Timber.e("share gainKeyBeanRsp.getData() == null");
-                    return;
-                }
-                String url = gainKeyBeanRsp.getData().getUrl();
-                if (TextUtils.isEmpty(url)) {
-                    Timber.e("share url is empty");
-                    return;
-                }
-                shareUrlToOtherApp(url);
+
             }
 
             @Override

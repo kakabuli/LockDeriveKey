@@ -18,6 +18,24 @@ public class LockRecordBeanReq {
     private String deviceSN;         // wifi模块SN
     private String uid;              // 用户id
     private int page;                // 第几页
+    private long startTime;
+    private long endTime;
+
+    public long getStartTime() {
+        return startTime;
+    }
+
+    public void setStartTime(long startTime) {
+        this.startTime = startTime;
+    }
+
+    public long getEndTime() {
+        return endTime;
+    }
+
+    public void setEndTime(long endTime) {
+        this.endTime = endTime;
+    }
 
     public String getDeviceSN() {
         return deviceSN;

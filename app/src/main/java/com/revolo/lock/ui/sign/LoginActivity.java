@@ -55,7 +55,6 @@ public class LoginActivity extends BaseActivity {
 
     private EditText mEtEmail, mEtPwd;
     private boolean isShowPwd = true;
-//    private String emailName = "";
 
     @Override
     public void initData(@Nullable Bundle bundle) {
@@ -77,46 +76,6 @@ public class LoginActivity extends BaseActivity {
             startActivity(new Intent(this, SignSelectActivity.class).putExtra(Constant.SIGN_SELECT_MODE, "loginActivity"));
         });
         mEtEmail = findViewById(R.id.etEmail);
-       /* mEtEmail.setOnFocusChangeListener(new android.view.View.
-                OnFocusChangeListener() {
-            @Override
-            public void onFocusChange(View v, boolean hasFocus) {
-                if (hasFocus) {
-                    // 此处为得到焦点时的处理内容
-                    mEtEmail.setText(emailName);
-                } else {
-                    // 此处为失去焦点时的处理内容
-                    emailName = mEtEmail.getText().toString();
-                    if (null != emailName && !"".equals(emailName) && emailName.length() > 15) {
-                        String hintText = emailName.substring(0, 5) + "..." + emailName.substring(emailName.length() - 7, emailName.length());
-                        mEtEmail.setText(hintText);
-                    } else {
-                        mEtEmail.setText(emailName);
-                    }
-                }
-            }
-        });
-        mEtEmail.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                if (s.toString().indexOf("...") > 0) {
-                    return;
-                }
-                if (s.length() > 0) {
-                    emailName = s.toString();
-                } else {
-                    emailName = "";
-                }
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-            }
-        });*/
         mEtPwd = findViewById(R.id.etPwd);
         applyDebouncingClickListener(findViewById(R.id.tvForgotPwd),
                 findViewById(R.id.ivEye), findViewById(R.id.btnSignIn));
@@ -126,8 +85,8 @@ public class LoginActivity extends BaseActivity {
             tokenDialog();
         }
         if (BuildConfig.DEBUG) {
-            mEtEmail.setText("1115649076@qq.com");
-            mEtPwd.setText("123457yi");
+            mEtEmail.setText("zouwei@kaadas.com");
+            mEtPwd.setText("kds88888");
         }
         initLoading(getString(R.string.t_load_content_loading));
     }
@@ -148,9 +107,6 @@ public class LoginActivity extends BaseActivity {
     public void onDebouncingClick(@NonNull View view) {
         if (view.getId() == R.id.tvForgotPwd) {
             String email = mEtEmail.getText().toString().trim();
-//            if (!TextUtils.isEmpty(emailName)) {
-//                email = emailName;
-//            }
             startActivity(new Intent(this, ForgetThePwdActivity.class).putExtra("email", email));
             return;
         }

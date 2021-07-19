@@ -57,6 +57,8 @@ public class HomeLockListAdapter extends BaseQuickAdapter<BleDeviceLocal, BaseVi
                             break;
                         case LocalState.DOOR_SENSOR_EXCEPTION:
                         case LocalState.DOOR_SENSOR_INIT:
+                            doorError(ivDoorState, tvDoorState);
+                            break;
                         case LocalState.DOOR_SENSOR_OPEN:
                             // 因为异常，所以与锁的状态同步
                             doorOpen(ivDoorState, tvDoorState);
@@ -71,9 +73,11 @@ public class HomeLockListAdapter extends BaseQuickAdapter<BleDeviceLocal, BaseVi
                 if (isUseDoorSensor) {
                     doorShow(ivDoorState, tvDoorState);
                     switch (deviceLocal.getDoorSensor()) {
-                        case LocalState.DOOR_SENSOR_CLOSE:
                         case LocalState.DOOR_SENSOR_EXCEPTION:
                         case LocalState.DOOR_SENSOR_INIT:
+                            doorError(ivDoorState, tvDoorState);
+                            break;
+                        case LocalState.DOOR_SENSOR_CLOSE:
                             // 因为异常，所以与锁的状态同步
                             doorClose(ivDoorState, tvDoorState);
                             break;
@@ -102,7 +106,7 @@ public class HomeLockListAdapter extends BaseQuickAdapter<BleDeviceLocal, BaseVi
         } else if (deviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI_BLE) {//WiFi和ble同时存在连接
             baseViewHolder.setImageResource(R.id.ivNetState, R.drawable.ic_home_icon_wifi);
             baseViewHolder.setVisible(R.id.ivNetState, true);
-        } else if (deviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_DIS) {//掉线模式else
+        } else {//掉线模式else
             // TODO: 2021/3/2 其他处理
             baseViewHolder.setImageResource(R.id.ivLockState, R.mipmap.ic_home_img_lock_privacymodel);
             baseViewHolder.setVisible(R.id.ivNetState, false);
@@ -112,11 +116,19 @@ public class HomeLockListAdapter extends BaseQuickAdapter<BleDeviceLocal, BaseVi
     private void doorClose(ImageView ivDoorState, TextView tvDoorState) {
         ivDoorState.setImageResource(R.drawable.ic_home_icon_door_closed);
         tvDoorState.setText(R.string.tip_door_closed);
+        tvDoorState.setTextColor(getContext().getColor(R.color.c666666));
+    }
+
+    private void doorError(ImageView ivDoorState, TextView tvDoorState) {
+        ivDoorState.setImageResource(R.drawable.ic_home_icon_door_closed);
+        tvDoorState.setText(R.string.tip_door_error);
+        tvDoorState.setTextColor(getContext().getColor(R.color.cFF6A36));
     }
 
     private void doorOpen(ImageView ivDoorState, TextView tvDoorState) {
         ivDoorState.setImageResource(R.drawable.ic_home_icon_door_open);
         tvDoorState.setText(R.string.tip_door_opened);
+        tvDoorState.setTextColor(getContext().getColor(R.color.c666666));
     }
 
     private void doorHide(ImageView ivDoorState, TextView tvDoorState) {

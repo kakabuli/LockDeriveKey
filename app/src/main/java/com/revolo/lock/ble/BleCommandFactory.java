@@ -973,15 +973,7 @@ public class BleCommandFactory {
      */
     public static byte[] syLockTime(long time, byte[] pwd1, byte[] pwd3) {
         String zones = ZoneUtil.getZone();
-        byte zone = 0x01;
-        if (zones.indexOf("-") > 0) {
-            zone = 0x00;
-        }
-        String szone = zones.substring(1, 3);
-        Timber.e("zone:" + szone);
-        return setTimezone(zone,ZoneUtil.getZoneByte(szone), time, pwd1, pwd3);
-       /* byte[] realTime = littleMode(BleByteUtil.longToUnsigned32Bytes(time));
-        return commandPackage(true, (byte) 0x23, commandTSN(), realTime, pwd1, pwd3);*/
+        return setTimezone(ZoneUtil.getZoneByte(zones), (byte) 0x00, time, pwd1, pwd3);
     }
 
 

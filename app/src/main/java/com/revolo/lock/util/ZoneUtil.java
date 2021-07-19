@@ -8,6 +8,10 @@ import java.util.TimeZone;
 import timber.log.Timber;
 
 public class ZoneUtil {
+    /**
+     * 获取时区
+     * @return
+     */
     public static String getZone() {
         String stZone = "+00:00";
         String time = TimeZone.getDefault().getDisplayName(true, TimeZone.SHORT);
@@ -18,17 +22,61 @@ public class ZoneUtil {
         return stZone;
     }
 
+    /**
+     * 获取时间戳
+     * @return
+     */
     public static long getTime() {
         return System.currentTimeMillis();
     }
+
+    public static long getZoneTime(long zoneTime, String zone) {
+        String z1 = zone.substring(1, 3);
+        String z2 = zone.substring(4, 6);
+        int zoneValer = 0;
+        try {
+            zoneValer = Integer.parseInt(z1) * 4 + (Integer.parseInt(z2) / 15);
+            if (zone.indexOf("-") > -1) {
+                zoneValer = zoneValer * -1;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            zoneValer = 0;
+        }
+
+        long time = zoneTime - (zoneValer * 15 * 60 * 1000);
+
+        Timber.e("dagd:" + time);
+        Timber.e("dagd2:" + zoneTime);
+
+        return time;
+    }
+
+    /**
+     * 以零时区为参照获取时间戳
+     * @param timeZone  默认零时区
+     * @param timeStr  时间
+     * @param pattern  时间格式
+     * @return
+     */
     public static long getTime(String timeZone, String timeStr, String pattern) {
+        timeZone = "+00:00";
         SimpleDateFormat formatter = new SimpleDateFormat(pattern);
         formatter.setTimeZone(TimeZone.getTimeZone("GMT" + timeZone));
         ParsePosition pos = new ParsePosition(0);
         Date result = formatter.parse(timeStr, pos);
         return result.getTime();
     }
+
+    /**
+     * 获取时间戳
+     * @param timeZone   时区默认零时区
+     * @param timeStr  时间
+     *                 默认时间格式
+     * @return
+     */
     public static long getTime(String timeZone, String timeStr) {
+        timeZone = "+00:00";
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
         formatter.setTimeZone(TimeZone.getTimeZone("GMT" + timeZone));
         ParsePosition pos = new ParsePosition(0);
@@ -36,7 +84,30 @@ public class ZoneUtil {
         return result.getTime();
     }
 
+    /**
+     * 获取时间戳
+     * @param timeStr  时间
+     * 默认零时区
+     * 默认时间格式
+     * @return
+     */
+    public static long getTime(String timeStr) {
+        String timeZone = "+00:00";
+        SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy hh:mm:ss");
+        formatter.setTimeZone(TimeZone.getTimeZone("GMT" + timeZone));
+        ParsePosition pos = new ParsePosition(0);
+        Date result = formatter.parse(timeStr, pos);
+        return result.getTime();
+    }
+
+    /**
+     * 获取时间戳
+     * @param timeZone
+     * @param time
+     * @return
+     */
     public static String getDate(String timeZone, long time) {
+        timeZone = "+00:00";
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
         formatter.setTimeZone(TimeZone.getTimeZone("GMT" + timeZone));
         Date date = new Date();
@@ -44,7 +115,46 @@ public class ZoneUtil {
         return formatter.format(date);
     }
 
+    /**
+     * 获取锁端时区
+     * @param zone
+     * @return
+     */
+    public static long getTestTime(String zone) {
+        return (getTime("", getDate("", System.currentTimeMillis())) + getTestTime2(zone));
+    }
+    /**
+     * 获取锁端时区
+     * @param zone
+     * @return
+     */
+    public static long getTestTime2(String zone) {
+        String z1 = zone.substring(1, 3);
+        String z2 = zone.substring(4, 6);
+        int zoneValer = 0;
+        try {
+            zoneValer = Integer.parseInt(z1) * 4 + (Integer.parseInt(z2) / 15);
+            if (zone.indexOf("-") > -1) {
+                zoneValer = zoneValer * -1;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            zoneValer = 0;
+        }
+
+        return zoneValer * 15 * 60 * 1000;
+    }
+
     public static String getDate(String timeZone, long time, String pattern) {
+        timeZone = "+00:00";
+        SimpleDateFormat formatter = new SimpleDateFormat(pattern);
+        formatter.setTimeZone(TimeZone.getTimeZone("GMT" + timeZone));
+        Date date = new Date();
+        date.setTime(time);
+        return formatter.format(date);
+    }
+
+    public static String getTestDate(String timeZone, long time, String pattern) {
         SimpleDateFormat formatter = new SimpleDateFormat(pattern);
         formatter.setTimeZone(TimeZone.getTimeZone("GMT" + timeZone));
         Date date = new Date();
@@ -53,35 +163,18 @@ public class ZoneUtil {
     }
 
     public static byte getZoneByte(String zone) {
-        byte bzone = 0x00;
-        if ("00".equals(zone)) {
-            bzone = 0x00;
-        } else if ("01".equals(zone)) {
-            bzone = 0x01;
-        } else if ("02".equals(zone)) {
-            bzone = 0x02;
-        } else if ("03".equals(zone)) {
-            bzone = 0x03;
-        } else if ("04".equals(zone)) {
-            bzone = 0x04;
-        } else if ("05".equals(zone)) {
-            bzone = 0x05;
-        } else if ("06".equals(zone)) {
-            bzone = 0x06;
-        } else if ("07".equals(zone)) {
-            bzone = 0x07;
-        } else if ("08".equals(zone)) {
-            bzone = 0x08;
-        } else if ("09".equals(zone)) {
-            bzone = 0x09;
-        } else if ("10".equals(zone)) {
-            bzone = 0x10;
-        } else if ("11".equals(zone)) {
-            bzone = 0x11;
-        } else if ("12".equals(zone)) {
-            bzone = 0x12;
+        String z1 = zone.substring(1, 3);
+        String z2 = zone.substring(4, 6);
+        try {
+            int zoneValer = Integer.parseInt(z1) * 4 + (Integer.parseInt(z2) / 15);
+            if (zone.indexOf("-") > -1) {
+                zoneValer = zoneValer * -1;
+            }
+            return (byte) zoneValer;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return 0;
         }
-        return bzone;
     }
 
 }

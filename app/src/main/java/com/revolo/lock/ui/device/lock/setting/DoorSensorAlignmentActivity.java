@@ -201,62 +201,6 @@ public class DoorSensorAlignmentActivity extends BaseActivity {
         changedDoorSensorState(bleResultBean);
     };
 
-    /*private void initBleListener() {
-        BleBean bleBean = App.getInstance().getBleBeanFromMac(mBleDeviceLocal.getMac());
-        if(bleBean != null) {
-            bleBean.setOnBleDeviceListener(new OnBleDeviceListener() {
-                @Override
-                public void onConnected(@NotNull String mac) {
-
-                }
-
-                @Override
-                public void onDisconnected(@NotNull String mac) {
-
-                }
-
-                @Override
-                public void onReceivedValue(@NotNull String mac, String uuid, byte[] value) {
-                    if(value == null) {
-                        Timber.e("initBleListener value == null");
-                        return;
-                    }
-                    BleBean bleBean = App.getInstance().getBleBeanFromMac(mBleDeviceLocal.getMac());
-                    if(bleBean == null) {
-                        Timber.e("initBleListener bleBean == null");
-                        return;
-                    }
-                    if(bleBean.getOKBLEDeviceImp() == null) {
-                        Timber.e("initBleListener bleBean.getOKBLEDeviceImp() == null");
-                        return;
-                    }
-                    if(bleBean.getPwd1() == null) {
-                        Timber.e("initBleListener bleBean.getPwd1() == null");
-                        return;
-                    }
-                    if(bleBean.getPwd3() == null) {
-                        Timber.e("initBleListener bleBean.getPwd3() == null");
-                        return;
-                    }
-                    BleResultProcess.setOnReceivedProcess(mOnReceivedProcess);
-                    BleResultProcess.processReceivedData(value, bleBean.getPwd1(), bleBean.getPwd3(),
-                            bleBean.getOKBLEDeviceImp().getBleScanResult());
-                }
-
-                @Override
-                public void onWriteValue(@NotNull String mac, String uuid, byte[] value, boolean success) {
-
-                }
-
-                @Override
-                public void onAuthSuc(@NotNull String mac) {
-
-                }
-
-            });
-        }
-    }
-*/
     private void changedDoorSensorState(BleResultBean bleResultBean) {
         if (bleResultBean.getCMD() == CMD_DOOR_SENSOR_CALIBRATION) {
             if (bleResultBean.getPayload()[0] == 0x00) {
@@ -268,8 +212,8 @@ public class DoorSensorAlignmentActivity extends BaseActivity {
                 // TODO: 2021/3/6 出错的情况
             }
         } else if (bleResultBean.getCMD() == CMD_LOCK_INFO) {
-            byte[] state = BleByteUtil.byteToBit(bleResultBean.getPayload()[3]);
-            byte doorSensorState = state[3];
+            byte[] state = BleByteUtil.byteToBit(bleResultBean.getPayload()[4]);
+            byte doorSensorState = state[4];
             Timber.d("LockState 7~0: %1s", ConvertUtils.bytes2HexString(state));
             // 更新最新的门磁状态
             mBleDeviceLocal.setOpenDoorSensor(doorSensorState == 0x01);
@@ -309,7 +253,6 @@ public class DoorSensorAlignmentActivity extends BaseActivity {
         lockMessage.setMac(bleBean.getOKBLEDeviceImp().getMacAddress());
         EventBus.getDefault().post(lockMessage);
 
-        // App.getInstance().writeControlMsg(BleCommandFactory.doorCalibration(doorState, pwd1, pwd3), bleBean.getOKBLEDeviceImp());
     }
 
     private void checkDoorSensorState() {
@@ -370,9 +313,6 @@ public class DoorSensorAlignmentActivity extends BaseActivity {
         //更新到服务器
         updateLockInfoToService();
         refreshDoorMagneticEnableState();
-
-      /*  }
-        Timber.d("%1s", mqttData.toString());*/
     }
 
     /**
@@ -407,7 +347,7 @@ public class DoorSensorAlignmentActivity extends BaseActivity {
         req.setAmMode(mBleDeviceLocal.isAutoLock() ? 0 : 1);
         req.setDuress(mBleDeviceLocal.isDuress() ? 0 : 1);
         req.setMagneticStatus(mBleDeviceLocal.getDoorSensor());
-        req.setDoorSensor(mBleDeviceLocal.isOpenDoorSensor()?1:0);
+        req.setDoorSensor(mBleDeviceLocal.isOpenDoorSensor() ? 1 : 0);
         req.setElecFence(mBleDeviceLocal.isOpenElectricFence() ? 0 : 1);
         req.setAutoLockTime(mBleDeviceLocal.getSetAutoLockTime());
         req.setElecFenceTime(mBleDeviceLocal.getSetElectricFenceTime());
@@ -427,8 +367,8 @@ public class DoorSensorAlignmentActivity extends BaseActivity {
                 if (code.equals("200")) {
                     String msg = updateLockInfoRsp.getMsg();
                     Timber.e("updateLockInfoToService code: %1s, msg: %2s", code, msg);
-                    if (!TextUtils.isEmpty(msg))
-                        ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(msg);
+//                    if (!TextUtils.isEmpty(msg))
+//                        ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(msg);
 
                 }
             }

@@ -72,6 +72,7 @@
         android:inputType="textPassword"
         android:maxLength="15"
         android:paddingStart="15pt"
+        android:textColor="@color/c333333"
         android:paddingEnd="15pt"
         android:theme="@style/InputEditTextTheme"
         app:layout_constraintEnd_toEndOf="parent"

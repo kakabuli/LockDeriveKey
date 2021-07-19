@@ -6,6 +6,7 @@ import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
@@ -19,6 +20,7 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.app.ActivityCompat;
 
 import com.blankj.utilcode.util.ConvertUtils;
+import com.blankj.utilcode.util.GsonUtils;
 import com.blankj.utilcode.util.ToastUtils;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
@@ -33,6 +35,11 @@ import com.revolo.lock.App;
 import com.revolo.lock.LocalState;
 import com.revolo.lock.R;
 import com.revolo.lock.base.BaseActivity;
+import com.revolo.lock.bean.request.UpdateLocalBeanReq;
+import com.revolo.lock.bean.request.UpdateLockInfoReq;
+import com.revolo.lock.bean.respone.ChangeKeyNickBeanRsp;
+import com.revolo.lock.bean.respone.UpdateLocalBeanRsp;
+import com.revolo.lock.bean.respone.UpdateLockInfoRsp;
 import com.revolo.lock.ble.BleByteUtil;
 import com.revolo.lock.ble.BleCommandFactory;
 import com.revolo.lock.ble.BleCommandState;
@@ -45,15 +52,22 @@ import com.revolo.lock.manager.ble.BleManager;
 import com.revolo.lock.mqtt.MQttConstant;
 import com.revolo.lock.mqtt.MqttCommandFactory;
 import com.revolo.lock.mqtt.bean.publishbean.attrparams.ElecFenceSensitivityParams;
+import com.revolo.lock.mqtt.bean.publishresultbean.WifiLockApproachOpenResponseBean;
 import com.revolo.lock.mqtt.bean.publishresultbean.WifiLockSetLockAttrSensitivityRspBean;
+import com.revolo.lock.net.HttpRequest;
+import com.revolo.lock.net.ObservableDecorator;
 import com.revolo.lock.room.AppDatabase;
 import com.revolo.lock.room.entity.BleDeviceLocal;
+import com.revolo.lock.ui.device.lock.AddNewPwdNameActivity;
 import com.revolo.lock.ui.device.lock.setting.geofence.MapActivity;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
+import io.reactivex.Observable;
+import io.reactivex.Observer;
+import io.reactivex.disposables.Disposable;
 import timber.log.Timber;
 
 import static com.revolo.lock.ble.BleCommandState.KNOCK_DOOR_SENSITIVITY_HIGH;
@@ -74,7 +88,7 @@ public class GeoFenceUnlockActivity extends BaseActivity implements OnMapReadyCa
     private BleDeviceLocal mBleDeviceLocal;
     private SeekBar mSeekBarTime, mSeekBarSensitivity;
     private ConstraintLayout mConstraintLayout;
-
+    private boolean isNextUpdate = false;
     private GoogleMap mMap;
     public float GEO_FENCE_RADIUS = 200;
 
@@ -103,7 +117,7 @@ public class GeoFenceUnlockActivity extends BaseActivity implements OnMapReadyCa
         mSeekBarSensitivity = findViewById(R.id.seekBarSensitivity);
         mConstraintLayout = findViewById(R.id.constraintLayout);
         initLoading(getString(R.string.t_load_content_setting));
-        mSeekBarTime.setMax(230);
+        mSeekBarTime.setMax(300);
         mSeekBarTime.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
@@ -217,6 +231,12 @@ public class GeoFenceUnlockActivity extends BaseActivity implements OnMapReadyCa
                     case LockMessageCode.MSG_LOCK_MESSAGE_SET_LOCK_ATTRSENSITIVITY:
                         processSensitivity((WifiLockSetLockAttrSensitivityRspBean) lockMessage.getWifiLockBaseResponseBean());
                         break;
+                    case LockMessageCode.MSG_LOCK_MESSAGE_APP_ROACH_OPEN:
+                        if (isNextUpdate) {
+                            isNextUpdate=false;
+                            checkSetTime((WifiLockApproachOpenResponseBean) lockMessage.getWifiLockBaseResponseBean());
+                        }
+                        break;
                 }
             } else {
                 switch (lockMessage.getResultCode()) {
@@ -249,25 +269,103 @@ public class GeoFenceUnlockActivity extends BaseActivity implements OnMapReadyCa
                 if (null != App.getInstance().getLockGeoFenceService()) {
                     App.getInstance().getLockGeoFenceService().clearBleDevice(mBleDeviceLocal.getEsn());
                 }
+                if (null != App.getInstance().getLockAppService()) {
+                    App.getInstance().getLockAppService().updateDeviceGeoState(mBleDeviceLocal.getMac(), mBleDeviceLocal);
+                }
+                pushService();
 
-//                if (mBleDeviceLocal.isOpenElectricFence()) {
-//                    mConstraintLayout.setVisibility(View.VISIBLE);
-//                } else {
-//                    mConstraintLayout.setVisibility(View.GONE);
-//                }
             } else {
-                Intent intent = new Intent(this, MapActivity.class);
-                startActivity(intent);
+                if (mBleDeviceLocal.getLongitude() == 0 && mBleDeviceLocal.getLatitude() == 0) {
+                    Intent intent = new Intent(this, MapActivity.class);
+                    startActivity(intent);
+                } else {
+                    mBleDeviceLocal.setOpenElectricFence(true);
+                    AppDatabase.getInstance(this).bleDeviceDao().update(mBleDeviceLocal);
+                    mIvGeoFenceUnlockEnable.setImageResource(mBleDeviceLocal.isOpenElectricFence() ? R.drawable.ic_icon_switch_open : R.drawable.ic_icon_switch_close);
+                    if (null != App.getInstance().getLockAppService()) {
+                        App.getInstance().getLockAppService().updateDeviceGeoState(mBleDeviceLocal.getMac(), mBleDeviceLocal);
+                    }
+                    if (null != App.getInstance().getLockGeoFenceService()) {
+                        App.getInstance().getLockGeoFenceService().addBleDevice();
+                    }
+                    pushService();
+                }
+
             }
-            // TODO: 2021/2/23 开关电子围栏 TEST使用开启地理围栏开门
-//            publishApproachOpen(mBleDeviceLocal.getEsn(), mBleDeviceLocal.getSetElectricFenceTime());
-            pushMessage(mBleDeviceLocal.getEsn(), mBleDeviceLocal.getSetElectricFenceTime());
-            return;
         }
         if (view.getId() == R.id.clDistanceRangeSetting) {
             Intent intent = new Intent(this, MapActivity.class);
             startActivity(intent);
         }
+    }
+
+    /**
+     * 上传给服务器
+     */
+    private void pushService() {
+        showLoading();
+        mHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                UpdateLocalBeanReq lockLocal = new UpdateLocalBeanReq();
+                lockLocal.setSn(mBleDeviceLocal.getEsn());
+                lockLocal.setElecFence(mBleDeviceLocal.isOpenElectricFence() ? 0 : 1);
+                lockLocal.setElecFenceSensitivity(mBleDeviceLocal.getSetElectricFenceSensitivity());
+                lockLocal.setElecFenceTime(mBleDeviceLocal.getSetElectricFenceTime());
+                lockLocal.setLatitude(mBleDeviceLocal.getLatitude() + "");
+                lockLocal.setLongitude(mBleDeviceLocal.getLongitude() + "");
+                lockLocal.setElecFenceState(mBleDeviceLocal.getElecFenceState() ? 0 : 1);
+                String token = App.getInstance().getUserBean().getToken();
+                Observable<UpdateLocalBeanRsp> observable = HttpRequest.getInstance().updateockeLecfence(token, lockLocal);
+                ObservableDecorator.decorate(observable).safeSubscribe(new Observer<UpdateLocalBeanRsp>() {
+                    @Override
+                    public void onSubscribe(@NonNull Disposable d) {
+
+                    }
+
+                    @Override
+                    public void onNext(@NonNull UpdateLocalBeanRsp changeKeyNickBeanRsp) {
+                        dismissLoading();
+                        String code = changeKeyNickBeanRsp.getCode();
+                        if (TextUtils.isEmpty(code)) {
+                            Timber.e("changeKeyNickBeanRsp.getCode() is Empty");
+                            return;
+                        }
+                        String msg = changeKeyNickBeanRsp.getMsg();
+                        Timber.e("code: %1s, msg: %2s", changeKeyNickBeanRsp.getCode(), msg);
+                        if (!code.equals("200")) {
+                            if (code.equals("444")) {
+                                App.getInstance().logout(true, GeoFenceUnlockActivity.this);
+                                return;
+                            }
+                            if (!TextUtils.isEmpty(msg)) {
+                                ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(msg);
+                            }
+                            return;
+                        } else {
+                            if (!TextUtils.isEmpty(msg)) {
+                                ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(msg);
+                            }
+                            return;
+                        }
+                    }
+
+                    @Override
+                    public void onError(@NonNull Throwable e) {
+                        Timber.e(e);
+
+                        dismissLoading();
+
+                    }
+
+                    @Override
+                    public void onComplete() {
+
+                    }
+                });
+            }
+        });
+
     }
 
     private void pushMessage(String wifiID, int broadcastTime) {
@@ -276,6 +374,7 @@ public class GeoFenceUnlockActivity extends BaseActivity implements OnMapReadyCa
             Timber.e("publishApproachOpen deviceLocal == null");
             return;
         }
+        isNextUpdate=true;
         LockMessage lockMessage = new LockMessage();
         lockMessage.setMqttMessage(MqttCommandFactory.approachOpen(wifiID, broadcastTime,
                 BleCommandFactory.getPwd(
@@ -301,7 +400,7 @@ public class GeoFenceUnlockActivity extends BaseActivity implements OnMapReadyCa
         mSensitivity = mBleDeviceLocal.getSetElectricFenceSensitivity();
         boolean isNeedSave = false;
         if (mTime == 0) {
-            mTime = 10 * 60;
+            mTime = 10;
             mBleDeviceLocal.setSetElectricFenceTime(mTime);
             isNeedSave = true;
         }
@@ -344,13 +443,9 @@ public class GeoFenceUnlockActivity extends BaseActivity implements OnMapReadyCa
     }
 
     private void initTimeNSensitivityDataUI() {
-        for (int i = 3; i <= 30; i++) {
-            if (mTime == i * 60) {
-                mTimeStr = i + "min";
-                break;
-            }
-        }
-        processStopTimeFromSeekBar(mSeekBarTime, false);
+        mTimeStr = mTime + "min";
+        mTvTime.setText(mTimeStr);
+        mSeekBarTime.setProgress(mTime * 10);
         if (mSensitivity == KNOCK_DOOR_SENSITIVITY_LOW) {
             mSensitivityStr = getString(R.string.low);
         } else if (mSensitivity == KNOCK_DOOR_SENSITIVITY_MEDIUM) {
@@ -363,53 +458,15 @@ public class GeoFenceUnlockActivity extends BaseActivity implements OnMapReadyCa
     }
 
     private void processChangeTimeFromSeekBar(int process) {
-        for (int i = 1; i <= 23; i++) {
-            if (process <= i * 10) {
-                if (i == 1) {
-                    mTimeStr = "3min";
-                    mTime = 3 * 60;
-                } else if (i == 2) {
-                    mTimeStr = "5min";
-                    mTime = 5 * 60;
-                } else {
-                    mTimeStr = (i + 7) + "min";
-                    mTime = (i + 7) * 60;
-                }
-                break;
-            }
-        }
+        mTimeStr = (process / 10) + "min";
+        mTime = (process / 10);
         mTvTime.setText(mTimeStr);
     }
 
     private void processStopTimeFromSeekBar(SeekBar seekBar, boolean isNeedToSave) {
         mTvTime.setText(mTimeStr);
-        for (int i = 3; i <= 30; i++) {
-            if (mTime == i * 60) {
-                if (i == 3) {
-                    seekBar.setProgress(0);
-                } else if (i == 5) {
-                    seekBar.setProgress(11);
-                } else if (i == 30) {
-                    seekBar.setProgress(230);
-                } else {
-                    seekBar.setProgress(((i - 8) * 10) + 1);
-                }
-                break;
-            }
-        }
-        if (isNeedToSave) {
-            mBleDeviceLocal.setSetElectricFenceTime(mTime);
-            AppDatabase.getInstance(this).bleDeviceDao().update(mBleDeviceLocal);
-        }
-        // TODO: 2021/3/1 做这个操作意味着进行开门了
-//        if(isSendCommand) {
-//            // 固定3分钟
-//            App.getInstance()
-//                    .writeControlMsg(BleCommandFactory
-//                            .setKnockDoorAndUnlockTime(1,
-//                                    App.getInstance().getBleBean().getPwd1(),
-//                                    App.getInstance().getBleBean().getPwd3()));
-//        }
+        seekBar.setProgress(mTime * 10);
+        pushMessage(mBleDeviceLocal.getEsn(), mTime);
     }
 
     private void processChangeSensitivityFromSeekBar(int process) {
@@ -468,9 +525,7 @@ public class GeoFenceUnlockActivity extends BaseActivity implements OnMapReadyCa
         message.setBytes(BleCommandFactory
                 .setSensitivity(mSensitivity, bleBean.getPwd1(), bleBean.getPwd3()));
         EventBus.getDefault().post(message);
-       /* App.getInstance()
-                .writeControlMsg(BleCommandFactory
-                        .setSensitivity(mSensitivity, bleBean.getPwd1(), bleBean.getPwd3()), bleBean.getOKBLEDeviceImp());*/
+
     }
 
 
@@ -497,15 +552,13 @@ public class GeoFenceUnlockActivity extends BaseActivity implements OnMapReadyCa
     private void saveSensitivityToLocal() {
         mBleDeviceLocal.setSetElectricFenceSensitivity(mSensitivity);
         AppDatabase.getInstance(this).bleDeviceDao().update(mBleDeviceLocal);
+        pushService();
     }
 
     // private Disposable mSensitivityDisposable;
 
     private void publishSensitivity(String wifiID, int sensitivity) {
-        /*if (mMQttService == null) {
-            Timber.e("publishSensitivity mMQttService == null");
-            return;
-        }*/
+
         showLoading();
         ElecFenceSensitivityParams autoLockTimeParams = new ElecFenceSensitivityParams();
         autoLockTimeParams.setElecFenceSensitivity(sensitivity);
@@ -519,42 +572,10 @@ public class GeoFenceUnlockActivity extends BaseActivity implements OnMapReadyCa
                         ConvertUtils.hexString2Bytes(mBleDeviceLocal.getPwd2()))));
         EventBus.getDefault().post(lockMessage);
 
-
-      /*  toDisposable(mSensitivityDisposable);
-        mSensitivityDisposable = mMQttService.mqttPublish(MQttConstant.getCallTopic(App.getInstance().getUserBean().getUid()),
-                MqttCommandFactory.setLockAttr(wifiID, autoLockTimeParams,
-                        BleCommandFactory.getPwd(
-                                ConvertUtils.hexString2Bytes(mBleDeviceLocal.getPwd1()),
-                                ConvertUtils.hexString2Bytes(mBleDeviceLocal.getPwd2()))))
-                .filter(mqttData -> mqttData.getFunc().equals(MQttConstant.SET_LOCK_ATTR))
-                .timeout(DEFAULT_TIMEOUT_SEC_VALUE, TimeUnit.SECONDS)
-                .subscribe(mqttData -> {
-                    toDisposable(mSensitivityDisposable);
-                    processSensitivity(mqttData);
-                }, e -> {
-                    // TODO: 2021/3/3 错误处理
-                    // 超时或者其他错误
-                    dismissLoading();
-                    Timber.e(e);
-                });
-        mCompositeDisposable.add(mSensitivityDisposable);*/
     }
 
     private void processSensitivity(WifiLockSetLockAttrSensitivityRspBean bean) {
-       /* if (TextUtils.isEmpty(mqttData.getFunc())) {
-            Timber.e("publishSensitivity mqttData.getFunc() is empty");
-            return;
-        }
-        if (mqttData.getFunc().equals(MQttConstant.SET_LOCK_ATTR)) {*/
         dismissLoading();
-          /*  Timber.d("publishSensitivity 设置属性: %1s", mqttData);
-            WifiLockSetLockAttrSensitivityRspBean bean;
-            try {
-                bean = GsonUtils.fromJson(mqttData.getPayload(), WifiLockSetLockAttrSensitivityRspBean.class);
-            } catch (JsonSyntaxException e) {
-                Timber.e(e);
-                return;
-            }*/
         if (bean == null) {
             Timber.e("publishSensitivity bean == null");
             return;
@@ -574,8 +595,36 @@ public class GeoFenceUnlockActivity extends BaseActivity implements OnMapReadyCa
             return;
         }
         saveSensitivityToLocal();
-       /* }
-        Timber.d("publishSensitivity %1s", mqttData.toString());*/
+        pushService();
+    }
+
+    /**
+     * 保存地理围栏时间设置
+     *
+     * @param bean
+     */
+    private void checkSetTime(WifiLockApproachOpenResponseBean bean) {
+        dismissLoading();
+        if (bean == null) {
+            Timber.e("publishSensitivity bean == null");
+            return;
+        }
+        if (bean.getParams() == null) {
+            Timber.e("publishSensitivity bean.getParams() == null");
+            return;
+        }
+        if (bean.getCode() != 200) {
+            Timber.e("publishSensitivity code : %1d", bean.getCode());
+            if (bean.getCode() == 201) {
+                // 设置失败了
+                ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_setting_sensitivity_fail);
+                initDefaultValue();
+                initTimeNSensitivityDataUI();
+            }
+            return;
+        }
+        saveElectricFenceTimeToLocal(mTime);
+        pushService();
     }
 
     /**

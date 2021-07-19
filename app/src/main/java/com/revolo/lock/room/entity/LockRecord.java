@@ -100,4 +100,15 @@ public class LockRecord {
     public void setLastName(String lastName) {
         this.lastName = lastName;
     }
+
+    public String getContentStr() {
+        return  eventType +
+                "" + eventSource +
+                "" + eventCode +
+                "" + userId +
+                "" + appId +
+                "" + deviceId +
+                "" + createTime +
+                "" + lastName;
+    }
 }
