@@ -27,36 +27,32 @@ public class SharedUserListAdapter extends BaseQuickAdapter<GetAllSharedUserFrom
 
     @Override
     protected void convert(@NotNull BaseViewHolder baseViewHolder, GetAllSharedUserFromLockBeanRsp.DataBean bean) {
-        if(bean != null) {
-            baseViewHolder.setText(R.id.tvUserName, TextUtils.isEmpty(bean.getUserNickname())?"":bean.getUserNickname());
+        if (bean != null) {
+            baseViewHolder.setText(R.id.tvUserName, TextUtils.isEmpty(bean.getNickName()) ? "" : bean.getNickName());
             TextView tvPermission = baseViewHolder.getView(R.id.tvPermission);
-            TextView tvUnableAddUser = baseViewHolder.getView(R.id.tvUnableAddUser);
-            TextView tvUnableAddPwd = baseViewHolder.getView(R.id.tvUnableAddPwd);
             TextView tvUnlockOnly = baseViewHolder.getView(R.id.tvUnlockOnly);
-            ImageView ivState = baseViewHolder.getView(R.id.ivState);
             ImageView ivMore = baseViewHolder.getView(R.id.ivMore);
-            if(bean.getShareUserType() == 1) {
+            if (bean.getShareUserType() == 1) {
                 tvPermission.setText(getContext().getString(R.string.permission_family));
-                tvUnableAddUser.setVisibility(View.VISIBLE);
-                tvUnableAddPwd.setVisibility(View.VISIBLE);
-                tvUnlockOnly.setVisibility(View.GONE);
+                tvUnlockOnly.setText(R.string.unable_to_add_user_and_password);
             } else {
+                tvUnlockOnly.setText(R.string.per_app_unlock_only);
                 tvPermission.setText(getContext().getString(R.string.permission_guest));
-                tvUnableAddUser.setVisibility(View.GONE);
-                tvUnableAddPwd.setVisibility(View.GONE);
-                tvUnlockOnly.setVisibility(View.VISIBLE);
             }
-            if(bean.getShareType() == 1) {
-                ivMore.setVisibility(View.GONE);
-                ivState.setImageResource(R.drawable.ic_icon_wait);
-                ivState.setVisibility(View.VISIBLE);
-            } else if(bean.getShareType() == 3||bean.getShareType() == 4||bean.getShareType() == 5) {
-                ivMore.setVisibility(View.GONE);
-                ivState.setImageResource(R.drawable.ic_icon_invalid);
-                ivState.setVisibility(View.VISIBLE);
-            } else {
-                ivMore.setVisibility(View.VISIBLE);
-                ivState.setVisibility(View.GONE);
+
+            switch (bean.getShareState()) {
+                case 0:
+                    ivMore.setImageResource(R.drawable.ic_icon_more);
+                    break;
+                case 1:
+                    ivMore.setImageResource(R.mipmap.ic_icon_prohibit);
+                    break;
+                case 2:
+                    ivMore.setImageResource(R.drawable.ic_icon_wait);
+                    break;
+                case 3:
+                    ivMore.setImageResource(R.mipmap.ic_icon_share);
+                    break;
             }
         }
     }

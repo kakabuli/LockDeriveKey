@@ -13,14 +13,6 @@ import java.util.List;
  */
 public class GetAllSharedUserFromLockBeanRsp {
 
-
-    /**
-     * code : 200
-     * msg : 成功
-     * nowTime : 1576225646
-     * data : [{"_id":"5def586f4d3ee1156842868c","adminUid":"5d0c9aa322916bfd695cb123","uid":"5d0c9aa322916bfd695cbae3","userNickname":"萝卜头","shareUserType":1,"shareType":1,"isEnable":1,"createTime":1576225646}]
-     */
-
     private String code;
     private String msg;
     private int nowTime;
@@ -59,73 +51,57 @@ public class GetAllSharedUserFromLockBeanRsp {
     }
 
     public static class DataBean implements Parcelable {
-        /**
-         * _id : 5def586f4d3ee1156842868c
-         * adminUid : 5d0c9aa322916bfd695cb123
-         * uid : 5d0c9aa322916bfd695cbae3
-         * userNickname : 萝卜头
-         * shareUserType : 1
-         * shareType : 1
-         * isEnable : 1
-         * createTime : 1576225646
-         */
 
-        // TODO: 2021/4/25 后面需要修改与showDoc最新的数据校对一起
-        private String _id;               // 分享用户-设备关联ID（自增id）
-        private String adminUid;          // 管理员id
-        private String uid;               //
-        private String userNickname;
+        private String lockNickname;
         private int shareUserType;
-        private int shareType;
+        private String shareId;
+        private String shareUid;
+        private int shareState;
+        private String nickName;
+        private String avatarPath;
+        private int isAgree;
         private int isEnable;
-        private int createTime;
+        private String remarkName;
 
-        public String get_id() {
-            return _id;
+        protected DataBean(Parcel in) {
+            lockNickname = in.readString();
+            shareUserType = in.readInt();
+            shareId = in.readString();
+            shareUid = in.readString();
+            shareState = in.readInt();
+            nickName = in.readString();
+            avatarPath = in.readString();
+            isAgree = in.readInt();
+            isEnable = in.readInt();
+            remarkName = in.readString();
         }
 
-        public void set_id(String _id) {
-            this._id = _id;
+        public static final Creator<DataBean> CREATOR = new Creator<DataBean>() {
+            @Override
+            public DataBean createFromParcel(Parcel in) {
+                return new DataBean(in);
+            }
+
+            @Override
+            public DataBean[] newArray(int size) {
+                return new DataBean[size];
+            }
+        };
+
+        public String getRemarkName() {
+            return remarkName;
         }
 
-        public String getAdminUid() {
-            return adminUid;
+        public void setRemarkName(String remarkName) {
+            this.remarkName = remarkName;
         }
 
-        public void setAdminUid(String adminUid) {
-            this.adminUid = adminUid;
+        public int getIsAgree() {
+            return isAgree;
         }
 
-        public String getUid() {
-            return uid;
-        }
-
-        public void setUid(String uid) {
-            this.uid = uid;
-        }
-
-        public String getUserNickname() {
-            return userNickname;
-        }
-
-        public void setUserNickname(String userNickname) {
-            this.userNickname = userNickname;
-        }
-
-        public int getShareUserType() {
-            return shareUserType;
-        }
-
-        public void setShareUserType(int shareUserType) {
-            this.shareUserType = shareUserType;
-        }
-
-        public int getShareType() {
-            return shareType;
-        }
-
-        public void setShareType(int shareType) {
-            this.shareType = shareType;
+        public void setIsAgree(int isAgree) {
+            this.isAgree = isAgree;
         }
 
         public int getIsEnable() {
@@ -136,14 +112,61 @@ public class GetAllSharedUserFromLockBeanRsp {
             this.isEnable = isEnable;
         }
 
-        public int getCreateTime() {
-            return createTime;
+        public String getLockNickname() {
+            return lockNickname;
         }
 
-        public void setCreateTime(int createTime) {
-            this.createTime = createTime;
+        public void setLockNickname(String lockNickname) {
+            this.lockNickname = lockNickname;
         }
 
+        public int getShareState() {
+            return shareState;
+        }
+
+        public void setShareState(int shareState) {
+            this.shareState = shareState;
+        }
+
+        public String getNickName() {
+            return nickName;
+        }
+
+        public void setNickName(String nickName) {
+            this.nickName = nickName;
+        }
+
+        public String getAvatarPath() {
+            return avatarPath;
+        }
+
+        public void setAvatarPath(String avatarPath) {
+            this.avatarPath = avatarPath;
+        }
+
+        public String getShareId() {
+            return shareId;
+        }
+
+        public void setShareId(String shareId) {
+            this.shareId = shareId;
+        }
+
+        public String getShareUid() {
+            return shareUid;
+        }
+
+        public void setShareUid(String shareUid) {
+            this.shareUid = shareUid;
+        }
+
+        public int getShareUserType() {
+            return shareUserType;
+        }
+
+        public void setShareUserType(int shareUserType) {
+            this.shareUserType = shareUserType;
+        }
 
         @Override
         public int describeContents() {
@@ -152,40 +175,16 @@ public class GetAllSharedUserFromLockBeanRsp {
 
         @Override
         public void writeToParcel(Parcel dest, int flags) {
-            dest.writeString(this._id);
-            dest.writeString(this.adminUid);
-            dest.writeString(this.uid);
-            dest.writeString(this.userNickname);
-            dest.writeInt(this.shareUserType);
-            dest.writeInt(this.shareType);
-            dest.writeInt(this.isEnable);
-            dest.writeInt(this.createTime);
+            dest.writeString(lockNickname);
+            dest.writeInt(shareUserType);
+            dest.writeString(shareId);
+            dest.writeString(shareUid);
+            dest.writeInt(shareState);
+            dest.writeString(nickName);
+            dest.writeString(avatarPath);
+            dest.writeInt(isAgree);
+            dest.writeInt(isEnable);
+            dest.writeString(remarkName);
         }
-
-        public DataBean() {
-        }
-
-        protected DataBean(Parcel in) {
-            this._id = in.readString();
-            this.adminUid = in.readString();
-            this.uid = in.readString();
-            this.userNickname = in.readString();
-            this.shareUserType = in.readInt();
-            this.shareType = in.readInt();
-            this.isEnable = in.readInt();
-            this.createTime = in.readInt();
-        }
-
-        public static final Parcelable.Creator<DataBean> CREATOR = new Parcelable.Creator<DataBean>() {
-            @Override
-            public DataBean createFromParcel(Parcel source) {
-                return new DataBean(source);
-            }
-
-            @Override
-            public DataBean[] newArray(int size) {
-                return new DataBean[size];
-            }
-        };
     }
 }

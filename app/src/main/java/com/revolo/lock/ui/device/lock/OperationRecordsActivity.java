@@ -169,13 +169,13 @@ public class OperationRecordsActivity extends BaseActivity {
     private void searchRecord(int getType) {
         if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_BLE) {
             //蓝牙模式
-            if(getType==0){
+            if (getType == 0) {
                 mBleSearchStart = 0;
                 mBleSearchEnd = 14;
                 searchBle();
-            }else{
-                mBleSearchStart = (short) (mWillShowRecords.size()-1);
-                mBleSearchEnd = (short) (mWillShowRecords.size()+13);
+            } else {
+                mBleSearchStart = (short) (mWillShowRecords.size() - 1);
+                mBleSearchEnd = (short) (mWillShowRecords.size() + 13);
                 searchBle();
             }
         } else {
@@ -807,6 +807,7 @@ public class OperationRecordsActivity extends BaseActivity {
             String time = dateFormat.format(date);
             long startTime = ZoneUtil.getTime(mBleDeviceLocal.getTimeZone(), time + " 00:00:00") / 1000;
             long endTime = ZoneUtil.getTime(mBleDeviceLocal.getTimeZone(), time + " 23:59:59") / 1000;
+            mPage = 1;
             searchRecord(startTime, endTime);
         });
 

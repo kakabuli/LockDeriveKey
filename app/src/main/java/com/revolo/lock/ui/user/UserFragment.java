@@ -19,8 +19,6 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.blankj.utilcode.util.ToastUtils;
-import com.chad.library.adapter.base.BaseQuickAdapter;
-import com.chad.library.adapter.base.listener.OnItemClickListener;
 import com.revolo.lock.App;
 import com.revolo.lock.Constant;
 import com.revolo.lock.R;
@@ -77,28 +75,19 @@ public class UserFragment extends Fragment {
         if (getContext() != null) {
             titleBar = new TitleBar(root).setTitle(getString(R.string.title_user))
                     .setRight(R.drawable.ic_home_icon_add, v -> {
-                        Intent intent = new Intent(getContext(), AddDeviceForSharedUserActivity.class);
+                        Intent intent = new Intent(getContext(), InviteUsersMailActivity.class);
                         startActivity(intent);
                     });
             mLlNoUser = root.findViewById(R.id.llNoUser);
             mRvLockList = root.findViewById(R.id.rvLockList);
             mRvLockList.setLayoutManager(new LinearLayoutManager(getContext()));
             mUserListAdapter = new UserListAdapter(R.layout.item_user_list_rv);
-            mUserListAdapter.setOnItemClickListener(new OnItemClickListener() {
-                @Override
-                public void onItemClick(@NonNull BaseQuickAdapter<?, ?> adapter, @NonNull View view, int position) {
-                    Intent intent = new Intent(getActivity(), AuthUserDetailActivity.class);
-                    intent.putExtra(Constant.SHARED_USER_DATA, mUserListAdapter.getItem(position));
-                    startActivity(intent);
-                }
+            mUserListAdapter.setOnItemClickListener((adapter, view, position) -> {
+                Intent intent = new Intent(getActivity(), AuthUserDetailActivity.class);
+                intent.putExtra(Constant.SHARE_USER_DATA, mUserListAdapter.getItem(position));
+                startActivity(intent);
             });
             mRvLockList.setAdapter(mUserListAdapter);
-//            mUserViewModel.getUsers().observe(getViewLifecycleOwner(), new Observer<List<TestUserManagementBean>>() {
-//                @Override
-//                public void onChanged(List<TestUserManagementBean> testUserManagementBeans) {
-//                    userListAdapter.setList(testUserManagementBeans);
-//                }
-//            });
         }
         if (titleBar != null) {
             titleBar.setNetError(Constant.pingResult);
@@ -159,35 +148,26 @@ public class UserFragment extends Fragment {
             public void onNext(@NonNull GetAllSharedUserFromAdminUserBeanRsp userBeanRsp) {
                 dismissLoading();
                 String code = userBeanRsp.getCode();
-                if (TextUtils.isEmpty(code)) {
-                    Timber.e("getAllSharedUserFromAdminUser code is empty");
-                    return;
-                }
-                if (!code.equals("200")) {
-                    if (code.equals("444")) {
-                        App.getInstance().logout(true, getActivity());
+                String msg = userBeanRsp.getMsg();
+                if (code.equals("200")) {
+                    if (userBeanRsp.getData() == null) {
+                        mLlNoUser.setVisibility(View.VISIBLE);
+                        mRvLockList.setVisibility(View.GONE);
                         return;
                     }
-                    String msg = userBeanRsp.getMsg();
-                    if (!TextUtils.isEmpty(msg)) {
-                        ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(msg);
+                    if (userBeanRsp.getData().isEmpty()) {
+                        mLlNoUser.setVisibility(View.VISIBLE);
+                        mRvLockList.setVisibility(View.GONE);
+                    } else {
+                        mLlNoUser.setVisibility(View.GONE);
+                        mRvLockList.setVisibility(View.VISIBLE);
                     }
-                    Timber.e("getAllSharedUserFromAdminUser code: %1s, msg: %2s", code, userBeanRsp.getMsg());
-                    return;
-                }
-                if (userBeanRsp.getData() == null) {
-                    mLlNoUser.setVisibility(View.VISIBLE);
-                    mRvLockList.setVisibility(View.GONE);
-                    return;
-                }
-                if (userBeanRsp.getData().isEmpty()) {
-                    mLlNoUser.setVisibility(View.VISIBLE);
-                    mRvLockList.setVisibility(View.GONE);
+                    mUserListAdapter.setList(userBeanRsp.getData());
+                } else if (code.equals("444")) {
+                    App.getInstance().logout(true, requireActivity());
                 } else {
-                    mLlNoUser.setVisibility(View.GONE);
-                    mRvLockList.setVisibility(View.VISIBLE);
+                    ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(msg);
                 }
-                mUserListAdapter.setList(userBeanRsp.getData());
             }
 
             @Override

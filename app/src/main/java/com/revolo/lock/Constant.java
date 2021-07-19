@@ -53,7 +53,6 @@ public class Constant {
 
     public static final String DEVICE_ID = "DeviceId";
     public static final String PWD_NUM = "PwdNum";
-    public static final String SHARED_USER_DATA = "SharedUserData";
 
     public static final String IS_GO_TO_ADD_WIFI = "isGoToAddWifi";
     public static final String IS_NEED_TO_CLOSE_BLE = "isNeedToCloseBle";
@@ -85,6 +84,16 @@ public class Constant {
     public static final String RECEIVE_ACTION_NETWORKS = "com.revolo.lock.receive.networks";
 
     public static final String PING_RESULT = "pingResult";
+
+    public static final String SHARE_USER_DATA = "SharedUserData";
+
+    public static final String SHARE_USER_DEVICE_DATA = "SharedUserDeviceData";
+
+    public static final String SHARE_USER_MAIL = "ShareUserMail";
+
+    public static final String SHARE_USER_FIRST_NAME = "ShareUserFirstName";
+
+    public static final String SHARE_USER_LAST_NAME = "ShareUserLastName";
 
     /**
      * 网络是否能访问

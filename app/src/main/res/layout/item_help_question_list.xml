@@ -50,7 +50,7 @@
             android:ellipsize="end"
             android:gravity="center_vertical"
             android:minHeight="50dp"
-            android:paddingStart="12dp"
+            android:paddingStart="24dp"
             android:textColor="#333333"
             android:textSize="15sp"
             android:tooltipText="Answer one"

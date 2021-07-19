@@ -400,6 +400,10 @@
             android:name=".ui.mine.HelpActivity"
             android:launchMode="singleTask"
             android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.user.InviteUsersMailActivity"
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait" />
 
         <!--   <service android:name=".mqtt.MqttService" />-->
         <service android:name=".manager.LockAppService" />

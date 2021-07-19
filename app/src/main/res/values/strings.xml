@@ -114,7 +114,7 @@
     <string name="title_user_management">User management</string>
     <string name="per_unable_to_add_user">Unable to add user</string>
     <string name="per_unable_to_add_password">Unable to add password</string>
-    <string name="per_app_unlock_only">APP unlock only</string>
+    <string name="per_app_unlock_only">· Able to lock and unlock door via Revolo App ONLY!</string>
     <string name="permission_family">（Family）</string>
     <string name="permission_guest">（Guest）</string>
 
@@ -192,7 +192,7 @@
     <string name="device_name">Device name</string>
     <string name="device_permissions">Device permissions</string>
     <string name="permission_closed_permission">（Closed permission）</string>
-    <string name="unable_to_add_user_and_password">Unable to add user and password</string>
+    <string name="unable_to_add_user_and_password">· Able to lock and unlock door via Revolo App. \n· Able to contoll all lock settings \n· Able to view activities. \n· Able to create/delet PIN Key. \n· Able to invite new users only as Guest.</string>
     <string name="accepting">accepting</string>
 
     <!-- AddDeviceForSharedUserActivity -->
@@ -413,6 +413,7 @@
     <string name="at_least_4_points_please_redraw">At least 4 points, please redraw</string>
     <string name="inconsistent_with_the_previous_drawing_please_redraw">Inconsistent with the previous drawing, please redraw</string>
     <string name="title_change_gesture_password">Change gesture password</string>
+    <string name="title_invite_users">Invite users</string>
     <string name="album">Album</string>
 
 
@@ -555,7 +556,11 @@
     <string name="tip_content_ota_update_failed">The door lock is Upgrade failed!</string>
     <string name="tip_content_registered_mail">The mail has bean Registered!</string>
     <string name="tip_content_no_registered_mail">The mail not Registered!</string>
+    <string name="tip_content_mail_not_find">The mail not Found!</string>
     <string name="tip_content_ble_not_update">The device is not connected to WiFi</string>
     <string name="geo_fence_map_activity_add_location_but_text">Confirm</string>
     <string name="geo_fence_map_activity_add_location_hint">You can choose the position of the door lock. The automatic lock picking function will be activated when you leave the fence setting range</string>
+    <string name="hint_please_enter_the_invite_user_mail">Please enter the invite user\'s mail!</string>
+    <string name="tip_you_not_share_it_with_yourself">You can\'t share it with yourself</string>
+    <string name="tip_content_share_successful">Share successful</string>
 </resources>

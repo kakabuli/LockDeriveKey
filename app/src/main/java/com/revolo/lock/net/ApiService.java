@@ -684,8 +684,8 @@ public interface ApiService {
      * @param req   请求实体
      */
     @Headers({"Content-Type: application/json"})
-    @POST("/systemMessage/delete")
-    Observable<SystemMessageListBeanRsp> systemMessageDelete(@Header("token") String token, @Body DeleteSystemMessageReq req);
+    @POST("/user/del/notification/record")
+    Observable<DelInvalidShareBeanRsp> systemMessageDelete(@Header("token") String token, @Body DeleteSystemMessageReq req);
 
     /**
      * 获取Alexa App和LWA Web登陆url
@@ -694,7 +694,7 @@ public interface ApiService {
      * @param req   请求实体
      */
     @Headers({"Content-Type: application/json"})
-    @POST("/user/edit/getAppUrlAndWebUrl")
+    @POST("/smart/authorize")
     Observable<AlexaAppUrlAndWebUrlBeanRsp> getAppUrlAndWebUrl(@Header("token") String token, @Body AlexaAppUrlAndWebUrlReq req);
 
     /**

@@ -19,7 +19,6 @@ public class GainKeyBeanRsp {
     private String code;
     private String msg;
     private int nowTime;
-    private DataBean data;
 
     public String getCode() {
         return code;
@@ -43,29 +42,5 @@ public class GainKeyBeanRsp {
 
     public void setNowTime(int nowTime) {
         this.nowTime = nowTime;
-    }
-
-    public DataBean getData() {
-        return data;
-    }
-
-    public void setData(DataBean data) {
-        this.data = data;
-    }
-
-    public static class DataBean {
-        /**
-         * shareUrl : https://127.0.0.1:8090/wpflock/share/claimKey/1a6334f1-c8a1-471e-b8f4-2f8d9e966e74
-         */
-
-        private String url;         // 分享链接
-
-        public String getUrl() {
-            return url;
-        }
-
-        public void setUrl(String url) {
-            this.url = url;
-        }
     }
 }

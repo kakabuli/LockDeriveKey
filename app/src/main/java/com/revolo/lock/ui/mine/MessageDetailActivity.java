@@ -65,7 +65,7 @@ public class MessageDetailActivity extends BaseActivity {
     private void initMessageData() {
         if (mTestMessageBean != null) {
             ((TextView) findViewById(R.id.tvMessageTitle)).setText(mTestMessageBean.getAlertTitle());
-            ((TextView) findViewById(R.id.tvTime)).setText(mTestMessageBean.getPushAt());
+            ((TextView) findViewById(R.id.tvTime)).setText(mTestMessageBean.getPushAt() + "");
             ((TextView) findViewById(R.id.tvContent)).setText(mTestMessageBean.getAlertBody());
         }
     }

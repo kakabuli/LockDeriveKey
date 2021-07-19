@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -11,12 +10,12 @@
         android:id="@+id/rlTitle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="@color/white"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        android:background="@color/white">
+        app:layout_constraintTop_toTopOf="parent">
 
-        <include layout="@layout/layout_title_bar"/>
+        <include layout="@layout/layout_title_bar" />
 
     </RelativeLayout>
 
@@ -66,12 +65,12 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="16pt"
-            tools:text="hudada's"
             android:textColor="@color/c333333"
             android:textSize="15pt"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="hudada's" />
 
         <ImageView
             android:id="@+id/imageView2"
@@ -113,21 +112,30 @@
             android:layout_marginEnd="14pt"
             android:textColor="@color/c333333"
             android:textSize="15pt"
-            tools:text="4"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@drawable/ic_icon_more" />
+            app:srcCompat="@drawable/ic_icon_more"
+            tools:text="4" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <androidx.recyclerview.widget.RecyclerView
+    <com.revolo.lock.widget.SlideRecyclerView
         android:id="@+id/rvLockList"
         android:layout_width="match_parent"
         android:layout_height="0pt"
+        android:layout_marginBottom="20pt"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/clDeviceNum" />
 
+    <android.widget.Button
+        android:id="@+id/btnDelete"
+        style="@style/ButtonStyle"
+        android:layout_width="223pt"
+        android:layout_height="44pt"
+        android:layout_marginBottom="22pt"
+        android:text="@string/delete"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>

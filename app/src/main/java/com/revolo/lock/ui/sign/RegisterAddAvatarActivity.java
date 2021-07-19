@@ -262,7 +262,6 @@ public class RegisterAddAvatarActivity extends BaseActivity implements EasyPermi
 
             @Override
             public void onNext(@NonNull UploadUserAvatarBeanRsp uploadUserAvatarBeanRsp) {
-                dismissLoading();
                 String code = uploadUserAvatarBeanRsp.getCode();
                 if (TextUtils.isEmpty(code)) {
                     Timber.e("uploadUserAvatar code is empty");
@@ -287,6 +286,7 @@ public class RegisterAddAvatarActivity extends BaseActivity implements EasyPermi
                 AppDatabase.getInstance(RegisterAddAvatarActivity.this).userDao().update(mUser);
                 new Handler(Looper.getMainLooper()).postDelayed(() -> {
                     startActivity(new Intent(RegisterAddAvatarActivity.this, RegisterAddAvatarNextActivity.class));
+                    dismissLoading();
                     finish();
                 }, 50);
             }

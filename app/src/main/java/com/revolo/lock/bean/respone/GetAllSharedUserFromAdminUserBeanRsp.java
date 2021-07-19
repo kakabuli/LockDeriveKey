@@ -13,14 +13,6 @@ import java.util.List;
  */
 public class GetAllSharedUserFromAdminUserBeanRsp {
 
-
-    /**
-     * code : 200
-     * msg : 成功
-     * nowTime : 1576225646
-     * data : [{"_id":"5def586f4d3ee1156842868c","adminUid":"5d0c9aa322916bfd695cb123","uid":"5d0c9aa322916bfd695cbae3","userNickname":"萝卜头","shareUserType":1,"shareType":1,"isEnable":1,"createTime":1576225646}]
-     */
-
     private String code;
     private String msg;
     private int nowTime;
@@ -59,90 +51,92 @@ public class GetAllSharedUserFromAdminUserBeanRsp {
     }
 
     public static class DataBean implements Parcelable {
-        /**
-         * _id : 5def586f4d3ee1156842868c
-         * adminUid : 5d0c9aa322916bfd695cb123
-         * uid : 5d0c9aa322916bfd695cbae3
-         * userNickname : 萝卜头
-         * shareUserType : 1
-         * shareType : 1
-         * isEnable : 1
-         * createTime : 1576225646
-         */
 
-        private String _id;                 // 分享用户-设备关联ID（自增id）
-        private String adminUid;            // 管理员id
-        private String uid;                 // 用户id
-        private String userNickname;        // 邀请用户昵称
-        private int shareUserType;          // 邀请用户类型。 1 family； 2 guest
-        private int shareType;              // 分享状态。 1 等待；2 接收；3 超时；4 删除；5 失效
-        private int isEnable;               // 启用状态。 1 启用； 0 未启用
-        private int createTime;             // 创建时间
+        private String nickName;
+        private String avatarPath;
+        private String shareUid;
+        private String userMail;
+        private String deviceCount;
+        private String firstName;
+        private String lastName;
 
-        public String get_id() {
-            return _id;
+        protected DataBean(Parcel in) {
+            nickName = in.readString();
+            avatarPath = in.readString();
+            shareUid = in.readString();
+            userMail = in.readString();
+            deviceCount = in.readString();
+            firstName = in.readString();
+            lastName = in.readString();
         }
 
-        public void set_id(String _id) {
-            this._id = _id;
+        public static final Creator<DataBean> CREATOR = new Creator<DataBean>() {
+            @Override
+            public DataBean createFromParcel(Parcel in) {
+                return new DataBean(in);
+            }
+
+            @Override
+            public DataBean[] newArray(int size) {
+                return new DataBean[size];
+            }
+        };
+
+        public String getNickName() {
+            return nickName;
         }
 
-        public String getAdminUid() {
-            return adminUid;
+        public void setNickName(String nickName) {
+            this.nickName = nickName;
         }
 
-        public void setAdminUid(String adminUid) {
-            this.adminUid = adminUid;
+        public String getAvatarPath() {
+            return avatarPath;
         }
 
-        public String getUid() {
-            return uid;
+        public void setAvatarPath(String avatarPath) {
+            this.avatarPath = avatarPath;
         }
 
-        public void setUid(String uid) {
-            this.uid = uid;
+        public String getShareUid() {
+            return shareUid;
         }
 
-        public String getUserNickname() {
-            return userNickname;
+        public void setShareUid(String shareUid) {
+            this.shareUid = shareUid;
         }
 
-        public void setUserNickname(String userNickname) {
-            this.userNickname = userNickname;
+        public String getUserMail() {
+            return userMail;
         }
 
-        public int getShareUserType() {
-            return shareUserType;
+        public void setUserMail(String userMail) {
+            this.userMail = userMail;
         }
 
-        public void setShareUserType(int shareUserType) {
-            this.shareUserType = shareUserType;
+        public String getDeviceCount() {
+            return deviceCount;
         }
 
-        public int getShareType() {
-            return shareType;
+        public void setDeviceCount(String deviceCount) {
+            this.deviceCount = deviceCount;
         }
 
-        public void setShareType(int shareType) {
-            this.shareType = shareType;
+        public String getFirstName() {
+            return firstName;
         }
 
-        public int getIsEnable() {
-            return isEnable;
+        public void setFirstName(String firstName) {
+            this.firstName = firstName;
         }
 
-        public void setIsEnable(int isEnable) {
-            this.isEnable = isEnable;
+        public String getLastName() {
+            return lastName;
         }
 
-        public int getCreateTime() {
-            return createTime;
+        public void setLastName(String lastName) {
+            this.lastName = lastName;
         }
-
-        public void setCreateTime(int createTime) {
-            this.createTime = createTime;
-        }
-
 
         @Override
         public int describeContents() {
@@ -151,40 +145,13 @@ public class GetAllSharedUserFromAdminUserBeanRsp {
 
         @Override
         public void writeToParcel(Parcel dest, int flags) {
-            dest.writeString(this._id);
-            dest.writeString(this.adminUid);
-            dest.writeString(this.uid);
-            dest.writeString(this.userNickname);
-            dest.writeInt(this.shareUserType);
-            dest.writeInt(this.shareType);
-            dest.writeInt(this.isEnable);
-            dest.writeInt(this.createTime);
+            dest.writeString(nickName);
+            dest.writeString(avatarPath);
+            dest.writeString(shareUid);
+            dest.writeString(userMail);
+            dest.writeString(deviceCount);
+            dest.writeString(firstName);
+            dest.writeString(lastName);
         }
-
-        public DataBean() {
-        }
-
-        protected DataBean(Parcel in) {
-            this._id = in.readString();
-            this.adminUid = in.readString();
-            this.uid = in.readString();
-            this.userNickname = in.readString();
-            this.shareUserType = in.readInt();
-            this.shareType = in.readInt();
-            this.isEnable = in.readInt();
-            this.createTime = in.readInt();
-        }
-
-        public static final Parcelable.Creator<DataBean> CREATOR = new Parcelable.Creator<DataBean>() {
-            @Override
-            public DataBean createFromParcel(Parcel source) {
-                return new DataBean(source);
-            }
-
-            @Override
-            public DataBean[] newArray(int size) {
-                return new DataBean[size];
-            }
-        };
     }
 }

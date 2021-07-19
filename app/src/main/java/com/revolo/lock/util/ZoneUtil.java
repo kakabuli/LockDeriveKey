@@ -8,6 +8,10 @@ import java.util.TimeZone;
 import timber.log.Timber;
 
 public class ZoneUtil {
+    /**
+     * 获取时区
+     * @return
+     */
     public static String getZone() {
         String stZone = "+00:00";
         String time = TimeZone.getDefault().getDisplayName(true, TimeZone.SHORT);
@@ -18,6 +22,10 @@ public class ZoneUtil {
         return stZone;
     }
 
+    /**
+     * 获取时间戳
+     * @return
+     */
     public static long getTime() {
         return System.currentTimeMillis();
     }
@@ -44,6 +52,13 @@ public class ZoneUtil {
         return time;
     }
 
+    /**
+     * 以零时区为参照获取时间戳
+     * @param timeZone  默认零时区
+     * @param timeStr  时间
+     * @param pattern  时间格式
+     * @return
+     */
     public static long getTime(String timeZone, String timeStr, String pattern) {
         timeZone = "+00:00";
         SimpleDateFormat formatter = new SimpleDateFormat(pattern);
@@ -53,6 +68,13 @@ public class ZoneUtil {
         return result.getTime();
     }
 
+    /**
+     * 获取时间戳
+     * @param timeZone   时区默认零时区
+     * @param timeStr  时间
+     *                 默认时间格式
+     * @return
+     */
     public static long getTime(String timeZone, String timeStr) {
         timeZone = "+00:00";
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
@@ -62,6 +84,13 @@ public class ZoneUtil {
         return result.getTime();
     }
 
+    /**
+     * 获取时间戳
+     * @param timeStr  时间
+     * 默认零时区
+     * 默认时间格式
+     * @return
+     */
     public static long getTime(String timeStr) {
         String timeZone = "+00:00";
         SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy hh:mm:ss");
@@ -71,6 +100,12 @@ public class ZoneUtil {
         return result.getTime();
     }
 
+    /**
+     * 获取时间戳
+     * @param timeZone
+     * @param time
+     * @return
+     */
     public static String getDate(String timeZone, long time) {
         timeZone = "+00:00";
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
@@ -80,10 +115,19 @@ public class ZoneUtil {
         return formatter.format(date);
     }
 
+    /**
+     * 获取锁端时区
+     * @param zone
+     * @return
+     */
     public static long getTestTime(String zone) {
         return (getTime("", getDate("", System.currentTimeMillis())) + getTestTime2(zone));
     }
-
+    /**
+     * 获取锁端时区
+     * @param zone
+     * @return
+     */
     public static long getTestTime2(String zone) {
         String z1 = zone.substring(1, 3);
         String z2 = zone.substring(4, 6);

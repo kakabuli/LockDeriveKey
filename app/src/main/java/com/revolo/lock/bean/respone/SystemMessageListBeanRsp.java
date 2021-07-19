@@ -1,35 +1,13 @@
 package com.revolo.lock.bean.respone;
 
-import android.os.Parcel;
-import android.os.Parcelable;
-
 import java.util.List;
 
-public class SystemMessageListBeanRsp implements Parcelable {
+public class SystemMessageListBeanRsp {
 
     private String code;
     private String msg;
     private int nowTime;
     private List<DataBean> data;
-
-    protected SystemMessageListBeanRsp(Parcel in) {
-        code = in.readString();
-        msg = in.readString();
-        nowTime = in.readInt();
-        data = in.createTypedArrayList(DataBean.CREATOR);
-    }
-
-    public static final Creator<SystemMessageListBeanRsp> CREATOR = new Creator<SystemMessageListBeanRsp>() {
-        @Override
-        public SystemMessageListBeanRsp createFromParcel(Parcel in) {
-            return new SystemMessageListBeanRsp(in);
-        }
-
-        @Override
-        public SystemMessageListBeanRsp[] newArray(int size) {
-            return new SystemMessageListBeanRsp[size];
-        }
-    };
 
     public String getCode() {
         return code;
@@ -63,49 +41,41 @@ public class SystemMessageListBeanRsp implements Parcelable {
         this.data = data;
     }
 
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(code);
-        dest.writeString(msg);
-        dest.writeInt(nowTime);
-        dest.writeTypedList(data);
-    }
-
-    public static class DataBean implements Parcelable {
+    public static class DataBean {
         private String _id;
+        private int isShowAgreeShare;
         private String uid;
         private String alertTitle;
         private String alertBody;
-        private String msgType;
-        private String clientType;
-        private String pushAt;
+        private int msgType;
+        private long pushAt;
+        private int isAgree;
+        private String shareKey;
+        private String adminUid;
 
-        protected DataBean(Parcel in) {
-            _id = in.readString();
-            uid = in.readString();
-            alertTitle = in.readString();
-            alertBody = in.readString();
-            msgType = in.readString();
-            clientType = in.readString();
-            pushAt = in.readString();
+        public String getShareKey() {
+            return shareKey;
         }
 
-        public static final Creator<DataBean> CREATOR = new Creator<DataBean>() {
-            @Override
-            public DataBean createFromParcel(Parcel in) {
-                return new DataBean(in);
-            }
+        public void setShareKey(String shareKey) {
+            this.shareKey = shareKey;
+        }
 
-            @Override
-            public DataBean[] newArray(int size) {
-                return new DataBean[size];
-            }
-        };
+        public String getAdminUid() {
+            return adminUid;
+        }
+
+        public void setAdminUid(String adminUid) {
+            this.adminUid = adminUid;
+        }
+
+        public int getIsAgree() {
+            return isAgree;
+        }
+
+        public void setIsAgree(int isAgree) {
+            this.isAgree = isAgree;
+        }
 
         public String get_id() {
             return _id;
@@ -113,6 +83,14 @@ public class SystemMessageListBeanRsp implements Parcelable {
 
         public void set_id(String _id) {
             this._id = _id;
+        }
+
+        public int getIsShowAgreeShare() {
+            return isShowAgreeShare;
+        }
+
+        public void setIsShowAgreeShare(int isShowAgreeShare) {
+            this.isShowAgreeShare = isShowAgreeShare;
         }
 
         public String getUid() {
@@ -139,44 +117,20 @@ public class SystemMessageListBeanRsp implements Parcelable {
             this.alertBody = alertBody;
         }
 
-        public String getMsgType() {
+        public int getMsgType() {
             return msgType;
         }
 
-        public void setMsgType(String msgType) {
+        public void setMsgType(int msgType) {
             this.msgType = msgType;
         }
 
-        public String getClientType() {
-            return clientType;
-        }
-
-        public void setClientType(String clientType) {
-            this.clientType = clientType;
-        }
-
-        public String getPushAt() {
+        public long getPushAt() {
             return pushAt;
         }
 
-        public void setPushAt(String pushAt) {
+        public void setPushAt(long pushAt) {
             this.pushAt = pushAt;
-        }
-
-        @Override
-        public int describeContents() {
-            return 0;
-        }
-
-        @Override
-        public void writeToParcel(Parcel dest, int flags) {
-            dest.writeString(_id);
-            dest.writeString(uid);
-            dest.writeString(alertTitle);
-            dest.writeString(alertBody);
-            dest.writeString(msgType);
-            dest.writeString(clientType);
-            dest.writeString(pushAt);
         }
     }
 }
