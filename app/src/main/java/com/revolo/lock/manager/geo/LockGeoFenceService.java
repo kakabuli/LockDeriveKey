@@ -147,16 +147,16 @@ public class LockGeoFenceService extends Service implements OnMapReadyCallback, 
                                 lockGeoget.threadSleep = 5 * 60;
                             Timber.e("距离：%s", results[0] + "米" + "设置间隔时间5分钟");
                         }
-                       /* if (null != App.getInstance().getLockAppService()) {
+                        if (null != App.getInstance().getLockAppService()) {
                             if (null != fenceEn.getBleDeviceLocal()) {
-                                if(fenceEn.getBleDeviceLocal().setLockElecFenceState(true)){
+                                if (fenceEn.getBleDeviceLocal().setLockElecFenceState(true)) {
                                     App.getInstance().getLockAppService().pushServiceGeoState(fenceEn.getBleDeviceLocal());
                                 }
                                 App.getInstance().getLockAppService().updateDeviceGeoState(fenceEn.getBleDeviceLocal().getMac(), fenceEn.getBleDeviceLocal());
                             }
-                        }*/
+                        }
                     }
-                    if (/*results[0] < 500 &&*/ results[0] > 20) {
+                    if (results[0] < 500 && results[0] > 200) {
                         if (null != lockGeoget) {
                             if (lockGeoget.threadSleep != 1 * 60)
                                 lockGeoget.threadSleep = 1 * 60;
@@ -164,14 +164,14 @@ public class LockGeoFenceService extends Service implements OnMapReadyCallback, 
                         }
                         if (null != App.getInstance().getLockAppService()) {
                             if (null != fenceEn.getBleDeviceLocal()) {
-                                if(fenceEn.getBleDeviceLocal().setLockElecFenceState(true)){
+                                if (fenceEn.getBleDeviceLocal().setLockElecFenceState(true)) {
                                     App.getInstance().getLockAppService().pushServiceGeoState(fenceEn.getBleDeviceLocal());
                                 }
                                 App.getInstance().getLockAppService().updateDeviceGeoState(fenceEn.getBleDeviceLocal().getMac(), fenceEn.getBleDeviceLocal());
                             }
                         }
                     }
-                  /*  if (results[0] > 50 && results[0] < 200) {
+                    if (results[0] > 50 && results[0] < 200) {
                         if (null != lockGeoget) {
                             if (lockGeoget.threadSleep != 30)
                                 lockGeoget.threadSleep = 30;
@@ -184,7 +184,7 @@ public class LockGeoFenceService extends Service implements OnMapReadyCallback, 
                                 lockGeoget.threadSleep = 20;
                             Timber.e("距离：%s", results[0] + "米" + "设置间隔时间20秒");
                         }
-                    }*/
+                    }
                     if (results[0] < 30) {
                         if (null != lockGeoget) {
                             if (lockGeoget.threadSleep != 15)
