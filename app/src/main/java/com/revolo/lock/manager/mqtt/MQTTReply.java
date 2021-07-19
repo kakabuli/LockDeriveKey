@@ -405,6 +405,7 @@ public class MQTTReply {
         if (!TextUtils.isEmpty(firmwareVer)) {
             bleDeviceLocal.setLockVer(firmwareVer);
         }
+        bleDeviceLocal.setShareUserType(wifiListBean.getShareUserType());
         String wifiVer = wifiListBean.getWifiVersion();
         if (!TextUtils.isEmpty(wifiVer)) {
             bleDeviceLocal.setWifiVer(wifiVer);

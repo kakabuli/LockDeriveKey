@@ -85,8 +85,8 @@ public class LoginActivity extends BaseActivity {
             tokenDialog();
         }
         if (BuildConfig.DEBUG) {
-            mEtEmail.setText("zhouguimin@kaadas.com");
-            mEtPwd.setText("zgm123456");
+            mEtEmail.setText("zouwei@kaadas.com");
+            mEtPwd.setText("kds88888");
         }
         initLoading(getString(R.string.t_load_content_loading));
     }
