@@ -1643,7 +1643,7 @@ public class LockAppService extends Service {
                     senGeoFence(bleDeviceLoca.getMac());
                 } else {
                     Timber.e("未连接蓝牙，正在开始连接");
-                    addDevice(false, bleDeviceLoca);
+                    checkBleConnect(bleDeviceLoca.getMac());
                 }
             }
         }
