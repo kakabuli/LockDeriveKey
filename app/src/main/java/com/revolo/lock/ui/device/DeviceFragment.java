@@ -124,11 +124,6 @@ public class DeviceFragment extends Fragment {
                     if (mLockstate == LocalState.LOCK_STATE_PRIVATE) {
                         return;
                     }
-//                    @LocalState.LockState int connectedState = ((BleDeviceLocal) adapter.getItem(position)).getConnectedType();
-//                    if (LocalState.DEVICE_CONNECT_TYPE_DIS == connectedState) {
-//                        ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_text_content_offline_devices);
-//                        return;
-//                    }
                     if (adapter.getItem(position) instanceof BleDeviceLocal) {
                         if (position < 0 || position >= adapter.getData().size()) return;
                         BleDeviceLocal deviceLocal = (BleDeviceLocal) adapter.getItem(position);
@@ -137,6 +132,10 @@ public class DeviceFragment extends Fragment {
                                 ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_please_open_bluetooth);
                             }
                             return; // 隐私模式
+                        }
+                        if (deviceLocal.getShareUserType() == 2) { // guest 用户
+                            // TODO Guest 用户只能列表开关锁
+                            return;
                         }
                         Intent intent = new Intent(getContext(), DeviceDetailActivity.class);
                         App.getInstance().setmCurrMac(deviceLocal.getMac());
@@ -439,7 +438,6 @@ public class DeviceFragment extends Fragment {
             dismissLoading();
         }
     }
-
 
 
     private void initBaseData() {

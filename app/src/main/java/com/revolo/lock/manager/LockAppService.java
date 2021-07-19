@@ -450,6 +450,38 @@ public class LockAppService extends Service {
         EventBus.getDefault().post(lockMessageRes);
     }
 
+    /**
+     * 检查当前蓝牙是否连接
+     * @param mac
+     */
+    public void checkBleConnect(String mac) {
+
+        boolean bleState = onGetConnectedState(mac);//当前蓝牙设的设备的状态
+        BleDeviceLocal bleDeviceLocal = null;
+        if (null != mDeviceLists) {
+            for (BleDeviceLocal bleDev : mDeviceLists) {
+                if (bleDev.getMac().equals(mac)) {
+                    bleDeviceLocal = bleDev;
+                    break;
+                }
+            }
+        }
+        if (null == bleDeviceLocal) {
+            return;
+        }
+        //判断当前ble的连接情况
+        if (!bleState) {
+            connectDevice(bleDeviceLocal);
+        }
+
+        //lock.unlock();
+        LockMessageRes lockMessageRes = new LockMessageRes();
+        lockMessageRes.setMessgaeType(LockMessageCode.MSG_LOCK_MESSAGE_MQTT);//蓝牙消息
+        lockMessageRes.setResultCode(MSG_LOCK_MESSAGE_CODE_SUCCESS);
+        lockMessageRes.setMessageCode(LockMessageCode.MSG_LOCK_MESSAGE_ADD_DEVICE);//添加到设备到主页
+        EventBus.getDefault().post(lockMessageRes);
+    }
+
     private void connectDevice(BleDeviceLocal bleDeviceLocal) {
         if (!getBluetoothAdapter().isEnabled()) {
             Timber.e("当前蓝牙已关闭，无法进行连接");
@@ -1602,6 +1634,9 @@ public class LockAppService extends Service {
             Timber.e("无感开门 之蓝牙连接");
             BleDeviceLocal bleDeviceLoca = getDevice(wfId, wfId);
             if (null != bleDeviceLoca) {
+                if (null != App.getInstance().getLockGeoFenceService()) {
+                    App.getInstance().getLockGeoFenceService().updateLockCmdState(bleDeviceLoca.getEsn(), 1);
+                }
                 boolean bleState = onGetConnectedState(bleDeviceLoca.getMac());//当前蓝牙设的设备的状态
                 if (bleState) {
                     Timber.e("已连接蓝牙，发送开门命令");

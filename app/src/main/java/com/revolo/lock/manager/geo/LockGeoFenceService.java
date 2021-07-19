@@ -104,6 +104,9 @@ public class LockGeoFenceService extends Service implements OnMapReadyCallback, 
 
     }
 
+    public List<LockGeoFenceEn> getLockGeoFenceEns() {
+        return lockGeoFenceEns;
+    }
 
     public void setHandler(Handler handler) {
         mHandler = handler;
@@ -231,6 +234,12 @@ public class LockGeoFenceService extends Service implements OnMapReadyCallback, 
                                     .setKnockDoorAndUnlockTime(0x01, bleBean.getPwd1(), bleBean.getPwd3()), bleBean.getOKBLEDeviceImp());
                         }, 200);
                         return;
+                    } else {
+                        if (deviceLocal.getElecFenceCmd() == 1) {
+                            //开启蓝牙广播已，直接去连
+                            Timber.e("开启蓝牙广播已，直接去连");
+                            App.getInstance().getLockAppService().checkBleConnect(deviceLocal.getMac());
+                        }
                     }
                 }
             }
@@ -425,6 +434,17 @@ public class LockGeoFenceService extends Service implements OnMapReadyCallback, 
                 sendOpenPer();
                 Timber.e("start get list bledevicelocal addGeo mac：%s", bleDeviceLocal.getMac() + ";" + bleDeviceLocal.getEsn());
                 addGeoFence(bleDeviceLocal, new LatLng(bleDeviceLocal.getLatitude(), bleDeviceLocal.getLongitude()), 50);
+            }
+        }
+    }
+
+    public void updateLockCmdState(String esn, int type) {
+        int index = -1;
+        Timber.e("电子围栏中的个数:%s", lockGeoFenceEns.size() + "");
+        for (int i = 0; i < lockGeoFenceEns.size(); i++) {
+            if (lockGeoFenceEns.get(i).getBleDeviceLocal().getEsn().equals(esn)) {
+                lockGeoFenceEns.get(i).getBleDeviceLocal().setElecFenceCmd(type);
+                break;
             }
         }
     }

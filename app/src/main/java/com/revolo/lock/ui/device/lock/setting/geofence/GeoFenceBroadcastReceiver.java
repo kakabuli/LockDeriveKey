@@ -17,12 +17,14 @@ import com.revolo.lock.ble.BleCommandFactory;
 import com.revolo.lock.ble.bean.BleBean;
 import com.revolo.lock.manager.LockMessage;
 import com.revolo.lock.manager.ble.BleManager;
+import com.revolo.lock.manager.geo.LockGeoFenceEn;
 import com.revolo.lock.mqtt.MQttConstant;
 import com.revolo.lock.mqtt.MqttCommandFactory;
 import com.revolo.lock.room.entity.BleDeviceLocal;
 
 import org.greenrobot.eventbus.EventBus;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import timber.log.Timber;
@@ -66,12 +68,16 @@ public class GeoFenceBroadcastReceiver extends BroadcastReceiver {
                 String esn = intent.getStringExtra("esn");
                 if (null != esn && !"".equals(esn)) {
                     Timber.e("google 定位" + esn);
-                    List<BleDeviceLocal> blsList = App.getInstance().getDeviceLists();
-                    if (null != blsList) {
-                        for (BleDeviceLocal deviceLo : blsList) {
-                            if (deviceLo.getEsn().equals(esn)) {
-                                deviceLocal = deviceLo;
-                                break;
+                    if (null != App.getInstance().getLockGeoFenceService()) {
+                        List<LockGeoFenceEn> blsds = App.getInstance().getLockGeoFenceService().getLockGeoFenceEns();
+                        if (null != blsds) {
+                            for (LockGeoFenceEn fenceEn : blsds) {
+                                if (null != fenceEn && null != fenceEn.getBleDeviceLocal()) {
+                                    if (fenceEn.getBleDeviceLocal().getEsn().equals(esn)) {
+                                        deviceLocal = fenceEn.getBleDeviceLocal();
+                                        break;
+                                    }
+                                }
                             }
                         }
                     }
@@ -127,6 +133,13 @@ public class GeoFenceBroadcastReceiver extends BroadcastReceiver {
                                 .setKnockDoorAndUnlockTime(0x01, bleBean.getPwd1(), bleBean.getPwd3()), bleBean.getOKBLEDeviceImp());
                     }, 200);
                     return;
+                } else {
+                    if (deviceLocal.getElecFenceCmd() == 1) {
+                        if (null != App.getInstance().getLockAppService()) {
+                            Timber.e("google local 直接去连接");
+                            App.getInstance().getLockAppService().checkBleConnect(deviceLocal.getMac());
+                        }
+                    }
                 }
             }
         }

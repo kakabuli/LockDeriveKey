@@ -117,7 +117,7 @@ public class MqttCommandFactory {
         WifiLockApproachOpenPublishBean.ParamsBean approachOpenPublishBean = new WifiLockApproachOpenPublishBean.ParamsBean();
         approachOpenPublishBean.setBroadcast(broadcastTime);
         // 固定设置为0，不开启ibeacon
-        approachOpenPublishBean.setIbeacon(0);
+        approachOpenPublishBean.setIbeacon(1);
         WifiLockApproachOpenPublishBean wifiLockApproachOpenPublishBean = new WifiLockApproachOpenPublishBean(
                 MQttConstant.MSG_TYPE_REQUEST,
                 messageId,

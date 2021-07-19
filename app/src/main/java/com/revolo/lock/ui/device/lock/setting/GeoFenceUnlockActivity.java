@@ -88,7 +88,7 @@ public class GeoFenceUnlockActivity extends BaseActivity implements OnMapReadyCa
     private BleDeviceLocal mBleDeviceLocal;
     private SeekBar mSeekBarTime, mSeekBarSensitivity;
     private ConstraintLayout mConstraintLayout;
-
+    private boolean isNextUpdate = false;
     private GoogleMap mMap;
     public float GEO_FENCE_RADIUS = 200;
 
@@ -232,7 +232,10 @@ public class GeoFenceUnlockActivity extends BaseActivity implements OnMapReadyCa
                         processSensitivity((WifiLockSetLockAttrSensitivityRspBean) lockMessage.getWifiLockBaseResponseBean());
                         break;
                     case LockMessageCode.MSG_LOCK_MESSAGE_APP_ROACH_OPEN:
-                        checkSetTime((WifiLockApproachOpenResponseBean) lockMessage.getWifiLockBaseResponseBean());
+                        if (isNextUpdate) {
+                            isNextUpdate=false;
+                            checkSetTime((WifiLockApproachOpenResponseBean) lockMessage.getWifiLockBaseResponseBean());
+                        }
                         break;
                 }
             } else {
@@ -371,6 +374,7 @@ public class GeoFenceUnlockActivity extends BaseActivity implements OnMapReadyCa
             Timber.e("publishApproachOpen deviceLocal == null");
             return;
         }
+        isNextUpdate=true;
         LockMessage lockMessage = new LockMessage();
         lockMessage.setMqttMessage(MqttCommandFactory.approachOpen(wifiID, broadcastTime,
                 BleCommandFactory.getPwd(
