@@ -38,27 +38,22 @@ public class AuthUserDetailDevicesAdapter extends BaseQuickAdapter<GetAllSharedU
             baseViewHolder.setGone(R.id.ivMore, true);
             if (bean.getShareState() == 2) {
                 // 等待
-                baseViewHolder.setText(R.id.tvDetail, R.string.accepting);
                 baseViewHolder.setImageResource(R.id.ivState, R.drawable.ic_icon_wait);
-                baseViewHolder.setGone(R.id.tvReInvite, true);
             } else if (bean.getShareState() == 3) {
                 // 超时
-                baseViewHolder.setText(R.id.tvDetail, R.string.accepting);
                 baseViewHolder.setGone(R.id.ivState, true);
-                baseViewHolder.setVisible(R.id.tvReInvite, true);
-                baseViewHolder.setImageResource(R.id.ivState, R.mipmap.ic_icon_close);
+                baseViewHolder.setImageResource(R.id.ivState, R.mipmap.ic_icon_share);
             } else {
                 baseViewHolder.setGone(R.id.ivState, true);
                 baseViewHolder.setVisible(R.id.ivMore, true);
-                baseViewHolder.setGone(R.id.tvReInvite, true);
-                if (bean.getShareUserType() == 1) {
-                    baseViewHolder.setText(R.id.tvDetail, R.string.unable_to_add_user_and_password);
-                } else if (bean.getShareUserType() == 2) {
-                    baseViewHolder.setText(R.id.tvDetail, R.string.per_app_unlock_only);
-                }
+            }
+            if (bean.getShareUserType() == 1) {
+                baseViewHolder.setText(R.id.tvDetail, R.string.unable_to_add_user_and_password);
+            } else if (bean.getShareUserType() == 2) {
+                baseViewHolder.setText(R.id.tvDetail, R.string.per_app_unlock_only);
             }
             initPer(baseViewHolder, bean);
-            baseViewHolder.getView(R.id.tvReInvite).setOnClickListener(v -> {
+            baseViewHolder.getView(R.id.ivState).setOnClickListener(v -> {
                 onReInviteListener.onReInviteListener(bean);
             });
         }

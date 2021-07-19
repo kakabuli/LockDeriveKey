@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="100pt"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="5pt"
     android:background="@color/white"
-    android:layout_marginBottom="5pt">
+    android:paddingBottom="12pt">
 
 
     <ImageView
@@ -18,17 +18,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/ic_home_user_management_img_user" />
-
-    <ImageView
-        android:id="@+id/ivState"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="27pt"
-        android:layout_marginEnd="25pt"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/ic_icon_wait"
-        android:visibility="invisible"/>
 
     <ImageView
         android:id="@+id/ivMore"
@@ -65,37 +54,15 @@
         app:layout_constraintTop_toTopOf="@+id/tvUserName" />
 
     <TextView
-        android:id="@+id/tvUnableAddUser"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="5pt"
-        android:text="@string/per_unable_to_add_user"
-        android:textColor="@color/c666666"
-        android:textSize="14pt"
-        app:layout_constraintStart_toStartOf="@+id/tvUserName"
-        app:layout_constraintTop_toBottomOf="@+id/tvUserName"
-        android:visibility="gone"/>
-
-    <TextView
-        android:id="@+id/tvUnableAddPwd"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="3dp"
-        android:text="@string/per_unable_to_add_password"
-        android:textColor="@color/c666666"
-        android:textSize="14pt"
-        app:layout_constraintStart_toStartOf="@+id/tvUnableAddUser"
-        app:layout_constraintTop_toBottomOf="@+id/tvUnableAddUser"
-        android:visibility="gone"/>
-
-    <TextView
         android:id="@+id/tvUnlockOnly"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="10pt"
+        android:layout_marginEnd="12pt"
         android:text="@string/per_app_unlock_only"
-        android:textSize="14pt"
         android:textColor="@color/c666666"
+        android:textSize="14pt"
+        app:layout_constraintEnd_toStartOf="@id/ivMore"
         app:layout_constraintStart_toStartOf="@+id/tvUserName"
         app:layout_constraintTop_toBottomOf="@+id/tvUserName" />
 

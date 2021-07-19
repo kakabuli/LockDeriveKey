@@ -30,33 +30,23 @@ public class SharedUserListAdapter extends BaseQuickAdapter<GetAllSharedUserFrom
         if (bean != null) {
             baseViewHolder.setText(R.id.tvUserName, TextUtils.isEmpty(bean.getNickName()) ? "" : bean.getNickName());
             TextView tvPermission = baseViewHolder.getView(R.id.tvPermission);
-            TextView tvUnableAddUser = baseViewHolder.getView(R.id.tvUnableAddUser);
-            TextView tvUnableAddPwd = baseViewHolder.getView(R.id.tvUnableAddPwd);
             TextView tvUnlockOnly = baseViewHolder.getView(R.id.tvUnlockOnly);
-            ImageView ivState = baseViewHolder.getView(R.id.ivState);
             ImageView ivMore = baseViewHolder.getView(R.id.ivMore);
             if (bean.getShareUserType() == 1) {
                 tvPermission.setText(getContext().getString(R.string.permission_family));
-                tvUnableAddUser.setVisibility(View.VISIBLE);
-                tvUnableAddPwd.setVisibility(View.VISIBLE);
-                tvUnlockOnly.setVisibility(View.GONE);
+                tvUnlockOnly.setText(R.string.unable_to_add_user_and_password);
             } else {
+                tvUnlockOnly.setText(R.string.per_app_unlock_only);
                 tvPermission.setText(getContext().getString(R.string.permission_guest));
-                tvUnableAddUser.setVisibility(View.GONE);
-                tvUnableAddPwd.setVisibility(View.GONE);
-                tvUnlockOnly.setVisibility(View.VISIBLE);
             }
             if (bean.getShareUserType() == 1) {
-                ivMore.setVisibility(View.GONE);
-                ivState.setImageResource(R.drawable.ic_icon_wait);
-                ivState.setVisibility(View.VISIBLE);
+                ivMore.setImageResource(R.drawable.ic_icon_wait);
+                ivMore.setVisibility(View.VISIBLE);
             } else if (bean.getShareUserType() == 3 || bean.getShareUserType() == 4 || bean.getShareUserType() == 5) {
-                ivMore.setVisibility(View.GONE);
-                ivState.setImageResource(R.drawable.ic_icon_invalid);
-                ivState.setVisibility(View.VISIBLE);
+                ivMore.setImageResource(R.mipmap.ic_icon_share);
+                ivMore.setVisibility(View.VISIBLE);
             } else {
                 ivMore.setVisibility(View.VISIBLE);
-                ivState.setVisibility(View.GONE);
             }
         }
     }

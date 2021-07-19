@@ -114,7 +114,7 @@
     <string name="title_user_management">User management</string>
     <string name="per_unable_to_add_user">Unable to add user</string>
     <string name="per_unable_to_add_password">Unable to add password</string>
-    <string name="per_app_unlock_only">APP unlock only</string>
+    <string name="per_app_unlock_only">· Able to lock and unlock door via Revolo App ONLY!</string>
     <string name="permission_family">（Family）</string>
     <string name="permission_guest">（Guest）</string>
 
@@ -192,7 +192,7 @@
     <string name="device_name">Device name</string>
     <string name="device_permissions">Device permissions</string>
     <string name="permission_closed_permission">（Closed permission）</string>
-    <string name="unable_to_add_user_and_password">Unable to add user and password</string>
+    <string name="unable_to_add_user_and_password">· Able to lock and unlock door via Revolo App. \n· Able to contoll all lock settings \n· Able to view activities. \n· Able to create/delet PIN Key. \n· Able to invite new users only as Guest.</string>
     <string name="accepting">accepting</string>
 
     <!-- AddDeviceForSharedUserActivity -->

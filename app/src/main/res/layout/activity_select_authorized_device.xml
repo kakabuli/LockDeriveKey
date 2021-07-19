@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    android:layout_height="match_parent">
 
     <include
         android:id="@+id/include15"
@@ -28,23 +27,23 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="5pt"
-        tools:text="hudada’s"
         android:textColor="@color/c333333"
         android:textSize="14pt"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/ivAvatar" />
+        app:layout_constraintTop_toBottomOf="@+id/ivAvatar"
+        tools:text="hudada’s" />
 
     <TextView
         android:id="@+id/tvSn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        tools:text="equipment SN123456"
-        android:textSize="12pt"
         android:textColor="@color/c333333"
+        android:textSize="12pt"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tvUserName" />
+        app:layout_constraintTop_toBottomOf="@+id/tvUserName"
+        tools:text="equipment SN123456" />
 
     <TextView
         android:id="@+id/tvUserTip"
@@ -62,8 +61,9 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/clFamily"
         android:layout_width="match_parent"
-        android:layout_height="100pt"
+        android:layout_height="wrap_content"
         android:layout_marginTop="25pt"
+        android:paddingBottom="16pt"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tvUserTip">
@@ -86,34 +86,24 @@
             android:layout_marginStart="24pt"
             android:layout_marginTop="17pt"
             android:text="@string/family"
-            android:textSize="15pt"
             android:textColor="@color/c333333"
+            android:textSize="15pt"
             app:layout_constraintStart_toEndOf="@+id/imageView10"
             app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
             android:id="@+id/textView23"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="24pt"
             android:layout_marginTop="5pt"
-            android:text="@string/per_unable_to_add_user"
-            android:textSize="14pt"
+            android:layout_marginEnd="12pt"
+            android:text="@string/unable_to_add_user_and_password"
             android:textColor="@color/c666666"
+            android:textSize="14pt"
+            app:layout_constraintEnd_toStartOf="@+id/ivFamily"
             app:layout_constraintStart_toEndOf="@+id/imageView10"
             app:layout_constraintTop_toBottomOf="@+id/textView22" />
-
-        <TextView
-            android:id="@+id/textView24"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="24pt"
-            android:layout_marginTop="5pt"
-            android:text="@string/per_unable_to_add_password"
-            android:textSize="14pt"
-            android:textColor="@color/c666666"
-            app:layout_constraintStart_toEndOf="@+id/imageView10"
-            app:layout_constraintTop_toBottomOf="@+id/textView23" />
 
         <ImageView
             android:id="@+id/ivFamily"
@@ -159,13 +149,15 @@
 
         <TextView
             android:id="@+id/textView26"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="24pt"
             android:layout_marginTop="5pt"
+            android:layout_marginEnd="12pt"
             android:text="@string/per_app_unlock_only"
-            android:textSize="14pt"
             android:textColor="@color/c666666"
+            android:textSize="14pt"
+            app:layout_constraintEnd_toStartOf="@+id/ivGuest"
             app:layout_constraintStart_toEndOf="@+id/imageView11"
             app:layout_constraintTop_toBottomOf="@+id/textView25" />
 

@@ -194,8 +194,6 @@ public class AuthUserDetailActivity extends BaseActivity {
                     List<GetAllSharedUserFromLockBeanRsp.DataBean> dataBeans = getDevicesFromUidAndSharedUidBeanRsp.getData();
                     if (dataBeans != null && !dataBeans.isEmpty()) {
                         mDevicesAdapter.setList(dataBeans);
-                    } else {
-                        finish();
                     }
                 } else if (code.equals("444")) {
                     App.getInstance().logout(true, AuthUserDetailActivity.this);
