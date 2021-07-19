@@ -129,6 +129,21 @@ public class BleDeviceLocal implements Parcelable {
 
     private int elecFenceCmd;
 
+    @ColumnInfo(name = "shareUserType")
+    private int shareUserType;  // 分享用户权限
+
+    public int getShareUserType() {
+        return shareUserType;
+    }
+
+    public void setShareUserType(int shareUserType) {
+        this.shareUserType = shareUserType;
+    }
+
+    public static Creator<BleDeviceLocal> getCREATOR() {
+        return CREATOR;
+    }
+
     public long getId() {
         return id;
     }
@@ -463,6 +478,7 @@ public class BleDeviceLocal implements Parcelable {
         dest.writeDouble(this.latitude);
         dest.writeDouble(this.longitude);
         dest.writeByte(this.elecFenceState ? (byte) 0 : (byte) 1);
+        dest.writeInt(this.shareUserType);
     }
 
     public void readFromParcel(Parcel source) {
@@ -499,6 +515,7 @@ public class BleDeviceLocal implements Parcelable {
         this.latitude = source.readDouble();
         this.longitude = source.readDouble();
         this.elecFenceState = source.readByte() != 0;
+        this.shareUserType = source.readInt();
     }
 
     public BleDeviceLocal() {
@@ -538,6 +555,7 @@ public class BleDeviceLocal implements Parcelable {
         this.latitude = in.readLong();
         this.longitude = in.readLong();
         this.elecFenceState = in.readByte() != 0;
+        this.shareUserType = in.readInt();
     }
 
     public static final Creator<BleDeviceLocal> CREATOR = new Creator<BleDeviceLocal>() {
@@ -588,6 +606,7 @@ public class BleDeviceLocal implements Parcelable {
                 ", latitude=" + latitude +
                 ", longitude=" + longitude +
                 ",elecFenceState=" + elecFenceState +
+                ",shareUserType=" + shareUserType +
                 ",elecFenceCmd=" + elecFenceCmd +
                 '}';
     }

@@ -333,6 +333,11 @@ public class DeviceDetailActivity extends BaseActivity {
             ivNetState.setVisibility(View.GONE);
             tvNetState.setVisibility(View.GONE);
         }
+        if (mBleDeviceLocal.getShareUserType() == 1) {
+            llUser.setVisibility(View.GONE);
+        } else if (mBleDeviceLocal.getShareUserType() == 2) {
+            finish();
+        }
         tvNetState.setText(getString(R.string.tip_online));
     }
 

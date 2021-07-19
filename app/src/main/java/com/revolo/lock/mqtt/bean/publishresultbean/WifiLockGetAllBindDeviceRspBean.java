@@ -701,6 +701,19 @@ public class WifiLockGetAllBindDeviceRspBean extends WifiLockBaseResponseBean {
             private int elecFenceTime;//地理围栏时间
             private int elecFenceSensitivity;//地理围栏灵敏度
             private int elecFenceState;//从200米外入内的状态
+            private int shareUserType;
+
+            public int getShareUserType() {
+                return shareUserType;
+            }
+
+            public void setShareUserType(int shareUserType) {
+                this.shareUserType = shareUserType;
+            }
+
+            public static Creator<WifiListBean> getCREATOR() {
+                return CREATOR;
+            }
 
             public int getElecFence() {
                 return elecFence;
