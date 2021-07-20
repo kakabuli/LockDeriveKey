@@ -101,8 +101,11 @@ public class AddDeviceForSharedUserActivity extends BaseActivity {
             Timber.e("initData list is empty");
             return;
         }
+        for (BleDeviceLocal bleDeviceLocal : list) {
+            if (bleDeviceLocal.getIsAdmin() != 1) { // 非管理员用户无法分享
+                list.remove(bleDeviceLocal);
+            }
+        }
         mAuthUserDeviceAdapter.setList(list);
-
     }
-
 }

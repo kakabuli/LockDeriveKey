@@ -132,11 +132,6 @@ public class MessageListActivity extends BaseActivity {
             Timber.e("updateLockInfoToService token is empty");
             return;
         }
-        if (App.getInstance().getUserBean() == null) {
-            Timber.e("App.getInstance().getUserBean()");
-            return;
-        }
-
         SystemMessageListReq messageListReq = new SystemMessageListReq();
         messageListReq.setPageNum(page);
         messageListReq.setUid(App.getInstance().getUserBean().getUid());
@@ -233,7 +228,6 @@ public class MessageListActivity extends BaseActivity {
         if (!checkNetConnectFail()) {
             return;
         }
-        // TODO: 2021/4/23 跳转到登录页面
         if (TextUtils.isEmpty(mShareKey)) {
             Timber.e("mShareKey == null");
             return;
@@ -276,6 +270,7 @@ public class MessageListActivity extends BaseActivity {
                     return;
                 }
                 ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_success);
+                page = 1;
                 getSystemMessageList();
             }
 

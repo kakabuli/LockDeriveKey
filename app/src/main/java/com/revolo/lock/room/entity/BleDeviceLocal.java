@@ -132,6 +132,17 @@ public class BleDeviceLocal implements Parcelable {
     @ColumnInfo(name = "shareUserType")
     private int shareUserType;  // 分享用户权限
 
+    @ColumnInfo(name = "isAdmin")
+    private int isAdmin; // 是否为管理员 1-管理员
+
+    public int getIsAdmin() {
+        return isAdmin;
+    }
+
+    public void setIsAdmin(int isAdmin) {
+        this.isAdmin = isAdmin;
+    }
+
     public int getShareUserType() {
         return shareUserType;
     }
@@ -479,6 +490,7 @@ public class BleDeviceLocal implements Parcelable {
         dest.writeDouble(this.longitude);
         dest.writeByte(this.elecFenceState ? (byte) 0 : (byte) 1);
         dest.writeInt(this.shareUserType);
+        dest.writeInt(this.isAdmin);
     }
 
     public void readFromParcel(Parcel source) {
@@ -516,6 +528,7 @@ public class BleDeviceLocal implements Parcelable {
         this.longitude = source.readDouble();
         this.elecFenceState = source.readByte() != 0;
         this.shareUserType = source.readInt();
+        this.isAdmin = source.readInt();
     }
 
     public BleDeviceLocal() {
@@ -556,6 +569,7 @@ public class BleDeviceLocal implements Parcelable {
         this.longitude = in.readLong();
         this.elecFenceState = in.readByte() != 0;
         this.shareUserType = in.readInt();
+        this.isAdmin = in.readInt();
     }
 
     public static final Creator<BleDeviceLocal> CREATOR = new Creator<BleDeviceLocal>() {

@@ -38,7 +38,7 @@ public class MessageListAdapter extends BaseQuickAdapter<SystemMessageListBeanRs
     protected void convert(@NotNull BaseViewHolder holder, SystemMessageListBeanRsp.DataBean dataBean) {
         if (dataBean != null) {
             holder.setText(R.id.tvMessageTitle, TextUtils.isEmpty(dataBean.getAlertTitle()) ? "" : dataBean.getAlertTitle());
-            holder.setText(R.id.tvTime, simpleDateFormat.format(dataBean.getPushAt() * 1000));
+            holder.setText(R.id.tvTime, dataBean.getMsgType() == 6 ? simpleDateFormat.format(dataBean.getPushAt() * 1000) : ZoneUtil.getDate("", dataBean.getPushAt() * 1000));
             holder.setText(R.id.tv_message_answer, TextUtils.isEmpty(dataBean.getAlertBody()) ? "" : dataBean.getAlertBody());
             if (dataBean.getMsgType() == 6 && dataBean.getIsAgree() == 0) {
                 holder.setVisible(R.id.tvAccepting, true);
