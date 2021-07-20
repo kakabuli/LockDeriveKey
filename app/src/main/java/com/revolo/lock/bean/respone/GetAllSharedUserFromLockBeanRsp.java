@@ -61,6 +61,7 @@ public class GetAllSharedUserFromLockBeanRsp {
         private String avatarPath;
         private int isAgree;
         private int isEnable;
+        private String deviceSN;
         private String remarkName;
 
         protected DataBean(Parcel in) {
@@ -74,6 +75,7 @@ public class GetAllSharedUserFromLockBeanRsp {
             isAgree = in.readInt();
             isEnable = in.readInt();
             remarkName = in.readString();
+            deviceSN = in.readString();
         }
 
         public static final Creator<DataBean> CREATOR = new Creator<DataBean>() {
@@ -87,6 +89,14 @@ public class GetAllSharedUserFromLockBeanRsp {
                 return new DataBean[size];
             }
         };
+
+        public String getDeviceSN() {
+            return deviceSN;
+        }
+
+        public void setDeviceSN(String deviceSN) {
+            this.deviceSN = deviceSN;
+        }
 
         public String getRemarkName() {
             return remarkName;
@@ -185,6 +195,7 @@ public class GetAllSharedUserFromLockBeanRsp {
             dest.writeInt(isAgree);
             dest.writeInt(isEnable);
             dest.writeString(remarkName);
+            dest.writeString(deviceSN);
         }
     }
 }
