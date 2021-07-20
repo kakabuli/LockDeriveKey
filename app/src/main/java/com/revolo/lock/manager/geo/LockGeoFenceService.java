@@ -93,7 +93,7 @@ public class LockGeoFenceService extends Service implements OnMapReadyCallback, 
     public void onCreate() {
         super.onCreate();
         lockGeoFenceEns = new ArrayList<>();
-        Timber.e("init lock geofence service");
+        Timber.e("定位服务初始化");
         if (null == mGeoFencingClient) {
             mGeoFencingClient = LocationServices.getGeofencingClient(LockGeoFenceService.this);
         }
@@ -121,10 +121,10 @@ public class LockGeoFenceService extends Service implements OnMapReadyCallback, 
                 // for ActivityCompat#requestPermissions for more details.
                 return;
             }
-            Timber.e("start local");
+            Timber.e("定位服务，设置msg，开始定位");
             fusedLocationClient.getLastLocation().addOnSuccessListener(location -> {
                 // Got last known location. In some rare situations this can be null.
-                Timber.e("lock geo locaion");
+                Timber.e("定位服务，定位成功，next");
                 sendLoacl(location);
             });
         }
@@ -138,9 +138,9 @@ public class LockGeoFenceService extends Service implements OnMapReadyCallback, 
                 Timber.e("SG_LOCK_GEO_FEN_SERIVE_UPDATE");
             }
             if (null != lockGeoFenceEns && lockGeoFenceEns.size() > 0) {
-                for (LockGeoFenceEn fenceEn : lockGeoFenceEns) {
+                for (int i = 0; i < lockGeoFenceEns.size(); i++) {
                     float[] results = new float[1];
-                    Location.distanceBetween(fenceEn.getLatitude(), fenceEn.getLongitude(), location.getLatitude(), location.getLongitude(), results);
+                    Location.distanceBetween(lockGeoFenceEns.get(i).getLatitude(), lockGeoFenceEns.get(i).getLongitude(), location.getLatitude(), location.getLongitude(), results);
                     if (null != lockGeoget) {
                         Timber.e("当前时间间距：%s", lockGeoget.threadSleep + "");
                     }
@@ -151,11 +151,11 @@ public class LockGeoFenceService extends Service implements OnMapReadyCallback, 
                             Timber.e("距离：%s", results[0] + "米" + "设置间隔时间5分钟");
                         }
                         if (null != App.getInstance().getLockAppService()) {
-                            if (null != fenceEn.getBleDeviceLocal()) {
-                                if (fenceEn.getBleDeviceLocal().setLockElecFenceState(true)) {
-                                    App.getInstance().getLockAppService().pushServiceGeoState(fenceEn.getBleDeviceLocal());
+                            if (null != lockGeoFenceEns.get(i).getBleDeviceLocal()) {
+                                if (lockGeoFenceEns.get(i).getBleDeviceLocal().setLockElecFenceState(true)) {
+                                    App.getInstance().getLockAppService().pushServiceGeoState(lockGeoFenceEns.get(i).getBleDeviceLocal());
+                                    App.getInstance().getLockAppService().updateDeviceGeoState(lockGeoFenceEns.get(i).getBleDeviceLocal().getMac(), lockGeoFenceEns.get(i).getBleDeviceLocal());
                                 }
-                                App.getInstance().getLockAppService().updateDeviceGeoState(fenceEn.getBleDeviceLocal().getMac(), fenceEn.getBleDeviceLocal());
                             }
                         }
                     }
@@ -166,11 +166,12 @@ public class LockGeoFenceService extends Service implements OnMapReadyCallback, 
                             Timber.e("距离：%s", results[0] + "米" + "设置间隔时间1分钟");
                         }
                         if (null != App.getInstance().getLockAppService()) {
-                            if (null != fenceEn.getBleDeviceLocal()) {
-                                if (fenceEn.getBleDeviceLocal().setLockElecFenceState(true)) {
-                                    App.getInstance().getLockAppService().pushServiceGeoState(fenceEn.getBleDeviceLocal());
+                            if (null != lockGeoFenceEns.get(i).getBleDeviceLocal()) {
+                                if (lockGeoFenceEns.get(i).getBleDeviceLocal().setLockElecFenceState(true)) {
+                                    App.getInstance().getLockAppService().pushServiceGeoState(lockGeoFenceEns.get(i).getBleDeviceLocal());
+                                    App.getInstance().getLockAppService().updateDeviceGeoState(lockGeoFenceEns.get(i).getBleDeviceLocal().getMac(), lockGeoFenceEns.get(i).getBleDeviceLocal());
+
                                 }
-                                App.getInstance().getLockAppService().updateDeviceGeoState(fenceEn.getBleDeviceLocal().getMac(), fenceEn.getBleDeviceLocal());
                             }
                         }
                     }
@@ -195,30 +196,32 @@ public class LockGeoFenceService extends Service implements OnMapReadyCallback, 
                             Timber.e("距离：%s", results[0] + "米" + "设置间隔时间15秒");
                         }
                     }
-                    if (lockGeoget.threadSleep < 21) {
-                        if (null != fenceEn.getBleDeviceLocal()) {
-                            Timber.e("距离少于30米，开始发送命令");
-                            if (!fenceEn.getBleDeviceLocal().getElecFenceState()) {
-                                Timber.e("当前设备非为从200米外进入设备，暂不发送命令");
+                    if (results[0] < 40) {
+                        Timber.e("当前设备为40米内，准备发送命令:" + lockGeoFenceEns.get(i).getBleDeviceLocal().getEsn());
+                        if (null != lockGeoFenceEns.get(i).getBleDeviceLocal()) {
+                            if (!lockGeoFenceEns.get(i).getBleDeviceLocal().getElecFenceState()) {
+                                Timber.e("当前设备非为从200米外进入设备，暂不发送命令:" + lockGeoFenceEns.get(i).getBleDeviceLocal().getEsn());
                                 return;
                             }
-                            pushMessage(fenceEn.getBleDeviceLocal());
+                            Timber.e("距离少于40米，开始发送命令:" + lockGeoFenceEns.get(i).getBleDeviceLocal().getEsn());
+                            pushMessage(lockGeoFenceEns.get(i).getBleDeviceLocal());
                         }
-
-                        //sendBroadcast(new Intent(this, GeoFenceBroadcastReceiver.class));
                     }
                 }
             }
-
-            // Logic to handle location object
-            //location.getLatitude(), location.getLongitude()
         }
     }
 
+    /**
+     * 分场景下发敲门开锁命令
+     *
+     * @param deviceLocal
+     */
     private void pushMessage(BleDeviceLocal deviceLocal) {
         //电子围栏是否开启
-        Timber.e("lock local check ble connected");
+        Timber.e("定位服务，下发命令");
         if (deviceLocal.isOpenElectricFence()) {
+            Timber.e("定位服务，下发命令，设备地理围栏开启：" + deviceLocal.getEsn());
             if (null != App.getInstance().getLockAppService()) {
                 BleBean bleBean = App.getInstance().getLockAppService().getUserBleBean(deviceLocal.getMac());
                 if (null != bleBean) {
@@ -229,7 +232,7 @@ public class LockGeoFenceService extends Service implements OnMapReadyCallback, 
                                 return;
                             }
                             // TODO: 2021/4/7 抽离0x01
-                            Timber.e("lock local send ble cmd");
+                            Timber.e("定位服务，下发命令，蓝牙下发敲门开锁命令：" + deviceLocal.getEsn());
                             BleManager.getInstance().writeControlMsg(BleCommandFactory
                                     .setKnockDoorAndUnlockTime(0x01, bleBean.getPwd1(), bleBean.getPwd3()), bleBean.getOKBLEDeviceImp());
                         }, 200);
@@ -237,13 +240,14 @@ public class LockGeoFenceService extends Service implements OnMapReadyCallback, 
                     } else {
                         if (deviceLocal.getElecFenceCmd() == 1) {
                             //开启蓝牙广播已，直接去连
-                            Timber.e("开启蓝牙广播已，直接去连");
+                            Timber.e("定位服务，下发命令，开启蓝牙广播已，直接去连：" + deviceLocal.getEsn());
                             App.getInstance().getLockAppService().checkBleConnect(deviceLocal.getMac());
+                            return;
                         }
                     }
                 }
             }
-            Timber.e("lock local send mqtt cmd");
+            Timber.e("定位服务，下发命令，mqtt命令开启蓝牙：" + deviceLocal.getEsn());
             LockMessage lockMessage = new LockMessage();
             lockMessage.setMqttMessage(MqttCommandFactory.approachOpen(deviceLocal.getEsn(), deviceLocal.getSetElectricFenceTime(),
                     BleCommandFactory.getPwd(
@@ -300,14 +304,14 @@ public class LockGeoFenceService extends Service implements OnMapReadyCallback, 
                             // for ActivityCompat#requestPermissions for more details.
                             return;
                         }
-                        Timber.e("start local");
+                        Timber.e("定位服务，线程开始定位");
                         fusedLocationClient.getLastLocation().addOnSuccessListener(location -> {
                             // Got last known location. In some rare situations this can be null.
-                            Timber.e("lock geo locaion");
+                            Timber.e("定位服务，线程定位成功");
                             sendLoacl(location);
                         });
                     }
-                    Timber.e("threadSleep: %s", threadSleep);
+                    Timber.e("定位服务，线程开始睡眠：" + threadSleep);
                     try {
                         Thread.sleep(threadSleep * 1000);
                     } catch (InterruptedException e) {
@@ -332,13 +336,12 @@ public class LockGeoFenceService extends Service implements OnMapReadyCallback, 
         if (null == lockGeoFenceEns) {
             lockGeoFenceEns = new ArrayList<>();
         }
-        Timber.e("start get list bledevicelocal");
+        Timber.e("定位服务，添加设备列表");
         //获取当前的绑定设备
         List<BleDeviceLocal> bleDeviceLocalList = App.getInstance().getDeviceLists();
         if (null != bleDeviceLocalList) {
-            Timber.e("start get list bledevicelocal size：%s", bleDeviceLocalList.size() + "");
+            Timber.e("定位服务，添加设备列表len：" + bleDeviceLocalList.size());
             for (BleDeviceLocal bleDeviceLocal : bleDeviceLocalList) {
-                Timber.e("check device");
                 updateDeviceGeo(bleDeviceLocal);
             }
         }
@@ -385,13 +388,13 @@ public class LockGeoFenceService extends Service implements OnMapReadyCallback, 
      */
     private void updateDeviceGeo(BleDeviceLocal bleDeviceLocal) {
         int index = -1;
-        Timber.e("电子围栏中的个数:%s", lockGeoFenceEns.size() + "");
+        Timber.e("定位服务，地理围栏设备列表len：" + lockGeoFenceEns.size());
         for (int i = 0; i < lockGeoFenceEns.size(); i++) {
             if (lockGeoFenceEns.get(i).getBleDeviceLocal().getEsn().equals(bleDeviceLocal.getEsn())) {
                 index = i;
                 if (!bleDeviceLocal.isOpenElectricFence()) {
-                    Timber.e("电子围栏中状态:%s", bleDeviceLocal.isOpenElectricFence());
-                    Timber.e("电子围栏中删除:%s", bleDeviceLocal.getEsn());
+                    Timber.e("定位服务，地理围栏设备状态:%s", bleDeviceLocal.isOpenElectricFence());
+                    Timber.e("定位服务，地理围栏设备删除:%s", bleDeviceLocal.getEsn());
                     if (null != lockGeoFenceEns.get(i).getPendingIntent()) {
                         if (null != mGeoFencingClient) {
                             mGeoFencingClient.removeGeofences(lockGeoFenceEns.get(i).getPendingIntent());
@@ -405,7 +408,7 @@ public class LockGeoFenceService extends Service implements OnMapReadyCallback, 
                 } else {
                     if (lockGeoFenceEns.get(i).getLatitude() == bleDeviceLocal.getLatitude() && lockGeoFenceEns.get(i).getLongitude() == bleDeviceLocal.getLongitude()) {
                         //重复
-                        Timber.e("电子围栏中重复:%s", bleDeviceLocal.getEsn());
+                        Timber.e("定位服务，地理围栏设备重复:%s", bleDeviceLocal.getEsn());
                         lockGeoFenceEns.get(i).setBleDeviceLocal(bleDeviceLocal);
                         sendOpenPer();
                     } else {
@@ -420,7 +423,7 @@ public class LockGeoFenceService extends Service implements OnMapReadyCallback, 
                         ));
                         lockGeoFenceEns.get(i).setGeofencingRequest(lockGeoFenceEns.get(i).getmGeoFenceHelper().getGeoFencingRequest(lockGeoFenceEns.get(i).getGeofence()));
                         addGeoFence(lockGeoFenceEns.get(i));
-                        Timber.e("电子围栏中重复，修改坐标点:%s", bleDeviceLocal.getEsn());
+                        Timber.e("定位服务，地理围栏设备中重复，修改坐标点:%s", bleDeviceLocal.getEsn());
                         sendOpenPer();
                     }
 
@@ -432,7 +435,7 @@ public class LockGeoFenceService extends Service implements OnMapReadyCallback, 
         if (index == -1) {
             if (bleDeviceLocal.isOpenElectricFence()) {
                 sendOpenPer();
-                Timber.e("start get list bledevicelocal addGeo mac：%s", bleDeviceLocal.getMac() + ";" + bleDeviceLocal.getEsn());
+                Timber.e("定位服务，地理围栏添加设备 mac：%s", bleDeviceLocal.getMac() + ";" + bleDeviceLocal.getEsn());
                 addGeoFence(bleDeviceLocal, new LatLng(bleDeviceLocal.getLatitude(), bleDeviceLocal.getLongitude()), 50);
             }
         }
@@ -440,9 +443,10 @@ public class LockGeoFenceService extends Service implements OnMapReadyCallback, 
 
     public void updateLockCmdState(String esn, int type) {
         int index = -1;
-        Timber.e("电子围栏中的个数:%s", lockGeoFenceEns.size() + "");
+        Timber.e("定位服务，地理围栏设备 len:%s", lockGeoFenceEns.size() + "");
         for (int i = 0; i < lockGeoFenceEns.size(); i++) {
             if (lockGeoFenceEns.get(i).getBleDeviceLocal().getEsn().equals(esn)) {
+                Timber.e("定位服务，更新发送开启蓝牙命令状态 mac：%s", esn + "状态：" + type);
                 lockGeoFenceEns.get(i).getBleDeviceLocal().setElecFenceCmd(type);
                 break;
             }
@@ -468,13 +472,13 @@ public class LockGeoFenceService extends Service implements OnMapReadyCallback, 
     public boolean updateDeviceGeo(BleDeviceLocal bleDeviceLocal, LatLng latLng, float radius) {
         int index = -1;
         boolean isAdd = false;
-        Timber.e("电子围栏中的个数:%s", lockGeoFenceEns.size() + "");
+        Timber.e("2定位服务，地理围栏设备个数:%s", lockGeoFenceEns.size() + "");
         for (int i = 0; i < lockGeoFenceEns.size(); i++) {
             if (lockGeoFenceEns.get(i).getBleDeviceLocal().getEsn().equals(bleDeviceLocal.getEsn())) {
                 index = i;
                 if (!bleDeviceLocal.isOpenElectricFence()) {
-                    Timber.e("电子围栏中状态:%s", bleDeviceLocal.isOpenElectricFence());
-                    Timber.e("电子围栏中删除:%s", bleDeviceLocal.getEsn());
+                    Timber.e("2定位服务，地理围栏设备状态:%s", bleDeviceLocal.isOpenElectricFence());
+                    Timber.e("2定位服务，地理围栏设备删除:%s", bleDeviceLocal.getEsn());
                     if (null != lockGeoFenceEns.get(i).getPendingIntent()) {
                         if (null != mGeoFencingClient) {
                             mGeoFencingClient.removeGeofences(lockGeoFenceEns.get(i).getPendingIntent());
@@ -488,7 +492,7 @@ public class LockGeoFenceService extends Service implements OnMapReadyCallback, 
                 } else {
                     if (lockGeoFenceEns.get(i).getLatitude() == latLng.latitude && lockGeoFenceEns.get(i).getLongitude() == latLng.longitude) {
                         //重复
-                        Timber.e("电子围栏中重复:%s", bleDeviceLocal.getEsn());
+                        Timber.e("2定位服务，地理围栏设备重复:%s", bleDeviceLocal.getEsn());
                         lockGeoFenceEns.get(i).setBleDeviceLocal(bleDeviceLocal);
                     } else {
                         lockGeoFenceEns.get(i).setLatitude(latLng.latitude);
@@ -501,7 +505,7 @@ public class LockGeoFenceService extends Service implements OnMapReadyCallback, 
                         ));
                         lockGeoFenceEns.get(i).setGeofencingRequest(lockGeoFenceEns.get(i).getmGeoFenceHelper().getGeoFencingRequest(lockGeoFenceEns.get(i).getGeofence()));
                         addGeoFence(lockGeoFenceEns.get(i));
-                        Timber.e("电子围栏中重复，修改坐标点:%s", bleDeviceLocal.getEsn());
+                        Timber.e("2定位服务，地理围栏设备重复，修改坐标点:%s", bleDeviceLocal.getEsn());
                         isAdd = true;
 
                     }
@@ -513,7 +517,7 @@ public class LockGeoFenceService extends Service implements OnMapReadyCallback, 
         }
         if (index == -1) {
             if (bleDeviceLocal.isOpenElectricFence()) {
-                Timber.e("start get list bledevicelocal addGeo mac：%s", bleDeviceLocal.getMac() + ";" + bleDeviceLocal.getEsn());
+                Timber.e("2定位服务，地理围栏添加设备 mac：%s", bleDeviceLocal.getMac() + ";" + bleDeviceLocal.getEsn());
                 addGeoFence(bleDeviceLocal, new LatLng(bleDeviceLocal.getLatitude(), bleDeviceLocal.getLongitude()), 50);
                 isAdd = true;
             }
@@ -523,7 +527,7 @@ public class LockGeoFenceService extends Service implements OnMapReadyCallback, 
 
     @SuppressLint("MissingPermission")
     private void addGeoFence(BleDeviceLocal bleDeviceLocal, LatLng latLng, float radius) {
-        Timber.d("addGeoFence: started");
+        Timber.d("定位服务，地理围栏 添加设备");
         LockGeoFenceEn fenceEn = new LockGeoFenceEn();
         fenceEn.setLatitude(latLng.latitude);
         fenceEn.setLongitude(latLng.longitude);
@@ -555,6 +559,7 @@ public class LockGeoFenceService extends Service implements OnMapReadyCallback, 
      * @param fenceEn
      */
     public void addGeoFence(LockGeoFenceEn fenceEn) {
+        Timber.e("定位服务，地理围栏 重复添加坐标");
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             // TODO: Consider calling
             //    ActivityCompat#requestPermissions
@@ -573,5 +578,4 @@ public class LockGeoFenceService extends Service implements OnMapReadyCallback, 
                     Timber.d("GeoFence onFailure");
                 });
     }
-
 }
