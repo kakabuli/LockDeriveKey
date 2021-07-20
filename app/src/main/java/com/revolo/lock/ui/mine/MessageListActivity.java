@@ -27,6 +27,7 @@ import com.revolo.lock.net.HttpRequest;
 import com.revolo.lock.net.ObservableDecorator;
 import com.revolo.lock.ui.view.SmartClassicsHeaderView;
 import com.revolo.lock.widget.SlideRecyclerView;
+import com.revolo.lock.widget.SpacesItemDecoration;
 import com.scwang.smart.refresh.layout.SmartRefreshLayout;
 
 import java.util.ArrayList;
@@ -84,7 +85,9 @@ public class MessageListActivity extends BaseActivity {
         SlideRecyclerView rvMessage = findViewById(R.id.rvMessage);
         rvMessage.getItemAnimator().setChangeDuration(300);
         rvMessage.getItemAnimator().setMoveDuration(300);
-        rvMessage.setLayoutManager(new LinearLayoutManager(this));
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
+        rvMessage.addItemDecoration(new SpacesItemDecoration(5, R.color.cF2F2F2));
+        rvMessage.setLayoutManager(linearLayoutManager);
         mMessageListAdapter = new MessageListAdapter(R.layout.item_message_rv);
         mMessageListAdapter.setOnItemClickListener((adapter, view, position) -> {
             // TODO 不能删除

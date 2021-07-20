@@ -52,6 +52,15 @@ public class SystemMessageListBeanRsp {
         private int isAgree;
         private String shareKey;
         private String adminUid;
+        private String timeZone;
+
+        public String getTimeZone() {
+            return timeZone;
+        }
+
+        public void setTimeZone(String timeZone) {
+            this.timeZone = timeZone;
+        }
 
         public String getShareKey() {
             return shareKey;

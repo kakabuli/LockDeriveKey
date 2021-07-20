@@ -368,8 +368,7 @@ public class MQTTReply {
 //        bleDeviceLocal.setSetElectricFenceSensitivity();
 //        bleDeviceLocal.setSetElectricFenceTime();
 //        bleDeviceLocal.setDetectionLock();
-        if (!TextUtils.isEmpty(wifiListBean.getAutoLock()))
-            bleDeviceLocal.setAutoLock(wifiListBean.getAutoLock().equals("0"));
+        bleDeviceLocal.setAutoLock(wifiListBean.getAmMode() == 0);
 
         bleDeviceLocal.setDuress(wifiListBean.getDuress() == 1);
         bleDeviceLocal.setDuressEmail(wifiListBean.getDuressEmail());
