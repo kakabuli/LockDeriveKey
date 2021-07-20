@@ -368,8 +368,7 @@ public class MQTTReply {
 //        bleDeviceLocal.setSetElectricFenceSensitivity();
 //        bleDeviceLocal.setSetElectricFenceTime();
 //        bleDeviceLocal.setDetectionLock();
-        if (!TextUtils.isEmpty(wifiListBean.getAutoLock()))
-            bleDeviceLocal.setAutoLock(wifiListBean.getAutoLock().equals("0"));
+        bleDeviceLocal.setAutoLock(wifiListBean.getAmMode() == 0);
 
         bleDeviceLocal.setDuress(wifiListBean.getDuress() == 1);
         bleDeviceLocal.setDuressEmail(wifiListBean.getDuressEmail());
@@ -406,6 +405,8 @@ public class MQTTReply {
             bleDeviceLocal.setLockVer(firmwareVer);
         }
         bleDeviceLocal.setShareUserType(wifiListBean.getShareUserType());
+        bleDeviceLocal.setIsAdmin(wifiListBean.getIsAdmin());
+
         String wifiVer = wifiListBean.getWifiVersion();
         if (!TextUtils.isEmpty(wifiVer)) {
             bleDeviceLocal.setWifiVer(wifiVer);
@@ -417,7 +418,7 @@ public class MQTTReply {
         Timber.d("wifi 连接状态: %1s", wifiListBean.getWifiStatus());
         //地理围栏
         //地理围栏是否开启
-        bleDeviceLocal.setOpenElectricFence(wifiListBean.getElecFence()==0);
+        bleDeviceLocal.setOpenElectricFence(wifiListBean.getElecFence() == 0);
         //地理围栏经纬度
         bleDeviceLocal.setLatitude(Double.parseDouble(wifiListBean.getLatitude()));
         bleDeviceLocal.setLongitude(Double.parseDouble(wifiListBean.getLongitude()));
@@ -425,7 +426,7 @@ public class MQTTReply {
         bleDeviceLocal.setSetElectricFenceTime(wifiListBean.getElecFenceTime());
         bleDeviceLocal.setSetElectricFenceSensitivity(wifiListBean.getElecFenceSensitivity());
         //地理围栏 从200米外到内
-        bleDeviceLocal.setLockElecFenceState(wifiListBean.getElecFenceState()==0);
+        bleDeviceLocal.setLockElecFenceState(wifiListBean.getElecFenceState() == 0);
 
         return bleDeviceLocal;
     }

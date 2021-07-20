@@ -27,6 +27,7 @@ import com.revolo.lock.net.HttpRequest;
 import com.revolo.lock.net.ObservableDecorator;
 import com.revolo.lock.ui.view.SmartClassicsHeaderView;
 import com.revolo.lock.widget.SlideRecyclerView;
+import com.revolo.lock.widget.SpacesItemDecoration;
 import com.scwang.smart.refresh.layout.SmartRefreshLayout;
 
 import java.util.ArrayList;
@@ -84,7 +85,9 @@ public class MessageListActivity extends BaseActivity {
         SlideRecyclerView rvMessage = findViewById(R.id.rvMessage);
         rvMessage.getItemAnimator().setChangeDuration(300);
         rvMessage.getItemAnimator().setMoveDuration(300);
-        rvMessage.setLayoutManager(new LinearLayoutManager(this));
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
+        rvMessage.addItemDecoration(new SpacesItemDecoration(5, R.color.cF2F2F2));
+        rvMessage.setLayoutManager(linearLayoutManager);
         mMessageListAdapter = new MessageListAdapter(R.layout.item_message_rv);
         mMessageListAdapter.setOnItemClickListener((adapter, view, position) -> {
             // TODO 不能删除
@@ -132,11 +135,6 @@ public class MessageListActivity extends BaseActivity {
             Timber.e("updateLockInfoToService token is empty");
             return;
         }
-        if (App.getInstance().getUserBean() == null) {
-            Timber.e("App.getInstance().getUserBean()");
-            return;
-        }
-
         SystemMessageListReq messageListReq = new SystemMessageListReq();
         messageListReq.setPageNum(page);
         messageListReq.setUid(App.getInstance().getUserBean().getUid());
@@ -233,7 +231,6 @@ public class MessageListActivity extends BaseActivity {
         if (!checkNetConnectFail()) {
             return;
         }
-        // TODO: 2021/4/23 跳转到登录页面
         if (TextUtils.isEmpty(mShareKey)) {
             Timber.e("mShareKey == null");
             return;
@@ -276,6 +273,7 @@ public class MessageListActivity extends BaseActivity {
                     return;
                 }
                 ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_success);
+                page = 1;
                 getSystemMessageList();
             }
 

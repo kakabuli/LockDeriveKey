@@ -234,7 +234,7 @@ public class AuthUserDetailActivity extends BaseActivity {
             return;
         }
         GainKeyBeanReq req = new GainKeyBeanReq();
-        req.setDeviceSN(dataBean.getLockNickname());
+        req.setDeviceSN(dataBean.getDeviceSN());
         req.setShareUserType(dataBean.getShareUserType());
         req.setAdminUid(uid);
         req.setFirstName(mShareUser.getFirstName());

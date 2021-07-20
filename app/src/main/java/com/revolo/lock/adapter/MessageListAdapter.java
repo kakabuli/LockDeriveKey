@@ -31,16 +31,17 @@ public class MessageListAdapter extends BaseQuickAdapter<SystemMessageListBeanRs
 
     public MessageListAdapter(int layoutResId) {
         super(layoutResId);
-        simpleDateFormat.setTimeZone(TimeZone.getTimeZone("GMT+08:00"));
     }
 
     @Override
     protected void convert(@NotNull BaseViewHolder holder, SystemMessageListBeanRsp.DataBean dataBean) {
         if (dataBean != null) {
+            String timeZone = dataBean.getTimeZone();
+            if (!TextUtils.isEmpty(timeZone)) simpleDateFormat.setTimeZone(TimeZone.getTimeZone(timeZone));
             holder.setText(R.id.tvMessageTitle, TextUtils.isEmpty(dataBean.getAlertTitle()) ? "" : dataBean.getAlertTitle());
-            holder.setText(R.id.tvTime, simpleDateFormat.format(dataBean.getPushAt() * 1000));
+            holder.setText(R.id.tvTime, dataBean.getMsgType() == 6 ? simpleDateFormat.format(dataBean.getPushAt() * 1000) : ZoneUtil.getDate("", dataBean.getPushAt() * 1000));
             holder.setText(R.id.tv_message_answer, TextUtils.isEmpty(dataBean.getAlertBody()) ? "" : dataBean.getAlertBody());
-            if (dataBean.getMsgType() == 6 && dataBean.getIsAgree() == 0) {
+            if (dataBean.getMsgType() == 6 && dataBean.getIsAgree() == 0 && dataBean.getIsShowAgreeShare() == 1) {
                 holder.setVisible(R.id.tvAccepting, true);
             } else {
                 holder.setGone(R.id.tvAccepting, true);
