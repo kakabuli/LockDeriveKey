@@ -25,7 +25,8 @@
             <com.revolo.lock.widget.SlideRecyclerView
                 android:id="@+id/rvMessage"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent" />
+                android:layout_height="match_parent"
+                android:background="@color/white" />
 
             <ImageView
                 android:id="@+id/ivNoMessage"

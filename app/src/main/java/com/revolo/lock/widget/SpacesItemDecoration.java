@@ -8,6 +8,8 @@ import android.view.View;
 
 import androidx.recyclerview.widget.RecyclerView;
 
+import org.jetbrains.annotations.NotNull;
+
 /**
  * author : zhougm
  * time   : 2021/7/20
@@ -16,29 +18,27 @@ import androidx.recyclerview.widget.RecyclerView;
  */
 public class SpacesItemDecoration extends RecyclerView.ItemDecoration {
 
-    private int mDividerHeight;
+    private float mDividerHeight;
+
     private Paint mPaint;
 
-    public SpacesItemDecoration(int color, int height) {
+    public SpacesItemDecoration(int height, int color) {
+        mDividerHeight = height;
         mPaint = new Paint();
         mPaint.setAntiAlias(true);
-        this.mDividerHeight = height;
         mPaint.setColor(color);
     }
 
     @Override
-    public void getItemOffsets(Rect outRect, View view, RecyclerView parent, RecyclerView.State state) {
+    public void getItemOffsets(@NotNull Rect outRect, @NotNull View view, @NotNull RecyclerView parent, @NotNull RecyclerView.State state) {
         super.getItemOffsets(outRect, view, parent, state);
-
-//        //第一个ItemView不需要在上面绘制分割线
         if (parent.getChildAdapterPosition(view) != 0) {
-            //这里直接硬编码为1px
-            outRect.top = mDividerHeight;
+            outRect.top = (int) mDividerHeight;
         }
     }
 
     @Override
-    public void onDraw(Canvas c, RecyclerView parent, RecyclerView.State state) {
+    public void onDraw(@NotNull Canvas c, @NotNull RecyclerView parent, RecyclerView.@NotNull State state) {
         super.onDraw(c, parent, state);
 
         int childCount = parent.getChildCount();
