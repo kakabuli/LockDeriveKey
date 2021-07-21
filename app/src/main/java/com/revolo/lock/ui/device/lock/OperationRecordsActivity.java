@@ -114,10 +114,12 @@ public class OperationRecordsActivity extends BaseActivity {
 
     @Override
     public void initView(@Nullable Bundle savedInstanceState, @Nullable View contentView) {
-        useCommonTitleBar(getString(R.string.tip_activities))
-                .setRight(R.drawable.ic_icon_date, v -> {
-                    showDatePicker();
-                });
+        if (mBleDeviceLocal.getConnectedType() != LocalState.DEVICE_CONNECT_TYPE_BLE) {
+            useCommonTitleBar(getString(R.string.tip_activities))
+                    .setRight(R.drawable.ic_icon_date, v -> {
+                        showDatePicker();
+                    });
+        }
         mBleDeviceLocal = App.getInstance().getBleDeviceLocal();
         mElOperationRecords = findViewById(R.id.elOperationRecords);
         mElOperationRecords.setGroupIndicator(null);
@@ -493,8 +495,11 @@ public class OperationRecordsActivity extends BaseActivity {
         // TODO: 2021/3/18 时间错误就不能存储
         if (beans.isEmpty()) {
             Timber.e("processRecordFromNet beans is empty");
-            mWillShowRecords.clear();
-            refreshUIFromFinalData();
+            ToastUtils.showShort(getString(R.string.data_no_records));
+            return;
+        }
+        if (beans.size() == 0) {
+            ToastUtils.showShort(getString(R.string.data_no_records));
             return;
         }
         // 不做校验，直接做存储并数据库做了插入去重
