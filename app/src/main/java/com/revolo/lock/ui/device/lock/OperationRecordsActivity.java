@@ -97,6 +97,7 @@ public class OperationRecordsActivity extends BaseActivity {
 
     private long startTime = 0;
     private long endTime = 0;
+    private boolean isCheckTime = false;
 
     @Override
     public void initData(@Nullable Bundle bundle) {
@@ -114,12 +115,11 @@ public class OperationRecordsActivity extends BaseActivity {
 
     @Override
     public void initView(@Nullable Bundle savedInstanceState, @Nullable View contentView) {
-        if (mBleDeviceLocal.getConnectedType() != LocalState.DEVICE_CONNECT_TYPE_BLE) {
-            useCommonTitleBar(getString(R.string.tip_activities))
-                    .setRight(R.drawable.ic_icon_date, v -> {
-                        showDatePicker();
-                    });
-        }
+        isCheckTime = false;
+        useCommonTitleBar(getString(R.string.tip_activities))
+                .setRight(R.drawable.ic_icon_date, v -> {
+                    showDatePicker();
+                });
         mBleDeviceLocal = App.getInstance().getBleDeviceLocal();
         mElOperationRecords = findViewById(R.id.elOperationRecords);
         mElOperationRecords.setGroupIndicator(null);
@@ -426,6 +426,10 @@ public class OperationRecordsActivity extends BaseActivity {
         if (TextUtils.isEmpty(esn)) {
             Timber.e("searchRecordFromNet esn is empty");
             return;
+        }
+        if (!isCheckTime) {
+            // 不是筛选日期 开始时间从零开始
+            startTime = 0;
         }
 
         LockRecordBeanReq req = new LockRecordBeanReq();
@@ -815,6 +819,7 @@ public class OperationRecordsActivity extends BaseActivity {
             long startTime = ZoneUtil.getTime(mBleDeviceLocal.getTimeZone(), time + " 00:00:00") / 1000;
             long endTime = ZoneUtil.getTime(mBleDeviceLocal.getTimeZone(), time + " 23:59:59") / 1000;
             mPage = 1;
+            isCheckTime = true;
             searchRecord(startTime, endTime);
         });
 

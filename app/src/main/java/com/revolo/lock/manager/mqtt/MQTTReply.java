@@ -335,9 +335,13 @@ public class MQTTReply {
 
 //        bleDeviceLocal.setMute();
         // TODO: 2021/3/18 修改为从服务器获取数据
-        if (!TextUtils.isEmpty(wifiListBean.getWifiStatus()))
-            bleDeviceLocal.setConnectedType(Integer.parseInt(wifiListBean.getWifiStatus()));
-
+        if (!TextUtils.isEmpty(wifiListBean.getWifiStatus())) {
+            if (wifiListBean.getWifiStatus().equals(" 1")) {
+                bleDeviceLocal.setConnectedType(LocalState.DEVICE_CONNECT_TYPE_WIFI);
+            } else {
+                bleDeviceLocal.setConnectedType(LocalState.DEVICE_CONNECT_TYPE_DIS);
+            }
+        }
         bleDeviceLocal.setLockPower(wifiListBean.getPower());
         //锁的wifi模式下开关状态已服务器为准
         Timber.e("设备 服务器 lockState： %s", wifiListBean.getOpenStatus() + "");

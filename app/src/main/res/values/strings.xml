@@ -134,7 +134,7 @@
 
     <!-- SharedUserDetailActivity -->
     <string name="delete">Delete</string>
-    <string name="enable_user_authorization">Enable user authorization</string>
+    <string name="enable_user_authorization">Grant Account Authority</string>
 
     <!-- DeviceSettingActivity -->
     <string name="title_setting">Setting</string>
