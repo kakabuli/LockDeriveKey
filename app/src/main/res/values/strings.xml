@@ -87,6 +87,7 @@
 
     <!-- OperationRecordsActivity -->
     <string name="title_operation_records">Operation Records</string>
+    <string name="data_no_records">No record</string>
 
     <!-- AddNewPwdActivity -->
     <string name="tip_you_can_set_4_10_valid_passwords">You can set 4&#8211;10 valid passwords</string>
