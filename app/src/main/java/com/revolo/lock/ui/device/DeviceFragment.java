@@ -453,6 +453,9 @@ public class DeviceFragment extends Fragment {
             if (locals.isEmpty()) {
                 return;
             }
+            for(int i=0;i<locals.size();i++){
+                locals.get(i).setConnectedType(LocalState.DEVICE_CONNECT_TYPE_DIS);
+            }
             updateData(locals);
         } else {
             updateData(App.getInstance().getDeviceLists());

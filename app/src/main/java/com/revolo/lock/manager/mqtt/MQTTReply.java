@@ -418,7 +418,8 @@ public class MQTTReply {
         Timber.d("wifi 连接状态: %1s", wifiListBean.getWifiStatus());
         //地理围栏
         //地理围栏是否开启
-        bleDeviceLocal.setOpenElectricFence(wifiListBean.getElecFence() == 0);
+        Timber.e("电子围栏状态："+(wifiListBean.getElecFence() == 1?"true":"false"));
+        bleDeviceLocal.setOpenElectricFence(wifiListBean.getElecFence() == 1);
         //地理围栏经纬度
         bleDeviceLocal.setLatitude(Double.parseDouble(wifiListBean.getLatitude()));
         bleDeviceLocal.setLongitude(Double.parseDouble(wifiListBean.getLongitude()));

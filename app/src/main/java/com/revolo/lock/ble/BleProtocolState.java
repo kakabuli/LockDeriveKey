@@ -52,6 +52,7 @@ public class BleProtocolState {
     public static final int CMD_GET_ALL_RECORD = 0x24;                  // 获取混合记录
     public static final int CMD_DURESS_PWD_SWITCH = 0x25;               // 胁迫密码开关
     public static final int CMD_WIFI_SWITCH = 0x26;                     // wifi功能开关
+    public static final int CMD_TIME=0x28;//时间同步
     public static final int CMD_HEART_ACK = 0x00;                       // 心跳包确认帧
     public static final int CMD_AUTHENTICATION_ACK = 0x01;              // 鉴权确认帧
     public static final int CMD_LOCK_CONTROL_ACK =  0x02;               // 锁控制确认帧

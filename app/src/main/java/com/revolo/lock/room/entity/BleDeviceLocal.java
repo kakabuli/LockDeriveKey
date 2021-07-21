@@ -480,11 +480,11 @@ public class BleDeviceLocal implements Parcelable {
         dest.writeInt(this.setElectricFenceTime);
         dest.writeInt(this.setElectricFenceSensitivity);
         dest.writeByte(this.isAutoLock ? (byte) 0 : (byte) 1);
-        dest.writeByte(this.isOpenElectricFence ? (byte) 0 : (byte) 1);
+        dest.writeByte(this.isOpenElectricFence ? (byte) 1 : (byte) 0);
         dest.writeByte(this.isOpenDoorSensor ? (byte) 1 : (byte) 0);
         dest.writeByte(this.isMute ? (byte) 1 : (byte) 0);
         dest.writeByte(this.isDoNotDisturbMode ? (byte) 1 : (byte) 0);
-        dest.writeByte(this.isDuress ? (byte) 0 : (byte) 1);
+        dest.writeByte(this.isDuress ? (byte) 1 : (byte) 0);
         dest.writeString(this.randomCode);
         dest.writeDouble(this.latitude);
         dest.writeDouble(this.longitude);

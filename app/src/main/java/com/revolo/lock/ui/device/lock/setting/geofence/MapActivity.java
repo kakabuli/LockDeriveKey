@@ -309,7 +309,7 @@ public class MapActivity extends BaseActivity implements OnMapReadyCallback, Goo
             public void run() {
                 UpdateLocalBeanReq lockLocal = new UpdateLocalBeanReq();
                 lockLocal.setSn(mBleDeviceLocal.getEsn());
-                lockLocal.setElecFence(mBleDeviceLocal.isOpenElectricFence() ? 0 : 1);
+                lockLocal.setElecFence(mBleDeviceLocal.isOpenElectricFence() ? 1 : 0);
                 lockLocal.setElecFenceSensitivity(mBleDeviceLocal.getSetElectricFenceSensitivity());
                 lockLocal.setElecFenceTime(mBleDeviceLocal.getSetElectricFenceTime());
                 lockLocal.setLatitude(mBleDeviceLocal.getLatitude() + "");

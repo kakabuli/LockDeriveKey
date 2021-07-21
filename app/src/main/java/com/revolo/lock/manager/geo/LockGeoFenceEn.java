@@ -20,6 +20,7 @@ public class LockGeoFenceEn {
     private PendingIntent pendingIntent;
     private double latitude;                                          // 地理围栏纬度
     private double longitude;
+    private int distance=0;//距离
     public BleDeviceLocal getBleDeviceLocal() {
         return bleDeviceLocal;
     }
@@ -74,5 +75,13 @@ public class LockGeoFenceEn {
 
     public void setLongitude(double longitude) {
         this.longitude = longitude;
+    }
+
+    public int getDistance() {
+        return distance;
+    }
+
+    public void setDistance(int distance) {
+        this.distance = distance;
     }
 }
