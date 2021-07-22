@@ -42,6 +42,7 @@ public class MQTTManager {
         this.mqttDataLinstener = mqttDataLinstener;
     }
 
+
     //请勿添加static
     private MqttAndroidClient mqttClient;
     //重连次数10
