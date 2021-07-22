@@ -766,141 +766,138 @@ public class LockAppService extends Service {
         return BleManager.getInstance().getBleBeanCoonectedState(mac);
     }
 
-    BleResultAnalysis.OnReceivedProcess receivedProcess = new BleResultAnalysis.OnReceivedProcess() {
-        @Override
-        public void processResult(String mac, BleResultBean bleResultBean) {
-            //蓝牙收到回复，做相应的处理或是上报UI
-            Timber.e("processResult 解析完成 mac: %1s\n", mac);
-            Timber.e("processResult 解析完成 CMD: %1d",
-                    bleResultBean.getCMD());
-            bleResultBean.setmMac(mac);
-            switch (bleResultBean.getCMD()) {
-                case BleProtocolState.CMD_LOCK_OPEN_RECORD:// 0x04;                // 锁开锁记录查询响应
-                    break;
-                case BleProtocolState.CMD_LOCK_UPLOAD:// 0x05;
-                    // 锁操作上报
-                    updateLockState(mac, bleResultBean);
-                    break;
-                case BleProtocolState.CMD_LOCK_ALARM_UPLOAD:// 0x07;               // 锁报警上报
-                    UpdateLockAlarm(mac, bleResultBean);
-                    break;
-                case BleProtocolState.CMD_ENCRYPT_KEY_UPLOAD:// 0x08;              // 加密密钥上报
-                    processKey(bleResultBean);
-                    break;
-                case BleProtocolState.CMD_USER_TYPE:// 0x0A;                       // 用户类型查询
-                    break;
-                case BleProtocolState.CMD_WEEKLY_PLAN_CHECK:// 0x0C;               // 周计划查询
-                    break;
-                case BleProtocolState.CMD_YEAR_MON_DAY_PLAN_CHECK:// 0x0F;         // 年月日计划查询
-                    break;
-                case BleProtocolState.CMD_LOCK_ALARM_RECORD_CHECK:// 0x14;         // 锁报警记录查询
-                    break;
-                case BleProtocolState.CMD_LOCK_NUM_CHECK:// 0x15;                  // 锁序列号查询
-                    break;
-                case BleProtocolState.CMD_LOCK_OPEN_COUNT_CHECK:// 0x16;           // 锁开锁次数查询
-                    break;
-                case BleProtocolState.CMD_LOCK_PARAMETER_CHECK:// 0x17;            // 锁参数主动查询
-                    break;
-                case BleProtocolState.CMD_LOCK_OP_RECORD:// 0x18;                  // 锁操作记录查询
-                    break;
-                case BleProtocolState.CMD_PAIR_ACK:// 0x1b;                        // 配对确认帧
-                    break;
-                case BleProtocolState.CMD_KEY_ATTRIBUTES_SET:// 0x1C;              // 密钥属性设置
-                    break;
-                case BleProtocolState.CMD_KEY_ATTRIBUTES_READ:// 0x1D;             // 密钥属性读
-                    break;
-                case BleProtocolState.CMD_KEY_ADD:// 0x1E;                         // 密钥添加
-                    break;
-                case BleProtocolState.CMD_DOOR_SENSOR_CALIBRATION:// 0x1F;         // 门磁校准
-                    break;
-                case BleProtocolState.CMD_SET_AUTO_LOCK_TIME:// 0x21;              // 设置关门自动上锁时间
-                    break;
-                case BleProtocolState.CMD_KNOCK_DOOR_AND_UNLOCK_TIME:// 0x22;      // 敲门开锁指令
-                    if (bleResultBean.getPayload()[0] == 0) {
-                        // 设置敲击开锁成功 清理当前地理位置监控
-                        updateDeviceState(mac);
-                    }
-                    break;
-                case BleProtocolState.CMD_SY_LOCK_TIME:// 0x23;                    // 与锁同步时间
-                    break;
-                case BleProtocolState.CMD_GET_ALL_RECORD:// 0x24;                  // 获取混合记录
-                    break;
-                case BleProtocolState.CMD_DURESS_PWD_SWITCH:// 0x25;               // 胁迫密码开关
-                    break;
-                case BleProtocolState.CMD_WIFI_SWITCH:// 0x26;                     // wifi功能开关
-                    break;
-                case BleProtocolState.CMD_TIME://0x28 时间同步返回
-                {//获取设备信息
-                    BleBean mBleBean = BleManager.getInstance().getBleBeanFromMac(mac);
-                    if (null != mBleBean) {
-                        BleManager.getInstance().writeControlMsg(BleCommandFactory
-                                .checkLockBaseInfoCommand(mBleBean.getPwd1(), mBleBean.getPwd3()), mBleBean.getOKBLEDeviceImp());
-                    }
+    BleResultAnalysis.OnReceivedProcess receivedProcess = (mac, bleResultBean) -> {
+        //蓝牙收到回复，做相应的处理或是上报UI
+        Timber.e("processResult 解析完成 mac: %1s\n", mac);
+        Timber.e("processResult 解析完成 CMD: %1d", bleResultBean.getCMD());
+        Timber.e("processResult 解析完成 bleResult: %1s", bleResultBean.toString());
+        bleResultBean.setmMac(mac);
+        switch (bleResultBean.getCMD()) {
+            case BleProtocolState.CMD_LOCK_OPEN_RECORD:// 0x04;                // 锁开锁记录查询响应
+                break;
+            case BleProtocolState.CMD_LOCK_UPLOAD:// 0x05;
+                // 锁操作上报
+                updateLockState(mac, bleResultBean);
+                break;
+            case BleProtocolState.CMD_LOCK_ALARM_UPLOAD:// 0x07;               // 锁报警上报
+                UpdateLockAlarm(mac, bleResultBean);
+                break;
+            case BleProtocolState.CMD_ENCRYPT_KEY_UPLOAD:// 0x08;              // 加密密钥上报
+                processKey(bleResultBean);
+                break;
+            case BleProtocolState.CMD_USER_TYPE:// 0x0A;                       // 用户类型查询
+                break;
+            case BleProtocolState.CMD_WEEKLY_PLAN_CHECK:// 0x0C;               // 周计划查询
+                break;
+            case BleProtocolState.CMD_YEAR_MON_DAY_PLAN_CHECK:// 0x0F;         // 年月日计划查询
+                break;
+            case BleProtocolState.CMD_LOCK_ALARM_RECORD_CHECK:// 0x14;         // 锁报警记录查询
+                break;
+            case BleProtocolState.CMD_LOCK_NUM_CHECK:// 0x15;                  // 锁序列号查询
+                break;
+            case BleProtocolState.CMD_LOCK_OPEN_COUNT_CHECK:// 0x16;           // 锁开锁次数查询
+                break;
+            case BleProtocolState.CMD_LOCK_PARAMETER_CHECK:// 0x17;            // 锁参数主动查询
+                break;
+            case BleProtocolState.CMD_LOCK_OP_RECORD:// 0x18;                  // 锁操作记录查询
+                break;
+            case BleProtocolState.CMD_PAIR_ACK:// 0x1b;                        // 配对确认帧
+                break;
+            case BleProtocolState.CMD_KEY_ATTRIBUTES_SET:// 0x1C;              // 密钥属性设置
+                break;
+            case BleProtocolState.CMD_KEY_ATTRIBUTES_READ:// 0x1D;             // 密钥属性读
+                break;
+            case BleProtocolState.CMD_KEY_ADD:// 0x1E;                         // 密钥添加
+                break;
+            case BleProtocolState.CMD_DOOR_SENSOR_CALIBRATION:// 0x1F;         // 门磁校准
+                break;
+            case BleProtocolState.CMD_SET_AUTO_LOCK_TIME:// 0x21;              // 设置关门自动上锁时间
+                break;
+            case BleProtocolState.CMD_KNOCK_DOOR_AND_UNLOCK_TIME:// 0x22;      // 敲门开锁指令
+                if (bleResultBean.getPayload()[0] == 0) {
+                    // 设置敲击开锁成功 清理当前地理位置监控
+                    updateDeviceState(mac);
                 }
                 break;
-                case BleProtocolState.CMD_HEART_ACK:// 0x00;                       // 心跳包确认帧
-                    break;
-                case BleProtocolState.CMD_AUTHENTICATION_ACK:// 0x01;              // 鉴权确认帧
-                    BleBean bleBean = BleManager.getInstance().getBleBeanFromMac(mac);
-                    if (null != bleBean) {
-                        BleManager.getInstance().writeControlMsg(BleCommandFactory
-                                .ackCommand(bleResultBean.getTSN(), (byte) 0x00, bleResultBean.getCMD()), bleBean.getOKBLEDeviceImp());
-                    }
-                    break;
-                case BleProtocolState.CMD_LOCK_CONTROL_ACK:// 0x02;               // 锁控制确认帧
-                    break;
-                case BleProtocolState.CMD_LOCK_KEY_MANAGER_ACK:// 0x03;            // 锁密钥管理确认帧
-                    break;
-                case BleProtocolState.CMD_LOCK_PARAMETER_CHANGED:// 0x06;          // 锁参数修改
-                    break;
-                case BleProtocolState.CMD_USER_TYPE_SETTING_ACK:// 0x09;           // 用户类型设置确认帧
-                    break;
-                case BleProtocolState.CMD_WEEKLY_PLAN_SETTING_ACK:// 0x0B;         // 周计划设置确认帧
-                    break;
-                case BleProtocolState.CMD_WEEKLY_PLAN_DELETE_ACK:// 0x0D;          // 周计划删除确认帧
-                    break;
-                case BleProtocolState.CMD_YEAR_MON_DAY_PLAN_SETTING_ACK:// 0x0E;   // 年月日计划设置确认帧
-                    break;
-                case BleProtocolState.CMD_YEAR_MON_DAY_PLAN_DELETE_ACK:// 0x10;    // 年月日计划删除确认帧
-                    break;
-                case BleProtocolState.CMD_SY_KEY_STATE:// 0x11;                    // 同步门锁密钥状态响应
-                    break;
-                case BleProtocolState.CMD_LOCK_INFO:// 0x12;                       // 查询门锁基本信息
-                    updateLockInfo(mac, bleResultBean);
-                    break;
-                case BleProtocolState.CMD_REQUEST_BIND_ACK:// 0x13;                // APP绑定请求帧
-                    break;
-                case BleProtocolState.CMD_CHECK_HARD_VER:// 0x27;                  // 查询硬件版本
-
-                    break;
-                case BleProtocolState.CMD_SS_ID_ACK:// 0x90;                       // SS ID响应
-                    break;
-                case BleProtocolState.CMD_PWD_ACK:// 0x91;                         // PWD响应
-                    break;
-                case BleProtocolState.CMD_UPLOAD_PAIR_NETWORK:// 0x92;             // 上报配网因子
-                    break;
-                case BleProtocolState.CMD_UPLOAD_PAIR_NETWORK_STATE:// 0x93;       // BLE上报配网状态
-                    break;
-                case BleProtocolState.CMD_KEY_VERIFY_RESULT_ACK:// 0x94;           // 秘钥因子校验结果
-                    break;
-                case BleProtocolState.CMD_UPLOAD_REMAIN_COUNT:// 0x95;             // 上报剩余校验次数
-                    break;
-                case BleProtocolState.CMD_PAIR_NETWORK_ACK:// 0x96;                // App下发配网状态响应
-                    break;
-                case BleProtocolState.CMD_BLE_UPLOAD_PAIR_NETWORK_STATE:// 0x97;   // BLE上报联网状态
-                    Timber.e("CMD_BLE_UPLOAD_PAIR_NETWORK_STATE");
-                    break;
-                case BleProtocolState.CMD_WIFI_LIST_CHECK:// 0x98;                 // WIFI热点列表查询响应
-                    break;
-
-                case BleProtocolState.CMD_NOTHING:// 0xFF;                         // 无用
-                    break;
-
+            case BleProtocolState.CMD_SY_LOCK_TIME:// 0x23;                    // 与锁同步时间
+                break;
+            case BleProtocolState.CMD_GET_ALL_RECORD:// 0x24;                  // 获取混合记录
+                break;
+            case BleProtocolState.CMD_DURESS_PWD_SWITCH:// 0x25;               // 胁迫密码开关
+                break;
+            case BleProtocolState.CMD_WIFI_SWITCH:// 0x26;                     // wifi功能开关
+                break;
+            case BleProtocolState.CMD_TIME://0x28 时间同步返回
+            {//获取设备信息
+                BleBean mBleBean = BleManager.getInstance().getBleBeanFromMac(mac);
+                if (null != mBleBean) {
+                    BleManager.getInstance().writeControlMsg(BleCommandFactory
+                            .checkLockBaseInfoCommand(mBleBean.getPwd1(), mBleBean.getPwd3()), mBleBean.getOKBLEDeviceImp());
+                }
             }
-            LockMessageRes messageRes = new LockMessageRes(1, mac, bleResultBean);
-            messageRes.setResultCode(LockMessageCode.MSG_LOCK_MESSAGE_CODE_SUCCESS);
-            EventBus.getDefault().post(messageRes);
+            break;
+            case BleProtocolState.CMD_HEART_ACK:// 0x00;                       // 心跳包确认帧
+                break;
+            case BleProtocolState.CMD_AUTHENTICATION_ACK:// 0x01;              // 鉴权确认帧
+                BleBean bleBean = BleManager.getInstance().getBleBeanFromMac(mac);
+                if (null != bleBean) {
+                    BleManager.getInstance().writeControlMsg(BleCommandFactory
+                            .ackCommand(bleResultBean.getTSN(), (byte) 0x00, bleResultBean.getCMD()), bleBean.getOKBLEDeviceImp());
+                }
+                break;
+            case BleProtocolState.CMD_LOCK_CONTROL_ACK:// 0x02;               // 锁控制确认帧
+                break;
+            case BleProtocolState.CMD_LOCK_KEY_MANAGER_ACK:// 0x03;            // 锁密钥管理确认帧
+                break;
+            case BleProtocolState.CMD_LOCK_PARAMETER_CHANGED:// 0x06;          // 锁参数修改
+                break;
+            case BleProtocolState.CMD_USER_TYPE_SETTING_ACK:// 0x09;           // 用户类型设置确认帧
+                break;
+            case BleProtocolState.CMD_WEEKLY_PLAN_SETTING_ACK:// 0x0B;         // 周计划设置确认帧
+                break;
+            case BleProtocolState.CMD_WEEKLY_PLAN_DELETE_ACK:// 0x0D;          // 周计划删除确认帧
+                break;
+            case BleProtocolState.CMD_YEAR_MON_DAY_PLAN_SETTING_ACK:// 0x0E;   // 年月日计划设置确认帧
+                break;
+            case BleProtocolState.CMD_YEAR_MON_DAY_PLAN_DELETE_ACK:// 0x10;    // 年月日计划删除确认帧
+                break;
+            case BleProtocolState.CMD_SY_KEY_STATE:// 0x11;                    // 同步门锁密钥状态响应
+                break;
+            case BleProtocolState.CMD_LOCK_INFO:// 0x12;                       // 查询门锁基本信息
+                updateLockInfo(mac, bleResultBean);
+                break;
+            case BleProtocolState.CMD_REQUEST_BIND_ACK:// 0x13;                // APP绑定请求帧
+                break;
+            case BleProtocolState.CMD_CHECK_HARD_VER:// 0x27;                  // 查询硬件版本
+
+                break;
+            case BleProtocolState.CMD_SS_ID_ACK:// 0x90;                       // SS ID响应
+                break;
+            case BleProtocolState.CMD_PWD_ACK:// 0x91;                         // PWD响应
+                break;
+            case BleProtocolState.CMD_UPLOAD_PAIR_NETWORK:// 0x92;             // 上报配网因子
+                break;
+            case BleProtocolState.CMD_UPLOAD_PAIR_NETWORK_STATE:// 0x93;       // BLE上报配网状态
+                break;
+            case BleProtocolState.CMD_KEY_VERIFY_RESULT_ACK:// 0x94;           // 秘钥因子校验结果
+                break;
+            case BleProtocolState.CMD_UPLOAD_REMAIN_COUNT:// 0x95;             // 上报剩余校验次数
+                break;
+            case BleProtocolState.CMD_PAIR_NETWORK_ACK:// 0x96;                // App下发配网状态响应
+                break;
+            case BleProtocolState.CMD_BLE_UPLOAD_PAIR_NETWORK_STATE:// 0x97;   // BLE上报联网状态
+                Timber.e("CMD_BLE_UPLOAD_PAIR_NETWORK_STATE");
+                break;
+            case BleProtocolState.CMD_WIFI_LIST_CHECK:// 0x98;                 // WIFI热点列表查询响应
+                break;
+
+            case BleProtocolState.CMD_NOTHING:// 0xFF;                         // 无用
+                break;
+
         }
+        LockMessageRes messageRes = new LockMessageRes(1, mac, bleResultBean);
+        messageRes.setResultCode(LockMessageCode.MSG_LOCK_MESSAGE_CODE_SUCCESS);
+        EventBus.getDefault().post(messageRes);
     };
 
     /**
@@ -1033,19 +1030,7 @@ public class LockAppService extends Service {
         System.arraycopy(bean.getPayload(), 4, alarmCode, 0, alarmCode.length);
         byte[] alarmCodeBit7_0 = BleByteUtil.byteToBit(alarmCode[3]);
         if (alarmCodeBit7_0[7] == 1) {
-            // 存在低电量报警
-           /* BleBean bleBean = App.getInstance().getUserBleBean(mBleDeviceLocal.getMac());
-            if (bleBean != null && null != bleBean.getOKBLEDeviceImp()) {
-                LockMessage lockMessage = new LockMessage();
-                lockMessage.setMessageType(3);
-                lockMessage.setBytes(BleCommandFactory
-                        .checkLockBaseInfoCommand(bleBean.getPwd1(), bleBean.getPwd3()));
-                lockMessage.setMac(bleBean.getOKBLEDeviceImp().getMacAddress());
-                EventBus.getDefault().post(lockMessage);
-              *//*  App.getInstance().writeControlMsg(BleCommandFactory
-                                .checkLockBaseInfoCommand(bleBean.getPwd1(), bleBean.getPwd3()),
-                        bleBean.getOKBLEDeviceImp());*//*
-            }*/
+
         }
     }
 
@@ -1094,17 +1079,17 @@ public class LockAppService extends Service {
         byte doorSensorState = bit7_0[4];
         boolean isOpenDoorSensor = (doorSensorState == 0x01);
         byte privati = bit7_0[2];
-        byte openState=bit7_0[1];
+        byte openState = bit7_0[1];
         boolean privat = privati == 0x01;
         // TODO: 2021/4/21 暂时屏蔽掉开始的基本信息检查
 //        mBleDeviceLocal.setOpenDoorSensor(isOpenDoorSensor);
-        Timber.d("电量：%1d, 是否静音 %2b, 门磁功能是否开启：%3b，隐私模式：%3b,门状态：%4d", power, isMute, isOpenDoorSensor, privat,openState);
+        Timber.d("电量：%1d, 是否静音 %2b, 门磁功能是否开启：%3b，隐私模式：%3b,门状态：%4d", power, isMute, isOpenDoorSensor, privat, openState);
         if (privat) {
             setLockState(checkDeviceList(mac, mac), LocalState.LOCK_STATE_PRIVATE);
-        }else{
-            if(openState==0){
+        } else {
+            if (openState == 0) {
                 setLockState(checkDeviceList(mac, mac), LocalState.LOCK_STATE_CLOSE);
-            }else{
+            } else {
                 setLockState(checkDeviceList(mac, mac), LocalState.LOCK_STATE_OPEN);
             }
 
