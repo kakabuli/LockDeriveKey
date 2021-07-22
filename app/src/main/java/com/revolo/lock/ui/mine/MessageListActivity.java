@@ -1,5 +1,6 @@
 package com.revolo.lock.ui.mine;
 
+import android.graphics.Color;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.Gravity;
@@ -10,7 +11,9 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.blankj.utilcode.util.ToastUtils;
 import com.revolo.lock.App;
@@ -86,8 +89,9 @@ public class MessageListActivity extends BaseActivity {
         rvMessage.getItemAnimator().setChangeDuration(300);
         rvMessage.getItemAnimator().setMoveDuration(300);
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
-        rvMessage.addItemDecoration(new SpacesItemDecoration(5, R.color.cF2F2F2));
         rvMessage.setLayoutManager(linearLayoutManager);
+        SpacesItemDecoration dividerItemDecoration = new SpacesItemDecoration(10, getColor(R.color.cF2F2F2));
+        rvMessage.addItemDecoration(dividerItemDecoration);
         mMessageListAdapter = new MessageListAdapter(R.layout.item_message_rv);
         mMessageListAdapter.setOnItemClickListener((adapter, view, position) -> {
             // TODO 不能删除

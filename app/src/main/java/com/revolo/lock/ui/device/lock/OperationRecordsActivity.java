@@ -97,6 +97,7 @@ public class OperationRecordsActivity extends BaseActivity {
 
     private long startTime = 0;
     private long endTime = 0;
+    private boolean isCheckTime = false;
 
     @Override
     public void initData(@Nullable Bundle bundle) {
@@ -114,6 +115,7 @@ public class OperationRecordsActivity extends BaseActivity {
 
     @Override
     public void initView(@Nullable Bundle savedInstanceState, @Nullable View contentView) {
+        isCheckTime = false;
         useCommonTitleBar(getString(R.string.tip_activities))
                 .setRight(R.drawable.ic_icon_date, v -> {
                     showDatePicker();
@@ -425,6 +427,10 @@ public class OperationRecordsActivity extends BaseActivity {
             Timber.e("searchRecordFromNet esn is empty");
             return;
         }
+        if (!isCheckTime) {
+            // 不是筛选日期 开始时间从零开始
+            startTime = 0;
+        }
 
         LockRecordBeanReq req = new LockRecordBeanReq();
         req.setPage(page);
@@ -493,6 +499,11 @@ public class OperationRecordsActivity extends BaseActivity {
         // TODO: 2021/3/18 时间错误就不能存储
         if (beans.isEmpty()) {
             Timber.e("processRecordFromNet beans is empty");
+            ToastUtils.showShort(getString(R.string.data_no_records));
+            return;
+        }
+        if (beans.size() == 0) {
+            ToastUtils.showShort(getString(R.string.data_no_records));
             return;
         }
         // 不做校验，直接做存储并数据库做了插入去重
@@ -808,6 +819,7 @@ public class OperationRecordsActivity extends BaseActivity {
             long startTime = ZoneUtil.getTime(mBleDeviceLocal.getTimeZone(), time + " 00:00:00") / 1000;
             long endTime = ZoneUtil.getTime(mBleDeviceLocal.getTimeZone(), time + " 23:59:59") / 1000;
             mPage = 1;
+            isCheckTime = true;
             searchRecord(startTime, endTime);
         });
 

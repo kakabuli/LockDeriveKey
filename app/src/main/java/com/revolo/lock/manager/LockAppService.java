@@ -452,10 +452,11 @@ public class LockAppService extends Service {
 
     /**
      * 检查当前蓝牙是否连接
+     *
      * @param mac
      */
     public void checkBleConnect(String mac) {
-
+        Timber.e("电子围栏之蓝牙连接：" + mac);
         boolean bleState = onGetConnectedState(mac);//当前蓝牙设的设备的状态
         BleDeviceLocal bleDeviceLocal = null;
         if (null != mDeviceLists) {
@@ -828,6 +829,15 @@ public class LockAppService extends Service {
                     break;
                 case BleProtocolState.CMD_WIFI_SWITCH:// 0x26;                     // wifi功能开关
                     break;
+                case BleProtocolState.CMD_TIME://0x28 时间同步返回
+                {//获取设备信息
+                    BleBean mBleBean = BleManager.getInstance().getBleBeanFromMac(mac);
+                    if (null != mBleBean) {
+                        BleManager.getInstance().writeControlMsg(BleCommandFactory
+                                .checkLockBaseInfoCommand(mBleBean.getPwd1(), mBleBean.getPwd3()), mBleBean.getOKBLEDeviceImp());
+                    }
+                }
+                break;
                 case BleProtocolState.CMD_HEART_ACK:// 0x00;                       // 心跳包确认帧
                     break;
                 case BleProtocolState.CMD_AUTHENTICATION_ACK:// 0x01;              // 鉴权确认帧
@@ -907,7 +917,9 @@ public class LockAppService extends Service {
                         pushServiceGeoState(mDeviceLists.get(index));
                     }
                     if (null != App.getInstance().getLockGeoFenceService()) {
-                        App.getInstance().getLockGeoFenceService().clearBleDevice(mDeviceLists.get(index).getEsn());
+                        App.getInstance().getLockGeoFenceService().updateLockCmdState(mDeviceLists.get(index).getEsn(), 0);
+                        App.getInstance().getLockGeoFenceService().updateLockLocalState(mDeviceLists.get(index).getEsn(), false);
+                        App.getInstance().getLockGeoFenceService().clearDeviceS(mDeviceLists.get(index).getEsn());
                         // mDeviceLists.get(index).setOpenElectricFence(false);
                         AppDatabase.getInstance(getApplicationContext()).bleDeviceDao().update(mDeviceLists.get(index));
                         Timber.e("app service updateDeviceState curr mac: %s", App.getInstance().getmCurrMac());
@@ -976,7 +988,7 @@ public class LockAppService extends Service {
             public void run() {
                 UpdateLocalBeanReq lockLocal = new UpdateLocalBeanReq();
                 lockLocal.setSn(mBleDeviceLocal.getEsn());
-                lockLocal.setElecFence(mBleDeviceLocal.isOpenElectricFence() ? 0 : 1);
+                lockLocal.setElecFence(mBleDeviceLocal.isOpenElectricFence() ? 1 : 0);
                 lockLocal.setElecFenceSensitivity(mBleDeviceLocal.getSetElectricFenceSensitivity());
                 lockLocal.setElecFenceTime(mBleDeviceLocal.getSetElectricFenceTime());
                 lockLocal.setLatitude(mBleDeviceLocal.getLatitude() + "");
@@ -1081,9 +1093,22 @@ public class LockAppService extends Service {
         mDeviceLists.get(index).setMute(isMute);
         byte doorSensorState = bit7_0[4];
         boolean isOpenDoorSensor = (doorSensorState == 0x01);
+        byte privati = bit7_0[2];
+        byte openState=bit7_0[1];
+        boolean privat = privati == 0x01;
         // TODO: 2021/4/21 暂时屏蔽掉开始的基本信息检查
 //        mBleDeviceLocal.setOpenDoorSensor(isOpenDoorSensor);
-        Timber.d("电量：%1d, 是否静音 %2b, 门磁功能是否开启：%3b", power, isMute, isOpenDoorSensor);
+        Timber.d("电量：%1d, 是否静音 %2b, 门磁功能是否开启：%3b，隐私模式：%3b,门状态：%4d", power, isMute, isOpenDoorSensor, privat,openState);
+        if (privat) {
+            setLockState(checkDeviceList(mac, mac), LocalState.LOCK_STATE_PRIVATE);
+        }else{
+            if(openState==0){
+                setLockState(checkDeviceList(mac, mac), LocalState.LOCK_STATE_CLOSE);
+            }else{
+                setLockState(checkDeviceList(mac, mac), LocalState.LOCK_STATE_OPEN);
+            }
+
+        }
         Timber.e("app service updateLockInfo curr mac: %s", App.getInstance().getmCurrMac());
         Timber.e("app service updateLockInfo curr sn: %s", App.getInstance().getmCurrSn());
 
@@ -1182,23 +1207,22 @@ public class LockAppService extends Service {
             return;
         }
         if (null != mDeviceLists.get(index)) {
-            BleDeviceLocal bleDeviceLocal = mDeviceLists.get(index);
-            if (bleDeviceLocal.getLockState() == LocalState.LOCK_STATE_PRIVATE && state != LocalState.LOCK_STATE_OPEN) {
+           /* if (mDeviceLists.get(index).getLockState() == LocalState.LOCK_STATE_PRIVATE && state != LocalState.LOCK_STATE_OPEN) {
                 Timber.e("设置门的状态过滤：%s", state + "");
                 return;
-            }
-            bleDeviceLocal.setLockState(state);
-            Timber.d("setLockState wifiId: %1s %2s", bleDeviceLocal.getEsn(), state == LocalState.LOCK_STATE_OPEN ? "锁开了" : "锁关了");
-            AppDatabase.getInstance(getApplicationContext()).bleDeviceDao().update(bleDeviceLocal);
+            }*/
+            mDeviceLists.get(index).setLockState(state);
+            Timber.d("setLockState wifiId: %1s %2s", mDeviceLists.get(index).getEsn(), state == LocalState.LOCK_STATE_OPEN ? "锁开了" : "锁关了");
+            AppDatabase.getInstance(getApplicationContext()).bleDeviceDao().update(mDeviceLists.get(index));
             Timber.e("app service setLockState curr mac: %s", App.getInstance().getmCurrMac());
             Timber.e("app service setLockState curr sn: %s", App.getInstance().getmCurrSn());
 
-            Timber.e("app service setLockState  mac: %s", bleDeviceLocal.getMac());
-            Timber.e("app service setLockState  sn: %s", bleDeviceLocal.getEsn());
-            if ((null != bleDeviceLocal.getMac() && bleDeviceLocal.getMac().equals(App.getInstance().getmCurrMac())) ||
-                    (null != bleDeviceLocal.getEsn() && bleDeviceLocal.getEsn().equals(App.getInstance().getmCurrSn()))) {
+            Timber.e("app service setLockState  mac: %s", mDeviceLists.get(index).getMac());
+            Timber.e("app service setLockState  sn: %s", mDeviceLists.get(index).getEsn());
+            if ((null != mDeviceLists.get(index).getMac() && mDeviceLists.get(index).getMac().equals(App.getInstance().getmCurrMac())) ||
+                    (null != mDeviceLists.get(index).getEsn() && mDeviceLists.get(index).getEsn().equals(App.getInstance().getmCurrSn()))) {
                 Timber.e("app service setLockState set BleDeviceLocal");
-                App.getInstance().setBleDeviceLocal(bleDeviceLocal);
+                App.getInstance().setBleDeviceLocal(mDeviceLists.get(index));
             }
         }
     }
@@ -1643,7 +1667,10 @@ public class LockAppService extends Service {
                     senGeoFence(bleDeviceLoca.getMac());
                 } else {
                     Timber.e("未连接蓝牙，正在开始连接");
-                    checkBleConnect(bleDeviceLoca.getMac());
+                    if (null != App.getInstance().getLockGeoFenceService()) {
+                        App.getInstance().getLockGeoFenceService().addDeviceScan(bleDeviceLoca.getMac(), bleDeviceLoca.getSetElectricFenceTime());
+                    }
+                    //(bleDeviceLoca.getMac());
                 }
             }
         }

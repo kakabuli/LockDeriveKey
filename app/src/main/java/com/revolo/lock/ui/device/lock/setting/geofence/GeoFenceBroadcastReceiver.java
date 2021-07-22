@@ -124,9 +124,9 @@ public class GeoFenceBroadcastReceiver extends BroadcastReceiver {
                     return;
                 } else {
                     if (deviceLocal.getElecFenceCmd() == 1) {
-                        if (null != App.getInstance().getLockAppService()) {
+                        if (null != App.getInstance().getLockGeoFenceService()) {
                             Timber.e("谷歌服务地理围栏监听返回：蓝牙连接开始连接，" + deviceLocal.getEsn());
-                            App.getInstance().getLockAppService().checkBleConnect(deviceLocal.getMac());
+                            App.getInstance().getLockGeoFenceService().addDeviceScan(deviceLocal.getMac(),deviceLocal.getSetElectricFenceTime());//checkBleConnect(deviceLocal.getMac());
                             return;
                         }
                     }

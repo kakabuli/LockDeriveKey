@@ -335,9 +335,13 @@ public class MQTTReply {
 
 //        bleDeviceLocal.setMute();
         // TODO: 2021/3/18 修改为从服务器获取数据
-        if (!TextUtils.isEmpty(wifiListBean.getWifiStatus()))
-            bleDeviceLocal.setConnectedType(Integer.parseInt(wifiListBean.getWifiStatus()));
-
+        if (!TextUtils.isEmpty(wifiListBean.getWifiStatus())) {
+            if (wifiListBean.getWifiStatus().equals(" 1")) {
+                bleDeviceLocal.setConnectedType(LocalState.DEVICE_CONNECT_TYPE_WIFI);
+            } else {
+                bleDeviceLocal.setConnectedType(LocalState.DEVICE_CONNECT_TYPE_DIS);
+            }
+        }
         bleDeviceLocal.setLockPower(wifiListBean.getPower());
         //锁的wifi模式下开关状态已服务器为准
         Timber.e("设备 服务器 lockState： %s", wifiListBean.getOpenStatus() + "");
@@ -418,7 +422,8 @@ public class MQTTReply {
         Timber.d("wifi 连接状态: %1s", wifiListBean.getWifiStatus());
         //地理围栏
         //地理围栏是否开启
-        bleDeviceLocal.setOpenElectricFence(wifiListBean.getElecFence() == 0);
+        Timber.e("电子围栏状态："+(wifiListBean.getElecFence() == 1?"true":"false"));
+        bleDeviceLocal.setOpenElectricFence(wifiListBean.getElecFence() == 1);
         //地理围栏经纬度
         bleDeviceLocal.setLatitude(Double.parseDouble(wifiListBean.getLatitude()));
         bleDeviceLocal.setLongitude(Double.parseDouble(wifiListBean.getLongitude()));
