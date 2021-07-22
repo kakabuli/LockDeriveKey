@@ -5,8 +5,10 @@ import android.text.TextUtils;
 import com.blankj.utilcode.util.GsonUtils;
 import com.revolo.lock.App;
 import com.revolo.lock.LocalState;
+import com.revolo.lock.manager.LockAppService;
 import com.revolo.lock.manager.LockMessageCode;
 import com.revolo.lock.manager.LockMessageRes;
+import com.revolo.lock.manager.ble.BleManager;
 import com.revolo.lock.mqtt.MQttConstant;
 import com.revolo.lock.mqtt.MqttCommandFactory;
 import com.revolo.lock.mqtt.bean.MqttData;
@@ -285,6 +287,10 @@ public class MQTTReply {
                         case LocalState.DEVICE_CONNECT_TYPE_WIFI: // 之前是wifi
                             if (state == 0) {
                                 bleDeviceLocal.setConnectedType(LocalState.DEVICE_CONNECT_TYPE_DIS);
+                                if (null != App.getInstance().getLockAppService()) {
+                                    // 主动去连接蓝牙
+                                    App.getInstance().getLockAppService().checkBleConnect(bleDeviceLocal.getMac());
+                                }
                             }
                             break;
                         case LocalState.DEVICE_CONNECT_TYPE_WIFI_BLE: //之前是wifi ble双链接
@@ -324,22 +330,18 @@ public class MQTTReply {
         } else if (wifiListBean.getMagneticStatus() == 3) {
             bleDeviceLocal.setDoorSensor(LocalState.DOOR_SENSOR_EXCEPTION);
         }
-        /*bleDeviceLocal.setDoorSensor(wifiListBean.getMagneticStatus() == 1 || wifiListBean.getMagneticStatus() == 3
-                ? LocalState.DOOR_SENSOR_OPEN : wifiListBean.getMagneticStatus() == 2
-                ? LocalState.DOOR_SENSOR_CLOSE : LocalState.DOOR_SENSOR_EXCEPTION);*/ // 1 是开门  2 是关门  3是虚掩
         //启用门磁
         bleDeviceLocal.setOpenDoorSensor(wifiListBean.getDoorSensor() == 1);
-
-//        bleDeviceLocal.setDoNotDisturbMode(wifiListBean.get);
         bleDeviceLocal.setSetAutoLockTime(wifiListBean.getAutoLockTime());
-
-//        bleDeviceLocal.setMute();
         // TODO: 2021/3/18 修改为从服务器获取数据
         if (!TextUtils.isEmpty(wifiListBean.getWifiStatus())) {
-            if (wifiListBean.getWifiStatus().equals(" 1")) {
+            if (wifiListBean.getWifiStatus().equals("1")) {
                 bleDeviceLocal.setConnectedType(LocalState.DEVICE_CONNECT_TYPE_WIFI);
             } else {
                 bleDeviceLocal.setConnectedType(LocalState.DEVICE_CONNECT_TYPE_DIS);
+                if (null != App.getInstance().getLockAppService()) { // 主动去连接蓝牙
+                    App.getInstance().getLockAppService().checkBleConnect(wifiListBean.getBleMac());
+                }
             }
         }
         bleDeviceLocal.setLockPower(wifiListBean.getPower());
@@ -422,7 +424,7 @@ public class MQTTReply {
         Timber.d("wifi 连接状态: %1s", wifiListBean.getWifiStatus());
         //地理围栏
         //地理围栏是否开启
-        Timber.e("电子围栏状态："+(wifiListBean.getElecFence() == 1?"true":"false"));
+        Timber.e("电子围栏状态：" + (wifiListBean.getElecFence() == 1 ? "true" : "false"));
         bleDeviceLocal.setOpenElectricFence(wifiListBean.getElecFence() == 1);
         //地理围栏经纬度
         bleDeviceLocal.setLatitude(Double.parseDouble(wifiListBean.getLatitude()));
