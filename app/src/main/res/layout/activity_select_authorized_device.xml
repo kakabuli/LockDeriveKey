@@ -16,7 +16,7 @@
         android:id="@+id/ivAvatar"
         android:layout_width="63pt"
         android:layout_height="63pt"
-        android:layout_marginTop="28pt"
+        android:layout_marginTop="20pt"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/include15"
@@ -63,7 +63,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="25pt"
-        android:paddingBottom="16pt"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tvUserTip">
@@ -120,7 +119,7 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/clGuest"
         android:layout_width="match_parent"
-        android:layout_height="100pt"
+        android:layout_height="wrap_content"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/clFamily">
