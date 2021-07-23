@@ -121,7 +121,7 @@
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <com.revolo.lock.widget.SlideRecyclerView
-        android:id="@+id/rvLockList"
+        android:id="@+id/shareList"
         android:layout_width="match_parent"
         android:layout_height="0pt"
         android:layout_marginBottom="20pt"

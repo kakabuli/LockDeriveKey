@@ -25,6 +25,7 @@ import com.revolo.lock.bean.request.DeleteSystemMessageReq;
 import com.revolo.lock.bean.request.SystemMessageListReq;
 import com.revolo.lock.bean.respone.AcceptShareBeanRsp;
 import com.revolo.lock.bean.respone.DelInvalidShareBeanRsp;
+import com.revolo.lock.bean.respone.MailLoginBeanRsp;
 import com.revolo.lock.bean.respone.SystemMessageListBeanRsp;
 import com.revolo.lock.net.HttpRequest;
 import com.revolo.lock.net.ObservableDecorator;
@@ -101,6 +102,7 @@ public class MessageListActivity extends BaseActivity {
             if (dataBean != null) {
                 deleteSystemMessage(dataBean.get_id());
             }
+            rvMessage.closeMenu();
         });
 
         mMessageListAdapter.setOnAcceptingListener((position, dataBean) -> {
@@ -134,11 +136,14 @@ public class MessageListActivity extends BaseActivity {
 
     private void getSystemMessageList() {
 
-        String token = App.getInstance().getUserBean().getToken();
-        if (TextUtils.isEmpty(token)) {
-            Timber.e("updateLockInfoToService token is empty");
+        if (!checkNetConnectFail()) {
             return;
         }
+        MailLoginBeanRsp.DataBean userBean = App.getInstance().getUserBean();
+        if (userBean == null) {
+            return;
+        }
+        String token = userBean.getToken();
         SystemMessageListReq messageListReq = new SystemMessageListReq();
         messageListReq.setPageNum(page);
         messageListReq.setUid(App.getInstance().getUserBean().getUid());
@@ -153,7 +158,7 @@ public class MessageListActivity extends BaseActivity {
             public void onNext(@io.reactivex.annotations.NonNull SystemMessageListBeanRsp systemMessageListBeanRsp) {
                 if (systemMessageListBeanRsp.getCode().equals("200")) {
                     systemMessageList(systemMessageListBeanRsp);
-                } else if (systemMessageListBeanRsp.getCode().equals("400")) {
+                } else if (systemMessageListBeanRsp.getCode().equals("444")) {
                     App.getInstance().logout(true, MessageListActivity.this);
                 }
             }
@@ -197,12 +202,14 @@ public class MessageListActivity extends BaseActivity {
     }
 
     private void deleteSystemMessage(String messageId) {
-        String token = App.getInstance().getUserBean().getToken();
-        if (TextUtils.isEmpty(token)) {
-            Timber.e("updateLockInfoToService token is empty");
+        if (!checkNetConnectFail()) {
             return;
         }
-
+        MailLoginBeanRsp.DataBean userBean = App.getInstance().getUserBean();
+        if (userBean == null) {
+            return;
+        }
+        String token = userBean.getToken();
         DeleteSystemMessageReq deleteSystemMessageReq = new DeleteSystemMessageReq();
         deleteSystemMessageReq.setMid(messageId);
         Observable<DelInvalidShareBeanRsp> stringObservable = HttpRequest.getInstance().deleteSystemMessage(token, deleteSystemMessageReq);
@@ -215,6 +222,7 @@ public class MessageListActivity extends BaseActivity {
             @Override
             public void onNext(@io.reactivex.annotations.NonNull DelInvalidShareBeanRsp beanRsp) {
                 if (beanRsp.getCode().equals("200")) {
+                    page = 1;
                     getSystemMessageList();
                 }
             }
@@ -274,6 +282,8 @@ public class MessageListActivity extends BaseActivity {
                     if (!TextUtils.isEmpty(msg)) {
                         ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(msg);
                     }
+                    page = 1;
+                    getSystemMessageList();
                     return;
                 }
                 ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_success);

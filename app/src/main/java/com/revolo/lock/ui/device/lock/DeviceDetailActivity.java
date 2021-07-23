@@ -334,9 +334,7 @@ public class DeviceDetailActivity extends BaseActivity {
             tvNetState.setVisibility(View.GONE);
         }
         llUser.setVisibility(View.VISIBLE);
-        if (mBleDeviceLocal.getShareUserType() == 1) { // family
-            llUser.setVisibility(View.GONE);
-        } else if (mBleDeviceLocal.getShareUserType() == 2) { // guest
+        if (mBleDeviceLocal.getShareUserType() == 2) { // guest
             finish();
         }
         tvNetState.setText(getString(R.string.tip_online));
