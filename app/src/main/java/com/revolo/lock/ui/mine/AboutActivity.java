@@ -48,6 +48,7 @@ import static com.revolo.lock.Constant.REVOLO_SP;
 public class AboutActivity extends BaseActivity {
 
     private View vMark;
+    private boolean isNewVersion = false;
 
     @Override
     public void initData(@Nullable Bundle bundle) {
@@ -71,7 +72,9 @@ public class AboutActivity extends BaseActivity {
         // TODO: 2021/3/8 后期从服务器获取
         tvContact.setText("support@irevolo.com");
         applyDebouncingClickListener(findViewById(R.id.clPrivacyAgreement), findViewById(R.id.clVersionUpdate));
+        isNewVersion = false;
         getServerAppVersion();
+
     }
 
     @Override
@@ -91,7 +94,7 @@ public class AboutActivity extends BaseActivity {
     @Override
     public void onDebouncingClick(@NonNull View view) {
         if (view.getId() == R.id.clVersionUpdate) {
-            launchAppDetail("com.revolo.lock", "com.android.vending");
+            if (isNewVersion) launchAppDetail("com.revolo.lock", "com.android.vending");
         } else if (view.getId() == R.id.clPrivacyAgreement) {
             Intent intent = new Intent(this, PrivacyPolicyActivity.class);
             startActivity(intent);
@@ -143,8 +146,10 @@ public class AboutActivity extends BaseActivity {
                         String appVersions = getVersionBeanRsp.getData().getAppVersions();
                         if (appVersions.equals(AppUtils.getAppVersionName())) { // 版本号不一致
                             vMark.setVisibility(View.GONE);
+                            isNewVersion = false;
                         } else {
                             vMark.setVisibility(View.VISIBLE);
+                            isNewVersion = true;
                         }
                     }
                 }
@@ -152,7 +157,7 @@ public class AboutActivity extends BaseActivity {
 
             @Override
             public void onError(@io.reactivex.annotations.NonNull Throwable e) {
-
+                isNewVersion = false;
             }
 
             @Override
