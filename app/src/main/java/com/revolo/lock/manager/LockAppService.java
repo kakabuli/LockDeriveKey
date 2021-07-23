@@ -1950,7 +1950,7 @@ public class LockAppService extends Service {
         try {
             MQTTManager.getInstance().mqttPublish(message.getMqtt_topic(),
                     message.getMqttMessage());
-        } catch (MqttException e) {
+        } catch (Exception e) {
             pushErrMessage(message.getMqttMessage().getId() + "", message.getMqtt_message_code());
             e.printStackTrace();
         }
