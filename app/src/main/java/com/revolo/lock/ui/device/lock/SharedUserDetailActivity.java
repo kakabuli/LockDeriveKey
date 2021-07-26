@@ -118,7 +118,7 @@ public class SharedUserDetailActivity extends BaseActivity {
         });
 
         ivEnable.setOnClickListener(v -> {
-            switchUserEnable(mSharedUserData.getIsEnable() == 1);
+            switchUserEnable(mSharedUserData.getIsEnable() == 0);
         });
     }
 
@@ -136,7 +136,7 @@ public class SharedUserDetailActivity extends BaseActivity {
 
     private void refreshUI() {
         // 1 启用 0 未启用
-        if (mSharedUserData.getIsEnable() == 1) {
+        if (mSharedUserData.getIsEnable() == 0) {
             ivEnable.setImageResource(R.drawable.ic_icon_switch_open);
         } else {
             ivEnable.setImageResource(R.drawable.ic_icon_switch_close);
@@ -280,7 +280,7 @@ public class SharedUserDetailActivity extends BaseActivity {
             return;
         }
         EnableSharedUserBeanReq req = new EnableSharedUserBeanReq();
-        req.setIsEnable(isEnable ? 0 : 1);
+        req.setIsEnable(isEnable ? 1 : 0);
         req.setShareId(mSharedUserData.getShareId());
         req.setUid(App.getInstance().getUserBean().getUid());
         showLoading();
@@ -311,7 +311,7 @@ public class SharedUserDetailActivity extends BaseActivity {
                     }
                     return;
                 }
-                mSharedUserData.setIsEnable(isEnable ? 0 : 1);
+                mSharedUserData.setIsEnable(isEnable ? 1 : 0);
                 refreshUI();
                 showIsEnableUser(isEnable);
             }

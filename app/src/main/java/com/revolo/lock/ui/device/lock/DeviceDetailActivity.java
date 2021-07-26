@@ -334,9 +334,7 @@ public class DeviceDetailActivity extends BaseActivity {
             tvNetState.setVisibility(View.GONE);
         }
         llUser.setVisibility(View.VISIBLE);
-        if (mBleDeviceLocal.getShareUserType() == 1) { // family
-            llUser.setVisibility(View.GONE);
-        } else if (mBleDeviceLocal.getShareUserType() == 2) { // guest
+        if (mBleDeviceLocal.getShareUserType() == 2) { // guest
             finish();
         }
         tvNetState.setText(getString(R.string.tip_online));
@@ -452,20 +450,15 @@ public class DeviceDetailActivity extends BaseActivity {
         }
         if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_BLE || mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI_BLE) {
             BleBean bleBean = App.getInstance().getUserBleBean(mBleDeviceLocal.getMac());
-            if (bleBean == null) {
+            if (bleBean == null || bleBean.getOKBLEDeviceImp() == null || bleBean.getPwd1() == null || bleBean.getPwd3() == null) {
                 Timber.e("openDoor bleBean == null");
-                return;
-            }
-            if (bleBean.getPwd1() == null) {
-                Timber.e("openDoor bleBean.getPwd1() == null");
-                return;
-            }
-            if (bleBean.getPwd3() == null) {
-                Timber.e("openDoor bleBean.getPwd3() == null");
-                return;
-            }
-            if (bleBean.getOKBLEDeviceImp() == null) {
-                Timber.e("openDoor bleBean.getOKBLEDeviceImp() == null");
+                // TODO 如果双模式蓝牙异常走wifi开门
+                if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI_BLE) {
+                    publishOpenOrCloseLock(
+                            mBleDeviceLocal.getEsn(),
+                            state == LocalState.LOCK_STATE_OPEN ? LocalState.DOOR_STATE_CLOSE : LocalState.DOOR_STATE_OPEN,
+                            mBleDeviceLocal.getRandomCode(), 0);
+                }
                 return;
             }
             LockMessage message = new LockMessage();

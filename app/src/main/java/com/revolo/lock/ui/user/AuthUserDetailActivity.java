@@ -83,7 +83,7 @@ public class AuthUserDetailActivity extends BaseActivity {
                     intent.putExtra(Constant.SHARE_USER_LAST_NAME, mShareUser.getLastName());
                     startActivity(intent);
                 });
-        SlideRecyclerView rvLockList = findViewById(R.id.rvLockList);
+        SlideRecyclerView shareList = findViewById(R.id.shareList);
         ivAvatar = findViewById(R.id.ivAvatar);
         mTvDeviceNum = findViewById(R.id.tvDeviceNum);
         mTvUserName = findViewById(R.id.tvUserName);
@@ -103,9 +103,14 @@ public class AuthUserDetailActivity extends BaseActivity {
             showRemoveUserDialog();
         });
         mDevicesAdapter.setOnReInviteListener(this::share);
-        mDevicesAdapter.setOnDeleteListener(this::removeUser);
-        rvLockList.setLayoutManager(new LinearLayoutManager(this));
-        rvLockList.setAdapter(mDevicesAdapter);
+        mDevicesAdapter.setOnDeleteListener(dataBean -> {
+            if (dataBean != null) {
+                deleteShare(dataBean);
+            }
+            shareList.closeMenu();
+        });
+        shareList.setLayoutManager(new LinearLayoutManager(this));
+        shareList.setAdapter(mDevicesAdapter);
         applyDebouncingClickListener(findViewById(R.id.clUserName));
         initLoading(getString(R.string.t_load_content_loading));
 
@@ -193,6 +198,8 @@ public class AuthUserDetailActivity extends BaseActivity {
                     List<GetAllSharedUserFromLockBeanRsp.DataBean> dataBeans = getDevicesFromUidAndSharedUidBeanRsp.getData();
                     if (dataBeans != null && !dataBeans.isEmpty()) {
                         mDevicesAdapter.setList(dataBeans);
+                    } else {
+                        finish();
                     }
                 } else if (code.equals("444")) {
                     App.getInstance().logout(true, AuthUserDetailActivity.this);
@@ -348,7 +355,7 @@ public class AuthUserDetailActivity extends BaseActivity {
         });
     }
 
-    private void removeUser(GetAllSharedUserFromLockBeanRsp.DataBean dataBean) {
+    private void deleteShare(GetAllSharedUserFromLockBeanRsp.DataBean dataBean) {
         if (!checkNetConnectFail()) {
             return;
         }

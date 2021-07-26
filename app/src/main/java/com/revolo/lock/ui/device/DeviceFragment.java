@@ -347,6 +347,27 @@ public class DeviceFragment extends Fragment {
             if (bleBean == null || bleBean.getOKBLEDeviceImp() == null || bleBean.getPwd1() == null || bleBean.getPwd3() == null) {
                 Timber.e("openOrCloseDoorFromBle bleBean.getPwd3() == null");
                 message.setBytes(null);
+                // TODO 如果双模式蓝牙异常走wifi开门
+                if (connectState == LocalState.DEVICE_CONNECT_TYPE_WIFI_BLE) {
+                    if (App.getInstance().getUserBean() == null || bleDeviceLocal == null
+                            || getActivity() == null) {
+                        message.setMqttMessage(null);
+                    } else {
+                        message.setSn(bleDeviceLocal.getEsn());
+                        message.setMqtt_topic(MQttConstant.getCallTopic(App.getInstance().getUserBean().getUid()));
+                        message.setMqtt_message_code(MQttConstant.SET_LOCK);
+                        message.setMessageType(2);
+                        message.setMqttMessage(
+                                MqttCommandFactory.setLock(
+                                        wifiId,
+                                        doorOpt,
+                                        BleCommandFactory.getPwd(
+                                                ConvertUtils.hexString2Bytes(bleDeviceLocal.getPwd1()),
+                                                ConvertUtils.hexString2Bytes(bleDeviceLocal.getPwd2())),
+                                        bleDeviceLocal.getRandomCode(),
+                                        num));
+                    }
+                }
             } else {
                 message.setMessageType(3);
                 message.setBytes(BleCommandFactory.lockControlCommand(
@@ -453,7 +474,7 @@ public class DeviceFragment extends Fragment {
             if (locals.isEmpty()) {
                 return;
             }
-            for(int i=0;i<locals.size();i++){
+            for (int i = 0; i < locals.size(); i++) {
                 locals.get(i).setConnectedType(LocalState.DEVICE_CONNECT_TYPE_DIS);
             }
             updateData(locals);

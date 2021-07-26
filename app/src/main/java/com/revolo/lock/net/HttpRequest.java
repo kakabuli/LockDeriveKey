@@ -35,6 +35,7 @@ import com.revolo.lock.bean.request.GetDevicesFromUidAndSharedUidBeanReq;
 import com.revolo.lock.bean.request.GetLockKeyNickBeanReq;
 import com.revolo.lock.bean.request.GetNotDisturbModeBeanReq;
 import com.revolo.lock.bean.request.GetPwd1BeanReq;
+import com.revolo.lock.bean.request.GetVersionBeanReq;
 import com.revolo.lock.bean.request.LockIsBindBeanReq;
 import com.revolo.lock.bean.request.LockKeyAddBeanReq;
 import com.revolo.lock.bean.request.LockRecordBeanReq;
@@ -89,6 +90,7 @@ import com.revolo.lock.bean.respone.GetCodeBeanRsp;
 import com.revolo.lock.bean.respone.GetDevicesFromUidAndSharedUidBeanRsp;
 import com.revolo.lock.bean.respone.GetLockKeyNickBeanRsp;
 import com.revolo.lock.bean.respone.GetPwd1BeanRsp;
+import com.revolo.lock.bean.respone.GetVersionBeanRsp;
 import com.revolo.lock.bean.respone.LockIsBindBeanRsp;
 import com.revolo.lock.bean.respone.LockKeyAddBeanRsp;
 import com.revolo.lock.bean.respone.LockRecordBeanRsp;
@@ -329,6 +331,7 @@ public class HttpRequest {
     }
 
     ;
+
     public Observable<UpdateLocalBeanRsp> updateockeLecfence(String token, UpdateLocalBeanReq req) {
         return service.updateockeLecfence(token, req, NORMAL);
     }
@@ -516,5 +519,9 @@ public class HttpRequest {
 
     public Observable<NotDisturbModeBeanRsp> getPushSwitch(String token, GetNotDisturbModeBeanReq req) {
         return service.getPushSwitch(token, req);
+    }
+
+    public Observable<GetVersionBeanRsp> getVersion(String token, GetVersionBeanReq req) {
+        return service.getVersion(token, req);
     }
 }

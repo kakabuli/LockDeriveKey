@@ -153,31 +153,6 @@ public class MQTTReply {
                     }
                 }
             }
-            ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-           /* List<WifiLockGetAllBindDeviceRspBean.DataBean.WifiListBean> wifilists = bean.getData().getWifiList();
-            for (WifiLockGetAllBindDeviceRspBean.DataBean.WifiListBean wifiListBean : wifilists) {
-                // TODO: 2021/2/26 后期再考虑是否需要多条件合并查询
-                BleDeviceLocal bleDeviceLocal = AppDatabase
-                        .getInstance(App.getInstance().getApplicationContext()).bleDeviceDao().findBleDeviceFromEsnAndUserId(
-                                wifiListBean.getWifiSN(),
-                                App.getInstance().getUser().getAdminUid());
-                if (bleDeviceLocal == null) {
-                    Timber.e("updateDataFromNet bleDeviceLocal == null");
-                    bleDeviceLocal = new BleDeviceLocal();
-                    long id = AppDatabase.getInstance(App.getInstance().getApplicationContext()).bleDeviceDao().insert(bleDeviceLocal);
-                    bleDeviceLocal.setId(id);
-                }
-                bleDeviceLocal = createDeviceToLocal(wifiListBean, bleDeviceLocal);
-//                bleDeviceLocal.setName(wifiListBean.getLockNickname());
-//                boolean isWifiConnected = (wifiListBean.getWifiStatus().equals("1"));
-//                bleDeviceLocal.setConnectedType(isWifiConnected ?
-//                        LocalState.DEVICE_CONNECT_TYPE_WIFI : LocalState.DEVICE_CONNECT_TYPE_BLE);
-//                bleDeviceLocal.setRandomCode(wifiListBean.getRandomCode());
-                AppDatabase.getInstance(App.getInstance().getApplicationContext()).bleDeviceDao().update(bleDeviceLocal);
-                if (null != mqttDataLinstener) {
-                    mqttDataLinstener.onAddDevice(false, bleDeviceLocal);
-                }
-            }*/
         } else if (MQttConstant.SET_MAGNETIC.equals(mqttData.getFunc())) {
             // 设置门磁
             WifiLockSetMagneticResponseBean bean = GsonUtils.fromJson(mqttData.getPayload(), WifiLockSetMagneticResponseBean.class);

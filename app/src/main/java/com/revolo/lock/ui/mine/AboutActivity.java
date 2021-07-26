@@ -20,7 +20,10 @@ import com.revolo.lock.App;
 import com.revolo.lock.Constant;
 import com.revolo.lock.R;
 import com.revolo.lock.base.BaseActivity;
+import com.revolo.lock.bean.request.GetVersionBeanReq;
+import com.revolo.lock.bean.respone.GetVersionBeanRsp;
 import com.revolo.lock.bean.respone.LogoutBeanRsp;
+import com.revolo.lock.bean.respone.MailLoginBeanRsp;
 import com.revolo.lock.dialog.SelectDialog;
 import com.revolo.lock.manager.mqtt.MQTTManager;
 import com.revolo.lock.net.HttpRequest;
@@ -44,6 +47,9 @@ import static com.revolo.lock.Constant.REVOLO_SP;
  */
 public class AboutActivity extends BaseActivity {
 
+    private View vMark;
+    private boolean isNewVersion = false;
+
     @Override
     public void initData(@Nullable Bundle bundle) {
 
@@ -57,19 +63,23 @@ public class AboutActivity extends BaseActivity {
     @Override
     public void initView(@Nullable Bundle savedInstanceState, @Nullable View contentView) {
         useCommonTitleBar(getString(R.string.title_about));
-    }
-
-    @Override
-    public void doBusiness() {
         TextView tvVersion = findViewById(R.id.tvVersion);
         tvVersion.setText(getString(R.string.about_ver, AppUtils.getAppVersionName()).replace("v", "V"));
-
+        vMark = findViewById(R.id.v_mark);
         TextView tvVersionNew = findViewById(R.id.tv_version_new);
         tvVersionNew.setText(getString(R.string.about_ver, AppUtils.getAppVersionName()).replace("v", "V"));
         TextView tvContact = findViewById(R.id.tvContact);
         // TODO: 2021/3/8 后期从服务器获取
         tvContact.setText("support@irevolo.com");
         applyDebouncingClickListener(findViewById(R.id.clPrivacyAgreement), findViewById(R.id.clVersionUpdate));
+        isNewVersion = false;
+        getServerAppVersion();
+
+    }
+
+    @Override
+    public void doBusiness() {
+
     }
 
     @Override
@@ -84,7 +94,7 @@ public class AboutActivity extends BaseActivity {
     @Override
     public void onDebouncingClick(@NonNull View view) {
         if (view.getId() == R.id.clVersionUpdate) {
-            launchAppDetail("com.revolo.lock", "com.android.vending");
+            if (isNewVersion) launchAppDetail("com.revolo.lock", "com.android.vending");
         } else if (view.getId() == R.id.clPrivacyAgreement) {
             Intent intent = new Intent(this, PrivacyPolicyActivity.class);
             startActivity(intent);
@@ -107,5 +117,53 @@ public class AboutActivity extends BaseActivity {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public void getServerAppVersion() {
+        if (!checkNetConnectFail()) {
+            return;
+        }
+        MailLoginBeanRsp.DataBean userBean = App.getInstance().getUserBean();
+        if (userBean == null) {
+            return;
+        }
+
+        String token = userBean.getToken();
+        String uid = userBean.getUid();
+        GetVersionBeanReq req = new GetVersionBeanReq();
+        req.setUid(uid);
+        Observable<GetVersionBeanRsp> version = HttpRequest.getInstance().getVersion(token, req);
+        ObservableDecorator.decorate(version).safeSubscribe(new Observer<GetVersionBeanRsp>() {
+            @Override
+            public void onSubscribe(@io.reactivex.annotations.NonNull Disposable d) {
+
+            }
+
+            @Override
+            public void onNext(@io.reactivex.annotations.NonNull GetVersionBeanRsp getVersionBeanRsp) {
+                if (getVersionBeanRsp.getCode().equals("200")) {
+                    if (getVersionBeanRsp.getData() != null) {
+                        String appVersions = getVersionBeanRsp.getData().getAppVersions();
+                        if (appVersions.equals(AppUtils.getAppVersionName())) { // 版本号不一致
+                            vMark.setVisibility(View.GONE);
+                            isNewVersion = false;
+                        } else {
+                            vMark.setVisibility(View.VISIBLE);
+                            isNewVersion = true;
+                        }
+                    }
+                }
+            }
+
+            @Override
+            public void onError(@io.reactivex.annotations.NonNull Throwable e) {
+                isNewVersion = false;
+            }
+
+            @Override
+            public void onComplete() {
+
+            }
+        });
     }
 }

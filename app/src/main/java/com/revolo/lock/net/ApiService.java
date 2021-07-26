@@ -33,6 +33,7 @@ import com.revolo.lock.bean.request.GetDevicesFromUidAndSharedUidBeanReq;
 import com.revolo.lock.bean.request.GetLockKeyNickBeanReq;
 import com.revolo.lock.bean.request.GetNotDisturbModeBeanReq;
 import com.revolo.lock.bean.request.GetPwd1BeanReq;
+import com.revolo.lock.bean.request.GetVersionBeanReq;
 import com.revolo.lock.bean.request.LockIsBindBeanReq;
 import com.revolo.lock.bean.request.LockKeyAddBeanReq;
 import com.revolo.lock.bean.request.LockRecordBeanReq;
@@ -87,6 +88,7 @@ import com.revolo.lock.bean.respone.GetCodeBeanRsp;
 import com.revolo.lock.bean.respone.GetDevicesFromUidAndSharedUidBeanRsp;
 import com.revolo.lock.bean.respone.GetLockKeyNickBeanRsp;
 import com.revolo.lock.bean.respone.GetPwd1BeanRsp;
+import com.revolo.lock.bean.respone.GetVersionBeanRsp;
 import com.revolo.lock.bean.respone.LockIsBindBeanRsp;
 import com.revolo.lock.bean.respone.LockKeyAddBeanRsp;
 import com.revolo.lock.bean.respone.LockRecordBeanRsp;
@@ -769,4 +771,14 @@ public interface ApiService {
     @Headers({"Content-Type: application/json"})
     @POST("/user/get/getPushSwitch")
     Observable<NotDisturbModeBeanRsp> getPushSwitch(@Header("token") String token, @Body GetNotDisturbModeBeanReq req);
+
+    /**
+     * 获取app版本信息
+     *
+     * @param token 用户权限码
+     * @param req   请求实体
+     */
+    @Headers({"Content-Type: application/json"})
+    @POST("/boss/versions/get")
+    Observable<GetVersionBeanRsp> getVersion(@Header("token") String token, @Body GetVersionBeanReq req);
 }
