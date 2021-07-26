@@ -145,6 +145,7 @@ public class LockGeoScanThread {
         @Override
         public void onFailed(int i) {
             Timber.e("搜索 onFailed:" + i);
+            stopScan();
         }
 
         @Override
@@ -181,6 +182,12 @@ public class LockGeoScanThread {
         public void run() {
             Timber.e("开始搜索");
             getScanManager().startScan();
+            try {
+                ScanThread.sleep(8 * 1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            stopScan();
         }
     }
 
