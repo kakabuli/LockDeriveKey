@@ -295,6 +295,7 @@ public class DoorSensorAlignmentActivity extends BaseActivity {
         EventBus.getDefault().post(message);
     }
 
+
     private void processSetMagnetic(WifiLockSetMagneticResponseBean bean) {
         dismissLoading();
         if (bean == null) {

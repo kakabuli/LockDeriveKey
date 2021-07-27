@@ -91,6 +91,8 @@ public class MQTTManager {
                     mqttDataLinstener.MQTTException(MQTTErrCode.MQTT_CONNECTION_CODE);
                 }
                 return;
+            } else {
+                Timber.d("mqttConnection  mqtt断开连接");
             }
         }
         if (App.getInstance().getUserBean() == null) {

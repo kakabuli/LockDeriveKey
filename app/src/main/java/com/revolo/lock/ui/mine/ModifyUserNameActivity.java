@@ -61,7 +61,6 @@ public class ModifyUserNameActivity extends BaseActivity {
             etFirstName.setText(mUser.getFirstName());
             etLastName.setText(mUser.getLastName());
         }
-
     }
 
     @Override

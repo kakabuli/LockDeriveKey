@@ -38,6 +38,7 @@ import org.eclipse.paho.client.mqttv3.MqttMessage;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -220,6 +221,7 @@ public class MqttCommandFactory {
     private static String getEncryptString(byte[] pwd, Object src) {
         String json = new Gson().toJson(src);
         LogUtils.d("MQtt 发送数据未加密： %1s", json);
+        LogUtils.d("MQtt 秘钥： %1s", Arrays.toString(pwd));
         // 先AES加密
         byte[] aesJson = EncryptUtils.encryptAES(json.getBytes(StandardCharsets.UTF_8), pwd, "AES/ECB/PKCS5Padding", null);
         // 后Base64字符串编码
