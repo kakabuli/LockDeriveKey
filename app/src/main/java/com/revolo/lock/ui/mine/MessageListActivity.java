@@ -50,11 +50,17 @@ public class MessageListActivity extends BaseActivity {
     private MessageListAdapter mMessageListAdapter;
     private SmartRefreshLayout mSmartRefreshLayout;
 
+    /**
+     * 0 分享 : 1 系统
+     */
+    private int timeType = 0;
+
     private int page = 1;
     private List<SystemMessageListBeanRsp.DataBean> mDataBeanList = new ArrayList<>();
 
     private ImageView mIvNoMessage;
-    private TextView mTvNoMessage;
+    private TextView mTvNoMessage, mTvLockMessage, mTvShareMessage;
+    private View vLock, vShare;
 
     @Override
     public void initData(@Nullable Bundle bundle) {
@@ -110,15 +116,47 @@ public class MessageListActivity extends BaseActivity {
 
         mSmartRefreshLayout.setOnLoadMoreListener(refreshLayout -> {
             page++;
-            getSystemMessageList();
+            getSystemMessageList(timeType);
         });
 
         mSmartRefreshLayout.setOnRefreshListener(refreshLayout -> {
             page = 1;
-            getSystemMessageList();
+            getSystemMessageList(timeType);
         });
 
-        getSystemMessageList();
+        vLock = findViewById(R.id.vLock);
+        vShare = findViewById(R.id.vShare);
+
+        vLock.setVisibility(View.INVISIBLE);
+        vShare.setVisibility(View.VISIBLE);
+
+        mTvLockMessage = findViewById(R.id.tvLockMessage);
+        mTvLockMessage.setOnClickListener(v -> {
+            timeType = 1;
+            page = 1;
+            getSystemMessageList(timeType);
+            mTvLockMessage.setTextColor(getColor(R.color.c2C68FF));
+            mTvShareMessage.setTextColor(getColor(R.color.c333333));
+            vLock.setVisibility(View.INVISIBLE);
+            vShare.setVisibility(View.VISIBLE);
+        });
+
+        mTvShareMessage = findViewById(R.id.tvShareMessage);
+        mTvShareMessage.setOnClickListener(v -> {
+            timeType = 0;
+            page = 1;
+            getSystemMessageList(timeType);
+            mTvLockMessage.setTextColor(getColor(R.color.c333333));
+            mTvShareMessage.setTextColor(getColor(R.color.c2C68FF));
+            vLock.setVisibility(View.VISIBLE);
+            vShare.setVisibility(View.INVISIBLE);
+        });
+
+        mTvLockMessage.setTextColor(getColor(R.color.c2C68FF));
+        mTvShareMessage.setTextColor(getColor(R.color.c333333));
+
+        timeType = 1;
+        getSystemMessageList(timeType);
     }
 
     @Override
@@ -131,7 +169,7 @@ public class MessageListActivity extends BaseActivity {
 
     }
 
-    private void getSystemMessageList() {
+    private void getSystemMessageList(int timeType) {
 
         if (!checkNetConnectFail()) {
             return;
@@ -143,6 +181,7 @@ public class MessageListActivity extends BaseActivity {
         String token = userBean.getToken();
         SystemMessageListReq messageListReq = new SystemMessageListReq();
         messageListReq.setPageNum(page);
+        messageListReq.setTimeType(timeType);
         messageListReq.setUid(App.getInstance().getUserBean().getUid());
         Observable<SystemMessageListBeanRsp> observable = HttpRequest.getInstance().systemMessageList(token, messageListReq);
         ObservableDecorator.decorate(observable).safeSubscribe(new Observer<SystemMessageListBeanRsp>() {
@@ -220,7 +259,7 @@ public class MessageListActivity extends BaseActivity {
             public void onNext(@io.reactivex.annotations.NonNull DelInvalidShareBeanRsp beanRsp) {
                 if (beanRsp.getCode().equals("200")) {
                     page = 1;
-                    getSystemMessageList();
+                    getSystemMessageList(timeType);
                 }
             }
 
@@ -280,12 +319,12 @@ public class MessageListActivity extends BaseActivity {
                         ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(msg);
                     }
                     page = 1;
-                    getSystemMessageList();
+                    getSystemMessageList(timeType);
                     return;
                 }
                 ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_success);
                 page = 1;
-                getSystemMessageList();
+                getSystemMessageList(timeType);
             }
 
             @Override

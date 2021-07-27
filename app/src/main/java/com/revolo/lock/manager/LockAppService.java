@@ -30,6 +30,7 @@ import com.revolo.lock.App;
 import com.revolo.lock.Constant;
 import com.revolo.lock.LocalState;
 import com.revolo.lock.LockAppManager;
+import com.revolo.lock.bean.NetWorkStateBean;
 import com.revolo.lock.bean.request.UpdateLocalBeanReq;
 import com.revolo.lock.bean.respone.UpdateLocalBeanRsp;
 import com.revolo.lock.ble.BleByteUtil;
@@ -88,6 +89,7 @@ import static com.revolo.lock.manager.LockMessageCode.MSG_LOCK_MESSAGE_ADD_DEVIC
 import static com.revolo.lock.manager.LockMessageCode.MSG_LOCK_MESSAGE_BLE;
 import static com.revolo.lock.manager.LockMessageCode.MSG_LOCK_MESSAGE_CLASE_DEVICE;
 import static com.revolo.lock.manager.LockMessageCode.MSG_LOCK_MESSAGE_CODE_SUCCESS;
+import static com.revolo.lock.manager.LockMessageCode.MSG_LOCK_MESSAGE_MQTT;
 import static com.revolo.lock.manager.LockMessageCode.MSG_LOCK_MESSAGE_REMOVE_DEVICE;
 import static com.revolo.lock.manager.LockMessageCode.MSG_LOCK_MESSAGE_USER;
 
@@ -360,6 +362,38 @@ public class LockAppService extends Service {
                 }
             }
 
+        }
+    }
+
+    private boolean beforeNetWork = true;
+
+    @Subscribe(threadMode = ThreadMode.MAIN, sticky = true)
+    public void netWorkState(NetWorkStateBean netWorkStateBean) {
+        if (netWorkStateBean != null) {
+            boolean pingResult = netWorkStateBean.isPingResult();
+            if (pingResult != beforeNetWork) {
+                if (pingResult) {
+                    LockMessage lockMessage = new LockMessage();
+                    lockMessage.setMessageType(2);
+                    lockMessage.setMqtt_topic(MQttConstant.PUBLISH_TO_SERVER);
+                    lockMessage.setMqtt_message_code(MQttConstant.GET_ALL_BIND_DEVICE);
+                    lockMessage.setMqttMessage(MqttCommandFactory.getAllBindDevices(App.getInstance().getUserBean().getUid()));
+                    lockMessage.setSn("");
+                    lockMessage.setMessageType(MSG_LOCK_MESSAGE_MQTT);
+                    lockMessage.setBytes(null);
+                    sendMessageMQTT(lockMessage);
+                } else {
+                    List<BleDeviceLocal> deviceLists = App.getInstance().getDeviceLists();
+                    if (deviceLists != null && !deviceLists.isEmpty()) {
+                        for (BleDeviceLocal bleDeviceLocal : deviceLists) {
+                            if (bleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI) {
+                                bleDeviceLocal.setConnectedType(LocalState.DEVICE_CONNECT_TYPE_DIS);
+                            }
+                        }
+                    }
+                }
+                beforeNetWork = pingResult;
+            }
         }
     }
 

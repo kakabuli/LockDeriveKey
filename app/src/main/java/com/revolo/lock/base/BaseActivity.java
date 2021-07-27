@@ -29,6 +29,7 @@ import com.blankj.utilcode.util.ToastUtils;
 import com.revolo.lock.Constant;
 import com.revolo.lock.LockAppManager;
 import com.revolo.lock.R;
+import com.revolo.lock.bean.NetWorkStateBean;
 import com.revolo.lock.dialog.iosloading.CustomerLoadingDialog;
 import com.revolo.lock.manager.LockConnected;
 import com.revolo.lock.shulan.KeepAliveManager;
@@ -143,6 +144,9 @@ public abstract class BaseActivity extends AppCompatActivity
         if (mTitleBar != null) {
             mTitleBar.setNetError(pingResult);
         }
+        NetWorkStateBean bean = new NetWorkStateBean();
+        bean.setPingResult(pingResult);
+        EventBus.getDefault().post(bean);
         mContentView.postInvalidate(); // 刷新页面
     }
 

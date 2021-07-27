@@ -10,6 +10,15 @@ public class SystemMessageListReq {
 
     private String uid;
     private int pageNum;
+    private int timeType;
+
+    public int getTimeType() {
+        return timeType;
+    }
+
+    public void setTimeType(int timeType) {
+        this.timeType = timeType;
+    }
 
     public String getUid() {
         return uid;
