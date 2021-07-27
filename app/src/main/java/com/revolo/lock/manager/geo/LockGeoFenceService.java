@@ -113,6 +113,9 @@ public class LockGeoFenceService extends Service implements OnMapReadyCallback, 
 
     public void setHandler(Handler handler) {
         mHandler = handler;
+        if (null == mHandler) {
+            return;
+        }
         if (null != fusedLocationClient) {
             if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                 // TODO: Consider calling
@@ -246,6 +249,12 @@ public class LockGeoFenceService extends Service implements OnMapReadyCallback, 
                             return;
                         }
                     }
+                } else {
+                    //开启蓝牙广播已，直接去连
+                    Timber.e("定位服务/开启蓝牙广播已，蓝牙连接空/直接去连：" + deviceLocal.getEsn());
+                    //  App.getInstance().getLockAppService().checkBleConnect(deviceLocal.getMac());
+                    addDeviceScan(deviceLocal.getMac(), deviceLocal.getSetElectricFenceTime());
+                    return;
                 }
             }
             Timber.e("定位服务，下发命令，mqtt命令开启蓝牙：" + deviceLocal.getEsn());
@@ -326,7 +335,7 @@ public class LockGeoFenceService extends Service implements OnMapReadyCallback, 
     @Override
     public void onDestroy() {
         super.onDestroy();
-
+        Timber.e("lock geo service destroy");
     }
 
 
@@ -375,7 +384,30 @@ public class LockGeoFenceService extends Service implements OnMapReadyCallback, 
     }
 
     /**
+     * 根据mac清理电子围栏设备
      *
+     * @param mac
+     */
+    public void clearBleDeviceMac(String mac) {
+        Timber.e("清理电子围栏：" + mac);
+        if (null != lockGeoFenceEns) {
+            for (int i = 0; i < lockGeoFenceEns.size(); i++) {
+                if (null != lockGeoFenceEns.get(i).getBleDeviceLocal()) {
+                    if (lockGeoFenceEns.get(i).getBleDeviceLocal().getMac().equals(mac)) {
+                        clearDeviceScan(lockGeoFenceEns.get(i).getBleDeviceLocal().getMac());
+                        lockGeoFenceEns.remove(i);
+                    }
+                }
+            }
+            if (lockGeoFenceEns.size() < 1) {
+                stopGeo();
+            }
+        } else {
+            stopGeo();
+        }
+    }
+
+    /**
      * @param esn
      */
     public void clearDeviceS(String esn) {
@@ -634,6 +666,7 @@ public class LockGeoFenceService extends Service implements OnMapReadyCallback, 
         public void handleMessage(@NonNull Message msg) {
             if (msg.arg1 == 200) {
                 Timber.e("设备搜索超时：" + (String) msg.obj);
+                clearBleDeviceMac((String) msg.obj);
                 clearDeviceScan((String) msg.obj);
             }
         }

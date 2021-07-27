@@ -75,7 +75,7 @@ public class MapActivity extends BaseActivity implements OnMapReadyCallback, Goo
     private static final int FINE_LOCATION_ACCESS_REQUEST_CODE = 1001;
     private int BACKGROUND_LOCATION_ACCESS_REQUEST_CODE = 10002;
     private GoogleMap mMap;
-    public float GEO_FENCE_RADIUS = 50;
+    public float GEO_FENCE_RADIUS = 200;
     private BleDeviceLocal mBleDeviceLocal;
     private SelectDialog canApplyDialog, refuseDialog;
     private RelativeLayout addLocation;
