@@ -160,11 +160,17 @@ public class MQTTReply {
             postMessage(LockMessageCode.MSG_LOCK_MESSAGE_CODE_SUCCESS, LockMessageCode.MSG_LOCK_MESSAGE_SET_MAGNETIC, bean);
         } else if (MQttConstant.APP_ROACH_OPEN.equals(mqttData.getFunc())) {
             // 无感开门
+            int type = MqttCommandFactory.sendOpenBleMessage(mqttData.getMessageId() + "", -1, 1);
+            //type 0 门磁，1 WiFi ，2 地理围栏,4是广播时间设置
             WifiLockApproachOpenResponseBean bean = GsonUtils.fromJson(mqttData.getPayload(), WifiLockApproachOpenResponseBean.class);
-            postMessage(LockMessageCode.MSG_LOCK_MESSAGE_CODE_SUCCESS, LockMessageCode.MSG_LOCK_MESSAGE_APP_ROACH_OPEN, bean);
-            if (null != mqttDataLinstener) {
-                mqttDataLinstener.onDoorSensorAlignmen(bean.getWfId());
+            if (type == 2) {
+                if (null != mqttDataLinstener) {
+                    mqttDataLinstener.onDoorSensorAlignmen(bean.getWfId());
+                }
+            } else {
+                postMessage(LockMessageCode.MSG_LOCK_MESSAGE_CODE_SUCCESS, LockMessageCode.MSG_LOCK_MESSAGE_APP_ROACH_OPEN, bean);
             }
+            MqttCommandFactory.sendOpenBleMessage(mqttData.getMessageId() + "", -1, 3);
         } else if (MQttConstant.CLOSE_WIFI.equals(mqttData.getFunc())) {
             // 关闭wifi
             WifiLockCloseWifiResponseBean bean = GsonUtils.fromJson(mqttData.getPayload(), WifiLockCloseWifiResponseBean.class);
@@ -223,7 +229,9 @@ public class MQTTReply {
             if (null != mqttDataLinstener) {
                 mqttDataLinstener.onOperationCallback(LockMessageCode.MSG_LOCK_MESSAGE_WF_EVEN, bean);
             }
-            updateLockState(bean);
+            if (null != mqttDataLinstener) {
+                mqttDataLinstener.updateLockState(bean);
+            }
             postMessage(LockMessageCode.MSG_LOCK_MESSAGE_CODE_SUCCESS, LockMessageCode.MSG_LOCK_MESSAGE_WF_EVEN, bean);
 
         } else if (MQttConstant.RECORD.equals(mqttData.getFunc())) {
@@ -256,51 +264,6 @@ public class MQTTReply {
         EventBus.getDefault().post(messageRes);
     }
 
-    private void updateLockState(WifiLockOperationEventBean bean) {
-        WifiLockOperationEventBean.EventparamsBean eventparams = bean.getEventparams();
-        String wfId = bean.getWfId();
-        List<BleDeviceLocal> deviceLists = App.getInstance().getDeviceLists();
-        for (BleDeviceLocal bleDeviceLocal : deviceLists) {
-            if (bleDeviceLocal.getEsn().equals(wfId) && eventparams != null) {
-                if (eventparams.getOperatingMode() == 1) {
-                    bleDeviceLocal.setLockState(LocalState.LOCK_STATE_PRIVATE);
-                }
-                if (bean.getEventtype().equals("wifiState")) {
-                    int state = bean.getState();
-                    switch (bleDeviceLocal.getConnectedType()) {
-                        case LocalState.DEVICE_CONNECT_TYPE_BLE: // 之前是蓝牙
-                            if (state == 1) {
-                                bleDeviceLocal.setConnectedType(LocalState.DEVICE_CONNECT_TYPE_WIFI_BLE);
-                            }
-                            break;
-                        case LocalState.DEVICE_CONNECT_TYPE_DIS: // 之前是断线
-                            if (state == 1) {
-                                bleDeviceLocal.setConnectedType(LocalState.DEVICE_CONNECT_TYPE_WIFI);
-                            }
-                            break;
-                        case LocalState.DEVICE_CONNECT_TYPE_WIFI: // 之前是wifi
-                            if (state == 0) {
-                                bleDeviceLocal.setConnectedType(LocalState.DEVICE_CONNECT_TYPE_DIS);
-                                if (null != App.getInstance().getLockAppService()) {
-                                    // 主动去连接蓝牙
-                                    App.getInstance().getLockAppService().checkBleConnect(bleDeviceLocal.getMac());
-                                }
-                            }
-                            break;
-                        case LocalState.DEVICE_CONNECT_TYPE_WIFI_BLE: //之前是wifi ble双链接
-                            if (state == 0) {
-                                bleDeviceLocal.setConnectedType(LocalState.DEVICE_CONNECT_TYPE_BLE);
-                            }
-                            break;
-                    }
-                } else if (bean.getEventtype().equals("action")) {
-                    bleDeviceLocal.setMute(eventparams.getVolume() == 1);
-                    bleDeviceLocal.setOpenDoorSensor(eventparams.getDoorSensor() == 1);
-                    bleDeviceLocal.setDuress(eventparams.getDuress() == 1);
-                }
-            }
-        }
-    }
 
     /**
      * 从服务端获取当前的所有的设备
@@ -328,16 +291,9 @@ public class MQTTReply {
         bleDeviceLocal.setOpenDoorSensor(wifiListBean.getDoorSensor() == 1);
         bleDeviceLocal.setSetAutoLockTime(wifiListBean.getAutoLockTime());
         // TODO: 2021/3/18 修改为从服务器获取数据
-        if (!TextUtils.isEmpty(wifiListBean.getWifiStatus())) {
-            if (wifiListBean.getWifiStatus().equals("1")) {
-                bleDeviceLocal.setConnectedType(LocalState.DEVICE_CONNECT_TYPE_WIFI);
-            } else {
-                bleDeviceLocal.setConnectedType(LocalState.DEVICE_CONNECT_TYPE_DIS);
-                if (null != App.getInstance().getLockAppService()) { // 主动去连接蓝牙
-                    App.getInstance().getLockAppService().checkBleConnect(wifiListBean.getBleMac());
-                }
-            }
-        }
+        if (!TextUtils.isEmpty(wifiListBean.getWifiStatus()))
+            bleDeviceLocal.setConnectedType(Integer.parseInt(wifiListBean.getWifiStatus()));
+
         bleDeviceLocal.setLockPower(wifiListBean.getPower());
         //锁的wifi模式下开关状态已服务器为准
         Timber.e("设备 服务器 lockState： %s", wifiListBean.getOpenStatus() + "");

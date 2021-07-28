@@ -237,11 +237,13 @@ public class LockGeoFenceService extends Service implements OnMapReadyCallback, 
                         }
                     }
                 } else {
-                    //开启蓝牙广播已，直接去连
-                    Timber.e("定位服务/开启蓝牙广播已，蓝牙连接空/直接去连：" + deviceLocal.getEsn());
-                    //  App.getInstance().getLockAppService().checkBleConnect(deviceLocal.getMac());
-                    addDeviceScan(deviceLocal.getMac(), deviceLocal.getSetElectricFenceTime());
-                    return;
+                    if (deviceLocal.getElecFenceCmd() == 1) {
+                        //开启蓝牙广播已，直接去连
+                        Timber.e("定位服务，下发命令，开启蓝牙广播已，直接去连：" + deviceLocal.getEsn());
+                        //  App.getInstance().getLockAppService().checkBleConnect(deviceLocal.getMac());
+                        addDeviceScan(deviceLocal.getMac(), deviceLocal.getSetElectricFenceTime());
+                        return;
+                    }
                 }
             }
             Timber.e("定位服务，下发命令，mqtt命令开启蓝牙：" + deviceLocal.getEsn());
@@ -249,7 +251,7 @@ public class LockGeoFenceService extends Service implements OnMapReadyCallback, 
             lockMessage.setMqttMessage(MqttCommandFactory.approachOpen(deviceLocal.getEsn(), deviceLocal.getSetElectricFenceTime(),
                     BleCommandFactory.getPwd(
                             ConvertUtils.hexString2Bytes(deviceLocal.getPwd1()),
-                            ConvertUtils.hexString2Bytes(deviceLocal.getPwd2()))));
+                            ConvertUtils.hexString2Bytes(deviceLocal.getPwd2())), 1,2));
             lockMessage.setMqtt_topic(MQttConstant.getCallTopic(App.getInstance().getUserBean().getUid()));
             lockMessage.setMessageType(2);
             lockMessage.setMqtt_message_code(MQttConstant.APP_ROACH_OPEN);

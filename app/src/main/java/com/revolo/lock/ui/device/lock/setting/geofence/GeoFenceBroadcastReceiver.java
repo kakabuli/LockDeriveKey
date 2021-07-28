@@ -145,7 +145,7 @@ public class GeoFenceBroadcastReceiver extends BroadcastReceiver {
         lockMessage.setMqttMessage(MqttCommandFactory.approachOpen(deviceLocal.getEsn(), deviceLocal.getSetElectricFenceTime(),
                 BleCommandFactory.getPwd(
                         ConvertUtils.hexString2Bytes(deviceLocal.getPwd1()),
-                        ConvertUtils.hexString2Bytes(deviceLocal.getPwd2()))));
+                        ConvertUtils.hexString2Bytes(deviceLocal.getPwd2())),1,2));
         lockMessage.setMqtt_topic(MQttConstant.getCallTopic(App.getInstance().getUserBean().getUid()));
         lockMessage.setMessageType(2);
         lockMessage.setMqtt_message_code(MQttConstant.APP_ROACH_OPEN);

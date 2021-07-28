@@ -1,5 +1,6 @@
 package com.revolo.lock.manager.mqtt;
 
+import com.revolo.lock.mqtt.bean.eventbean.WifiLockOperationEventBean;
 import com.revolo.lock.mqtt.bean.publishresultbean.WifiLockBaseResponseBean;
 import com.revolo.lock.room.entity.BleDeviceLocal;
 
@@ -30,10 +31,11 @@ public interface MQTTDataLinstener {
     /**
      * @param bleDeviceLocal
      */
-    void onAddDevice(boolean isdelete,BleDeviceLocal bleDeviceLocal);
+    void onAddDevice(boolean isdelete, BleDeviceLocal bleDeviceLocal);
 
     /**
      * 操作回调
+     *
      * @param what
      * @param bean
      */
@@ -41,7 +43,15 @@ public interface MQTTDataLinstener {
 
     /**
      * 无感开门  之蓝牙操作
+     *
      * @param wfId
      */
     void onDoorSensorAlignmen(String wfId);
+
+    /**
+     * 更新的状态
+     *
+     * @param bean
+     */
+    void updateLockState(WifiLockOperationEventBean bean);
 }

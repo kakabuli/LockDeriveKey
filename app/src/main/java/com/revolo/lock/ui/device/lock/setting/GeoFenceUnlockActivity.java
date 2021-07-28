@@ -373,7 +373,7 @@ public class GeoFenceUnlockActivity extends BaseActivity implements OnMapReadyCa
         lockMessage.setMqttMessage(MqttCommandFactory.approachOpen(wifiID, broadcastTime,
                 BleCommandFactory.getPwd(
                         ConvertUtils.hexString2Bytes(deviceLocal.getPwd1()),
-                        ConvertUtils.hexString2Bytes(deviceLocal.getPwd2()))));
+                        ConvertUtils.hexString2Bytes(deviceLocal.getPwd2())),1,4));
         lockMessage.setMqtt_topic(MQttConstant.getCallTopic(App.getInstance().getUserBean().getUid()));
         lockMessage.setMessageType(2);
         lockMessage.setMqtt_message_code(MQttConstant.APP_ROACH_OPEN);

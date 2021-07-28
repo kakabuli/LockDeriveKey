@@ -107,6 +107,9 @@ public class BleManager {
         deviceImp.addDeviceListener(okbleDeviceListener);
         if (addConnectedBleBean(bleBean)) {
             // 自动重连
+            if (null != onBleDeviceListener) {
+                onBleDeviceListener.onAddConnect(mac.toUpperCase());
+            }
             bleBean.setBleConning(1);
             deviceImp.connect(false);
         }
@@ -245,6 +248,27 @@ public class BleManager {
             }
             if (bleBean.getOKBLEDeviceImp().getMacAddress().equals(mac)) {
                 return bleBean;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * 鉴权是否初始化pwd2、pwd3；
+     *
+     * @param mac
+     * @return
+     */
+    public BleBean setBleFromMacInitPwd(@NotNull String mac) {
+        for (int i = 0; i < mConnectedBleBeanList.size(); i++) {
+            if (null == mConnectedBleBeanList.get(i).getOKBLEDeviceImp() || null == mConnectedBleBeanList.get(i).getOKBLEDeviceImp().getMacAddress()) {
+                continue;
+            }
+            if (mConnectedBleBeanList.get(i).getOKBLEDeviceImp().getMacAddress().equals(mac)) {
+                mConnectedBleBeanList.get(i).setPwd3(null);
+                mConnectedBleBeanList.get(i).setPwd2(null);
+                mConnectedBleBeanList.get(i).setPwd2_copy(null);
+                return mConnectedBleBeanList.get(i);
             }
         }
         return null;

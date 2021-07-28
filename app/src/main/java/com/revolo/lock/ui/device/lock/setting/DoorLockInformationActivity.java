@@ -274,6 +274,11 @@ public class DoorLockInformationActivity extends BaseActivity {
 
             }
 
+            @Override
+            public void onAddConnect(String mac) {
+
+            }
+
         });
         // 查询前板的版本信息
         new Handler(Looper.getMainLooper()).postDelayed(() -> {
