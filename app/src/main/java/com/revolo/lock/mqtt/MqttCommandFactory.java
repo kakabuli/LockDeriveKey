@@ -26,6 +26,7 @@ import com.revolo.lock.mqtt.bean.publishbean.attrparams.AutoLockTimeParams;
 import com.revolo.lock.mqtt.bean.publishbean.attrparams.DuressParams;
 import com.revolo.lock.mqtt.bean.publishbean.attrparams.ElecFenceSensitivityParams;
 import com.revolo.lock.mqtt.bean.publishbean.attrparams.VolumeParams;
+import com.revolo.lock.mqtt.bean.publishresultbean.WifiLockApproachOpenResponseBean;
 import com.revolo.lock.mqtt.bean.publishresultbean.WifiLockSetLockAttrAutoRspBean;
 import com.revolo.lock.mqtt.bean.publishresultbean.WifiLockSetLockAttrAutoTimeRspBean;
 import com.revolo.lock.mqtt.bean.publishresultbean.WifiLockSetLockAttrDuressRspBean;
@@ -39,8 +40,10 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
+import java.sql.Time;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Timer;
 
 import timber.log.Timber;
 
@@ -58,6 +61,32 @@ public class MqttCommandFactory {
     }
 
     private static Map<String, Class> msgs = new HashMap<>();
+    private static Map<String, Integer> openBleMsg = new HashMap<>();
+
+    /**
+     * 打开蓝牙广播命令记录
+     *
+     * @param msgId
+     * @param c
+     * @param type 0 门磁，1 WiFi ，2 地理围栏
+     * @return
+     */
+    public synchronized static int sendOpenBleMessage(String msgId, int c, int type) {
+        if (type == 0) {
+            //添加
+            Timber.e("蓝牙开启命令类型："+type);
+            openBleMsg.put(msgId, c);
+            return -1;
+        } else if (type == 1) {
+            if (openBleMsg.containsKey(msgId)) {
+                return openBleMsg.get(msgId);
+            }
+            return -1;
+        } else {
+            openBleMsg.remove(msgId);
+            return -1;
+        }
+    }
 
     /**
      * @param msgId
@@ -108,17 +137,20 @@ public class MqttCommandFactory {
 
     /**
      * 无感开门 设置蓝牙广播时间
+     *
      * @param wifiID
      * @param broadcastTime
      * @param pwd
+     * @param ibeacon 0关 1开
      * @return
      */
-    public static MqttMessage approachOpen(String wifiID, int broadcastTime, byte[] pwd) {
+    public static MqttMessage approachOpen(String wifiID, int broadcastTime, byte[] pwd,int ibeacon,int type) {
         int messageId = getMessageId();
+        sendOpenBleMessage(messageId+"", type,0);
         WifiLockApproachOpenPublishBean.ParamsBean approachOpenPublishBean = new WifiLockApproachOpenPublishBean.ParamsBean();
         approachOpenPublishBean.setBroadcast(broadcastTime);
         // 固定设置为0，不开启ibeacon
-        approachOpenPublishBean.setIbeacon(1);
+        approachOpenPublishBean.setIbeacon(ibeacon);
         WifiLockApproachOpenPublishBean wifiLockApproachOpenPublishBean = new WifiLockApproachOpenPublishBean(
                 MQttConstant.MSG_TYPE_REQUEST,
                 messageId,
