@@ -3,6 +3,8 @@ package com.revolo.lock.ui.device.lock.setting;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.View;
@@ -27,11 +29,14 @@ import com.revolo.lock.ble.BleCommandState;
 import com.revolo.lock.ble.BleResultProcess;
 import com.revolo.lock.ble.bean.BleBean;
 import com.revolo.lock.ble.bean.BleResultBean;
+import com.revolo.lock.dialog.OpenBleDialog;
+import com.revolo.lock.manager.LockConnected;
 import com.revolo.lock.manager.LockMessage;
 import com.revolo.lock.manager.LockMessageCode;
 import com.revolo.lock.manager.LockMessageRes;
 import com.revolo.lock.mqtt.MQttConstant;
 import com.revolo.lock.mqtt.MqttCommandFactory;
+import com.revolo.lock.mqtt.bean.publishresultbean.WifiLockApproachOpenResponseBean;
 import com.revolo.lock.mqtt.bean.publishresultbean.WifiLockSetMagneticResponseBean;
 import com.revolo.lock.net.HttpRequest;
 import com.revolo.lock.net.ObservableDecorator;
@@ -59,12 +64,15 @@ import static com.revolo.lock.ble.BleProtocolState.CMD_LOCK_INFO;
  * desc   : 门磁校验
  */
 public class DoorSensorAlignmentActivity extends BaseActivity {
-
+    private static final int MSG_CONNECT_BLE_OUT_TIME = 3684;//连接蓝牙超时
+    private static final int MSG_CONNECT_BLE_OK = 3685;//连接蓝牙成功
+    private int MSG_CONNECT_BLE_TME = 15000;//ble连接时间
     // TODO: 2021/3/6 进页面先MQTT读取门磁状态
     private ConstraintLayout mClTip;
     private BleDeviceLocal mBleDeviceLocal;
     private ImageView mIvDoorMagneticEnable;
     private TextView mTvIntroduceTitle, mTvIntroduceContent;
+    private OpenBleDialog openBleDialog;
 
     @Override
     public void initData(@Nullable Bundle bundle) {
@@ -105,6 +113,54 @@ public class DoorSensorAlignmentActivity extends BaseActivity {
         });
     }
 
+    private Handler handler = new Handler() {
+        @Override
+        public void handleMessage(@NonNull Message msg) {
+            if (msg.what == MSG_CONNECT_BLE_OUT_TIME) {
+                dissOpenBleDialog();
+            } else if (msg.what == MSG_CONNECT_BLE_OK) {
+                gotoDoorSensorCheckAct();
+            }
+        }
+    };
+
+    /**
+     * 显示蓝牙连接加载对话框
+     */
+    private void showOpenBleDialog() {
+        runOnUiThread(() -> {
+            if (null == openBleDialog) {
+                openBleDialog = new OpenBleDialog.Builder(DoorSensorAlignmentActivity.this)
+                        .setMessage(getString(R.string.bluetooth_connecting_please_wait))
+                        .setCancelable(true)
+                        .setCancelOutside(false)
+                        .create();
+            }
+            if (!openBleDialog.isShowing()) {
+                openBleDialog.show();
+            }
+        });
+    }
+
+    /**
+     * 关闭蓝牙连接加载对话框
+     */
+    private void dissOpenBleDialog() {
+        runOnUiThread(() -> {
+            if (null != openBleDialog) {
+                if (openBleDialog.isShowing()) {
+                    openBleDialog.dismiss();
+                }
+            }
+        });
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        handler.removeMessages(MSG_CONNECT_BLE_OUT_TIME);
+    }
+
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0) {
@@ -131,10 +187,15 @@ public class DoorSensorAlignmentActivity extends BaseActivity {
                     case LockMessageCode.MSG_LOCK_MESSAGE_SET_MAGNETIC:
                         processSetMagnetic((WifiLockSetMagneticResponseBean) lockMessage.getWifiLockBaseResponseBean());
                         break;
+                    case LockMessageCode.MSG_LOCK_MESSAGE_APP_ROACH_OPEN:
+                        //无感开门
+                        processOpenBleFromMQtt((WifiLockApproachOpenResponseBean) lockMessage.getWifiLockBaseResponseBean());
+                        break;
                 }
             } else {
                 switch (lockMessage.getResultCode()) {
                     case LockMessageCode.MSG_LOCK_MESSAGE_SET_MAGNETIC:
+                    case LockMessageCode.MSG_LOCK_MESSAGE_APP_ROACH_OPEN:
                         dismissLoading();
                         break;
                 }
@@ -142,6 +203,50 @@ public class DoorSensorAlignmentActivity extends BaseActivity {
         } else {
 
         }
+    }
+
+    /**
+     * mqtt 开启蓝牙广播
+     */
+    private void openBleFromMQtt() {
+        //showLoading();
+        handler.sendEmptyMessageDelayed(MSG_CONNECT_BLE_OUT_TIME, MSG_CONNECT_BLE_TME);
+        showOpenBleDialog();
+        LockMessage lockMessage = new LockMessage();
+        lockMessage.setMqttMessage(MqttCommandFactory.approachOpen(
+                mBleDeviceLocal.getEsn(), 3/*用于临时开启蓝牙，用于使用蓝牙来重新配网*/,
+                BleCommandFactory.getPwd(
+                        ConvertUtils.hexString2Bytes(mBleDeviceLocal.getPwd1()),
+                        ConvertUtils.hexString2Bytes(mBleDeviceLocal.getPwd2())), 0,1));
+        lockMessage.setMessageType(2);
+        lockMessage.setMqtt_message_code(MQttConstant.APP_ROACH_OPEN);
+        lockMessage.setMqtt_topic(MQttConstant.getCallTopic(App.getInstance().getUserBean().getUid()));
+        EventBus.getDefault().post(lockMessage);
+    }
+
+    private void processOpenBleFromMQtt(WifiLockApproachOpenResponseBean bean) {
+        if (bean == null) {
+            Timber.e("publishApproachOpen bean == null");
+            return;
+        }
+        if (bean.getParams() == null) {
+            Timber.e("publishApproachOpen bean.getParams() == null");
+            return;
+        }
+        if (bean.getCode() != 200) {
+            Timber.e("publishApproachOpen code : %1d", bean.getCode());
+            return;
+        }
+        // TODO: 2021/3/5 开启成功，然后开启蓝牙并不断搜索设备
+        connectBle();
+    }
+
+    private void connectBle() {
+        //去连接蓝牙
+        LockConnected bleConnected = new LockConnected();
+        bleConnected.setConnectType(3);
+        bleConnected.setBleDeviceLocal(mBleDeviceLocal);
+        EventBus.getDefault().post(bleConnected);
     }
 
     private void refreshDoorMagneticEnableState() {
@@ -163,7 +268,7 @@ public class DoorSensorAlignmentActivity extends BaseActivity {
     @Override
     public void onDebouncingClick(@NonNull View view) {
         if (view.getId() == R.id.clTip) {
-            gotoDoorSensorCheckAct();
+            checkCurrConnectState();
             return;
         }
         if (view.getId() == R.id.ivDoorMagneticEnable) {
@@ -171,16 +276,30 @@ public class DoorSensorAlignmentActivity extends BaseActivity {
                 if (mBleDeviceLocal.isOpenDoorSensor()) {
                     publishSetMagnetic(mBleDeviceLocal.getEsn(), BleCommandState.DOOR_CALIBRATION_STATE_CLOSE_SE);
                 } else {
-                    gotoDoorSensorCheckAct();
+                    checkCurrConnectState();
                 }
 
             } else {
                 if (mBleDeviceLocal.isOpenDoorSensor()) {
                     sendCommand(BleCommandState.DOOR_CALIBRATION_STATE_CLOSE_SE);
                 } else {
-                    gotoDoorSensorCheckAct();
+                    checkCurrConnectState();
                 }
             }
+        }
+    }
+
+    /**
+     * 检测当前连接模式
+     */
+    private void checkCurrConnectState() {
+        //当前是WiFi——BLe，ble模式直接进入
+        if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI_BLE
+                || mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_BLE) {
+            gotoDoorSensorCheckAct();
+        } else {
+            //mqtt发送命令 开启蓝牙
+            openBleFromMQtt();
         }
     }
 
