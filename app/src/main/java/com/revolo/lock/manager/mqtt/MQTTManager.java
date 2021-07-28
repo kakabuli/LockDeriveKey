@@ -93,6 +93,7 @@ public class MQTTManager {
             } else {
                 Timber.d("mqttConnection  mqtt断开连接");
             }
+            return;
         }
         if (App.getInstance().getUserBean() == null) {
             if (null != mqttDataLinstener) {
@@ -271,6 +272,7 @@ public class MQTTManager {
                 }
             });
         } else {
+            Timber.e("发布mqtt消息=null,mqtt 连接");
             mqttConnection();
         }
     }
