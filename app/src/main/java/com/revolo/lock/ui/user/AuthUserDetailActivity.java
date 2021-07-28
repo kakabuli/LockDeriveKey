@@ -22,6 +22,7 @@ import com.revolo.lock.Constant;
 import com.revolo.lock.R;
 import com.revolo.lock.adapter.AuthUserDetailDevicesAdapter;
 import com.revolo.lock.base.BaseActivity;
+import com.revolo.lock.bean.ShareUserDetailBean;
 import com.revolo.lock.bean.request.DelInvalidShareBeanReq;
 import com.revolo.lock.bean.request.DelSharedUserBeanReq;
 import com.revolo.lock.bean.request.GainKeyBeanReq;
@@ -30,7 +31,6 @@ import com.revolo.lock.bean.respone.DelInvalidShareBeanRsp;
 import com.revolo.lock.bean.respone.DelSharedUserBeanRsp;
 import com.revolo.lock.bean.respone.GainKeyBeanRsp;
 import com.revolo.lock.bean.respone.GetAllSharedUserFromAdminUserBeanRsp;
-import com.revolo.lock.bean.respone.GetAllSharedUserFromLockBeanRsp;
 import com.revolo.lock.bean.respone.GetDevicesFromUidAndSharedUidBeanRsp;
 import com.revolo.lock.dialog.SelectDialog;
 import com.revolo.lock.net.HttpRequest;
@@ -90,12 +90,16 @@ public class AuthUserDetailActivity extends BaseActivity {
         mTvAccount = findViewById(R.id.tvAccount);
         mDevicesAdapter = new AuthUserDetailDevicesAdapter(R.layout.item_user_devices_rv);
         mDevicesAdapter.setOnItemClickListener((adapter, view, position) -> {
-            GetAllSharedUserFromLockBeanRsp.DataBean dataBean = (GetAllSharedUserFromLockBeanRsp.DataBean) adapter.getItem(position);
+            GetDevicesFromUidAndSharedUidBeanRsp.DataBean dataBean = (GetDevicesFromUidAndSharedUidBeanRsp.DataBean) adapter.getItem(position);
             if (dataBean != null) {
+                ShareUserDetailBean shareUserDetailBean = new ShareUserDetailBean();
+                shareUserDetailBean.setAvatar(mShareUser.getAvatarPath());
+                shareUserDetailBean.setName(dataBean.getFirstName() + " " + dataBean.getLastName());
+                shareUserDetailBean.setIsEnable(dataBean.getIsEnable());
+                shareUserDetailBean.setShareId(dataBean.getShareId());
+                shareUserDetailBean.setShareUserType(dataBean.getShareUserType());
                 Intent intent = new Intent(AuthUserDetailActivity.this, SharedUserDetailActivity.class);
-                intent.putExtra(Constant.PRE_A, Constant.AUTH_USER_DETAIL_A);
-                intent.putExtra(Constant.SHARE_USER_DEVICE_DATA, dataBean);
-                intent.putExtra(Constant.SHARE_USER_DATA, mShareUser);
+                intent.putExtra(Constant.SHARE_USER_DATA, shareUserDetailBean);
                 startActivity(intent);
             }
         });
@@ -195,7 +199,7 @@ public class AuthUserDetailActivity extends BaseActivity {
                 String code = getDevicesFromUidAndSharedUidBeanRsp.getCode();
                 String msg = getDevicesFromUidAndSharedUidBeanRsp.getMsg();
                 if (code.equals("200")) {
-                    List<GetAllSharedUserFromLockBeanRsp.DataBean> dataBeans = getDevicesFromUidAndSharedUidBeanRsp.getData();
+                    List<GetDevicesFromUidAndSharedUidBeanRsp.DataBean> dataBeans = getDevicesFromUidAndSharedUidBeanRsp.getData();
                     if (dataBeans != null && !dataBeans.isEmpty()) {
                         mDevicesAdapter.setList(dataBeans);
                     } else {
@@ -222,7 +226,10 @@ public class AuthUserDetailActivity extends BaseActivity {
         });
     }
 
-    private void share(GetAllSharedUserFromLockBeanRsp.DataBean dataBean) {
+    private void share(@NonNull GetDevicesFromUidAndSharedUidBeanRsp.DataBean dataBean) {
+        if (!dataBean.getShareState().equals("3")) { // 非等待状态不能分享
+            return;
+        }
         if (!checkNetConnectFail()) {
             return;
         }
@@ -244,8 +251,8 @@ public class AuthUserDetailActivity extends BaseActivity {
         req.setDeviceSN(dataBean.getDeviceSN());
         req.setShareUserType(dataBean.getShareUserType());
         req.setAdminUid(uid);
-        req.setFirstName(mShareUser.getFirstName());
-        req.setLastName(mShareUser.getLastName());
+        req.setFirstName(dataBean.getFirstName());
+        req.setLastName(dataBean.getLastName());
         req.setShareAccount(mShareUser.getUserMail());
         showLoading();
         Observable<GainKeyBeanRsp> observable = HttpRequest.getInstance().gainKey(token, req);
@@ -355,7 +362,7 @@ public class AuthUserDetailActivity extends BaseActivity {
         });
     }
 
-    private void deleteShare(GetAllSharedUserFromLockBeanRsp.DataBean dataBean) {
+    private void deleteShare(GetDevicesFromUidAndSharedUidBeanRsp.DataBean dataBean) {
         if (!checkNetConnectFail()) {
             return;
         }

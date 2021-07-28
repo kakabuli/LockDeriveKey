@@ -104,7 +104,7 @@ public class AddDeviceForSharedUserActivity extends BaseActivity {
         }
         List<BleDeviceLocal> bleDeviceLocals = new ArrayList<>();
         for (int i = 0; i < list.size(); i++) {
-            if (list.get(i).getIsAdmin() == 1) { // 非管理员用户无法分享
+            if (list.get(i).getShareUserType() != 2) { // guest权限不能分享
                 bleDeviceLocals.add(list.get(i));
             }
         }

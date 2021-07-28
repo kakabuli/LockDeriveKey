@@ -15,8 +15,6 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
 import android.os.Message;
-import android.text.TextUtils;
-import android.view.Gravity;
 
 import androidx.annotation.NonNull;
 
@@ -25,11 +23,9 @@ import com.blankj.utilcode.util.ActivityUtils;
 import com.blankj.utilcode.util.ConvertUtils;
 import com.blankj.utilcode.util.LogUtils;
 import com.blankj.utilcode.util.NetworkUtils;
-import com.blankj.utilcode.util.ToastUtils;
 import com.revolo.lock.App;
 import com.revolo.lock.Constant;
 import com.revolo.lock.LocalState;
-import com.revolo.lock.LockAppManager;
 import com.revolo.lock.bean.NetWorkStateBean;
 import com.revolo.lock.bean.request.UpdateLocalBeanReq;
 import com.revolo.lock.bean.respone.UpdateLocalBeanRsp;
@@ -59,12 +55,10 @@ import com.revolo.lock.net.HttpRequest;
 import com.revolo.lock.net.ObservableDecorator;
 import com.revolo.lock.room.AppDatabase;
 import com.revolo.lock.room.entity.BleDeviceLocal;
-import com.revolo.lock.ui.device.lock.setting.GeoFenceUnlockActivity;
 import com.revolo.lock.util.ZoneUtil;
 
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.IMqttToken;
-import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;

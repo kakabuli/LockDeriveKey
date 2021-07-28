@@ -2,8 +2,6 @@ package com.revolo.lock.manager.geo;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
-import android.app.Activity;
-import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -13,7 +11,6 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
 import android.os.Message;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -24,38 +21,28 @@ import com.blankj.utilcode.util.ConvertUtils;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.Geofence;
 import com.google.android.gms.location.GeofencingClient;
-import com.google.android.gms.location.GeofencingRequest;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
-import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.location.LocationSettingsRequest;
-import com.google.android.gms.location.SettingsClient;
-import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
 import com.revolo.lock.App;
 import com.revolo.lock.ble.BleCommandFactory;
 import com.revolo.lock.ble.bean.BleBean;
-import com.revolo.lock.manager.LockAppService;
 import com.revolo.lock.manager.LockMessage;
 import com.revolo.lock.manager.LockMessageCode;
 import com.revolo.lock.manager.LockMessageRes;
 import com.revolo.lock.manager.ble.BleManager;
 import com.revolo.lock.mqtt.MQttConstant;
 import com.revolo.lock.mqtt.MqttCommandFactory;
-import com.revolo.lock.room.AppDatabase;
 import com.revolo.lock.room.entity.BleDeviceLocal;
-import com.revolo.lock.ui.device.lock.setting.geofence.GeoFenceBroadcastReceiver;
 import com.revolo.lock.ui.device.lock.setting.geofence.GeoFenceHelper;
-import com.revolo.lock.ui.device.lock.setting.geofence.MapActivity;
 
 import org.greenrobot.eventbus.EventBus;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.Executor;
 
 import timber.log.Timber;
 

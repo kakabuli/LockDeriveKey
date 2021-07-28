@@ -52,30 +52,28 @@ public class GetAllSharedUserFromLockBeanRsp {
 
     public static class DataBean implements Parcelable {
 
-        private String lockNickname;
-        private int shareUserType;
-        private String shareId;
-        private String shareUid;
-        private int shareState;
         private String nickName;
         private String avatarPath;
+        private String lastName;
+        private String shareId;
+        private String shareUid;
+        private String firstName;
+        private int shareUserType;
         private int isAgree;
         private int isEnable;
-        private String deviceSN;
-        private String remarkName;
+        private String shareState;
 
         protected DataBean(Parcel in) {
-            lockNickname = in.readString();
-            shareUserType = in.readInt();
-            shareId = in.readString();
-            shareUid = in.readString();
-            shareState = in.readInt();
             nickName = in.readString();
             avatarPath = in.readString();
+            lastName = in.readString();
+            shareId = in.readString();
+            shareUid = in.readString();
+            firstName = in.readString();
+            shareUserType = in.readInt();
             isAgree = in.readInt();
             isEnable = in.readInt();
-            remarkName = in.readString();
-            deviceSN = in.readString();
+            shareState = in.readString();
         }
 
         public static final Creator<DataBean> CREATOR = new Creator<DataBean>() {
@@ -89,54 +87,6 @@ public class GetAllSharedUserFromLockBeanRsp {
                 return new DataBean[size];
             }
         };
-
-        public String getDeviceSN() {
-            return deviceSN;
-        }
-
-        public void setDeviceSN(String deviceSN) {
-            this.deviceSN = deviceSN;
-        }
-
-        public String getRemarkName() {
-            return remarkName;
-        }
-
-        public void setRemarkName(String remarkName) {
-            this.remarkName = remarkName;
-        }
-
-        public int getIsAgree() {
-            return isAgree;
-        }
-
-        public void setIsAgree(int isAgree) {
-            this.isAgree = isAgree;
-        }
-
-        public int getIsEnable() {
-            return isEnable;
-        }
-
-        public void setIsEnable(int isEnable) {
-            this.isEnable = isEnable;
-        }
-
-        public String getLockNickname() {
-            return lockNickname;
-        }
-
-        public void setLockNickname(String lockNickname) {
-            this.lockNickname = lockNickname;
-        }
-
-        public int getShareState() {
-            return shareState;
-        }
-
-        public void setShareState(int shareState) {
-            this.shareState = shareState;
-        }
 
         public String getNickName() {
             return nickName;
@@ -152,6 +102,14 @@ public class GetAllSharedUserFromLockBeanRsp {
 
         public void setAvatarPath(String avatarPath) {
             this.avatarPath = avatarPath;
+        }
+
+        public String getLastName() {
+            return lastName;
+        }
+
+        public void setLastName(String lastName) {
+            this.lastName = lastName;
         }
 
         public String getShareId() {
@@ -170,12 +128,44 @@ public class GetAllSharedUserFromLockBeanRsp {
             this.shareUid = shareUid;
         }
 
+        public String getFirstName() {
+            return firstName;
+        }
+
+        public void setFirstName(String firstName) {
+            this.firstName = firstName;
+        }
+
         public int getShareUserType() {
             return shareUserType;
         }
 
         public void setShareUserType(int shareUserType) {
             this.shareUserType = shareUserType;
+        }
+
+        public int getIsAgree() {
+            return isAgree;
+        }
+
+        public void setIsAgree(int isAgree) {
+            this.isAgree = isAgree;
+        }
+
+        public int getIsEnable() {
+            return isEnable;
+        }
+
+        public void setIsEnable(int isEnable) {
+            this.isEnable = isEnable;
+        }
+
+        public String getShareState() {
+            return shareState;
+        }
+
+        public void setShareState(String shareState) {
+            this.shareState = shareState;
         }
 
         @Override
@@ -185,17 +175,16 @@ public class GetAllSharedUserFromLockBeanRsp {
 
         @Override
         public void writeToParcel(Parcel dest, int flags) {
-            dest.writeString(lockNickname);
-            dest.writeInt(shareUserType);
-            dest.writeString(shareId);
-            dest.writeString(shareUid);
-            dest.writeInt(shareState);
             dest.writeString(nickName);
             dest.writeString(avatarPath);
+            dest.writeString(lastName);
+            dest.writeString(shareId);
+            dest.writeString(shareUid);
+            dest.writeString(firstName);
+            dest.writeInt(shareUserType);
             dest.writeInt(isAgree);
             dest.writeInt(isEnable);
-            dest.writeString(remarkName);
-            dest.writeString(deviceSN);
+            dest.writeString(shareState);
         }
     }
 }

@@ -1,7 +1,6 @@
 package com.revolo.lock.adapter;
 
 import android.text.TextUtils;
-import android.view.View;
 import android.widget.TextView;
 
 import com.chad.library.adapter.base.BaseQuickAdapter;
@@ -13,7 +12,6 @@ import com.revolo.lock.util.ZoneUtil;
 import org.jetbrains.annotations.NotNull;
 
 import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.Locale;
 import java.util.TimeZone;
 

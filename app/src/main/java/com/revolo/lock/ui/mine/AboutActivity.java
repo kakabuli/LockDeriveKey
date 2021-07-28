@@ -4,40 +4,26 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.blankj.utilcode.util.AppUtils;
-import com.blankj.utilcode.util.SPUtils;
-import com.blankj.utilcode.util.ToastUtils;
 import com.revolo.lock.App;
-import com.revolo.lock.Constant;
 import com.revolo.lock.R;
 import com.revolo.lock.base.BaseActivity;
 import com.revolo.lock.bean.request.GetVersionBeanReq;
 import com.revolo.lock.bean.respone.GetVersionBeanRsp;
-import com.revolo.lock.bean.respone.LogoutBeanRsp;
 import com.revolo.lock.bean.respone.MailLoginBeanRsp;
-import com.revolo.lock.dialog.SelectDialog;
-import com.revolo.lock.manager.mqtt.MQTTManager;
 import com.revolo.lock.net.HttpRequest;
 import com.revolo.lock.net.ObservableDecorator;
-import com.revolo.lock.room.AppDatabase;
-import com.revolo.lock.room.entity.User;
-import com.revolo.lock.ui.sign.LoginActivity;
 
 import io.reactivex.Observable;
 import io.reactivex.Observer;
 import io.reactivex.disposables.Disposable;
-import timber.log.Timber;
-
-import static com.revolo.lock.Constant.REVOLO_SP;
 
 /**
  * author : Jack

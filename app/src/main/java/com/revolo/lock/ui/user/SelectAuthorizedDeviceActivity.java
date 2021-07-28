@@ -23,9 +23,6 @@ import com.revolo.lock.bean.respone.GainKeyBeanRsp;
 import com.revolo.lock.net.HttpRequest;
 import com.revolo.lock.net.ObservableDecorator;
 import com.revolo.lock.room.entity.BleDeviceLocal;
-import com.revolo.lock.ui.device.add.AddWifiActivity;
-import com.revolo.lock.ui.device.add.InputESNActivity;
-import com.revolo.lock.ui.device.add.WifiConnectActivity;
 
 import org.jetbrains.annotations.NotNull;
 

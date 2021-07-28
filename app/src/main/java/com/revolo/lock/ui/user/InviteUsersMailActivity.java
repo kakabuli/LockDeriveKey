@@ -35,9 +35,7 @@ import io.reactivex.disposables.Disposable;
 public class InviteUsersMailActivity extends BaseActivity {
 
     private EditText mEtEmail, mEtFirstName, mEtLastName;
-    private boolean isNext = false;
-    private String mail;
-    private String uid;
+    private String uid, mail, stringExtra, firstName, lastName;
     private BleDeviceLocal mBleDeviceLocal;
 
     @Override
@@ -54,51 +52,26 @@ public class InviteUsersMailActivity extends BaseActivity {
     public void initView(@Nullable Bundle savedInstanceState, @Nullable View contentView) {
         useCommonTitleBar(getString(R.string.title_invite_users));
 
-        String stringExtra = getIntent().getStringExtra(Constant.PRE_A);
+        stringExtra = getIntent().getStringExtra(Constant.PRE_A);
         mEtEmail = findViewById(R.id.etEmail);
         mEtFirstName = findViewById(R.id.etFirstName);
         mEtLastName = findViewById(R.id.etLastName);
         findViewById(R.id.btnComplete).setOnClickListener(v -> {
-            if (isNext) {
-                String firstName = mEtFirstName.getText().toString().trim();
-                String lastName = mEtLastName.getText().toString().trim();
-                if (TextUtils.isEmpty(firstName)) {
-                    ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_please_input_your_first_name);
-                    return;
-                }
-                if (TextUtils.isEmpty(lastName)) {
-                    ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_please_input_your_last_name);
-                    return;
-                }
-                if ((firstName.length() < 2 || firstName.length() > 30) || (lastName.length() < 2 || lastName.length() > 30)) {
-                    ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.tip_modify_user_name_length);
-                    return;
-                }
-                if (TextUtils.isEmpty(stringExtra)) {
-                    Intent intent = new Intent(InviteUsersMailActivity.this, AddDeviceForSharedUserActivity.class);
-                    intent.putExtra(Constant.SHARE_USER_MAIL, mail);
-                    intent.putExtra(Constant.SHARE_USER_FIRST_NAME, firstName);
-                    intent.putExtra(Constant.SHARE_USER_LAST_NAME, lastName);
-                    intent.putExtra(Constant.SHARE_USER_DATA, uid);
-                    startActivity(intent);
-                } else {
-                    Intent intent = new Intent(InviteUsersMailActivity.this, SelectAuthorizedDeviceActivity.class);
-                    intent.putExtra(Constant.LOCK_DETAIL, mBleDeviceLocal);
-                    intent.putExtra(Constant.SHARE_USER_MAIL, mail);
-                    intent.putExtra(Constant.SHARE_USER_FIRST_NAME, firstName);
-                    intent.putExtra(Constant.SHARE_USER_LAST_NAME, lastName);
-                    intent.putExtra(Constant.SHARE_USER_DATA, uid);
-                    startActivity(intent);
-                }
-            } else {
-                ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(getString(R.string.t_please_input_right_mail_address));
+            firstName = mEtFirstName.getText().toString().trim();
+            lastName = mEtLastName.getText().toString().trim();
+            if (TextUtils.isEmpty(firstName)) {
+                ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_please_input_your_first_name);
+                return;
             }
-        });
-
-        mEtEmail.setOnFocusChangeListener((v, hasFocus) -> {
-            if (!hasFocus) { // 失去焦点
-                userByMailExists();
+            if (TextUtils.isEmpty(lastName)) {
+                ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_please_input_your_last_name);
+                return;
             }
+            if ((firstName.length() < 2 || firstName.length() > 30) || (lastName.length() < 2 || lastName.length() > 30)) {
+                ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.tip_modify_user_name_length);
+                return;
+            }
+            userByMailExists();
         });
     }
 
@@ -141,17 +114,34 @@ public class InviteUsersMailActivity extends BaseActivity {
 
             @Override
             public void onNext(@io.reactivex.annotations.NonNull UserByMailExistsBeanRsp userByMailExistsBeanRsp) {
-                if (userByMailExistsBeanRsp.getData() != null) {
-                    if (!userByMailExistsBeanRsp.getData().isExsist()) {
-                        ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(getString(R.string.tip_content_mail_not_find));
-                        isNext = false;
-                    } else {
-                        isNext = true;
-                    }
-                    UserByMailExistsBeanRsp.DataBean data = userByMailExistsBeanRsp.getData();
+                UserByMailExistsBeanRsp.DataBean data = userByMailExistsBeanRsp.getData();
+                if (userByMailExistsBeanRsp.getCode().equals("200")) {
                     if (data != null) {
                         uid = data.getUid();
+                        if (!data.isExsist()) {
+                            ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(getString(R.string.tip_content_mail_not_find));
+
+                        } else {
+                            if (TextUtils.isEmpty(stringExtra)) {
+                                Intent intent = new Intent(InviteUsersMailActivity.this, AddDeviceForSharedUserActivity.class);
+                                intent.putExtra(Constant.SHARE_USER_MAIL, mail);
+                                intent.putExtra(Constant.SHARE_USER_FIRST_NAME, firstName);
+                                intent.putExtra(Constant.SHARE_USER_LAST_NAME, lastName);
+                                intent.putExtra(Constant.SHARE_USER_DATA, uid);
+                                startActivity(intent);
+                            } else {
+                                Intent intent = new Intent(InviteUsersMailActivity.this, SelectAuthorizedDeviceActivity.class);
+                                intent.putExtra(Constant.LOCK_DETAIL, mBleDeviceLocal);
+                                intent.putExtra(Constant.SHARE_USER_MAIL, mail);
+                                intent.putExtra(Constant.SHARE_USER_FIRST_NAME, firstName);
+                                intent.putExtra(Constant.SHARE_USER_LAST_NAME, lastName);
+                                intent.putExtra(Constant.SHARE_USER_DATA, uid);
+                                startActivity(intent);
+                            }
+                        }
                     }
+                } else if (userByMailExistsBeanRsp.getCode().equals("444")) {
+                    App.getInstance().logout(true, InviteUsersMailActivity.this);
                 }
             }
 

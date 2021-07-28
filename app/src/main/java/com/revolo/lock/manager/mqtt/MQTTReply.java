@@ -5,13 +5,14 @@ import android.text.TextUtils;
 import com.blankj.utilcode.util.GsonUtils;
 import com.revolo.lock.App;
 import com.revolo.lock.LocalState;
-import com.revolo.lock.manager.LockAppService;
+import com.revolo.lock.LockAppManager;
+import com.revolo.lock.bean.respone.MailLoginBeanRsp;
 import com.revolo.lock.manager.LockMessageCode;
 import com.revolo.lock.manager.LockMessageRes;
-import com.revolo.lock.manager.ble.BleManager;
 import com.revolo.lock.mqtt.MQttConstant;
 import com.revolo.lock.mqtt.MqttCommandFactory;
 import com.revolo.lock.mqtt.bean.MqttData;
+import com.revolo.lock.mqtt.bean.eventbean.LoginTokenInfoBean;
 import com.revolo.lock.mqtt.bean.eventbean.WifiLockOperationEventBean;
 import com.revolo.lock.mqtt.bean.publishresultbean.WifiLockAddPwdAttrResponseBean;
 import com.revolo.lock.mqtt.bean.publishresultbean.WifiLockAddPwdRspBean;
@@ -216,6 +217,9 @@ public class MQTTReply {
         } else if (MQttConstant.WF_EVENT.equals(mqttData.getFunc())) {
             // 操作事件
             WifiLockOperationEventBean bean = GsonUtils.fromJson(mqttData.getPayload(), WifiLockOperationEventBean.class);
+            if (bean.getEventtype().equals("token_info")) {
+                tokenInfo(mqttData.getPayload());
+            }
             if (null != mqttDataLinstener) {
                 mqttDataLinstener.onOperationCallback(LockMessageCode.MSG_LOCK_MESSAGE_WF_EVEN, bean);
             }
@@ -225,6 +229,21 @@ public class MQTTReply {
         } else if (MQttConstant.RECORD.equals(mqttData.getFunc())) {
             // 记录
             postMessage(LockMessageCode.MSG_LOCK_MESSAGE_CODE_SUCCESS, LockMessageCode.MSG_LOCK_MESSAGE_RECORD, null);
+        }
+    }
+
+    private void tokenInfo(String json) {
+        Timber.d(json);
+        LoginTokenInfoBean loginTokenInfoBean = GsonUtils.fromJson(json, LoginTokenInfoBean.class);
+        if (loginTokenInfoBean != null) {
+            String newToken = loginTokenInfoBean.getToken();
+            MailLoginBeanRsp.DataBean userBean = App.getInstance().getUserBean();
+            if (userBean != null) {
+                String nowToken = userBean.getToken();
+                if (!newToken.equals(nowToken)) {
+                    App.getInstance().logout(true, LockAppManager.getAppManager().currentActivity());
+                }
+            }
         }
     }
 

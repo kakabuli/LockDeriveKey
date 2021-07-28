@@ -2,8 +2,6 @@ package com.revolo.lock.manager.geo;
 
 import android.app.PendingIntent;
 
-import androidx.room.ColumnInfo;
-
 import com.google.android.gms.location.Geofence;
 import com.google.android.gms.location.GeofencingRequest;
 import com.revolo.lock.room.entity.BleDeviceLocal;

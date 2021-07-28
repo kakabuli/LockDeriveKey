@@ -54,7 +54,6 @@ import org.greenrobot.eventbus.ThreadMode;
 import org.jetbrains.annotations.NotNull;
 
 import java.nio.charset.StandardCharsets;
-import java.util.TimeZone;
 
 import io.reactivex.Observable;
 import io.reactivex.Observer;

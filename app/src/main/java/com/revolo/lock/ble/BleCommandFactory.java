@@ -4,8 +4,6 @@ import com.blankj.utilcode.util.ConvertUtils;
 import com.blankj.utilcode.util.EncryptUtils;
 import com.revolo.lock.util.ZoneUtil;
 
-import java.lang.reflect.Array;
-
 import timber.log.Timber;
 
 import static com.revolo.lock.ble.BleProtocolState.CMD_CHECK_HARD_VER;

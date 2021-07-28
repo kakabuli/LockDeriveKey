@@ -1,8 +1,5 @@
 package com.revolo.lock.manager.geo;
 
-import android.os.Handler;
-import android.os.Looper;
-
 import com.a1anwang.okble.client.scan.BLEScanResult;
 import com.a1anwang.okble.client.scan.DeviceScanCallBack;
 import com.a1anwang.okble.client.scan.OKBLEScanManager;

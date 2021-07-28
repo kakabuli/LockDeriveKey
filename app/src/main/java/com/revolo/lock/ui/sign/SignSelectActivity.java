@@ -16,7 +16,6 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import com.blankj.utilcode.util.GsonUtils;
 import com.blankj.utilcode.util.SPUtils;
 import com.revolo.lock.App;
-import com.revolo.lock.BuildConfig;
 import com.revolo.lock.Constant;
 import com.revolo.lock.R;
 import com.revolo.lock.base.BaseActivity;
@@ -24,7 +23,6 @@ import com.revolo.lock.bean.respone.MailLoginBeanRsp;
 import com.revolo.lock.dialog.SelectServerDialog;
 import com.revolo.lock.room.entity.User;
 import com.revolo.lock.ui.MainActivity;
-import com.revolo.lock.ui.mine.MessageListActivity;
 import com.revolo.lock.util.FingerprintUtils;
 
 import java.util.concurrent.Executor;

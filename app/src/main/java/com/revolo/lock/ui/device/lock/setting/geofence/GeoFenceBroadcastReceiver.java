@@ -24,7 +24,6 @@ import com.revolo.lock.room.entity.BleDeviceLocal;
 
 import org.greenrobot.eventbus.EventBus;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import timber.log.Timber;

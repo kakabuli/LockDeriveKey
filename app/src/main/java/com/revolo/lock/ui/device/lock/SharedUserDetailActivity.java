@@ -22,15 +22,12 @@ import com.revolo.lock.App;
 import com.revolo.lock.Constant;
 import com.revolo.lock.R;
 import com.revolo.lock.base.BaseActivity;
+import com.revolo.lock.bean.ShareUserDetailBean;
 import com.revolo.lock.bean.request.DelInvalidShareBeanReq;
-import com.revolo.lock.bean.request.DelSharedUserBeanReq;
 import com.revolo.lock.bean.request.EnableSharedUserBeanReq;
 import com.revolo.lock.bean.request.UpdateUserAuthorityTypeBeanReq;
 import com.revolo.lock.bean.respone.DelInvalidShareBeanRsp;
-import com.revolo.lock.bean.respone.DelSharedUserBeanRsp;
 import com.revolo.lock.bean.respone.EnableSharedUserBeanRsp;
-import com.revolo.lock.bean.respone.GetAllSharedUserFromAdminUserBeanRsp;
-import com.revolo.lock.bean.respone.GetAllSharedUserFromLockBeanRsp;
 import com.revolo.lock.bean.respone.UpdateUserAuthorityTypeBeanRsp;
 import com.revolo.lock.dialog.MessageDialog;
 import com.revolo.lock.dialog.SelectDialog;
@@ -51,24 +48,15 @@ import timber.log.Timber;
 public class SharedUserDetailActivity extends BaseActivity {
 
     private ImageView ivEnable, ivFamily, ivGuest, ivUser;
-    private String mPreA;
-    private GetAllSharedUserFromLockBeanRsp.DataBean mSharedUserData;
     private TextView mTvEsn, mTvUserName;
-    private GetAllSharedUserFromAdminUserBeanRsp.DataBean mShareUser;
+    private ShareUserDetailBean shareUserDetailBean;
 
     @Override
     public void initData(@Nullable Bundle bundle) {
         Intent intent = getIntent();
-        if (intent.hasExtra(Constant.PRE_A)) {
-            mPreA = intent.getStringExtra(Constant.PRE_A);
-        }
-        if (intent.hasExtra(Constant.SHARE_USER_DEVICE_DATA)) {
-            mSharedUserData = intent.getParcelableExtra(Constant.SHARE_USER_DEVICE_DATA);
-        }
         if (intent.hasExtra(Constant.SHARE_USER_DATA)) {
-            mShareUser = intent.getParcelableExtra(Constant.SHARE_USER_DATA);
-        }
-        if (mSharedUserData == null) {
+            shareUserDetailBean = intent.getParcelableExtra(Constant.SHARE_USER_DATA);
+        } else {
             finish();
         }
     }
@@ -102,13 +90,13 @@ public class SharedUserDetailActivity extends BaseActivity {
         Button btnDelete = findViewById(R.id.btnDelete);
 
         clFamily.setOnClickListener(v -> {
-            if (mSharedUserData.getShareUserType() != 1) {
+            if (shareUserDetailBean.getShareUserType() != 1) {
                 switchUserAuthority(true);
             }
         });
 
         clGuest.setOnClickListener(v -> {
-            if (mSharedUserData.getShareUserType() != 2) {
+            if (shareUserDetailBean.getShareUserType() != 2) {
                 switchUserAuthority(false);
             }
         });
@@ -118,7 +106,7 @@ public class SharedUserDetailActivity extends BaseActivity {
         });
 
         ivEnable.setOnClickListener(v -> {
-            switchUserEnable(mSharedUserData.getIsEnable() == 0);
+            switchUserEnable(shareUserDetailBean.getIsEnable() == 1);
         });
     }
 
@@ -136,38 +124,28 @@ public class SharedUserDetailActivity extends BaseActivity {
 
     private void refreshUI() {
         // 1 启用 0 未启用
-        if (mSharedUserData.getIsEnable() == 0) {
+        if (shareUserDetailBean.getIsEnable() == 1) {
             ivEnable.setImageResource(R.drawable.ic_icon_switch_open);
         } else {
             ivEnable.setImageResource(R.drawable.ic_icon_switch_close);
         }
         // 1 family； 2 guest
-        if (mSharedUserData.getShareUserType() == 1) {
+        if (shareUserDetailBean.getShareUserType() == 1) {
             ivFamily.setImageResource(R.drawable.ic_home_password_icon_selected);
             ivGuest.setImageResource(R.drawable.ic_home_password_icon_default);
         } else {
             ivFamily.setImageResource(R.drawable.ic_home_password_icon_default);
             ivGuest.setImageResource(R.drawable.ic_home_password_icon_selected);
         }
-
-        String name;
-        String avatar;
-        if (mPreA.equals(Constant.USER_MANAGEMENT_A)) {
-            name = mSharedUserData.getRemarkName();
-            avatar = mSharedUserData.getAvatarPath();
-        } else {
-            name = mShareUser.getNickName();
-            avatar = mShareUser.getAvatarPath();
-        }
-        mTvUserName.setText(TextUtils.isEmpty(name) ? "" : name);
-        mTvEsn.setText("Access to lock device, \n" + (TextUtils.isEmpty(mSharedUserData.getLockNickname()) ? "" : mSharedUserData.getLockNickname()) + " user rights");
+        mTvUserName.setText(TextUtils.isEmpty(shareUserDetailBean.getName()) ? "" : shareUserDetailBean.getName());
+        mTvEsn.setText("Access to lock device, \n" + shareUserDetailBean.getName() + " user rights");
 
         RequestOptions requestOptions = RequestOptions.circleCropTransform()
                 .diskCacheStrategy(DiskCacheStrategy.AUTOMATIC)        //缓存
                 .skipMemoryCache(false)
                 .error(R.drawable.home_user_authorization_user);
         Glide.with(this)
-                .load(TextUtils.isEmpty(avatar) ? "" : avatar)
+                .load(TextUtils.isEmpty(shareUserDetailBean.getAvatar()) ? "" : shareUserDetailBean.getAvatar())
                 .apply(requestOptions)
                 .into(ivUser);
     }
@@ -197,7 +175,7 @@ public class SharedUserDetailActivity extends BaseActivity {
             return;
         }
         DelInvalidShareBeanReq req = new DelInvalidShareBeanReq();
-        req.setShareId(mSharedUserData.getShareId());
+        req.setShareId(shareUserDetailBean.getShareId());
         showLoading();
         Observable<DelInvalidShareBeanRsp> observable = HttpRequest.getInstance().delInvalidShare(token, req);
         ObservableDecorator.decorate(observable).safeSubscribe(new Observer<DelInvalidShareBeanRsp>() {
@@ -266,10 +244,6 @@ public class SharedUserDetailActivity extends BaseActivity {
         if (!checkNetConnectFail()) {
             return;
         }
-        if (mSharedUserData == null) {
-            Timber.e("switchUserEnable mSharedUserData == null");
-            return;
-        }
         if (App.getInstance().getUserBean() == null) {
             Timber.e("switchUserEnable App.getInstance().getUserBean() == null");
             return;
@@ -280,8 +254,8 @@ public class SharedUserDetailActivity extends BaseActivity {
             return;
         }
         EnableSharedUserBeanReq req = new EnableSharedUserBeanReq();
-        req.setIsEnable(isEnable ? 1 : 0);
-        req.setShareId(mSharedUserData.getShareId());
+        req.setIsEnable(isEnable ? 0 : 1);
+        req.setShareId(shareUserDetailBean.getShareId());
         req.setUid(App.getInstance().getUserBean().getUid());
         showLoading();
         Observable<EnableSharedUserBeanRsp> observable = HttpRequest.getInstance().enableSharedUser(token, req);
@@ -311,9 +285,9 @@ public class SharedUserDetailActivity extends BaseActivity {
                     }
                     return;
                 }
-                mSharedUserData.setIsEnable(isEnable ? 1 : 0);
+                shareUserDetailBean.setIsEnable(isEnable ? 0 : 1);
                 refreshUI();
-                showIsEnableUser(isEnable);
+//                showIsEnableUser(isEnable);
             }
 
             @Override
@@ -333,10 +307,6 @@ public class SharedUserDetailActivity extends BaseActivity {
         if (!checkNetConnectFail()) {
             return;
         }
-        if (mSharedUserData == null) {
-            Timber.e("switchUserAuthority mSharedUserData == null");
-            return;
-        }
         if (App.getInstance().getUserBean() == null) {
             Timber.e("switchUserAuthority App.getInstance().getUserBean() == null");
             return;
@@ -347,7 +317,7 @@ public class SharedUserDetailActivity extends BaseActivity {
             return;
         }
         UpdateUserAuthorityTypeBeanReq req = new UpdateUserAuthorityTypeBeanReq();
-        req.setShareId(mSharedUserData.getShareId());
+        req.setShareId(shareUserDetailBean.getShareId());
         req.setShareUserType(isFamily ? 1 : 2);
         req.setUid(App.getInstance().getUserBean().getUid());
         showLoading();
@@ -378,9 +348,9 @@ public class SharedUserDetailActivity extends BaseActivity {
                     }
                     return;
                 }
-                mSharedUserData.setShareUserType(isFamily ? 1 : 2);
+                shareUserDetailBean.setShareUserType(isFamily ? 1 : 2);
                 refreshUI();
-                showChangeUserAuthority(isFamily);
+//                showChangeUserAuthority(isFamily);
             }
 
             @Override

@@ -40,8 +40,6 @@ import com.revolo.lock.ui.TitleBar;
 import org.greenrobot.eventbus.EventBus;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Timer;
-
 import io.reactivex.disposables.Disposable;
 import timber.log.Timber;
 

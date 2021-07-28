@@ -5,7 +5,6 @@ import android.util.Log;
 
 import com.blankj.utilcode.util.LogUtils;
 import com.revolo.lock.App;
-import com.revolo.lock.LockAppManager;
 import com.revolo.lock.mqtt.MQttConstant;
 import com.revolo.lock.mqtt.MqttExceptionHandle;
 
