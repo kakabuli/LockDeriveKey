@@ -4,6 +4,7 @@ import com.revolo.lock.bean.request.AcceptShareBeanReq;
 import com.revolo.lock.bean.request.AdminAddDeviceBeanReq;
 import com.revolo.lock.bean.request.AlexaAppUrlAndWebUrlReq;
 import com.revolo.lock.bean.request.AlexaSkillEnableReq;
+import com.revolo.lock.bean.request.AuthenticationBeanReq;
 import com.revolo.lock.bean.request.ChangeBleVerBeanReq;
 import com.revolo.lock.bean.request.ChangeDeviceHardVerBeanReq;
 import com.revolo.lock.bean.request.ChangeDeviceNameBeanReq;
@@ -62,6 +63,7 @@ import com.revolo.lock.bean.respone.AcceptShareBeanRsp;
 import com.revolo.lock.bean.respone.AdminAddDeviceBeanRsp;
 import com.revolo.lock.bean.respone.AlexaAppUrlAndWebUrlBeanRsp;
 import com.revolo.lock.bean.respone.AlexaSkillEnableBeanRsp;
+import com.revolo.lock.bean.respone.AuthenticationBeanRsp;
 import com.revolo.lock.bean.respone.ChangeBleVerBeanRsp;
 import com.revolo.lock.bean.respone.ChangeDeviceHardVerBeanRsp;
 import com.revolo.lock.bean.respone.ChangeDeviceNameBeanRsp;
@@ -372,6 +374,17 @@ public interface ApiService {
     @Headers({"Content-Type: application/json"})
     @POST("/wpflock/device/update/setlockelecfence")
     Observable<UpdateLocalBeanRsp> updateockeLecfence(@Header("token") String token, @Body UpdateLocalBeanReq req, @Header("url_name") String urlName);
+
+    /**
+     * 更新鉴权 pwd2
+     * @param token
+     * @param req
+     * @param urlName
+     * @return
+     */
+    @Headers({"Content-Type: application/json"})
+    @POST("/wifi/device/passwordMod")
+    Observable<AuthenticationBeanRsp> updateocAuthentication(@Header("token") String token, @Body AuthenticationBeanReq req, @Header("url_name") String urlName);
 
 
     /**

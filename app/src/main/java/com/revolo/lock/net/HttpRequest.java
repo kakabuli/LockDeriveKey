@@ -6,6 +6,7 @@ import com.revolo.lock.bean.request.AcceptShareBeanReq;
 import com.revolo.lock.bean.request.AdminAddDeviceBeanReq;
 import com.revolo.lock.bean.request.AlexaAppUrlAndWebUrlReq;
 import com.revolo.lock.bean.request.AlexaSkillEnableReq;
+import com.revolo.lock.bean.request.AuthenticationBeanReq;
 import com.revolo.lock.bean.request.ChangeBleVerBeanReq;
 import com.revolo.lock.bean.request.ChangeDeviceHardVerBeanReq;
 import com.revolo.lock.bean.request.ChangeDeviceNameBeanReq;
@@ -64,6 +65,7 @@ import com.revolo.lock.bean.respone.AcceptShareBeanRsp;
 import com.revolo.lock.bean.respone.AdminAddDeviceBeanRsp;
 import com.revolo.lock.bean.respone.AlexaAppUrlAndWebUrlBeanRsp;
 import com.revolo.lock.bean.respone.AlexaSkillEnableBeanRsp;
+import com.revolo.lock.bean.respone.AuthenticationBeanRsp;
 import com.revolo.lock.bean.respone.ChangeBleVerBeanRsp;
 import com.revolo.lock.bean.respone.ChangeDeviceHardVerBeanRsp;
 import com.revolo.lock.bean.respone.ChangeDeviceNameBeanRsp;
@@ -334,6 +336,10 @@ public class HttpRequest {
 
     public Observable<UpdateLocalBeanRsp> updateockeLecfence(String token, UpdateLocalBeanReq req) {
         return service.updateockeLecfence(token, req, NORMAL);
+    }
+
+    public Observable<AuthenticationBeanRsp> updateocAuthentication(String token, AuthenticationBeanReq req) {
+        return service.updateocAuthentication(token, req, NORMAL);
     }
 
     public Observable<CheckDoorSensorStateBeanRsp> checkDoorSensorState(String token, CheckDoorSensorStateBeanReq req) {
