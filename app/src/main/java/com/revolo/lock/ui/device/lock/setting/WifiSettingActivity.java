@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.os.Message;
 import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.KeyEvent;
@@ -27,6 +28,7 @@ import com.revolo.lock.ble.BleCommandState;
 import com.revolo.lock.ble.bean.BleBean;
 import com.revolo.lock.ble.bean.BleResultBean;
 import com.revolo.lock.dialog.MessageDialog;
+import com.revolo.lock.dialog.OpenBleDialog;
 import com.revolo.lock.dialog.SelectDialog;
 import com.revolo.lock.manager.LockConnected;
 import com.revolo.lock.manager.LockMessage;
@@ -56,7 +58,9 @@ import static com.revolo.lock.ble.BleProtocolState.CMD_WIFI_SWITCH;
  * desc   : wifi设置
  */
 public class WifiSettingActivity extends BaseActivity {
-
+    private static final int MSG_CONNECT_BLE_OUT_TIME = 3684;//连接蓝牙超时
+    private static final int MSG_CONNECT_BLE_OK = 3685;//连接蓝牙成功
+    private int MSG_CONNECT_BLE_TME = 15000;//ble连接时间
     private BleDeviceLocal mBleDeviceLocal;
     private ImageView mIvWifiEnable;
     private boolean isWifiConnected = false;
@@ -65,6 +69,7 @@ public class WifiSettingActivity extends BaseActivity {
     private SelectDialog mSelectDialog;
     private MessageDialog mPowerLowDialog;
     private ConstraintLayout mCltip;
+    private OpenBleDialog openBleDialog;
 
     @Override
     public void initData(@Nullable Bundle bundle) {
@@ -112,6 +117,48 @@ public class WifiSettingActivity extends BaseActivity {
         onRegisterEventBus();
     }
 
+    private Handler handler = new Handler() {
+        @Override
+        public void handleMessage(@NonNull Message msg) {
+            if (msg.what == MSG_CONNECT_BLE_OUT_TIME) {
+                dissOpenBleDialog();
+            } else if (msg.what == MSG_CONNECT_BLE_OK) {
+                gotoAddWifiAct();
+            }
+        }
+    };
+
+    /**
+     * 显示蓝牙连接加载对话框
+     */
+    private void showOpenBleDialog() {
+        runOnUiThread(() -> {
+            if (null == openBleDialog) {
+                openBleDialog = new OpenBleDialog.Builder(WifiSettingActivity.this)
+                        .setMessage(getString(R.string.bluetooth_connecting_please_wait))
+                        .setCancelable(true)
+                        .setCancelOutside(false)
+                        .create();
+            }
+            if (!openBleDialog.isShowing()) {
+                openBleDialog.show();
+            }
+        });
+    }
+
+    /**
+     * 关闭蓝牙连接加载对话框
+     */
+    private void dissOpenBleDialog() {
+        runOnUiThread(() -> {
+            if (null != openBleDialog) {
+                if (openBleDialog.isShowing()) {
+                    openBleDialog.dismiss();
+                }
+            }
+        });
+    }
+
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0) {
@@ -124,6 +171,12 @@ public class WifiSettingActivity extends BaseActivity {
     @Override
     public void doBusiness() {
         updateUI();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        handler.removeMessages(MSG_CONNECT_BLE_OUT_TIME);
     }
 
     @Override
@@ -174,13 +227,6 @@ public class WifiSettingActivity extends BaseActivity {
                 //设备掉线
                 Timber.e("设备断线中");
             }
-            /*
-            // TODO: 2021/4/1 先开启蓝牙再跳转
-            if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI) {
-                openBleFromMQtt();
-            } else {
-                gotoAddWifiAct();
-            }*/
         }
 
     }
@@ -248,13 +294,15 @@ public class WifiSettingActivity extends BaseActivity {
     }
 
     private void openBleFromMQtt() {
-        showLoading();
+        //showLoading();
+        handler.sendEmptyMessageDelayed(MSG_CONNECT_BLE_OUT_TIME, MSG_CONNECT_BLE_TME);
+        showOpenBleDialog();
         LockMessage lockMessage = new LockMessage();
         lockMessage.setMqttMessage(MqttCommandFactory.approachOpen(
-                mBleDeviceLocal.getEsn(), 60/*用于临时开启蓝牙，用于使用蓝牙来重新配网*/,
+                mBleDeviceLocal.getEsn(), 3/*用于临时开启蓝牙，用于使用蓝牙来重新配网*/,
                 BleCommandFactory.getPwd(
                         ConvertUtils.hexString2Bytes(mBleDeviceLocal.getPwd1()),
-                        ConvertUtils.hexString2Bytes(mBleDeviceLocal.getPwd2()))));
+                        ConvertUtils.hexString2Bytes(mBleDeviceLocal.getPwd2())), 0,1));
         lockMessage.setMessageType(2);
         lockMessage.setMqtt_message_code(MQttConstant.APP_ROACH_OPEN);
         lockMessage.setMqtt_topic(MQttConstant.getCallTopic(App.getInstance().getUserBean().getUid()));
@@ -274,7 +322,9 @@ public class WifiSettingActivity extends BaseActivity {
                 //成功
                 if (lockMessage.getMessageCode() == LockMessageCode.MSG_LOCK_MESSAGE_ADD_DEVICE_SERVICE) {
                     Timber.d("wifi setting activity connected");
-
+                    handler.removeMessages(MSG_CONNECT_BLE_OUT_TIME);
+                    dissOpenBleDialog();
+                    handler.sendEmptyMessage(MSG_CONNECT_BLE_OK);
                 } else {
                     if (null != lockMessage.getBleResultBea()) {
                         processBleResult(lockMessage.getBleResultBea());
@@ -328,11 +378,6 @@ public class WifiSettingActivity extends BaseActivity {
         }
         // TODO: 2021/3/5 开启成功，然后开启蓝牙并不断搜索设备
         connectBle();
-        new Handler(Looper.getMainLooper()).postDelayed(() -> {
-            App.getInstance().setWifiSettingNeedToCloseBle(true);
-            gotoAddWifiAct();
-        }, 10000);
-
     }
 
     private void connectBle() {
