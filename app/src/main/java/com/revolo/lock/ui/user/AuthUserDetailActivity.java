@@ -109,7 +109,7 @@ public class AuthUserDetailActivity extends BaseActivity {
         mDevicesAdapter.setOnReInviteListener(this::share);
         mDevicesAdapter.setOnDeleteListener(dataBean -> {
             if (dataBean != null) {
-                deleteShare(dataBean);
+                showRemoveDeviceDialog(dataBean);
             }
             shareList.closeMenu();
         });
@@ -161,6 +161,17 @@ public class AuthUserDetailActivity extends BaseActivity {
                 .load(TextUtils.isEmpty(mShareUser.getAvatarPath()) ? "" : mShareUser.getAvatarPath())
                 .apply(requestOptions)
                 .into(ivAvatar);
+    }
+
+    private void showRemoveDeviceDialog(GetDevicesFromUidAndSharedUidBeanRsp.DataBean dataBean) {
+        SelectDialog dialog = new SelectDialog(this);
+        dialog.setMessage(getString(R.string.dialog_tip_are_you_sure_to_remove_this_user));
+        dialog.setOnCancelClickListener(v -> dialog.dismiss());
+        dialog.setOnConfirmListener(v -> {
+            dialog.dismiss();
+            deleteShare(dataBean);
+        });
+        dialog.show();
     }
 
     private void searchUserDevice() {

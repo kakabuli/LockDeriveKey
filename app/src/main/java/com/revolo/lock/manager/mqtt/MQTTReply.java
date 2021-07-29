@@ -1,12 +1,15 @@
 package com.revolo.lock.manager.mqtt;
 
+import android.content.Intent;
 import android.text.TextUtils;
 
 import com.blankj.utilcode.util.GsonUtils;
 import com.revolo.lock.App;
 import com.revolo.lock.LocalState;
 import com.revolo.lock.LockAppManager;
+import com.revolo.lock.bean.DeviceListRefreshBean;
 import com.revolo.lock.bean.respone.MailLoginBeanRsp;
+import com.revolo.lock.dialog.MessageDialog;
 import com.revolo.lock.manager.LockMessageCode;
 import com.revolo.lock.manager.LockMessageRes;
 import com.revolo.lock.mqtt.MQttConstant;
@@ -31,6 +34,7 @@ import com.revolo.lock.mqtt.bean.publishresultbean.WifiLockSetMagneticResponseBe
 import com.revolo.lock.mqtt.bean.publishresultbean.WifiLockUpdatePasswordResponseBean;
 import com.revolo.lock.room.AppDatabase;
 import com.revolo.lock.room.entity.BleDeviceLocal;
+import com.revolo.lock.ui.MainActivity;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -225,6 +229,8 @@ public class MQTTReply {
             WifiLockOperationEventBean bean = GsonUtils.fromJson(mqttData.getPayload(), WifiLockOperationEventBean.class);
             if (bean.getEventtype().equals("token_info")) {
                 tokenInfo(mqttData.getPayload());
+            } else if (bean.getEventtype().equals("deviceListRefresh")) {
+                deviceListRefresh(mqttData.getPayload());
             }
             if (null != mqttDataLinstener) {
                 mqttDataLinstener.onOperationCallback(LockMessageCode.MSG_LOCK_MESSAGE_WF_EVEN, bean);
@@ -237,6 +243,22 @@ public class MQTTReply {
         } else if (MQttConstant.RECORD.equals(mqttData.getFunc())) {
             // 记录
             postMessage(LockMessageCode.MSG_LOCK_MESSAGE_CODE_SUCCESS, LockMessageCode.MSG_LOCK_MESSAGE_RECORD, null);
+        }
+    }
+
+    private void deviceListRefresh(String json) {
+        Timber.d(json);
+        DeviceListRefreshBean deviceListRefreshBean = GsonUtils.fromJson(json, DeviceListRefreshBean.class);
+        if (deviceListRefreshBean != null) {
+            String title = deviceListRefreshBean.getTitle();
+            if (LockAppManager.getAppManager().currentActivity().getLocalClassName().equals("MainActivity")) { // 在首页
+                // TODO 刷新列表
+                LockAppManager.getAppManager().currentActivity().onCreate(null, null);
+            } else {
+                MessageDialog messageDialog = new MessageDialog(LockAppManager.getAppManager().currentActivity());
+                messageDialog.setMessage(title);
+                messageDialog.setOnListener(v -> App.getInstance().getApplicationContext().startActivity(new Intent(LockAppManager.getAppManager().currentActivity(), MainActivity.class)));
+            }
         }
     }
 
