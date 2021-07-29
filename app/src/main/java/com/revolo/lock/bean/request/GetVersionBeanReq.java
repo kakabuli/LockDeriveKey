@@ -7,7 +7,17 @@ package com.revolo.lock.bean.request;
  * desc   :
  */
 public class GetVersionBeanReq {
+
     private String uid;
+    private int phoneSysType;
+
+    public int getPhoneSysType() {
+        return phoneSysType;
+    }
+
+    public void setPhoneSysType(int phoneSysType) {
+        this.phoneSysType = phoneSysType;
+    }
 
     public String getUid() {
         return uid;

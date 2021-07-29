@@ -118,6 +118,7 @@ public class AboutActivity extends BaseActivity {
         String uid = userBean.getUid();
         GetVersionBeanReq req = new GetVersionBeanReq();
         req.setUid(uid);
+        req.setPhoneSysType(0);
         Observable<GetVersionBeanRsp> version = HttpRequest.getInstance().getVersion(token, req);
         ObservableDecorator.decorate(version).safeSubscribe(new Observer<GetVersionBeanRsp>() {
             @Override
