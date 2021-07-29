@@ -73,7 +73,7 @@ public class MQTTManager {
         if (!TextUtils.isEmpty(user_id) && !TextUtils.isEmpty(user_token)) {
             connOpts.setUserName(user_id);
             connOpts.setPassword(user_token.toCharArray());
-            Timber.d("Mqtt设置token" + user_token + "     connopt" + connOpts.getPassword());
+            Timber.d("Mqtt设置token   " + user_token + "     connopt" + connOpts.getPassword());
         }
         return connOpts;
     }
@@ -118,8 +118,8 @@ public class MQTTManager {
             return;
         }
         if (mqttClient == null) {
-            mqttClient = new MqttAndroidClient(App.getInstance(), MQttConstant.MQTT_BASE_URL, "app:" + userId);
         }
+        mqttClient = new MqttAndroidClient(App.getInstance(), MQttConstant.MQTT_BASE_URL, "app:" + userId);
         //已经连接
         try {
             if (mqttClient.isConnected()) {
@@ -213,6 +213,7 @@ public class MQTTManager {
 
                 @Override
                 public void onFailure(IMqttToken asyncActionToken, Throwable exception) {
+                    Timber.d("mqtt连接失败");
                     if (null != mqttDataLinstener) {
                         mqttDataLinstener.onFailure(asyncActionToken, exception);
                     }

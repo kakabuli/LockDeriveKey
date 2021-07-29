@@ -32,9 +32,8 @@ public class AuthUserDetailDevicesAdapter extends BaseQuickAdapter<GetDevicesFro
     @Override
     protected void convert(@NotNull BaseViewHolder baseViewHolder, GetDevicesFromUidAndSharedUidBeanRsp.DataBean bean) {
         if (bean != null) {
-            String name = (TextUtils.isEmpty(bean.getFirstName()) ? "" : bean.getFirstName()) + " " + (TextUtils.isEmpty(bean.getLastName()) ? "" : bean.getLastName());
             // TODO: 2021/3/14 应该是设备名字，需要修改
-            baseViewHolder.setText(R.id.tvDeviceName, TextUtils.isEmpty(name) ? "" : name);
+            baseViewHolder.setText(R.id.tvDeviceName, TextUtils.isEmpty(bean.getLockNickname()) ? bean.getDeviceSN() : bean.getLockNickname());
             switch (bean.getShareState()) {
                 case "0":
                     baseViewHolder.setImageResource(R.id.ivMore, R.drawable.ic_icon_more);
