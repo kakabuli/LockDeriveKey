@@ -297,7 +297,7 @@ public class BleManager {
             if (null != bleBean) {
                 bleBean.setBleConning(2);
                 openControlNotify(bleBean.getOKBLEDeviceImp());
-                if (bleBean.isAppPair()) {
+                if (bleBean.isAppPair() && null != bleBean.getPwd2() && !"00000000".equals(ConvertUtils.bytes2HexString(bleBean.getPwd2()))) {
                     // 正在蓝牙本地配网，所以不走自动鉴权
                     new Handler(Looper.getMainLooper()).postDelayed(() -> {
                         Timber.d("getPwd2AndSendAuthCommand 延时发送鉴权指令, pwd2: %1s\n", ConvertUtils.bytes2HexString(bleBean.getPwd2()));
@@ -307,6 +307,13 @@ public class BleManager {
 
                     bleConnectedCallback(bleBean, bleBean.getOKBLEDeviceImp().getMacAddress());
                     return;
+                } else {
+                    if ("00000000".equals(ConvertUtils.bytes2HexString(bleBean.getPwd2()))) {
+                        setBleFromMacInitPwd(bleBean.getMac());
+                        bleBean.setPwd2_copy(null);
+                        bleBean.setPwd2(null);
+                        bleBean.setPwd3(null);
+                    }
                 }
                 // 连接后都走自动鉴权流程
                 bleBean.setAuth(true);
