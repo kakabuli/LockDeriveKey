@@ -85,6 +85,7 @@ public class RegisterAddAvatarActivity extends BaseActivity implements EasyPermi
         mIvAvatar = findViewById(R.id.ivAvatar);
         rcSelectPicPermissions();
     }
+
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0) {
@@ -93,6 +94,7 @@ public class RegisterAddAvatarActivity extends BaseActivity implements EasyPermi
         }
         return super.onKeyDown(keyCode, event);
     }
+
     @Override
     public void doBusiness() {
 
@@ -123,6 +125,7 @@ public class RegisterAddAvatarActivity extends BaseActivity implements EasyPermi
             }
             PictureSelector.create(this)
                     .openGallery(PictureMimeType.ofImage())
+                    .maxSelectNum(1)
                     .loadImageEngine(GlideEngine.createGlideEngine()) // 请参考Demo GlideEngine.java
                     .forResult(PictureConfig.CHOOSE_REQUEST);
         }

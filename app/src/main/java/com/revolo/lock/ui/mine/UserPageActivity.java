@@ -100,6 +100,7 @@ public class UserPageActivity extends BaseActivity implements EasyPermissions.Pe
                     .openGallery(PictureMimeType.ofImage())
                     .loadImageEngine(GlideEngine.createGlideEngine()) // 请参考Demo GlideEngine.java
                     .isWebp(true)
+                    .maxSelectNum(1)
                     .forResult(PictureConfig.CHOOSE_REQUEST);
             if (mPicSelectPopup != null) mPicSelectPopup.dismiss();
         });
