@@ -6,7 +6,6 @@ import com.revolo.lock.bean.request.AcceptShareBeanReq;
 import com.revolo.lock.bean.request.AdminAddDeviceBeanReq;
 import com.revolo.lock.bean.request.AlexaAppUrlAndWebUrlReq;
 import com.revolo.lock.bean.request.AlexaSkillEnableReq;
-import com.revolo.lock.bean.request.AuthenticationBeanReq;
 import com.revolo.lock.bean.request.ChangeBleVerBeanReq;
 import com.revolo.lock.bean.request.ChangeDeviceHardVerBeanReq;
 import com.revolo.lock.bean.request.ChangeDeviceNameBeanReq;
@@ -65,7 +64,6 @@ import com.revolo.lock.bean.respone.AcceptShareBeanRsp;
 import com.revolo.lock.bean.respone.AdminAddDeviceBeanRsp;
 import com.revolo.lock.bean.respone.AlexaAppUrlAndWebUrlBeanRsp;
 import com.revolo.lock.bean.respone.AlexaSkillEnableBeanRsp;
-import com.revolo.lock.bean.respone.AuthenticationBeanRsp;
 import com.revolo.lock.bean.respone.ChangeBleVerBeanRsp;
 import com.revolo.lock.bean.respone.ChangeDeviceHardVerBeanRsp;
 import com.revolo.lock.bean.respone.ChangeDeviceNameBeanRsp;
@@ -147,7 +145,7 @@ public class HttpRequest {
     public static final String LOCAL_HOST_ABROAD = "https://revolotest.sfeiya.com:8090";                      // 海外服务器测试接口
     public static final String LOCAL_HOST_248 = "https://192.168.118.248:443";                           // 长沙本地服务器测试接口
     public static final String LOCAL_HOST_249 = "https://192.168.118.249:443";                           // 长沙本地服务器-*/测试接口2
-    public static String HTTP_BASE_HOST = LOCAL_HOST_248;
+    public static String HTTP_BASE_HOST = LOCAL_HOST_249;
     private static final String CHECK_OTA_HOST_TEST = "https://test1.juziwulian.com:9111";          // 国内服务器测试接口
     private static final String CHECK_OTA_HOST_ABROAD = "https://ota-global.juziwulian.com:9111";   // 海外服务器接口
     public static final String CHECK_OTA_HOST = CHECK_OTA_HOST_ABROAD;
@@ -336,10 +334,6 @@ public class HttpRequest {
 
     public Observable<UpdateLocalBeanRsp> updateockeLecfence(String token, UpdateLocalBeanReq req) {
         return service.updateockeLecfence(token, req, NORMAL);
-    }
-
-    public Observable<AuthenticationBeanRsp> updateocAuthentication(String token, AuthenticationBeanReq req) {
-        return service.updateocAuthentication(token, req, NORMAL);
     }
 
     public Observable<CheckDoorSensorStateBeanRsp> checkDoorSensorState(String token, CheckDoorSensorStateBeanReq req) {
