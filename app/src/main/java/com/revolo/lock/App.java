@@ -400,4 +400,5 @@ public class App extends Application {
         void connectResult(BleBean bleBean, BLEScanResult bleScanResult);
     }
 
+    //test
 }
