@@ -383,7 +383,7 @@ public class WifiSettingActivity extends BaseActivity {
     private void connectBle() {
         //去连接蓝牙
         LockConnected bleConnected = new LockConnected();
-        bleConnected.setConnectType(3);
+        bleConnected.setConnectType(LocalState.CONNECT_STATE_MQTT_CONFIG_DOOR);
         bleConnected.setBleDeviceLocal(mBleDeviceLocal);
         EventBus.getDefault().post(bleConnected);
     }

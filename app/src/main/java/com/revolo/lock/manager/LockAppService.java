@@ -359,13 +359,16 @@ public class LockAppService extends Service {
     @Subscribe(threadMode = ThreadMode.MAIN, sticky = true)
     public void getConnected(LockConnected bleConnected) {
         if (null != bleConnected) {
-            if (bleConnected.getConnectType() == 0) {
+            if (bleConnected.getConnectType() == LocalState.CONNECT_STATE_MQTT) {
+                //MQTT连接
                 Timber.e("connected type:0");
                 connectMQTT();
-            } else if (bleConnected.getConnectType() == 1) {
+            } else if (bleConnected.getConnectType() == LocalState.CONNECT_STATE_BIND_DEVICE) {
                 Timber.e("connected type:1");
+                //绑定设备，蓝牙连接
                 onBleConnect(bleConnected.getmEsn(), bleConnected.getBleScanResult(), null, bleConnected.getPwd1(), bleConnected.getPwd2());
-            } else if (bleConnected.getConnectType() == 3) {
+            } else if (bleConnected.getConnectType() == LocalState.CONNECT_STATE_MQTT_CONFIG_DOOR) {
+                //配置门磁、WiFi时蓝牙连接
                 BleDeviceLocal bleDeviceLocal = bleConnected.getBleDeviceLocal();
                 if (null != bleDeviceLocal) {
                     connectDevice(bleDeviceLocal);
@@ -383,6 +386,9 @@ public class LockAppService extends Service {
                     onBleConnect(bleDeviceLocal.getEsn(), null, device, mPwd1, ConvertUtils.hexString2Bytes(bleDeviceLocal.getPwd2())
                     );*/
                 }
+            } else if (bleConnected.getConnectType() == LocalState.CONNECT_STATE_CHECK_BLE) {
+                //离线状态下。检测所有设备的ble连接
+                disStateCheckBleConnect(bleConnected.getBleDeviceLocalList());
             }
 
         }
@@ -539,6 +545,20 @@ public class LockAppService extends Service {
         lockMessageRes.setResultCode(MSG_LOCK_MESSAGE_CODE_SUCCESS);
         lockMessageRes.setMessageCode(LockMessageCode.MSG_LOCK_MESSAGE_ADD_DEVICE);//添加到设备到主页
         EventBus.getDefault().post(lockMessageRes);
+    }
+
+    /**
+     * 离线状态下，检测当前蓝牙是否连接
+     */
+    public void disStateCheckBleConnect(List<BleDeviceLocal> bleDeviceLocalList) {
+        Timber.e("当前是离线状态下，检测当前的设备蓝牙连接状态");
+        if (null != bleDeviceLocalList) {
+            for (BleDeviceLocal bleDeviceLocal : bleDeviceLocalList) {
+                Timber.e("当前是离线状态下，检测当前的设备蓝牙连接状态:"+bleDeviceLocal.getEsn());
+                bleDeviceLocal.setConnectedType(LocalState.DEVICE_CONNECT_TYPE_DIS);
+                addDevice(false, bleDeviceLocal);
+            }
+        }
     }
 
     private void connectDevice(BleDeviceLocal bleDeviceLocal) {
@@ -1516,7 +1536,8 @@ public class LockAppService extends Service {
                 // 鉴权成功后，同步当前时间
                 syNowTime(bleBean);
                 //鉴权成功后，将设备添加到服务器端中
-
+                // 判断当前的蓝牙设备是否开启电子围栏
+                senGeoFence(bleBean.getMac().toUpperCase());
                 //更新//上报给服务器
                 checkDevicePwd(bleBean.getMac(), ConvertUtils.bytes2HexString(bleBean.getPwd2()));
 
@@ -1671,8 +1692,7 @@ public class LockAppService extends Service {
 
         @Override
         public void onAuthSuc(@NotNull String mac) {
-            //判断当前的蓝牙设备是否开启电子围栏
-            senGeoFence(mac);
+
         }
 
         @Override
@@ -1700,6 +1720,7 @@ public class LockAppService extends Service {
                             return;
                         }
                         // TODO: 2021/4/7 抽离0x01
+                        Timber.e("下发敲门开锁");
                         BleManager.getInstance().writeControlMsg(BleCommandFactory
                                 .setKnockDoorAndUnlockTime(0x01, bleBean.getPwd1(), bleBean.getPwd3()), bleBean.getOKBLEDeviceImp());
                     }, 200);

@@ -43,46 +43,45 @@ public class GeoFenceBroadcastReceiver extends BroadcastReceiver {
         //throw new UnsupportedOperationException("Not yet implemented");
         NotificationHelper notificationHelper = new NotificationHelper(context);
         GeofencingEvent geofencingEvent = GeofencingEvent.fromIntent(intent);
-
+        Timber.e("谷歌定位服务唤醒");
         if (geofencingEvent.hasError()) {
             Timber.d("onReceive: Error receiving geofence event...");
             return;
         }
 
         int transitionType = geofencingEvent.getGeofenceTransition();
-
-        switch (transitionType) {
-            case Geofence.GEOFENCE_TRANSITION_ENTER:
-                BleDeviceLocal deviceLocal = null;
-                String esn = intent.getStringExtra("esn");
-                if (null != esn && !"".equals(esn)) {
-                    Timber.e("谷歌服务地理围栏监听返回：" + esn);
-                    if (null != App.getInstance().getLockGeoFenceService()) {
-                        List<LockGeoFenceEn> blsds = App.getInstance().getLockGeoFenceService().getLockGeoFenceEns();
-                        if (null != blsds) {
-                            for (LockGeoFenceEn fenceEn : blsds) {
-                                if (null != fenceEn && null != fenceEn.getBleDeviceLocal()) {
-                                    if (fenceEn.getBleDeviceLocal().getEsn().equals(esn)) {
-                                        deviceLocal = fenceEn.getBleDeviceLocal();
-                                        break;
-                                    }
-                                }
+        Timber.e("谷歌定位服务唤醒:" + transitionType);
+        BleDeviceLocal deviceLocal = null;
+        String esn = intent.getStringExtra("esn");
+        if (null != esn && !"".equals(esn)) {
+            Timber.e("谷歌服务地理围栏监听返回：" + esn);
+            if (null != App.getInstance().getLockGeoFenceService()) {
+                List<LockGeoFenceEn> blsds = App.getInstance().getLockGeoFenceService().getLockGeoFenceEns();
+                if (null != blsds) {
+                    for (LockGeoFenceEn fenceEn : blsds) {
+                        if (null != fenceEn && null != fenceEn.getBleDeviceLocal()) {
+                            if (fenceEn.getBleDeviceLocal().getEsn().equals(esn)) {
+                                deviceLocal = fenceEn.getBleDeviceLocal();
+                                break;
                             }
                         }
                     }
-                } else {
-                    Timber.e("谷歌服务地理围栏监听返回：当前：" + esn + "为空");
                 }
-                if (deviceLocal == null) {
-                    Timber.e("谷歌服务地理围栏监听返回：设备为空" + esn);
-                    return;
-                }
+            }
+        } else {
+            Timber.e("谷歌服务地理围栏监听返回：当前：" + esn + "为空");
+        }
+        if (deviceLocal == null) {
+            Timber.e("谷歌服务地理围栏监听返回：设备为空" + esn);
+            return;
+        }
+        switch (transitionType) {
+            case Geofence.GEOFENCE_TRANSITION_ENTER:
                 //电子围栏是否开启
                 if (deviceLocal.isOpenElectricFence()) {
                     Timber.e("谷歌服务地理围栏监听返回：地理围栏开启，" + esn);
-                    if (!deviceLocal.getElecFenceState()) {
-                        Timber.e("谷歌服务地理围栏监听返回：当前设备未从200米进入，" + esn);
-                        return;
+                    if (null != App.getInstance().getLockGeoFenceService()) {
+                        App.getInstance().getLockGeoFenceService().updateLockLocalState(deviceLocal.getEsn(), true);
                     }
                     ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_you_have_entered_the_range_of_the_geo_fence);
                     notificationHelper.sendHighPriorityNotification(context.getString(R.string.n_geo_fence), context.getString(R.string.t_you_have_entered_the_range_of_the_geo_fence), MapActivity.class);
@@ -99,6 +98,10 @@ public class GeoFenceBroadcastReceiver extends BroadcastReceiver {
 //                notificationHelper.sendHighPriorityNotification("GEOFENCE_TRANSITION_DWELL", "", MapActivity.class);
                 break;
             case Geofence.GEOFENCE_TRANSITION_EXIT:
+                Timber.e("谷歌服务地理围栏监听出地理围栏：开始清理地理围栏：" + esn);
+                if (null != App.getInstance().getLockGeoFenceService()) {
+                    App.getInstance().getLockGeoFenceService().clearBleDeviceMac(deviceLocal.getMac().toUpperCase());
+                }
                 ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_you_have_exited_the_geo_fence);
                 notificationHelper.sendHighPriorityNotification(context.getString(R.string.n_geo_fence), context.getString(R.string.t_you_have_exited_the_geo_fence), MapActivity.class);
                 break;
@@ -125,7 +128,9 @@ public class GeoFenceBroadcastReceiver extends BroadcastReceiver {
                     if (deviceLocal.getElecFenceCmd() == 1) {
                         if (null != App.getInstance().getLockGeoFenceService()) {
                             Timber.e("谷歌服务地理围栏监听返回：蓝牙连接开始连接，" + deviceLocal.getEsn());
-                            App.getInstance().getLockGeoFenceService().addDeviceScan(deviceLocal.getMac(), deviceLocal.getSetElectricFenceTime());//checkBleConnect(deviceLocal.getMac());
+                            //App.getInstance().getLockGeoFenceService().addDeviceScan(deviceLocal.getMac(), deviceLocal.getSetElectricFenceTime());//checkBleConnect(deviceLocal.getMac());
+                            //开始定位
+                            App.getInstance().getLockGeoFenceService().startGeo();
                             return;
                         }
                     }
@@ -134,22 +139,39 @@ public class GeoFenceBroadcastReceiver extends BroadcastReceiver {
                 if (deviceLocal.getElecFenceCmd() == 1) {
                     if (null != App.getInstance().getLockGeoFenceService()) {
                         Timber.e("谷歌服务地理围栏监听返回：蓝牙连接为null，开始连接，" + deviceLocal.getEsn());
-                        App.getInstance().getLockGeoFenceService().addDeviceScan(deviceLocal.getMac(), deviceLocal.getSetElectricFenceTime());//checkBleConnect(deviceLocal.getMac());
+                        // App.getInstance().getLockGeoFenceService().addDeviceScan(deviceLocal.getMac(), deviceLocal.getSetElectricFenceTime());//checkBleConnect(deviceLocal.getMac());
+                        //开始定位
+                        App.getInstance().getLockGeoFenceService().startGeo();
                         return;
                     }
                 }
             }
         }
-        Timber.e("谷歌服务地理围栏监听返回：发送mqtt开启蓝牙命令，" + deviceLocal.getEsn());
-        LockMessage lockMessage = new LockMessage();
-        lockMessage.setMqttMessage(MqttCommandFactory.approachOpen(deviceLocal.getEsn(), deviceLocal.getSetElectricFenceTime(),
-                BleCommandFactory.getPwd(
-                        ConvertUtils.hexString2Bytes(deviceLocal.getPwd1()),
-                        ConvertUtils.hexString2Bytes(deviceLocal.getPwd2())),1,2));
-        lockMessage.setMqtt_topic(MQttConstant.getCallTopic(App.getInstance().getUserBean().getUid()));
-        lockMessage.setMessageType(2);
-        lockMessage.setMqtt_message_code(MQttConstant.APP_ROACH_OPEN);
-        EventBus.getDefault().post(lockMessage);
+        if (null != App.getInstance().getLockGeoFenceService()) {
+            int index = App.getInstance().getLockGeoFenceService().getSendOpenBleIndex(deviceLocal.getEsn());
+            if (index < 3) {
+                App.getInstance().getLockGeoFenceService().setSendOpenBleIndex(deviceLocal.getEsn(), index + 1);
+
+                Timber.e("谷歌服务地理围栏监听返回：发送mqtt开启蓝牙命令，" + deviceLocal.getEsn());
+                LockMessage lockMessage = new LockMessage();
+                lockMessage.setMqttMessage(MqttCommandFactory.approachOpen(deviceLocal.getEsn(), deviceLocal.getSetElectricFenceTime(),
+                        BleCommandFactory.getPwd(
+                                ConvertUtils.hexString2Bytes(deviceLocal.getPwd1()),
+                                ConvertUtils.hexString2Bytes(deviceLocal.getPwd2())), 1, 2));
+                lockMessage.setMqtt_topic(MQttConstant.getCallTopic(App.getInstance().getUserBean().getUid()));
+                lockMessage.setMessageType(2);
+                lockMessage.setMqtt_message_code(MQttConstant.APP_ROACH_OPEN);
+                EventBus.getDefault().post(lockMessage);
+
+                //开始定位
+                App.getInstance().getLockGeoFenceService().startGeo();
+            } else {
+                Timber.e("当前开启蓝牙广播的次数超过3次，当初始化地理围栏中设备数据");
+                if (null != App.getInstance().getLockGeoFenceService()) {
+                    App.getInstance().getLockGeoFenceService().clearBleDeviceMac(deviceLocal.getMac().toUpperCase());
+                }
+            }
+        }
 
     }
 }

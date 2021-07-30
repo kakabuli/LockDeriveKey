@@ -616,7 +616,7 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
             mScanResult = device;
             mMac = device.getMacAddress();
             LockConnected bleConnected = new LockConnected();
-            bleConnected.setConnectType(1);
+            bleConnected.setConnectType(LocalState.CONNECT_STATE_BIND_DEVICE);
             bleConnected.setAppPair(true);
             bleConnected.setPwd1(mPwd1);
             bleConnected.setPwd2(null);
@@ -642,7 +642,7 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
             bleConnected.setAppPair(true);
             bleConnected.setPwd1(mPwd1);
             bleConnected.setPwd2(null);
-            bleConnected.setConnectType(1);
+            bleConnected.setConnectType(LocalState.CONNECT_STATE_BIND_DEVICE);
             bleConnected.setmEsn(mEsn);
             bleConnected.setBleScanResult(device);
             EventBus.getDefault().post(bleConnected);

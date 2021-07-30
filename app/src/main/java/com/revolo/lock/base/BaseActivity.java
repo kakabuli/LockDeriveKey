@@ -27,6 +27,7 @@ import com.blankj.utilcode.util.ClickUtils;
 import com.blankj.utilcode.util.NetworkUtils;
 import com.blankj.utilcode.util.ToastUtils;
 import com.revolo.lock.Constant;
+import com.revolo.lock.LocalState;
 import com.revolo.lock.LockAppManager;
 import com.revolo.lock.R;
 import com.revolo.lock.bean.NetWorkStateBean;
@@ -120,7 +121,7 @@ public abstract class BaseActivity extends AppCompatActivity
         }
 
         LockConnected bleConnected = new LockConnected();
-        bleConnected.setConnectType(0);
+        bleConnected.setConnectType(LocalState.CONNECT_STATE_MQTT);
         EventBus.getDefault().post(bleConnected);
 
         initView(savedInstanceState, mContentView);

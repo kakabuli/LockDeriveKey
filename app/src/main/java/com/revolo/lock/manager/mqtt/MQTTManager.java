@@ -118,8 +118,8 @@ public class MQTTManager {
             return;
         }
         if (mqttClient == null) {
+            mqttClient = new MqttAndroidClient(App.getInstance(), MQttConstant.MQTT_BASE_URL, "app:" + userId);
         }
-        mqttClient = new MqttAndroidClient(App.getInstance(), MQttConstant.MQTT_BASE_URL, "app:" + userId);
         //已经连接
         try {
             if (mqttClient.isConnected()) {
@@ -274,7 +274,7 @@ public class MQTTManager {
             });
         } else {
             Timber.e("发布mqtt消息=null,mqtt 连接");
-            mqttConnection();
+           // mqttConnection();
         }
     }
 

@@ -19,6 +19,7 @@ public class LockGeoFenceEn {
     private double latitude;                                          // 地理围栏纬度
     private double longitude;
     private int distance=0;//距离
+    private int sendOpenBleIndex=0;//发送开启蓝牙广播的次数 ，最多不过3次
     public BleDeviceLocal getBleDeviceLocal() {
         return bleDeviceLocal;
     }
@@ -81,5 +82,13 @@ public class LockGeoFenceEn {
 
     public void setDistance(int distance) {
         this.distance = distance;
+    }
+
+    public int getSendOpenBleIndex() {
+        return sendOpenBleIndex;
+    }
+
+    public void setSendOpenBleIndex(int sendOpenBleIndex) {
+        this.sendOpenBleIndex = sendOpenBleIndex;
     }
 }

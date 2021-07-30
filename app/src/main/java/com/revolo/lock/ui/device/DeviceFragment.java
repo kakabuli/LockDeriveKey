@@ -6,6 +6,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -32,6 +34,7 @@ import com.revolo.lock.ble.BleProtocolState;
 import com.revolo.lock.ble.bean.BleBean;
 import com.revolo.lock.ble.bean.BleResultBean;
 import com.revolo.lock.dialog.iosloading.CustomerLoadingDialog;
+import com.revolo.lock.manager.LockConnected;
 import com.revolo.lock.manager.LockMessage;
 import com.revolo.lock.manager.LockMessageCode;
 import com.revolo.lock.manager.LockMessageRes;
@@ -69,6 +72,7 @@ import static com.revolo.lock.ble.BleCommandState.LOCK_SETTING_OPEN;
 import static com.revolo.lock.manager.LockMessageCode.MSG_LOCK_MESSAGE_MQTT;
 
 public class DeviceFragment extends Fragment {
+    private static final int MSG_GET_ALL_DEVICE_OUT_TIME = 201;//获取绑定设备列表超时
     private View root;
     private HomeLockListAdapter mHomeLockListAdapter;
     private ConstraintLayout mClNoDevice, mClHadDevice;
@@ -197,6 +201,7 @@ public class DeviceFragment extends Fragment {
     @Override
     public void onDestroy() {
         super.onDestroy();
+        deviceHandler.removeMessages(MSG_GET_ALL_DEVICE_OUT_TIME);
         boolean registered = EventBus.getDefault().isRegistered(this);
         if (registered) {
             EventBus.getDefault().unregister(this);
@@ -329,6 +334,22 @@ public class DeviceFragment extends Fragment {
         }
     }
 
+    private Handler deviceHandler = new Handler() {
+        @Override
+        public void handleMessage(@NonNull Message msg) {
+            if (msg.what == MSG_GET_ALL_DEVICE_OUT_TIME) {
+                mRefreshLayout.finishRefresh(false);
+                //  mRefreshLayout.finishLoadMore(false);
+                LockConnected bleConnected = new LockConnected();
+                bleConnected.setConnectType(LocalState.CONNECT_STATE_CHECK_BLE);
+                if (null != mHomeLockListAdapter) {
+                    bleConnected.setBleDeviceLocalList(mHomeLockListAdapter.getData());
+                }
+                EventBus.getDefault().post(bleConnected);
+            }
+        }
+    };
+
     private void updateLockState() {
         mHomeLockListAdapter.notifyDataSetChanged();
     }
@@ -420,6 +441,8 @@ public class DeviceFragment extends Fragment {
             return;
         }
         Timber.e("执行获取设备信息");
+        deviceHandler.removeMessages(MSG_GET_ALL_DEVICE_OUT_TIME);
+        deviceHandler.sendEmptyMessageDelayed(MSG_GET_ALL_DEVICE_OUT_TIME, 8000);
         LockMessage lockMessage = new LockMessage();
         lockMessage.setMessageType(2);
         lockMessage.setMqtt_topic(MQttConstant.PUBLISH_TO_SERVER);
@@ -432,6 +455,7 @@ public class DeviceFragment extends Fragment {
     }
 
     private void updateData(List<BleDeviceLocal> locals) {
+        deviceHandler.removeMessages(MSG_GET_ALL_DEVICE_OUT_TIME);
         if (locals != null) {
             for (BleDeviceLocal local : locals) {
                 Timber.e("data state:%s", local.toString());

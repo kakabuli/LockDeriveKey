@@ -217,7 +217,7 @@ public class DoorSensorAlignmentActivity extends BaseActivity {
                 mBleDeviceLocal.getEsn(), 3/*用于临时开启蓝牙，用于使用蓝牙来重新配网*/,
                 BleCommandFactory.getPwd(
                         ConvertUtils.hexString2Bytes(mBleDeviceLocal.getPwd1()),
-                        ConvertUtils.hexString2Bytes(mBleDeviceLocal.getPwd2())), 0,1));
+                        ConvertUtils.hexString2Bytes(mBleDeviceLocal.getPwd2())), 0, 1));
         lockMessage.setMessageType(2);
         lockMessage.setMqtt_message_code(MQttConstant.APP_ROACH_OPEN);
         lockMessage.setMqtt_topic(MQttConstant.getCallTopic(App.getInstance().getUserBean().getUid()));
@@ -244,7 +244,7 @@ public class DoorSensorAlignmentActivity extends BaseActivity {
     private void connectBle() {
         //去连接蓝牙
         LockConnected bleConnected = new LockConnected();
-        bleConnected.setConnectType(3);
+        bleConnected.setConnectType(LocalState.CONNECT_STATE_MQTT_CONFIG_DOOR);
         bleConnected.setBleDeviceLocal(mBleDeviceLocal);
         EventBus.getDefault().post(bleConnected);
     }
