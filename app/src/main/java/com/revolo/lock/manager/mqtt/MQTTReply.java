@@ -312,6 +312,18 @@ public class MQTTReply {
         //启用门磁
         bleDeviceLocal.setOpenDoorSensor(wifiListBean.getDoorSensor() == 1);
         bleDeviceLocal.setSetAutoLockTime(wifiListBean.getAutoLockTime());
+
+        Timber.d("服务器 wifiESN: %1s, 电量：%2d", wifiListBean.getWifiSN(), wifiListBean.getPower());
+        //if (!TextUtils.isEmpty(wifiListBean.getLockNickname()))
+        if (bleDeviceLocal.getConnectedType() != LocalState.DEVICE_CONNECT_TYPE_BLE) {
+            Timber.e("当前非蓝牙模式状态下。更新服务端电量");
+            bleDeviceLocal.setLockPower(wifiListBean.getPower());
+        } else {
+            Timber.e("当前是蓝牙模式状态下。不更新服务端电量，以锁端为准");
+        }
+        // 0 锁端wifi没有与服务器连接   1 锁端wifi与服务器连接成功
+        Timber.d("wifi 连接状态: %1s", wifiListBean.getWifiStatus());
+
         // TODO: 2021/3/18 修改为从服务器获取数据
         if (!TextUtils.isEmpty(wifiListBean.getWifiStatus()))
             bleDeviceLocal.setConnectedType(Integer.parseInt(wifiListBean.getWifiStatus()));
@@ -389,11 +401,7 @@ public class MQTTReply {
         if (!TextUtils.isEmpty(wifiVer)) {
             bleDeviceLocal.setWifiVer(wifiVer);
         }
-        Timber.d("wifiESN: %1s, 电量：%2d", wifiListBean.getWifiSN(), wifiListBean.getPower());
-        if (!TextUtils.isEmpty(wifiListBean.getLockNickname()))
-            bleDeviceLocal.setLockPower(wifiListBean.getPower());
-        // 0 锁端wifi没有与服务器连接   1 锁端wifi与服务器连接成功
-        Timber.d("wifi 连接状态: %1s", wifiListBean.getWifiStatus());
+
         //地理围栏
         //地理围栏是否开启
         Timber.e("电子围栏状态：" + (wifiListBean.getElecFence() == 1 ? "true" : "false"));
