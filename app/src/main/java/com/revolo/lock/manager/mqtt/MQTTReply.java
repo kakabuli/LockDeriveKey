@@ -86,6 +86,15 @@ public class MQTTReply {
                 //删除本地数据
                 Timber.e("删除本地设备数据");
                 if (null != locals && locals.size() > 0) {
+                    //清理电子围栏信息
+                    Timber.e("删除本地设备数据地理围栏信息");
+                    if (null != App.getInstance().getLockGeoFenceService()) {
+                        App.getInstance().getLockGeoFenceService().clearBleDevice();
+                    }
+                    App.getInstance().removeRecords(null);
+                    //清理设备信息
+                    Timber.e("删除本地设备数据蓝牙连接信息");
+                    App.getInstance().removeDeviceList();
                     AppDatabase
                             .getInstance(App.getInstance().getApplicationContext())
                             .bleDeviceDao().delete(locals);
@@ -134,6 +143,16 @@ public class MQTTReply {
                         }
                         if (!isExistence) {
                             Timber.e("服务端不存在此设备数据，删除:%s", deviceLocal.toString());
+                            //删除地理围栏
+                            Timber.e("服务端不存在此设备数据，删除地理围栏:%s", deviceLocal.toString());
+                            if (null != App.getInstance().getLockGeoFenceService()) {
+                                App.getInstance().getLockGeoFenceService().clearBleDevice(deviceLocal.getEsn());
+                            }
+                            App.getInstance().removeRecords(deviceLocal.getEsn());
+                            //删除蓝牙连接
+                            Timber.e("服务端不存在此设备数据，删除蓝牙连接:%s", deviceLocal.toString());
+                            App.getInstance().removeConnectedBleDisconnect(deviceLocal.getMac());
+
                             AppDatabase.getInstance(App.getInstance().getApplicationContext()).bleDeviceDao().delete(deviceLocal);
                             if (null != mqttDataLinstener) {
                                 mqttDataLinstener.onAddDevice(true, deviceLocal);
@@ -412,6 +431,7 @@ public class MQTTReply {
         if (!TextUtils.isEmpty(firmwareVer)) {
             bleDeviceLocal.setLockVer(firmwareVer);
         }
+        Timber.e("daggdddddddddddddddddddddddddddddddddddddddddd:" + wifiListBean.getShareUserType());
         bleDeviceLocal.setShareUserType(wifiListBean.getShareUserType());
         bleDeviceLocal.setIsAdmin(wifiListBean.getIsAdmin());
 

@@ -96,13 +96,14 @@ public class LockGeoFenceService extends Service implements OnMapReadyCallback, 
             public void run() {
                 startLocal();
             }
-        },10000);
+        }, 10000);
         //地理围栏服务初始化添加地理围栏设备
         addBleDevice();
         //startGeo();
 
     }
-    private void startLocal(){
+
+    private void startLocal() {
         if (null != fusedLocationClient) {
             if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                 // TODO: Consider calling
@@ -124,6 +125,27 @@ public class LockGeoFenceService extends Service implements OnMapReadyCallback, 
 
     public List<LockGeoFenceEn> getLockGeoFenceEns() {
         return lockGeoFenceEns;
+    }
+
+    /**
+     * 获取当前地理围栏状态
+     * @param mac
+     * @return
+     */
+    public BleDeviceLocal getLocakGeoFenceEn(String mac) {
+        Timber.e("LocakGeoFenceEn");
+        BleDeviceLocal bleDeviceLocal = null;
+        if (null != lockGeoFenceEns) {
+            for (LockGeoFenceEn fenceEn : lockGeoFenceEns) {
+                if (null != fenceEn && null != fenceEn.getBleDeviceLocal()) {
+                    if (fenceEn.getBleDeviceLocal().getMac().equals(mac)) {
+                        bleDeviceLocal = fenceEn.getBleDeviceLocal();
+                        break;
+                    }
+                }
+            }
+        }
+        return bleDeviceLocal;
     }
 
     /**
@@ -484,7 +506,7 @@ public class LockGeoFenceService extends Service implements OnMapReadyCallback, 
             }
             if (lockGeoFenceEns.size() < 1) {
                 stopGeo();
-            }else{
+            } else {
                 startGeo();
             }
         } else {

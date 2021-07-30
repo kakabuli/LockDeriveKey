@@ -1719,25 +1719,27 @@ public class LockAppService extends Service {
      * @param mac
      */
     private void senGeoFence(String mac) {
-        BleDeviceLocal deviceLocal = getDevice(mac, mac);
-        if (null != deviceLocal) {
-            //1、是否开启电子围栏   2、是否从200米外进入
-            if (deviceLocal.isOpenElectricFence()) {
-                BleBean bleBean = getUserBleBean(mac);
-                if (null != bleBean) {
-                    new Handler(Looper.getMainLooper()).postDelayed(() -> {
-                        if (bleBean == null) {
-                            Timber.e("mOnBleDeviceListener bleBean == null");
-                            return;
-                        }
-                        // TODO: 2021/4/7 抽离0x01
-                        Timber.e("下发敲门开锁");
-                        BleManager.getInstance().writeControlMsg(BleCommandFactory
-                                .setKnockDoorAndUnlockTime(0x01, bleBean.getPwd1(), bleBean.getPwd3()), bleBean.getOKBLEDeviceImp());
-                    }, 200);
+        if(null!=App.getInstance().getLockGeoFenceService()){
+           BleDeviceLocal bleDeviceLocal=App.getInstance().getLockGeoFenceService().getLocakGeoFenceEn(mac);
+           if(null!=bleDeviceLocal){
+               //1、是否开启电子围栏   2、是否从200米外进入
+               if (bleDeviceLocal.isOpenElectricFence()&&bleDeviceLocal.getElecFenceState()) {
+                   BleBean bleBean = getUserBleBean(mac);
+                   if (null != bleBean) {
+                       new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                           if (bleBean == null) {
+                               Timber.e("mOnBleDeviceListener bleBean == null");
+                               return;
+                           }
+                           // TODO: 2021/4/7 抽离0x01
+                           Timber.e("下发敲门开锁");
+                           BleManager.getInstance().writeControlMsg(BleCommandFactory
+                                   .setKnockDoorAndUnlockTime(0x01, bleBean.getPwd1(), bleBean.getPwd3()), bleBean.getOKBLEDeviceImp());
+                       }, 200);
 
-                }
-            }
+                   }
+               }
+           }
         }
     }
 
