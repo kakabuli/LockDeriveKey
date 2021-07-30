@@ -452,7 +452,6 @@ public class DeviceFragment extends Fragment {
         lockMessage.setMessageType(MSG_LOCK_MESSAGE_MQTT);
         lockMessage.setBytes(null);
         pushMessage(lockMessage);
-        EventBus.getDefault().post(lockMessage);
     }
 
     private void updateData(List<BleDeviceLocal> locals) {
