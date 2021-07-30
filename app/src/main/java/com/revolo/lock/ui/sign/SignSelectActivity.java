@@ -63,20 +63,24 @@ public class SignSelectActivity extends BaseActivity {
         signSelctMode = getIntent().getStringExtra(Constant.SIGN_SELECT_MODE);
         selectServerDialog = new SelectServerDialog(this);
         boolean aBoolean = SPUtils.getInstance(REVOLO_SP).getBoolean(Constant.FIRST_OPEN_APP, true);
-        if (TextUtils.isEmpty(signSelctMode)) {
-            if (aBoolean) {
-                PrivacyPolicyDialog privacyPolicyDialog = new PrivacyPolicyDialog(this);
-                privacyPolicyDialog.setOnConfirmListener(v -> {
-                    SPUtils.getInstance(REVOLO_SP).put(Constant.FIRST_OPEN_APP, false);
-                    verification();
-                });
-                privacyPolicyDialog.setOnCancelClickListener(v -> {
-                    SPUtils.getInstance(REVOLO_SP).put(Constant.FIRST_OPEN_APP, true);
-                    LockAppManager.getAppManager().AppExit(this);
-                });
-                privacyPolicyDialog.show();
-            } else {
+        if (aBoolean) {
+            PrivacyPolicyDialog privacyPolicyDialog = new PrivacyPolicyDialog(this);
+            privacyPolicyDialog.setOnConfirmListener(v -> {
+                privacyPolicyDialog.dismiss();
                 SPUtils.getInstance(REVOLO_SP).put(Constant.FIRST_OPEN_APP, false);
+                if (TextUtils.isEmpty(signSelctMode)) {
+                    verification();
+                }
+            });
+            privacyPolicyDialog.setOnCancelClickListener(v -> {
+                SPUtils.getInstance(REVOLO_SP).put(Constant.FIRST_OPEN_APP, true);
+                privacyPolicyDialog.dismiss();
+                LockAppManager.getAppManager().AppExit(this);
+            });
+            privacyPolicyDialog.show();
+        } else {
+            SPUtils.getInstance(REVOLO_SP).put(Constant.FIRST_OPEN_APP, false);
+            if (TextUtils.isEmpty(signSelctMode)) {
                 verification();
             }
         }

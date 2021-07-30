@@ -36,7 +36,7 @@ public class HomeLockListAdapter extends BaseQuickAdapter<BleDeviceLocal, BaseVi
         ImageView ivDoorState = baseViewHolder.getView(R.id.ivDoorState);
         TextView tvDoorState = baseViewHolder.getView(R.id.tvDoorState);
         String name = deviceLocal.getName();
-        String share = deviceLocal.getShareUserType() == 1 ? "(Family) " : "(Guest)";
+        String share = deviceLocal.getShareUserType() == 1 ? "(Family) " : deviceLocal.getShareUserType() == 2 ? "(Guest)" : "";
         baseViewHolder.setText(R.id.tvLockName, share + (TextUtils.isEmpty(name) ?
                 (TextUtils.isEmpty(deviceLocal.getEsn()) ? "" : deviceLocal.getEsn())
                 : name));
