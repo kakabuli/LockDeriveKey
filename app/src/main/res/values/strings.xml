@@ -564,4 +564,6 @@
     <string name="hint_please_enter_the_invite_user_mail">Please enter the invite user\'s mail!</string>
     <string name="tip_you_not_share_it_with_yourself">You can\'t share it with yourself</string>
     <string name="tip_content_share_successful">Share successful</string>
+    <string name="dialog_privacy_policy_title">Dear Revolo user,</string>
+    <string name="dialog_privacy_policy">Please read the Revolo Privacy policy carefully before using it. While your app is running in the foreground (or background), Revolo will get your location information when your app connects to Revolo lock via Bluetooth or runs the Auto-Unlock feature, so as to ensure that revolo can provide you with good product services. Do you agree that Revolo has access to your location information?</string>
 </resources>

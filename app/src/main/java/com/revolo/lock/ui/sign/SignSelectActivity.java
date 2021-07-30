@@ -17,9 +17,12 @@ import com.blankj.utilcode.util.GsonUtils;
 import com.blankj.utilcode.util.SPUtils;
 import com.revolo.lock.App;
 import com.revolo.lock.Constant;
+import com.revolo.lock.LockAppManager;
 import com.revolo.lock.R;
 import com.revolo.lock.base.BaseActivity;
 import com.revolo.lock.bean.respone.MailLoginBeanRsp;
+import com.revolo.lock.dialog.PrivacyPolicyDialog;
+import com.revolo.lock.dialog.SelectDialog;
 import com.revolo.lock.dialog.SelectServerDialog;
 import com.revolo.lock.room.entity.User;
 import com.revolo.lock.ui.MainActivity;
@@ -59,8 +62,23 @@ public class SignSelectActivity extends BaseActivity {
         constraintLayout.setVisibility(View.GONE);
         signSelctMode = getIntent().getStringExtra(Constant.SIGN_SELECT_MODE);
         selectServerDialog = new SelectServerDialog(this);
+        boolean aBoolean = SPUtils.getInstance(REVOLO_SP).getBoolean(Constant.FIRST_OPEN_APP, true);
         if (TextUtils.isEmpty(signSelctMode)) {
-            verification();
+            if (aBoolean) {
+                PrivacyPolicyDialog privacyPolicyDialog = new PrivacyPolicyDialog(this);
+                privacyPolicyDialog.setOnConfirmListener(v -> {
+                    SPUtils.getInstance(REVOLO_SP).put(Constant.FIRST_OPEN_APP, false);
+                    verification();
+                });
+                privacyPolicyDialog.setOnCancelClickListener(v -> {
+                    SPUtils.getInstance(REVOLO_SP).put(Constant.FIRST_OPEN_APP, true);
+                    LockAppManager.getAppManager().AppExit(this);
+                });
+                privacyPolicyDialog.show();
+            } else {
+                SPUtils.getInstance(REVOLO_SP).put(Constant.FIRST_OPEN_APP, false);
+                verification();
+            }
         }
     }
 

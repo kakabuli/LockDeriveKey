@@ -488,6 +488,7 @@ public class LockAppService extends Service {
             bleDeviceLocal.setConnectedType(checkDeviceState(bleState, mqttState));//ble
             Timber.d("add device：type:%s;bleState:%s;mqttState:%s", bleDeviceLocal.getConnectedType() + "", bleState, mqttState);
             Timber.d("add device：type:%s", bleDeviceLocal.getConnectedType() + "");
+            Timber.e("device :" + bleDeviceLocal.toString());
             int index = checkDeviceList(bleDeviceLocal.getEsn(), bleDeviceLocal.getMac());
             if (index < 0) {
                 //因设备添加是从服务端获取，从而需要更新当前的ble连接状态
@@ -564,7 +565,7 @@ public class LockAppService extends Service {
         Timber.e("当前是离线状态下，检测当前的设备蓝牙连接状态");
         if (null != bleDeviceLocalList) {
             for (BleDeviceLocal bleDeviceLocal : bleDeviceLocalList) {
-                Timber.e("当前是离线状态下，检测当前的设备蓝牙连接状态:"+bleDeviceLocal.getEsn());
+                Timber.e("当前是离线状态下，检测当前的设备蓝牙连接状态:" + bleDeviceLocal.getEsn());
                 bleDeviceLocal.setConnectedType(LocalState.DEVICE_CONNECT_TYPE_DIS);
                 addDevice(false, bleDeviceLocal);
             }

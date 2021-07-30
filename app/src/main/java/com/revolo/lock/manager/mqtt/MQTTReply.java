@@ -1,15 +1,19 @@
 package com.revolo.lock.manager.mqtt;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.text.TextUtils;
 
 import com.blankj.utilcode.util.GsonUtils;
 import com.revolo.lock.App;
+import com.revolo.lock.Constant;
 import com.revolo.lock.LocalState;
 import com.revolo.lock.LockAppManager;
 import com.revolo.lock.bean.DeviceListRefreshBean;
 import com.revolo.lock.bean.respone.MailLoginBeanRsp;
 import com.revolo.lock.dialog.MessageDialog;
+import com.revolo.lock.manager.LockAppService;
+import com.revolo.lock.manager.LockMessage;
 import com.revolo.lock.manager.LockMessageCode;
 import com.revolo.lock.manager.LockMessageRes;
 import com.revolo.lock.mqtt.MQttConstant;
@@ -41,6 +45,8 @@ import org.greenrobot.eventbus.EventBus;
 import java.util.List;
 
 import timber.log.Timber;
+
+import static com.revolo.lock.manager.LockMessageCode.MSG_LOCK_MESSAGE_MQTT;
 
 public class MQTTReply {
     private static MQTTReply mqttReply;
@@ -246,18 +252,30 @@ public class MQTTReply {
         }
     }
 
+
     private void deviceListRefresh(String json) {
         Timber.d(json);
         DeviceListRefreshBean deviceListRefreshBean = GsonUtils.fromJson(json, DeviceListRefreshBean.class);
         if (deviceListRefreshBean != null) {
             String title = deviceListRefreshBean.getTitle();
-            if (LockAppManager.getAppManager().currentActivity().getLocalClassName().equals("MainActivity")) { // 在首页
-                // TODO 刷新列表
-                LockAppManager.getAppManager().currentActivity().onCreate(null, null);
+            if (LockAppManager.getAppManager().currentActivity().getLocalClassName().contains("MainActivity")) {
+                LockMessage lockMessage = new LockMessage();
+                lockMessage.setMessageType(2);
+                lockMessage.setMqtt_topic(MQttConstant.PUBLISH_TO_SERVER);
+                lockMessage.setMqtt_message_code(MQttConstant.GET_ALL_BIND_DEVICE);
+                lockMessage.setMqttMessage(MqttCommandFactory.getAllBindDevices(App.getInstance().getUserBean().getUid()));
+                lockMessage.setSn("");
+                lockMessage.setMessageType(MSG_LOCK_MESSAGE_MQTT);
+                lockMessage.setBytes(null);
+                EventBus.getDefault().post(lockMessage);
             } else {
                 MessageDialog messageDialog = new MessageDialog(LockAppManager.getAppManager().currentActivity());
                 messageDialog.setMessage(title);
-                messageDialog.setOnListener(v -> App.getInstance().getApplicationContext().startActivity(new Intent(LockAppManager.getAppManager().currentActivity(), MainActivity.class)));
+                messageDialog.setOnListener(v -> {
+                    LockAppManager.getAppManager().currentActivity().startActivity(new Intent(LockAppManager.getAppManager().currentActivity(), MainActivity.class));
+                    messageDialog.dismiss();
+                });
+                messageDialog.show();
             }
         }
     }
