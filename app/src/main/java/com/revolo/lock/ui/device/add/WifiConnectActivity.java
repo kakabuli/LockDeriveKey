@@ -6,7 +6,6 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.text.TextUtils;
-import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
 
@@ -14,7 +13,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.blankj.utilcode.util.ConvertUtils;
-import com.blankj.utilcode.util.ToastUtils;
 import com.revolo.lock.App;
 import com.revolo.lock.Constant;
 import com.revolo.lock.LocalState;
@@ -209,10 +207,10 @@ public class WifiConnectActivity extends BaseActivity {
         req.setLanguage("en"); // 暂时也没使用这个
         req.setVolume(mBleDeviceLocal.isMute() ? 1 : 0);
         req.setAmMode(mBleDeviceLocal.isAutoLock() ? 0 : 1);
-        req.setDuress(mBleDeviceLocal.isDuress() ? 0 : 1);
+        req.setDuress(mBleDeviceLocal.isDuress() ? 1 : 0);
         req.setMagneticStatus(mBleDeviceLocal.getDoorSensor());
         req.setDoorSensor(mBleDeviceLocal.isOpenDoorSensor()?1:0);
-        req.setElecFence(mBleDeviceLocal.isOpenElectricFence() ? 0 : 1);
+        req.setElecFence(mBleDeviceLocal.isOpenElectricFence() ? 1 : 0);
         req.setAutoLockTime(mBleDeviceLocal.getSetAutoLockTime());
         req.setElecFenceTime(mBleDeviceLocal.getSetElectricFenceTime());
         req.setElecFenceSensitivity(mBleDeviceLocal.getSetElectricFenceSensitivity());

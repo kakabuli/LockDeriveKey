@@ -37,7 +37,6 @@ public class WifiLockSetLockAttrVolumePublishBean extends WifiLockBasePublishBea
         this.timestamp = timestamp;
     }
 
-
     public int getMsgId() {
         return msgId;
     }

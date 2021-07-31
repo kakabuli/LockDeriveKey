@@ -34,25 +34,22 @@ public class TermActivity extends BaseActivity {
         isShowNetState = false;
         Intent intent = getIntent();
         String termType = "";
-        if(intent.hasExtra(Constant.TERM_TYPE)) {
+        if (intent.hasExtra(Constant.TERM_TYPE)) {
             termType = intent.getStringExtra(Constant.TERM_TYPE);
         }
-        if(TextUtils.isEmpty(termType)) {
+        if (TextUtils.isEmpty(termType)) {
             finish();
             return;
         }
-        if(termType.equals(Constant.TERM_TYPE_USER)) {
-            mWillLoadUrl = "file:///android_asset/revolo_user_term.html";
-            mTitle = getString(R.string.title_user_term);
-        } else if(termType.equals(Constant.TERM_TYPE_PRIVACY)) {
-            mWillLoadUrl = "file:///android_asset/revolo_privacy_term.html";
+        if (termType.equals(Constant.TERM_TYPE_PRIVACY)) {
+            mWillLoadUrl = "http://wfp.irevolohome.com/#/revolo_privacy_term";
             mTitle = getString(R.string.title_privacy_term);
+        } else if (termType.equals(Constant.TERM_TYPE_USER)) {
+            mTitle = getString(R.string.title_user_term);
+            mWillLoadUrl = "http://wfp.irevolohome.com/#/revolo_user_term";
         }
-        if(TextUtils.isEmpty(mWillLoadUrl)) {
-            finish();
-        }
-        
     }
+
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0) {
@@ -61,6 +58,7 @@ public class TermActivity extends BaseActivity {
         }
         return super.onKeyDown(keyCode, event);
     }
+
     @Override
     public int bindLayout() {
         return R.layout.activity_term;
@@ -84,15 +82,15 @@ public class TermActivity extends BaseActivity {
 
     private void loadUrl() {
         WebSettings settings = mTermWebView.getSettings();
-//        settings.setJavaScriptEnabled(true);
-//        settings.setJavaScriptCanOpenWindowsAutomatically(true);
+        settings.setJavaScriptEnabled(true);
+        settings.setJavaScriptCanOpenWindowsAutomatically(true);
         settings.setSupportMultipleWindows(true);
 
         mTermWebView.setWebViewClient(new WebViewClient());
         mTermWebView.loadUrl(mWillLoadUrl);
     }
 
-//    @SuppressLint("SetJavaScriptEnabled")
+    //    @SuppressLint("SetJavaScriptEnabled")
     @Override
     protected void onResume() {
         super.onResume();

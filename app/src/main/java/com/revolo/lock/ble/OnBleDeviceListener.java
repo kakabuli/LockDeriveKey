@@ -15,5 +15,6 @@ public interface OnBleDeviceListener {
     void onReceivedValue(@NotNull String mac, String uuid, byte[] value);
     void onWriteValue(@NotNull String mac, String uuid, byte[] value, boolean success);
     void onAuthSuc(@NotNull String mac);
+    void onAddConnect(String mac);
 
 }

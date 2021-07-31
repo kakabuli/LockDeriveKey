@@ -5,7 +5,7 @@ import android.text.TextUtils;
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.chad.library.adapter.base.viewholder.BaseViewHolder;
 import com.revolo.lock.R;
-import com.revolo.lock.bean.respone.GetAllSharedUserFromLockBeanRsp;
+import com.revolo.lock.bean.respone.GetDevicesFromUidAndSharedUidBeanRsp;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -15,7 +15,7 @@ import org.jetbrains.annotations.NotNull;
  * E-mail : wengmaowei@kaadas.com
  * desc   : 分享的用户的详情页面下的设备列表
  */
-public class AuthUserDetailDevicesAdapter extends BaseQuickAdapter<GetAllSharedUserFromLockBeanRsp.DataBean, BaseViewHolder> {
+public class AuthUserDetailDevicesAdapter extends BaseQuickAdapter<GetDevicesFromUidAndSharedUidBeanRsp.DataBean, BaseViewHolder> {
 
     private OnReInviteListener onReInviteListener;
 
@@ -30,22 +30,21 @@ public class AuthUserDetailDevicesAdapter extends BaseQuickAdapter<GetAllSharedU
     }
 
     @Override
-    protected void convert(@NotNull BaseViewHolder baseViewHolder, GetAllSharedUserFromLockBeanRsp.DataBean bean) {
+    protected void convert(@NotNull BaseViewHolder baseViewHolder, GetDevicesFromUidAndSharedUidBeanRsp.DataBean bean) {
         if (bean != null) {
-            String name = bean.getLockNickname();
             // TODO: 2021/3/14 应该是设备名字，需要修改
-            baseViewHolder.setText(R.id.tvDeviceName, TextUtils.isEmpty(name) ? "" : name);
+            baseViewHolder.setText(R.id.tvDeviceName, TextUtils.isEmpty(bean.getLockNickname()) ? bean.getDeviceSN() : bean.getLockNickname());
             switch (bean.getShareState()) {
-                case 0:
+                case "0":
                     baseViewHolder.setImageResource(R.id.ivMore, R.drawable.ic_icon_more);
                     break;
-                case 1:
+                case "1":
                     baseViewHolder.setImageResource(R.id.ivMore, R.mipmap.ic_icon_prohibit);
                     break;
-                case 2:
+                case "2":
                     baseViewHolder.setImageResource(R.id.ivMore, R.drawable.ic_icon_wait);
                     break;
-                case 3:
+                case "3":
                     baseViewHolder.setImageResource(R.id.ivMore, R.mipmap.ic_icon_share);
                     break;
             }
@@ -64,7 +63,7 @@ public class AuthUserDetailDevicesAdapter extends BaseQuickAdapter<GetAllSharedU
         }
     }
 
-    private void initPer(@NotNull BaseViewHolder holder, GetAllSharedUserFromLockBeanRsp.DataBean bean) {
+    private void initPer(@NotNull BaseViewHolder holder, GetDevicesFromUidAndSharedUidBeanRsp.DataBean bean) {
         if (bean.getShareUserType() == 1) {
             holder.setText(R.id.tvPer, R.string.permission_family);
         } else if (bean.getShareUserType() == 2) {
@@ -75,7 +74,7 @@ public class AuthUserDetailDevicesAdapter extends BaseQuickAdapter<GetAllSharedU
     }
 
     public interface OnReInviteListener {
-        void onReInviteListener(GetAllSharedUserFromLockBeanRsp.DataBean bean);
+        void onReInviteListener(GetDevicesFromUidAndSharedUidBeanRsp.DataBean bean);
     }
 
     public void setOnDeleteListener(OnDeleteListener onDeleteListener) {
@@ -84,6 +83,6 @@ public class AuthUserDetailDevicesAdapter extends BaseQuickAdapter<GetAllSharedU
 
     public interface OnDeleteListener {
 
-        void onDeleteClickListener(GetAllSharedUserFromLockBeanRsp.DataBean dataBean);
+        void onDeleteClickListener(GetDevicesFromUidAndSharedUidBeanRsp.DataBean dataBean);
     }
 }

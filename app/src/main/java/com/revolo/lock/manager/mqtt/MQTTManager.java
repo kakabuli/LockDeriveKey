@@ -5,7 +5,6 @@ import android.util.Log;
 
 import com.blankj.utilcode.util.LogUtils;
 import com.revolo.lock.App;
-import com.revolo.lock.LockAppManager;
 import com.revolo.lock.mqtt.MQttConstant;
 import com.revolo.lock.mqtt.MqttExceptionHandle;
 
@@ -42,6 +41,7 @@ public class MQTTManager {
         this.mqttDataLinstener = mqttDataLinstener;
     }
 
+
     //请勿添加static
     private MqttAndroidClient mqttClient;
     //重连次数10
@@ -73,7 +73,7 @@ public class MQTTManager {
         if (!TextUtils.isEmpty(user_id) && !TextUtils.isEmpty(user_token)) {
             connOpts.setUserName(user_id);
             connOpts.setPassword(user_token.toCharArray());
-            Timber.d("Mqtt设置token" + user_token + "     connopt" + connOpts.getPassword());
+            Timber.d("Mqtt设置token   " + user_token + "     connopt" + connOpts.getPassword());
         }
         return connOpts;
     }
@@ -90,7 +90,10 @@ public class MQTTManager {
                     mqttDataLinstener.MQTTException(MQTTErrCode.MQTT_CONNECTION_CODE);
                 }
                 return;
+            } else {
+                Timber.d("mqttConnection  mqtt断开连接");
             }
+            return;
         }
         if (App.getInstance().getUserBean() == null) {
             if (null != mqttDataLinstener) {
@@ -170,7 +173,7 @@ public class MQTTManager {
                     return;
                 }
 //                //连接丢失--需要进行重连
-                Timber.d("connectionLost 连接丢失需要重连");
+                Timber.d("connectionLost 连接丢失需要重连:"+cause.toString());
                 String userId = App.getInstance().getUserBean().getUid();
                 String userToken = App.getInstance().getUserBean().getToken();
                 Timber.d(userId + "用户id" + "用户tonken" + userToken);
@@ -210,6 +213,7 @@ public class MQTTManager {
 
                 @Override
                 public void onFailure(IMqttToken asyncActionToken, Throwable exception) {
+                    Timber.d("mqtt连接失败");
                     if (null != mqttDataLinstener) {
                         mqttDataLinstener.onFailure(asyncActionToken, exception);
                     }
@@ -253,9 +257,9 @@ public class MQTTManager {
     }
 
     //发布
-    public void mqttPublish(String topic, MqttMessage mqttMessage) throws MqttException {
+    public void mqttPublish(String topic, MqttMessage mqttMessage) throws Exception {
+        LogUtils.e("发布mqtt消息 " + "topic: " + topic + "  mqttMessage: " + mqttMessage.toString() + "qos = " + mqttMessage.getQos());
         if (mqttClient != null && mqttClient.isConnected()) {
-            LogUtils.e("发布mqtt消息 " + "topic: " + topic + "  mqttMessage: " + mqttMessage.toString() + "qos = " + mqttMessage.getQos());
             mqttClient.publish(topic, mqttMessage, null, new IMqttActionListener() {
                 @Override
                 public void onSuccess(IMqttToken asyncActionToken) {
@@ -269,7 +273,8 @@ public class MQTTManager {
                 }
             });
         } else {
-            mqttConnection();
+            Timber.e("发布mqtt消息=null,mqtt 连接");
+           // mqttConnection();
         }
     }
 

@@ -2,26 +2,20 @@ package com.revolo.lock.ui;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
-import android.provider.Settings;
 import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
-import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.revolo.lock.App;
@@ -32,8 +26,6 @@ import com.revolo.lock.bean.request.DeviceTokenBeanReq;
 import com.revolo.lock.bean.respone.DeviceTokenBeanRsp;
 import com.revolo.lock.manager.LockMessageCode;
 import com.revolo.lock.manager.LockMessageRes;
-import com.revolo.lock.mqtt.MQttConstant;
-import com.revolo.lock.mqtt.bean.publishresultbean.WifiLockBaseResponseBean;
 import com.revolo.lock.net.HttpRequest;
 import com.revolo.lock.net.ObservableDecorator;
 import com.revolo.lock.ui.device.DeviceFragment;
@@ -72,27 +64,6 @@ public class MainActivity extends BaseActivity {
 
     @Override
     public void initData(@Nullable Bundle bundle) {
-        Intent intent = getIntent();
-        if (intent.hasExtra(Constant.COMMAND)) {
-            String command = intent.getStringExtra(Constant.COMMAND);
-            isGotoAddDeviceAct = command.equals(Constant.ADD_DEVICE);
-        }
-
-        Bundle extras = intent.getExtras();
-        if (extras != null) {
-            Set<String> strings = extras.keySet();
-            for (String s : strings) {
-                if (s.equals("type")) {
-                    String type = extras.getString(s);
-                    if (!type.equals("3")) {
-                        startActivity(new Intent(this, MessageListActivity.class));
-                    }
-                }
-            }
-        }
-
-        getAlexaIntent(getIntent());
-
         //onRegisterEventBus();
     }
 
@@ -124,6 +95,26 @@ public class MainActivity extends BaseActivity {
             }
             return true;
         });
+        Intent intent = getIntent();
+        if (intent.hasExtra(Constant.COMMAND)) {
+            String command = intent.getStringExtra(Constant.COMMAND);
+            isGotoAddDeviceAct = command.equals(Constant.ADD_DEVICE);
+        }
+
+        Bundle extras = intent.getExtras();
+        if (extras != null) {
+            Set<String> strings = extras.keySet();
+            for (String s : strings) {
+                if (s.equals("type")) {
+                    String type = extras.getString(s);
+                    if (!type.equals("3")) {
+                        startActivity(new Intent(this, MessageListActivity.class));
+                    }
+                }
+            }
+        }
+
+        getAlexaIntent(getIntent());
         onRegisterEventBus();
         //NavigationUI.setupWithNavController(navView, navController);
         mSupportFragmentManager = getSupportFragmentManager();
@@ -274,7 +265,7 @@ public class MainActivity extends BaseActivity {
                 mTransaction.hide(fragment);
             }
         }
-        mTransaction.commit();
+        mTransaction.commitAllowingStateLoss();
     }
 
     @Override
@@ -299,5 +290,11 @@ public class MainActivity extends BaseActivity {
                 Timber.d("code: %1s, scope: %2s, state: %3s", code, scope, state);
             }
         }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
     }
 }

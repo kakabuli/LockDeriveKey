@@ -36,9 +36,10 @@ public class HomeLockListAdapter extends BaseQuickAdapter<BleDeviceLocal, BaseVi
         ImageView ivDoorState = baseViewHolder.getView(R.id.ivDoorState);
         TextView tvDoorState = baseViewHolder.getView(R.id.tvDoorState);
         String name = deviceLocal.getName();
-        baseViewHolder.setText(R.id.tvLockName, TextUtils.isEmpty(name) ?
+        String share = deviceLocal.getShareUserType() == 1 ? "(Family) " : deviceLocal.getShareUserType() == 2 ? "(Guest)" : "";
+        baseViewHolder.setText(R.id.tvLockName, share + (TextUtils.isEmpty(name) ?
                 (TextUtils.isEmpty(deviceLocal.getEsn()) ? "" : deviceLocal.getEsn())
-                : name);
+                : name));
         if (deviceLocal.getLockState() == LocalState.LOCK_STATE_PRIVATE) {
             baseViewHolder.setImageResource(R.id.ivLockState, R.mipmap.ic_home_img_lock_privacymodel);
             doorShow(ivDoorState, tvDoorState);

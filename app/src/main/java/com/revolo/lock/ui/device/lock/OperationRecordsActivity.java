@@ -5,21 +5,14 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.KeyEvent;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ExpandableListView;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
-import android.widget.TextView;
 
 import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.bigkoo.pickerview.builder.TimePickerBuilder;
-import com.bigkoo.pickerview.view.TimePickerView;
 import com.blankj.utilcode.util.TimeUtils;
 import com.blankj.utilcode.util.ToastUtils;
 import com.contrarywind.view.WheelView;
@@ -30,9 +23,7 @@ import com.revolo.lock.adapter.OpRecordsAdapter;
 import com.revolo.lock.base.BaseActivity;
 import com.revolo.lock.bean.OperationRecords;
 import com.revolo.lock.bean.request.LockRecordBeanReq;
-import com.revolo.lock.bean.request.UpdateLockRecordBeanReq;
 import com.revolo.lock.bean.respone.LockRecordBeanRsp;
-import com.revolo.lock.bean.respone.UpdateLockRecordBeanRsp;
 import com.revolo.lock.ble.BleByteUtil;
 import com.revolo.lock.ble.BleCommandFactory;
 import com.revolo.lock.ble.bean.BleBean;
@@ -45,7 +36,6 @@ import com.revolo.lock.net.ObservableDecorator;
 import com.revolo.lock.room.AppDatabase;
 import com.revolo.lock.room.entity.BleDeviceLocal;
 import com.revolo.lock.room.entity.LockRecord;
-import com.revolo.lock.ui.view.SmartClassicsFooterView;
 import com.revolo.lock.ui.view.SmartClassicsHeaderView;
 import com.revolo.lock.util.ZoneUtil;
 import com.revolo.lock.widget.MyTimePickBuilder;
@@ -56,7 +46,6 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
-import java.sql.Time;
 import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -97,6 +86,7 @@ public class OperationRecordsActivity extends BaseActivity {
 
     private long startTime = 0;
     private long endTime = 0;
+    private boolean isCheckTime = false;
 
     @Override
     public void initData(@Nullable Bundle bundle) {
@@ -114,6 +104,7 @@ public class OperationRecordsActivity extends BaseActivity {
 
     @Override
     public void initView(@Nullable Bundle savedInstanceState, @Nullable View contentView) {
+        isCheckTime = false;
         useCommonTitleBar(getString(R.string.tip_activities))
                 .setRight(R.drawable.ic_icon_date, v -> {
                     showDatePicker();
@@ -425,6 +416,10 @@ public class OperationRecordsActivity extends BaseActivity {
             Timber.e("searchRecordFromNet esn is empty");
             return;
         }
+        if (!isCheckTime) {
+            // 不是筛选日期 开始时间从零开始
+            startTime = 0;
+        }
 
         LockRecordBeanReq req = new LockRecordBeanReq();
         req.setPage(page);
@@ -493,6 +488,11 @@ public class OperationRecordsActivity extends BaseActivity {
         // TODO: 2021/3/18 时间错误就不能存储
         if (beans.isEmpty()) {
             Timber.e("processRecordFromNet beans is empty");
+            ToastUtils.showShort(getString(R.string.data_no_records));
+            return;
+        }
+        if (beans.size() == 0) {
+            ToastUtils.showShort(getString(R.string.data_no_records));
             return;
         }
         // 不做校验，直接做存储并数据库做了插入去重
@@ -808,6 +808,7 @@ public class OperationRecordsActivity extends BaseActivity {
             long startTime = ZoneUtil.getTime(mBleDeviceLocal.getTimeZone(), time + " 00:00:00") / 1000;
             long endTime = ZoneUtil.getTime(mBleDeviceLocal.getTimeZone(), time + " 23:59:59") / 1000;
             mPage = 1;
+            isCheckTime = true;
             searchRecord(startTime, endTime);
         });
 

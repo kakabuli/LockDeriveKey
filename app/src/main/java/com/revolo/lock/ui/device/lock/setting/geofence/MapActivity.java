@@ -2,12 +2,9 @@ package com.revolo.lock.ui.device.lock.setting.geofence;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
-import android.app.PendingIntent;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
-import android.location.Location;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -22,19 +19,10 @@ import android.widget.RelativeLayout;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import com.blankj.utilcode.util.ToastUtils;
-import com.google.android.gms.location.FusedLocationProviderClient;
-import com.google.android.gms.location.Geofence;
-import com.google.android.gms.location.GeofencingClient;
-import com.google.android.gms.location.GeofencingRequest;
-import com.google.android.gms.location.LocationCallback;
-import com.google.android.gms.location.LocationRequest;
-import com.google.android.gms.location.LocationResult;
-import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -46,16 +34,13 @@ import com.revolo.lock.App;
 import com.revolo.lock.R;
 import com.revolo.lock.base.BaseActivity;
 import com.revolo.lock.bean.request.UpdateLocalBeanReq;
-import com.revolo.lock.bean.request.UpdateLockInfoReq;
 import com.revolo.lock.bean.respone.UpdateLocalBeanRsp;
-import com.revolo.lock.bean.respone.UpdateLockInfoRsp;
 import com.revolo.lock.dialog.SelectDialog;
 import com.revolo.lock.manager.geo.LockGeoFenceService;
 import com.revolo.lock.net.HttpRequest;
 import com.revolo.lock.net.ObservableDecorator;
 import com.revolo.lock.room.AppDatabase;
 import com.revolo.lock.room.entity.BleDeviceLocal;
-import com.revolo.lock.ui.device.lock.setting.GeoFenceUnlockActivity;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -75,7 +60,7 @@ public class MapActivity extends BaseActivity implements OnMapReadyCallback, Goo
     private static final int FINE_LOCATION_ACCESS_REQUEST_CODE = 1001;
     private int BACKGROUND_LOCATION_ACCESS_REQUEST_CODE = 10002;
     private GoogleMap mMap;
-    public float GEO_FENCE_RADIUS = 50;
+    public float GEO_FENCE_RADIUS = 200;
     private BleDeviceLocal mBleDeviceLocal;
     private SelectDialog canApplyDialog, refuseDialog;
     private RelativeLayout addLocation;
@@ -309,7 +294,7 @@ public class MapActivity extends BaseActivity implements OnMapReadyCallback, Goo
             public void run() {
                 UpdateLocalBeanReq lockLocal = new UpdateLocalBeanReq();
                 lockLocal.setSn(mBleDeviceLocal.getEsn());
-                lockLocal.setElecFence(mBleDeviceLocal.isOpenElectricFence() ? 0 : 1);
+                lockLocal.setElecFence(mBleDeviceLocal.isOpenElectricFence() ? 1 : 0);
                 lockLocal.setElecFenceSensitivity(mBleDeviceLocal.getSetElectricFenceSensitivity());
                 lockLocal.setElecFenceTime(mBleDeviceLocal.getSetElectricFenceTime());
                 lockLocal.setLatitude(mBleDeviceLocal.getLatitude() + "");

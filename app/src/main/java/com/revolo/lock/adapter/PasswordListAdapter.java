@@ -16,10 +16,6 @@ import com.revolo.lock.util.ZoneUtil;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Date;
-
-import timber.log.Timber;
-
 import static com.revolo.lock.ble.BleCommandState.KEY_SET_ATTRIBUTE_ALWAYS;
 import static com.revolo.lock.ble.BleCommandState.KEY_SET_ATTRIBUTE_TIME_KEY;
 import static com.revolo.lock.ble.BleCommandState.KEY_SET_ATTRIBUTE_WEEK_KEY;

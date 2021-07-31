@@ -23,9 +23,6 @@ import com.revolo.lock.bean.respone.GainKeyBeanRsp;
 import com.revolo.lock.net.HttpRequest;
 import com.revolo.lock.net.ObservableDecorator;
 import com.revolo.lock.room.entity.BleDeviceLocal;
-import com.revolo.lock.ui.device.add.AddWifiActivity;
-import com.revolo.lock.ui.device.add.InputESNActivity;
-import com.revolo.lock.ui.device.add.WifiConnectActivity;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -116,10 +113,11 @@ public class SelectAuthorizedDeviceActivity extends BaseActivity {
 
     private void refreshUI() {
         String name = mBleDeviceLocal.getName();
-        tvUserName.setText((TextUtils.isEmpty(mShareUserFirstName) ? "" : mShareUserFirstName) + " " + (TextUtils.isEmpty(mShareUserLastName) ? "" : mShareUserLastName));
         String esn = mBleDeviceLocal.getEsn();
+        String userName = (TextUtils.isEmpty(mShareUserFirstName) ? "" : mShareUserFirstName) + " " + (TextUtils.isEmpty(mShareUserLastName) ? "" : mShareUserLastName);
+        tvUserName.setText(userName);
         tvSn.setText(TextUtils.isEmpty(esn) ? "" : getString(R.string.equipment_n_esn, esn));
-        tvUserTip.setText("You will invite " + name + " users to use the lock");
+        tvUserTip.setText(String.format("You will invite %1s users to use the lock", (TextUtils.isEmpty(name) ? (TextUtils.isEmpty(esn) ? "" : esn) : name)));
     }
 
     private void share() {

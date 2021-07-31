@@ -22,11 +22,13 @@ import com.revolo.lock.bean.request.DeleteSystemMessageReq;
 import com.revolo.lock.bean.request.SystemMessageListReq;
 import com.revolo.lock.bean.respone.AcceptShareBeanRsp;
 import com.revolo.lock.bean.respone.DelInvalidShareBeanRsp;
+import com.revolo.lock.bean.respone.MailLoginBeanRsp;
 import com.revolo.lock.bean.respone.SystemMessageListBeanRsp;
 import com.revolo.lock.net.HttpRequest;
 import com.revolo.lock.net.ObservableDecorator;
 import com.revolo.lock.ui.view.SmartClassicsHeaderView;
 import com.revolo.lock.widget.SlideRecyclerView;
+import com.revolo.lock.widget.SpacesItemDecoration;
 import com.scwang.smart.refresh.layout.SmartRefreshLayout;
 
 import java.util.ArrayList;
@@ -48,11 +50,17 @@ public class MessageListActivity extends BaseActivity {
     private MessageListAdapter mMessageListAdapter;
     private SmartRefreshLayout mSmartRefreshLayout;
 
+    /**
+     * 0 分享 : 1 系统
+     */
+    private int timeType = 0;
+
     private int page = 1;
     private List<SystemMessageListBeanRsp.DataBean> mDataBeanList = new ArrayList<>();
 
     private ImageView mIvNoMessage;
-    private TextView mTvNoMessage;
+    private TextView mTvNoMessage, mTvLockMessage, mTvShareMessage;
+    private View vLock, vShare;
 
     @Override
     public void initData(@Nullable Bundle bundle) {
@@ -84,7 +92,10 @@ public class MessageListActivity extends BaseActivity {
         SlideRecyclerView rvMessage = findViewById(R.id.rvMessage);
         rvMessage.getItemAnimator().setChangeDuration(300);
         rvMessage.getItemAnimator().setMoveDuration(300);
-        rvMessage.setLayoutManager(new LinearLayoutManager(this));
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
+        rvMessage.setLayoutManager(linearLayoutManager);
+        SpacesItemDecoration dividerItemDecoration = new SpacesItemDecoration(10, getColor(R.color.cF2F2F2));
+        rvMessage.addItemDecoration(dividerItemDecoration);
         mMessageListAdapter = new MessageListAdapter(R.layout.item_message_rv);
         mMessageListAdapter.setOnItemClickListener((adapter, view, position) -> {
             // TODO 不能删除
@@ -94,6 +105,7 @@ public class MessageListActivity extends BaseActivity {
             if (dataBean != null) {
                 deleteSystemMessage(dataBean.get_id());
             }
+            rvMessage.closeMenu();
         });
 
         mMessageListAdapter.setOnAcceptingListener((position, dataBean) -> {
@@ -104,15 +116,47 @@ public class MessageListActivity extends BaseActivity {
 
         mSmartRefreshLayout.setOnLoadMoreListener(refreshLayout -> {
             page++;
-            getSystemMessageList();
+            getSystemMessageList(timeType);
         });
 
         mSmartRefreshLayout.setOnRefreshListener(refreshLayout -> {
             page = 1;
-            getSystemMessageList();
+            getSystemMessageList(timeType);
         });
 
-        getSystemMessageList();
+        vLock = findViewById(R.id.vLock);
+        vShare = findViewById(R.id.vShare);
+
+        vLock.setVisibility(View.INVISIBLE);
+        vShare.setVisibility(View.VISIBLE);
+
+        mTvLockMessage = findViewById(R.id.tvLockMessage);
+        mTvLockMessage.setOnClickListener(v -> {
+            timeType = 1;
+            page = 1;
+            getSystemMessageList(timeType);
+            mTvLockMessage.setTextColor(getColor(R.color.c2C68FF));
+            mTvShareMessage.setTextColor(getColor(R.color.c333333));
+            vLock.setVisibility(View.INVISIBLE);
+            vShare.setVisibility(View.VISIBLE);
+        });
+
+        mTvShareMessage = findViewById(R.id.tvShareMessage);
+        mTvShareMessage.setOnClickListener(v -> {
+            timeType = 0;
+            page = 1;
+            getSystemMessageList(timeType);
+            mTvLockMessage.setTextColor(getColor(R.color.c333333));
+            mTvShareMessage.setTextColor(getColor(R.color.c2C68FF));
+            vLock.setVisibility(View.VISIBLE);
+            vShare.setVisibility(View.INVISIBLE);
+        });
+
+        mTvLockMessage.setTextColor(getColor(R.color.c2C68FF));
+        mTvShareMessage.setTextColor(getColor(R.color.c333333));
+
+        timeType = 1;
+        getSystemMessageList(timeType);
     }
 
     @Override
@@ -125,20 +169,19 @@ public class MessageListActivity extends BaseActivity {
 
     }
 
-    private void getSystemMessageList() {
+    private void getSystemMessageList(int timeType) {
 
-        String token = App.getInstance().getUserBean().getToken();
-        if (TextUtils.isEmpty(token)) {
-            Timber.e("updateLockInfoToService token is empty");
+        if (!checkNetConnectFail()) {
             return;
         }
-        if (App.getInstance().getUserBean() == null) {
-            Timber.e("App.getInstance().getUserBean()");
+        MailLoginBeanRsp.DataBean userBean = App.getInstance().getUserBean();
+        if (userBean == null) {
             return;
         }
-
+        String token = userBean.getToken();
         SystemMessageListReq messageListReq = new SystemMessageListReq();
         messageListReq.setPageNum(page);
+        messageListReq.setTimeType(timeType);
         messageListReq.setUid(App.getInstance().getUserBean().getUid());
         Observable<SystemMessageListBeanRsp> observable = HttpRequest.getInstance().systemMessageList(token, messageListReq);
         ObservableDecorator.decorate(observable).safeSubscribe(new Observer<SystemMessageListBeanRsp>() {
@@ -151,7 +194,7 @@ public class MessageListActivity extends BaseActivity {
             public void onNext(@io.reactivex.annotations.NonNull SystemMessageListBeanRsp systemMessageListBeanRsp) {
                 if (systemMessageListBeanRsp.getCode().equals("200")) {
                     systemMessageList(systemMessageListBeanRsp);
-                } else if (systemMessageListBeanRsp.getCode().equals("400")) {
+                } else if (systemMessageListBeanRsp.getCode().equals("444")) {
                     App.getInstance().logout(true, MessageListActivity.this);
                 }
             }
@@ -195,12 +238,14 @@ public class MessageListActivity extends BaseActivity {
     }
 
     private void deleteSystemMessage(String messageId) {
-        String token = App.getInstance().getUserBean().getToken();
-        if (TextUtils.isEmpty(token)) {
-            Timber.e("updateLockInfoToService token is empty");
+        if (!checkNetConnectFail()) {
             return;
         }
-
+        MailLoginBeanRsp.DataBean userBean = App.getInstance().getUserBean();
+        if (userBean == null) {
+            return;
+        }
+        String token = userBean.getToken();
         DeleteSystemMessageReq deleteSystemMessageReq = new DeleteSystemMessageReq();
         deleteSystemMessageReq.setMid(messageId);
         Observable<DelInvalidShareBeanRsp> stringObservable = HttpRequest.getInstance().deleteSystemMessage(token, deleteSystemMessageReq);
@@ -213,7 +258,8 @@ public class MessageListActivity extends BaseActivity {
             @Override
             public void onNext(@io.reactivex.annotations.NonNull DelInvalidShareBeanRsp beanRsp) {
                 if (beanRsp.getCode().equals("200")) {
-                    getSystemMessageList();
+                    page = 1;
+                    getSystemMessageList(timeType);
                 }
             }
 
@@ -233,7 +279,6 @@ public class MessageListActivity extends BaseActivity {
         if (!checkNetConnectFail()) {
             return;
         }
-        // TODO: 2021/4/23 跳转到登录页面
         if (TextUtils.isEmpty(mShareKey)) {
             Timber.e("mShareKey == null");
             return;
@@ -273,10 +318,13 @@ public class MessageListActivity extends BaseActivity {
                     if (!TextUtils.isEmpty(msg)) {
                         ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(msg);
                     }
+                    page = 1;
+                    getSystemMessageList(timeType);
                     return;
                 }
                 ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_success);
-                getSystemMessageList();
+                page = 1;
+                getSystemMessageList(timeType);
             }
 
             @Override

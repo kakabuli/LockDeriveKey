@@ -27,8 +27,10 @@ import com.blankj.utilcode.util.ClickUtils;
 import com.blankj.utilcode.util.NetworkUtils;
 import com.blankj.utilcode.util.ToastUtils;
 import com.revolo.lock.Constant;
+import com.revolo.lock.LocalState;
 import com.revolo.lock.LockAppManager;
 import com.revolo.lock.R;
+import com.revolo.lock.bean.NetWorkStateBean;
 import com.revolo.lock.dialog.iosloading.CustomerLoadingDialog;
 import com.revolo.lock.manager.LockConnected;
 import com.revolo.lock.shulan.KeepAliveManager;
@@ -38,8 +40,6 @@ import com.revolo.lock.ui.TitleBar;
 
 import org.greenrobot.eventbus.EventBus;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.Timer;
 
 import io.reactivex.disposables.Disposable;
 import timber.log.Timber;
@@ -121,7 +121,7 @@ public abstract class BaseActivity extends AppCompatActivity
         }
 
         LockConnected bleConnected = new LockConnected();
-        bleConnected.setConnectType(0);
+        bleConnected.setConnectType(LocalState.CONNECT_STATE_MQTT);
         EventBus.getDefault().post(bleConnected);
 
         initView(savedInstanceState, mContentView);
@@ -143,6 +143,9 @@ public abstract class BaseActivity extends AppCompatActivity
         if (mTitleBar != null) {
             mTitleBar.setNetError(pingResult);
         }
+        NetWorkStateBean bean = new NetWorkStateBean();
+        bean.setPingResult(pingResult);
+        EventBus.getDefault().post(bean);
         mContentView.postInvalidate(); // 刷新页面
     }
 

@@ -22,6 +22,7 @@ import com.revolo.lock.Constant;
 import com.revolo.lock.R;
 import com.revolo.lock.adapter.AuthUserDetailDevicesAdapter;
 import com.revolo.lock.base.BaseActivity;
+import com.revolo.lock.bean.ShareUserDetailBean;
 import com.revolo.lock.bean.request.DelInvalidShareBeanReq;
 import com.revolo.lock.bean.request.DelSharedUserBeanReq;
 import com.revolo.lock.bean.request.GainKeyBeanReq;
@@ -30,7 +31,6 @@ import com.revolo.lock.bean.respone.DelInvalidShareBeanRsp;
 import com.revolo.lock.bean.respone.DelSharedUserBeanRsp;
 import com.revolo.lock.bean.respone.GainKeyBeanRsp;
 import com.revolo.lock.bean.respone.GetAllSharedUserFromAdminUserBeanRsp;
-import com.revolo.lock.bean.respone.GetAllSharedUserFromLockBeanRsp;
 import com.revolo.lock.bean.respone.GetDevicesFromUidAndSharedUidBeanRsp;
 import com.revolo.lock.dialog.SelectDialog;
 import com.revolo.lock.net.HttpRequest;
@@ -83,19 +83,23 @@ public class AuthUserDetailActivity extends BaseActivity {
                     intent.putExtra(Constant.SHARE_USER_LAST_NAME, mShareUser.getLastName());
                     startActivity(intent);
                 });
-        SlideRecyclerView rvLockList = findViewById(R.id.rvLockList);
+        SlideRecyclerView shareList = findViewById(R.id.shareList);
         ivAvatar = findViewById(R.id.ivAvatar);
         mTvDeviceNum = findViewById(R.id.tvDeviceNum);
         mTvUserName = findViewById(R.id.tvUserName);
         mTvAccount = findViewById(R.id.tvAccount);
         mDevicesAdapter = new AuthUserDetailDevicesAdapter(R.layout.item_user_devices_rv);
         mDevicesAdapter.setOnItemClickListener((adapter, view, position) -> {
-            GetAllSharedUserFromLockBeanRsp.DataBean dataBean = (GetAllSharedUserFromLockBeanRsp.DataBean) adapter.getItem(position);
+            GetDevicesFromUidAndSharedUidBeanRsp.DataBean dataBean = (GetDevicesFromUidAndSharedUidBeanRsp.DataBean) adapter.getItem(position);
             if (dataBean != null) {
+                ShareUserDetailBean shareUserDetailBean = new ShareUserDetailBean();
+                shareUserDetailBean.setAvatar(mShareUser.getAvatarPath());
+                shareUserDetailBean.setName(dataBean.getFirstName() + " " + dataBean.getLastName());
+                shareUserDetailBean.setIsEnable(dataBean.getIsEnable());
+                shareUserDetailBean.setShareId(dataBean.getShareId());
+                shareUserDetailBean.setShareUserType(dataBean.getShareUserType());
                 Intent intent = new Intent(AuthUserDetailActivity.this, SharedUserDetailActivity.class);
-                intent.putExtra(Constant.PRE_A, Constant.AUTH_USER_DETAIL_A);
-                intent.putExtra(Constant.SHARE_USER_DEVICE_DATA, dataBean);
-                intent.putExtra(Constant.SHARE_USER_DATA, mShareUser);
+                intent.putExtra(Constant.SHARE_USER_DATA, shareUserDetailBean);
                 startActivity(intent);
             }
         });
@@ -103,9 +107,14 @@ public class AuthUserDetailActivity extends BaseActivity {
             showRemoveUserDialog();
         });
         mDevicesAdapter.setOnReInviteListener(this::share);
-        mDevicesAdapter.setOnDeleteListener(this::removeUser);
-        rvLockList.setLayoutManager(new LinearLayoutManager(this));
-        rvLockList.setAdapter(mDevicesAdapter);
+        mDevicesAdapter.setOnDeleteListener(dataBean -> {
+            if (dataBean != null) {
+                showRemoveDeviceDialog(dataBean);
+            }
+            shareList.closeMenu();
+        });
+        shareList.setLayoutManager(new LinearLayoutManager(this));
+        shareList.setAdapter(mDevicesAdapter);
         applyDebouncingClickListener(findViewById(R.id.clUserName));
         initLoading(getString(R.string.t_load_content_loading));
 
@@ -154,6 +163,17 @@ public class AuthUserDetailActivity extends BaseActivity {
                 .into(ivAvatar);
     }
 
+    private void showRemoveDeviceDialog(GetDevicesFromUidAndSharedUidBeanRsp.DataBean dataBean) {
+        SelectDialog dialog = new SelectDialog(this);
+        dialog.setMessage(getString(R.string.dialog_tip_are_you_sure_to_remove_this_user));
+        dialog.setOnCancelClickListener(v -> dialog.dismiss());
+        dialog.setOnConfirmListener(v -> {
+            dialog.dismiss();
+            deleteShare(dataBean);
+        });
+        dialog.show();
+    }
+
     private void searchUserDevice() {
         if (!checkNetConnectFail()) {
             return;
@@ -190,9 +210,11 @@ public class AuthUserDetailActivity extends BaseActivity {
                 String code = getDevicesFromUidAndSharedUidBeanRsp.getCode();
                 String msg = getDevicesFromUidAndSharedUidBeanRsp.getMsg();
                 if (code.equals("200")) {
-                    List<GetAllSharedUserFromLockBeanRsp.DataBean> dataBeans = getDevicesFromUidAndSharedUidBeanRsp.getData();
+                    List<GetDevicesFromUidAndSharedUidBeanRsp.DataBean> dataBeans = getDevicesFromUidAndSharedUidBeanRsp.getData();
                     if (dataBeans != null && !dataBeans.isEmpty()) {
                         mDevicesAdapter.setList(dataBeans);
+                    } else {
+                        finish();
                     }
                 } else if (code.equals("444")) {
                     App.getInstance().logout(true, AuthUserDetailActivity.this);
@@ -215,7 +237,10 @@ public class AuthUserDetailActivity extends BaseActivity {
         });
     }
 
-    private void share(GetAllSharedUserFromLockBeanRsp.DataBean dataBean) {
+    private void share(@NonNull GetDevicesFromUidAndSharedUidBeanRsp.DataBean dataBean) {
+        if (!dataBean.getShareState().equals("3")) { // 非等待状态不能分享
+            return;
+        }
         if (!checkNetConnectFail()) {
             return;
         }
@@ -234,11 +259,11 @@ public class AuthUserDetailActivity extends BaseActivity {
             return;
         }
         GainKeyBeanReq req = new GainKeyBeanReq();
-        req.setDeviceSN(dataBean.getLockNickname());
+        req.setDeviceSN(dataBean.getDeviceSN());
         req.setShareUserType(dataBean.getShareUserType());
         req.setAdminUid(uid);
-        req.setFirstName(mShareUser.getFirstName());
-        req.setLastName(mShareUser.getLastName());
+        req.setFirstName(dataBean.getFirstName());
+        req.setLastName(dataBean.getLastName());
         req.setShareAccount(mShareUser.getUserMail());
         showLoading();
         Observable<GainKeyBeanRsp> observable = HttpRequest.getInstance().gainKey(token, req);
@@ -348,7 +373,7 @@ public class AuthUserDetailActivity extends BaseActivity {
         });
     }
 
-    private void removeUser(GetAllSharedUserFromLockBeanRsp.DataBean dataBean) {
+    private void deleteShare(GetDevicesFromUidAndSharedUidBeanRsp.DataBean dataBean) {
         if (!checkNetConnectFail()) {
             return;
         }

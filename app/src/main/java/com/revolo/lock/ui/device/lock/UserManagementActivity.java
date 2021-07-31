@@ -3,6 +3,7 @@ package com.revolo.lock.ui.device.lock;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.LinearLayout;
@@ -13,12 +14,16 @@ import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.blankj.utilcode.util.ToastUtils;
 import com.revolo.lock.App;
 import com.revolo.lock.Constant;
 import com.revolo.lock.R;
 import com.revolo.lock.adapter.SharedUserListAdapter;
 import com.revolo.lock.base.BaseActivity;
+import com.revolo.lock.bean.ShareUserDetailBean;
+import com.revolo.lock.bean.request.GainKeyBeanReq;
 import com.revolo.lock.bean.request.GetAllSharedUserFromLockBeanReq;
+import com.revolo.lock.bean.respone.GainKeyBeanRsp;
 import com.revolo.lock.bean.respone.GetAllSharedUserFromLockBeanRsp;
 import com.revolo.lock.net.HttpRequest;
 import com.revolo.lock.net.ObservableDecorator;
@@ -71,19 +76,26 @@ public class UserManagementActivity extends BaseActivity {
         mLinearLayout = findViewById(R.id.linearLayout);
         mSharedUserListAdapter = new SharedUserListAdapter(R.layout.item_shared_user_rv);
         mSharedUserListAdapter.setOnItemClickListener((adapter, view, position) -> {
-            if (position < 0) {
-                Timber.e("position: %1d", position);
-                return;
+            GetAllSharedUserFromLockBeanRsp.DataBean dataBean = mSharedUserListAdapter.getItem(position);
+            if (dataBean != null) {
+                int shareType = dataBean.getShareUserType();
+                if (shareType == 3 || shareType == 4 || shareType == 5) {
+                    return;
+                }
+
+                ShareUserDetailBean shareUserDetailBean = new ShareUserDetailBean();
+                shareUserDetailBean.setAvatar(dataBean.getAvatarPath());
+                shareUserDetailBean.setName(dataBean.getFirstName() + " " + dataBean.getLastName());
+                shareUserDetailBean.setIsEnable(dataBean.getIsEnable());
+                shareUserDetailBean.setShareId(dataBean.getShareId());
+                shareUserDetailBean.setShareUserType(dataBean.getShareUserType());
+
+                Intent intent = new Intent(UserManagementActivity.this, SharedUserDetailActivity.class);
+                intent.putExtra(Constant.SHARE_USER_DATA, shareUserDetailBean);
+                startActivity(intent);
             }
-            int shareType = mSharedUserListAdapter.getItem(position).getShareUserType();
-            if (shareType == 3 || shareType == 4 || shareType == 5) {
-                return;
-            }
-            Intent intent = new Intent(UserManagementActivity.this, SharedUserDetailActivity.class);
-            intent.putExtra(Constant.PRE_A, Constant.USER_MANAGEMENT_A);
-            intent.putExtra(Constant.SHARE_USER_DEVICE_DATA, mSharedUserListAdapter.getItem(position));
-            startActivity(intent);
         });
+        mSharedUserListAdapter.setOnReInviteListener(this::share);
         mRvSharedUser.setLayoutManager(new LinearLayoutManager(this));
         mRvSharedUser.setAdapter(mSharedUserListAdapter);
         mSharedUserListAdapter.setEmptyView(R.layout.empty_view_share_user_list);
@@ -110,6 +122,70 @@ public class UserManagementActivity extends BaseActivity {
     @Override
     public void onDebouncingClick(@NonNull View view) {
 
+    }
+
+    private void share(@NonNull GetAllSharedUserFromLockBeanRsp.DataBean dataBean) {
+        if (!dataBean.getShareState().equals("3")) { // 非等待状态不能分享
+            return;
+        }
+        if (!checkNetConnectFail()) {
+            return;
+        }
+        if (App.getInstance().getUserBean() == null) {
+            Timber.e("share App.getInstance().getUserBean() == null");
+            return;
+        }
+        String uid = App.getInstance().getUserBean().getUid();
+        if (TextUtils.isEmpty(uid)) {
+            Timber.e("share uid is empty");
+            return;
+        }
+        String token = App.getInstance().getUserBean().getToken();
+        if (TextUtils.isEmpty(token)) {
+            Timber.e("share token is empty");
+            return;
+        }
+        GainKeyBeanReq req = new GainKeyBeanReq();
+        req.setDeviceSN(mBleDeviceLocal.getEsn());
+        req.setShareUserType(dataBean.getShareUserType());
+        req.setAdminUid(uid);
+        req.setFirstName(dataBean.getFirstName());
+        req.setLastName(dataBean.getLastName());
+        req.setShareAccount(dataBean.getNickName());
+        showLoading();
+        Observable<GainKeyBeanRsp> observable = HttpRequest.getInstance().gainKey(token, req);
+        ObservableDecorator.decorate(observable).safeSubscribe(new Observer<GainKeyBeanRsp>() {
+            @Override
+            public void onSubscribe(@NonNull Disposable d) {
+
+            }
+
+            @Override
+            public void onNext(@NonNull GainKeyBeanRsp gainKeyBeanRsp) {
+                dismissLoading();
+                String code = gainKeyBeanRsp.getCode();
+                String msg = gainKeyBeanRsp.getMsg();
+                if (code.equals("200")) {
+                    ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(getString(R.string.tip_content_share_successful));
+                    getAllSharedUserFromLock();
+                } else if (code.equals("444")) {
+                    App.getInstance().logout(true, UserManagementActivity.this);
+                } else {
+                    ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(msg);
+                }
+            }
+
+            @Override
+            public void onError(@NonNull Throwable e) {
+                dismissLoading();
+                Timber.e(e);
+            }
+
+            @Override
+            public void onComplete() {
+
+            }
+        });
     }
 
     private void getAllSharedUserFromLock() {

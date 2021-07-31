@@ -79,4 +79,14 @@ public class LocalState {
     public static final int DOOR_SENSOR_EXCEPTION = 0x02;
     public static final int DOOR_SENSOR_INIT = -1;
 
+
+    @IntDef(value = {CONNECT_STATE_MQTT, CONNECT_STATE_BIND_DEVICE, CONNECT_STATE_MQTT_CONFIG_DOOR, CONNECT_STATE_CHECK_BLE})
+    public @interface ConnectState {
+    }
+
+    public static final int CONNECT_STATE_MQTT = 0;//mqtt 连接
+    public static final int CONNECT_STATE_BIND_DEVICE = 1;// 绑定设备
+    public static final int CONNECT_STATE_MQTT_CONFIG_DOOR = 3;//配置门磁、WiFi
+    public static final int CONNECT_STATE_CHECK_BLE = 4;//离线模式下连接ble
+
 }

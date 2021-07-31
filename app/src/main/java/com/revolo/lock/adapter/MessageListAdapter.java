@@ -1,7 +1,6 @@
 package com.revolo.lock.adapter;
 
 import android.text.TextUtils;
-import android.view.View;
 import android.widget.TextView;
 
 import com.chad.library.adapter.base.BaseQuickAdapter;
@@ -13,7 +12,6 @@ import com.revolo.lock.util.ZoneUtil;
 import org.jetbrains.annotations.NotNull;
 
 import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.Locale;
 import java.util.TimeZone;
 
@@ -37,11 +35,19 @@ public class MessageListAdapter extends BaseQuickAdapter<SystemMessageListBeanRs
     @Override
     protected void convert(@NotNull BaseViewHolder holder, SystemMessageListBeanRsp.DataBean dataBean) {
         if (dataBean != null) {
+            if (!TextUtils.isEmpty(dataBean.getTimeZone())) {
+                String timeZone = "GMT" + dataBean.getTimeZone();
+                simpleDateFormat.setTimeZone(TimeZone.getTimeZone(timeZone));
+            }
             holder.setText(R.id.tvMessageTitle, TextUtils.isEmpty(dataBean.getAlertTitle()) ? "" : dataBean.getAlertTitle());
-            holder.setText(R.id.tvTime, simpleDateFormat.format(dataBean.getPushAt() * 1000));
+            holder.setText(R.id.tvTime, dataBean.getMsgType() == 6 ? simpleDateFormat.format(dataBean.getPushAt() * 1000) : ZoneUtil.getZeroTimeZoneDate(dataBean.getPushAt() * 1000));
             holder.setText(R.id.tv_message_answer, TextUtils.isEmpty(dataBean.getAlertBody()) ? "" : dataBean.getAlertBody());
-            if (dataBean.getMsgType() == 6 && dataBean.getIsAgree() == 0) {
-                holder.setVisible(R.id.tvAccepting, true);
+            if (dataBean.getMsgType() == 6) {
+                if (dataBean.getIsAgree() == 0 && dataBean.getIsShowAgreeShare() == 1) {
+                    holder.setVisible(R.id.tvAccepting, true);
+                } else {
+                    holder.setGone(R.id.tvAccepting, true);
+                }
             } else {
                 holder.setGone(R.id.tvAccepting, true);
             }

@@ -136,7 +136,7 @@ public class UserFragment extends Fragment {
         }
         GetAllSharedUserFromAdminUserBeanReq req = new GetAllSharedUserFromAdminUserBeanReq();
         req.setUid(uid);
-        showLoading();
+//        showLoading();
         Observable<GetAllSharedUserFromAdminUserBeanRsp> observable = HttpRequest.getInstance().getAllSharedUserFromAdminUser(token, req);
         ObservableDecorator.decorate(observable).safeSubscribe(new Observer<GetAllSharedUserFromAdminUserBeanRsp>() {
             @Override

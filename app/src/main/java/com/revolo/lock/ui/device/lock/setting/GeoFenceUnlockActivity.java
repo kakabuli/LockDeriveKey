@@ -20,7 +20,6 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.app.ActivityCompat;
 
 import com.blankj.utilcode.util.ConvertUtils;
-import com.blankj.utilcode.util.GsonUtils;
 import com.blankj.utilcode.util.ToastUtils;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
@@ -36,10 +35,7 @@ import com.revolo.lock.LocalState;
 import com.revolo.lock.R;
 import com.revolo.lock.base.BaseActivity;
 import com.revolo.lock.bean.request.UpdateLocalBeanReq;
-import com.revolo.lock.bean.request.UpdateLockInfoReq;
-import com.revolo.lock.bean.respone.ChangeKeyNickBeanRsp;
 import com.revolo.lock.bean.respone.UpdateLocalBeanRsp;
-import com.revolo.lock.bean.respone.UpdateLockInfoRsp;
 import com.revolo.lock.ble.BleByteUtil;
 import com.revolo.lock.ble.BleCommandFactory;
 import com.revolo.lock.ble.BleCommandState;
@@ -48,7 +44,6 @@ import com.revolo.lock.ble.bean.BleResultBean;
 import com.revolo.lock.manager.LockMessage;
 import com.revolo.lock.manager.LockMessageCode;
 import com.revolo.lock.manager.LockMessageRes;
-import com.revolo.lock.manager.ble.BleManager;
 import com.revolo.lock.mqtt.MQttConstant;
 import com.revolo.lock.mqtt.MqttCommandFactory;
 import com.revolo.lock.mqtt.bean.publishbean.attrparams.ElecFenceSensitivityParams;
@@ -58,7 +53,6 @@ import com.revolo.lock.net.HttpRequest;
 import com.revolo.lock.net.ObservableDecorator;
 import com.revolo.lock.room.AppDatabase;
 import com.revolo.lock.room.entity.BleDeviceLocal;
-import com.revolo.lock.ui.device.lock.AddNewPwdNameActivity;
 import com.revolo.lock.ui.device.lock.setting.geofence.MapActivity;
 
 import org.greenrobot.eventbus.EventBus;
@@ -309,7 +303,7 @@ public class GeoFenceUnlockActivity extends BaseActivity implements OnMapReadyCa
             public void run() {
                 UpdateLocalBeanReq lockLocal = new UpdateLocalBeanReq();
                 lockLocal.setSn(mBleDeviceLocal.getEsn());
-                lockLocal.setElecFence(mBleDeviceLocal.isOpenElectricFence() ? 0 : 1);
+                lockLocal.setElecFence(mBleDeviceLocal.isOpenElectricFence() ? 1 : 0);
                 lockLocal.setElecFenceSensitivity(mBleDeviceLocal.getSetElectricFenceSensitivity());
                 lockLocal.setElecFenceTime(mBleDeviceLocal.getSetElectricFenceTime());
                 lockLocal.setLatitude(mBleDeviceLocal.getLatitude() + "");
@@ -379,7 +373,7 @@ public class GeoFenceUnlockActivity extends BaseActivity implements OnMapReadyCa
         lockMessage.setMqttMessage(MqttCommandFactory.approachOpen(wifiID, broadcastTime,
                 BleCommandFactory.getPwd(
                         ConvertUtils.hexString2Bytes(deviceLocal.getPwd1()),
-                        ConvertUtils.hexString2Bytes(deviceLocal.getPwd2()))));
+                        ConvertUtils.hexString2Bytes(deviceLocal.getPwd2())),1,4));
         lockMessage.setMqtt_topic(MQttConstant.getCallTopic(App.getInstance().getUserBean().getUid()));
         lockMessage.setMessageType(2);
         lockMessage.setMqtt_message_code(MQttConstant.APP_ROACH_OPEN);

@@ -1,14 +1,15 @@
 package com.revolo.lock.adapter;
 
 import android.text.TextUtils;
-import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.chad.library.adapter.base.viewholder.BaseViewHolder;
+import com.revolo.lock.App;
 import com.revolo.lock.R;
 import com.revolo.lock.bean.respone.GetAllSharedUserFromLockBeanRsp;
+import com.revolo.lock.room.entity.BleDeviceLocal;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -25,10 +26,16 @@ public class SharedUserListAdapter extends BaseQuickAdapter<GetAllSharedUserFrom
         super(layoutResId);
     }
 
+    private OnReInviteListener onReInviteListener;
+
+    public void setOnReInviteListener(OnReInviteListener onReInviteListener) {
+        this.onReInviteListener = onReInviteListener;
+    }
+
     @Override
     protected void convert(@NotNull BaseViewHolder baseViewHolder, GetAllSharedUserFromLockBeanRsp.DataBean bean) {
         if (bean != null) {
-            baseViewHolder.setText(R.id.tvUserName, TextUtils.isEmpty(bean.getNickName()) ? "" : bean.getNickName());
+            baseViewHolder.setText(R.id.tvUserName, (TextUtils.isEmpty(bean.getFirstName()) ? "" : bean.getFirstName()) + " " + (TextUtils.isEmpty(bean.getLastName()) ? "" : bean.getLastName()));
             TextView tvPermission = baseViewHolder.getView(R.id.tvPermission);
             TextView tvUnlockOnly = baseViewHolder.getView(R.id.tvUnlockOnly);
             ImageView ivMore = baseViewHolder.getView(R.id.ivMore);
@@ -41,19 +48,27 @@ public class SharedUserListAdapter extends BaseQuickAdapter<GetAllSharedUserFrom
             }
 
             switch (bean.getShareState()) {
-                case 0:
+                case "0":
                     ivMore.setImageResource(R.drawable.ic_icon_more);
                     break;
-                case 1:
+                case "1":
                     ivMore.setImageResource(R.mipmap.ic_icon_prohibit);
                     break;
-                case 2:
+                case "2":
                     ivMore.setImageResource(R.drawable.ic_icon_wait);
                     break;
-                case 3:
+                case "3":
                     ivMore.setImageResource(R.mipmap.ic_icon_share);
                     break;
             }
+
+            baseViewHolder.getView(R.id.ivMore).setOnClickListener(v -> {
+                onReInviteListener.onReInviteListener(bean);
+            });
         }
+    }
+
+    public interface OnReInviteListener {
+        void onReInviteListener(GetAllSharedUserFromLockBeanRsp.DataBean bean);
     }
 }

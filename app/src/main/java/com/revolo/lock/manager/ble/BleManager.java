@@ -107,6 +107,9 @@ public class BleManager {
         deviceImp.addDeviceListener(okbleDeviceListener);
         if (addConnectedBleBean(bleBean)) {
             // 自动重连
+            if (null != onBleDeviceListener) {
+                onBleDeviceListener.onAddConnect(mac.toUpperCase());
+            }
             bleBean.setBleConning(1);
             deviceImp.connect(false);
         }
@@ -250,6 +253,27 @@ public class BleManager {
         return null;
     }
 
+    /**
+     * 鉴权是否初始化pwd2、pwd3；
+     *
+     * @param mac
+     * @return
+     */
+    public BleBean setBleFromMacInitPwd(@NotNull String mac) {
+        for (int i = 0; i < mConnectedBleBeanList.size(); i++) {
+            if (null == mConnectedBleBeanList.get(i).getOKBLEDeviceImp() || null == mConnectedBleBeanList.get(i).getOKBLEDeviceImp().getMacAddress()) {
+                continue;
+            }
+            if (mConnectedBleBeanList.get(i).getOKBLEDeviceImp().getMacAddress().equals(mac)) {
+                mConnectedBleBeanList.get(i).setPwd3(null);
+                mConnectedBleBeanList.get(i).setPwd2(null);
+                mConnectedBleBeanList.get(i).setPwd2_copy(null);
+                return mConnectedBleBeanList.get(i);
+            }
+        }
+        return null;
+    }
+
     public boolean getBleBeanCoonectedState(@NotNull String mac) {
         for (BleBean bleBean : mConnectedBleBeanList) {
             if (null == bleBean.getOKBLEDeviceImp() || null == bleBean.getOKBLEDeviceImp().getMacAddress()) {
@@ -273,7 +297,7 @@ public class BleManager {
             if (null != bleBean) {
                 bleBean.setBleConning(2);
                 openControlNotify(bleBean.getOKBLEDeviceImp());
-                if (bleBean.isAppPair()) {
+                if (bleBean.isAppPair() && null != bleBean.getPwd2() && !"00000000".equals(ConvertUtils.bytes2HexString(bleBean.getPwd2()))) {
                     // 正在蓝牙本地配网，所以不走自动鉴权
                     new Handler(Looper.getMainLooper()).postDelayed(() -> {
                         Timber.d("getPwd2AndSendAuthCommand 延时发送鉴权指令, pwd2: %1s\n", ConvertUtils.bytes2HexString(bleBean.getPwd2()));
@@ -283,6 +307,13 @@ public class BleManager {
 
                     bleConnectedCallback(bleBean, bleBean.getOKBLEDeviceImp().getMacAddress());
                     return;
+                } else {
+                    if ("00000000".equals(ConvertUtils.bytes2HexString(bleBean.getPwd2()))) {
+                        setBleFromMacInitPwd(bleBean.getMac());
+                        bleBean.setPwd2_copy(null);
+                        bleBean.setPwd2(null);
+                        bleBean.setPwd3(null);
+                    }
                 }
                 // 连接后都走自动鉴权流程
                 bleBean.setAuth(true);

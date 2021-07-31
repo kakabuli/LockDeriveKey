@@ -65,6 +65,7 @@ public class Constant {
     public static final String USER_MAIL = "UserMail";
     public static final String USER_TOKEN = "UserToken";
     public static final String USER_LOGIN_INFO = "UserLoginInfo";
+    public static final String FIRST_OPEN_APP = "firstOpenApp";
 
     //DuressPwdReceive  设置胁迫邮箱
     public static final String DURESS_PWD_RECEIVE = "DuressPwdReceive";

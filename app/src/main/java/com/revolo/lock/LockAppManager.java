@@ -134,9 +134,9 @@ public class LockAppManager {
      */
     public void AppExit(Context context) {
         try {
-            finishAllActivity();
-// 杀死该应用进程
-            android.os.Process.killProcess(android.os.Process.myPid());
+//            finishAllActivity();
+            // 杀死该应用进程
+//            android.os.Process.killProcess(android.os.Process.myPid());
             System.exit(0);
         } catch (Exception e) {
         }

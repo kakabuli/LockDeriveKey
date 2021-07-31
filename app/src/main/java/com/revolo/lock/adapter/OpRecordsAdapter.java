@@ -18,8 +18,6 @@ import com.revolo.lock.util.ZoneUtil;
 
 import java.util.List;
 
-import timber.log.Timber;
-
 
 /**
  * author : Jack
@@ -154,6 +152,6 @@ public class OpRecordsAdapter extends BaseExpandableListAdapter {
         // TODO: 2021/3/29 有筛选并进行颜色更换
         ivLogState.setImageResource(imageResId);
         tvMessage.setText(operationRecord.getMessage());
-        tvTime.setText(ZoneUtil.getDate("+00:00", operationRecord.getOperationTime(), "HH:mm:ss"));
+        tvTime.setText(ZoneUtil.getDate("+00:00", operationRecord.getOperationTime(), "yyyy-MM-dd HH:mm:ss"));
     }
 }

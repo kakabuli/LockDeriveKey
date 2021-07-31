@@ -37,6 +37,10 @@ public class SelectDialog extends Dialog {
         refreshView();
     }
 
+    public TextView getCancel() {
+        return mTvCancel;
+    }
+
     public void setMessage(String msg) {
         this.mMsg = msg;
     }
@@ -54,16 +58,16 @@ public class SelectDialog extends Dialog {
     }
 
     private void refreshView() {
-        if(mTvContent != null && mMsg != null) {
+        if (mTvContent != null && mMsg != null) {
             mTvContent.setText(mMsg);
         }
-        if(mOnConfirmClickListener != null && mTvConfirm != null) {
+        if (mOnConfirmClickListener != null && mTvConfirm != null) {
             mTvConfirm.setOnClickListener(mOnConfirmClickListener);
         }
-        if(mOnCancelClickListener != null && mTvCancel != null) {
+        if (mOnCancelClickListener != null && mTvCancel != null) {
             mTvCancel.setOnClickListener(mOnCancelClickListener);
         }
-        if(mConfirmText != null && mTvConfirm != null) {
+        if (mConfirmText != null && mTvConfirm != null) {
             mTvConfirm.setText(mConfirmText);
         }
     }

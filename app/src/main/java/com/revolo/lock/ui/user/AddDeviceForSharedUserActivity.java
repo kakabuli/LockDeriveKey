@@ -18,6 +18,7 @@ import com.revolo.lock.base.BaseActivity;
 import com.revolo.lock.room.AppDatabase;
 import com.revolo.lock.room.entity.BleDeviceLocal;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import timber.log.Timber;
@@ -101,8 +102,12 @@ public class AddDeviceForSharedUserActivity extends BaseActivity {
             Timber.e("initData list is empty");
             return;
         }
-        mAuthUserDeviceAdapter.setList(list);
-
+        List<BleDeviceLocal> bleDeviceLocals = new ArrayList<>();
+        for (int i = 0; i < list.size(); i++) {
+            if (list.get(i).getShareUserType() != 2) { // guest权限不能分享
+                bleDeviceLocals.add(list.get(i));
+            }
+        }
+        mAuthUserDeviceAdapter.setList(bleDeviceLocals);
     }
-
 }
