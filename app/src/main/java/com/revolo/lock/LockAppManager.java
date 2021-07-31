@@ -67,11 +67,8 @@ public class LockAppManager {
      * 结束指定的Activity
      */
     public void finishActivity(Activity activity) {
-        if (activity != null && !activity.isFinishing()) {
-            activityStack.remove(activity);
-            activity.finish();
-            activity = null;
-        }
+        activityStack.remove(activity);
+        activity.finish();
     }
 
     /**
