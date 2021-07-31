@@ -111,7 +111,7 @@ public class CustomerLoadingDialog extends Dialog {
     @Override
     public void show() {
         super.show();
-        mHandler.sendEmptyMessageDelayed(MSG_DIALOG_SHOW_OUT_TIME, 10 * 1000);
+        mHandler.sendEmptyMessageDelayed(MSG_DIALOG_SHOW_OUT_TIME, 5 * 1000);
     }
 
     @Override

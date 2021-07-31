@@ -338,6 +338,7 @@ public class DeviceDetailActivity extends BaseActivity {
             finish();
         }
         tvNetState.setText(getString(R.string.tip_online));
+        dismissLoading();
     }
 
     @Override
