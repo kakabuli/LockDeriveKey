@@ -221,8 +221,8 @@ public class MainActivity extends BaseActivity {
             ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, FINE_LOCATION_ACCESS_REQUEST_CODE);
         });
         privacyPolicyDialog.setOnCancelClickListener(v -> {
-            SPUtils.getInstance(REVOLO_SP).put(Constant.FIRST_OPEN_APP, true);
             privacyPolicyDialog.dismiss();
+            App.getInstance().logout(true, this);
         });
         privacyPolicyDialog.show();
     }
