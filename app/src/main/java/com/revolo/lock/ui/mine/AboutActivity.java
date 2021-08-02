@@ -94,7 +94,7 @@ public class AboutActivity extends BaseActivity {
         }
     }
 
-    //参数名：app包名以及g0ogle play包名。
+    //参数名：app包名以及google play包名。
 
     public void launchAppDetail(String appPkg, String marketPkg) {
         try {

@@ -102,11 +102,6 @@ public class Constant {
     public static boolean pingResult = true;
 
     /**
-     * 是否注册广播
-     */
-    public static boolean isRegisterReceiver = false;
-
-    /**
      * 验证码是否正在倒计时
      */
     public static boolean isVerificationCodeTime = false;

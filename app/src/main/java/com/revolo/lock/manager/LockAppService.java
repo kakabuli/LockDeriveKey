@@ -141,6 +141,7 @@ public class LockAppService extends Service {
             boolean ping = ping();
             Constant.pingResult = ping;
             sendBroadcast(new Intent().setAction(Constant.RECEIVE_ACTION_NETWORKS).putExtra(PING_RESULT, ping));
+            LockAppManager.getAppManager().notifyNetWork(ping);
             mHandler.postDelayed(this, 10 * 1000);
         }
     };
