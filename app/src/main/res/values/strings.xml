@@ -18,8 +18,9 @@
     <string name="create">Create</string>
     <string name="tip_please_register_your_account">Please register your account number</string>
     <string name="hint_verification_code">Verification code</string>
-    <string name="i_agree_to">I agree to </string>
-    <string name="terms_of_use">Terms of Use</string>
+    <string name="i_agree_to">I agree to</string>
+    <string name="terms_of_use">User Agreement</string>
+    <string name="terms_of_privacy">Privacy Policy</string>
 
     <!-- RegisterAddAvatarActivity -->
     <string name="tip_register_add_avatar">Add a avatar so your family and friends\n can get to know you when you send an\n invitation</string>

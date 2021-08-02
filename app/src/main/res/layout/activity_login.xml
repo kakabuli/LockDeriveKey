@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    android:layout_height="match_parent">
 
     <include
         android:id="@+id/titleBar"
@@ -14,59 +13,59 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="45pt"
+        android:gravity="center"
         android:text="@string/tip_login"
         android:textColor="@color/c333333"
         android:textSize="17pt"
         android:textStyle="bold"
-        android:gravity="center"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/titleBar" />
 
     <EditText
         android:id="@+id/etEmail"
+        style="@style/InputEditTextStyle"
         android:layout_width="300pt"
         android:layout_height="44pt"
-        style="@style/InputEditTextStyle"
+        android:layout_marginTop="60pt"
         android:drawableStart="@drawable/ic_register_icon_email"
         android:drawablePadding="41pt"
+        android:hint="@string/hint_email_address"
         android:paddingStart="15pt"
         android:paddingEnd="15pt"
-        android:theme="@style/InputEditTextTheme"
-        android:layout_marginTop="60pt"
-        android:hint="@string/hint_email_address"
+        android:singleLine="true"
         android:textColorHint="@color/cA5A4DA"
+        android:theme="@style/InputEditTextTheme"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView4"
-        android:singleLine="true" />
+        app:layout_constraintTop_toBottomOf="@+id/textView4" />
 
     <EditText
         android:id="@+id/etPwd"
+        style="@style/InputEditTextStyle"
         android:layout_width="300pt"
         android:layout_height="44pt"
-        style="@style/InputEditTextStyle"
+        android:layout_marginTop="10pt"
         android:drawableStart="@drawable/ic_register_icon_password"
         android:drawablePadding="41pt"
+        android:hint="@string/password"
+        android:inputType="textPassword"
+        android:maxLength="15"
         android:paddingStart="15pt"
         android:paddingEnd="15pt"
         android:theme="@style/InputEditTextTheme"
-        android:maxLength="15"
-        android:layout_marginTop="10pt"
-        android:hint="@string/password"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/etEmail"
-        android:inputType="textPassword" />
+        app:layout_constraintTop_toBottomOf="@+id/etEmail" />
 
     <TextView
         android:id="@+id/tvForgotPwd"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="11pt"
         android:text="@string/forgot_password"
         android:textColor="@color/cA5A4DA"
         android:textSize="14pt"
-        android:layout_marginTop="11pt"
         app:layout_constraintEnd_toEndOf="@+id/etPwd"
         app:layout_constraintTop_toBottomOf="@+id/etPwd" />
 
@@ -75,8 +74,8 @@
         style="@style/ButtonStyle"
         android:layout_width="223pt"
         android:layout_height="44pt"
-        android:text="@string/sign_in"
         android:layout_marginBottom="128pt"
+        android:text="@string/sign_in"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="@+id/titleBar"
         app:layout_constraintStart_toStartOf="parent" />
@@ -91,6 +90,4 @@
         app:layout_constraintEnd_toEndOf="@+id/etPwd"
         app:layout_constraintTop_toTopOf="@+id/etPwd"
         app:srcCompat="@drawable/ic_login_icon_hide" />
-
-
 </androidx.constraintlayout.widget.ConstraintLayout>
