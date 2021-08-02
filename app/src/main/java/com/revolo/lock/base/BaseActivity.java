@@ -2,10 +2,6 @@ package com.revolo.lock.base;
 
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.os.Handler;
@@ -44,10 +40,6 @@ import org.jetbrains.annotations.NotNull;
 import io.reactivex.disposables.Disposable;
 import timber.log.Timber;
 
-import static com.revolo.lock.Constant.PING_RESULT;
-import static com.revolo.lock.Constant.RECEIVE_ACTION_NETWORKS;
-import static com.revolo.lock.Constant.isRegisterReceiver;
-
 /**
  * <pre>
  *     author: Blankj
@@ -57,7 +49,7 @@ import static com.revolo.lock.Constant.isRegisterReceiver;
  * </pre>
  */
 public abstract class BaseActivity extends AppCompatActivity
-        implements IBaseView {
+        implements IBaseView, BaseObserver {
 
     public static final int VERIFICATION_CODE_TIME = 0xf01;
 
@@ -90,23 +82,6 @@ public abstract class BaseActivity extends AppCompatActivity
         }
     };
 
-    private final BroadcastReceiver mReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            if (intent != null) {
-                if (intent.getAction().equals(RECEIVE_ACTION_NETWORKS)) {
-                    boolean pingResult = intent.getBooleanExtra(PING_RESULT, true);
-                    noteNetworks(pingResult);
-                } else if (intent.getAction().equals(Intent.ACTION_SCREEN_ON)) {
-                    // 屏幕打开了
-                    Timber.d("**************************   screen on   **************************");
-                    boolean pingResult = intent.getBooleanExtra(PING_RESULT, true);
-                    noteNetworks(pingResult);
-                }
-            }
-        }
-    };
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -126,27 +101,6 @@ public abstract class BaseActivity extends AppCompatActivity
 
         initView(savedInstanceState, mContentView);
 
-//        startKeepAlive();
-
-        if (!isRegisterReceiver) {  // 判断广播是否注册
-            Timber.d("**************************   广播注册成功   **************************");
-            IntentFilter intentFilter = new IntentFilter();
-            intentFilter.addAction(RECEIVE_ACTION_NETWORKS);
-            intentFilter.addAction(Intent.ACTION_SCREEN_ON);
-            registerReceiver(mReceiver, intentFilter);
-            isRegisterReceiver = true;
-        }
-    }
-
-    public void noteNetworks(boolean pingResult) {
-        Timber.d("**************************   pingResult = " + pingResult + "   **************************");
-        if (mTitleBar != null) {
-            mTitleBar.setNetError(pingResult);
-        }
-        NetWorkStateBean bean = new NetWorkStateBean();
-        bean.setPingResult(pingResult);
-        EventBus.getDefault().post(bean);
-        mContentView.postInvalidate(); // 刷新页面
     }
 
     public void onRegisterEventBus() {
@@ -181,11 +135,6 @@ public abstract class BaseActivity extends AppCompatActivity
         boolean registered = EventBus.getDefault().isRegistered(this);
         if (registered) {
             EventBus.getDefault().unregister(this);
-        }
-        if (mReceiver != null && LockAppManager.getAppManager().getActivitySize() == 0) {
-            Timber.d("**************************   注销广播   **************************");
-            unregisterReceiver(mReceiver);
-            isRegisterReceiver = false;
         }
         super.onDestroy();
     }
@@ -302,5 +251,17 @@ public abstract class BaseActivity extends AppCompatActivity
             ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.connect_net_fail);
         }
         return NetworkUtils.isConnected();
+    }
+
+    @Override
+    public void notifyNetWork(boolean isNetWork) {
+        Timber.d("**************************   pingResult = " + isNetWork + "   **************************");
+        if (mTitleBar != null) {
+            mTitleBar.setNetError(isNetWork);
+        }
+        NetWorkStateBean bean = new NetWorkStateBean();
+        bean.setPingResult(isNetWork);
+        EventBus.getDefault().post(bean);
+        mContentView.postInvalidate(); // 刷新页面
     }
 }

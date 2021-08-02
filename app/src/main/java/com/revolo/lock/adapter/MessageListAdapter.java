@@ -42,14 +42,25 @@ public class MessageListAdapter extends BaseQuickAdapter<SystemMessageListBeanRs
             holder.setText(R.id.tvMessageTitle, TextUtils.isEmpty(dataBean.getAlertTitle()) ? "" : dataBean.getAlertTitle());
             holder.setText(R.id.tvTime, dataBean.getMsgType() == 6 ? simpleDateFormat.format(dataBean.getPushAt() * 1000) : ZoneUtil.getZeroTimeZoneDate(dataBean.getPushAt() * 1000));
             holder.setText(R.id.tv_message_answer, TextUtils.isEmpty(dataBean.getAlertBody()) ? "" : dataBean.getAlertBody());
+            holder.setGone(R.id.tvAccepting, true);
+            holder.setGone(R.id.tvState, true);
             if (dataBean.getMsgType() == 6) {
+                holder.setText(R.id.tv_message_answer, ("sharing equipment\n" + (TextUtils.isEmpty(dataBean.getAlertBody()) ? "" : dataBean.getAlertBody())));
                 if (dataBean.getIsAgree() == 0 && dataBean.getIsShowAgreeShare() == 1) {
                     holder.setVisible(R.id.tvAccepting, true);
-                } else {
+                    holder.setGone(R.id.tvState, true);
+                } else if (dataBean.getIsAgree() == 1) {
+                    holder.setText(R.id.tvState, "Accepted");
                     holder.setGone(R.id.tvAccepting, true);
+                    holder.setVisible(R.id.tvState, true);
+                } else if (dataBean.getIsShowAgreeShare() == 0) {
+                    holder.setText(R.id.tvState, "Expired");
+                    holder.setGone(R.id.tvAccepting, true);
+                    holder.setVisible(R.id.tvState, true);
                 }
             } else {
                 holder.setGone(R.id.tvAccepting, true);
+                holder.setGone(R.id.tvState, true);
             }
             TextView textView = holder.getView(R.id.tv_delete);
             textView.setOnClickListener(v -> {

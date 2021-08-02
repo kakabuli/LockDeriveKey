@@ -86,8 +86,8 @@ public class DeviceDetailActivity extends BaseActivity {
     }
 
     @Override
-    public void noteNetworks(boolean pingResult) {
-        super.noteNetworks(pingResult);
+    public void notifyNetWork(boolean pingResult) {
+        super.notifyNetWork(pingResult);
         updateView();
     }
 
@@ -338,6 +338,7 @@ public class DeviceDetailActivity extends BaseActivity {
             finish();
         }
         tvNetState.setText(getString(R.string.tip_online));
+        dismissLoading();
     }
 
     @Override

@@ -13,6 +13,7 @@ import androidx.annotation.Nullable;
 
 import com.blankj.utilcode.util.AppUtils;
 import com.revolo.lock.App;
+import com.revolo.lock.Constant;
 import com.revolo.lock.R;
 import com.revolo.lock.base.BaseActivity;
 import com.revolo.lock.bean.request.GetVersionBeanReq;
@@ -20,6 +21,7 @@ import com.revolo.lock.bean.respone.GetVersionBeanRsp;
 import com.revolo.lock.bean.respone.MailLoginBeanRsp;
 import com.revolo.lock.net.HttpRequest;
 import com.revolo.lock.net.ObservableDecorator;
+import com.revolo.lock.ui.sign.TermActivity;
 
 import io.reactivex.Observable;
 import io.reactivex.Observer;
@@ -57,7 +59,7 @@ public class AboutActivity extends BaseActivity {
         TextView tvContact = findViewById(R.id.tvContact);
         // TODO: 2021/3/8 后期从服务器获取
         tvContact.setText("support@irevolo.com");
-        applyDebouncingClickListener(findViewById(R.id.clPrivacyAgreement), findViewById(R.id.clVersionUpdate));
+        applyDebouncingClickListener(findViewById(R.id.clPrivacyAgreement), findViewById(R.id.clVersionUpdate), findViewById(R.id.clUserAgreement));
         isNewVersion = false;
         getServerAppVersion();
 
@@ -82,12 +84,17 @@ public class AboutActivity extends BaseActivity {
         if (view.getId() == R.id.clVersionUpdate) {
             if (isNewVersion) launchAppDetail("com.revolo.lock", "com.android.vending");
         } else if (view.getId() == R.id.clPrivacyAgreement) {
-            Intent intent = new Intent(this, PrivacyPolicyActivity.class);
+            Intent intent = new Intent(this, TermActivity.class);
+            intent.putExtra(Constant.TERM_TYPE, Constant.TERM_TYPE_PRIVACY);
+            startActivity(intent);
+        } else if (view.getId() == R.id.clUserAgreement) {
+            Intent intent = new Intent(this, TermActivity.class);
+            intent.putExtra(Constant.TERM_TYPE, Constant.TERM_TYPE_USER);
             startActivity(intent);
         }
     }
 
-    //参数名：app包名以及g0ogle play包名。
+    //参数名：app包名以及google play包名。
 
     public void launchAppDetail(String appPkg, String marketPkg) {
         try {

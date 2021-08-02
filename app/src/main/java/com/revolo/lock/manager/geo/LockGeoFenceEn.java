@@ -7,6 +7,8 @@ import com.google.android.gms.location.GeofencingRequest;
 import com.revolo.lock.room.entity.BleDeviceLocal;
 import com.revolo.lock.ui.device.lock.setting.geofence.GeoFenceHelper;
 
+import timber.log.Timber;
+
 /**
  * 定位实体类
  */
@@ -18,8 +20,12 @@ public class LockGeoFenceEn {
     private PendingIntent pendingIntent;
     private double latitude;                                          // 地理围栏纬度
     private double longitude;
-    private int distance=0;//距离
-    private int sendOpenBleIndex=0;//发送开启蓝牙广播的次数 ，最多不过3次
+    private int distance = 0;//距离
+    private int elecFenceCmd;//是否发送MQTT命令
+    private int sendOpenBleIndex = 0;//发送开启蓝牙广播的次数 ，最多不过3次
+    private int connectBleIndex = 0;//连接ble的次数不超过3次
+    private int sendOpenLockIndex = 0;//发送敲门开锁命令的次数
+
     public BleDeviceLocal getBleDeviceLocal() {
         return bleDeviceLocal;
     }
@@ -91,4 +97,29 @@ public class LockGeoFenceEn {
     public void setSendOpenBleIndex(int sendOpenBleIndex) {
         this.sendOpenBleIndex = sendOpenBleIndex;
     }
+
+    public int getConnectBleIndex() {
+        return connectBleIndex;
+    }
+
+    public void setConnectBleIndex(int connectBleIndex) {
+        this.connectBleIndex = connectBleIndex;
+    }
+
+    public int getSendOpenLockIndex() {
+        return sendOpenLockIndex;
+    }
+
+    public void setSendOpenLockIndex(int sendOpenLockIndex) {
+        this.sendOpenLockIndex = sendOpenLockIndex;
+    }
+    public int getElecFenceCmd() {
+        return elecFenceCmd;
+    }
+
+    public void setElecFenceCmd(int elecFenceCmd) {
+        Timber.e("kdjakjgkdjkjakjgkdjkfjksjkdjkjask ElecFenceCmd:"+elecFenceCmd);
+        this.elecFenceCmd = elecFenceCmd;
+    }
+
 }

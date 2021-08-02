@@ -4,9 +4,12 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 
+import com.revolo.lock.base.BaseActivity;
+import com.revolo.lock.base.BaseObservable;
+
 import java.util.Stack;
 
-public class LockAppManager {
+public class LockAppManager implements BaseObservable {
     private static Stack<Activity> activityStack;
     private static LockAppManager instance;
 
@@ -67,11 +70,8 @@ public class LockAppManager {
      * 结束指定的Activity
      */
     public void finishActivity(Activity activity) {
-        if (activity != null && !activity.isFinishing()) {
-            activityStack.remove(activity);
-            activity.finish();
-            activity = null;
-        }
+        activityStack.remove(activity);
+        activity.finish();
     }
 
     /**
@@ -139,6 +139,13 @@ public class LockAppManager {
 //            android.os.Process.killProcess(android.os.Process.myPid());
             System.exit(0);
         } catch (Exception e) {
+        }
+    }
+
+    @Override
+    public void notifyNetWork(boolean isNetWork) {
+        for (Activity activity : activityStack) {
+            ((BaseActivity) activity).notifyNetWork(isNetWork);
         }
     }
 }

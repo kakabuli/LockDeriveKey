@@ -141,6 +141,7 @@ public class LockAppService extends Service {
             boolean ping = ping();
             Constant.pingResult = ping;
             sendBroadcast(new Intent().setAction(Constant.RECEIVE_ACTION_NETWORKS).putExtra(PING_RESULT, ping));
+            LockAppManager.getAppManager().notifyNetWork(ping);
             mHandler.postDelayed(this, 10 * 1000);
         }
     };
@@ -504,7 +505,7 @@ public class LockAppService extends Service {
                     //蓝牙模式状态只更新分享装，其他状态以锁为准
                     for (int i = 0; i < mDeviceLists.size(); i++) {
                         if (bleDeviceLocal.getEsn().equals(mDeviceLists.get(i).getEsn())) {
-                            Timber.e("update device share content:" + bleDeviceLocal.getEsn()+":"+bleDeviceLocal.getShareUserType());
+                            Timber.e("update device share content:" + bleDeviceLocal.getEsn() + ":" + bleDeviceLocal.getShareUserType());
                             mDeviceLists.get(i).setShareUserType(bleDeviceLocal.getShareUserType());
                             break;
                         }
@@ -532,6 +533,11 @@ public class LockAppService extends Service {
      */
     public void checkBleConnect(String mac) {
         Timber.e("电子围栏之蓝牙连接：" + mac);
+        boolean isConnect = getAddDeviceConnectState(mac);
+        if (isConnect) {
+            Timber.e("电子围栏之蓝牙连接：已连接" + mac);
+            return;
+        }
         boolean bleState = onGetConnectedState(mac);//当前蓝牙设的设备的状态
         BleDeviceLocal bleDeviceLocal = null;
         if (null != mDeviceLists) {
@@ -962,6 +968,9 @@ public class LockAppService extends Service {
                     break;
                 case BleProtocolState.CMD_LOCK_INFO:// 0x12;                       // 查询门锁基本信息
                     updateLockInfo(mac, bleResultBean);
+                    // 判断当前的蓝牙设备是否开启电子围栏
+                    Timber.e("同步蓝牙信息后，判断下发地理围栏命令");
+                    senGeoFence(mac.toUpperCase());
                     break;
                 case BleProtocolState.CMD_REQUEST_BIND_ACK:// 0x13;                // APP绑定请求帧
                     break;
@@ -1025,6 +1034,24 @@ public class LockAppService extends Service {
         msg.arg2 = 201;
         mHandler.sendMessageDelayed(msg, 60000);
 
+    }
+
+    /**
+     * 获取当前ble连接状态
+     *
+     * @param mac
+     * @return
+     */
+    public boolean getAddDeviceConnectState(String mac) {
+        if (bleConnectTimes.containsKey(mac)) {
+            //存在 handler
+            if (mHandler.hasMessages(bleConnectTimes.get(mac))) {
+                Timber.e("map 连接列表中存在超时msg：" + mac);
+                return true;
+            }
+        }
+        Timber.e("map 连接列表中未存在存在超时msg：" + mac);
+        return false;
     }
 
     /**
@@ -1092,9 +1119,11 @@ public class LockAppService extends Service {
                         pushServiceGeoState(mDeviceLists.get(index));
                     }
                     if (null != App.getInstance().getLockGeoFenceService()) {
-                        App.getInstance().getLockGeoFenceService().updateLockCmdState(mDeviceLists.get(index).getEsn(), 0);
-                        App.getInstance().getLockGeoFenceService().updateLockLocalState(mDeviceLists.get(index).getEsn(), false);
-                        App.getInstance().getLockGeoFenceService().clearDeviceS(mDeviceLists.get(index).getEsn());
+                        //取消 发送mqtt命令标签
+                        // App.getInstance().getLockGeoFenceService().updateLockCmdState(mDeviceLists.get(index).getEsn(), 0);
+                        //标记 非200米外进入设备
+                        //App.getInstance().getLockGeoFenceService().updateLockLocalState(mDeviceLists.get(index).getEsn(), false);
+                        App.getInstance().getLockGeoFenceService().clearBleDeviceMac(mDeviceLists.get(index).getEsn());
                         // mDeviceLists.get(index).setOpenElectricFence(false);
                         AppDatabase.getInstance(getApplicationContext()).bleDeviceDao().update(mDeviceLists.get(index));
                         Timber.e("app service updateDeviceState curr mac: %s", App.getInstance().getmCurrMac());
@@ -1547,8 +1576,6 @@ public class LockAppService extends Service {
                 // 鉴权成功后，同步当前时间
                 syNowTime(bleBean);
                 //鉴权成功后，将设备添加到服务器端中
-                // 判断当前的蓝牙设备是否开启电子围栏
-                senGeoFence(bleBean.getMac().toUpperCase());
                 //更新//上报给服务器
                 checkDevicePwd(bleBean.getMac(), ConvertUtils.bytes2HexString(bleBean.getPwd2()));
 
@@ -1628,6 +1655,7 @@ public class LockAppService extends Service {
             //更新队列中对象的连接状态
             Timber.e("onDisconnected 更新 %s:", mac);
             updateDevice("", mac);
+            clearBleOut(mac);
         }
 
         @Override
@@ -1719,27 +1747,29 @@ public class LockAppService extends Service {
      * @param mac
      */
     private void senGeoFence(String mac) {
-        if(null!=App.getInstance().getLockGeoFenceService()){
-           BleDeviceLocal bleDeviceLocal=App.getInstance().getLockGeoFenceService().getLocakGeoFenceEn(mac);
-           if(null!=bleDeviceLocal){
-               //1、是否开启电子围栏   2、是否从200米外进入
-               if (bleDeviceLocal.isOpenElectricFence()&&bleDeviceLocal.getElecFenceState()) {
-                   BleBean bleBean = getUserBleBean(mac);
-                   if (null != bleBean) {
-                       new Handler(Looper.getMainLooper()).postDelayed(() -> {
-                           if (bleBean == null) {
-                               Timber.e("mOnBleDeviceListener bleBean == null");
-                               return;
-                           }
-                           // TODO: 2021/4/7 抽离0x01
-                           Timber.e("下发敲门开锁");
-                           BleManager.getInstance().writeControlMsg(BleCommandFactory
-                                   .setKnockDoorAndUnlockTime(0x01, bleBean.getPwd1(), bleBean.getPwd3()), bleBean.getOKBLEDeviceImp());
-                       }, 200);
+        if (null != App.getInstance().getLockGeoFenceService()) {
 
-                   }
-               }
-           }
+            BleDeviceLocal bleDeviceLocal = App.getInstance().getLockGeoFenceService().getLocakGeoFenceEn(mac);
+            if (null != bleDeviceLocal) {
+                //1、是否开启电子围栏   2、是否从200米外进入
+                Timber.e("发送命令前状态：" + bleDeviceLocal.isOpenElectricFence() + ";;" + bleDeviceLocal.getElecFenceState());
+                if (bleDeviceLocal.isOpenElectricFence() && bleDeviceLocal.getElecFenceState()) {
+                    BleBean bleBean = getUserBleBean(mac);
+                    if (null != bleBean) {
+                        new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                            if (bleBean == null) {
+                                Timber.e("mOnBleDeviceListener bleBean == null");
+                                return;
+                            }
+                            // TODO: 2021/4/7 抽离0x01
+                            Timber.e("下发敲门开锁");
+                            BleManager.getInstance().writeControlMsg(BleCommandFactory
+                                    .setKnockDoorAndUnlockTime(0x01, bleBean.getPwd1(), bleBean.getPwd3()), bleBean.getOKBLEDeviceImp());
+                        }, 200);
+
+                    }
+                }
+            }
         }
     }
 
@@ -1908,6 +1938,7 @@ public class LockAppService extends Service {
             //门磁配置-》发送开启蓝牙广播命令=》
             BleDeviceLocal bleDeviceLoca = getDevice(wfId, wfId);
             if (null != bleDeviceLoca) {
+                //收到地理围栏开启蓝牙广播命令
                 if (null != App.getInstance().getLockGeoFenceService()) {
                     App.getInstance().getLockGeoFenceService().updateLockCmdState(bleDeviceLoca.getEsn(), 1);
                 }
@@ -1917,9 +1948,10 @@ public class LockAppService extends Service {
                     senGeoFence(bleDeviceLoca.getMac());
                 } else {
                     Timber.e("未连接蓝牙，正在开始连接");
-                    if (null != App.getInstance().getLockGeoFenceService()) {
+                    checkBleConnect(bleDeviceLoca.getMac());
+                   /* if (null != App.getInstance().getLockGeoFenceService()) {
                         App.getInstance().getLockGeoFenceService().addDeviceScan(bleDeviceLoca.getMac(), bleDeviceLoca.getSetElectricFenceTime());
-                    }
+                    }*/
                 }
             }
         }

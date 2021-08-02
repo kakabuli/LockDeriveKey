@@ -124,17 +124,28 @@ public class RegisterActivity extends BaseActivity {
             }
         };
         spannableString.setSpan(span, 0, agreementStr.length(), Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
-        tvAgreement.append(
 
-                getString(R.string.i_agree_to));
+        String privacyStr = getString(R.string.terms_of_privacy);
+        SpannableString spannableString1 = new SpannableString(privacyStr);
+        LinkClickableSpan span1 = new LinkClickableSpan() {
+            @Override
+            public void onClick(@NonNull View widget) {
+                Intent intent = new Intent(RegisterActivity.this, TermActivity.class);
+                intent.putExtra(Constant.TERM_TYPE, Constant.TERM_TYPE_PRIVACY);
+                startActivity(intent);
+            }
+        };
+        spannableString1.setSpan(span1, 0, privacyStr.length(), Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
+
+        tvAgreement.append("I agree to ");
         tvAgreement.append(spannableString);
+        tvAgreement.append(" and ");
+        tvAgreement.append(spannableString1);
         tvAgreement.setMovementMethod(LinkMovementMethod.getInstance());
 
         initLoading(getString(R.string.t_load_content_registering));
 
-        mEtEmail =
-
-                findViewById(R.id.etEmail);
+        mEtEmail = findViewById(R.id.etEmail);
 
         verificationCodeTimeCount = Constant.verificationCodeTimeCount;
         mCountDownTimer = new

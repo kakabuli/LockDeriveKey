@@ -43,13 +43,13 @@ public class SystemMessageListBeanRsp {
 
     public static class DataBean {
         private String _id;
-        private int isShowAgreeShare;
+        private int isShowAgreeShare = -1;
         private String uid;
         private String alertTitle;
         private String alertBody;
         private int msgType;
         private long pushAt;
-        private int isAgree;
+        private int isAgree = -1;
         private String shareKey;
         private String adminUid;
         private String timeZone;

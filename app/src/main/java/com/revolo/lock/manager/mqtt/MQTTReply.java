@@ -271,12 +271,14 @@ public class MQTTReply {
         }
     }
 
+    private MessageDialog messageDialog;
 
     private void deviceListRefresh(String json) {
         Timber.d(json);
         DeviceListRefreshBean deviceListRefreshBean = GsonUtils.fromJson(json, DeviceListRefreshBean.class);
         if (deviceListRefreshBean != null) {
             String title = deviceListRefreshBean.getTitle();
+            Timber.d("LockAppManager.getAppManager().currentActivity().getLocalClassName() = %1s", LockAppManager.getAppManager().currentActivity().getLocalClassName());
             if (LockAppManager.getAppManager().currentActivity().getLocalClassName().contains("MainActivity")) {
                 LockMessage lockMessage = new LockMessage();
                 lockMessage.setMessageType(2);
@@ -288,7 +290,11 @@ public class MQTTReply {
                 lockMessage.setBytes(null);
                 EventBus.getDefault().post(lockMessage);
             } else {
-                MessageDialog messageDialog = new MessageDialog(LockAppManager.getAppManager().currentActivity());
+                if (messageDialog != null) {
+                    messageDialog.dismiss();
+                    messageDialog = null;
+                }
+                messageDialog = new MessageDialog(LockAppManager.getAppManager().currentActivity());
                 messageDialog.setMessage(title);
                 messageDialog.setOnListener(v -> {
                     LockAppManager.getAppManager().currentActivity().startActivity(new Intent(LockAppManager.getAppManager().currentActivity(), MainActivity.class));
