@@ -127,7 +127,6 @@ public class BleDeviceLocal implements Parcelable {
     @ColumnInfo(name = "elecFenceState")
     private boolean elecFenceState;//从200米外进入电子围栏  true 是的，false 不是的
 
-    private int elecFenceCmd;
 
     @ColumnInfo(name = "shareUserType")
     private int shareUserType;  // 分享用户权限
@@ -441,13 +440,6 @@ public class BleDeviceLocal implements Parcelable {
         return false;
     }
 
-    public int getElecFenceCmd() {
-        return elecFenceCmd;
-    }
-
-    public void setElecFenceCmd(int elecFenceCmd) {
-        this.elecFenceCmd = elecFenceCmd;
-    }
 
     @Override
     public int describeContents() {
@@ -621,7 +613,6 @@ public class BleDeviceLocal implements Parcelable {
                 ", longitude=" + longitude +
                 ",elecFenceState=" + elecFenceState +
                 ",shareUserType=" + shareUserType +
-                ",elecFenceCmd=" + elecFenceCmd +
                 '}';
     }
 }

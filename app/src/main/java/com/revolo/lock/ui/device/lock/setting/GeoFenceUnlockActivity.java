@@ -227,7 +227,7 @@ public class GeoFenceUnlockActivity extends BaseActivity implements OnMapReadyCa
                         break;
                     case LockMessageCode.MSG_LOCK_MESSAGE_APP_ROACH_OPEN:
                         if (isNextUpdate) {
-                            isNextUpdate=false;
+                            isNextUpdate = false;
                             checkSetTime((WifiLockApproachOpenResponseBean) lockMessage.getWifiLockBaseResponseBean());
                         }
                         break;
@@ -368,12 +368,12 @@ public class GeoFenceUnlockActivity extends BaseActivity implements OnMapReadyCa
             Timber.e("publishApproachOpen deviceLocal == null");
             return;
         }
-        isNextUpdate=true;
+        isNextUpdate = true;
         LockMessage lockMessage = new LockMessage();
         lockMessage.setMqttMessage(MqttCommandFactory.approachOpen(wifiID, broadcastTime,
                 BleCommandFactory.getPwd(
                         ConvertUtils.hexString2Bytes(deviceLocal.getPwd1()),
-                        ConvertUtils.hexString2Bytes(deviceLocal.getPwd2())),1,4));
+                        ConvertUtils.hexString2Bytes(deviceLocal.getPwd2())), 1, 4));
         lockMessage.setMqtt_topic(MQttConstant.getCallTopic(App.getInstance().getUserBean().getUid()));
         lockMessage.setMessageType(2);
         lockMessage.setMqtt_message_code(MQttConstant.APP_ROACH_OPEN);
@@ -460,7 +460,11 @@ public class GeoFenceUnlockActivity extends BaseActivity implements OnMapReadyCa
     private void processStopTimeFromSeekBar(SeekBar seekBar, boolean isNeedToSave) {
         mTvTime.setText(mTimeStr);
         seekBar.setProgress(mTime * 10);
-        pushMessage(mBleDeviceLocal.getEsn(), mTime);
+        //先保存  下发地理围栏时
+        saveElectricFenceTimeToLocal(mTime);
+        pushService();
+
+        //pushMessage(mBleDeviceLocal.getEsn(), mTime);
     }
 
     private void processChangeSensitivityFromSeekBar(int process) {
@@ -531,6 +535,9 @@ public class GeoFenceUnlockActivity extends BaseActivity implements OnMapReadyCa
 
     private void saveElectricFenceTimeToLocal(int time) {
         mBleDeviceLocal.setSetElectricFenceTime(time);
+        if (null != App.getInstance().getLockGeoFenceService()) {
+            App.getInstance().getLockGeoFenceService().setFenceTime(mBleDeviceLocal.getEsn(), time);
+        }
         AppDatabase.getInstance(this).bleDeviceDao().update(mBleDeviceLocal);
     }
 
