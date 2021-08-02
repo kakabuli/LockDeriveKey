@@ -318,8 +318,8 @@
     <string name="door_magnet_setting_tip">Please follow the instruction on the page to align door magnet </string>
 
     <!-- TermActivity -->
-    <string name="title_user_term">User Term</string>
-    <string name="title_privacy_term">Privacy Term</string>
+    <string name="title_user_term">User Agreement Term</string>
+    <string name="title_privacy_term">Privacy Policy Term</string>
 
     <!-- Record -->
     <string name="log_uses_a_password_to_unlock">%1$s uses a password to unlock</string>
