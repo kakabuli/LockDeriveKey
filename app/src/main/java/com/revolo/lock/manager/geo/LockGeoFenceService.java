@@ -28,6 +28,7 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
 import com.revolo.lock.App;
+import com.revolo.lock.Constant;
 import com.revolo.lock.ble.BleCommandFactory;
 import com.revolo.lock.ble.bean.BleBean;
 import com.revolo.lock.manager.LockMessage;
@@ -296,7 +297,7 @@ public class LockGeoFenceService extends Service {
                             }
                         }
                     }
-                    if (results[0] < 100) {
+                    if (results[0] < 60) {
                         Timber.e("当前设备为100米内，准备发送命令:" + lockGeoFenceEns.get(i).getBleDeviceLocal().getEsn());
                         if (null != lockGeoFenceEns.get(i).getBleDeviceLocal()) {
                             if (!lockGeoFenceEns.get(i).getBleDeviceLocal().getElecFenceState()) {
@@ -405,7 +406,7 @@ public class LockGeoFenceService extends Service {
                             //开启蓝牙广播已，直接去连
                             Timber.e("定位服务，下发命令，开启蓝牙广播已，直接去连：" + deviceLocal.getEsn());
                             int index = getConnectBleIndex(deviceLocal.getEsn());
-                            if (index < 3) {
+                            if (index < Constant.LOCK_GEO_CONNECT_BLE_INDEX) {
                                 setConnectBleIndex(deviceLocal.getEsn(), index + 1);
                                 App.getInstance().getLockAppService().checkBleConnect(deviceLocal.getMac());
                             } else {
@@ -420,7 +421,7 @@ public class LockGeoFenceService extends Service {
                     if (geoFenceEn.getElecFenceCmd() == 1) {
                         //开启蓝牙广播已，直接去连
                         int index = getConnectBleIndex(deviceLocal.getEsn());
-                        if (index < 3) {
+                        if (index < Constant.LOCK_GEO_CONNECT_BLE_INDEX) {
                             setConnectBleIndex(deviceLocal.getEsn(), index + 1);
                             Timber.e("2定位服务，下发命令，开启蓝牙广播已，直接去连：" + deviceLocal.getEsn());
                             App.getInstance().getLockAppService().checkBleConnect(deviceLocal.getMac());
