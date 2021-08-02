@@ -22,6 +22,7 @@ import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import com.blankj.utilcode.util.SPUtils;
 import com.blankj.utilcode.util.ToastUtils;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -31,16 +32,19 @@ import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.revolo.lock.App;
+import com.revolo.lock.Constant;
 import com.revolo.lock.R;
 import com.revolo.lock.base.BaseActivity;
 import com.revolo.lock.bean.request.UpdateLocalBeanReq;
 import com.revolo.lock.bean.respone.UpdateLocalBeanRsp;
+import com.revolo.lock.dialog.PrivacyPolicyDialog;
 import com.revolo.lock.dialog.SelectDialog;
 import com.revolo.lock.manager.geo.LockGeoFenceService;
 import com.revolo.lock.net.HttpRequest;
 import com.revolo.lock.net.ObservableDecorator;
 import com.revolo.lock.room.AppDatabase;
 import com.revolo.lock.room.entity.BleDeviceLocal;
+import com.revolo.lock.ui.MainActivity;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -48,6 +52,8 @@ import io.reactivex.Observable;
 import io.reactivex.Observer;
 import io.reactivex.disposables.Disposable;
 import timber.log.Timber;
+
+import static com.revolo.lock.Constant.REVOLO_SP;
 
 /**
  * author :
@@ -129,21 +135,17 @@ public class MapActivity extends BaseActivity implements OnMapReadyCallback, Goo
         }
     }
 
-    /**
-     * 可申请蓝牙状态
-     */
-    private void updateApplyDialog() {
-        if (null == canApplyDialog) {
-            canApplyDialog = new SelectDialog(this);
-            canApplyDialog.setMessage(getString(R.string.dialog_we_need_to_permission_for_location));
-            canApplyDialog.setOnCancelClickListener(v -> canApplyDialog.dismiss());
-            canApplyDialog.setOnConfirmListener(v -> {
-                canApplyDialog.dismiss();
-                ActivityCompat.requestPermissions(MapActivity.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, FINE_LOCATION_ACCESS_REQUEST_CODE);
-            });
-            if (!canApplyDialog.isShowing())
-                canApplyDialog.show();
-        }
+    private void onPrivacyPolicyDialog() {
+        PrivacyPolicyDialog privacyPolicyDialog = new PrivacyPolicyDialog(this);
+        privacyPolicyDialog.setOnConfirmListener(v -> {
+            privacyPolicyDialog.dismiss();
+            ActivityCompat.requestPermissions(MapActivity.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, FINE_LOCATION_ACCESS_REQUEST_CODE);
+        });
+        privacyPolicyDialog.setOnCancelClickListener(v -> {
+            SPUtils.getInstance(REVOLO_SP).put(Constant.FIRST_OPEN_APP, true);
+            privacyPolicyDialog.dismiss();
+        });
+        privacyPolicyDialog.show();
     }
 
     /**
@@ -238,12 +240,11 @@ public class MapActivity extends BaseActivity implements OnMapReadyCallback, Goo
             //Ask for permission
             if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_FINE_LOCATION)) {
                 //We need to show a dialog for displaying why the permission is needed and the ask the permission
-                updateApplyDialog();
+                onPrivacyPolicyDialog();
             } else {
                 ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, FINE_LOCATION_ACCESS_REQUEST_CODE);
             }
         }
-
     }
 
     @SuppressLint("MissingPermission")

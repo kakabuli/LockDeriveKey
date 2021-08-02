@@ -53,7 +53,7 @@
         android:layout_width="144pt"
         android:layout_height="50pt"
         android:gravity="center"
-        android:text="Quit"
+        android:text="Refuse"
         android:textColor="@color/cA5A4DA"
         android:textSize="15pt"
         app:layout_constraintBottom_toBottomOf="parent"

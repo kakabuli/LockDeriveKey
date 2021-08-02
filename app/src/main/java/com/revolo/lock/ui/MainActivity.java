@@ -16,14 +16,17 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
+import com.blankj.utilcode.util.SPUtils;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.revolo.lock.App;
 import com.revolo.lock.Constant;
+import com.revolo.lock.LockAppManager;
 import com.revolo.lock.R;
 import com.revolo.lock.base.BaseActivity;
 import com.revolo.lock.bean.request.DeviceTokenBeanReq;
 import com.revolo.lock.bean.respone.DeviceTokenBeanRsp;
+import com.revolo.lock.dialog.PrivacyPolicyDialog;
 import com.revolo.lock.manager.LockMessageCode;
 import com.revolo.lock.manager.LockMessageRes;
 import com.revolo.lock.net.HttpRequest;
@@ -46,6 +49,7 @@ import io.reactivex.Observer;
 import io.reactivex.disposables.Disposable;
 import timber.log.Timber;
 
+import static com.revolo.lock.Constant.REVOLO_SP;
 import static com.revolo.lock.manager.LockMessageCode.MSG_LOCK_MESSAGE_MQTT;
 
 
@@ -205,9 +209,22 @@ public class MainActivity extends BaseActivity {
                 Timber.e("Location定位权限拒绝");
             } else {
                 Timber.e("Location定位权限开启开启中");
-                ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, FINE_LOCATION_ACCESS_REQUEST_CODE);
+                onPrivacyPolicyDialog();
             }
         }
+    }
+
+    private void onPrivacyPolicyDialog() {
+        PrivacyPolicyDialog privacyPolicyDialog = new PrivacyPolicyDialog(this);
+        privacyPolicyDialog.setOnConfirmListener(v -> {
+            privacyPolicyDialog.dismiss();
+            ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, FINE_LOCATION_ACCESS_REQUEST_CODE);
+        });
+        privacyPolicyDialog.setOnCancelClickListener(v -> {
+            SPUtils.getInstance(REVOLO_SP).put(Constant.FIRST_OPEN_APP, true);
+            privacyPolicyDialog.dismiss();
+        });
+        privacyPolicyDialog.show();
     }
 
     @SuppressLint("MissingPermission")
