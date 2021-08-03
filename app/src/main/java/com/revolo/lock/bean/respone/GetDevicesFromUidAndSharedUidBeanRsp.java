@@ -3,6 +3,8 @@ package com.revolo.lock.bean.respone;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.chad.library.adapter.base.entity.MultiItemEntity;
+
 import java.util.List;
 
 /**
@@ -50,7 +52,7 @@ public class GetDevicesFromUidAndSharedUidBeanRsp {
         this.nowTime = nowTime;
     }
 
-    public class DataBean implements Parcelable {
+    public static class DataBean implements Parcelable, MultiItemEntity {
 
         private String lockNickname;
         private String deviceSN;
@@ -61,6 +63,10 @@ public class GetDevicesFromUidAndSharedUidBeanRsp {
         private int isAgree;
         private int isEnable;
         private String shareState;
+
+        public DataBean() {
+
+        }
 
         protected DataBean(Parcel in) {
             lockNickname = in.readString();
@@ -174,6 +180,14 @@ public class GetDevicesFromUidAndSharedUidBeanRsp {
             dest.writeInt(isAgree);
             dest.writeInt(isEnable);
             dest.writeString(shareState);
+        }
+
+        @Override
+        public int getItemType() {
+            if (shareUserType == -1) {
+                return 1;
+            }
+            return 0;
         }
     }
 }
