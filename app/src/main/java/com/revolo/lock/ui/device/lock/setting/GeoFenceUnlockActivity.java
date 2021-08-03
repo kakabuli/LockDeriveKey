@@ -539,6 +539,10 @@ public class GeoFenceUnlockActivity extends BaseActivity implements OnMapReadyCa
             App.getInstance().getLockGeoFenceService().setFenceTime(mBleDeviceLocal.getEsn(), time);
         }
         AppDatabase.getInstance(this).bleDeviceDao().update(mBleDeviceLocal);
+
+        if (null != App.getInstance().getLockAppService()) {
+            App.getInstance().getLockAppService().updateDeviceGeoState(mBleDeviceLocal.getMac(), mBleDeviceLocal);
+        }
     }
 
     private void processSetSensitivity(BleResultBean bean) {
@@ -553,6 +557,9 @@ public class GeoFenceUnlockActivity extends BaseActivity implements OnMapReadyCa
     private void saveSensitivityToLocal() {
         mBleDeviceLocal.setSetElectricFenceSensitivity(mSensitivity);
         AppDatabase.getInstance(this).bleDeviceDao().update(mBleDeviceLocal);
+        if (null != App.getInstance().getLockAppService()) {
+            App.getInstance().getLockAppService().updateDeviceGeoState(mBleDeviceLocal.getMac(), mBleDeviceLocal);
+        }
         pushService();
     }
 
