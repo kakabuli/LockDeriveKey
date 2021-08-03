@@ -16,12 +16,10 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
-import com.blankj.utilcode.util.SPUtils;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.revolo.lock.App;
 import com.revolo.lock.Constant;
-import com.revolo.lock.LockAppManager;
 import com.revolo.lock.R;
 import com.revolo.lock.base.BaseActivity;
 import com.revolo.lock.bean.request.DeviceTokenBeanReq;
@@ -49,7 +47,6 @@ import io.reactivex.Observer;
 import io.reactivex.disposables.Disposable;
 import timber.log.Timber;
 
-import static com.revolo.lock.Constant.REVOLO_SP;
 import static com.revolo.lock.manager.LockMessageCode.MSG_LOCK_MESSAGE_MQTT;
 
 
@@ -214,11 +211,17 @@ public class MainActivity extends BaseActivity {
         }
     }
 
+    private PrivacyPolicyDialog privacyPolicyDialog;
+
     private void onPrivacyPolicyDialog() {
-        PrivacyPolicyDialog privacyPolicyDialog = new PrivacyPolicyDialog(this);
+        if (privacyPolicyDialog == null) {
+            privacyPolicyDialog = new PrivacyPolicyDialog(this);
+        } else {
+            privacyPolicyDialog.dismiss();
+        }
         privacyPolicyDialog.setOnConfirmListener(v -> {
             privacyPolicyDialog.dismiss();
-            ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, FINE_LOCATION_ACCESS_REQUEST_CODE);
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, FINE_LOCATION_ACCESS_REQUEST_CODE);
         });
         privacyPolicyDialog.setOnCancelClickListener(v -> {
             privacyPolicyDialog.dismiss();

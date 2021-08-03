@@ -405,6 +405,10 @@
             android:name=".ui.user.InviteUsersMailActivity"
             android:launchMode="singleTask"
             android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.device.lock.setting.geofence.AutoUnlockActivity"
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait" />
 
         <!--   <service android:name=".mqtt.MqttService" />-->
         <service android:name=".manager.LockAppService" />

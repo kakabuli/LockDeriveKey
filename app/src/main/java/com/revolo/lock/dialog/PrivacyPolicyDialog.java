@@ -65,8 +65,8 @@ public class PrivacyPolicyDialog extends Dialog {
         SpannableString spannableString = new SpannableString(string);
         UnderlineSpan underlineSpan = new UnderlineSpan();
         ForegroundColorSpan colorSpan = new ForegroundColorSpan(getContext().getColor(R.color.c2C68FF));
-        spannableString.setSpan(colorSpan, 23, 38, Spanned.SPAN_EXCLUSIVE_INCLUSIVE);
-        spannableString.setSpan(underlineSpan, 23, 38, Spanned.SPAN_EXCLUSIVE_INCLUSIVE);
+        spannableString.setSpan(colorSpan, 27, 42, Spanned.SPAN_EXCLUSIVE_INCLUSIVE);
+        spannableString.setSpan(underlineSpan, 27, 42, Spanned.SPAN_EXCLUSIVE_INCLUSIVE);
         spannableString.setSpan(new ClickableSpan() {
 
             @Override
@@ -75,7 +75,7 @@ public class PrivacyPolicyDialog extends Dialog {
                 intent.putExtra(Constant.TERM_TYPE, Constant.TERM_TYPE_PRIVACY);
                 getContext().startActivity(intent);
             }
-        }, 23, 38, Spanned.SPAN_EXCLUSIVE_INCLUSIVE);
+        }, 27, 42, Spanned.SPAN_EXCLUSIVE_INCLUSIVE);
         mTvContent.setText(spannableString);
         mTvContent.setMovementMethod(LinkMovementMethod.getInstance());
     }

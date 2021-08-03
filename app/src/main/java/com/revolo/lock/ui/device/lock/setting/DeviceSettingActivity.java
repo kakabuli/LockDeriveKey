@@ -55,6 +55,7 @@ import com.revolo.lock.net.ObservableDecorator;
 import com.revolo.lock.room.AppDatabase;
 import com.revolo.lock.room.entity.BleDeviceLocal;
 import com.revolo.lock.ui.device.lock.DeviceDetailActivity;
+import com.revolo.lock.ui.device.lock.setting.geofence.AutoUnlockActivity;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -226,7 +227,7 @@ public class DeviceSettingActivity extends BaseActivity {
         }
         if (view.getId() == R.id.clGeoFenceLock) {
             if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI || mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI_BLE) {
-                Intent intent = new Intent(this, GeoFenceUnlockActivity.class);
+                Intent intent = new Intent(this, AutoUnlockActivity.class);
                 startActivity(intent);
             } else {
                 ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show("Please set to WiFi connection mode");
