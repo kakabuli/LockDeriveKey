@@ -72,6 +72,7 @@ public class MainActivity extends BaseActivity {
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
         getAlexaIntent(intent);
+        addDeviceFragment();
     }
 
     @Override

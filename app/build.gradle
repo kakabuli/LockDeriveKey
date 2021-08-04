@@ -13,8 +13,8 @@ android {
         applicationId "com.revolo.lock"
         minSdkVersion 24
         targetSdkVersion 30
-        versionCode 202106057
-        versionName "0.6.5"
+        versionCode 202106058
+        versionName "0.6.6"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
