@@ -87,7 +87,7 @@ public class OpenBleDialog extends Dialog {
         public OpenBleDialog create() {
 
             LayoutInflater inflater = LayoutInflater.from(context);
-            View view = inflater.inflate(R.layout.dialog_loading, null);
+            View view = inflater.inflate(R.layout.open_ble_dialog_view, null);
             OpenBleDialog loadingDialog = new OpenBleDialog(context, R.style.IosDialogStyle);
             TextView msgText = view.findViewById(R.id.tipTextView);
             if (isShowMessage) {

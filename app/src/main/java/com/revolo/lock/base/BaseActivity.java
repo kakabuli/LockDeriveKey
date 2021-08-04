@@ -22,11 +22,13 @@ import com.blankj.utilcode.util.AdaptScreenUtils;
 import com.blankj.utilcode.util.ClickUtils;
 import com.blankj.utilcode.util.NetworkUtils;
 import com.blankj.utilcode.util.ToastUtils;
+import com.revolo.lock.App;
 import com.revolo.lock.Constant;
 import com.revolo.lock.LocalState;
 import com.revolo.lock.LockAppManager;
 import com.revolo.lock.R;
 import com.revolo.lock.bean.NetWorkStateBean;
+import com.revolo.lock.dialog.SelectDialog;
 import com.revolo.lock.dialog.iosloading.CustomerLoadingDialog;
 import com.revolo.lock.manager.LockConnected;
 import com.revolo.lock.shulan.KeepAliveManager;
@@ -61,6 +63,7 @@ public abstract class BaseActivity extends AppCompatActivity
     private CustomerLoadingDialog mLoadingDialog;
     public boolean isShowNetState = true;
     private BluetoothAdapter mBluetoothAdapter;
+    private SelectDialog OpenBluetoothDialog;
 
     public static int mVerificationCodeTime = 60;
 
@@ -91,9 +94,6 @@ public abstract class BaseActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         initData(getIntent().getExtras());
         setContentView();
-        if (mBluetoothAdapter == null) {
-            mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-        }
 
         LockConnected bleConnected = new LockConnected();
         bleConnected.setConnectType(LocalState.CONNECT_STATE_MQTT);
@@ -144,6 +144,40 @@ public abstract class BaseActivity extends AppCompatActivity
         if (bindLayout() <= 0) return;
         mContentView = LayoutInflater.from(this).inflate(bindLayout(), null);
         setContentView(mContentView);
+    }
+
+    /**
+     * 检测当前蓝牙是否开启、并提示用户开启bluetooth
+     */
+    public boolean checkIsOpenBluetooth() {
+        Timber.e("检测当前手机蓝牙是否开启");
+        if (null == mBluetoothAdapter) {
+            if (null != App.getInstance().getLockAppService()) {
+                mBluetoothAdapter = App.getInstance().getLockAppService().getBluetoothAdapter();
+            }
+        }
+        if (null != mBluetoothAdapter) {
+            if (!mBluetoothAdapter.isEnabled()) {
+                //蓝牙关闭
+                if (null == OpenBluetoothDialog) {
+                    OpenBluetoothDialog = new SelectDialog(this);
+                    OpenBluetoothDialog.setMessage(getString(R.string.dialog_tip_hint_is_open_bluetooth));
+                    OpenBluetoothDialog.setOnCancelClickListener(v -> OpenBluetoothDialog.dismiss());
+                    OpenBluetoothDialog.setOnConfirmListener(v -> {
+                        OpenBluetoothDialog.dismiss();
+                        if (null != mBluetoothAdapter) {
+                            mBluetoothAdapter.enable();
+                        }
+                    });
+                }
+                if (!OpenBluetoothDialog.isShowing()) {
+                    OpenBluetoothDialog.show();
+                }
+            } else {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**

@@ -383,6 +383,7 @@
     <string name="dialog_tip_log_out">Log out</string>
     <string name="dialog_tip_please_wake_up_lock_and_wait_bluetooth_connecting">Please wake up lock and wait Bluetooth connecting</string>
     <string name="dialog_title_weak_signal_state">Weak signal state</string>
+    <string name="dialog_tip_hint_is_open_bluetooth">The current function needs to turn on Bluetooth. Do you want to turn on Bluetooth?</string>
 
     <!-- AddNewPwdSelectActivity -->
     <string name="repeat">Repeat</string>

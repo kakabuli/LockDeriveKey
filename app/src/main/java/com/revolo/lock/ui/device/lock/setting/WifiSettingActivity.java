@@ -60,6 +60,9 @@ import static com.revolo.lock.ble.BleProtocolState.CMD_WIFI_SWITCH;
 public class WifiSettingActivity extends BaseActivity {
     private static final int MSG_CONNECT_BLE_OUT_TIME = 3684;//连接蓝牙超时
     private static final int MSG_CONNECT_BLE_OK = 3685;//连接蓝牙成功
+    private static final int MSG_CLTIPCLICK = 3687;
+    private static final int MSG_ONDEBOUNCINGCLICK = 3688;
+    private static final int MSG_CLOSE_WIFI = 3689;
     private int MSG_CONNECT_BLE_TME = 15000;//ble连接时间
     private BleDeviceLocal mBleDeviceLocal;
     private ImageView mIvWifiEnable;
@@ -109,6 +112,7 @@ public class WifiSettingActivity extends BaseActivity {
             }
         });
         mSelectDialog.setOnConfirmListener(v -> {
+            handler.sendEmptyMessageDelayed(MSG_CLOSE_WIFI, 60000);
             closeWifiFromMQtt();
             if (mSelectDialog != null) {
                 mSelectDialog.dismiss();
@@ -122,8 +126,21 @@ public class WifiSettingActivity extends BaseActivity {
         public void handleMessage(@NonNull Message msg) {
             if (msg.what == MSG_CONNECT_BLE_OUT_TIME) {
                 dissOpenBleDialog();
+                handler.removeMessages(MSG_CLTIPCLICK);
+                handler.removeMessages(MSG_ONDEBOUNCINGCLICK);
+                ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_setting_fail);
             } else if (msg.what == MSG_CONNECT_BLE_OK) {
-                gotoAddWifiAct();
+                if (handler.hasMessages(MSG_CLTIPCLICK)) {
+                    handler.removeMessages(MSG_CLTIPCLICK);
+                    clTipClick();
+                } else if (handler.hasMessages(MSG_ONDEBOUNCINGCLICK)) {
+                    handler.removeMessages(MSG_ONDEBOUNCINGCLICK);
+                    onDebouncingCli();
+                } else if (handler.hasMessages(MSG_CLOSE_WIFI)) {
+                    handler.removeMessages(MSG_CLOSE_WIFI);
+                } else {
+                    gotoAddWifiAct();
+                }
             }
         }
     };
@@ -177,6 +194,9 @@ public class WifiSettingActivity extends BaseActivity {
     protected void onDestroy() {
         super.onDestroy();
         handler.removeMessages(MSG_CONNECT_BLE_OUT_TIME);
+        handler.removeMessages(MSG_CLTIPCLICK);
+        handler.removeMessages(MSG_ONDEBOUNCINGCLICK);
+        handler.removeMessages(MSG_CLOSE_WIFI);
     }
 
     @Override
@@ -194,41 +214,60 @@ public class WifiSettingActivity extends BaseActivity {
                         mPowerLowDialog.show();
                     }
                 } else {
-                    String wifiName = mBleDeviceLocal.getConnectedWifiName();
-                    if (TextUtils.isEmpty(wifiName)) {
-                        gotoAddWifiAct();
-                    } else {
-                        openWifiFromBle();
+                    //检测当前蓝牙是否开启
+                    if (!checkIsOpenBluetooth()) {
+                        handler.sendEmptyMessageDelayed(MSG_ONDEBOUNCINGCLICK, 30000);
+                        return;
                     }
+                    onDebouncingCli();
                 }
             }
             return;
         }
         if (view.getId() == R.id.clTip || view.getId() == R.id.tvSettingTitle) {
             //更改设备网络配置
-            if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI || mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI_BLE) {
-                //当前是WiFi连接，在WiFi下判断当前蓝牙是否连接
-                Timber.e("WiFi 模式下");
-                BleBean bean = App.getInstance().getUserBleBean(mBleDeviceLocal.getMac());
-                if (null != bean && bean.getBleConning() == LocalState.DEVICE_CONNECT_TYPE_BLE) {
-                    //当前蓝牙已连接
-                    gotoAddWifiAct();
-                    Timber.e("WiFi 模式下 蓝牙已连接");
-                } else {
-                    //当前蓝牙断开状态
-                    openBleFromMQtt();
-                    Timber.e("WiFi 模式下 开始蓝牙连接");
-                }
-            } else if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_BLE) {
-                //当前是ble连接
-                Timber.e("ble 模式下 蓝牙模式");
-                gotoAddWifiAct();
-            } else {
-                //设备掉线
-                Timber.e("设备断线中");
+            //检测当前蓝牙是否开启
+            if (!checkIsOpenBluetooth()) {
+                handler.sendEmptyMessageDelayed(MSG_CLTIPCLICK, 30000);
+                return;
             }
+            clTipClick();
         }
 
+    }
+
+    private void onDebouncingCli() {
+        String wifiName = mBleDeviceLocal.getConnectedWifiName();
+        if (TextUtils.isEmpty(wifiName)) {
+            gotoAddWifiAct();
+        } else {
+            openWifiFromBle();
+        }
+    }
+
+    private void clTipClick() {
+        if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI || mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI_BLE) {
+            //当前是WiFi连接，在WiFi下判断当前蓝牙是否连接
+            Timber.e("WiFi 模式下");
+            BleBean bean = App.getInstance().getUserBleBean(mBleDeviceLocal.getMac());
+            if (null != bean && bean.getBleConning() == LocalState.DEVICE_CONNECT_TYPE_BLE) {
+                //当前蓝牙已连接
+                gotoAddWifiAct();
+                Timber.e("WiFi 模式下 蓝牙已连接");
+            } else {
+                //当前蓝牙断开状态
+                openBleFromMQtt();
+                Timber.e("WiFi 模式下 开始蓝牙连接");
+            }
+        } else if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_BLE) {
+            //当前是ble连接
+            Timber.e("ble 模式下 蓝牙模式");
+            gotoAddWifiAct();
+        } else {
+            //设备掉线
+            Timber.e("设备断线中");
+            checkBleConnected();
+        }
     }
 
     private void gotoAddWifiAct() {
@@ -293,6 +332,16 @@ public class WifiSettingActivity extends BaseActivity {
 
     }
 
+    /**
+     * 检查当前蓝牙连接
+     */
+    private void checkBleConnected() {
+        Timber.e("开始蓝牙连接");
+        handler.sendEmptyMessageDelayed(MSG_CONNECT_BLE_OUT_TIME, MSG_CONNECT_BLE_TME);
+        showOpenBleDialog();
+        connectBle();
+    }
+
     private void openBleFromMQtt() {
         //showLoading();
         handler.sendEmptyMessageDelayed(MSG_CONNECT_BLE_OUT_TIME, MSG_CONNECT_BLE_TME);
@@ -302,7 +351,7 @@ public class WifiSettingActivity extends BaseActivity {
                 mBleDeviceLocal.getEsn(), 3/*用于临时开启蓝牙，用于使用蓝牙来重新配网*/,
                 BleCommandFactory.getPwd(
                         ConvertUtils.hexString2Bytes(mBleDeviceLocal.getPwd1()),
-                        ConvertUtils.hexString2Bytes(mBleDeviceLocal.getPwd2())), 0,1));
+                        ConvertUtils.hexString2Bytes(mBleDeviceLocal.getPwd2())), 0, 1));
         lockMessage.setMessageType(2);
         lockMessage.setMqtt_message_code(MQttConstant.APP_ROACH_OPEN);
         lockMessage.setMqtt_topic(MQttConstant.getCallTopic(App.getInstance().getUserBean().getUid()));
@@ -390,12 +439,9 @@ public class WifiSettingActivity extends BaseActivity {
 
     private void openWifiFromBle() {
         BleBean bleBean = App.getInstance().getUserBleBean(mBleDeviceLocal.getMac());
-        if (bleBean == null) {
-            Timber.e("openWifiFromBle bleBean == null");
-            return;
-        }
-        if (bleBean.getOKBLEDeviceImp() == null) {
-            Timber.e("openWifiFromBle bleBean.getOKBLEDeviceImp() == null");
+        if (null == bleBean || null == bleBean.getOKBLEDeviceImp()) {
+            Timber.e("closeWifiFromBle bleBean == null");
+            checkBleConnected();
             return;
         }
         byte[] pwd1 = bleBean.getPwd1();
@@ -418,14 +464,15 @@ public class WifiSettingActivity extends BaseActivity {
 
     private void closeWifiFromBle() {
         BleBean bleBean = App.getInstance().getUserBleBean(mBleDeviceLocal.getMac());
-        if (bleBean == null) {
+        if (null == bleBean || null == bleBean.getOKBLEDeviceImp()) {
             Timber.e("closeWifiFromBle bleBean == null");
+            checkBleConnected();
             return;
         }
-        if (bleBean.getOKBLEDeviceImp() == null) {
+      /*  if (bleBean.getOKBLEDeviceImp() == null) {
             Timber.e("closeWifiFromBle bleBean.getOKBLEDeviceImp() == null");
             return;
-        }
+        }*/
         byte[] pwd1 = bleBean.getPwd1();
         byte[] pwd3 = bleBean.getPwd3();
         if (pwd1 == null) {

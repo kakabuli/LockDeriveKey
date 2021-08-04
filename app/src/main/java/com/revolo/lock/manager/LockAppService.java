@@ -197,7 +197,7 @@ public class LockAppService extends Service {
      *
      * @return
      */
-    private BluetoothAdapter getBluetoothAdapter() {
+    public BluetoothAdapter getBluetoothAdapter() {
         if (null == bluetoothAdapter) {
             Timber.e("new  bluetoothAdapter get");
             bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
