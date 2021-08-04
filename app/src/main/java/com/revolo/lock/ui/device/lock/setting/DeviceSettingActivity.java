@@ -42,6 +42,7 @@ import com.revolo.lock.ble.BleCommandFactory;
 import com.revolo.lock.ble.BleProtocolState;
 import com.revolo.lock.ble.bean.BleBean;
 import com.revolo.lock.ble.bean.BleResultBean;
+import com.revolo.lock.dialog.MessageDialog;
 import com.revolo.lock.dialog.UnbindLockDialog;
 import com.revolo.lock.manager.LockMessage;
 import com.revolo.lock.manager.LockMessageCode;
@@ -85,6 +86,7 @@ public class DeviceSettingActivity extends BaseActivity {
     private DeviceUnbindBeanReq mReq;
     private ImageView mIvMuteEnable, mIvDoNotDisturbModeEnable;
     private BleDeviceLocal mBleDeviceLocal;
+    private MessageDialog mPowerLowDialog;//低电量
     private @LocalState.VolumeState
     int lockMute;
 
@@ -227,6 +229,21 @@ public class DeviceSettingActivity extends BaseActivity {
         }
         if (view.getId() == R.id.clGeoFenceLock) {
             if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI || mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI_BLE) {
+                if (mBleDeviceLocal.getLockPower() < 21) {
+                    if (null == mPowerLowDialog) {
+                        mPowerLowDialog = new MessageDialog(this);
+                        mPowerLowDialog.setMessage(getString(R.string.t_open_wifi_tip_low_power));
+                        mPowerLowDialog.setOnListener(v -> {
+                            if (mPowerLowDialog != null) {
+                                mPowerLowDialog.dismiss();
+                            }
+                        });
+                    }
+                    if (!mPowerLowDialog.isShowing()) {
+                        mPowerLowDialog.show();
+                    }
+                    return;
+                }
                 Intent intent = new Intent(this, AutoUnlockActivity.class);
                 startActivity(intent);
             } else {
