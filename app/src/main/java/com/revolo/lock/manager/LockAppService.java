@@ -84,6 +84,8 @@ import io.reactivex.disposables.Disposable;
 import timber.log.Timber;
 
 import static com.revolo.lock.Constant.PING_RESULT;
+import static com.revolo.lock.ble.BleCommandState.HARD_TYPE_FRONT_PANEL;
+import static com.revolo.lock.ble.BleCommandState.HARD_TYPE_WIFI_LOCK;
 import static com.revolo.lock.manager.LockMessageCode.MSG_LOCK_MESSAGE_ADD_DEVICE_SERVICE;
 import static com.revolo.lock.manager.LockMessageCode.MSG_LOCK_MESSAGE_BLE;
 import static com.revolo.lock.manager.LockMessageCode.MSG_LOCK_MESSAGE_CLASE_DEVICE;
@@ -975,7 +977,8 @@ public class LockAppService extends Service {
                 case BleProtocolState.CMD_REQUEST_BIND_ACK:// 0x13;                // APP绑定请求帧
                     break;
                 case BleProtocolState.CMD_CHECK_HARD_VER:// 0x27;                  // 查询硬件版本
-
+                    //更新版本
+                    updateBleVersion(mac.toUpperCase(), bleResultBean);
                     break;
                 case BleProtocolState.CMD_SS_ID_ACK:// 0x90;                       // SS ID响应
                     break;
@@ -1389,6 +1392,59 @@ public class LockAppService extends Service {
     }
 
     /**
+     * 更新蓝牙模式下锁版本
+     *
+     * @param mac
+     * @param bean
+     */
+    private void updateBleVersion(@NotNull String mac, BleResultBean bean) {
+        if (bean.getPayload()[0] == 0x00) {
+            if (bean.getPayload()[1] == HARD_TYPE_FRONT_PANEL) {
+                byte[] verBytes = new byte[9];
+                System.arraycopy(bean.getPayload(), 2, verBytes, 0, verBytes.length);
+                String verStr = new String(verBytes, StandardCharsets.UTF_8);
+                updateVerison(mac,verStr,null);
+            } else if (bean.getPayload()[1] == HARD_TYPE_WIFI_LOCK) {
+                byte[] verBytes = new byte[9];
+                System.arraycopy(bean.getPayload(), 2, verBytes, 0, verBytes.length);
+                String verStr = new String(verBytes, StandardCharsets.UTF_8);
+                updateVerison(mac,null,verStr);
+            } else {
+                // TODO: 2021/2/7 其他的数据处理
+            }
+        } else {
+            // TODO: 2021/2/7 信息失败了的操作
+        }
+    }
+
+    /**
+     *
+     * @param mac
+     * @param frontVersion
+     * @param wifiVersion
+     */
+    private void updateVerison(String mac, String frontVersion, String wifiVersion) {
+        if (null != mDeviceLists) {
+            for (int index = 0; index < mDeviceLists.size(); index++) {
+                if (mDeviceLists.get(index).getMac().equals(mac)) {
+                    if(null!=frontVersion&&!"".equals(frontVersion)){
+                        mDeviceLists.get(index).setLockVer(frontVersion);
+                    }
+                    if(null!=wifiVersion&&!"".equals(wifiVersion)){
+                        mDeviceLists.get(index).setWifiVer(wifiVersion);
+                    }
+                    if ((null != mDeviceLists.get(index).getMac() && mDeviceLists.get(index).getMac().equals(App.getInstance().getmCurrMac())) ||
+                            (null != mDeviceLists.get(index).getEsn() && mDeviceLists.get(index).getEsn().equals(App.getInstance().getmCurrSn()))) {
+                        Timber.e("app service updatedeviceVersion set BleDeviceLocal");
+                        App.getInstance().setBleDeviceLocal(mDeviceLists.get(index));
+                    }
+                    break;
+                }
+            }
+        }
+    }
+
+    /**
      * 更新锁的状态
      *
      * @param mac
@@ -1550,6 +1606,12 @@ public class LockAppService extends Service {
             EventBus.getDefault().post(bleResultBean);
         }
     }*/
+
+    /**
+     * 秘钥上报
+     *
+     * @param bleResultBean
+     */
     private void processKey(BleResultBean bleResultBean) {
         if (bleResultBean.getCMD() == BleProtocolState.CMD_ENCRYPT_KEY_UPLOAD) {
             byte[] data = bleResultBean.getPayload();
