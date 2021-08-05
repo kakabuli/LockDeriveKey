@@ -144,10 +144,12 @@ public class LockAppManager implements BaseObservable {
 
     @Override
     public void notifyNetWork(boolean isNetWork) {
-        for (int i = 0; i < activityStack.size(); i++) {
-            Activity activity = activityStack.get(i);
-            if (activity != null) {
-                ((BaseActivity) activityStack.get(i)).notifyNetWork(isNetWork);
+        if (activityStack != null && !activityStack.empty()) {
+            for (int i = 0; i < activityStack.size(); i++) {
+                Activity activity = activityStack.get(i);
+                if (activity != null) {
+                    ((BaseActivity) activityStack.get(i)).notifyNetWork(isNetWork);
+                }
             }
         }
     }

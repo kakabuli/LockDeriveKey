@@ -1,10 +1,7 @@
 package com.revolo.lock.ui.device.lock.setting;
 
 import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.content.pm.ResolveInfo;
 import android.content.res.Resources;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -27,12 +24,10 @@ import com.revolo.lock.Constant;
 import com.revolo.lock.LocalState;
 import com.revolo.lock.R;
 import com.revolo.lock.base.BaseActivity;
-import com.revolo.lock.bean.request.AlexaAppUrlAndWebUrlReq;
 import com.revolo.lock.bean.request.AlexaSkillEnableReq;
 import com.revolo.lock.bean.request.DeviceUnbindBeanReq;
 import com.revolo.lock.bean.request.PostNotDisturbModeBeanReq;
 import com.revolo.lock.bean.request.UpdateLockInfoReq;
-import com.revolo.lock.bean.respone.AlexaAppUrlAndWebUrlBeanRsp;
 import com.revolo.lock.bean.respone.AlexaSkillEnableBeanRsp;
 import com.revolo.lock.bean.respone.DeviceUnbindBeanRsp;
 import com.revolo.lock.bean.respone.NotDisturbModeBeanRsp;
@@ -62,8 +57,6 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.List;
 
 import io.reactivex.Observable;
 import io.reactivex.Observer;
@@ -122,7 +115,7 @@ public class DeviceSettingActivity extends BaseActivity {
                 findViewById(R.id.clDuressCode), findViewById(R.id.clDoorLockInformation),
                 findViewById(R.id.clGeoFenceLock), findViewById(R.id.clDoorMagneticSwitch),
                 findViewById(R.id.clUnbind), findViewById(R.id.clMute), findViewById(R.id.clWifi),
-                mIvDoNotDisturbModeEnable, findViewById(R.id.ivLockName), findViewById(R.id.clJoinAlexa), findViewById(R.id.clVideoMode));
+                mIvDoNotDisturbModeEnable, findViewById(R.id.ivLockName), findViewById(R.id.clVideoMode));
 
         mBleDeviceLocal = App.getInstance().getBleDeviceLocal();
         mIvDoNotDisturbModeEnable.setImageResource(mBleDeviceLocal.isDoNotDisturbMode() ? R.drawable.ic_icon_switch_open : R.drawable.ic_icon_switch_close);
@@ -221,10 +214,6 @@ public class DeviceSettingActivity extends BaseActivity {
             Intent intent = new Intent(this, DoorLockInformationActivity.class);
             intent.putExtra(Constant.UNBIND_REQ, mReq);
             startActivity(intent);
-            return;
-        }
-        if (view.getId() == R.id.clJoinAlexa) {
-            joinAlexa();
             return;
         }
         if (view.getId() == R.id.clGeoFenceLock) {
@@ -633,64 +622,6 @@ public class DeviceSettingActivity extends BaseActivity {
         });
     }
 
-    private void joinAlexa() {
-
-        String token = App.getInstance().getUserBean().getToken();
-        if (TextUtils.isEmpty(token)) {
-            Timber.e("token is empty");
-            return;
-        }
-
-        String userMail = App.getInstance().getUser().getMail();
-        if (TextUtils.isEmpty(userMail)) {
-            Timber.e("userMail is empty");
-            return;
-        }
-
-        AlexaAppUrlAndWebUrlReq urlReq = new AlexaAppUrlAndWebUrlReq();
-        urlReq.setType(1);
-        urlReq.setUserMail(userMail);
-        Observable<AlexaAppUrlAndWebUrlBeanRsp> appUrlAndWebUrl = HttpRequest.getInstance().getAppUrlAndWebUrl(token, urlReq);
-        ObservableDecorator.decorate(appUrlAndWebUrl).safeSubscribe(new Observer<AlexaAppUrlAndWebUrlBeanRsp>() {
-            @Override
-            public void onSubscribe(@io.reactivex.annotations.NonNull Disposable d) {
-
-            }
-
-            @Override
-            public void onNext(@io.reactivex.annotations.NonNull AlexaAppUrlAndWebUrlBeanRsp alexaAppUrlAndWebUrlBeanRsp) {
-                if (alexaAppUrlAndWebUrlBeanRsp != null && alexaAppUrlAndWebUrlBeanRsp.getCode().equals("200")) {
-                    if (alexaAppUrlAndWebUrlBeanRsp.getData() != null) {
-                        AlexaAppUrlAndWebUrlBeanRsp.DataBean data = alexaAppUrlAndWebUrlBeanRsp.getData();
-                        String appUrl = data.getAppUrl();
-                        String webFallbackUrl = data.getWebFallbackUrl();
-                        runOnUiThread(() -> {
-                            if (schemeValid(appUrl)) {
-                                gotoAlexa(appUrl);
-                            } else {
-                                Intent intent = new Intent();
-                                intent.setAction(Intent.ACTION_VIEW);
-                                Uri uri = Uri.parse(webFallbackUrl);
-                                intent.setData(uri);
-                                startActivity(intent);
-                            }
-                        });
-                    }
-                }
-            }
-
-            @Override
-            public void onError(@io.reactivex.annotations.NonNull Throwable e) {
-
-            }
-
-            @Override
-            public void onComplete() {
-
-            }
-        });
-    }
-
     @Override
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -699,22 +630,6 @@ public class DeviceSettingActivity extends BaseActivity {
             String stringExtra = data.getStringExtra("state");
             skillAlexa(authorizationCode, stringExtra);
         }
-    }
-
-    private final static int REQUEST_CODE = 0xf01;
-
-    private void gotoAlexa(String url) {
-        Intent action = new Intent(Intent.ACTION_VIEW);
-        action.setData(Uri.parse(url));
-        startActivityForResult(action, REQUEST_CODE);
-    }
-
-    private boolean schemeValid(String url) {
-        PackageManager manager = getPackageManager();
-        Intent action = new Intent(Intent.ACTION_VIEW);
-        action.setData(Uri.parse(url));
-        List<ResolveInfo> resolveInfos = manager.queryIntentActivities(action, PackageManager.GET_RESOLVED_FILTER);
-        return resolveInfos != null && !resolveInfos.isEmpty();
     }
 
     private void skillAlexa(String authorizationCode, String state) {
