@@ -153,7 +153,7 @@ public class AuthUserDetailActivity extends BaseActivity {
     private void refreshUI() {
         mTvAccount.setText(mShareUser.getUserMail());
         mTvUserName.setText(mShareUser.getFirstName() + " " + mShareUser.getLastName());
-        mTvDeviceNum.setText(String.valueOf(mDevicesAdapter.getItemCount()));
+        mTvDeviceNum.setText(String.valueOf(mShareUser.getDeviceCount()));
         RequestOptions requestOptions = RequestOptions.circleCropTransform()
                 .diskCacheStrategy(DiskCacheStrategy.AUTOMATIC)        //缓存
                 .skipMemoryCache(false)
