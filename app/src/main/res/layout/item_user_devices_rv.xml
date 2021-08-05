@@ -25,26 +25,16 @@
 
         <TextView
             android:id="@+id/tvDeviceName"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="12pt"
             android:layout_marginTop="12pt"
             android:text="@string/device_permissions"
             android:textColor="@color/c333333"
             android:textSize="15pt"
+            app:layout_constraintEnd_toStartOf="@id/ivMore"
             app:layout_constraintStart_toEndOf="@id/imageView"
             app:layout_constraintTop_toTopOf="parent" />
-
-        <TextView
-            android:id="@+id/tvPer"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/permission_family"
-            android:textColor="@color/c666666"
-            android:textSize="14pt"
-            app:layout_constraintBottom_toBottomOf="@+id/tvDeviceName"
-            app:layout_constraintStart_toEndOf="@+id/tvDeviceName"
-            app:layout_constraintTop_toTopOf="@+id/tvDeviceName" />
 
         <TextView
             android:id="@+id/tvDetail"

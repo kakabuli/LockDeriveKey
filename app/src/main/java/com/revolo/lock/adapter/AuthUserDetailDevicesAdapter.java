@@ -71,7 +71,6 @@ public class AuthUserDetailDevicesAdapter extends BaseMultiItemQuickAdapter<GetD
                 } else if (bean.getShareUserType() == 2) {
                     baseViewHolder.setText(R.id.tvDetail, R.string.per_app_unlock_only);
                 }
-                initPer(baseViewHolder, bean);
                 baseViewHolder.getView(R.id.ivMore).setOnClickListener(v -> {
                     onReInviteListener.onReInviteListener(bean);
                 });
@@ -81,16 +80,6 @@ public class AuthUserDetailDevicesAdapter extends BaseMultiItemQuickAdapter<GetD
             } else if (baseViewHolder.getItemViewType() == 1) {
                 baseViewHolder.setText(R.id.tvDeviceName, TextUtils.isEmpty(bean.getLockNickname()) ? "" : bean.getLockNickname());
             }
-        }
-    }
-
-    private void initPer(@NotNull BaseViewHolder holder, GetDevicesFromUidAndSharedUidBeanRsp.DataBean bean) {
-        if (bean.getShareUserType() == 1) {
-            holder.setText(R.id.tvPer, R.string.permission_family);
-        } else if (bean.getShareUserType() == 2) {
-            holder.setText(R.id.tvPer, R.string.permission_guest);
-        } else {
-            holder.setText(R.id.tvPer, R.string.permission_closed_permission);
         }
     }
 
