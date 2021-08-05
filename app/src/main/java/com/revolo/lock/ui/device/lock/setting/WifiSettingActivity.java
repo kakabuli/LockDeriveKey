@@ -62,6 +62,7 @@ public class WifiSettingActivity extends BaseActivity {
     private static final int MSG_CONNECT_BLE_OK = 3685;//连接蓝牙成功
     private static final int MSG_CLTIPCLICK = 3687;
     private static final int MSG_ONDEBOUNCINGCLICK = 3688;
+    private static final int MSG_CLOSE_WIFI_OUT_TIME = 3690;
     private static final int MSG_CLOSE_WIFI = 3689;
     private int MSG_CONNECT_BLE_TME = 15000;//ble连接时间
     private BleDeviceLocal mBleDeviceLocal;
@@ -112,6 +113,7 @@ public class WifiSettingActivity extends BaseActivity {
             }
         });
         mSelectDialog.setOnConfirmListener(v -> {
+            Timber.e("关闭WiFi");
             handler.sendEmptyMessageDelayed(MSG_CLOSE_WIFI, 60000);
             closeWifiFromMQtt();
             if (mSelectDialog != null) {
@@ -128,6 +130,10 @@ public class WifiSettingActivity extends BaseActivity {
                 dissOpenBleDialog();
                 handler.removeMessages(MSG_CLTIPCLICK);
                 handler.removeMessages(MSG_ONDEBOUNCINGCLICK);
+                handler.removeMessages(MSG_CLOSE_WIFI);
+                ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_setting_fail);
+            } else if (msg.what == MSG_CLOSE_WIFI_OUT_TIME) {
+                handler.removeMessages(MSG_CLOSE_WIFI);
                 ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_setting_fail);
             } else if (msg.what == MSG_CONNECT_BLE_OK) {
                 if (handler.hasMessages(MSG_CLTIPCLICK)) {
@@ -138,7 +144,9 @@ public class WifiSettingActivity extends BaseActivity {
                     onDebouncingCli();
                 } else if (handler.hasMessages(MSG_CLOSE_WIFI)) {
                     handler.removeMessages(MSG_CLOSE_WIFI);
+                    Timber.e("执行WiFi标记");
                 } else {
+                    Timber.e("WiFi跳转");
                     gotoAddWifiAct();
                 }
             }
@@ -197,6 +205,8 @@ public class WifiSettingActivity extends BaseActivity {
         handler.removeMessages(MSG_CLTIPCLICK);
         handler.removeMessages(MSG_ONDEBOUNCINGCLICK);
         handler.removeMessages(MSG_CLOSE_WIFI);
+        handler.removeMessages(MSG_CLOSE_WIFI_OUT_TIME);
+        Timber.e("清理WiFi标记");
     }
 
     @Override
@@ -295,7 +305,7 @@ public class WifiSettingActivity extends BaseActivity {
     }
 
     private void closeWifiFromMQtt() {
-
+        handler.sendEmptyMessageDelayed(MSG_CLOSE_WIFI_OUT_TIME, 4000);
         showLoading();
         LockMessage message = new LockMessage();
         message.setMessageType(2);
@@ -392,6 +402,7 @@ public class WifiSettingActivity extends BaseActivity {
             if (lockMessage.getResultCode() == LockMessageCode.MSG_LOCK_MESSAGE_CODE_SUCCESS) {
                 switch (lockMessage.getMessageCode()) {
                     case LockMessageCode.MSG_LOCK_MESSAGE_CLOSE_WIFI:
+                        handler.removeMessages(MSG_CLOSE_WIFI_OUT_TIME);
                         processCloseWifiFromMQtt((WifiLockCloseWifiResponseBean) lockMessage.getWifiLockBaseResponseBean());
                         break;
                     case LockMessageCode.MSG_LOCK_MESSAGE_APP_ROACH_OPEN:
