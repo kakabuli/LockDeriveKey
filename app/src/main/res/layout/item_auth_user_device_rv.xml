@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -28,15 +27,16 @@
 
     <TextView
         android:id="@+id/tvDeviceName"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="24pt"
         android:layout_marginTop="17pt"
-        tools:text="hudada's"
-        android:textSize="15pt"
         android:textColor="@color/c333333"
+        android:textSize="15pt"
+        app:layout_constraintEnd_toStartOf="@id/imageView23"
         app:layout_constraintStart_toEndOf="@+id/imageView22"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="hudada's" />
 
     <TextView
         android:id="@+id/tvSn"
@@ -44,9 +44,9 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="24pt"
         android:layout_marginTop="5pt"
-        tools:text="equipment SN123456"
-        android:textSize="15pt"
         android:textColor="@color/c666666"
+        android:textSize="15pt"
         app:layout_constraintStart_toEndOf="@+id/imageView22"
-        app:layout_constraintTop_toBottomOf="@+id/tvDeviceName" />
+        app:layout_constraintTop_toBottomOf="@+id/tvDeviceName"
+        tools:text="equipment SN123456" />
 </androidx.constraintlayout.widget.ConstraintLayout>
