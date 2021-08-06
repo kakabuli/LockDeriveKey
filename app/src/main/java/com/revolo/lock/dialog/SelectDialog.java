@@ -3,12 +3,15 @@ package com.revolo.lock.dialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.os.Bundle;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 
 import com.revolo.lock.R;
+
+import timber.log.Timber;
 
 /**
  * author : Jack
@@ -21,6 +24,7 @@ public class SelectDialog extends Dialog {
     private TextView mTvContent, mTvConfirm, mTvCancel;
     private String mMsg, mConfirmText;
     private View.OnClickListener mOnConfirmClickListener, mOnCancelClickListener;
+    private boolean isReturn = false;
 
     public SelectDialog(@NonNull Context context) {
         super(context, R.style.CustomDialog);
@@ -35,6 +39,14 @@ public class SelectDialog extends Dialog {
         mTvConfirm = findViewById(R.id.tvConfirm);
         mTvCancel = findViewById(R.id.tvCancel);
         refreshView();
+    }
+
+    public boolean isReturn() {
+        return isReturn;
+    }
+
+    public void setReturn(boolean aReturn) {
+        isReturn = aReturn;
     }
 
     public TextView getCancel() {
@@ -70,6 +82,24 @@ public class SelectDialog extends Dialog {
         if (mConfirmText != null && mTvConfirm != null) {
             mTvConfirm.setText(mConfirmText);
         }
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, @NonNull KeyEvent event) {
+        Timber.e("onkeyDown:"+isReturn);
+        if (isReturn) {
+            return true;
+        }
+        return super.onKeyDown(keyCode, event);
+    }
+
+    @Override
+    public boolean onKeyUp(int keyCode, @NonNull KeyEvent event) {
+        Timber.e("onKeyUp:"+isReturn);
+        if (isReturn) {
+            return true;
+        }
+        return super.onKeyUp(keyCode, event);
     }
 
     @Override

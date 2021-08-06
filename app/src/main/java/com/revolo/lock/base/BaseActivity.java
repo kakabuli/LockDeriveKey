@@ -147,9 +147,24 @@ public abstract class BaseActivity extends AppCompatActivity
     }
 
     /**
-     * 检测当前蓝牙是否开启、并提示用户开启bluetooth
+     * 是否去开启蓝牙的回调
      */
-    public boolean checkIsOpenBluetooth() {
+    public interface checkOpenBluetoothClick {
+        void onOpenBluetooth(int type);
+    }
+
+    private checkOpenBluetoothClick openBluetoothClick;
+
+    public void setOpenBluetoothClick(checkOpenBluetoothClick openBluetoothClick) {
+        this.openBluetoothClick = openBluetoothClick;
+    }
+
+    /**
+     * 检测当前蓝牙是否开启、并提示用户开启bluetooth
+     * @param type  操作类型
+     * @return
+     */
+    public boolean checkIsOpenBluetooth(int type) {
         Timber.e("检测当前手机蓝牙是否开启");
         if (null == mBluetoothAdapter) {
             if (null != App.getInstance().getLockAppService()) {
@@ -165,6 +180,9 @@ public abstract class BaseActivity extends AppCompatActivity
                     OpenBluetoothDialog.setOnCancelClickListener(v -> OpenBluetoothDialog.dismiss());
                     OpenBluetoothDialog.setOnConfirmListener(v -> {
                         OpenBluetoothDialog.dismiss();
+                        if (null != openBluetoothClick) {
+                            openBluetoothClick.onOpenBluetooth(type);
+                        }
                         if (null != mBluetoothAdapter) {
                             mBluetoothAdapter.enable();
                         }
@@ -256,6 +274,17 @@ public abstract class BaseActivity extends AppCompatActivity
                     .create();
             mLoadingDialog.show();
         });
+    }
+
+    /**
+     * 设置加载对话框是否因返回键消失
+     *
+     * @param isDown
+     */
+    protected void setLoadingDialog(boolean isDown) {
+        if (null != mLoadingDialog) {
+            mLoadingDialog.setReturnDiss(isDown);
+        }
     }
 
     public void showLoading() {
