@@ -111,5 +111,10 @@ public class Constant {
      */
     public static int verificationCodeTimeCount = 60;
 
-    public static int LOCK_GEO_CONNECT_BLE_INDEX=25;
+    public static int LOCK_GEO_CONNECT_BLE_INDEX = 25;
+
+    /**
+     * 是否有新版本更新
+     */
+    public static boolean isNewAppVersion = false;
 }

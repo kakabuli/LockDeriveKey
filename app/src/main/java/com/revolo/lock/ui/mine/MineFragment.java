@@ -21,6 +21,7 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.RequestOptions;
 import com.revolo.lock.App;
+import com.revolo.lock.Constant;
 import com.revolo.lock.R;
 import com.revolo.lock.bean.request.AlexaAppUrlAndWebUrlReq;
 import com.revolo.lock.bean.respone.AlexaAppUrlAndWebUrlBeanRsp;
@@ -42,6 +43,7 @@ public class MineFragment extends Fragment {
     private ImageView ivAvatar;
     private TextView tvDayDetail;
     private TextView tvHiName;
+    private View vMark;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -63,6 +65,7 @@ public class MineFragment extends Fragment {
         root.findViewById(R.id.clHelp).setOnClickListener(v -> {
             startActivity(new Intent(getContext(), HelpActivity.class));
         });
+        vMark = root.findViewById(R.id.vMark);
         return root;
     }
 
@@ -77,6 +80,8 @@ public class MineFragment extends Fragment {
             long registerTime = user.getRegisterTime();
             tvDayDetail.setText(getString(R.string.day_detail, daysBetween(TimeUtils.getNowMills() / 1000, registerTime)));
         });
+
+        vMark.setVisibility(Constant.isNewAppVersion ? View.VISIBLE : View.GONE);
         refreshAvatar(mMineViewModel.getUser().getValue());
     }
 
