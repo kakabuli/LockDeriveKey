@@ -499,11 +499,11 @@ public class LockAppService extends Service {
             } else {
                 //当前list中存在设备，更新当前的状态
                 //   bleDeviceLocal.set
-                if (!bleState || mqttState) {
+               // if (!bleState || mqttState) {
                     Timber.e("update device content:" + bleDeviceLocal.getEsn());
                     mDeviceLists.remove(index);
                     mDeviceLists.add(bleDeviceLocal);
-                } else {
+                /*} else {
                     //蓝牙模式状态只更新分享装，其他状态以锁为准
                     for (int i = 0; i < mDeviceLists.size(); i++) {
                         if (bleDeviceLocal.getEsn().equals(mDeviceLists.get(i).getEsn())) {
@@ -512,7 +512,7 @@ public class LockAppService extends Service {
                             break;
                         }
                     }
-                }
+                }*/
             }
             //判断当前ble的连接情况
             Timber.e("当前设备的连接状态：" + bleDeviceLocal.getConnectedType());

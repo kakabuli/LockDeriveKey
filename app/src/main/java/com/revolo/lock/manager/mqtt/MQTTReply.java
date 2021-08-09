@@ -344,13 +344,19 @@ public class MQTTReply {
 
         if (!TextUtils.isEmpty(wifiListBean.getLockNickname()))
             bleDeviceLocal.setName(wifiListBean.getLockNickname());
-        //门磁状态
-        if (wifiListBean.getMagneticStatus() == 1) {
-            bleDeviceLocal.setDoorSensor(LocalState.DOOR_SENSOR_OPEN);
-        } else if (wifiListBean.getMagneticStatus() == 2) {
-            bleDeviceLocal.setDoorSensor(LocalState.DOOR_SENSOR_CLOSE);
-        } else if (wifiListBean.getMagneticStatus() == 3) {
-            bleDeviceLocal.setDoorSensor(LocalState.DOOR_SENSOR_EXCEPTION);
+
+        if (bleDeviceLocal.getConnectedType() != LocalState.DEVICE_CONNECT_TYPE_BLE) {
+            Timber.e("当前非蓝牙模式状态下。更新门磁状态");
+            //门磁状态
+            if (wifiListBean.getMagneticStatus() == 1) {
+                bleDeviceLocal.setDoorSensor(LocalState.DOOR_SENSOR_OPEN);
+            } else if (wifiListBean.getMagneticStatus() == 2) {
+                bleDeviceLocal.setDoorSensor(LocalState.DOOR_SENSOR_CLOSE);
+            } else if (wifiListBean.getMagneticStatus() == 3) {
+                bleDeviceLocal.setDoorSensor(LocalState.DOOR_SENSOR_EXCEPTION);
+            }
+        } else {
+            Timber.e("当前蓝牙模式状态下。门磁以本地状态为准");
         }
         //启用门磁
         bleDeviceLocal.setOpenDoorSensor(wifiListBean.getDoorSensor() == 1);
@@ -371,7 +377,7 @@ public class MQTTReply {
         if (!TextUtils.isEmpty(wifiListBean.getWifiStatus()))
             bleDeviceLocal.setConnectedType(Integer.parseInt(wifiListBean.getWifiStatus()));
 
-        bleDeviceLocal.setLockPower(wifiListBean.getPower());
+        //bleDeviceLocal.setLockPower(wifiListBean.getPower());
         //锁的wifi模式下开关状态已服务器为准
         Timber.e("设备 服务器 lockState： %s", wifiListBean.getOpenStatus() + "");
         Timber.e("设备 本地 lockState： %s", bleDeviceLocal.getLockState() + "");
