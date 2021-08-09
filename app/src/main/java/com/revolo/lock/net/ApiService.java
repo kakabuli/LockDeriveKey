@@ -40,6 +40,7 @@ import com.revolo.lock.bean.request.LockKeyAddBeanReq;
 import com.revolo.lock.bean.request.LockRecordBeanReq;
 import com.revolo.lock.bean.request.MailLoginBeanReq;
 import com.revolo.lock.bean.request.MailRegisterBeanReq;
+import com.revolo.lock.bean.request.Oauth2AccountBeanReq;
 import com.revolo.lock.bean.request.OpenDoorRecordSearchBeanReq;
 import com.revolo.lock.bean.request.PostNotDisturbModeBeanReq;
 import com.revolo.lock.bean.request.SearchAlarmRecordBeanReq;
@@ -98,6 +99,7 @@ import com.revolo.lock.bean.respone.LogoutBeanRsp;
 import com.revolo.lock.bean.respone.MailLoginBeanRsp;
 import com.revolo.lock.bean.respone.MailRegisterBeanRsp;
 import com.revolo.lock.bean.respone.NotDisturbModeBeanRsp;
+import com.revolo.lock.bean.respone.Oauth2AccountBeanRsp;
 import com.revolo.lock.bean.respone.OpenDoorRecordSearchBeanRsp;
 import com.revolo.lock.bean.respone.QuestionBeanRsp;
 import com.revolo.lock.bean.respone.SearchAlarmRecordBeanRsp;
@@ -377,6 +379,7 @@ public interface ApiService {
 
     /**
      * 更新鉴权 pwd2
+     *
      * @param token
      * @param req
      * @param urlName
@@ -794,4 +797,14 @@ public interface ApiService {
     @Headers({"Content-Type: application/json"})
     @POST("/boss/versions/get")
     Observable<GetVersionBeanRsp> getVersion(@Header("token") String token, @Body GetVersionBeanReq req);
+
+    /**
+     * 获取用户第三方账户授权信息
+     *
+     * @param token 用户权限码
+     * @param req   请求实体
+     */
+    @Headers({"Content-Type: application/json"})
+    @POST("/smart/oauth2/account")
+    Observable<Oauth2AccountBeanRsp> oauth2Account(@Header("token") String token, @Body Oauth2AccountBeanReq req);
 }

@@ -6,6 +6,7 @@ import android.content.pm.ResolveInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,6 +18,7 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.blankj.utilcode.util.TimeUtils;
+import com.blankj.utilcode.util.ToastUtils;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.RequestOptions;
@@ -24,7 +26,9 @@ import com.revolo.lock.App;
 import com.revolo.lock.Constant;
 import com.revolo.lock.R;
 import com.revolo.lock.bean.request.AlexaAppUrlAndWebUrlReq;
+import com.revolo.lock.bean.request.Oauth2AccountBeanReq;
 import com.revolo.lock.bean.respone.AlexaAppUrlAndWebUrlBeanRsp;
+import com.revolo.lock.bean.respone.Oauth2AccountBeanRsp;
 import com.revolo.lock.net.HttpRequest;
 import com.revolo.lock.net.ObservableDecorator;
 import com.revolo.lock.room.entity.User;
@@ -42,13 +46,12 @@ public class MineFragment extends Fragment {
     private MineViewModel mMineViewModel;
     private ImageView ivAvatar;
     private TextView tvDayDetail;
-    private TextView tvHiName;
+    private TextView tvHiName, tvTip;
     private View vMark;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
-        mMineViewModel =
-                new ViewModelProvider(this).get(MineViewModel.class);
+        mMineViewModel = new ViewModelProvider(this).get(MineViewModel.class);
         View root = inflater.inflate(R.layout.fragment_mine, container, false);
         tvHiName = root.findViewById(R.id.tvHiName);
         tvDayDetail = root.findViewById(R.id.tvDayDetail);
@@ -66,12 +69,15 @@ public class MineFragment extends Fragment {
             startActivity(new Intent(getContext(), HelpActivity.class));
         });
         vMark = root.findViewById(R.id.vMark);
+        tvTip = root.findViewById(R.id.tvTip);
         return root;
     }
 
     @Override
     public void onResume() {
         super.onResume();
+
+        getOauth2Account();
 
         mMineViewModel.getUser().observe(getViewLifecycleOwner(), user -> {
             String userName = user.getFirstName();
@@ -118,9 +124,58 @@ public class MineFragment extends Fragment {
                 .into(ivAvatar);
     }
 
+    private void getOauth2Account() {
+
+        String token = App.getInstance().getUserBean().getToken();
+        if (TextUtils.isEmpty(token)) {
+            Timber.e("token is empty");
+            return;
+        }
+
+        Oauth2AccountBeanReq req = new Oauth2AccountBeanReq();
+        Observable<Oauth2AccountBeanRsp> oauth2AccountBeanRspObservable = HttpRequest.getInstance().oauth2Account(token, req);
+        ObservableDecorator.decorate(oauth2AccountBeanRspObservable).safeSubscribe(new Observer<Oauth2AccountBeanRsp>() {
+            @Override
+            public void onSubscribe(@io.reactivex.annotations.NonNull Disposable d) {
+
+            }
+
+            @Override
+            public void onNext(@io.reactivex.annotations.NonNull Oauth2AccountBeanRsp oauth2AccountBeanRsp) {
+                tvTip.setVisibility(View.GONE);
+                if (oauth2AccountBeanRsp.getCode().equals("200")) {
+                    Oauth2AccountBeanRsp.DataBean data = oauth2AccountBeanRsp.getData();
+                    if (data != null) {
+                        List<Oauth2AccountBeanRsp.DataBean.AccountListBean> accountList = data.getAccountList();
+                        if (accountList != null && !accountList.isEmpty()) {
+                            for (int i = 0; i < accountList.size(); i++) {
+                                Oauth2AccountBeanRsp.DataBean.AccountListBean accountListBean = accountList.get(i);
+                                if (accountListBean.getAccountType().equals("alexa") || accountListBean.getAccountType().equals("Alexa")) {
+                                    tvTip.setVisibility(View.VISIBLE);
+                                }
+                            }
+                        }
+                    }
+                } else if (oauth2AccountBeanRsp.getCode().equals("444")) {
+                    App.getInstance().logout(true, getActivity());
+                } else {
+                    ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(oauth2AccountBeanRsp.getMsg());
+                }
+            }
+
+            @Override
+            public void onError(@io.reactivex.annotations.NonNull Throwable e) {
+
+            }
+
+            @Override
+            public void onComplete() {
+
+            }
+        });
+    }
 
     private void joinAlexa() {
-
         String token = App.getInstance().getUserBean().getToken();
         if (TextUtils.isEmpty(token)) {
             Timber.e("token is empty");
@@ -151,15 +206,15 @@ public class MineFragment extends Fragment {
                         String appUrl = data.getAppUrl();
                         String webFallbackUrl = data.getWebFallbackUrl();
                         getActivity().runOnUiThread(() -> {
-                            if (schemeValid(appUrl)) {
-                                gotoAlexa(appUrl);
-                            } else {
-                                Intent intent = new Intent();
-                                intent.setAction(Intent.ACTION_VIEW);
-                                Uri uri = Uri.parse(webFallbackUrl);
-                                intent.setData(uri);
-                                startActivity(intent);
-                            }
+//                            if (schemeValid(appUrl)) {
+                            gotoAlexa(appUrl);
+//                            } else {
+//                                Intent intent = new Intent();
+//                                intent.setAction(Intent.ACTION_VIEW);
+//                                Uri uri = Uri.parse(webFallbackUrl);
+//                                intent.setData(uri);
+//                                startActivity(intent);
+//                            }
                         });
                     }
                 }
@@ -176,7 +231,6 @@ public class MineFragment extends Fragment {
             }
         });
     }
-
 
     private final static int REQUEST_CODE = 0xf01;
 
