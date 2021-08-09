@@ -315,6 +315,17 @@
             app:layout_constraintStart_toEndOf="@+id/imageView20"
             app:layout_constraintTop_toTopOf="parent" />
 
+        <TextView
+            android:id="@+id/tvTip"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="bound"
+            android:textSize="12pt"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintRight_toLeftOf="@id/imageView19"
+            app:layout_constraintTop_toTopOf="parent" />
+
         <ImageView
             android:id="@+id/imageView19"
             android:layout_width="wrap_content"

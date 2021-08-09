@@ -42,6 +42,7 @@ import com.revolo.lock.bean.request.LockKeyAddBeanReq;
 import com.revolo.lock.bean.request.LockRecordBeanReq;
 import com.revolo.lock.bean.request.MailLoginBeanReq;
 import com.revolo.lock.bean.request.MailRegisterBeanReq;
+import com.revolo.lock.bean.request.Oauth2AccountBeanReq;
 import com.revolo.lock.bean.request.OpenDoorRecordSearchBeanReq;
 import com.revolo.lock.bean.request.PostNotDisturbModeBeanReq;
 import com.revolo.lock.bean.request.SearchAlarmRecordBeanReq;
@@ -100,6 +101,7 @@ import com.revolo.lock.bean.respone.LogoutBeanRsp;
 import com.revolo.lock.bean.respone.MailLoginBeanRsp;
 import com.revolo.lock.bean.respone.MailRegisterBeanRsp;
 import com.revolo.lock.bean.respone.NotDisturbModeBeanRsp;
+import com.revolo.lock.bean.respone.Oauth2AccountBeanRsp;
 import com.revolo.lock.bean.respone.OpenDoorRecordSearchBeanRsp;
 import com.revolo.lock.bean.respone.QuestionBeanRsp;
 import com.revolo.lock.bean.respone.SearchAlarmRecordBeanRsp;
@@ -532,5 +534,9 @@ public class HttpRequest {
 
     public Observable<GetVersionBeanRsp> getVersion(String token, GetVersionBeanReq req) {
         return service.getVersion(token, req);
+    }
+
+    public Observable<Oauth2AccountBeanRsp> oauth2Account(String token, Oauth2AccountBeanReq req) {
+        return service.oauth2Account(token, req);
     }
 }
