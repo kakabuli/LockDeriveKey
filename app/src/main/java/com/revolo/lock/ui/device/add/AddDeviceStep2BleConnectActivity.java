@@ -445,7 +445,7 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
         BleBean bleBean = App.getInstance().getUserBleBean(bleResultBean.getScanResult().getMacAddress());
         if (null != bleBean) {
             // 本地存储
-            int power = BleByteUtil.byteToInt(bleResultBean.getPayload()[11]);
+            int power =100;//默认电量为100，后面同步锁端更新 BleByteUtil.byteToInt(bleResultBean.getPayload()[11]);
             addDeviceToLocal(power, mEsn, mMac, ConvertUtils.bytes2HexString(mPwd1), ConvertUtils.bytes2HexString(bleBean.getPwd2()), mScanResult);
             AdminAddDeviceBeanReq req = new AdminAddDeviceBeanReq();
             req.setDevmac(mMac);
