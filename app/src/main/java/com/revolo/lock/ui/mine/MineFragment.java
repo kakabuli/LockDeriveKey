@@ -47,8 +47,7 @@ public class MineFragment extends Fragment {
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
-        mMineViewModel =
-                new ViewModelProvider(this).get(MineViewModel.class);
+        mMineViewModel = new ViewModelProvider(this).get(MineViewModel.class);
         View root = inflater.inflate(R.layout.fragment_mine, container, false);
         tvHiName = root.findViewById(R.id.tvHiName);
         tvDayDetail = root.findViewById(R.id.tvDayDetail);
@@ -151,15 +150,15 @@ public class MineFragment extends Fragment {
                         String appUrl = data.getAppUrl();
                         String webFallbackUrl = data.getWebFallbackUrl();
                         getActivity().runOnUiThread(() -> {
-                            if (schemeValid(appUrl)) {
-                                gotoAlexa(appUrl);
-                            } else {
-                                Intent intent = new Intent();
-                                intent.setAction(Intent.ACTION_VIEW);
-                                Uri uri = Uri.parse(webFallbackUrl);
-                                intent.setData(uri);
-                                startActivity(intent);
-                            }
+//                            if (schemeValid(appUrl)) {
+                            gotoAlexa(appUrl);
+//                            } else {
+//                                Intent intent = new Intent();
+//                                intent.setAction(Intent.ACTION_VIEW);
+//                                Uri uri = Uri.parse(webFallbackUrl);
+//                                intent.setData(uri);
+//                                startActivity(intent);
+//                            }
                         });
                     }
                 }

@@ -23,6 +23,8 @@
     <color name="cEDEDED">#EDEDED</color>
     <color name="cFF6A36">#FF6A36</color>
     <color name="cFDECF0">#FDECF0</color>
+    <color name="c6086e8">#6086e8</color>
+    <color name="cD4E1FF">#D4E1FF</color>
 
     <color name="transparent">#00FFFFFF</color>
 </resources>

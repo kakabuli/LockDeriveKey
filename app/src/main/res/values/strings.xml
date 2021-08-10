@@ -7,7 +7,7 @@
     <!--   SignSelectActivity  -->
     <string name="revolo">Revolo</string>
     <string name="tip_sign_select">Welcome to use revolo products to\n give you a safe and comfortable\n home</string>
-    <string name="register">Register</string>
+    <string name="register">SIGN UP</string>
     <string name="sign_in">Sign in</string>
 
     <string name="iv_tip_back">Back</string>
@@ -21,9 +21,10 @@
     <string name="i_agree_to">I agree to</string>
     <string name="terms_of_use">Service Agreement</string>
     <string name="terms_of_privacy">Privacy Policy</string>
+    <string name="t_tip_password_rule">8-15 characters, including upper case letters, lower case letters and numbers.</string>
 
     <!-- RegisterAddAvatarActivity -->
-    <string name="tip_register_add_avatar">Add a avatar so your family and friends\n can get to know you when you send an\n invitation</string>
+    <string name="tip_register_add_avatar">Customize your Avatar</string>
     <string name="album_add">Album add</string>
     <string name="photograph">Photograph</string>
     <string name="skip">Skip</string>
@@ -40,10 +41,12 @@
     <string name="add_next_time">Add next time</string>
 
     <!-- LoginActivity -->
-    <string name="tip_login">Please enter your email account！</string>
+    <string name="tip_login">Welcome Home</string>
     <string name="pin_key">PIN key</string>
     <string name="password">Password</string>
-    <string name="forgot_password">Forgot password?</string>
+    <string name="input_email_address">Email Address</string>
+    <string name="forgot_password">Forgot password</string>
+    <string name="sign_up">Sign Up</string>
 
     <!-- ForgetThePwdActivity -->
     <string name="title_forget_the_pwd">Forget the password</string>

@@ -120,7 +120,7 @@ public class ForgetThePwdActivity extends BaseActivity {
         }
         if (view.getId() == R.id.ivEye) {
             ImageView ivEye = findViewById(R.id.ivEye);
-            ivEye.setImageResource(isShowPwd ? R.drawable.ic_login_icon_display : R.drawable.ic_login_icon_hide);
+            ivEye.setImageResource(isShowPwd ? R.drawable.ic_login_icon_display_blue : R.drawable.ic_login_icon_hide_blue);
             EditText etPwd = findViewById(R.id.etPwd);
             etPwd.setInputType(isShowPwd ?
                     InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
