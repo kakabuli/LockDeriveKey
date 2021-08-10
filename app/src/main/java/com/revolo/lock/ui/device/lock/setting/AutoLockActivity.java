@@ -211,7 +211,6 @@ public class AutoLockActivity extends BaseActivity {
             mSeekBar.setProgress(getProgressFromTime(mBleDeviceLocal.getSetAutoLockTime()));
             mTvTip.setText(getString(mTime == 0 ? R.string.tip_the_timer_will_start_when_your_door_is_closed : R.string.tip_door_will_be_locked_when_time_is_up));
         });
-
     }
 
     // private Disposable mOpenOrCloseAutoLockDisposable;
