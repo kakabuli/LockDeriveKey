@@ -528,11 +528,16 @@ public class WifiSettingActivity extends BaseActivity {
     }
 
     private void connectBle() {
-        //去连接蓝牙
-        LockConnected bleConnected = new LockConnected();
-        bleConnected.setConnectType(LocalState.CONNECT_STATE_MQTT_CONFIG_DOOR);
-        bleConnected.setBleDeviceLocal(mBleDeviceLocal);
-        EventBus.getDefault().post(bleConnected);
+        mHandler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                //去连接蓝牙
+                LockConnected bleConnected = new LockConnected();
+                bleConnected.setConnectType(LocalState.CONNECT_STATE_MQTT_CONFIG_DOOR);
+                bleConnected.setBleDeviceLocal(mBleDeviceLocal);
+                EventBus.getDefault().post(bleConnected);
+            }
+        }, 500);
     }
 
     /**

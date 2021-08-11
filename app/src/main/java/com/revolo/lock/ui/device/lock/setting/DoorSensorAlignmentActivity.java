@@ -317,7 +317,12 @@ public class DoorSensorAlignmentActivity extends BaseActivity {
             return;
         }
         // TODO: 2021/3/5 开启成功，然后开启蓝牙并不断搜索设备
-        connectBle();
+        mHandler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                connectBle();
+            }
+        }, 500);
     }
 
     private void connectBle() {
@@ -368,6 +373,7 @@ public class DoorSensorAlignmentActivity extends BaseActivity {
 
     private void nextClick() {
         Timber.e("nextClick()");
+        mBleDeviceLocal = App.getInstance().getBleDeviceLocal();
         if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI || mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI_BLE) {
             if (mBleDeviceLocal.isOpenDoorSensor()) {
                 publishSetMagnetic(mBleDeviceLocal.getEsn(), BleCommandState.DOOR_CALIBRATION_STATE_CLOSE_SE);

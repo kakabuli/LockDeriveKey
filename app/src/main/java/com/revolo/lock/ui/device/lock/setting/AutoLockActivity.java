@@ -381,6 +381,11 @@ public class AutoLockActivity extends BaseActivity {
             mTvTime.setText("30min");
             mTime = 30 * 60;
         }
+        mBleDeviceLocal = App.getInstance().getBleDeviceLocal();
+        if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_DIS) {
+            ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_text_content_offline_devices);
+            return;
+        }
         if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI || mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI_BLE) {
             publishAutoLockTime(mBleDeviceLocal.getEsn(), mTime);
         } else {
@@ -388,6 +393,9 @@ public class AutoLockActivity extends BaseActivity {
         }
     }
 
+    /**
+     * 设置自动上锁时间
+     */
     private void setAutoLockTimeFromBle() {
         BleBean bleBean = App.getInstance().getUserBleBean(mBleDeviceLocal.getMac());
         if (bleBean == null) {
