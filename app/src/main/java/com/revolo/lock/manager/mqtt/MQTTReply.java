@@ -332,6 +332,50 @@ public class MQTTReply {
         EventBus.getDefault().post(messageRes);
     }
 
+    /**
+     * 检查字符串是否为空或是""
+     *
+     * @param pwdValue
+     * @return
+     */
+    private boolean checkString(String pwdValue) {
+        if (null == pwdValue || "".equals(pwdValue)) {
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * 检查pwd创建时间
+     *
+     * @param creNaiTime
+     * @param creTime2
+     * @return
+     */
+    private boolean checkPwdCreateTime(String creNaiTime, String creTime2) {
+        try {
+            long cet1 = 0;
+            if (null == creNaiTime || "".equals(creNaiTime)) {
+                cet1 = 0;
+            } else {
+                cet1 = Long.parseLong(creNaiTime);
+            }
+            long cet2 = 0;
+            if (null == creTime2 || "".equals(creTime2)) {
+                cet2 = 0;
+            } else {
+                cet2 = Long.parseLong(creTime2);
+            }
+            Timber.e("本地pwd创建时间：" + cet1);
+            Timber.e("服务器pwd创建时间:" + cet2);
+            if (cet1 > cet2) {
+                return true;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
 
     /**
      * 从服务端获取当前的所有的设备
@@ -340,6 +384,26 @@ public class MQTTReply {
      * @return
      */
     private BleDeviceLocal createDeviceToLocal(WifiLockGetAllBindDeviceRspBean.DataBean.WifiListBean wifiListBean, BleDeviceLocal bleDeviceLocal) {
+        if (null != bleDeviceLocal.getPwd2()) {
+            Timber.e("本地pwd：" + bleDeviceLocal.getPwd2());
+        } else {
+            Timber.e("本地pwd：null");
+        }
+        Timber.e("服务端pwd:" + wifiListBean.getPassword2());
+
+        if (checkString(bleDeviceLocal.getPwd2()) && checkString(wifiListBean.getPassword2()) &&
+                !bleDeviceLocal.getPwd2().equals(wifiListBean.getPassword2())
+                && checkPwdCreateTime(bleDeviceLocal.getPassword2Time() + "", wifiListBean.getPassword2Time() + "")) {
+            Timber.e("本地与服务器端的pwd2不一致，需要上报给服务器");
+            //鉴权异常
+            if (null != mqttDataLinstener) {
+                mqttDataLinstener.updateToService(bleDeviceLocal.getEsn(), bleDeviceLocal.getPwd2(), bleDeviceLocal.getPassword2Time());
+            }
+        } else {
+            Timber.e("本地与服务器端的pwd2一致");
+            if (!TextUtils.isEmpty(wifiListBean.getPassword2()))
+                bleDeviceLocal.setPwd2(wifiListBean.getPassword2());
+        }
 
         // TODO: 2021/3/16 存储数据
         if (!TextUtils.isEmpty(wifiListBean.getRandomCode()))
@@ -420,8 +484,6 @@ public class MQTTReply {
 
         bleDeviceLocal.setCreateTime(wifiListBean.getCreateTime());
 
-        if (!TextUtils.isEmpty(wifiListBean.getPassword2()))
-            bleDeviceLocal.setPwd2(wifiListBean.getPassword2());
 
         bleDeviceLocal.setDetectionLock(true);
 
