@@ -13,6 +13,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
@@ -80,6 +82,8 @@ public class DeviceFragment extends Fragment {
     private RefreshLayout mRefreshLayout;
     private TitleBar titleBar;
     private BluetoothAdapter mBluetoothAdapter;
+    private RelativeLayout hintOpenView;
+    private TextView calHintOpen, openHintView;
 
     private final BroadcastReceiver mReceiver = new BroadcastReceiver() {
         @Override
@@ -110,6 +114,40 @@ public class DeviceFragment extends Fragment {
                              ViewGroup container, Bundle savedInstanceState) {
         if (null == root) {
             root = inflater.inflate(R.layout.fragment_device, container, false);
+            hintOpenView = root.findViewById(R.id.device_fragment_hint_open_view);
+            hintOpenView.setBackgroundColor(getResources().getColor(R.color.open_ble_view_back_transparent));
+            if (hintOpenView.getVisibility() == View.VISIBLE) {
+                hintOpenView.setVisibility(View.GONE);
+            }
+            hintOpenView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+
+                }
+            });
+            calHintOpen = root.findViewById(R.id.tvCancel);
+            calHintOpen.setOnClickListener(v -> {
+                if (hintOpenView.getVisibility() == View.VISIBLE) {
+                    hintOpenView.setVisibility(View.GONE);
+                }
+            });
+            openHintView = root.findViewById(R.id.tvConfirm);
+            openHintView.setOnClickListener(v -> {
+                if (hintOpenView.getVisibility() == View.VISIBLE) {
+                    hintOpenView.setVisibility(View.GONE);
+                }
+                if (null == mBluetoothAdapter) {
+                    if (null != App.getInstance().getLockAppService()) {
+                        mBluetoothAdapter = App.getInstance().getLockAppService().getBluetoothAdapter();
+                    }
+                }
+                if (null != mBluetoothAdapter) {
+                    mBluetoothAdapter.enable();
+                }
+                ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.dialog_tip_please_wake_up_lock_and_wait_bluetooth_connecting);
+            });
+
+
             mClNoDevice = root.findViewById(R.id.clNoDevice);
             mClHadDevice = root.findViewById(R.id.clHadDevice);
             // 无设备的时候控件UI
@@ -225,6 +263,11 @@ public class DeviceFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
+        if (null != hintOpenView) {
+            if (hintOpenView.getVisibility() == View.VISIBLE) {
+                hintOpenView.setVisibility(View.GONE);
+            }
+        }
         initBaseData();
         refreshGetAllBindDevicesFromMQTT();
         initNotDisturbMode();
@@ -340,15 +383,42 @@ public class DeviceFragment extends Fragment {
             if (msg.what == MSG_GET_ALL_DEVICE_OUT_TIME) {
                 mRefreshLayout.finishRefresh(false);
                 //  mRefreshLayout.finishLoadMore(false);
-                LockConnected bleConnected = new LockConnected();
-                bleConnected.setConnectType(LocalState.CONNECT_STATE_CHECK_BLE);
-                if (null != mHomeLockListAdapter) {
-                    bleConnected.setBleDeviceLocalList(mHomeLockListAdapter.getData());
+                if (!checkIsBluetoothOpen()) {
+                    //蓝牙关闭
+                    if (hintOpenView.getVisibility() == View.GONE) {
+                        hintOpenView.setVisibility(View.VISIBLE);
+                    }
+                } else {
+                    LockConnected bleConnected = new LockConnected();
+                    bleConnected.setConnectType(LocalState.CONNECT_STATE_CHECK_BLE);
+                    if (null != mHomeLockListAdapter) {
+                        bleConnected.setBleDeviceLocalList(mHomeLockListAdapter.getData());
+                    }
                 }
-                EventBus.getDefault().post(bleConnected);
             }
         }
     };
+
+    /**
+     * 检测蓝牙是否开启
+     *
+     * @return
+     */
+    private boolean checkIsBluetoothOpen() {
+        if (null == mBluetoothAdapter) {
+            if (null != App.getInstance().getLockAppService()) {
+                mBluetoothAdapter = App.getInstance().getLockAppService().getBluetoothAdapter();
+            }
+        }
+        if (null == mBluetoothAdapter) {
+            return false;
+        } else {
+            if (!mBluetoothAdapter.isEnabled()) {
+                return false;
+            }
+        }
+        return true;
+    }
 
     private void updateLockState() {
         mHomeLockListAdapter.notifyDataSetChanged();

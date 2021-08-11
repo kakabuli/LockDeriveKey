@@ -559,11 +559,11 @@ public class LockAppService extends Service {
         }
 
         //lock.unlock();
-        LockMessageRes lockMessageRes = new LockMessageRes();
+        /*LockMessageRes lockMessageRes = new LockMessageRes();
         lockMessageRes.setMessgaeType(LockMessageCode.MSG_LOCK_MESSAGE_MQTT);//蓝牙消息
         lockMessageRes.setResultCode(MSG_LOCK_MESSAGE_CODE_SUCCESS);
         lockMessageRes.setMessageCode(LockMessageCode.MSG_LOCK_MESSAGE_ADD_DEVICE);//添加到设备到主页
-        EventBus.getDefault().post(lockMessageRes);
+        EventBus.getDefault().post(lockMessageRes);*/
     }
 
     /**
