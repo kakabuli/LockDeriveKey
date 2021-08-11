@@ -12,6 +12,7 @@ import com.blankj.utilcode.util.ToastUtils;
 import com.google.android.gms.location.Geofence;
 import com.google.android.gms.location.GeofencingEvent;
 import com.revolo.lock.App;
+import com.revolo.lock.Constant;
 import com.revolo.lock.R;
 import com.revolo.lock.ble.BleCommandFactory;
 import com.revolo.lock.ble.bean.BleBean;
@@ -103,7 +104,7 @@ public class GeoFenceBroadcastReceiver extends BroadcastReceiver {
                 Timber.e("谷歌服务地理围栏监听出地理围栏：开始清理地理围栏：" + esn);
                 if (null != App.getInstance().getLockGeoFenceService()) {
                     App.getInstance().getLockGeoFenceService().clearBleDeviceMac(fenceEnds.getBleDeviceLocal().getMac().toUpperCase());
-                    App.getInstance().getLockGeoFenceService().updateLockLocalState(fenceEnds.getBleDeviceLocal().getEsn(), true);
+                    App.getInstance().getLockGeoFenceService().updateLockLocalState(fenceEnds.getBleDeviceLocal().getEsn(), false);
                 }
                 ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_you_have_exited_the_geo_fence);
                 notificationHelper.sendHighPriorityNotification(context.getString(R.string.n_geo_fence), context.getString(R.string.t_you_have_exited_the_geo_fence), MapActivity.class);
@@ -146,7 +147,7 @@ public class GeoFenceBroadcastReceiver extends BroadcastReceiver {
                     if (fenceEn.getElecFenceCmd() == 1) {
                         if (null != App.getInstance().getLockGeoFenceService()) {
                             int index = App.getInstance().getLockGeoFenceService().getConnectBleIndex(deviceLocal.getEsn());
-                            if (index < 3) {
+                            if (index < Constant.LOCK_GEO_CONNECT_BLE_INDEX) {
                                 App.getInstance().getLockGeoFenceService().setConnectBleIndex(deviceLocal.getEsn(), index + 1);
 
                                 if (null != App.getInstance().getLockAppService()) {
@@ -169,7 +170,7 @@ public class GeoFenceBroadcastReceiver extends BroadcastReceiver {
             if (fenceEn.getElecFenceCmd() == 1) {
                 if (null != App.getInstance().getLockGeoFenceService()) {
                     int index = App.getInstance().getLockGeoFenceService().getConnectBleIndex(deviceLocal.getEsn());
-                    if (index < 3) {
+                    if (index < Constant.LOCK_GEO_CONNECT_BLE_INDEX) {
                         App.getInstance().getLockGeoFenceService().setConnectBleIndex(deviceLocal.getEsn(), index + 1);
                         if (null != App.getInstance().getLockAppService()) {
                             Timber.e("谷歌服务地理围栏监听返回：蓝牙连接为null，开始连接，" + deviceLocal.getEsn());

@@ -18,6 +18,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 import com.blankj.utilcode.util.ConvertUtils;
 import com.blankj.utilcode.util.ToastUtils;
@@ -41,6 +42,7 @@ import com.revolo.lock.ble.BleCommandFactory;
 import com.revolo.lock.ble.BleCommandState;
 import com.revolo.lock.ble.bean.BleBean;
 import com.revolo.lock.ble.bean.BleResultBean;
+import com.revolo.lock.dialog.PrivacyPolicyDialog;
 import com.revolo.lock.manager.LockMessage;
 import com.revolo.lock.manager.LockMessageCode;
 import com.revolo.lock.manager.LockMessageRes;
@@ -53,6 +55,7 @@ import com.revolo.lock.net.HttpRequest;
 import com.revolo.lock.net.ObservableDecorator;
 import com.revolo.lock.room.AppDatabase;
 import com.revolo.lock.room.entity.BleDeviceLocal;
+import com.revolo.lock.ui.MainActivity;
 import com.revolo.lock.ui.device.lock.setting.geofence.MapActivity;
 
 import org.greenrobot.eventbus.EventBus;
@@ -255,41 +258,46 @@ public class GeoFenceUnlockActivity extends BaseActivity implements OnMapReadyCa
     @Override
     public void onDebouncingClick(@NonNull View view) {
         if (view.getId() == R.id.ivGeoFenceUnlockEnable) {
-            if (mBleDeviceLocal.isOpenElectricFence()) {
-                mBleDeviceLocal.setOpenElectricFence(false);
-                AppDatabase.getInstance(this).bleDeviceDao().update(mBleDeviceLocal);
-                mIvGeoFenceUnlockEnable.setImageResource(mBleDeviceLocal.isOpenElectricFence() ? R.drawable.ic_icon_switch_open : R.drawable.ic_icon_switch_close);
-                // 更新电子围栏状态
-                if (null != App.getInstance().getLockGeoFenceService()) {
-                    App.getInstance().getLockGeoFenceService().clearBleDevice(mBleDeviceLocal.getEsn());
-                }
-                if (null != App.getInstance().getLockAppService()) {
-                    App.getInstance().getLockAppService().updateDeviceGeoState(mBleDeviceLocal.getMac(), mBleDeviceLocal);
-                }
-                pushService();
-
-            } else {
-                if (mBleDeviceLocal.getLongitude() == 0 && mBleDeviceLocal.getLatitude() == 0) {
-                    Intent intent = new Intent(this, MapActivity.class);
-                    startActivity(intent);
-                } else {
-                    mBleDeviceLocal.setOpenElectricFence(true);
-                    AppDatabase.getInstance(this).bleDeviceDao().update(mBleDeviceLocal);
-                    mIvGeoFenceUnlockEnable.setImageResource(mBleDeviceLocal.isOpenElectricFence() ? R.drawable.ic_icon_switch_open : R.drawable.ic_icon_switch_close);
-                    if (null != App.getInstance().getLockAppService()) {
-                        App.getInstance().getLockAppService().updateDeviceGeoState(mBleDeviceLocal.getMac(), mBleDeviceLocal);
-                    }
-                    if (null != App.getInstance().getLockGeoFenceService()) {
-                        App.getInstance().getLockGeoFenceService().addBleDevice();
-                    }
-                    pushService();
-                }
-
-            }
+            changeGeoFenceUnlockState();
         }
         if (view.getId() == R.id.clDistanceRangeSetting) {
             Intent intent = new Intent(this, MapActivity.class);
             startActivity(intent);
+        }
+    }
+
+    private static final int FINE_LOCATION_ACCESS_REQUEST_CODE = 1001;
+
+    private void changeGeoFenceUnlockState() {
+        if (mBleDeviceLocal.isOpenElectricFence()) {
+            mBleDeviceLocal.setOpenElectricFence(false);
+            AppDatabase.getInstance(this).bleDeviceDao().update(mBleDeviceLocal);
+            mIvGeoFenceUnlockEnable.setImageResource(mBleDeviceLocal.isOpenElectricFence() ? R.drawable.ic_icon_switch_open : R.drawable.ic_icon_switch_close);
+            // 更新电子围栏状态
+            if (null != App.getInstance().getLockGeoFenceService()) {
+                App.getInstance().getLockGeoFenceService().clearBleDevice(mBleDeviceLocal.getEsn());
+            }
+            if (null != App.getInstance().getLockAppService()) {
+                App.getInstance().getLockAppService().updateDeviceGeoState(mBleDeviceLocal.getMac(), mBleDeviceLocal);
+            }
+            pushService();
+
+        } else {
+            if (mBleDeviceLocal.getLongitude() == 0 && mBleDeviceLocal.getLatitude() == 0) {
+                Intent intent = new Intent(this, MapActivity.class);
+                startActivity(intent);
+            } else {
+                mBleDeviceLocal.setOpenElectricFence(true);
+                AppDatabase.getInstance(this).bleDeviceDao().update(mBleDeviceLocal);
+                mIvGeoFenceUnlockEnable.setImageResource(mBleDeviceLocal.isOpenElectricFence() ? R.drawable.ic_icon_switch_open : R.drawable.ic_icon_switch_close);
+                if (null != App.getInstance().getLockAppService()) {
+                    App.getInstance().getLockAppService().updateDeviceGeoState(mBleDeviceLocal.getMac(), mBleDeviceLocal);
+                }
+                if (null != App.getInstance().getLockGeoFenceService()) {
+                    App.getInstance().getLockGeoFenceService().addBleDevice();
+                }
+                pushService();
+            }
         }
     }
 
@@ -539,6 +547,10 @@ public class GeoFenceUnlockActivity extends BaseActivity implements OnMapReadyCa
             App.getInstance().getLockGeoFenceService().setFenceTime(mBleDeviceLocal.getEsn(), time);
         }
         AppDatabase.getInstance(this).bleDeviceDao().update(mBleDeviceLocal);
+
+        if (null != App.getInstance().getLockAppService()) {
+            App.getInstance().getLockAppService().updateDeviceGeoState(mBleDeviceLocal.getMac(), mBleDeviceLocal);
+        }
     }
 
     private void processSetSensitivity(BleResultBean bean) {
@@ -553,6 +565,9 @@ public class GeoFenceUnlockActivity extends BaseActivity implements OnMapReadyCa
     private void saveSensitivityToLocal() {
         mBleDeviceLocal.setSetElectricFenceSensitivity(mSensitivity);
         AppDatabase.getInstance(this).bleDeviceDao().update(mBleDeviceLocal);
+        if (null != App.getInstance().getLockAppService()) {
+            App.getInstance().getLockAppService().updateDeviceGeoState(mBleDeviceLocal.getMac(), mBleDeviceLocal);
+        }
         pushService();
     }
 

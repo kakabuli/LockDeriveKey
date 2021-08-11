@@ -38,7 +38,6 @@ public class LockAppManager implements BaseObservable {
 
     public void toActivity(Activity activity, Class<?> cls, Intent intent) {
         //根据 cls 获取跳转的activity
-        Intent intent1 = new Intent();
         Activity currActivity = getActivity(cls);
         if (null == currActivity) {
             //为空 直接跳
@@ -144,8 +143,13 @@ public class LockAppManager implements BaseObservable {
 
     @Override
     public void notifyNetWork(boolean isNetWork) {
-        for (Activity activity : activityStack) {
-            ((BaseActivity) activity).notifyNetWork(isNetWork);
+        if (activityStack != null && !activityStack.empty()) {
+            for (int i = 0; i < activityStack.size(); i++) {
+                Activity activity = activityStack.get(i);
+                if (activity != null) {
+                    ((BaseActivity) activityStack.get(i)).notifyNetWork(isNetWork);
+                }
+            }
         }
     }
 }

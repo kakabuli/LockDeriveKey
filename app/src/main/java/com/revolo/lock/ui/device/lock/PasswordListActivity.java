@@ -130,8 +130,8 @@ public class PasswordListActivity extends BaseActivity {
         rvPwdList.setLayoutManager(new LinearLayoutManager(this));
         mPasswordListAdapter = new PasswordListAdapter(R.layout.item_pwd_list_rv);
         mBleDeviceLocal = App.getInstance().getBleDeviceLocal();
-        String zone=mBleDeviceLocal.getTimeZone();
-        Timber.e("zone:"+zone);
+        String zone = mBleDeviceLocal.getTimeZone();
+        Timber.e("zone:" + zone);
         //设置时区
         mPasswordListAdapter.setTimeZone(zone);
         mPasswordListAdapter.setOnItemClickListener((adapter, view, position) -> {
@@ -209,7 +209,7 @@ public class PasswordListActivity extends BaseActivity {
             BleBean bleBean = App.getInstance().getUserBleBean(mBleDeviceLocal.getMac());
             if (bleBean != null) {
                 new Handler(Looper.getMainLooper()).postDelayed(this::checkHadPwdFromBle, 20);
-                checkHadPwdFromBle();
+                //          checkHadPwdFromBle();
             }
         } else {
             searchPwdListFromNET();
@@ -479,6 +479,12 @@ public class PasswordListActivity extends BaseActivity {
 
     private void checkHadPwdFromBle() {
         new Handler(Looper.getMainLooper()).postDelayed(() -> {
+            mHandler.removeMessages(MSG_BLE_GET_PWD_LIST_TIME);
+            mHandler.sendEmptyMessageDelayed(MSG_BLE_GET_PWD_LIST_TIME, 4000);
+            mDevicePwdBeanCopyList.clear();
+            if (null != mPasswordListAdapter) {
+                mDevicePwdBeanCopyList.addAll(mPasswordListAdapter.getData());
+            }
             mWillSearchList.clear();
             mPasswordListAdapter.setList(mDevicePwdBeanFormBle);
             BleBean bleBean = App.getInstance().getUserBleBean(mBleDeviceLocal.getMac());
@@ -512,6 +518,7 @@ public class PasswordListActivity extends BaseActivity {
     }
 
     private final ArrayList<Byte> mWillSearchList = new ArrayList<>();
+    private final ArrayList<DevicePwdBean> mDevicePwdBeanCopyList = new ArrayList<>();//蓝牙模式 加载数据之前的缓存列表
     private final ArrayList<DevicePwdBean> mDevicePwdBeanFormBle = new ArrayList<>();
 
     private void getPwdListFormBle(BleResultBean bean) {
@@ -535,6 +542,7 @@ public class PasswordListActivity extends BaseActivity {
             mHandler.postDelayed(mSearchPwdListRunnable, 20);
         } else if (bean.getCMD() == CMD_KEY_ATTRIBUTES_SET) {
             // mHandler.sendEmptyMessageDelayed(MSG_UPDATE_PWD_LIST, 1000);
+            Timber.e("操作成功");
             new Handler(Looper.getMainLooper()).postDelayed(this::checkHadPwdFromBle, 20);
         }
     }
@@ -545,7 +553,7 @@ public class PasswordListActivity extends BaseActivity {
         devicePwdBean.setPwdNum(mCurrentSearchNum);
         // 使用秒存储，所以除以1000
         // TODO: 2021/2/24 后续需要改掉，存在问题，不可能使用这个创建时间
-        devicePwdBean.setCreateTime(ZoneUtil.getTime()/ 1000);
+        devicePwdBean.setCreateTime(ZoneUtil.getTime() / 1000);
         devicePwdBean.setDeviceId(mBleDeviceLocal.getId());
         devicePwdBean.setAttribute(BleCommandState.KEY_SET_ATTRIBUTE_ALWAYS);
         devicePwdBean.setPwdName("" + mCurrentSearchNum);
@@ -637,6 +645,7 @@ public class PasswordListActivity extends BaseActivity {
     }
 
     private static final int MSG_UPDATE_PWD_LIST = 854;
+    private static final int MSG_BLE_GET_PWD_LIST_TIME = 896;//蓝牙模式 获取列表对比
     private final Handler mHandler = new Handler(Looper.getMainLooper()) {
         @Override
         public void handleMessage(@NonNull Message msg) {
@@ -644,9 +653,113 @@ public class PasswordListActivity extends BaseActivity {
                 mWillSearchList.clear();
                 mPasswordListAdapter.notifyDataSetChanged();
                 searchPwdListFromNET();
+            } else if (msg.what == MSG_BLE_GET_PWD_LIST_TIME) {
+                List<DevicePwdBean> devicePwds = null;
+                if (null != mPasswordListAdapter) {
+                    devicePwds = mPasswordListAdapter.getData();
+                }
+                if (null != devicePwds) {
+                    Timber.e("list len:" + devicePwds.size());
+                }
+                if (null != mDevicePwdBeanCopyList) {
+                    Timber.e("copy list len:" + mDevicePwdBeanCopyList.size());
+                }
+                if (null == devicePwds && null != mDevicePwdBeanCopyList) {
+                    if (mDevicePwdBeanCopyList.size() > 0) {
+                        deletePwdToService(mDevicePwdBeanCopyList);
+                    }
+                } else {
+                    if (null != devicePwds && null != mDevicePwdBeanCopyList) {
+                        if (mDevicePwdBeanCopyList.size() > devicePwds.size()) {
+                            Timber.e("当前本地密码个数大于锁端实际密码");
+                            List<DevicePwdBean> deleteDevics = new ArrayList<>();
+                            for (int b = 0; b < mDevicePwdBeanCopyList.size(); b++) {
+                                boolean isDele = true;
+                                for (int c = 0; c < devicePwds.size(); c++) {
+                                    if (devicePwds.get(c).getPwdNum() == mDevicePwdBeanCopyList.get(b).getPwdNum()) {
+                                        isDele = false;
+                                    }
+                                }
+                                Timber.e("是否被删除：" + isDele);
+                                if (isDele) {
+                                    deleteDevics.add(mDevicePwdBeanCopyList.get(b));
+                                }
+                            }
+                            deletePwdToService(deleteDevics);
+                        }
+                    }
+                }
             }
         }
     };
+
+    /**
+     * 蓝牙模式下同步密码
+     *
+     * @param pwdList
+     */
+    private void deletePwdToService(List<DevicePwdBean> pwdList) {
+        Timber.e("蓝牙模式下将多余的密码删除于服务器");
+        List<DelKeyBeanReq.PwdListBean> listBeans = new ArrayList<>();
+        for (DevicePwdBean bean : pwdList) {
+            DelKeyBeanReq.PwdListBean pwdListBean = new DelKeyBeanReq.PwdListBean();
+            pwdListBean.setNum(bean.getPwdNum());
+            pwdListBean.setPwdType(1);
+            Timber.e("蓝牙模式下将多余的密码删除于服务器:" + pwdListBean.toString());
+            listBeans.add(pwdListBean);
+        }
+        // TODO: 2021/2/24 服务器删除失败，需要检查如何通过服务器再删除，下面所有
+        if (mBleDeviceLocal == null) {
+            Timber.e("delKeyFromService bleDeviceLocal == null");
+            return;
+        }
+        String esn = mBleDeviceLocal.getEsn();
+        if (TextUtils.isEmpty(esn)) {
+            Timber.e("delKeyFromService esn is Empty");
+            return;
+        }
+        if (App.getInstance().getUserBean() == null) {
+            Timber.e("delKeyFromService App.getInstance().getUserBean() == null");
+            return;
+        }
+        String uid = App.getInstance().getUserBean().getUid();
+        if (TextUtils.isEmpty(uid)) {
+            Timber.e("delKeyFromService uid is Empty");
+            return;
+        }
+        String token = App.getInstance().getUserBean().getToken();
+        if (TextUtils.isEmpty(token)) {
+            Timber.e("delKeyFromService token is Empty");
+            return;
+        }
+        DelKeyBeanReq req = new DelKeyBeanReq();
+        req.setPwdList(listBeans);
+        req.setSn(esn);
+        req.setUid(uid);
+        Observable<DelKeyBeanRsp> observable = HttpRequest.getInstance().delKey(token, req);
+        ObservableDecorator.decorate(observable).safeSubscribe(new Observer<DelKeyBeanRsp>() {
+            @Override
+            public void onSubscribe(@NonNull Disposable d) {
+
+            }
+
+            @Override
+            public void onNext(@NonNull DelKeyBeanRsp delKeyBeanRsp) {
+
+            }
+
+            @Override
+            public void onError(@NonNull Throwable e) {
+
+            }
+
+            @Override
+            public void onComplete() {
+
+            }
+        });
+    }
+
     private final Runnable mSearchPwdListRunnable = this::searchPwdList;
     private byte mCurrentSearchNum;
 
@@ -689,7 +802,7 @@ public class PasswordListActivity extends BaseActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-
+        mHandler.removeMessages(MSG_BLE_GET_PWD_LIST_TIME);
         mPasswordFull = null;
     }
 

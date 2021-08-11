@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.View;
 
 import androidx.annotation.NonNull;
@@ -16,6 +17,7 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
+import com.blankj.utilcode.util.AppUtils;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.revolo.lock.App;
@@ -23,7 +25,13 @@ import com.revolo.lock.Constant;
 import com.revolo.lock.R;
 import com.revolo.lock.base.BaseActivity;
 import com.revolo.lock.bean.request.DeviceTokenBeanReq;
+import com.revolo.lock.bean.request.GetVersionBeanReq;
 import com.revolo.lock.bean.respone.DeviceTokenBeanRsp;
+import com.revolo.lock.bean.respone.GetVersionBeanRsp;
+import com.revolo.lock.bean.respone.MailLoginBeanRsp;
+import com.revolo.lock.dialog.OTAUpdateDialog;
+import com.revolo.lock.dialog.PrivacyPolicyDialog;
+import com.revolo.lock.dialog.UpdateVersionDialog;
 import com.revolo.lock.manager.LockMessageCode;
 import com.revolo.lock.manager.LockMessageRes;
 import com.revolo.lock.net.HttpRequest;
@@ -71,6 +79,13 @@ public class MainActivity extends BaseActivity {
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
         getAlexaIntent(intent);
+        if (isMainItemIndex == R.id.navigation_device) {
+            addDeviceFragment();
+        } else if (isMainItemIndex == R.id.navigation_user) {
+            addUserFragment();
+        } else if (isMainItemIndex == R.id.navigation_mine) {
+            addMineFragment();
+        }
     }
 
     @Override
@@ -160,6 +175,8 @@ public class MainActivity extends BaseActivity {
                 });
             }
         });
+
+        getServerAppVersion();
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
@@ -205,9 +222,28 @@ public class MainActivity extends BaseActivity {
                 Timber.e("Location定位权限拒绝");
             } else {
                 Timber.e("Location定位权限开启开启中");
-                ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, FINE_LOCATION_ACCESS_REQUEST_CODE);
+                onPrivacyPolicyDialog();
             }
         }
+    }
+
+    private PrivacyPolicyDialog privacyPolicyDialog;
+
+    private void onPrivacyPolicyDialog() {
+        if (privacyPolicyDialog == null) {
+            privacyPolicyDialog = new PrivacyPolicyDialog(this);
+        } else {
+            privacyPolicyDialog.dismiss();
+        }
+        privacyPolicyDialog.setOnConfirmListener(v -> {
+            privacyPolicyDialog.dismiss();
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, FINE_LOCATION_ACCESS_REQUEST_CODE);
+        });
+        privacyPolicyDialog.setOnCancelClickListener(v -> {
+            privacyPolicyDialog.dismiss();
+            App.getInstance().logout(true, this);
+        });
+        privacyPolicyDialog.show();
     }
 
     @SuppressLint("MissingPermission")
@@ -296,5 +332,82 @@ public class MainActivity extends BaseActivity {
     protected void onDestroy() {
         super.onDestroy();
 
+    }
+
+    public void getServerAppVersion() {
+        if (!checkNetConnectFail()) {
+            return;
+        }
+        MailLoginBeanRsp.DataBean userBean = App.getInstance().getUserBean();
+        if (userBean == null) {
+            return;
+        }
+
+        String token = userBean.getToken();
+        String uid = userBean.getUid();
+        GetVersionBeanReq req = new GetVersionBeanReq();
+        req.setUid(uid);
+        req.setPhoneSysType("0");
+        Observable<GetVersionBeanRsp> version = HttpRequest.getInstance().getVersion(token, req);
+        ObservableDecorator.decorate(version).safeSubscribe(new Observer<GetVersionBeanRsp>() {
+            @Override
+            public void onSubscribe(@io.reactivex.annotations.NonNull Disposable d) {
+
+            }
+
+            @Override
+            public void onNext(@io.reactivex.annotations.NonNull GetVersionBeanRsp getVersionBeanRsp) {
+                if (getVersionBeanRsp.getCode().equals("200")) {
+                    if (getVersionBeanRsp.getData() != null) {
+                        String appVersions = getVersionBeanRsp.getData().getAppVersions();
+                        // 版本号不一致
+                        Constant.isNewAppVersion = !appVersions.equals(AppUtils.getAppVersionName());
+                        if (Constant.isNewAppVersion) {
+                            if (getVersionBeanRsp.getData() != null) {
+                                GetVersionBeanRsp.DataBean data = getVersionBeanRsp.getData();
+                                UpdateVersionDialog updateVersionDialog = new UpdateVersionDialog(MainActivity.this);
+                                updateVersionDialog.setContent(data.getForceFlag(), data.getVersionDesc());
+                                updateVersionDialog.setOnConfirmListener(v -> {
+                                    launchAppDetail("com.revolo.lock", "com.android.vending");
+                                });
+                                updateVersionDialog.setOnCancelClickListener(v -> {
+                                    updateVersionDialog.dismiss();
+                                });
+                                updateVersionDialog.show();
+                            }
+                        }
+                    }
+                }
+            }
+
+            @Override
+            public void onError(@io.reactivex.annotations.NonNull Throwable e) {
+                Constant.isNewAppVersion = false;
+            }
+
+            @Override
+            public void onComplete() {
+
+            }
+        });
+    }
+
+    /**
+     * 参数名： app包名以及google play包名。
+     */
+    public void launchAppDetail(String appPkg, String marketPkg) {
+        try {
+            if (TextUtils.isEmpty(appPkg)) return;
+
+            Uri uri = Uri.parse("market://details?id=" + appPkg);
+            Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+            if (!TextUtils.isEmpty(marketPkg)) {
+                intent.setPackage(marketPkg);
+            }
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(intent);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

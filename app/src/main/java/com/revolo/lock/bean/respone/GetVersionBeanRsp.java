@@ -7,9 +7,10 @@ package com.revolo.lock.bean.respone;
  * desc   :
  */
 public class GetVersionBeanRsp {
+
     private String code;
     private String msg;
-    private Integer nowTime;
+    private int nowTime;
     private DataBean data;
 
     public String getCode() {
@@ -28,11 +29,11 @@ public class GetVersionBeanRsp {
         this.msg = msg;
     }
 
-    public Integer getNowTime() {
+    public int getNowTime() {
         return nowTime;
     }
 
-    public void setNowTime(Integer nowTime) {
+    public void setNowTime(int nowTime) {
         this.nowTime = nowTime;
     }
 
@@ -44,9 +45,21 @@ public class GetVersionBeanRsp {
         this.data = data;
     }
 
-    public class DataBean {
-
+    public static class DataBean {
+        private String _id;
         private String appVersions;
+        private String phoneSysType;
+        private String versionDesc;
+        private String forceFlag;
+        private int timeStamp;
+
+        public String get_id() {
+            return _id;
+        }
+
+        public void set_id(String _id) {
+            this._id = _id;
+        }
 
         public String getAppVersions() {
             return appVersions;
@@ -54,6 +67,38 @@ public class GetVersionBeanRsp {
 
         public void setAppVersions(String appVersions) {
             this.appVersions = appVersions;
+        }
+
+        public String getPhoneSysType() {
+            return phoneSysType;
+        }
+
+        public void setPhoneSysType(String phoneSysType) {
+            this.phoneSysType = phoneSysType;
+        }
+
+        public String getVersionDesc() {
+            return versionDesc;
+        }
+
+        public void setVersionDesc(String versionDesc) {
+            this.versionDesc = versionDesc;
+        }
+
+        public String getForceFlag() {
+            return forceFlag;
+        }
+
+        public void setForceFlag(String forceFlag) {
+            this.forceFlag = forceFlag;
+        }
+
+        public int getTimeStamp() {
+            return timeStamp;
+        }
+
+        public void setTimeStamp(int timeStamp) {
+            this.timeStamp = timeStamp;
         }
     }
 }

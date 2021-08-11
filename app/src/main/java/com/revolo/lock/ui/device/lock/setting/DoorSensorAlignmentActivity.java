@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.text.TextUtils;
+import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.ImageView;
@@ -16,6 +17,7 @@ import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
 
 import com.blankj.utilcode.util.ConvertUtils;
+import com.blankj.utilcode.util.ToastUtils;
 import com.revolo.lock.App;
 import com.revolo.lock.Constant;
 import com.revolo.lock.LocalState;
@@ -66,6 +68,8 @@ import static com.revolo.lock.ble.BleProtocolState.CMD_LOCK_INFO;
 public class DoorSensorAlignmentActivity extends BaseActivity {
     private static final int MSG_CONNECT_BLE_OUT_TIME = 3684;//连接蓝牙超时
     private static final int MSG_CONNECT_BLE_OK = 3685;//连接蓝牙成功
+    private static final int MSG_CLICK_DOOR_STATE = 3698;//点击开关事件
+    private static final int MSG_CLICK_DOOR_NEXT = 3699;//点击开关事件
     private int MSG_CONNECT_BLE_TME = 15000;//ble连接时间
     // TODO: 2021/3/6 进页面先MQTT读取门磁状态
     private ConstraintLayout mClTip;
@@ -111,15 +115,71 @@ public class DoorSensorAlignmentActivity extends BaseActivity {
                 mTvIntroduceContent.setVisibility(View.GONE);
             }
         });
+        //监听蓝牙开启事件
+        setOpenBluetoothClick(new checkOpenBluetoothClick() {
+            @Override
+            public void onOpenBluetooth(int type) {
+                if (type == 1) {
+                    //操作1
+                    handler.sendEmptyMessageDelayed(MSG_CLICK_DOOR_STATE, 15000);
+                    handler.removeMessages(MSG_CLICK_DOOR_NEXT);
+                } else if (type == 2) {
+                    handler.sendEmptyMessageDelayed(MSG_CLICK_DOOR_NEXT, 15000);
+                    handler.removeMessages(MSG_CLICK_DOOR_STATE);
+                }
+                mBleDeviceLocal = App.getInstance().getBleDeviceLocal();
+                if (null != mBleDeviceLocal) {
+                    BleDeviceLocal bleDeviceLocal = App.getInstance().getBleDeviceLocal();
+                    if (bleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI ||
+                            bleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI_BLE) {
+                        //WiFi模式下，当手机蓝牙开启后，不会主动连接蓝牙，需要手动连接蓝牙
+                        Timber.e("WiFi模式下，当手机蓝牙开启后，不会主动连接蓝牙，需要手动连接蓝牙");
+                        handler.sendEmptyMessageDelayed(MSG_CONNECT_BLE_OUT_TIME, MSG_CONNECT_BLE_TME);
+                        showOpenBleDialog();
+                        handler.postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                LockMessage lockMessage = new LockMessage();
+                                lockMessage.setMqttMessage(MqttCommandFactory.approachOpen(
+                                        mBleDeviceLocal.getEsn(), 3/*用于临时开启蓝牙，用于使用蓝牙来重新配网*/,
+                                        BleCommandFactory.getPwd(
+                                                ConvertUtils.hexString2Bytes(mBleDeviceLocal.getPwd1()),
+                                                ConvertUtils.hexString2Bytes(mBleDeviceLocal.getPwd2())), 0, 1));
+                                lockMessage.setMessageType(2);
+                                lockMessage.setMqtt_message_code(MQttConstant.APP_ROACH_OPEN);
+                                lockMessage.setMqtt_topic(MQttConstant.getCallTopic(App.getInstance().getUserBean().getUid()));
+                                EventBus.getDefault().post(lockMessage);
+                            }
+                        }, 1500);
+                    } else {
+                        //当前非WiFi模式下，蓝牙会自动连接
+                        Timber.e("当前非WiFi模式下，蓝牙会自动连接");
+                        handler.sendEmptyMessageDelayed(MSG_CONNECT_BLE_OUT_TIME, MSG_CONNECT_BLE_TME);
+                        showOpenBleDialog();
+                    }
+                }
+            }
+        });
     }
 
     private Handler handler = new Handler() {
         @Override
         public void handleMessage(@NonNull Message msg) {
             if (msg.what == MSG_CONNECT_BLE_OUT_TIME) {
+                handler.removeMessages(MSG_CLICK_DOOR_STATE);
+                handler.removeMessages(MSG_CLICK_DOOR_NEXT);
                 dissOpenBleDialog();
+                ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_setting_fail);
             } else if (msg.what == MSG_CONNECT_BLE_OK) {
-                gotoDoorSensorCheckAct();
+                if (handler.hasMessages(MSG_CLICK_DOOR_STATE)) {
+                    //点击开关事件
+                    checkCurrConnectState();
+                } else if (handler.hasMessages(MSG_CLICK_DOOR_NEXT)) {
+                    //next 点击事件
+                    nextClick();
+                }
+                handler.removeMessages(MSG_CLICK_DOOR_STATE);
+                handler.removeMessages(MSG_CLICK_DOOR_NEXT);
             }
         }
     };
@@ -159,6 +219,8 @@ public class DoorSensorAlignmentActivity extends BaseActivity {
     protected void onDestroy() {
         super.onDestroy();
         handler.removeMessages(MSG_CONNECT_BLE_OUT_TIME);
+        handler.removeMessages(MSG_CLICK_DOOR_STATE);
+        handler.removeMessages(MSG_CLICK_DOOR_NEXT);
     }
 
     @Override
@@ -177,8 +239,25 @@ public class DoorSensorAlignmentActivity extends BaseActivity {
         }
         if (lockMessage.getMessgaeType() == LockMessageCode.MSG_LOCK_MESSAGE_BLE) {
             //蓝牙消息
-            if (null != lockMessage.getBleResultBea()) {
-                changedDoorSensorState(lockMessage.getBleResultBea());
+
+            if (lockMessage.getResultCode() == LockMessageCode.MSG_LOCK_MESSAGE_CODE_SUCCESS) {
+                //成功
+                if (lockMessage.getMessageCode() == LockMessageCode.MSG_LOCK_MESSAGE_ADD_DEVICE_SERVICE) {
+                    Timber.d("door setting activity connected");
+                    handler.removeMessages(MSG_CONNECT_BLE_OUT_TIME);
+                    dissOpenBleDialog();
+                    handler.sendEmptyMessage(MSG_CONNECT_BLE_OK);
+                } else {
+                    if (null != lockMessage.getBleResultBea()) {
+                        changedDoorSensorState(lockMessage.getBleResultBea());
+                    }
+                }
+            } else {
+                //异常
+                switch (lockMessage.getResultCode()) {
+
+
+                }
             }
         } else if (lockMessage.getMessgaeType() == LockMessageCode.MSG_LOCK_MESSAGE_MQTT) {
             //MQTT
@@ -238,7 +317,12 @@ public class DoorSensorAlignmentActivity extends BaseActivity {
             return;
         }
         // TODO: 2021/3/5 开启成功，然后开启蓝牙并不断搜索设备
-        connectBle();
+        mHandler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                connectBle();
+            }
+        }, 500);
     }
 
     private void connectBle() {
@@ -268,23 +352,40 @@ public class DoorSensorAlignmentActivity extends BaseActivity {
     @Override
     public void onDebouncingClick(@NonNull View view) {
         if (view.getId() == R.id.clTip) {
+            //检测当前蓝牙是否开启
+            if (!checkIsOpenBluetooth(1)) {
+                return;
+            }
+            handler.removeMessages(MSG_CLICK_DOOR_NEXT);
+            handler.sendEmptyMessageDelayed(MSG_CLICK_DOOR_STATE, 15000);
             checkCurrConnectState();
             return;
         }
         if (view.getId() == R.id.ivDoorMagneticEnable) {
-            if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI || mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI_BLE) {
-                if (mBleDeviceLocal.isOpenDoorSensor()) {
-                    publishSetMagnetic(mBleDeviceLocal.getEsn(), BleCommandState.DOOR_CALIBRATION_STATE_CLOSE_SE);
-                } else {
-                    checkCurrConnectState();
-                }
+            if (!checkIsOpenBluetooth(2)) {
+                return;
+            }
+            handler.removeMessages(MSG_CLICK_DOOR_STATE);
+            handler.sendEmptyMessageDelayed(MSG_CLICK_DOOR_NEXT, 15000);
+            nextClick();
+        }
+    }
 
+    private void nextClick() {
+        Timber.e("nextClick()");
+        mBleDeviceLocal = App.getInstance().getBleDeviceLocal();
+        if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI || mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI_BLE) {
+            if (mBleDeviceLocal.isOpenDoorSensor()) {
+                publishSetMagnetic(mBleDeviceLocal.getEsn(), BleCommandState.DOOR_CALIBRATION_STATE_CLOSE_SE);
             } else {
-                if (mBleDeviceLocal.isOpenDoorSensor()) {
-                    sendCommand(BleCommandState.DOOR_CALIBRATION_STATE_CLOSE_SE);
-                } else {
-                    checkCurrConnectState();
-                }
+                checkCurrConnectState();
+            }
+
+        } else {
+            if (mBleDeviceLocal.isOpenDoorSensor()) {
+                sendCommand(BleCommandState.DOOR_CALIBRATION_STATE_CLOSE_SE);
+            } else {
+                checkCurrConnectState();
             }
         }
     }
@@ -294,6 +395,7 @@ public class DoorSensorAlignmentActivity extends BaseActivity {
      */
     private void checkCurrConnectState() {
         //当前是WiFi——BLe，ble模式直接进入
+        mBleDeviceLocal = App.getInstance().getBleDeviceLocal();
         if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI_BLE
                 || mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_BLE) {
             gotoDoorSensorCheckAct();
@@ -307,22 +409,19 @@ public class DoorSensorAlignmentActivity extends BaseActivity {
         Intent intent = new Intent(this, DoorSensorCheckActivity.class);
         intent.putExtra(Constant.IS_GO_TO_ADD_WIFI, false);
         startActivity(intent);
+        boolean registered = EventBus.getDefault().isRegistered(this);
+        if (registered) {
+            EventBus.getDefault().unregister(this);
+        }
         finish();
     }
-
-    private final BleResultProcess.OnReceivedProcess mOnReceivedProcess = bleResultBean -> {
-        if (bleResultBean == null) {
-            Timber.e("mOnReceivedProcess bleResultBean == null");
-            return;
-        }
-        changedDoorSensorState(bleResultBean);
-    };
 
     private void changedDoorSensorState(BleResultBean bleResultBean) {
         if (bleResultBean.getCMD() == CMD_DOOR_SENSOR_CALIBRATION) {
             if (bleResultBean.getPayload()[0] == 0x00) {
                 saveDoorSensorStateToLocal();
                 //更新到服务器
+                Timber.e("更新到服务器1");
                 updateLockInfoToService();
                 refreshDoorMagneticEnableState();
             } else {
@@ -429,6 +528,7 @@ public class DoorSensorAlignmentActivity extends BaseActivity {
         }
         saveDoorSensorStateToLocal();
         //更新到服务器
+        Timber.e("更新到服务器2");
         updateLockInfoToService();
         refreshDoorMagneticEnableState();
     }

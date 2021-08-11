@@ -216,8 +216,10 @@
             app:layout_constraintTop_toTopOf="parent" />
 
         <View
-            android:layout_width="13dp"
-            android:layout_height="10dp"
+            android:id="@+id/vMark"
+            android:layout_width="6dp"
+            android:layout_height="6dp"
+            android:layout_marginRight="8dp"
             android:background="@drawable/ic_circle_red_bg"
             android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -278,6 +280,60 @@
             android:textSize="15pt"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toEndOf="@+id/imageView18"
+            app:layout_constraintTop_toTopOf="parent" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/clJoinAlexa"
+        android:layout_width="match_parent"
+        android:layout_height="51pt"
+        android:layout_marginTop="5pt"
+        android:background="@color/white"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/clAbout">
+
+        <ImageView
+            android:id="@+id/imageView20"
+            android:layout_width="18pt"
+            android:layout_height="18pt"
+            android:layout_marginStart="15pt"
+            android:src="@mipmap/icon_alexa"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/textView30"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="25pt"
+            android:text="@string/join_alexa"
+            android:textColor="@color/c333333"
+            android:textSize="15pt"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/imageView20"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/tvTip"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="bound"
+            android:textSize="12pt"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintRight_toLeftOf="@id/imageView19"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <ImageView
+            android:id="@+id/imageView19"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="15pt"
+            android:src="@drawable/ic_icon_more"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

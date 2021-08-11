@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Revolo Lock</string>
+    <string name="app_name">Revolo</string>
     <string name="title_device">Devices</string>
     <string name="title_user">Invite</string>
     <string name="title_mine">My</string>
@@ -19,7 +19,7 @@
     <string name="tip_please_register_your_account">Please register your account number</string>
     <string name="hint_verification_code">Verification code</string>
     <string name="i_agree_to">I agree to</string>
-    <string name="terms_of_use">User Agreement</string>
+    <string name="terms_of_use">Service Agreement</string>
     <string name="terms_of_privacy">Privacy Policy</string>
 
     <!-- RegisterAddAvatarActivity -->
@@ -141,7 +141,7 @@
     <string name="title_setting">Setting</string>
     <string name="wifi">WiFi</string>
     <string name="auto_lock">Auto lock</string>
-    <string name="geo_fence_lock">Geo-fence Lock</string>
+    <string name="geo_fence_lock">Auto-Unlock</string>
     <string name="door_sensor_alignment">Door sensor alignment</string>
     <string name="duress_password">Duress password</string>
     <string name="mute">Mute</string>
@@ -254,7 +254,7 @@
     <string name="contact">Contact</string>
     <string name="privacy_agreement">Privacy agreement</string>
     <string name="privacy_policy">Privacy policy</string>
-    <string name="user_agreement">User agreement</string>
+    <string name="user_agreement">Service agreement</string>
     <string name="version_update">Version update</string>
     <string name="about_ver">v%1$s</string>
     <string name="about_text">Questions about your new Revolo lock?\nPlease contact us.</string>
@@ -303,9 +303,9 @@
     <string name="try_again">Try again</string>
 
     <!-- GeoFenceUnlockActivity -->
-    <string name="title_geo_fence_unlock">Geo-fence Unlock</string>
-    <string name="geo_fence_unlock_instruction">Geo-fence unlock instruction</string>
-    <string name="geo_fence_unlock">Geo-fence Unlock</string>
+    <string name="title_geo_fence_unlock">Auto-Unlock</string>
+    <string name="geo_fence_unlock_instruction">Auto-Unlock instruction</string>
+    <string name="geo_fence_unlock">Auto-Unlock</string>
     <string name="distance_range_setting">Distance range setting</string>
     <string name="sensitivity">Sensitivity</string>
     <string name="set_time">Set time</string>
@@ -319,8 +319,8 @@
     <string name="door_magnet_setting_tip">Please follow the instruction on the page to align door magnet </string>
 
     <!-- TermActivity -->
-    <string name="title_user_term">User Agreement Term</string>
-    <string name="title_privacy_term">Privacy Policy Term</string>
+    <string name="title_user_term">Service Agreement</string>
+    <string name="title_privacy_term">Privacy Policy</string>
 
     <!-- Record -->
     <string name="log_uses_a_password_to_unlock">%1$s uses a password to unlock</string>
@@ -383,6 +383,7 @@
     <string name="dialog_tip_log_out">Log out</string>
     <string name="dialog_tip_please_wake_up_lock_and_wait_bluetooth_connecting">Please wake up lock and wait Bluetooth connecting</string>
     <string name="dialog_title_weak_signal_state">Weak signal state</string>
+    <string name="dialog_tip_hint_is_open_bluetooth">The current function needs to turn on Bluetooth. Do you want to turn on Bluetooth?</string>
 
     <!-- AddNewPwdSelectActivity -->
     <string name="repeat">Repeat</string>
@@ -525,7 +526,7 @@
     <string name="t_introduce_auto_lock_content">&#160;&#160;&#160;&#160;After you set the time, a built-in sensor detects when your door is closed and locks it at the corresponding time.</string>
 
     <string name="t_introduce_Geo_fence_title">What is the knock-open unlock?</string>
-    <string name="t_introduce_Geo_fence_content">· Turn on the Geo-fence Lock function, \n·set the distance, time, and knocking strength of knocking. \n\nSet a distance of 200 meters and a time of 10 minutes. When you enter the scope of the distance and time that been set, the door will be unlocked ac-cording to the set knock frequency, and the door will be opened. It does not need any equipment to unlock, which will provide you great convenience for your door opening.</string>
+    <string name="t_introduce_Geo_fence_content">· Turn on the Auto-UnLock function, \n·set the distance, time, and knocking strength of knocking. \n\nSet a distance of 200 meters and a time of 10 minutes. When you enter the scope of the distance and time that been set, the door will be unlocked ac-cording to the set knock frequency, and the door will be opened. It does not need any equipment to unlock, which will provide you great convenience for your door opening.</string>
 
     <string name="t_introduce_door_sensor_alignment_title">What is the door sensor alignment?</string>
     <string name="t_introduce_door_sensor_alignment_content">&#160;&#160;&#160;&#160;After the door sensor calibration, it will remind the user to close the door, and prompt when you forget to close the door.</string>
@@ -566,5 +567,6 @@
     <string name="tip_you_not_share_it_with_yourself">You can\'t share it with yourself</string>
     <string name="tip_content_share_successful">Share successful</string>
     <string name="dialog_privacy_policy_title">Dear Revolo user,</string>
-    <string name="dialog_privacy_policy">Please read the Revolo Privacy policy carefully before using it. While your app is running in the foreground (or background), Revolo will get your location information when your app connects to Revolo lock via Bluetooth or runs the Auto-Unlock feature, so as to ensure that revolo can provide you with good product services. Do you agree that Revolo has access to your location information?</string>
+    <string name="dialog_privacy_policy">Dear user, Please read the Revolo Privacy policy carefully again before using Auto-Unlock feature. This app collects location information to enable ["Auto-Unlock feature"], even if the app is running in the foreground or background, closed or not in use. Do you agree that Revolo has access to your location information?</string>
+    <string name="dialog_update_version_title">Update Version</string>
 </resources>

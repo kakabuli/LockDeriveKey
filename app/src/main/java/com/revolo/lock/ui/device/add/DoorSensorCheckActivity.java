@@ -93,6 +93,8 @@ public class DoorSensorCheckActivity extends BaseActivity {
             finish();
         }
         onRegisterEventBus();
+        mBleDeviceLocal.setOpenDoorSensor(false);//进入配置门磁界面，就清理门磁
+        updateLockInfoToService();
     }
 
     @Override

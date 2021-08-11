@@ -28,6 +28,7 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
 import com.revolo.lock.App;
+import com.revolo.lock.Constant;
 import com.revolo.lock.ble.BleCommandFactory;
 import com.revolo.lock.ble.bean.BleBean;
 import com.revolo.lock.manager.LockMessage;
@@ -264,6 +265,30 @@ public class LockGeoFenceService extends Service {
         }
     }
 
+    /**
+     * 添加定位
+     */
+    private void startLoaction() {
+        if (null != fusedLocationClient) {
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                // TODO: Consider calling
+                //    ActivityCompat#requestPermissions
+                // here to request the missing permissions, and then overriding
+                //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                //                                          int[] grantResults)
+                // to handle the case where the user grants the permission. See the documentation
+                // for ActivityCompat#requestPermissions for more details.
+                return;
+            }
+            Timber.e("定位服务，设置msg，开始定位");
+            fusedLocationClient.getLastLocation().addOnSuccessListener(location -> {
+                // Got last known location. In some rare situations this can be null.
+                Timber.e("定位服务，定位成功，next");
+                sendLoacl(location);
+            });
+        }
+    }
+
     private void sendLoacl(Location location) {
         if (location != null) {
             if (null != mHandler) {
@@ -279,23 +304,31 @@ public class LockGeoFenceService extends Service {
                     if (null != lockGeoget) {
                         Timber.e("当前时间间距：%s", lockGeoget.threadSleep + "");
                     }
-                    lockGeoFenceEns.get(i).setDistance((int) results[0]);
-                    if (!lockGeoFenceEns.get(i).getBleDeviceLocal().getElecFenceState()) {
-                        Timber.e("当前设备非为从200米外进入设备，暂不发送命令:" + lockGeoFenceEns.get(i).getBleDeviceLocal().getEsn());
-                        if (results[0] > 200) {
-                            Timber.e("当前设备定位距离大于200米，更新相应的地理围栏数据");
-                            if (null != App.getInstance().getLockAppService()) {
-                                if (null != lockGeoFenceEns.get(i).getBleDeviceLocal()) {
-                                    if (lockGeoFenceEns.get(i).getBleDeviceLocal().setLockElecFenceState(true)) {
-                                        Timber.e("当前设备定位距离大于200米，更新相应的地理围栏数据：" + lockGeoFenceEns.get(i).getBleDeviceLocal().getElecFenceState());
-                                        App.getInstance().getLockAppService().pushServiceGeoState(lockGeoFenceEns.get(i).getBleDeviceLocal());
-                                        App.getInstance().getLockAppService().updateDeviceGeoState(lockGeoFenceEns.get(i).getBleDeviceLocal().getMac(),
-                                                lockGeoFenceEns.get(i).getBleDeviceLocal());
-                                    }
+
+                    Timber.e("当前设备更新定位距离，更新相应的地理围栏数据");
+                    if (null != App.getInstance().getLockAppService()) {
+                        if (null != lockGeoFenceEns.get(i).getBleDeviceLocal()) {
+                            if (lockGeoFenceEns.get(i).getDistance() > 200 && results[0] < 200) {
+                                Timber.e("历史记录距离大于200，最新的距离小于200，判定从地理围栏外围进入内部：" + lockGeoFenceEns.get(i).getBleDeviceLocal().getEsn());
+                                if (lockGeoFenceEns.get(i).getBleDeviceLocal().setLockElecFenceState(true)) {
+                                    Timber.e("当前设备定位距离小于200米，更新相应的地理围栏数据：" + lockGeoFenceEns.get(i).getBleDeviceLocal().getElecFenceState());
+                                    App.getInstance().getLockAppService().pushServiceGeoState(lockGeoFenceEns.get(i).getBleDeviceLocal());
+                                    App.getInstance().getLockAppService().updateDeviceGeoState(lockGeoFenceEns.get(i).getBleDeviceLocal().getMac(),
+                                            lockGeoFenceEns.get(i).getBleDeviceLocal());
+                                }
+                            } else if (lockGeoFenceEns.get(i).getDistance() < 200 && results[0] > 200) {
+                                Timber.e("历史记录距离小于200，最新的距离大于200，判定从地理围栏内围出外部：" + lockGeoFenceEns.get(i).getBleDeviceLocal().getEsn());
+                                if (lockGeoFenceEns.get(i).getBleDeviceLocal().setLockElecFenceState(false)) {
+                                    Timber.e("当前设备定位距离大于200米，更新相应的地理围栏数据：" + lockGeoFenceEns.get(i).getBleDeviceLocal().getElecFenceState());
+                                    App.getInstance().getLockAppService().pushServiceGeoState(lockGeoFenceEns.get(i).getBleDeviceLocal());
+                                    App.getInstance().getLockAppService().updateDeviceGeoState(lockGeoFenceEns.get(i).getBleDeviceLocal().getMac(),
+                                            lockGeoFenceEns.get(i).getBleDeviceLocal());
                                 }
                             }
                         }
                     }
+                    //保存当前的相距地理围栏的距离
+                    lockGeoFenceEns.get(i).setDistance((int) results[0]);
                     if (results[0] < 100) {
                         Timber.e("当前设备为100米内，准备发送命令:" + lockGeoFenceEns.get(i).getBleDeviceLocal().getEsn());
                         if (null != lockGeoFenceEns.get(i).getBleDeviceLocal()) {
@@ -405,7 +438,7 @@ public class LockGeoFenceService extends Service {
                             //开启蓝牙广播已，直接去连
                             Timber.e("定位服务，下发命令，开启蓝牙广播已，直接去连：" + deviceLocal.getEsn());
                             int index = getConnectBleIndex(deviceLocal.getEsn());
-                            if (index < 3) {
+                            if (index < Constant.LOCK_GEO_CONNECT_BLE_INDEX) {
                                 setConnectBleIndex(deviceLocal.getEsn(), index + 1);
                                 App.getInstance().getLockAppService().checkBleConnect(deviceLocal.getMac());
                             } else {
@@ -420,7 +453,7 @@ public class LockGeoFenceService extends Service {
                     if (geoFenceEn.getElecFenceCmd() == 1) {
                         //开启蓝牙广播已，直接去连
                         int index = getConnectBleIndex(deviceLocal.getEsn());
-                        if (index < 3) {
+                        if (index < Constant.LOCK_GEO_CONNECT_BLE_INDEX) {
                             setConnectBleIndex(deviceLocal.getEsn(), index + 1);
                             Timber.e("2定位服务，下发命令，开启蓝牙广播已，直接去连：" + deviceLocal.getEsn());
                             App.getInstance().getLockAppService().checkBleConnect(deviceLocal.getMac());
@@ -664,11 +697,11 @@ public class LockGeoFenceService extends Service {
                     } else {
                         lockGeoFenceEns.get(i).setLatitude(bleDeviceLocal.getLatitude());
                         lockGeoFenceEns.get(i).setLongitude(bleDeviceLocal.getLongitude());
-                        LatLng latLng = new LatLng(bleDeviceLocal.getLatitude(), bleDeviceLocal.getLockPower());
+                        LatLng latLng = new LatLng(bleDeviceLocal.getLatitude(), bleDeviceLocal.getLatitude());
                         lockGeoFenceEns.get(i).setBleDeviceLocal(bleDeviceLocal);
                         lockGeoFenceEns.get(i).setGeofence(lockGeoFenceEns.get(i).getmGeoFenceHelper().getGeoFence(
                                 GEO_FENCE_ID, latLng
-                                , 50,
+                                , 200,
                                 Geofence.GEOFENCE_TRANSITION_ENTER | Geofence.GEOFENCE_TRANSITION_DWELL | Geofence.GEOFENCE_TRANSITION_EXIT
                         ));
                         lockGeoFenceEns.get(i).setGeofencingRequest(lockGeoFenceEns.get(i).getmGeoFenceHelper().getGeoFencingRequest(lockGeoFenceEns.get(i).getGeofence()));
@@ -686,7 +719,7 @@ public class LockGeoFenceService extends Service {
             if (bleDeviceLocal.isOpenElectricFence()) {
                 sendOpenPer();
                 Timber.e("定位服务，地理围栏添加设备 mac：%s", bleDeviceLocal.getMac() + ";" + bleDeviceLocal.getEsn());
-                addGeoFence(bleDeviceLocal, new LatLng(bleDeviceLocal.getLatitude(), bleDeviceLocal.getLongitude()), 100);
+                addGeoFence(bleDeviceLocal, new LatLng(bleDeviceLocal.getLatitude(), bleDeviceLocal.getLongitude()), 200);
             }
         }
     }
@@ -792,7 +825,7 @@ public class LockGeoFenceService extends Service {
         if (index == -1) {
             if (bleDeviceLocal.isOpenElectricFence()) {
                 Timber.e("2定位服务，地理围栏添加设备 mac：%s", bleDeviceLocal.getMac() + ";" + bleDeviceLocal.getEsn());
-                addGeoFence(bleDeviceLocal, new LatLng(bleDeviceLocal.getLatitude(), bleDeviceLocal.getLongitude()), 100);
+                addGeoFence(bleDeviceLocal, new LatLng(bleDeviceLocal.getLatitude(), bleDeviceLocal.getLongitude()), 200);
                 isAdd = true;
             }
         }
@@ -818,7 +851,11 @@ public class LockGeoFenceService extends Service {
         fenceEn.setPendingIntent(fenceEn.getmGeoFenceHelper().getPendingIntent(bleDeviceLocal.getEsn()));
         lockGeoFenceEns.add(fenceEn);
         mGeoFencingClient.addGeofences(fenceEn.getGeofencingRequest(), fenceEn.getPendingIntent())
-                .addOnSuccessListener(aVoid -> Timber.d("onSuccess: GeoFence Added........"))
+                .addOnSuccessListener(aVoid -> {
+                            Timber.d("onSuccess: GeoFence Added........");
+                            startLoaction();
+                        }
+                )
                 .addOnFailureListener(e -> {
                     // String errorMessage = mGeoFenceHelper.getErrorString(e);
                     Timber.d("GeoFence onFailure");
@@ -845,7 +882,10 @@ public class LockGeoFenceService extends Service {
         }
         mGeoFencingClient.removeGeofences(fenceEn.getPendingIntent());
         mGeoFencingClient.addGeofences(fenceEn.getGeofencingRequest(), fenceEn.getPendingIntent())
-                .addOnSuccessListener(aVoid -> Timber.d("onSuccess: GeoFence Added........"))
+                .addOnSuccessListener(aVoid -> {
+                    Timber.d("onSuccess: GeoFence Added........");
+                    startLoaction();
+                })
                 .addOnFailureListener(e -> {
                     // String errorMessage = mGeoFenceHelper.getErrorString(e);
                     Timber.d("GeoFence onFailure");

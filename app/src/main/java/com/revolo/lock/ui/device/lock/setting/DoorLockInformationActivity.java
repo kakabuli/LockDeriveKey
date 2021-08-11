@@ -37,6 +37,7 @@ import com.revolo.lock.dialog.MessageDialog;
 import com.revolo.lock.dialog.OTAUpdateDialog;
 import com.revolo.lock.dialog.SelectDialog;
 import com.revolo.lock.manager.LockMessage;
+import com.revolo.lock.manager.LockMessageCode;
 import com.revolo.lock.manager.LockMessageRes;
 import com.revolo.lock.mqtt.bean.eventbean.WifiLockOperationEventBean;
 import com.revolo.lock.net.HttpRequest;
@@ -60,6 +61,7 @@ import timber.log.Timber;
 import static com.revolo.lock.ble.BleCommandState.HARD_TYPE_FRONT_PANEL;
 import static com.revolo.lock.ble.BleCommandState.HARD_TYPE_WIFI_LOCK;
 import static com.revolo.lock.ble.BleProtocolState.CMD_CHECK_HARD_VER;
+import static com.revolo.lock.manager.LockMessageCode.MSG_LOCK_MESSAGE_MQTT;
 
 /**
  * author : Jack
@@ -134,6 +136,37 @@ public class DoorLockInformationActivity extends BaseActivity {
         });
     }
 
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void getEventBus(LockMessageRes lockMessage) {
+        if (lockMessage == null) {
+            return;
+        }
+        if (lockMessage.getMessgaeType() == LockMessageCode.MSG_LOCK_MESSAGE_USER) {
+            if (lockMessage.getResultCode() == LockMessageCode.MSG_LOCK_MESSAGE_CODE_SUCCESS) {
+                //数据正常
+
+            }
+
+
+        } else if (lockMessage.getMessgaeType() == LockMessageCode.MSG_LOCK_MESSAGE_BLE) {
+            //蓝牙消息
+            if (lockMessage.getResultCode() == LockMessageCode.MSG_LOCK_MESSAGE_CODE_SUCCESS) {
+                //数据正常
+                processBleResult(lockMessage.getBleResultBea());
+            }  //数据异常
+
+
+        } else if (lockMessage.getMessgaeType() == MSG_LOCK_MESSAGE_MQTT) {
+            //MQTT
+            if (lockMessage.getResultCode() == LockMessageCode.MSG_LOCK_MESSAGE_CODE_SUCCESS) {
+                //数据正常
+            } else {
+                //数据异常
+
+            }
+        }
+    }
+
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0) {
@@ -145,13 +178,14 @@ public class DoorLockInformationActivity extends BaseActivity {
 
     @Override
     public void doBusiness() {
-//        if(mBleDeviceLocal.getConnectedType() != LocalState.DEVICE_CONNECT_TYPE_WIFI) {
-//            initBleListener();
-//        } else {
-        String fireVer = mBleDeviceLocal.getLockVer();
-        String wifiVer = mBleDeviceLocal.getWifiVer();
-        if (!TextUtils.isEmpty(fireVer) || !TextUtils.isEmpty(wifiVer)) {
-            checkAllOTAVer(fireVer, wifiVer);
+        if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_BLE) {
+            initBleListener();
+        } else {
+            String fireVer = mBleDeviceLocal.getLockVer();
+            String wifiVer = mBleDeviceLocal.getWifiVer();
+            if (!TextUtils.isEmpty(fireVer) || !TextUtils.isEmpty(wifiVer)) {
+                checkAllOTAVer(fireVer, wifiVer);
+            }
         }
         refreshUI();
     }
@@ -182,13 +216,6 @@ public class DoorLockInformationActivity extends BaseActivity {
         });
     }
 
-    private final BleResultProcess.OnReceivedProcess mOnReceivedProcess = bleResultBean -> {
-        if (bleResultBean == null) {
-            Timber.e("mOnReceivedProcess bleResultBean == null");
-            return;
-        }
-        processBleResult(bleResultBean);
-    };
 
     private void processBleResult(BleResultBean bean) {
         if (bean.getCMD() == CMD_CHECK_HARD_VER) {
@@ -209,20 +236,16 @@ public class DoorLockInformationActivity extends BaseActivity {
     private void refreshLockVerFromBle(BleResultBean bean) {
         // 锁的前板固件版本
         runOnUiThread(() -> {
-            byte[] verBytes = new byte[9];
-            System.arraycopy(bean.getPayload(), 2, verBytes, 0, verBytes.length);
-            String verStr = new String(verBytes, StandardCharsets.UTF_8);
-            mTvFirmwareVersion.setText(verStr);
+            mBleDeviceLocal = App.getInstance().getBleDeviceLocal();
+            mTvFirmwareVersion.setText(mBleDeviceLocal.getLockVer());
         });
     }
 
     private void refreshWifiVerFromBle(BleResultBean bean) {
         // 锁的wifi版本
         runOnUiThread(() -> {
-            byte[] verBytes = new byte[9];
-            System.arraycopy(bean.getPayload(), 2, verBytes, 0, verBytes.length);
-            String verStr = new String(verBytes, StandardCharsets.UTF_8);
-            mTvWifiVersion.setText(verStr);
+            mBleDeviceLocal = App.getInstance().getBleDeviceLocal();
+            mTvWifiVersion.setText(mBleDeviceLocal.getWifiVer());
         });
     }
 
@@ -244,64 +267,25 @@ public class DoorLockInformationActivity extends BaseActivity {
             Timber.e("initBleListener bleBean.getPwd3() == null");
             return;
         }
-        bleBean.setOnBleDeviceListener(new OnBleDeviceListener() {
-            @Override
-            public void onConnected(@NotNull String mac) {
-
-            }
-
-            @Override
-            public void onDisconnected(@NotNull String mac) {
-
-            }
-
-            @Override
-            public void onReceivedValue(@NotNull String mac, String uuid, byte[] value) {
-                if (value == null) {
-                    return;
-                }
-                BleResultProcess.setOnReceivedProcess(mOnReceivedProcess);
-                BleResultProcess.processReceivedData(value, bleBean.getPwd1(), bleBean.getPwd3(), bleBean.getOKBLEDeviceImp().getBleScanResult());
-            }
-
-            @Override
-            public void onWriteValue(@NotNull String mac, String uuid, byte[] value, boolean success) {
-
-            }
-
-            @Override
-            public void onAuthSuc(@NotNull String mac) {
-
-            }
-
-            @Override
-            public void onAddConnect(String mac) {
-
-            }
-
-        });
         // 查询前板的版本信息
-        new Handler(Looper.getMainLooper()).postDelayed(() -> {
-                    LockMessage message = new LockMessage();
-                    message.setMac(bleBean.getOKBLEDeviceImp().getMacAddress());
-                    message.setBytes(BleCommandFactory
-                            .checkHardVer(HARD_TYPE_FRONT_PANEL,
-                                    bleBean.getPwd1(),
-                                    bleBean.getPwd3()));
-                    message.setMessageType(3);
-                    EventBus.getDefault().post(message);
-                },
-                50);
+        LockMessage message = new LockMessage();
+        message.setMac(bleBean.getOKBLEDeviceImp().getMacAddress());
+        message.setBytes(BleCommandFactory
+                .checkHardVer(HARD_TYPE_FRONT_PANEL,
+                        bleBean.getPwd1(),
+                        bleBean.getPwd3()));
+        message.setMessageType(3);
+        EventBus.getDefault().post(message);
         // 查询wifi的版本信息
         new Handler(Looper.getMainLooper()).postDelayed(() -> {
-                    LockMessage message = new LockMessage();
-                    message.setMessageType(3);
-                    message.setMac(bleBean.getOKBLEDeviceImp().getMacAddress());
-                    message.setBytes(BleCommandFactory
+                    LockMessage message2 = new LockMessage();
+                    message2.setMessageType(3);
+                    message2.setMac(bleBean.getOKBLEDeviceImp().getMacAddress());
+                    message2.setBytes(BleCommandFactory
                             .checkHardVer(HARD_TYPE_WIFI_LOCK,
                                     bleBean.getPwd1(),
                                     bleBean.getPwd3()));
-                    EventBus.getDefault().post(message);
+                    EventBus.getDefault().post(message2);
                 },
                 100);
     }

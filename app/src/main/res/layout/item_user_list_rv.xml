@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -21,25 +20,29 @@
 
     <TextView
         android:id="@+id/tvName"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="30pt"
         android:layout_marginTop="20pt"
-        tools:text="Joh's DOOR"
-        android:textStyle="bold"
+        android:layout_marginEnd="16pt"
+        android:ellipsize="end"
+        android:lines="1"
         android:textColor="@color/c333333"
         android:textSize="15pt"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/ivAvatar"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="jack chen" />
 
     <TextView
         android:id="@+id/tvPermission"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="6pt"
-        android:textSize="12pt"
-        android:textColor="@color/c666666"
         android:text="@string/family"
+        android:textColor="@color/c666666"
+        android:textSize="12pt"
         app:layout_constraintStart_toStartOf="@+id/tvName"
         app:layout_constraintTop_toBottomOf="@+id/tvName" />
 

@@ -40,7 +40,8 @@
 
         <TextView
             android:id="@+id/tvAccount"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
+            android:gravity="center"
             android:layout_height="wrap_content"
             android:layout_marginTop="5pt"
             android:textColor="@color/c333333"
@@ -54,7 +55,8 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/clUserName"
         android:layout_width="match_parent"
-        android:layout_height="51pt"
+        android:layout_height="wrap_content"
+        android:minHeight="51pt"
         android:background="@color/white"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -62,12 +64,13 @@
 
         <TextView
             android:id="@+id/tvUserName"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="16pt"
             android:textColor="@color/c333333"
             android:textSize="15pt"
             app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/imageView2"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             tools:text="hudada's" />
@@ -124,7 +127,7 @@
         android:id="@+id/shareList"
         android:layout_width="match_parent"
         android:layout_height="0pt"
-        android:layout_marginBottom="20pt"
+        android:layout_marginBottom="70pt"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/clDeviceNum" />
 

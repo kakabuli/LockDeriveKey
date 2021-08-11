@@ -124,19 +124,19 @@ public class DeviceFragment extends Fragment {
                 mHomeLockListAdapter = new HomeLockListAdapter(R.layout.item_home_lock_list_rv);
                 mHomeLockListAdapter.setOnItemClickListener((adapter, view, position) -> {
                     //判断隐私模式
-                    @LocalState.LockState int mLockstate = ((BleDeviceLocal) adapter.getItem(position)).getLockState();
+                   /* @LocalState.LockState int mLockstate = ((BleDeviceLocal) adapter.getItem(position)).getLockState();
                     if (mLockstate == LocalState.LOCK_STATE_PRIVATE) {
                         return;
-                    }
+                    }*/
                     if (adapter.getItem(position) instanceof BleDeviceLocal) {
                         if (position < 0 || position >= adapter.getData().size()) return;
                         BleDeviceLocal deviceLocal = (BleDeviceLocal) adapter.getItem(position);
-                        if (deviceLocal.getLockState() == LocalState.LOCK_STATE_PRIVATE) {
+                    /*    if (deviceLocal.getLockState() == LocalState.LOCK_STATE_PRIVATE) {
                             if (mBluetoothAdapter == null || !mBluetoothAdapter.isEnabled()) {
                                 ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_please_open_bluetooth);
                             }
                             return; // 隐私模式
-                        }
+                        }*/
                         if (deviceLocal.getShareUserType() == 2) { // guest 用户
                             // TODO Guest 用户只能列表开关锁
                             return;
@@ -442,7 +442,7 @@ public class DeviceFragment extends Fragment {
         }
         Timber.e("执行获取设备信息");
         deviceHandler.removeMessages(MSG_GET_ALL_DEVICE_OUT_TIME);
-        deviceHandler.sendEmptyMessageDelayed(MSG_GET_ALL_DEVICE_OUT_TIME, 8000);
+        deviceHandler.sendEmptyMessageDelayed(MSG_GET_ALL_DEVICE_OUT_TIME, 4500);//超时
         LockMessage lockMessage = new LockMessage();
         lockMessage.setMessageType(2);
         lockMessage.setMqtt_topic(MQttConstant.PUBLISH_TO_SERVER);

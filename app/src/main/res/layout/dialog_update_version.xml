@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="289pt"
     android:layout_height="wrap_content"
     android:background="@drawable/shape_dialog_bg">
@@ -11,10 +10,10 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="30pt"
+        android:text="@string/dialog_update_version_title"
+        android:textColor="@color/c333333"
         android:textSize="16pt"
         android:textStyle="bold"
-        android:textColor="@color/c333333"
-        android:text="@string/dialog_privacy_policy_title"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -29,52 +28,52 @@
         android:paddingStart="24dp"
         android:paddingEnd="24dp"
         android:paddingBottom="12pt"
-        android:text="@string/dialog_privacy_policy"
         android:textColor="@color/c333333"
         android:textSize="14pt"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tvTitle"
-        tools:text="@string/dialog_privacy_policy" />
+        app:layout_constraintTop_toBottomOf="@id/tvTitle" />
 
     <View
         android:id="@+id/view"
         android:layout_width="match_parent"
         android:layout_height="1pt"
         android:background="@color/cF2F2F2"
-        app:layout_constraintBottom_toTopOf="@+id/tvConfirm"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tvContent" />
 
-    <TextView
-        android:id="@+id/tvCancel"
-        android:layout_width="144pt"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="50pt"
-        android:gravity="center"
-        android:text="Refuse"
-        android:textColor="@color/cA5A4DA"
-        android:textSize="15pt"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        android:orientation="horizontal"
+        app:layout_constraintTop_toBottomOf="@id/view">
 
-    <View
-        android:layout_width="1pt"
-        android:layout_height="50pt"
-        android:background="@color/cF2F2F2"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/tvConfirm" />
+        <TextView
+            android:id="@+id/tvCancel"
+            android:layout_width="0dp"
+            android:layout_height="50pt"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="Cancel"
+            android:textColor="@color/cA5A4DA"
+            android:textSize="15pt" />
 
-    <TextView
-        android:id="@+id/tvConfirm"
-        android:layout_width="144pt"
-        android:layout_height="50pt"
-        android:gravity="center"
-        android:text="Agree"
-        android:textColor="@color/c2C68FF"
-        android:textSize="15pt"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        <View
+            android:id="@+id/v_line"
+            android:layout_width="1pt"
+            android:layout_height="50pt"
+            android:background="@color/cF2F2F2" />
 
+        <TextView
+            android:id="@+id/tvConfirm"
+            android:layout_width="0dp"
+            android:layout_height="50pt"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="Update"
+            android:textColor="@color/c2C68FF"
+            android:textSize="15pt" />
+    </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

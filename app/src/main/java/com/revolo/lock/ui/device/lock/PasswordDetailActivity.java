@@ -1,5 +1,6 @@
 package com.revolo.lock.ui.device.lock;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -195,13 +196,16 @@ public class PasswordDetailActivity extends BaseActivity {
         super.onDestroy();
     }
 
+    @SuppressLint("DefaultLocale")
     private void initDetail() {
         if (mDevicePwdBean != null) {
-            if (TextUtils.isEmpty(mDevicePwdBean.getPwdName())) {
-                mTvPwdName.setText(String.format("%03d", mDevicePwdBean.getPwdNum()));
-            } else {
-                mTvPwdName.setText(mDevicePwdBean.getPwdName());
+            String pwdName = mDevicePwdBean.getPwdName();
+            if (TextUtils.isEmpty(pwdName)) {
+                pwdName = String.format("%03d", mDevicePwdBean.getPwdNum());
+            } else if (pwdName.matches("[0-9]+") && pwdName.length() < 3) {
+                pwdName = "000".substring(0, 3 - pwdName.length()) + pwdName;
             }
+            mTvPwdName.setText(pwdName);
             mTvPwd.setText("***********");
             mTvPwdCharacteristic.setText(getPwdCharacteristic(mDevicePwdBean));
             mTvCreationDate.setText(ZoneUtil.getTestDate(mBleDeviceLocal.getTimeZone(),
@@ -218,8 +222,8 @@ public class PasswordDetailActivity extends BaseActivity {
         } else if (attribute == KEY_SET_ATTRIBUTE_TIME_KEY) {
             long startTimeMill = devicePwdBean.getStartTime() * 1000;
             long endTimeMill = devicePwdBean.getEndTime() * 1000;
-            detail = ZoneUtil.getDate(mBleDeviceLocal.getTimeZone(),startTimeMill, "MM,dd,yyyy   HH:mm")
-                    + "-" + ZoneUtil.getDate(mBleDeviceLocal.getTimeZone(),endTimeMill, "MM,dd,yyyy   HH:mm");
+            detail = ZoneUtil.getDate(mBleDeviceLocal.getTimeZone(), startTimeMill, "MM,dd,yyyy   HH:mm")
+                    + "-" + ZoneUtil.getDate(mBleDeviceLocal.getTimeZone(), endTimeMill, "MM,dd,yyyy   HH:mm");
         } else if (attribute == KEY_SET_ATTRIBUTE_WEEK_KEY) {
             byte[] weekBytes = BleByteUtil.byteToBit(devicePwdBean.getWeekly());
             String weekly = "";

@@ -9,13 +9,13 @@ package com.revolo.lock.bean.request;
 public class GetVersionBeanReq {
 
     private String uid;
-    private int phoneSysType;
+    private String phoneSysType;
 
-    public int getPhoneSysType() {
+    public String getPhoneSysType() {
         return phoneSysType;
     }
 
-    public void setPhoneSysType(int phoneSysType) {
+    public void setPhoneSysType(String phoneSysType) {
         this.phoneSysType = phoneSysType;
     }
 

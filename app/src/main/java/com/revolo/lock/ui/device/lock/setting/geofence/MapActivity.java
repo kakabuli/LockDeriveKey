@@ -35,6 +35,7 @@ import com.revolo.lock.R;
 import com.revolo.lock.base.BaseActivity;
 import com.revolo.lock.bean.request.UpdateLocalBeanReq;
 import com.revolo.lock.bean.respone.UpdateLocalBeanRsp;
+import com.revolo.lock.dialog.PrivacyPolicyDialog;
 import com.revolo.lock.dialog.SelectDialog;
 import com.revolo.lock.manager.geo.LockGeoFenceService;
 import com.revolo.lock.net.HttpRequest;
@@ -62,7 +63,8 @@ public class MapActivity extends BaseActivity implements OnMapReadyCallback, Goo
     private GoogleMap mMap;
     public float GEO_FENCE_RADIUS = 200;
     private BleDeviceLocal mBleDeviceLocal;
-    private SelectDialog canApplyDialog, refuseDialog;
+    private SelectDialog refuseDialog;
+    private PrivacyPolicyDialog canApplyDialog;
     private RelativeLayout addLocation;
     private LatLng mCurrLat = null;
 
@@ -134,9 +136,11 @@ public class MapActivity extends BaseActivity implements OnMapReadyCallback, Goo
      */
     private void updateApplyDialog() {
         if (null == canApplyDialog) {
-            canApplyDialog = new SelectDialog(this);
-            canApplyDialog.setMessage(getString(R.string.dialog_we_need_to_permission_for_location));
-            canApplyDialog.setOnCancelClickListener(v -> canApplyDialog.dismiss());
+            canApplyDialog = new PrivacyPolicyDialog(this);
+            canApplyDialog.setOnCancelClickListener(v -> {
+                canApplyDialog.dismiss();
+                finish();
+            });
             canApplyDialog.setOnConfirmListener(v -> {
                 canApplyDialog.dismiss();
                 ActivityCompat.requestPermissions(MapActivity.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, FINE_LOCATION_ACCESS_REQUEST_CODE);
@@ -238,12 +242,12 @@ public class MapActivity extends BaseActivity implements OnMapReadyCallback, Goo
             //Ask for permission
             if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_FINE_LOCATION)) {
                 //We need to show a dialog for displaying why the permission is needed and the ask the permission
-                updateApplyDialog();
+//                updateApplyDialog();
+                ActivityCompat.requestPermissions(MapActivity.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, FINE_LOCATION_ACCESS_REQUEST_CODE);
             } else {
                 ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, FINE_LOCATION_ACCESS_REQUEST_CODE);
             }
         }
-
     }
 
     @SuppressLint("MissingPermission")

@@ -105,7 +105,7 @@
         <activity
             android:name=".ui.MainActivity"
             android:configChanges="orientation|keyboardHidden"
-            android:launchMode="singleTop"
+            android:launchMode="singleTask"
             android:screenOrientation="portrait">
 
             <!--注册scheme-->
@@ -403,6 +403,10 @@
             android:screenOrientation="portrait" />
         <activity
             android:name=".ui.user.InviteUsersMailActivity"
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.device.lock.setting.geofence.AutoUnlockActivity"
             android:launchMode="singleTask"
             android:screenOrientation="portrait" />
 

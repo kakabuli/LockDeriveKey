@@ -3,6 +3,7 @@ package com.revolo.lock.dialog.iosloading;
 import android.app.Dialog;
 import android.content.Context;
 import android.os.Message;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.TextView;
@@ -19,6 +20,15 @@ import com.revolo.lock.R;
  */
 public class CustomerLoadingDialog extends Dialog {
     private static int MSG_DIALOG_SHOW_OUT_TIME = 254;
+    private boolean isReturnDiss = false;
+
+    public boolean isReturnDiss() {
+        return isReturnDiss;
+    }
+
+    public void setReturnDiss(boolean returnDiss) {
+        isReturnDiss = returnDiss;
+    }
 
     public CustomerLoadingDialog(Context context) {
         super(context);
@@ -120,11 +130,20 @@ public class CustomerLoadingDialog extends Dialog {
         mHandler.removeMessages(MSG_DIALOG_SHOW_OUT_TIME);
     }
 
+    @Override
+    public boolean onKeyDown(int keyCode, @NonNull KeyEvent event) {
+        if (isReturnDiss) {
+            return true;
+        }
+        return super.onKeyDown(keyCode, event);
+    }
+
     private android.os.Handler mHandler = new android.os.Handler() {
         @Override
         public void handleMessage(@NonNull Message msg) {
             if (msg.what == MSG_DIALOG_SHOW_OUT_TIME) {
                 if (CustomerLoadingDialog.this.isShowing()) {
+                    isReturnDiss = false;
                     dismiss();
                 }
             }

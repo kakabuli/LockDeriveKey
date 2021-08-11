@@ -83,6 +83,14 @@
 #Okio
 -dontwarn org.codehaus.mojo.animal_sniffer.*
 
+#room
+-dontwarn android.arch.util.paging.CountedDataSource
+-dontwarn android.arch.persistence.room.paging.LimitOffsetDataSource
+-keepclassmembers class * extends org.litepal.crud.DataSupport**{*;}
+-keep class net.sqlcipher.* { *; }
+-keep class net.sqlcipher.database.* { *; }
+
+
 #不混淆的类
 -keep public class * extends android.app.Fragment
 -keep public class * extends android.app.Activity
@@ -97,6 +105,15 @@
 
 # bean类不混淆
 -keep class com.revolo.lock.bean.*{*;}
+-keep class com.revolo.lock.bean.request.*{*;}
+-keep class com.revolo.lock.bean.respone.*{*;}
+-keep class com.revolo.lock.bean.test.*{*;}
+-keep class com.revolo.lock.ble.bean.*{*;}
+-keep class com.revolo.lock.mqtt.bean.*{*;}
+-keep class com.revolo.lock.mqtt.bean.eventbean.*{*;}
+-keep class com.revolo.lock.mqtt.bean.publishbean.*{*;}
+-keep class com.revolo.lock.mqtt.bean.publishresultbean.*{*;}
+-keep class com.revolo.lock.room.entity.*{*;}
 
 # 关闭日志打印
 -assumenosideeffects class android.util.Log {
@@ -150,6 +167,11 @@
     public static final android.os.Parcelable$Creator *;
 }
 
+#// natvie 方法不混淆
+-keepclasseswithmembernames class * {
+    native <methods>;
+}
+
 -keepclassmembers class * implements java.io.Serializable {
    static final long serialVersionUID;
    private static final java.io.ObjectStreamField[]   serialPersistentFields;
@@ -166,4 +188,59 @@
     public static *** i(...);
     public static *** w(...);
     public static *** e(...);
+}
+
+#okhttp3.x
+-dontwarn com.squareup.okhttp3.**
+-keep class com.squareup.okhttp3.* { *;}
+-dontwarn okio.**
+
+#retrofit
+-dontwarn retrofit.**
+-keep class retrofit.* { *; }
+-keepattributes Signature
+-keepattributes Exceptions
+-dontwarn okio.**
+
+#eventbus 3.0
+-keepattributes *Annotation*
+-keepclassmembers class * {
+    @org.greenrobot.eventbus.Subscribe <methods>;
+}
+-keep enum org.greenrobot.eventbus.ThreadMode { *; }
+-keepclassmembers class * extends org.greenrobot.eventbus.util.ThrowableFailureEvent {
+    <init>(java.lang.Throwable);
+}
+
+# gson
+-keep class com.google.gson.* {*;}
+-keep class com.google.*{*;}
+-keep class sun.misc.Unsafe* { *; }
+-keep class com.google.gson.stream.* { *; }
+-keep class com.google.gson.examples.android.model.* { *; }
+
+-keepclassmembers class * implements java.io.Serializable {
+    static final long serialVersionUID;
+    private static final java.io.ObjectStreamField[] serialPersistentFields;
+    private void writeObject(java.io.ObjectOutputStream);
+    private void readObject(java.io.ObjectInputStream);
+    java.lang.Object writeReplace();
+    java.lang.Object readResolve();
+}
+-keep public class * implements java.io.Serializable {*;}
+
+#glide
+-keep public class * implements com.bumptech.glide.module.GlideModule
+-keep public enum com.bumptech.glide.load.resource.bitmap.ImageHeaderParser$** {
+  **[] $VALUES;
+  public *;
+}
+
+#Rxjava RxAndroid
+-dontwarn rx.*
+-dontwarn sun.misc.**
+
+-keepclassmembers class rx.internal.util.unsafe.*ArrayQueue*Field* {
+   long producerIndex;
+   long consumerIndex;
 }

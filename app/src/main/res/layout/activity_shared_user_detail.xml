@@ -33,9 +33,10 @@
 
             <TextView
                 android:id="@+id/tvUserName"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="5pt"
+                android:gravity="center"
                 android:textColor="@color/c333333"
                 android:textSize="14pt"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -45,7 +46,7 @@
 
             <TextView
                 android:id="@+id/tvEsn"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="15pt"
                 android:layout_marginTop="15pt"
@@ -160,9 +161,9 @@
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/clGuest"
-                android:layout_marginBottom="80pt"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginBottom="80pt"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/clFamily">

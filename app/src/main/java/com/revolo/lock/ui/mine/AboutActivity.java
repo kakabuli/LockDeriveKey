@@ -36,7 +36,6 @@ import io.reactivex.disposables.Disposable;
 public class AboutActivity extends BaseActivity {
 
     private View vMark;
-    private boolean isNewVersion = false;
 
     @Override
     public void initData(@Nullable Bundle bundle) {
@@ -60,9 +59,7 @@ public class AboutActivity extends BaseActivity {
         // TODO: 2021/3/8 后期从服务器获取
         tvContact.setText("support@irevolo.com");
         applyDebouncingClickListener(findViewById(R.id.clPrivacyAgreement), findViewById(R.id.clVersionUpdate), findViewById(R.id.clUserAgreement));
-        isNewVersion = false;
-        getServerAppVersion();
-
+        vMark.setVisibility(Constant.isNewAppVersion ? View.VISIBLE : View.GONE);
     }
 
     @Override
@@ -82,7 +79,7 @@ public class AboutActivity extends BaseActivity {
     @Override
     public void onDebouncingClick(@NonNull View view) {
         if (view.getId() == R.id.clVersionUpdate) {
-            if (isNewVersion) launchAppDetail("com.revolo.lock", "com.android.vending");
+            if (Constant.isNewAppVersion) launchAppDetail("com.revolo.lock", "com.android.vending");
         } else if (view.getId() == R.id.clPrivacyAgreement) {
             Intent intent = new Intent(this, TermActivity.class);
             intent.putExtra(Constant.TERM_TYPE, Constant.TERM_TYPE_PRIVACY);
@@ -110,54 +107,5 @@ public class AboutActivity extends BaseActivity {
         } catch (Exception e) {
             e.printStackTrace();
         }
-    }
-
-    public void getServerAppVersion() {
-        if (!checkNetConnectFail()) {
-            return;
-        }
-        MailLoginBeanRsp.DataBean userBean = App.getInstance().getUserBean();
-        if (userBean == null) {
-            return;
-        }
-
-        String token = userBean.getToken();
-        String uid = userBean.getUid();
-        GetVersionBeanReq req = new GetVersionBeanReq();
-        req.setUid(uid);
-        req.setPhoneSysType(0);
-        Observable<GetVersionBeanRsp> version = HttpRequest.getInstance().getVersion(token, req);
-        ObservableDecorator.decorate(version).safeSubscribe(new Observer<GetVersionBeanRsp>() {
-            @Override
-            public void onSubscribe(@io.reactivex.annotations.NonNull Disposable d) {
-
-            }
-
-            @Override
-            public void onNext(@io.reactivex.annotations.NonNull GetVersionBeanRsp getVersionBeanRsp) {
-                if (getVersionBeanRsp.getCode().equals("200")) {
-                    if (getVersionBeanRsp.getData() != null) {
-                        String appVersions = getVersionBeanRsp.getData().getAppVersions();
-                        if (appVersions.equals(AppUtils.getAppVersionName())) { // 版本号不一致
-                            vMark.setVisibility(View.GONE);
-                            isNewVersion = false;
-                        } else {
-                            vMark.setVisibility(View.VISIBLE);
-                            isNewVersion = true;
-                        }
-                    }
-                }
-            }
-
-            @Override
-            public void onError(@io.reactivex.annotations.NonNull Throwable e) {
-                isNewVersion = false;
-            }
-
-            @Override
-            public void onComplete() {
-
-            }
-        });
     }
 }

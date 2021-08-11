@@ -25,23 +25,32 @@ import com.revolo.lock.ui.sign.TermActivity;
  * E-mail : wengmaowei@kaadas.com
  * desc   : 两个选择
  */
-public class PrivacyPolicyDialog extends Dialog {
+public class UpdateVersionDialog extends Dialog {
 
     private TextView mTvContent, mTvConfirm, mTvCancel;
     private View.OnClickListener mOnConfirmClickListener, mOnCancelClickListener;
+    private View mLine;
+    private String forceFlag = "0";
+    private String message = "";
 
-    public PrivacyPolicyDialog(@NonNull Context context) {
+    public UpdateVersionDialog(@NonNull Context context) {
         super(context, R.style.CustomDialog);
+    }
+
+    public void setContent(String forceFlag, String message) {
+        this.forceFlag = forceFlag;
+        this.message = message;
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.dialog_privacy_policy);
+        setContentView(R.layout.dialog_update_version);
         setCanceledOnTouchOutside(false);
         mTvContent = findViewById(R.id.tvContent);
         mTvConfirm = findViewById(R.id.tvConfirm);
         mTvCancel = findViewById(R.id.tvCancel);
+        mLine = findViewById(R.id.v_line);
         refreshView();
     }
 
@@ -61,23 +70,14 @@ public class PrivacyPolicyDialog extends Dialog {
             mTvCancel.setOnClickListener(mOnCancelClickListener);
         }
 
-        String string = getContext().getString(R.string.dialog_privacy_policy);
-        SpannableString spannableString = new SpannableString(string);
-        UnderlineSpan underlineSpan = new UnderlineSpan();
-        ForegroundColorSpan colorSpan = new ForegroundColorSpan(getContext().getColor(R.color.c2C68FF));
-        spannableString.setSpan(colorSpan, 27, 42, Spanned.SPAN_EXCLUSIVE_INCLUSIVE);
-        spannableString.setSpan(underlineSpan, 27, 42, Spanned.SPAN_EXCLUSIVE_INCLUSIVE);
-        spannableString.setSpan(new ClickableSpan() {
-
-            @Override
-            public void onClick(@NonNull View widget) {
-                Intent intent = new Intent(getContext(), TermActivity.class);
-                intent.putExtra(Constant.TERM_TYPE, Constant.TERM_TYPE_PRIVACY);
-                getContext().startActivity(intent);
-            }
-        }, 27, 42, Spanned.SPAN_EXCLUSIVE_INCLUSIVE);
-        mTvContent.setText(spannableString);
-        mTvContent.setMovementMethod(LinkMovementMethod.getInstance());
+        mTvContent.setText(message);
+        if (forceFlag.equals("1")) {
+            mLine.setVisibility(View.GONE);
+            mTvCancel.setVisibility(View.GONE);
+        } else {
+            mLine.setVisibility(View.VISIBLE);
+            mTvCancel.setVisibility(View.VISIBLE);
+        }
     }
 
     @Override

@@ -22,11 +22,13 @@ import com.blankj.utilcode.util.AdaptScreenUtils;
 import com.blankj.utilcode.util.ClickUtils;
 import com.blankj.utilcode.util.NetworkUtils;
 import com.blankj.utilcode.util.ToastUtils;
+import com.revolo.lock.App;
 import com.revolo.lock.Constant;
 import com.revolo.lock.LocalState;
 import com.revolo.lock.LockAppManager;
 import com.revolo.lock.R;
 import com.revolo.lock.bean.NetWorkStateBean;
+import com.revolo.lock.dialog.SelectDialog;
 import com.revolo.lock.dialog.iosloading.CustomerLoadingDialog;
 import com.revolo.lock.manager.LockConnected;
 import com.revolo.lock.shulan.KeepAliveManager;
@@ -61,6 +63,7 @@ public abstract class BaseActivity extends AppCompatActivity
     private CustomerLoadingDialog mLoadingDialog;
     public boolean isShowNetState = true;
     private BluetoothAdapter mBluetoothAdapter;
+    private SelectDialog OpenBluetoothDialog;
 
     public static int mVerificationCodeTime = 60;
 
@@ -91,9 +94,6 @@ public abstract class BaseActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         initData(getIntent().getExtras());
         setContentView();
-        if (mBluetoothAdapter == null) {
-            mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-        }
 
         LockConnected bleConnected = new LockConnected();
         bleConnected.setConnectType(LocalState.CONNECT_STATE_MQTT);
@@ -147,6 +147,58 @@ public abstract class BaseActivity extends AppCompatActivity
     }
 
     /**
+     * 是否去开启蓝牙的回调
+     */
+    public interface checkOpenBluetoothClick {
+        void onOpenBluetooth(int type);
+    }
+
+    private checkOpenBluetoothClick openBluetoothClick;
+
+    public void setOpenBluetoothClick(checkOpenBluetoothClick openBluetoothClick) {
+        this.openBluetoothClick = openBluetoothClick;
+    }
+
+    /**
+     * 检测当前蓝牙是否开启、并提示用户开启bluetooth
+     * @param type  操作类型
+     * @return
+     */
+    public boolean checkIsOpenBluetooth(int type) {
+        Timber.e("检测当前手机蓝牙是否开启");
+        if (null == mBluetoothAdapter) {
+            if (null != App.getInstance().getLockAppService()) {
+                mBluetoothAdapter = App.getInstance().getLockAppService().getBluetoothAdapter();
+            }
+        }
+        if (null != mBluetoothAdapter) {
+            if (!mBluetoothAdapter.isEnabled()) {
+                //蓝牙关闭
+                if (null == OpenBluetoothDialog) {
+                    OpenBluetoothDialog = new SelectDialog(this);
+                    OpenBluetoothDialog.setMessage(getString(R.string.dialog_tip_hint_is_open_bluetooth));
+                    OpenBluetoothDialog.setOnCancelClickListener(v -> OpenBluetoothDialog.dismiss());
+                    OpenBluetoothDialog.setOnConfirmListener(v -> {
+                        OpenBluetoothDialog.dismiss();
+                        if (null != openBluetoothClick) {
+                            openBluetoothClick.onOpenBluetooth(type);
+                        }
+                        if (null != mBluetoothAdapter) {
+                            mBluetoothAdapter.enable();
+                        }
+                    });
+                }
+                if (!OpenBluetoothDialog.isShowing()) {
+                    OpenBluetoothDialog.show();
+                }
+            } else {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
      * 启动保活
      */
     private void startKeepAlive() {
@@ -181,7 +233,7 @@ public abstract class BaseActivity extends AppCompatActivity
 
     public void applyDebouncingClickListener(View... views) {
         ClickUtils.applyGlobalDebouncing(views, mClickListener);
-        ClickUtils.applyPressedViewScale(views);
+//        ClickUtils.applyPressedViewScale(views);
     }
 
     @Override
@@ -222,6 +274,17 @@ public abstract class BaseActivity extends AppCompatActivity
                     .create();
             mLoadingDialog.show();
         });
+    }
+
+    /**
+     * 设置加载对话框是否因返回键消失
+     *
+     * @param isDown
+     */
+    protected void setLoadingDialog(boolean isDown) {
+        if (null != mLoadingDialog) {
+            mLoadingDialog.setReturnDiss(isDown);
+        }
     }
 
     public void showLoading() {

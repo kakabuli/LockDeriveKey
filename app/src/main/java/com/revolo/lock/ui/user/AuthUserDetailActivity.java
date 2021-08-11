@@ -38,6 +38,7 @@ import com.revolo.lock.net.ObservableDecorator;
 import com.revolo.lock.ui.device.lock.SharedUserDetailActivity;
 import com.revolo.lock.widget.SlideRecyclerView;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import io.reactivex.Observable;
@@ -88,10 +89,10 @@ public class AuthUserDetailActivity extends BaseActivity {
         mTvDeviceNum = findViewById(R.id.tvDeviceNum);
         mTvUserName = findViewById(R.id.tvUserName);
         mTvAccount = findViewById(R.id.tvAccount);
-        mDevicesAdapter = new AuthUserDetailDevicesAdapter(R.layout.item_user_devices_rv);
+        mDevicesAdapter = new AuthUserDetailDevicesAdapter(new ArrayList<>());
         mDevicesAdapter.setOnItemClickListener((adapter, view, position) -> {
             GetDevicesFromUidAndSharedUidBeanRsp.DataBean dataBean = (GetDevicesFromUidAndSharedUidBeanRsp.DataBean) adapter.getItem(position);
-            if (dataBean != null) {
+            if (dataBean != null && dataBean.getShareUserType() != -1) {
                 ShareUserDetailBean shareUserDetailBean = new ShareUserDetailBean();
                 shareUserDetailBean.setAvatar(mShareUser.getAvatarPath());
                 shareUserDetailBean.setName(dataBean.getFirstName() + " " + dataBean.getLastName());
@@ -152,7 +153,7 @@ public class AuthUserDetailActivity extends BaseActivity {
     private void refreshUI() {
         mTvAccount.setText(mShareUser.getUserMail());
         mTvUserName.setText(mShareUser.getFirstName() + " " + mShareUser.getLastName());
-        mTvDeviceNum.setText(String.valueOf(mDevicesAdapter.getItemCount()));
+        mTvDeviceNum.setText(String.valueOf(mShareUser.getDeviceCount()));
         RequestOptions requestOptions = RequestOptions.circleCropTransform()
                 .diskCacheStrategy(DiskCacheStrategy.AUTOMATIC)        //缓存
                 .skipMemoryCache(false)
@@ -164,6 +165,9 @@ public class AuthUserDetailActivity extends BaseActivity {
     }
 
     private void showRemoveDeviceDialog(GetDevicesFromUidAndSharedUidBeanRsp.DataBean dataBean) {
+        if (dataBean.getShareUserType() == -1) {
+            return;
+        }
         SelectDialog dialog = new SelectDialog(this);
         dialog.setMessage(getString(R.string.dialog_tip_are_you_sure_to_remove_this_user));
         dialog.setOnCancelClickListener(v -> dialog.dismiss());
@@ -212,7 +216,7 @@ public class AuthUserDetailActivity extends BaseActivity {
                 if (code.equals("200")) {
                     List<GetDevicesFromUidAndSharedUidBeanRsp.DataBean> dataBeans = getDevicesFromUidAndSharedUidBeanRsp.getData();
                     if (dataBeans != null && !dataBeans.isEmpty()) {
-                        mDevicesAdapter.setList(dataBeans);
+                        groupData(dataBeans);
                     } else {
                         finish();
                     }
@@ -237,8 +241,39 @@ public class AuthUserDetailActivity extends BaseActivity {
         });
     }
 
+    private void groupData(@NonNull List<GetDevicesFromUidAndSharedUidBeanRsp.DataBean> dataBeans) {
+
+        List<GetDevicesFromUidAndSharedUidBeanRsp.DataBean> families = new ArrayList<>();
+        List<GetDevicesFromUidAndSharedUidBeanRsp.DataBean> guests = new ArrayList<>();
+        List<GetDevicesFromUidAndSharedUidBeanRsp.DataBean> shareUsers = new ArrayList<>();
+        for (int i = 0; i < dataBeans.size(); i++) {
+            GetDevicesFromUidAndSharedUidBeanRsp.DataBean dataBean = dataBeans.get(i);
+            if (dataBean.getShareUserType() == 1) {
+                families.add(dataBean);
+            } else if (dataBean.getShareUserType() == 2) {
+                guests.add(dataBean);
+            }
+        }
+        if (families.size() > 0) {
+            GetDevicesFromUidAndSharedUidBeanRsp.DataBean dataBean = new GetDevicesFromUidAndSharedUidBeanRsp.DataBean();
+            dataBean.setShareUserType(-1);
+            dataBean.setLockNickname("family");
+            shareUsers.add(dataBean);
+            shareUsers.addAll(families);
+        }
+
+        if (guests.size() > 0) {
+            GetDevicesFromUidAndSharedUidBeanRsp.DataBean dataBean = new GetDevicesFromUidAndSharedUidBeanRsp.DataBean();
+            dataBean.setShareUserType(-1);
+            dataBean.setLockNickname("guest");
+            shareUsers.add(dataBean);
+            shareUsers.addAll(guests);
+        }
+        mDevicesAdapter.setList(shareUsers);
+    }
+
     private void share(@NonNull GetDevicesFromUidAndSharedUidBeanRsp.DataBean dataBean) {
-        if (!dataBean.getShareState().equals("3")) { // 非等待状态不能分享
+        if (!dataBean.getShareState().equals("3") || dataBean.getShareUserType() == -1) { // 非等待状态不能分享
             return;
         }
         if (!checkNetConnectFail()) {
