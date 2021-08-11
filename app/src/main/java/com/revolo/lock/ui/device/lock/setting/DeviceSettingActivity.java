@@ -79,7 +79,7 @@ public class DeviceSettingActivity extends BaseActivity {
     private DeviceUnbindBeanReq mReq;
     private ImageView mIvMuteEnable, mIvDoNotDisturbModeEnable;
     private BleDeviceLocal mBleDeviceLocal;
-    private MessageDialog mPowerLowDialog;//低电量
+   // private MessageDialog mPowerLowDialog;//低电量
     private @LocalState.VolumeState
     int lockMute;
 
@@ -218,7 +218,7 @@ public class DeviceSettingActivity extends BaseActivity {
         }
         if (view.getId() == R.id.clGeoFenceLock) {
             if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI || mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI_BLE) {
-                if (mBleDeviceLocal.getLockPower() < 21) {
+                /*if (mBleDeviceLocal.getLockPower() < 21) {
                     if (null == mPowerLowDialog) {
                         mPowerLowDialog = new MessageDialog(this);
                         mPowerLowDialog.setMessage(getString(R.string.t_open_wifi_tip_low_power));
@@ -232,7 +232,7 @@ public class DeviceSettingActivity extends BaseActivity {
                         mPowerLowDialog.show();
                     }
                     return;
-                }
+                }*/
                 Intent intent = new Intent(this, GeoFenceUnlockActivity.class);
                 startActivity(intent);
             } else {
