@@ -499,10 +499,10 @@ public class LockAppService extends Service {
             } else {
                 //当前list中存在设备，更新当前的状态
                 //   bleDeviceLocal.set
-               // if (!bleState || mqttState) {
-                    Timber.e("update device content:" + bleDeviceLocal.getEsn());
-                    mDeviceLists.remove(index);
-                    mDeviceLists.add(bleDeviceLocal);
+                // if (!bleState || mqttState) {
+                Timber.e("update device content:" + bleDeviceLocal.getEsn());
+                mDeviceLists.remove(index);
+                mDeviceLists.add(bleDeviceLocal);
                 /*} else {
                     //蓝牙模式状态只更新分享装，其他状态以锁为准
                     for (int i = 0; i < mDeviceLists.size(); i++) {
@@ -929,8 +929,7 @@ public class LockAppService extends Service {
                 case BleProtocolState.CMD_WIFI_SWITCH:// 0x26;                     // wifi功能开关
                     break;
                 case BleProtocolState.CMD_TIME://0x28 时间同步返回
-                {//获取设备信息
-                    //
+                    //获取设备信息
                     clearCmdBleInitOut(mac);
                     clearBleOut(mac.toUpperCase());
                     BleBean mBleBean = BleManager.getInstance().getBleBeanFromMac(mac);
@@ -938,8 +937,7 @@ public class LockAppService extends Service {
                         BleManager.getInstance().writeControlMsg(BleCommandFactory
                                 .checkLockBaseInfoCommand(mBleBean.getPwd1(), mBleBean.getPwd3()), mBleBean.getOKBLEDeviceImp());
                     }
-                }
-                break;
+                    break;
                 case BleProtocolState.CMD_HEART_ACK:// 0x00;                       // 心跳包确认帧
                     break;
                 case BleProtocolState.CMD_AUTHENTICATION_ACK:// 0x01;              // 鉴权确认帧
@@ -1190,41 +1188,38 @@ public class LockAppService extends Service {
     }
 
     public void pushServiceGeoState(BleDeviceLocal mBleDeviceLocal) {
-        mHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                UpdateLocalBeanReq lockLocal = new UpdateLocalBeanReq();
-                lockLocal.setSn(mBleDeviceLocal.getEsn());
-                lockLocal.setElecFence(mBleDeviceLocal.isOpenElectricFence() ? 1 : 0);
-                lockLocal.setElecFenceSensitivity(mBleDeviceLocal.getSetElectricFenceSensitivity());
-                lockLocal.setElecFenceTime(mBleDeviceLocal.getSetElectricFenceTime());
-                lockLocal.setLatitude(mBleDeviceLocal.getLatitude() + "");
-                lockLocal.setLongitude(mBleDeviceLocal.getLongitude() + "");
-                lockLocal.setElecFenceState(mBleDeviceLocal.getElecFenceState() ? 0 : 1);
-                String token = App.getInstance().getUserBean().getToken();
-                Observable<UpdateLocalBeanRsp> observable = HttpRequest.getInstance().updateockeLecfence(token, lockLocal);
-                ObservableDecorator.decorate(observable).safeSubscribe(new Observer<UpdateLocalBeanRsp>() {
-                    @Override
-                    public void onSubscribe(@NonNull Disposable d) {
+        mHandler.post(() -> {
+            UpdateLocalBeanReq lockLocal = new UpdateLocalBeanReq();
+            lockLocal.setSn(mBleDeviceLocal.getEsn());
+            lockLocal.setElecFence(mBleDeviceLocal.isOpenElectricFence() ? 1 : 0);
+            lockLocal.setElecFenceSensitivity(mBleDeviceLocal.getSetElectricFenceSensitivity());
+            lockLocal.setElecFenceTime(mBleDeviceLocal.getSetElectricFenceTime());
+            lockLocal.setLatitude(mBleDeviceLocal.getLatitude() + "");
+            lockLocal.setLongitude(mBleDeviceLocal.getLongitude() + "");
+            lockLocal.setElecFenceState(mBleDeviceLocal.getElecFenceState() ? 0 : 1);
+            String token = App.getInstance().getUserBean().getToken();
+            Observable<UpdateLocalBeanRsp> observable = HttpRequest.getInstance().updateockeLecfence(token, lockLocal);
+            ObservableDecorator.decorate(observable).safeSubscribe(new Observer<UpdateLocalBeanRsp>() {
+                @Override
+                public void onSubscribe(@NonNull Disposable d) {
 
-                    }
+                }
 
-                    @Override
-                    public void onNext(@NonNull UpdateLocalBeanRsp changeKeyNickBeanRsp) {
-                        Timber.e("上报地理围栏数据");
-                    }
+                @Override
+                public void onNext(@NonNull UpdateLocalBeanRsp changeKeyNickBeanRsp) {
+                    Timber.e("上报地理围栏数据");
+                }
 
-                    @Override
-                    public void onError(@NonNull Throwable e) {
-                        Timber.e(e);
-                    }
+                @Override
+                public void onError(@NonNull Throwable e) {
+                    Timber.e(e);
+                }
 
-                    @Override
-                    public void onComplete() {
+                @Override
+                public void onComplete() {
 
-                    }
-                });
-            }
+                }
+            });
         });
     }
 
@@ -1264,36 +1259,38 @@ public class LockAppService extends Service {
      * @param pass
      */
     private void pushServicePwd(String esn, String pass) {
-        mHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                AuthenticationBeanReq lockLocal = new AuthenticationBeanReq();
-                lockLocal.setWifiSN(esn);
-                lockLocal.setPassWord(pass);
-                String token = App.getInstance().getUserBean().getToken();
-                Observable<AuthenticationBeanRsp> observable = HttpRequest.getInstance().updateocAuthentication(token, lockLocal);
-                ObservableDecorator.decorate(observable).safeSubscribe(new Observer<AuthenticationBeanRsp>() {
-                    @Override
-                    public void onSubscribe(@NonNull Disposable d) {
+        mHandler.post(() -> {
+            AuthenticationBeanReq lockLocal = new AuthenticationBeanReq();
+            lockLocal.setWifiSN(esn);
+            lockLocal.setPassWord(pass);
+            String token = App.getInstance().getUserBean().getToken();
+            Observable<AuthenticationBeanRsp> observable = HttpRequest.getInstance().updateocAuthentication(token, lockLocal);
+            ObservableDecorator.decorate(observable).safeSubscribe(new Observer<AuthenticationBeanRsp>() {
+                @Override
+                public void onSubscribe(@NonNull Disposable d) {
 
+                }
+
+                @Override
+                public void onNext(@NonNull AuthenticationBeanRsp changeKeyNickBeanRsp) {
+                    String code = changeKeyNickBeanRsp.getCode();
+                    if (code.equals("200")) {
+
+                    } else if (code.equals("444")) {
+                        App.getInstance().logout(true, LockAppManager.getAppManager().currentActivity());
                     }
+                }
 
-                    @Override
-                    public void onNext(@NonNull AuthenticationBeanRsp changeKeyNickBeanRsp) {
-                        String code = changeKeyNickBeanRsp.getCode();
-                    }
+                @Override
+                public void onError(@NonNull Throwable e) {
+                    Timber.e(e);
+                }
 
-                    @Override
-                    public void onError(@NonNull Throwable e) {
-                        Timber.e(e);
-                    }
+                @Override
+                public void onComplete() {
 
-                    @Override
-                    public void onComplete() {
-
-                    }
-                });
-            }
+                }
+            });
         });
     }
 
@@ -1403,12 +1400,12 @@ public class LockAppService extends Service {
                 byte[] verBytes = new byte[9];
                 System.arraycopy(bean.getPayload(), 2, verBytes, 0, verBytes.length);
                 String verStr = new String(verBytes, StandardCharsets.UTF_8);
-                updateVerison(mac,verStr,null);
+                updateVerison(mac, verStr, null);
             } else if (bean.getPayload()[1] == HARD_TYPE_WIFI_LOCK) {
                 byte[] verBytes = new byte[9];
                 System.arraycopy(bean.getPayload(), 2, verBytes, 0, verBytes.length);
                 String verStr = new String(verBytes, StandardCharsets.UTF_8);
-                updateVerison(mac,null,verStr);
+                updateVerison(mac, null, verStr);
             } else {
                 // TODO: 2021/2/7 其他的数据处理
             }
@@ -1418,7 +1415,6 @@ public class LockAppService extends Service {
     }
 
     /**
-     *
      * @param mac
      * @param frontVersion
      * @param wifiVersion
@@ -1427,10 +1423,10 @@ public class LockAppService extends Service {
         if (null != mDeviceLists) {
             for (int index = 0; index < mDeviceLists.size(); index++) {
                 if (mDeviceLists.get(index).getMac().equals(mac)) {
-                    if(null!=frontVersion&&!"".equals(frontVersion)){
+                    if (null != frontVersion && !"".equals(frontVersion)) {
                         mDeviceLists.get(index).setLockVer(frontVersion);
                     }
-                    if(null!=wifiVersion&&!"".equals(wifiVersion)){
+                    if (null != wifiVersion && !"".equals(wifiVersion)) {
                         mDeviceLists.get(index).setWifiVer(wifiVersion);
                     }
                     if ((null != mDeviceLists.get(index).getMac() && mDeviceLists.get(index).getMac().equals(App.getInstance().getmCurrMac())) ||

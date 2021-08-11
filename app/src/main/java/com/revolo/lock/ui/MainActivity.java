@@ -79,7 +79,13 @@ public class MainActivity extends BaseActivity {
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
         getAlexaIntent(intent);
-        addDeviceFragment();
+        if (isMainItemIndex == R.id.navigation_device) {
+            addDeviceFragment();
+        } else if (isMainItemIndex == R.id.navigation_user) {
+            addUserFragment();
+        } else if (isMainItemIndex == R.id.navigation_mine) {
+            addMineFragment();
+        }
     }
 
     @Override

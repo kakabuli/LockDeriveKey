@@ -38,7 +38,6 @@ public class LockAppManager implements BaseObservable {
 
     public void toActivity(Activity activity, Class<?> cls, Intent intent) {
         //根据 cls 获取跳转的activity
-        Intent intent1 = new Intent();
         Activity currActivity = getActivity(cls);
         if (null == currActivity) {
             //为空 直接跳
