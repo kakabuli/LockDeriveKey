@@ -141,7 +141,7 @@ public class WifiConnectActivity extends BaseActivity {
                         changeValue(80);
                     } else if (bleResultBean.getPayload()[0] == 0x01) {
                         // 配网失败
-//                        gotoWifiPairFail();
+                        gotoWifiPairFail();
                     }
                 } else if (bleResultBean.getCMD() == BleProtocolState.CMD_BLE_UPLOAD_PAIR_NETWORK_STATE) {
                     // 连接MQTT成功
@@ -159,7 +159,7 @@ public class WifiConnectActivity extends BaseActivity {
                         updateLockInfoToService();
                     } else if (bleResultBean.getPayload()[0] == 0x01) {
                         // 配网失败
-//                        gotoWifiPairFail();
+                        gotoWifiPairFail();
                     }
                 } else {
                     // TODO: 2021/1/22 走其他流程
