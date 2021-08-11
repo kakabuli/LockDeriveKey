@@ -233,7 +233,7 @@ public class DeviceSettingActivity extends BaseActivity {
                     }
                     return;
                 }
-                Intent intent = new Intent(this, AutoUnlockActivity.class);
+                Intent intent = new Intent(this, GeoFenceUnlockActivity.class);
                 startActivity(intent);
             } else {
                 ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show("Please set to WiFi connection mode");

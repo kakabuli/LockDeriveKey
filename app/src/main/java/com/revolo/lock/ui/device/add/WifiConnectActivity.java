@@ -55,7 +55,7 @@ import timber.log.Timber;
  */
 // TODO: 2021/1/22 添加超时处理
 public class WifiConnectActivity extends BaseActivity {
-    private static final int MSG_ADD_WIFI_OUT_TIME = 201;
+    private static final int MSG_ADD_WIFI_OUT_TIME = 0xf0100;
     private String mWifiName;
     private String mWifiPwd;
     private BleBean mBleBean;
@@ -83,14 +83,14 @@ public class WifiConnectActivity extends BaseActivity {
         mWifiName = intent.getStringExtra(Constant.WIFI_NAME);
         mWifiPwd = intent.getStringExtra(Constant.WIFI_PWD);
         //配网超时 30s
-        mHandler.sendEmptyMessageDelayed(MSG_ADD_WIFI_OUT_TIME, 30000);
-
+        mHandlerOutTime.sendEmptyMessageDelayed(MSG_ADD_WIFI_OUT_TIME, 30000);
     }
 
     @Override
     protected void onDestroy() {
+        Timber.d("#######################################################");
+        mHandlerOutTime.removeMessages(MSG_ADD_WIFI_OUT_TIME);
         super.onDestroy();
-        mHandler.removeMessages(MSG_ADD_WIFI_OUT_TIME);
     }
 
     @Override
@@ -141,25 +141,25 @@ public class WifiConnectActivity extends BaseActivity {
                         changeValue(80);
                     } else if (bleResultBean.getPayload()[0] == 0x01) {
                         // 配网失败
-                        gotoWifiPairFail();
+//                        gotoWifiPairFail();
                     }
                 } else if (bleResultBean.getCMD() == BleProtocolState.CMD_BLE_UPLOAD_PAIR_NETWORK_STATE) {
                     // 连接MQTT成功
                     if (bleResultBean.getPayload()[0] == 0x00) {
                         // 连接wifi成功
                         changeValue(100);
-                     //   App.getInstance().removeConnectedBleDisconnect(mBleBean);
+                        //   App.getInstance().removeConnectedBleDisconnect(mBleBean);
                         /*替换
                         App.getInstance().removeConnectedBleBeanAndDisconnect(mBleBean);*/
                         // 设置为wifi模式
-                       // mBleDeviceLocal.setConnectedType(LocalState.DEVICE_CONNECT_TYPE_WIFI);
+                        // mBleDeviceLocal.setConnectedType(LocalState.DEVICE_CONNECT_TYPE_WIFI);
                         mBleDeviceLocal.setConnectedWifiName(mWifiName);
                         App.getInstance().setBleDeviceLocal(mBleDeviceLocal);
                         AppDatabase.getInstance(this).bleDeviceDao().update(mBleDeviceLocal);
                         updateLockInfoToService();
                     } else if (bleResultBean.getPayload()[0] == 0x01) {
                         // 配网失败
-                        gotoWifiPairFail();
+//                        gotoWifiPairFail();
                     }
                 } else {
                     // TODO: 2021/1/22 走其他流程
@@ -209,7 +209,7 @@ public class WifiConnectActivity extends BaseActivity {
         req.setAmMode(mBleDeviceLocal.isAutoLock() ? 0 : 1);
         req.setDuress(mBleDeviceLocal.isDuress() ? 1 : 0);
         req.setMagneticStatus(mBleDeviceLocal.getDoorSensor());
-        req.setDoorSensor(mBleDeviceLocal.isOpenDoorSensor()?1:0);
+        req.setDoorSensor(mBleDeviceLocal.isOpenDoorSensor() ? 1 : 0);
         req.setElecFence(mBleDeviceLocal.isOpenElectricFence() ? 1 : 0);
         req.setAutoLockTime(mBleDeviceLocal.getSetAutoLockTime());
         req.setElecFenceTime(mBleDeviceLocal.getSetElectricFenceTime());
@@ -230,7 +230,7 @@ public class WifiConnectActivity extends BaseActivity {
                     String msg = updateLockInfoRsp.getMsg();
                     Timber.e("updateLockInfoToService code: %1s, msg: %2s", code, msg);
 //                    if (!TextUtils.isEmpty(msg)) ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(msg);
-                    mHandler.removeMessages(MSG_ADD_WIFI_OUT_TIME);
+                    mHandlerOutTime.removeMessages(MSG_ADD_WIFI_OUT_TIME);
                     runOnUiThread(() -> new Handler(Looper.getMainLooper()).postDelayed(() -> {
                         startActivity(new Intent(WifiConnectActivity.this, AddWifiSucActivity.class));
                         finish();
@@ -302,7 +302,7 @@ public class WifiConnectActivity extends BaseActivity {
         runOnUiThread(() -> mWifiCircleProgress.setValue(value));
     }
 
-    private final Handler mHandler = new Handler(Looper.getMainLooper()) {
+    private Handler mHandlerOutTime = new Handler(Looper.getMainLooper()) {
         @Override
         public void handleMessage(@NonNull Message msg) {
             if (msg.what == MSG_ADD_WIFI_OUT_TIME) {
@@ -428,7 +428,7 @@ public class WifiConnectActivity extends BaseActivity {
             }
             return;
         }
-        mHandler.postDelayed(mWriteWifiSnRunnable, 20);
+        mHandlerOutTime.postDelayed(mWriteWifiSnRunnable, 20);
     }
 
     private void writeWifiPwd() {
@@ -437,6 +437,6 @@ public class WifiConnectActivity extends BaseActivity {
             changeValue(50);
             return;
         }
-        mHandler.postDelayed(mWriteWifiPwdRunnable, 20);
+        mHandlerOutTime.postDelayed(mWriteWifiPwdRunnable, 20);
     }
 }
