@@ -34,6 +34,10 @@ public class BleDeviceLocal implements Parcelable {
     @ColumnInfo(name = "d_pwd2")
     private String pwd2;                                            // 密码2
 
+    @ColumnInfo(name = "d_password2Time")   // 密码2创建时间
+    private int password2Time;
+
+
     @ColumnInfo(name = "d_esn")
     private String esn;                                             // ESN
 
@@ -185,6 +189,14 @@ public class BleDeviceLocal implements Parcelable {
 
     public void setPwd2(String pwd2) {
         this.pwd2 = pwd2;
+    }
+
+    public int getPassword2Time() {
+        return password2Time;
+    }
+
+    public void setPassword2Time(int password2Time) {
+        this.password2Time = password2Time;
     }
 
     public String getEsn() {
@@ -460,6 +472,7 @@ public class BleDeviceLocal implements Parcelable {
         dest.writeString(this.userId);
         dest.writeString(this.pwd1);
         dest.writeString(this.pwd2);
+        dest.writeInt(this.password2Time);
         dest.writeString(this.esn);
         dest.writeString(this.mac);
         dest.writeString(this.name);
@@ -498,6 +511,7 @@ public class BleDeviceLocal implements Parcelable {
         this.userId = source.readString();
         this.pwd1 = source.readString();
         this.pwd2 = source.readString();
+        this.password2Time=source.readInt();
         this.esn = source.readString();
         this.mac = source.readString();
         this.name = source.readString();
@@ -539,6 +553,7 @@ public class BleDeviceLocal implements Parcelable {
         this.userId = in.readString();
         this.pwd1 = in.readString();
         this.pwd2 = in.readString();
+        this.password2Time=in.readInt();
         this.esn = in.readString();
         this.mac = in.readString();
         this.name = in.readString();
@@ -591,6 +606,7 @@ public class BleDeviceLocal implements Parcelable {
                 ", userId=" + userId +
                 ", pwd1='" + pwd1 + '\'' +
                 ", pwd2='" + pwd2 + '\'' +
+                ", password2Time='" + password2Time + '\'' +
                 ", esn='" + esn + '\'' +
                 ", mac='" + mac + '\'' +
                 ", name='" + name + '\'' +

@@ -692,6 +692,7 @@ public class WifiLockGetAllBindDeviceRspBean extends WifiLockBaseResponseBean {
             private String model;
             private String password1;
             private String password2;
+            private int password2Time;
             private String peripheralId;
             private String systemID;
             private String userNickname;
@@ -1147,6 +1148,14 @@ public class WifiLockGetAllBindDeviceRspBean extends WifiLockBaseResponseBean {
                 this.password2 = password2;
             }
 
+            public int getPassword2Time() {
+                return password2Time;
+            }
+
+            public void setPassword2Time( int password2Time) {
+                this.password2Time = password2Time;
+            }
+
             public String getPeripheralId() {
                 return peripheralId;
             }
@@ -1441,6 +1450,7 @@ public class WifiLockGetAllBindDeviceRspBean extends WifiLockBaseResponseBean {
                 dest.writeString(this.model);
                 dest.writeString(this.password1);
                 dest.writeString(this.password2);
+                dest.writeInt(this.password2Time);
                 dest.writeString(this.peripheralId);
                 dest.writeString(this.systemID);
                 dest.writeString(this.userNickname);
@@ -1501,6 +1511,7 @@ public class WifiLockGetAllBindDeviceRspBean extends WifiLockBaseResponseBean {
                 this.model = in.readString();
                 this.password1 = in.readString();
                 this.password2 = in.readString();
+                this.password2Time=in.readInt();
                 this.peripheralId = in.readString();
                 this.systemID = in.readString();
                 this.userNickname = in.readString();
