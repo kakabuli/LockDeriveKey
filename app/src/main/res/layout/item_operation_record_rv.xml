@@ -13,7 +13,7 @@
         android:textColor="@color/c333333"
         android:textSize="16pt"
         android:maxLines="2"
-        android:lineSpacingMultiplier="0.7"
+        android:lineSpacingMultiplier="0.8"
         android:ellipsize="end"
         android:gravity="center_vertical"
         app:layout_constraintStart_toEndOf="@+id/ivLogState"
@@ -35,8 +35,8 @@
 
     <ImageView
         android:id="@+id/ivLogState"
-        android:layout_width="34pt"
-        android:layout_height="34pt"
+        android:layout_width="40pt"
+        android:layout_height="40pt"
         android:layout_marginStart="15pt"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
