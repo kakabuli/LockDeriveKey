@@ -29,7 +29,6 @@ import com.revolo.lock.R;
 import com.revolo.lock.base.BaseActivity;
 import com.revolo.lock.bean.request.MailLoginBeanReq;
 import com.revolo.lock.bean.respone.MailLoginBeanRsp;
-import com.revolo.lock.dialog.SelectDialog;
 import com.revolo.lock.net.HttpRequest;
 import com.revolo.lock.net.ObservableDecorator;
 import com.revolo.lock.room.AppDatabase;
@@ -56,7 +55,6 @@ public class LoginActivity extends BaseActivity {
 
     private EditText mEtEmail, mEtPwd;
     private boolean isShowPwd = true;
-    private SelectDialog dialog;
 
     @Override
     public void initData(@Nullable Bundle bundle) {
@@ -81,16 +79,14 @@ public class LoginActivity extends BaseActivity {
         mEtPwd = findViewById(R.id.etPwd);
         applyDebouncingClickListener(findViewById(R.id.tvForgotPwd),
                 findViewById(R.id.ivEye), findViewById(R.id.btnSignIn));
-        boolean isNext = getIntent().getBooleanExtra(Constant.IS_SHOW_DIALOG, false);
-        if (isNext) {
-            Timber.e("是否弹出token失效弹窗:");
+
+        if (getIntent().getBooleanExtra(Constant.IS_SHOW_DIALOG, false)) {
+            //TODO:是否弹出token失效弹窗
             tokenDialog();
-        } else {
-            Timber.e("不弹出token失效弹窗:");
         }
         if (BuildConfig.DEBUG) {
-            mEtEmail.setText("1115649076@qq.com");
-            mEtPwd.setText("123457yi");
+            mEtEmail.setText("zhouguimin@kaadas.com");
+            mEtPwd.setText("zgm123456");
         }
         initLoading(getString(R.string.t_load_content_loading));
     }
@@ -99,20 +95,7 @@ public class LoginActivity extends BaseActivity {
      * 弹出token失效弹窗
      */
     private void tokenDialog() {
-        if (null == dialog) {
-            dialog = new SelectDialog(this);
-            dialog.setMessage(getString(R.string.dialog_tip_log_out));
-            dialog.setOnCancelClickListener(v -> dialog.dismiss());
-            if (null != dialog.getCancel()) {
-                dialog.getCancel().setVisibility(View.GONE);
-            }
-            dialog.setOnConfirmListener(v -> {
-                dialog.dismiss();
-            });
-        }
-        if (!dialog.isShowing()) {
-            dialog.show();
-        }
+
     }
 
     @Override

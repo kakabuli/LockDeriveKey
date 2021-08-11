@@ -28,7 +28,7 @@ import timber.log.Timber;
  * E-mail : wengmaowei@kaadas.com
  * desc   :
  */
-@Database(entities = {BleDeviceLocal.class, User.class, LockRecord.class}, version = 3)
+@Database(entities = {BleDeviceLocal.class, User.class, LockRecord.class}, version = 4)
 public abstract class AppDatabase extends RoomDatabase {
 
     public abstract BleDeviceDao bleDeviceDao();
@@ -52,6 +52,7 @@ public abstract class AppDatabase extends RoomDatabase {
                                 .allowMainThreadQueries() // TODO: 2021/2/3 后续需要把这些操作放到非UI线程里
                                 .addMigrations(MIGRATION_1_2)
                                 .addMigrations(MIGRATION_2_3)
+                                .addMigrations(MIGRATION_3_4)
                                 .openHelperFactory(FACTORY)
                                 .addCallback(new Callback() {
                                     @Override
@@ -90,6 +91,13 @@ public abstract class AppDatabase extends RoomDatabase {
         public void migrate(@NonNull SupportSQLiteDatabase database) {
             // lockRecord 新增字段lastName
             database.execSQL("ALTER TABLE LockRecord ADD COLUMN lr_last_name TEXT");
+        }
+    };
+
+    static final Migration MIGRATION_3_4 = new Migration(3, 4) {
+        @Override
+        public void migrate(@NonNull SupportSQLiteDatabase database) {
+            database.execSQL("ALTER TABLE BleDeviceLocal ADD COLUMN d_password2Time INTEGER NOT NULL DEFAULT 0");
         }
     };
 }

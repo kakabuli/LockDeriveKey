@@ -88,7 +88,6 @@ public class WifiConnectActivity extends BaseActivity {
 
     @Override
     protected void onDestroy() {
-        Timber.d("#######################################################");
         mHandlerOutTime.removeMessages(MSG_ADD_WIFI_OUT_TIME);
         super.onDestroy();
     }
@@ -141,7 +140,7 @@ public class WifiConnectActivity extends BaseActivity {
                         changeValue(80);
                     } else if (bleResultBean.getPayload()[0] == 0x01) {
                         // 配网失败
-                        gotoWifiPairFail();
+//                        gotoWifiPairFail();
                     }
                 } else if (bleResultBean.getCMD() == BleProtocolState.CMD_BLE_UPLOAD_PAIR_NETWORK_STATE) {
                     // 连接MQTT成功
