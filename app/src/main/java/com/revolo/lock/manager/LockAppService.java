@@ -499,10 +499,10 @@ public class LockAppService extends Service {
             } else {
                 //当前list中存在设备，更新当前的状态
                 //   bleDeviceLocal.set
-                // if (!bleState || mqttState) {
-                Timber.e("update device content:" + bleDeviceLocal.getEsn());
-                mDeviceLists.remove(index);
-                mDeviceLists.add(bleDeviceLocal);
+               // if (!bleState || mqttState) {
+                    Timber.e("update device content:" + bleDeviceLocal.getEsn());
+                    mDeviceLists.remove(index);
+                    mDeviceLists.add(bleDeviceLocal);
                 /*} else {
                     //蓝牙模式状态只更新分享装，其他状态以锁为准
                     for (int i = 0; i < mDeviceLists.size(); i++) {
@@ -745,7 +745,8 @@ public class LockAppService extends Service {
         for (int i = 0; i < mDeviceLists.size(); i++) {
             //判断蓝牙mac和sn码
             boolean bleState = false;//当前蓝牙设的设备的状态
-            boolean mqttState = mDeviceLists.get(i).getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI || mDeviceLists.get(i).getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI_BLE;//当前锁与服务器的连接状态
+            boolean mqttState = mDeviceLists.get(i).getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI
+                    || mDeviceLists.get(i).getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI_BLE;//当前锁与服务器的连接状态
 //            boolean appMqttState = MQTTManager.getInstance().onGetMQTTConnectedState();//当前APP与MQTT服务器端的连接状态
             mDeviceLists.get(i).setConnectedType(checkDeviceState(bleState, mqttState));//ble
         }
@@ -844,14 +845,14 @@ public class LockAppService extends Service {
      * @param mac
      */
     public void removeBleConnect(String mac) {
-        BleManager.getInstance().removeConnectedBleBeanAndDisconnect(mac);
+        BleManager.getInstance().removeConnectDevice(mac);
     }
 
     /**
      * 断开所有设备的连接
      */
     public void disBleConnect() {
-        BleManager.getInstance().disConnect();
+        BleManager.getInstance().removeBleConnected();
     }
 
     /**
@@ -929,7 +930,8 @@ public class LockAppService extends Service {
                 case BleProtocolState.CMD_WIFI_SWITCH:// 0x26;                     // wifi功能开关
                     break;
                 case BleProtocolState.CMD_TIME://0x28 时间同步返回
-                    //获取设备信息
+                {//获取设备信息
+                    //
                     clearCmdBleInitOut(mac);
                     clearBleOut(mac.toUpperCase());
                     BleBean mBleBean = BleManager.getInstance().getBleBeanFromMac(mac);
@@ -937,7 +939,8 @@ public class LockAppService extends Service {
                         BleManager.getInstance().writeControlMsg(BleCommandFactory
                                 .checkLockBaseInfoCommand(mBleBean.getPwd1(), mBleBean.getPwd3()), mBleBean.getOKBLEDeviceImp());
                     }
-                    break;
+                }
+                break;
                 case BleProtocolState.CMD_HEART_ACK:// 0x00;                       // 心跳包确认帧
                     break;
                 case BleProtocolState.CMD_AUTHENTICATION_ACK:// 0x01;              // 鉴权确认帧
@@ -1187,39 +1190,47 @@ public class LockAppService extends Service {
         }
     }
 
+    /**
+     * 上报地理围栏
+     *
+     * @param mBleDeviceLocal
+     */
     public void pushServiceGeoState(BleDeviceLocal mBleDeviceLocal) {
-        mHandler.post(() -> {
-            UpdateLocalBeanReq lockLocal = new UpdateLocalBeanReq();
-            lockLocal.setSn(mBleDeviceLocal.getEsn());
-            lockLocal.setElecFence(mBleDeviceLocal.isOpenElectricFence() ? 1 : 0);
-            lockLocal.setElecFenceSensitivity(mBleDeviceLocal.getSetElectricFenceSensitivity());
-            lockLocal.setElecFenceTime(mBleDeviceLocal.getSetElectricFenceTime());
-            lockLocal.setLatitude(mBleDeviceLocal.getLatitude() + "");
-            lockLocal.setLongitude(mBleDeviceLocal.getLongitude() + "");
-            lockLocal.setElecFenceState(mBleDeviceLocal.getElecFenceState() ? 0 : 1);
-            String token = App.getInstance().getUserBean().getToken();
-            Observable<UpdateLocalBeanRsp> observable = HttpRequest.getInstance().updateockeLecfence(token, lockLocal);
-            ObservableDecorator.decorate(observable).safeSubscribe(new Observer<UpdateLocalBeanRsp>() {
-                @Override
-                public void onSubscribe(@NonNull Disposable d) {
+        mHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                UpdateLocalBeanReq lockLocal = new UpdateLocalBeanReq();
+                lockLocal.setSn(mBleDeviceLocal.getEsn());
+                lockLocal.setElecFence(mBleDeviceLocal.isOpenElectricFence() ? 1 : 0);
+                lockLocal.setElecFenceSensitivity(mBleDeviceLocal.getSetElectricFenceSensitivity());
+                lockLocal.setElecFenceTime(mBleDeviceLocal.getSetElectricFenceTime());
+                lockLocal.setLatitude(mBleDeviceLocal.getLatitude() + "");
+                lockLocal.setLongitude(mBleDeviceLocal.getLongitude() + "");
+                lockLocal.setElecFenceState(mBleDeviceLocal.getElecFenceState() ? 0 : 1);
+                String token = App.getInstance().getUserBean().getToken();
+                Observable<UpdateLocalBeanRsp> observable = HttpRequest.getInstance().updateockeLecfence(token, lockLocal);
+                ObservableDecorator.decorate(observable).safeSubscribe(new Observer<UpdateLocalBeanRsp>() {
+                    @Override
+                    public void onSubscribe(@NonNull Disposable d) {
 
-                }
+                    }
 
-                @Override
-                public void onNext(@NonNull UpdateLocalBeanRsp changeKeyNickBeanRsp) {
-                    Timber.e("上报地理围栏数据");
-                }
+                    @Override
+                    public void onNext(@NonNull UpdateLocalBeanRsp changeKeyNickBeanRsp) {
+                        Timber.e("上报地理围栏数据");
+                    }
 
-                @Override
-                public void onError(@NonNull Throwable e) {
-                    Timber.e(e);
-                }
+                    @Override
+                    public void onError(@NonNull Throwable e) {
+                        Timber.e(e);
+                    }
 
-                @Override
-                public void onComplete() {
+                    @Override
+                    public void onComplete() {
 
-                }
-            });
+                    }
+                });
+            }
         });
     }
 
@@ -1238,7 +1249,10 @@ public class LockAppService extends Service {
                     } else {
                         Timber.e("当前设备的pwd不一致，需要同步：" + mac);
                         mDeviceLists.get(i).setPwd2(pass);
-                        pushServicePwd(mDeviceLists.get(i).getEsn(), pass);
+                        mDeviceLists.get(i).setPassword2Time((int) (ZoneUtil.getTime() / 1000));//创建pwd2时间同步
+                        //初始化后，清理本地数据 离线模式下，锁恢复出厂设置，清理本地数据
+                        mDeviceLists.get(i).setConnectedWifiName("");
+                        pushServicePwd(mDeviceLists.get(i).getEsn(), pass, mDeviceLists.get(i).getPassword2Time());
                     }
                     //同步当前设备
                     if ((null != mDeviceLists.get(i).getMac() && mDeviceLists.get(i).getMac().equals(App.getInstance().getmCurrMac())) ||
@@ -1258,39 +1272,43 @@ public class LockAppService extends Service {
      * @param esn
      * @param pass
      */
-    private void pushServicePwd(String esn, String pass) {
-        mHandler.post(() -> {
-            AuthenticationBeanReq lockLocal = new AuthenticationBeanReq();
-            lockLocal.setWifiSN(esn);
-            lockLocal.setPassWord(pass);
-            String token = App.getInstance().getUserBean().getToken();
-            Observable<AuthenticationBeanRsp> observable = HttpRequest.getInstance().updateocAuthentication(token, lockLocal);
-            ObservableDecorator.decorate(observable).safeSubscribe(new Observer<AuthenticationBeanRsp>() {
-                @Override
-                public void onSubscribe(@NonNull Disposable d) {
+    private void pushServicePwd(String esn, String pass, int cratePwdTime) {
+        mHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                AuthenticationBeanReq lockLocal = new AuthenticationBeanReq();
+                lockLocal.setWifiSN(esn);
+                lockLocal.setPassWord(pass);
+                lockLocal.setPassword2Time(cratePwdTime);
+                String token = App.getInstance().getUserBean().getToken();
+                Observable<AuthenticationBeanRsp> observable = HttpRequest.getInstance().updateocAuthentication(token, lockLocal);
+                ObservableDecorator.decorate(observable).safeSubscribe(new Observer<AuthenticationBeanRsp>() {
+                    @Override
+                    public void onSubscribe(@NonNull Disposable d) {
 
-                }
-
-                @Override
-                public void onNext(@NonNull AuthenticationBeanRsp changeKeyNickBeanRsp) {
-                    String code = changeKeyNickBeanRsp.getCode();
-                    if (code.equals("200")) {
-
-                    } else if (code.equals("444")) {
-                        App.getInstance().logout(true, LockAppManager.getAppManager().currentActivity());
                     }
-                }
 
-                @Override
-                public void onError(@NonNull Throwable e) {
-                    Timber.e(e);
-                }
+                    @Override
+                    public void onNext(@NonNull AuthenticationBeanRsp changeKeyNickBeanRsp) {
+                        String code = changeKeyNickBeanRsp.getCode();
+                        if (code.equals("200")) {
 
-                @Override
-                public void onComplete() {
+                        } else if (code.equals("444")) {
+                            App.getInstance().logout(true, LockAppManager.getAppManager().currentActivity());
+                        }
+                    }
 
-                }
-            });
+                    @Override
+                    public void onError(@NonNull Throwable e) {
+                        Timber.e(e);
+                    }
+
+                    @Override
+                    public void onComplete() {
+
+                    }
+                });
+            }
         });
     }
 
@@ -1400,12 +1418,12 @@ public class LockAppService extends Service {
                 byte[] verBytes = new byte[9];
                 System.arraycopy(bean.getPayload(), 2, verBytes, 0, verBytes.length);
                 String verStr = new String(verBytes, StandardCharsets.UTF_8);
-                updateVerison(mac, verStr, null);
+                updateVerison(mac,verStr,null);
             } else if (bean.getPayload()[1] == HARD_TYPE_WIFI_LOCK) {
                 byte[] verBytes = new byte[9];
                 System.arraycopy(bean.getPayload(), 2, verBytes, 0, verBytes.length);
                 String verStr = new String(verBytes, StandardCharsets.UTF_8);
-                updateVerison(mac, null, verStr);
+                updateVerison(mac,null,verStr);
             } else {
                 // TODO: 2021/2/7 其他的数据处理
             }
@@ -2018,6 +2036,12 @@ public class LockAppService extends Service {
         public void updateLockState(WifiLockOperationEventBean bean) {
             updateLockStatea(bean);
         }
+
+        @Override
+        public void updateToService(String esn, String pass,int createTime) {
+            //上报给服务器
+            pushServicePwd(esn, pass,createTime);
+        }
     };
 
     /**
@@ -2070,8 +2094,10 @@ public class LockAppService extends Service {
                     }
                 } else if (bean.getEventtype().equals("action")) {
                     mDeviceLists.get(i).setMute(eventparams.getVolume() == 1);
-                    mDeviceLists.get(i).setOpenDoorSensor(eventparams.getDoorSensor() == 1);
-                    mDeviceLists.get(i).setDuress(eventparams.getDuress() == 1);
+                    //状态不准
+                    //mDeviceLists.get(i).setOpenDoorSensor(eventparams.getDoorSensor() == 1);
+                    //mDeviceLists.get(i).setDuress(eventparams.getDuress() == 1);
+                    mDeviceLists.get(i).setLockPower(eventparams.getPower());//更新电量
                 }
                 if ((null != mDeviceLists.get(i).getMac() && mDeviceLists.get(i).getMac().equals(App.getInstance().getmCurrMac())) ||
                         (null != mDeviceLists.get(i).getEsn() && mDeviceLists.get(i).getEsn().equals(App.getInstance().getmCurrSn()))) {

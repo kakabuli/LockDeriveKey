@@ -442,7 +442,7 @@ public class DeviceFragment extends Fragment {
         }
         Timber.e("执行获取设备信息");
         deviceHandler.removeMessages(MSG_GET_ALL_DEVICE_OUT_TIME);
-        deviceHandler.sendEmptyMessageDelayed(MSG_GET_ALL_DEVICE_OUT_TIME, 8000);
+        deviceHandler.sendEmptyMessageDelayed(MSG_GET_ALL_DEVICE_OUT_TIME, 4500);//超时
         LockMessage lockMessage = new LockMessage();
         lockMessage.setMessageType(2);
         lockMessage.setMqtt_topic(MQttConstant.PUBLISH_TO_SERVER);
