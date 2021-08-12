@@ -325,7 +325,18 @@ public class DeviceSettingActivity extends BaseActivity {
             findViewById(R.id.clDoorLockInformation).setVisibility(View.GONE);
             findViewById(R.id.clUnbind).setVisibility(View.GONE);
         } else if (mBleDeviceLocal.getShareUserType() == 2) {
-            finish();
+            findViewById(R.id.clAutoLock).setVisibility(View.GONE);
+            findViewById(R.id.clPrivateMode).setVisibility(View.GONE);
+            findViewById(R.id.clDuressCode).setVisibility(View.GONE);
+            findViewById(R.id.clDoorLockInformation).setVisibility(View.GONE);
+            findViewById(R.id.clGeoFenceLock).setVisibility(View.GONE);
+            findViewById(R.id.clDoorMagneticSwitch).setVisibility(View.GONE);
+            findViewById(R.id.clUnbind).setVisibility(View.GONE);
+            findViewById(R.id.clMute).setVisibility(View.GONE);
+            findViewById(R.id.clWifi).setVisibility(View.GONE);
+            findViewById(R.id.clName).setVisibility(View.GONE);
+            findViewById(R.id.clDoNotDisturbMode).setVisibility(View.GONE);
+            findViewById(R.id.clVideoMode).setVisibility(View.GONE);
         }
     }
 
