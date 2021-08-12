@@ -11,6 +11,7 @@ package com.revolo.lock.mqtt;
 public class MQttConstant {
 
     private MQttConstant() {
+
     }
 
     public static final String MQTT_URL_ALPHA = "tcp://mqtt.irevolohome.com:28883";      // alpha 生产服务器

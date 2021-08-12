@@ -123,6 +123,7 @@ public class OperationRecordsActivity extends BaseActivity {
         mRefreshLayout.setRefreshHeader(new SmartClassicsHeaderView(this));
         mRefreshLayout.setOnRefreshListener(refreshLayout -> {
             mPage = 1;
+            isCheckTime = false;
             searchRecord(0);
         });
         mRefreshLayout.setOnLoadMoreListener(refreshLayout -> {
@@ -151,7 +152,6 @@ public class OperationRecordsActivity extends BaseActivity {
             searchBle();
         } else {
             //WiFi模式 、WiFi和蓝牙同时连接、掉线模式
-            getNowDateTime();
             searchRecordFromNet(mPage, startTime, endTime);
         }
 
@@ -504,6 +504,7 @@ public class OperationRecordsActivity extends BaseActivity {
             lockRecord.setEventSource(bean.getEventSource());
             lockRecord.setEventCode(bean.getEventCode());
             lockRecord.setCreateTime(bean.getTimesTamp());
+            lockRecord.setPwdNickname(bean.getPwdNickname());
             lockRecord.setAppId(bean.getAppId());
             lockRecord.setDeviceId(mBleDeviceLocal.getId());
             list.add(lockRecord);

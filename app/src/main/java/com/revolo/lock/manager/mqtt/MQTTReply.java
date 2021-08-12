@@ -298,9 +298,9 @@ public class MQTTReply {
                 messageDialog.setMessage(title);
                 messageDialog.setOnListener(v -> {
                     Timber.d("LockAppManager.getAppManager().currentActivity().getLocalClassName() = %1s", LockAppManager.getAppManager().currentActivity().getLocalClassName());
-                    if (LockAppManager.getAppManager().currentActivity().getLocalClassName().contains("ui.device")) {
-                        LockAppManager.getAppManager().currentActivity().startActivity(new Intent(LockAppManager.getAppManager().currentActivity(), MainActivity.class));
-                    }
+//                    if (LockAppManager.getAppManager().currentActivity().getLocalClassName().contains("ui.device")) {
+                    LockAppManager.getAppManager().currentActivity().startActivity(new Intent(LockAppManager.getAppManager().currentActivity(), MainActivity.class));
+//                    }
                     messageDialog.dismiss();
                 });
                 messageDialog.show();

@@ -37,6 +37,17 @@ public class LockRecord {
     @ColumnInfo(name = "lr_last_name")
     private String lastName;
 
+    @ColumnInfo(name = "lr_pwd_nick_name")
+    private String pwdNickname;
+
+    public String getPwdNickname() {
+        return pwdNickname;
+    }
+
+    public void setPwdNickname(String pwdNickname) {
+        this.pwdNickname = pwdNickname;
+    }
+
     public int getEventType() {
         return eventType;
     }
@@ -102,13 +113,14 @@ public class LockRecord {
     }
 
     public String getContentStr() {
-        return  eventType +
+        return eventType +
                 "" + eventSource +
                 "" + eventCode +
                 "" + userId +
                 "" + appId +
                 "" + deviceId +
                 "" + createTime +
-                "" + lastName;
+                "" + lastName +
+                "" + pwdNickname;
     }
 }
