@@ -79,7 +79,7 @@ public class DeviceSettingActivity extends BaseActivity {
     private DeviceUnbindBeanReq mReq;
     private ImageView mIvMuteEnable, mIvDoNotDisturbModeEnable;
     private BleDeviceLocal mBleDeviceLocal;
-   // private MessageDialog mPowerLowDialog;//低电量
+    // private MessageDialog mPowerLowDialog;//低电量
     private @LocalState.VolumeState
     int lockMute;
 
@@ -358,14 +358,27 @@ public class DeviceSettingActivity extends BaseActivity {
         EventBus.getDefault().post(ms);
     }
 
+    private UnbindLockDialog dialog;
+
     private void showUnbindDialog() {
-        UnbindLockDialog dialog = new UnbindLockDialog(this);
-        dialog.setOnCancelClickListener(v -> dialog.dismiss());
-        dialog.setOnConfirmListener(v -> {
-            dialog.dismiss();
-            unbindDevice();
-        });
-        dialog.show();
+        if (null == dialog) {
+            dialog = new UnbindLockDialog(this);
+            dialog.setOnCancelClickListener(v -> dialog.dismiss());
+            dialog.setOnConfirmListener(v -> {
+                dialog.dismiss();
+                unbindDevice();
+            });
+        }
+        if (mBleDeviceLocal.getConnectedType()
+                == LocalState.DEVICE_CONNECT_TYPE_WIFI_BLE || mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI) {
+            dialog.setHintText(true);
+        } else {
+            dialog.setHintText(false);
+        }
+
+        if (!dialog.isShowing()) {
+            dialog.show();
+        }
     }
 
     private void unbindDevice() {

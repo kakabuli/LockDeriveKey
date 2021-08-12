@@ -18,7 +18,7 @@ import com.revolo.lock.R;
  */
 public class UnbindLockDialog extends Dialog {
 
-    private TextView mTvConfirm, mTvCancel;
+    private TextView mTvConfirm, mTvCancel, hintTextView;
     private View.OnClickListener mOnConfirmClickListener, mOnCancelClickListener;
 
     public UnbindLockDialog(@NonNull Context context) {
@@ -32,7 +32,23 @@ public class UnbindLockDialog extends Dialog {
         setCanceledOnTouchOutside(false);
         mTvConfirm = findViewById(R.id.tvConfirm);
         mTvCancel = findViewById(R.id.tvCancel);
+        hintTextView = findViewById(R.id.textView58);
         refreshView();
+    }
+
+    /**
+     * 设置提示文本
+     *
+     * @param type
+     */
+    public void setHintText(boolean type) {
+        if (null != hintTextView) {
+            if (type) {
+                hintTextView.setText(getContext().getString(R.string.dialog_tip_after_unbinding_your_door_lock_can_be_binded_by_others));
+            } else {
+                hintTextView.setText(getContext().getString(R.string.dialog_tip_line_device_unbin_text));
+            }
+        }
     }
 
     public void setOnConfirmListener(View.OnClickListener listener) {
@@ -44,10 +60,10 @@ public class UnbindLockDialog extends Dialog {
     }
 
     private void refreshView() {
-        if(mOnConfirmClickListener != null && mTvConfirm != null) {
+        if (mOnConfirmClickListener != null && mTvConfirm != null) {
             mTvConfirm.setOnClickListener(mOnConfirmClickListener);
         }
-        if(mOnCancelClickListener != null && mTvCancel != null) {
+        if (mOnCancelClickListener != null && mTvCancel != null) {
             mTvCancel.setOnClickListener(mOnCancelClickListener);
         }
     }
