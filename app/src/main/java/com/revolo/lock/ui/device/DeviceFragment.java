@@ -164,10 +164,6 @@ public class DeviceFragment extends Fragment {
                     if (adapter.getItem(position) instanceof BleDeviceLocal) {
                         if (position < 0 || position >= adapter.getData().size()) return;
                         BleDeviceLocal deviceLocal = (BleDeviceLocal) adapter.getItem(position);
-                        if (deviceLocal.getShareUserType() == 2) { // guest 用户
-                            // TODO Guest 用户只能列表开关锁
-                            return;
-                        }
                         Intent intent = new Intent(getContext(), DeviceDetailActivity.class);
                         App.getInstance().setmCurrMac(deviceLocal.getMac());
                         App.getInstance().setmCurrSn(deviceLocal.getEsn());
@@ -324,8 +320,6 @@ public class DeviceFragment extends Fragment {
                 //数据正常
                 processBleResult(lockMessage.getMac(), lockMessage.getBleResultBea());
             }  //数据异常
-
-
         } else if (lockMessage.getMessgaeType() == MSG_LOCK_MESSAGE_MQTT) {
             //MQTT
             if (lockMessage.getResultCode() == LockMessageCode.MSG_LOCK_MESSAGE_CODE_SUCCESS) {

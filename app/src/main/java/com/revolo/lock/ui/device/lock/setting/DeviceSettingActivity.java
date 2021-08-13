@@ -386,7 +386,6 @@ public class DeviceSettingActivity extends BaseActivity {
         } else {
             dialog.setHintText(false);
         }
-
         if (!dialog.isShowing()) {
             dialog.show();
         }

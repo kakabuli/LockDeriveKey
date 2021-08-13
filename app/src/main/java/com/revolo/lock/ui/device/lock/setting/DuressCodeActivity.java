@@ -177,11 +177,11 @@ public class DuressCodeActivity extends BaseActivity {
             Timber.e("settingDuressReceiveMail uid is empty");
             return;
         }
-        String loginMail = App.getInstance().getUser().getMail();
-        if (loginMail.equals(mail)) {
-            ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.tip_duress_password_email_alike);
-            return;
-        }
+//        String loginMail = App.getInstance().getUser().getMail();
+//        if (loginMail.equals(mail)) {
+//            ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.tip_duress_password_email_alike);
+//            return;
+//        }
         SettingDuressPwdReceiveEMailBeanReq req = new SettingDuressPwdReceiveEMailBeanReq();
         req.setDuressEmail(mail);
         BleDeviceLocal bleDeviceLocal = App.getInstance().getBleDeviceLocal();

@@ -289,6 +289,7 @@ public class MQTTReply {
                 lockMessage.setMessageType(MSG_LOCK_MESSAGE_MQTT);
                 lockMessage.setBytes(null);
                 EventBus.getDefault().post(lockMessage);
+                LockAppManager.getAppManager().currentActivity().startActivity(new Intent(LockAppManager.getAppManager().currentActivity(), MainActivity.class));
             } else {
                 if (messageDialog != null) {
                     messageDialog.dismiss();
