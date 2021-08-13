@@ -141,7 +141,7 @@ public class LockAppService extends Service {
     private final Thread mRunnable = new Thread() {
         @Override
         public void run() {
-            boolean ping = ping();
+            boolean ping = ping(getApplicationContext());
             Constant.pingResult = ping;
             sendBroadcast(new Intent().setAction(Constant.RECEIVE_ACTION_NETWORKS).putExtra(PING_RESULT, ping));
             LockAppManager.getAppManager().notifyNetWork(ping);
@@ -2582,8 +2582,14 @@ public class LockAppService extends Service {
         }
     }
 
-    public static boolean ping() {
-        boolean b = MQTTManager.getInstance().onGetMQTTConnectedState();
-        return b;
+    public static boolean ping(Context context) {
+        ConnectivityManager manager = (ConnectivityManager) context
+                .getApplicationContext().getSystemService(
+                        Context.CONNECTIVITY_SERVICE);
+        if (manager == null) {
+            return false;
+        }
+        NetworkInfo networkInfo = manager.getActiveNetworkInfo();
+        return networkInfo != null && networkInfo.isConnected();
     }
 }

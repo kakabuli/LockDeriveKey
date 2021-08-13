@@ -562,16 +562,10 @@ public class OperationRecordsActivity extends BaseActivity {
             if (TextUtils.isEmpty(lockName)) {
                 lockName = mBleDeviceLocal.getEsn();
             }
-            String userName = "";
-            String firstName = App.getInstance().getUser().getFirstName();
-            String lastName = App.getInstance().getUser().getLastName();
+            String lastName = lockRecord.getLastName();
             if (TextUtils.isEmpty(lastName)) {
                 lastName = "";
             }
-            if (TextUtils.isEmpty(firstName)) {
-                firstName = "";
-            }
-            userName = lastName + "·" + firstName;
             String message = "";
             @DrawableRes int drawableId = R.drawable.ic_home_log_icon__password;
             if (lockRecord.getEventType() == 1) {
@@ -625,13 +619,13 @@ public class OperationRecordsActivity extends BaseActivity {
                         switch (lockRecord.getEventSource()) {
                             case 0x00:
                                 // 键盘
-                                message = userName + " Locked " + lockName + " via PIN Key";
+                                message = lastName + " Locked " + lockName + " via PIN Key";
                                 drawableId = R.drawable.ic_home_log_icon__password;
                                 break;
                             case 0x08:
                                 // App
                                 // TODO: 2021/3/29 通过编号识别对应用户
-                                message = userName + " Locked " + lockName + " via App";
+                                message = lastName + " Locked " + lockName + " via App";
                                 drawableId = R.drawable.ic_home_log_icon_door_lock;
                                 break;
                             default:
@@ -645,12 +639,12 @@ public class OperationRecordsActivity extends BaseActivity {
                         switch (lockRecord.getEventSource()) {
                             case 0x00:
                                 // 键盘
-                                message = userName + " Unlocked " + lockName + " via PIN Key";
+                                message = lastName + " Unlocked " + lockName + " via PIN Key";
                                 drawableId = R.drawable.ic_home_log_icon__password;
                                 break;
                             case 0x08:
                                 // App
-                                message = userName + " Unlocked " + lockName + " via App";
+                                message = lastName + " Unlocked " + lockName + " via App";
                                 drawableId = R.drawable.ic_home_log_icon__iphone;
                                 break;
                             default:
@@ -668,12 +662,12 @@ public class OperationRecordsActivity extends BaseActivity {
                 switch (lockRecord.getEventCode()) {
                     case 0x02:
                         // 密码添加
-                        message = userName + " Added " + " PIN Key";
+                        message = lastName + " Added " + " PIN Key";
                         drawableId = R.drawable.ic_home_log_icon__password;
                         break;
                     case 0x03:
                         // 密码删除
-                        message = userName + " Deleted " + " PIN Key";
+                        message = lastName + " Deleted " + " PIN Key";
                         drawableId = R.drawable.ic_home_log_icon__password;
                         break;
                     case 0x0f:
