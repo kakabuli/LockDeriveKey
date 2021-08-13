@@ -10,6 +10,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Binder;
 import android.os.Handler;
 import android.os.IBinder;
@@ -22,12 +24,11 @@ import com.a1anwang.okble.client.scan.BLEScanResult;
 import com.blankj.utilcode.util.ActivityUtils;
 import com.blankj.utilcode.util.ConvertUtils;
 import com.blankj.utilcode.util.LogUtils;
-import com.blankj.utilcode.util.NetworkUtils;
 import com.revolo.lock.App;
 import com.revolo.lock.Constant;
 import com.revolo.lock.LocalState;
-import com.revolo.lock.bean.NetWorkStateBean;
 import com.revolo.lock.LockAppManager;
+import com.revolo.lock.bean.NetWorkStateBean;
 import com.revolo.lock.bean.request.AuthenticationBeanReq;
 import com.revolo.lock.bean.request.UpdateLocalBeanReq;
 import com.revolo.lock.bean.respone.AuthenticationBeanRsp;
@@ -499,10 +500,10 @@ public class LockAppService extends Service {
             } else {
                 //当前list中存在设备，更新当前的状态
                 //   bleDeviceLocal.set
-               // if (!bleState || mqttState) {
-                    Timber.e("update device content:" + bleDeviceLocal.getEsn());
-                    mDeviceLists.remove(index);
-                    mDeviceLists.add(bleDeviceLocal);
+                // if (!bleState || mqttState) {
+                Timber.e("update device content:" + bleDeviceLocal.getEsn());
+                mDeviceLists.remove(index);
+                mDeviceLists.add(bleDeviceLocal);
                 /*} else {
                     //蓝牙模式状态只更新分享装，其他状态以锁为准
                     for (int i = 0; i < mDeviceLists.size(); i++) {
@@ -1418,12 +1419,12 @@ public class LockAppService extends Service {
                 byte[] verBytes = new byte[9];
                 System.arraycopy(bean.getPayload(), 2, verBytes, 0, verBytes.length);
                 String verStr = new String(verBytes, StandardCharsets.UTF_8);
-                updateVerison(mac,verStr,null);
+                updateVerison(mac, verStr, null);
             } else if (bean.getPayload()[1] == HARD_TYPE_WIFI_LOCK) {
                 byte[] verBytes = new byte[9];
                 System.arraycopy(bean.getPayload(), 2, verBytes, 0, verBytes.length);
                 String verStr = new String(verBytes, StandardCharsets.UTF_8);
-                updateVerison(mac,null,verStr);
+                updateVerison(mac, null, verStr);
             } else {
                 // TODO: 2021/2/7 其他的数据处理
             }
@@ -2038,9 +2039,9 @@ public class LockAppService extends Service {
         }
 
         @Override
-        public void updateToService(String esn, String pass,int createTime) {
+        public void updateToService(String esn, String pass, int createTime) {
             //上报给服务器
-            pushServicePwd(esn, pass,createTime);
+            pushServicePwd(esn, pass, createTime);
         }
     };
 
@@ -2582,16 +2583,7 @@ public class LockAppService extends Service {
     }
 
     public static boolean ping() {
-//        try {
-//            Runtime runtime = Runtime.getRuntime();
-//            Process exec = runtime.exec("ping -c 3 www.baidu.com");
-//            int i = exec.waitFor();
-//            return i == 0;
-//        } catch (InterruptedException | IOException e) {
-//            e.printStackTrace();
-//        }
-//        return false;
-
-        return NetworkUtils.isConnected();
+        boolean b = MQTTManager.getInstance().onGetMQTTConnectedState();
+        return b;
     }
 }
