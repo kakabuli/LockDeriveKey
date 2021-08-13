@@ -548,12 +548,39 @@ public class DoorSensorCheckActivity extends BaseActivity {
                 refreshCurrentUI();
                 //更新到服务器
                 updateLockInfoToService();
+                checkDoorSensorState();
             } else {
                 gotoFailAct();
             }
         }
     }
+    private void checkDoorSensorState() {
+        BleBean bleBean = App.getInstance().getUserBleBean(mBleDeviceLocal.getMac());
+        if (bleBean == null) {
+            Timber.e("checkDoorSensorState bleBean == null");
+            return;
+        }
+        if (bleBean.getOKBLEDeviceImp() == null) {
+            Timber.e("checkDoorSensorState bleBean.getOKBLEDeviceImp() == null");
+            return;
+        }
+        byte[] pwd1 = bleBean.getPwd1();
+        if (pwd1 == null) {
+            Timber.e("checkDoorSensorState pwd1 == null");
+            return;
+        }
+        byte[] pwd3 = bleBean.getPwd3();
+        if (pwd3 == null) {
+            Timber.e("checkDoorSensorState pwd3 == null");
+            return;
+        }
+        LockMessage lockMessage = new LockMessage();
+        lockMessage.setMessageType(3);
+        lockMessage.setBytes(BleCommandFactory.checkLockBaseInfoCommand(pwd1, pwd3));
+        lockMessage.setMac(bleBean.getOKBLEDeviceImp().getMacAddress());
+        EventBus.getDefault().post(lockMessage);
 
+    }
     private void saveDoorSensorStateToLocal(@BleCommandState.DoorCalibrationState int state) {
         if (state == BleCommandState.DOOR_CALIBRATION_STATE_CLOSE_SE) {
             mBleDeviceLocal.setOpenDoorSensor(false);
