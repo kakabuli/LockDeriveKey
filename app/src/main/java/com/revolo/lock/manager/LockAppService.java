@@ -1380,15 +1380,15 @@ public class LockAppService extends Service {
 //        mBleDeviceLocal.setOpenDoorSensor(isOpenDoorSensor);
         Timber.d("电量：%1d, 是否静音 %2b, 门磁功能是否开启：%3b，隐私模式：%3b,门状态：%4d", power, isMute, isOpenDoorSensor, privat, openState);
         if (privat) {
-            setLockState(checkDeviceList(mac, mac), LocalState.LOCK_STATE_PRIVATE);
+            mDeviceLists.get(index).setLockState(LocalState.LOCK_STATE_PRIVATE);
         } else {
             if (openState == 0) {
-                setLockState(checkDeviceList(mac, mac), LocalState.LOCK_STATE_CLOSE);
+                mDeviceLists.get(index).setLockState(LocalState.LOCK_STATE_CLOSE);
             } else {
-                setLockState(checkDeviceList(mac, mac), LocalState.LOCK_STATE_OPEN);
+                mDeviceLists.get(index).setLockState(LocalState.LOCK_STATE_OPEN);
             }
-
         }
+        Timber.d("setLockState wifiId: %1s %2s", mDeviceLists.get(index).getEsn(), mDeviceLists.get(index).getLockState() == LocalState.LOCK_STATE_OPEN ? "锁开了" : "锁关了");
         Timber.e("app service updateLockInfo curr mac: %s", App.getInstance().getmCurrMac());
         Timber.e("app service updateLockInfo curr sn: %s", App.getInstance().getmCurrSn());
 
@@ -1509,16 +1509,17 @@ public class LockAppService extends Service {
         } else if (eventType == 0x04) {
             //0x04：Sensor附加状态（其他传感器的状态值）
             // sensor附加状态，门磁
-            if (eventCode == LocalState.DOOR_SENSOR_OPEN) {
+            if (eventCode == 0) {
                 // 开门
                 setDoorState(checkDeviceList(mac, mac), LocalState.DOOR_SENSOR_OPEN);
-            } else if (eventCode == LocalState.DOOR_SENSOR_CLOSE) {
+            } else if (eventCode == 1) {
                 // 关门
                 setDoorState(checkDeviceList(mac, mac), LocalState.DOOR_SENSOR_CLOSE);
-            } else if (eventCode == LocalState.DOOR_SENSOR_EXCEPTION) {
+            } else if (eventCode == 2) {
                 // 门磁异常
                 // TODO: 2021/3/31 门磁异常的操作
                 Timber.d("lockUpdateInfo 门磁异常");
+                setDoorState(checkDeviceList(mac, mac), LocalState.DOOR_SENSOR_EXCEPTION);
             } else if (eventCode == 3) {
                 //电子围栏超时
                 Timber.e("电子围栏超时");

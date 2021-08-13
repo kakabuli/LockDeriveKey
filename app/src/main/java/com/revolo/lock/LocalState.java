@@ -74,9 +74,9 @@ public class LocalState {
     public @interface DoorSensor {
     }
 
-    public static final int DOOR_SENSOR_OPEN = 0x00;
-    public static final int DOOR_SENSOR_CLOSE = 0x01;
-    public static final int DOOR_SENSOR_EXCEPTION = 0x02;
+    public static final int DOOR_SENSOR_OPEN = 0x01;
+    public static final int DOOR_SENSOR_CLOSE = 0x02;
+    public static final int DOOR_SENSOR_EXCEPTION = 0x03;
     public static final int DOOR_SENSOR_INIT = -1;
 
 
