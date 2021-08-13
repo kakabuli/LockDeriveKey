@@ -505,11 +505,17 @@ public class MQTTReply {
         if (!TextUtils.isEmpty(wifiListBean.getModel()))
             bleDeviceLocal.setType(wifiListBean.getModel());
 
+        if (!TextUtils.isEmpty(wifiListBean.getShareId())) {
+            bleDeviceLocal.setShareId(wifiListBean.getShareId());
+        }
+        if (!TextUtils.isEmpty(wifiListBean.getShareUId())) {
+            bleDeviceLocal.setShareUid(wifiListBean.getShareUId());
+        }
+
         String firmwareVer = wifiListBean.getLockFirmwareVersion();
         if (!TextUtils.isEmpty(firmwareVer)) {
             bleDeviceLocal.setLockVer(firmwareVer);
         }
-        Timber.e("daggdddddddddddddddddddddddddddddddddddddddddd:" + wifiListBean.getShareUserType());
         bleDeviceLocal.setShareUserType(wifiListBean.getShareUserType());
         bleDeviceLocal.setIsAdmin(wifiListBean.getIsAdmin());
 

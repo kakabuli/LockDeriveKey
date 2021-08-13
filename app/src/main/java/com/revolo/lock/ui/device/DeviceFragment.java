@@ -147,7 +147,6 @@ public class DeviceFragment extends Fragment {
                 ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.dialog_tip_please_wake_up_lock_and_wait_bluetooth_connecting);
             });
 
-
             mClNoDevice = root.findViewById(R.id.clNoDevice);
             mClHadDevice = root.findViewById(R.id.clHadDevice);
             // 无设备的时候控件UI

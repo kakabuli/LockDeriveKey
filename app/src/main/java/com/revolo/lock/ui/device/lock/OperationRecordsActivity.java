@@ -505,6 +505,7 @@ public class OperationRecordsActivity extends BaseActivity {
             lockRecord.setEventCode(bean.getEventCode());
             lockRecord.setCreateTime(bean.getTimesTamp());
             lockRecord.setPwdNickname(bean.getPwdNickname());
+            lockRecord.setLastName(bean.getLastName());
             lockRecord.setAppId(bean.getAppId());
             lockRecord.setDeviceId(mBleDeviceLocal.getId());
             list.add(lockRecord);
@@ -565,6 +566,10 @@ public class OperationRecordsActivity extends BaseActivity {
             String lastName = lockRecord.getLastName();
             if (TextUtils.isEmpty(lastName)) {
                 lastName = "";
+            }
+            String pwdName = lockRecord.getPwdNickname();
+            if (TextUtils.isEmpty(pwdName)) {
+                pwdName = "";
             }
             String message = "";
             @DrawableRes int drawableId = R.drawable.ic_home_log_icon__password;
@@ -662,12 +667,12 @@ public class OperationRecordsActivity extends BaseActivity {
                 switch (lockRecord.getEventCode()) {
                     case 0x02:
                         // 密码添加
-                        message = lastName + " Added " + " PIN Key";
+                        message = lastName + " Added " + pwdName + " PIN Key";
                         drawableId = R.drawable.ic_home_log_icon__password;
                         break;
                     case 0x03:
                         // 密码删除
-                        message = lastName + " Deleted " + " PIN Key";
+                        message = lastName + " Deleted " + pwdName + " PIN Key";
                         drawableId = R.drawable.ic_home_log_icon__password;
                         break;
                     case 0x0f:

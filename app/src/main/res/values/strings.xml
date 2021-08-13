@@ -570,4 +570,5 @@
     <string name="dialog_privacy_policy_title">Dear Revolo user,</string>
     <string name="dialog_privacy_policy">Dear user, Please read the Revolo Privacy policy carefully again before using Auto-Unlock feature. This app collects location information to enable ["Auto-Unlock feature"], even if the app is running in the foreground or background, closed or not in use. Do you agree that Revolo has access to your location information?</string>
     <string name="dialog_update_version_title">Update Version</string>
+    <string name="dialog_tip_delete_this_device">Are you sure to remove\nthis device.</string>
 </resources>
