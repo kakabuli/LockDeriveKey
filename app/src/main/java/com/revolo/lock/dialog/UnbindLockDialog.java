@@ -20,9 +20,11 @@ public class UnbindLockDialog extends Dialog {
 
     private TextView mTvConfirm, mTvCancel, hintTextView;
     private View.OnClickListener mOnConfirmClickListener, mOnCancelClickListener;
+    private boolean showHintText=true;
 
     public UnbindLockDialog(@NonNull Context context) {
         super(context);
+        showHintText=true;
     }
 
     @Override
@@ -33,6 +35,11 @@ public class UnbindLockDialog extends Dialog {
         mTvConfirm = findViewById(R.id.tvConfirm);
         mTvCancel = findViewById(R.id.tvCancel);
         hintTextView = findViewById(R.id.textView58);
+        if (showHintText) {
+            hintTextView.setText(getContext().getString(R.string.dialog_tip_after_unbinding_your_door_lock_can_be_binded_by_others));
+        } else {
+            hintTextView.setText(getContext().getString(R.string.dialog_tip_line_device_unbin_text));
+        }
         refreshView();
     }
 
@@ -42,6 +49,7 @@ public class UnbindLockDialog extends Dialog {
      * @param type
      */
     public void setHintText(boolean type) {
+        showHintText=type;
         if (null != hintTextView) {
             if (type) {
                 hintTextView.setText(getContext().getString(R.string.dialog_tip_after_unbinding_your_door_lock_can_be_binded_by_others));
