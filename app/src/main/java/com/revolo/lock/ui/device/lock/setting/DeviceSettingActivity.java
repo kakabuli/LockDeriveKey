@@ -189,6 +189,10 @@ public class DeviceSettingActivity extends BaseActivity {
             showUnbindDialog();
             return;
         }
+        if (view.getId() == R.id.clDelete) {
+            showRemoveUserDialog();
+            return;
+        }
         if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_DIS) {
             ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_text_content_offline_devices);
             return;
@@ -269,10 +273,6 @@ public class DeviceSettingActivity extends BaseActivity {
         if (view.getId() == R.id.ivDoNotDisturbModeEnable) {
             // TODO: 2021/3/7 后期要全局实现这个通知功能
             openOrCloseNotification();
-            return;
-        }
-        if (view.getId() == R.id.clDelete) {
-            showRemoveUserDialog();
             return;
         }
     }
