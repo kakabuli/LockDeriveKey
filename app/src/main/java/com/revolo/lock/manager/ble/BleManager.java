@@ -377,7 +377,6 @@ public class BleManager {
                     Timber.e("onDisconnected bleBean.getOnBleDeviceListener() == null");
                     return;
                 }
-                // bleBean.getOKBLEDeviceImp().remove();
                 //removeConnectedBleBeanAndDisconnect(deviceTAG);//清理当前队列中的连接ble对象
                 clearConnetctList(bleBean);
                 bleBean.getOnBleDeviceListener().onDisconnected(bleBean.getOKBLEDeviceImp().getMacAddress());
@@ -386,7 +385,9 @@ public class BleManager {
                 message.setMessgaeType(MSG_LOCK_MESSAGE_BLE);//蓝牙消息
                 message.setResultCode(LockMessageReplyErrCode.LOCK_BLE_ERR_CODE_BLE_DIS_ERR);//校验和失败
                 EventBus.getDefault().post(message);
-
+                if (null != bleBean.getOKBLEDeviceImp()) {
+                    bleBean.getOKBLEDeviceImp().remove();
+                }
             }
         }
 
