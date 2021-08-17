@@ -1,6 +1,5 @@
 package com.revolo.lock.manager.mqtt;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.text.TextUtils;
 
@@ -12,7 +11,6 @@ import com.revolo.lock.LockAppManager;
 import com.revolo.lock.bean.DeviceListRefreshBean;
 import com.revolo.lock.bean.respone.MailLoginBeanRsp;
 import com.revolo.lock.dialog.MessageDialog;
-import com.revolo.lock.manager.LockAppService;
 import com.revolo.lock.manager.LockMessage;
 import com.revolo.lock.manager.LockMessageCode;
 import com.revolo.lock.manager.LockMessageRes;
@@ -289,7 +287,8 @@ public class MQTTReply {
                 lockMessage.setMessageType(MSG_LOCK_MESSAGE_MQTT);
                 lockMessage.setBytes(null);
                 EventBus.getDefault().post(lockMessage);
-                LockAppManager.getAppManager().currentActivity().startActivity(new Intent(LockAppManager.getAppManager().currentActivity(), MainActivity.class));
+                LockAppManager.getAppManager().currentActivity().startActivity(
+                        new Intent(LockAppManager.getAppManager().currentActivity(), MainActivity.class).putExtra(Constant.SHOW_SHARE_DIALOG_TITLE, title));
             } else {
                 if (messageDialog != null) {
                     messageDialog.dismiss();
@@ -299,9 +298,7 @@ public class MQTTReply {
                 messageDialog.setMessage(title);
                 messageDialog.setOnListener(v -> {
                     Timber.d("LockAppManager.getAppManager().currentActivity().getLocalClassName() = %1s", LockAppManager.getAppManager().currentActivity().getLocalClassName());
-//                    if (LockAppManager.getAppManager().currentActivity().getLocalClassName().contains("ui.device")) {
                     LockAppManager.getAppManager().currentActivity().startActivity(new Intent(LockAppManager.getAppManager().currentActivity(), MainActivity.class));
-//                    }
                     messageDialog.dismiss();
                 });
                 messageDialog.show();

@@ -22,6 +22,7 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.revolo.lock.App;
 import com.revolo.lock.Constant;
+import com.revolo.lock.LockAppManager;
 import com.revolo.lock.R;
 import com.revolo.lock.base.BaseActivity;
 import com.revolo.lock.bean.request.DeviceTokenBeanReq;
@@ -29,7 +30,7 @@ import com.revolo.lock.bean.request.GetVersionBeanReq;
 import com.revolo.lock.bean.respone.DeviceTokenBeanRsp;
 import com.revolo.lock.bean.respone.GetVersionBeanRsp;
 import com.revolo.lock.bean.respone.MailLoginBeanRsp;
-import com.revolo.lock.dialog.OTAUpdateDialog;
+import com.revolo.lock.dialog.MessageDialog;
 import com.revolo.lock.dialog.PrivacyPolicyDialog;
 import com.revolo.lock.dialog.UpdateVersionDialog;
 import com.revolo.lock.manager.LockMessageCode;
@@ -72,15 +73,29 @@ public class MainActivity extends BaseActivity {
 
     @Override
     public void initData(@Nullable Bundle bundle) {
-        //onRegisterEventBus();
+
     }
 
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
         getAlexaIntent(intent);
-        addDeviceFragment();
-        navView.setSelectedItemId(R.id.navigation_device);
+        if (intent.hasExtra(Constant.SHOW_SHARE_DIALOG_TITLE) && isMainItemIndex != R.id.navigation_device) {
+            String title = intent.getStringExtra(Constant.SHOW_SHARE_DIALOG_TITLE);
+            if (TextUtils.isEmpty(title)) {
+                MessageDialog messageDialog = new MessageDialog(LockAppManager.getAppManager().currentActivity());
+                messageDialog.setMessage(title);
+                messageDialog.setOnListener(v -> {
+                    addDeviceFragment();
+                    navView.setSelectedItemId(R.id.navigation_device);
+                    messageDialog.dismiss();
+                });
+                messageDialog.show();
+            }
+        } else {
+            addDeviceFragment();
+            navView.setSelectedItemId(R.id.navigation_device);
+        }
     }
 
     @Override
