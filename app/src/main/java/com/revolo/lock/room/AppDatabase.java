@@ -28,7 +28,7 @@ import timber.log.Timber;
  * E-mail : wengmaowei@kaadas.com
  * desc   :
  */
-@Database(entities = {BleDeviceLocal.class, User.class, LockRecord.class}, version = 4)
+@Database(entities = {BleDeviceLocal.class, User.class, LockRecord.class}, version = 6)
 public abstract class AppDatabase extends RoomDatabase {
 
     public abstract BleDeviceDao bleDeviceDao();
@@ -50,10 +50,7 @@ public abstract class AppDatabase extends RoomDatabase {
                 INSTANCE =
                         Room.databaseBuilder(context.getApplicationContext(), AppDatabase.class, "rev.db")
                                 .allowMainThreadQueries() // TODO: 2021/2/3 后续需要把这些操作放到非UI线程里
-                                .addMigrations(MIGRATION_1_2)
-                                .addMigrations(MIGRATION_2_3)
-                                .addMigrations(MIGRATION_3_4)
-                                .openHelperFactory(FACTORY)
+                                .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6)
                                 .addCallback(new Callback() {
                                     @Override
                                     public void onCreate(@NonNull SupportSQLiteDatabase db) {
@@ -97,7 +94,24 @@ public abstract class AppDatabase extends RoomDatabase {
     static final Migration MIGRATION_3_4 = new Migration(3, 4) {
         @Override
         public void migrate(@NonNull SupportSQLiteDatabase database) {
+            // BleDeviceLocal 新增 d_password2Time
             database.execSQL("ALTER TABLE BleDeviceLocal ADD COLUMN d_password2Time INTEGER NOT NULL DEFAULT 0");
+        }
+    };
+
+    static final Migration MIGRATION_4_5 = new Migration(4, 5) {
+        @Override
+        public void migrate(@NonNull SupportSQLiteDatabase database) {
+            database.execSQL("ALTER TABLE LockRecord ADD COLUMN lr_pwd_nick_name TEXT");
+        }
+    };
+
+    static final Migration MIGRATION_5_6 = new Migration(5, 6) {
+        @Override
+        public void migrate(@NonNull SupportSQLiteDatabase database) {
+            // BleDeviceLocal 新增 d_password2Time
+            database.execSQL("ALTER TABLE BleDeviceLocal ADD COLUMN shareId TEXT");
+            database.execSQL("ALTER TABLE BleDeviceLocal ADD COLUMN shareUid TEXT");
         }
     };
 }

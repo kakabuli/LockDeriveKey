@@ -343,10 +343,17 @@ public class DoorSensorAlignmentActivity extends BaseActivity {
 
     @Override
     public void doBusiness() {
-        if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_BLE) {
+        /*if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_BLE) {
             // initBleListener();
             checkDoorSensorState();
-        }
+        }*/
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Timber.e(" onResume checkDoorSensorState()");
+        checkDoorSensorState();
     }
 
     @Override

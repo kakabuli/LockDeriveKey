@@ -139,6 +139,28 @@ public class BleDeviceLocal implements Parcelable {
     @ColumnInfo(name = "isAdmin")
     private int isAdmin; // 是否为管理员 1-管理员
 
+    @ColumnInfo(name = "shareId")
+    private String shareId;
+
+    @ColumnInfo(name = "shareUid")
+    private String shareUid;
+
+    public String getShareId() {
+        return shareId;
+    }
+
+    public void setShareId(String shareId) {
+        this.shareId = shareId;
+    }
+
+    public String getShareUid() {
+        return shareUid;
+    }
+
+    public void setShareUid(String shareUid) {
+        this.shareUid = shareUid;
+    }
+
     public int getIsAdmin() {
         return isAdmin;
     }

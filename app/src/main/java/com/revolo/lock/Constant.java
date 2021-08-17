@@ -117,4 +117,6 @@ public class Constant {
      * 是否有新版本更新
      */
     public static boolean isNewAppVersion = false;
+
+    public static String registerEmail = "";
 }

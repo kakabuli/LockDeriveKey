@@ -377,6 +377,7 @@
     <string name="dialog_tip_there_is_a_new_version_available_do_you_want_to_update">There is a new version available,\nDo you want to update?</string>
     <string name="dialog_tip_wifi_is_offline_version_update_is_not_supported">WiFi is offline,\nversion update is not supported.</string>
     <string name="dialog_tip_after_unbinding_your_door_lock_can_be_binded_by_others">After unbinding,\nyour door lock can be binded by others</string>
+    <string name="dialog_tip_line_device_unbin_text">After unbinding, please restore the lock to the factory setting by pressing and holding the reset button for more than 5 seconds.</string>
     <string name="dialog_title_are_you_sure_to_unbind">Are you sure to unbind ?</string>
     <string name="dialog_tip_your_device_wifi_is_offline_please_close_to_the_door_lock_open_bluetooth_and_set_it">Your device WiFi is offline,\nPlease close to the door lock,\nopen Bluetooth and set it.</string>
     <string name="dialog_tip_are_you_sure_you_want_to_remove_this_user_right">Are you sure you want to remove\nthis user right.</string>
@@ -569,4 +570,6 @@
     <string name="dialog_privacy_policy_title">Dear Revolo user,</string>
     <string name="dialog_privacy_policy">Dear user, Please read the Revolo Privacy policy carefully again before using Auto-Unlock feature. This app collects location information to enable ["Auto-Unlock feature"], even if the app is running in the foreground or background, closed or not in use. Do you agree that Revolo has access to your location information?</string>
     <string name="dialog_update_version_title">Update Version</string>
+    <string name="dialog_tip_delete_this_device">Are you sure to remove\nthis device.</string>
+    <string name="tip_password_start_with_911">The setting password cannot start with 911</string>
 </resources>

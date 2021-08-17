@@ -23,16 +23,15 @@
         android:id="@+id/tvLockName"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="25pt"
+        android:layout_marginStart="12pt"
         android:layout_marginTop="30pt"
         android:ellipsize="end"
         android:maxLines="1"
         android:textColor="@color/c333333"
-        android:textSize="16pt"
+        android:textSize="15pt"
         app:layout_constraintLeft_toRightOf="@+id/ivLockState"
         app:layout_constraintRight_toLeftOf="@id/ivNetState"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:text="10V020411000110V020411000110V0204110001" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <ImageView
         android:id="@+id/ivNetState"

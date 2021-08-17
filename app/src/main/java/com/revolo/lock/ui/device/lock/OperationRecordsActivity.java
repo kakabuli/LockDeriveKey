@@ -123,6 +123,7 @@ public class OperationRecordsActivity extends BaseActivity {
         mRefreshLayout.setRefreshHeader(new SmartClassicsHeaderView(this));
         mRefreshLayout.setOnRefreshListener(refreshLayout -> {
             mPage = 1;
+            isCheckTime = false;
             searchRecord(0);
         });
         mRefreshLayout.setOnLoadMoreListener(refreshLayout -> {
@@ -151,7 +152,6 @@ public class OperationRecordsActivity extends BaseActivity {
             searchBle();
         } else {
             //WiFi模式 、WiFi和蓝牙同时连接、掉线模式
-            getNowDateTime();
             searchRecordFromNet(mPage, startTime, endTime);
         }
 
@@ -504,6 +504,8 @@ public class OperationRecordsActivity extends BaseActivity {
             lockRecord.setEventSource(bean.getEventSource());
             lockRecord.setEventCode(bean.getEventCode());
             lockRecord.setCreateTime(bean.getTimesTamp());
+            lockRecord.setPwdNickname(bean.getPwdNickname());
+            lockRecord.setLastName(bean.getLastName());
             lockRecord.setAppId(bean.getAppId());
             lockRecord.setDeviceId(mBleDeviceLocal.getId());
             list.add(lockRecord);
@@ -561,16 +563,14 @@ public class OperationRecordsActivity extends BaseActivity {
             if (TextUtils.isEmpty(lockName)) {
                 lockName = mBleDeviceLocal.getEsn();
             }
-            String userName = "";
-            String firstName = App.getInstance().getUser().getFirstName();
-            String lastName = App.getInstance().getUser().getLastName();
+            String lastName = lockRecord.getLastName();
             if (TextUtils.isEmpty(lastName)) {
                 lastName = "";
             }
-            if (TextUtils.isEmpty(firstName)) {
-                firstName = "";
+            String pwdName = lockRecord.getPwdNickname();
+            if (TextUtils.isEmpty(pwdName)) {
+                pwdName = "";
             }
-            userName = lastName + "·" + firstName;
             String message = "";
             @DrawableRes int drawableId = R.drawable.ic_home_log_icon__password;
             if (lockRecord.getEventType() == 1) {
@@ -624,13 +624,13 @@ public class OperationRecordsActivity extends BaseActivity {
                         switch (lockRecord.getEventSource()) {
                             case 0x00:
                                 // 键盘
-                                message = userName + " Locked " + lockName + " via PIN Key";
+                                message = lastName + " Locked " + lockName + " via PIN Key";
                                 drawableId = R.drawable.ic_home_log_icon__password;
                                 break;
                             case 0x08:
                                 // App
                                 // TODO: 2021/3/29 通过编号识别对应用户
-                                message = userName + " Locked " + lockName + " via App";
+                                message = lastName + " Locked " + lockName + " via App";
                                 drawableId = R.drawable.ic_home_log_icon_door_lock;
                                 break;
                             default:
@@ -644,12 +644,12 @@ public class OperationRecordsActivity extends BaseActivity {
                         switch (lockRecord.getEventSource()) {
                             case 0x00:
                                 // 键盘
-                                message = userName + " Unlocked " + lockName + " via PIN Key";
+                                message = lastName + " Unlocked " + lockName + " via PIN Key";
                                 drawableId = R.drawable.ic_home_log_icon__password;
                                 break;
                             case 0x08:
                                 // App
-                                message = userName + " Unlocked " + lockName + " via App";
+                                message = lastName + " Unlocked " + lockName + " via App";
                                 drawableId = R.drawable.ic_home_log_icon__iphone;
                                 break;
                             default:
@@ -667,12 +667,12 @@ public class OperationRecordsActivity extends BaseActivity {
                 switch (lockRecord.getEventCode()) {
                     case 0x02:
                         // 密码添加
-                        message = userName + " Added " + " PIN Key";
+                        message = lastName + " Added " + pwdName + " PIN Key";
                         drawableId = R.drawable.ic_home_log_icon__password;
                         break;
                     case 0x03:
                         // 密码删除
-                        message = userName + " Deleted " + " PIN Key";
+                        message = lastName + " Deleted " + pwdName + " PIN Key";
                         drawableId = R.drawable.ic_home_log_icon__password;
                         break;
                     case 0x0f:

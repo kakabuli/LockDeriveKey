@@ -79,13 +79,8 @@ public class MainActivity extends BaseActivity {
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
         getAlexaIntent(intent);
-        if (isMainItemIndex == R.id.navigation_device) {
-            addDeviceFragment();
-        } else if (isMainItemIndex == R.id.navigation_user) {
-            addUserFragment();
-        } else if (isMainItemIndex == R.id.navigation_mine) {
-            addMineFragment();
-        }
+        addDeviceFragment();
+        navView.setSelectedItemId(R.id.navigation_device);
     }
 
     @Override
@@ -361,8 +356,7 @@ public class MainActivity extends BaseActivity {
                     if (getVersionBeanRsp.getData() != null) {
                         String appVersions = getVersionBeanRsp.getData().getAppVersions();
                         // 版本号不一致
-                        Constant.isNewAppVersion = !appVersions.equals(AppUtils.getAppVersionName());
-                        if (Constant.isNewAppVersion) {
+                        if (appVersions(appVersions, AppUtils.getAppVersionName())) {
                             if (getVersionBeanRsp.getData() != null) {
                                 GetVersionBeanRsp.DataBean data = getVersionBeanRsp.getData();
                                 UpdateVersionDialog updateVersionDialog = new UpdateVersionDialog(MainActivity.this);
@@ -390,6 +384,33 @@ public class MainActivity extends BaseActivity {
 
             }
         });
+    }
+
+    /**
+     * 服务器版本大于当前版本
+     *
+     * @param newAppVersions
+     * @param oldAppVersions
+     * @return
+     */
+    private boolean appVersions(String newAppVersions, String oldAppVersions) {
+
+        String[] newSplit = newAppVersions.replace("V", "").replace("v", "").split("\\.");
+        String[] oldSplit = oldAppVersions.replace("V", "").replace("v", "").split("\\.");
+        if (newSplit != null && oldSplit != null) {
+            for (int i = 0; i < newSplit.length; i++) {
+                if (newSplit[i] != null && oldSplit[i] != null) {
+                    int newInt = Integer.parseInt(newSplit[i]);
+                    int oldInt = Integer.parseInt(oldSplit[i]);
+                    if (newInt < oldInt) {
+                        return false;
+                    } else if (newInt > oldInt) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
     }
 
     /**

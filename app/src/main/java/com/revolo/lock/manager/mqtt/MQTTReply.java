@@ -289,6 +289,7 @@ public class MQTTReply {
                 lockMessage.setMessageType(MSG_LOCK_MESSAGE_MQTT);
                 lockMessage.setBytes(null);
                 EventBus.getDefault().post(lockMessage);
+                LockAppManager.getAppManager().currentActivity().startActivity(new Intent(LockAppManager.getAppManager().currentActivity(), MainActivity.class));
             } else {
                 if (messageDialog != null) {
                     messageDialog.dismiss();
@@ -298,9 +299,9 @@ public class MQTTReply {
                 messageDialog.setMessage(title);
                 messageDialog.setOnListener(v -> {
                     Timber.d("LockAppManager.getAppManager().currentActivity().getLocalClassName() = %1s", LockAppManager.getAppManager().currentActivity().getLocalClassName());
-                    if (LockAppManager.getAppManager().currentActivity().getLocalClassName().contains("ui.device")) {
-                        LockAppManager.getAppManager().currentActivity().startActivity(new Intent(LockAppManager.getAppManager().currentActivity(), MainActivity.class));
-                    }
+//                    if (LockAppManager.getAppManager().currentActivity().getLocalClassName().contains("ui.device")) {
+                    LockAppManager.getAppManager().currentActivity().startActivity(new Intent(LockAppManager.getAppManager().currentActivity(), MainActivity.class));
+//                    }
                     messageDialog.dismiss();
                 });
                 messageDialog.show();
@@ -504,11 +505,17 @@ public class MQTTReply {
         if (!TextUtils.isEmpty(wifiListBean.getModel()))
             bleDeviceLocal.setType(wifiListBean.getModel());
 
+        if (!TextUtils.isEmpty(wifiListBean.getShareId())) {
+            bleDeviceLocal.setShareId(wifiListBean.getShareId());
+        }
+        if (!TextUtils.isEmpty(wifiListBean.getShareUId())) {
+            bleDeviceLocal.setShareUid(wifiListBean.getShareUId());
+        }
+
         String firmwareVer = wifiListBean.getLockFirmwareVersion();
         if (!TextUtils.isEmpty(firmwareVer)) {
             bleDeviceLocal.setLockVer(firmwareVer);
         }
-        Timber.e("daggdddddddddddddddddddddddddddddddddddddddddd:" + wifiListBean.getShareUserType());
         bleDeviceLocal.setShareUserType(wifiListBean.getShareUserType());
         bleDeviceLocal.setIsAdmin(wifiListBean.getIsAdmin());
 
