@@ -443,6 +443,7 @@
     <string name="dialog_cancel">Cancel</string>
     <string name="t_success">Success</string>
     <string name="t_unbind_success">Unbind success</string>
+    <string name="t_unbind_fail">Unbind fail</string>
     <string name="t_setting_mute_fail">Setting Mute Fail</string>
     <string name="t_ota_update_success">OTA update success</string>
     <string name="t_please_sign_in">Please sign in!</string>
