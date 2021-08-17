@@ -79,7 +79,16 @@ public class LockRecordBeanRsp {
         private int eventSource;
         private int eventType;
         private String lastName;
+        private String pwdNickname;
         private int userId;
+
+        public String getPwdNickname() {
+            return pwdNickname;
+        }
+
+        public void setPwdNickname(String pwdNickname) {
+            this.pwdNickname = pwdNickname;
+        }
 
         public String get_id() {
             return _id;

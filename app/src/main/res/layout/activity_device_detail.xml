@@ -128,8 +128,8 @@
             android:orientation="vertical">
 
             <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="40pt"
+                android:layout_height="40pt"
                 app:srcCompat="@drawable/ic_equipment_icon_notification" />
 
             <TextView
@@ -151,8 +151,8 @@
             android:orientation="vertical">
 
             <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="40pt"
+                android:layout_height="40pt"
                 app:srcCompat="@drawable/ic_equipment_icon_password" />
 
             <TextView
@@ -174,8 +174,8 @@
             android:orientation="vertical">
 
             <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="40pt"
+                android:layout_height="40pt"
                 app:srcCompat="@drawable/ic_equipment_icon_user" />
 
             <TextView
@@ -197,8 +197,8 @@
             android:orientation="vertical">
 
             <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="40pt"
+                android:layout_height="40pt"
                 app:srcCompat="@drawable/ic_equipment_icon_setting" />
 
             <TextView
@@ -210,7 +210,6 @@
                 android:textSize="11pt" />
 
         </LinearLayout>
-
     </LinearLayout>
 
     <TextView

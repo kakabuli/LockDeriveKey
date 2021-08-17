@@ -325,5 +325,10 @@ public class ForgetThePwdActivity extends BaseActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        if (mCountDownTimer != null) {
+            mCountDownTimer.cancel();
+            mCountDownTimer.onFinish();
+            mCountDownTimer = null;
+        }
     }
 }

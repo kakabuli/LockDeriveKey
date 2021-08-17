@@ -27,4 +27,5 @@
     <color name="cD4E1FF">#D4E1FF</color>
 
     <color name="transparent">#00FFFFFF</color>
+    <color name="open_ble_view_back_transparent">#80000000</color>
 </resources>

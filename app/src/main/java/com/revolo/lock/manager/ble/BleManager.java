@@ -174,7 +174,7 @@ public class BleManager {
         mConnectedBleBeanList.add(bleBean);
     }*/
 
-    public void removeConnectedBleBeanAndDisconnect(@NotNull BleBean bean) {
+   /* public void removeConnectedBleBeanAndDisconnect(@NotNull BleBean bean) {
         Timber.d("removeConnectedBleBeanAndDisconnect device: %1s", bean.getMac());
         if (mConnectedBleBeanList.isEmpty()) {
             return;
@@ -192,9 +192,15 @@ public class BleManager {
         }
 
         Timber.d("removeConnectedBleBeanAndDisconnect device: %1s", mConnectedBleBeanList.size() + "");
-    }
+    }*/
 
-    public void removeConnectedBleBeanAndDisconnect(String mac) {
+    /**
+     * 主动断开ble
+     *
+     * @param mac
+     */
+    public void removeConnectDevice(String mac) {
+        Timber.e("准备主动断开ble:" + mac);
         if (null != mConnectedBleBeanList) {
             BleBean removeBle = null;
             for (BleBean bleBean : mConnectedBleBeanList) {
@@ -206,7 +212,39 @@ public class BleManager {
                 }
             }
             if (null != removeBle) {
-                removeConnectedBleBeanAndDisconnect(removeBle);
+                if (removeBle.getOKBLEDeviceImp() != null) {
+                    Timber.e("主动断开ble:" + mac);
+                    removeBle.getOKBLEDeviceImp().disConnect(false);
+                } else {
+                    clearConnetctList(removeBle);
+                    Timber.e("准备主动断开异常2ble:" + mac);
+                }
+            } else {
+                Timber.e("准备主动断开异常ble:" + mac);
+            }
+        }
+    }
+
+    /**
+     * 清理列表中的的设备
+     *
+     * @param bean
+     */
+    public void clearConnetctList(BleBean bean) {
+        Timber.d("removeConnectedBleBeanAndDisconnect device: %1s", bean.getMac());
+        if (null == bean) {
+            Timber.e("clear bean=null");
+            return;
+        }
+        if (mConnectedBleBeanList.isEmpty()) {
+            return;
+        }
+        if (null == mConnectedBleBeanList) {
+            return;
+        }
+        for (int i = 0; i < mConnectedBleBeanList.size(); i++) {
+            if (mConnectedBleBeanList.get(i).getEsn().equals(bean.getEsn())) {
+                mConnectedBleBeanList.remove(i);
             }
         }
     }
@@ -214,7 +252,7 @@ public class BleManager {
     /**
      * 断开所有设备的连接
      */
-    public void disConnect() {
+   /* public void disConnect() {
         if (null != mConnectedBleBeanList) {
             for (int i = 0; i < mConnectedBleBeanList.size(); i++) {
                 if (null != mConnectedBleBeanList.get(i).getOKBLEDeviceImp()) {
@@ -222,9 +260,7 @@ public class BleManager {
                 }
             }
         }
-    }
-
-
+    }*/
     public void removeBleConnected() {
         if (null != mConnectedBleBeanList) {
             for (int i = 0; i < mConnectedBleBeanList.size(); i++) {
@@ -341,15 +377,17 @@ public class BleManager {
                     Timber.e("onDisconnected bleBean.getOnBleDeviceListener() == null");
                     return;
                 }
-                // bleBean.getOKBLEDeviceImp().remove();
-                removeConnectedBleBeanAndDisconnect(deviceTAG);//清理当前队列中的连接ble对象
+                //removeConnectedBleBeanAndDisconnect(deviceTAG);//清理当前队列中的连接ble对象
+                clearConnetctList(bleBean);
                 bleBean.getOnBleDeviceListener().onDisconnected(bleBean.getOKBLEDeviceImp().getMacAddress());
 
                 LockMessageRes message = new LockMessageRes();
                 message.setMessgaeType(MSG_LOCK_MESSAGE_BLE);//蓝牙消息
                 message.setResultCode(LockMessageReplyErrCode.LOCK_BLE_ERR_CODE_BLE_DIS_ERR);//校验和失败
                 EventBus.getDefault().post(message);
-
+                if (null != bleBean.getOKBLEDeviceImp()) {
+                    bleBean.getOKBLEDeviceImp().remove();
+                }
             }
         }
 

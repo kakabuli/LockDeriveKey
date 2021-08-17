@@ -72,6 +72,10 @@ public class AddInputNewPwdActivity extends BaseActivity {
                 ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_dont_enter_a_simple_pwd);
                 return;
             }
+            if (pwd.startsWith("911")) {
+                ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.tip_password_start_with_911);
+                return;
+            }
             if (pwd.length() >= 4 && pwd.length() <= 12) {
                 Intent intent = new Intent(this, AddNewPwdSelectActivity.class);
                 intent.putExtra(Constant.USER_PWD, pwd);

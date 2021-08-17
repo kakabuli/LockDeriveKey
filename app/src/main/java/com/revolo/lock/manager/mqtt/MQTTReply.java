@@ -289,6 +289,7 @@ public class MQTTReply {
                 lockMessage.setMessageType(MSG_LOCK_MESSAGE_MQTT);
                 lockMessage.setBytes(null);
                 EventBus.getDefault().post(lockMessage);
+                LockAppManager.getAppManager().currentActivity().startActivity(new Intent(LockAppManager.getAppManager().currentActivity(), MainActivity.class));
             } else {
                 if (messageDialog != null) {
                     messageDialog.dismiss();
@@ -297,7 +298,10 @@ public class MQTTReply {
                 messageDialog = new MessageDialog(LockAppManager.getAppManager().currentActivity());
                 messageDialog.setMessage(title);
                 messageDialog.setOnListener(v -> {
+                    Timber.d("LockAppManager.getAppManager().currentActivity().getLocalClassName() = %1s", LockAppManager.getAppManager().currentActivity().getLocalClassName());
+//                    if (LockAppManager.getAppManager().currentActivity().getLocalClassName().contains("ui.device")) {
                     LockAppManager.getAppManager().currentActivity().startActivity(new Intent(LockAppManager.getAppManager().currentActivity(), MainActivity.class));
+//                    }
                     messageDialog.dismiss();
                 });
                 messageDialog.show();
@@ -329,6 +333,50 @@ public class MQTTReply {
         EventBus.getDefault().post(messageRes);
     }
 
+    /**
+     * 检查字符串是否为空或是""
+     *
+     * @param pwdValue
+     * @return
+     */
+    private boolean checkString(String pwdValue) {
+        if (null == pwdValue || "".equals(pwdValue)) {
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * 检查pwd创建时间
+     *
+     * @param creNaiTime
+     * @param creTime2
+     * @return
+     */
+    private boolean checkPwdCreateTime(String creNaiTime, String creTime2) {
+        try {
+            long cet1 = 0;
+            if (null == creNaiTime || "".equals(creNaiTime)) {
+                cet1 = 0;
+            } else {
+                cet1 = Long.parseLong(creNaiTime);
+            }
+            long cet2 = 0;
+            if (null == creTime2 || "".equals(creTime2)) {
+                cet2 = 0;
+            } else {
+                cet2 = Long.parseLong(creTime2);
+            }
+            Timber.e("本地pwd创建时间：" + cet1);
+            Timber.e("服务器pwd创建时间:" + cet2);
+            if (cet1 > cet2) {
+                return true;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
 
     /**
      * 从服务端获取当前的所有的设备
@@ -337,6 +385,26 @@ public class MQTTReply {
      * @return
      */
     private BleDeviceLocal createDeviceToLocal(WifiLockGetAllBindDeviceRspBean.DataBean.WifiListBean wifiListBean, BleDeviceLocal bleDeviceLocal) {
+        if (null != bleDeviceLocal.getPwd2()) {
+            Timber.e("本地pwd：" + bleDeviceLocal.getPwd2());
+        } else {
+            Timber.e("本地pwd：null");
+        }
+        Timber.e("服务端pwd:" + wifiListBean.getPassword2());
+
+        if (checkString(bleDeviceLocal.getPwd2()) && checkString(wifiListBean.getPassword2()) &&
+                !bleDeviceLocal.getPwd2().equals(wifiListBean.getPassword2())
+                && checkPwdCreateTime(bleDeviceLocal.getPassword2Time() + "", wifiListBean.getPassword2Time() + "")) {
+            Timber.e("本地与服务器端的pwd2不一致，需要上报给服务器");
+            //鉴权异常
+            if (null != mqttDataLinstener) {
+                mqttDataLinstener.updateToService(bleDeviceLocal.getEsn(), bleDeviceLocal.getPwd2(), bleDeviceLocal.getPassword2Time());
+            }
+        } else {
+            Timber.e("本地与服务器端的pwd2一致");
+            if (!TextUtils.isEmpty(wifiListBean.getPassword2()))
+                bleDeviceLocal.setPwd2(wifiListBean.getPassword2());
+        }
 
         // TODO: 2021/3/16 存储数据
         if (!TextUtils.isEmpty(wifiListBean.getRandomCode()))
@@ -344,13 +412,19 @@ public class MQTTReply {
 
         if (!TextUtils.isEmpty(wifiListBean.getLockNickname()))
             bleDeviceLocal.setName(wifiListBean.getLockNickname());
-        //门磁状态
-        if (wifiListBean.getMagneticStatus() == 1) {
-            bleDeviceLocal.setDoorSensor(LocalState.DOOR_SENSOR_OPEN);
-        } else if (wifiListBean.getMagneticStatus() == 2) {
-            bleDeviceLocal.setDoorSensor(LocalState.DOOR_SENSOR_CLOSE);
-        } else if (wifiListBean.getMagneticStatus() == 3) {
-            bleDeviceLocal.setDoorSensor(LocalState.DOOR_SENSOR_EXCEPTION);
+
+        if (bleDeviceLocal.getConnectedType() != LocalState.DEVICE_CONNECT_TYPE_BLE) {
+            Timber.e("当前非蓝牙模式状态下。更新门磁状态");
+            //门磁状态
+            if (wifiListBean.getMagneticStatus() == 1) {
+                bleDeviceLocal.setDoorSensor(LocalState.DOOR_SENSOR_OPEN);
+            } else if (wifiListBean.getMagneticStatus() == 2) {
+                bleDeviceLocal.setDoorSensor(LocalState.DOOR_SENSOR_CLOSE);
+            } else if (wifiListBean.getMagneticStatus() == 3) {
+                bleDeviceLocal.setDoorSensor(LocalState.DOOR_SENSOR_EXCEPTION);
+            }
+        } else {
+            Timber.e("当前蓝牙模式状态下。门磁以本地状态为准");
         }
         //启用门磁
         bleDeviceLocal.setOpenDoorSensor(wifiListBean.getDoorSensor() == 1);
@@ -371,7 +445,7 @@ public class MQTTReply {
         if (!TextUtils.isEmpty(wifiListBean.getWifiStatus()))
             bleDeviceLocal.setConnectedType(Integer.parseInt(wifiListBean.getWifiStatus()));
 
-        bleDeviceLocal.setLockPower(wifiListBean.getPower());
+        //bleDeviceLocal.setLockPower(wifiListBean.getPower());
         //锁的wifi模式下开关状态已服务器为准
         Timber.e("设备 服务器 lockState： %s", wifiListBean.getOpenStatus() + "");
         Timber.e("设备 本地 lockState： %s", bleDeviceLocal.getLockState() + "");
@@ -411,8 +485,6 @@ public class MQTTReply {
 
         bleDeviceLocal.setCreateTime(wifiListBean.getCreateTime());
 
-        if (!TextUtils.isEmpty(wifiListBean.getPassword2()))
-            bleDeviceLocal.setPwd2(wifiListBean.getPassword2());
 
         bleDeviceLocal.setDetectionLock(true);
 
@@ -433,11 +505,17 @@ public class MQTTReply {
         if (!TextUtils.isEmpty(wifiListBean.getModel()))
             bleDeviceLocal.setType(wifiListBean.getModel());
 
+        if (!TextUtils.isEmpty(wifiListBean.getShareId())) {
+            bleDeviceLocal.setShareId(wifiListBean.getShareId());
+        }
+        if (!TextUtils.isEmpty(wifiListBean.getShareUId())) {
+            bleDeviceLocal.setShareUid(wifiListBean.getShareUId());
+        }
+
         String firmwareVer = wifiListBean.getLockFirmwareVersion();
         if (!TextUtils.isEmpty(firmwareVer)) {
             bleDeviceLocal.setLockVer(firmwareVer);
         }
-        Timber.e("daggdddddddddddddddddddddddddddddddddddddddddd:" + wifiListBean.getShareUserType());
         bleDeviceLocal.setShareUserType(wifiListBean.getShareUserType());
         bleDeviceLocal.setIsAdmin(wifiListBean.getIsAdmin());
 

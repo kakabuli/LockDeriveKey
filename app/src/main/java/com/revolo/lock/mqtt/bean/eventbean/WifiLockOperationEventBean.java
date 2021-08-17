@@ -104,6 +104,15 @@ public class WifiLockOperationEventBean extends WifiLockBaseResponseBean {
         private int devNum;
         private String SW;
         private int hwerrcode;
+        private int power;
+
+        public int getPower() {
+            return power;
+        }
+
+        public void setPower(int power) {
+            this.power = power;
+        }
 
         public int getDevNum() {
             return devNum;

@@ -94,5 +94,6 @@
         </com.scwang.smart.refresh.layout.SmartRefreshLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
+    <include layout="@layout/device_fragment_hint_open_blue_view"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

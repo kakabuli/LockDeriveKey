@@ -62,9 +62,9 @@ public class PasswordListAdapter extends BaseQuickAdapter<DevicePwdBean, BaseVie
             String pwdName = devicePwdBean.getPwdName();
             if (TextUtils.isEmpty(pwdName)) {
                 pwdName = String.format("%03d", devicePwdBean.getPwdNum());
-            } else if (pwdName.matches("[0-9]+")) {
-
-                pwdName = String.format("%03d", Integer.parseInt(pwdName));
+            } else if (pwdName.matches("[0-9]+") && pwdName.length() < 3) {
+                pwdName = "000".substring(0, 3 - pwdName.length()) + pwdName;
+//                pwdName = String.format("%03d", Integer.parseInt(pwdName));
             }
             baseViewHolder.setText(R.id.tvPwdName, pwdName);
             baseViewHolder.setText(R.id.tvDetail, getPwdDetail(devicePwdBean));

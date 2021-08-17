@@ -5,6 +5,7 @@ import android.content.res.Resources;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.os.Message;
 import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.KeyEvent;
@@ -25,10 +26,14 @@ import com.revolo.lock.LocalState;
 import com.revolo.lock.R;
 import com.revolo.lock.base.BaseActivity;
 import com.revolo.lock.bean.request.AlexaSkillEnableReq;
+import com.revolo.lock.bean.request.DelInvalidShareBeanReq;
+import com.revolo.lock.bean.request.DelSharedUserBeanReq;
 import com.revolo.lock.bean.request.DeviceUnbindBeanReq;
 import com.revolo.lock.bean.request.PostNotDisturbModeBeanReq;
 import com.revolo.lock.bean.request.UpdateLockInfoReq;
 import com.revolo.lock.bean.respone.AlexaSkillEnableBeanRsp;
+import com.revolo.lock.bean.respone.DelInvalidShareBeanRsp;
+import com.revolo.lock.bean.respone.DelSharedUserBeanRsp;
 import com.revolo.lock.bean.respone.DeviceUnbindBeanRsp;
 import com.revolo.lock.bean.respone.NotDisturbModeBeanRsp;
 import com.revolo.lock.bean.respone.UpdateLockInfoRsp;
@@ -38,6 +43,7 @@ import com.revolo.lock.ble.BleProtocolState;
 import com.revolo.lock.ble.bean.BleBean;
 import com.revolo.lock.ble.bean.BleResultBean;
 import com.revolo.lock.dialog.MessageDialog;
+import com.revolo.lock.dialog.SelectDialog;
 import com.revolo.lock.dialog.UnbindLockDialog;
 import com.revolo.lock.manager.LockMessage;
 import com.revolo.lock.manager.LockMessageCode;
@@ -50,8 +56,11 @@ import com.revolo.lock.net.HttpRequest;
 import com.revolo.lock.net.ObservableDecorator;
 import com.revolo.lock.room.AppDatabase;
 import com.revolo.lock.room.entity.BleDeviceLocal;
+import com.revolo.lock.ui.MainActivity;
 import com.revolo.lock.ui.device.lock.DeviceDetailActivity;
+import com.revolo.lock.ui.device.lock.SharedUserDetailActivity;
 import com.revolo.lock.ui.device.lock.setting.geofence.AutoUnlockActivity;
+import com.revolo.lock.ui.user.AuthUserDetailActivity;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -79,7 +88,7 @@ public class DeviceSettingActivity extends BaseActivity {
     private DeviceUnbindBeanReq mReq;
     private ImageView mIvMuteEnable, mIvDoNotDisturbModeEnable;
     private BleDeviceLocal mBleDeviceLocal;
-    private MessageDialog mPowerLowDialog;//低电量
+    // private MessageDialog mPowerLowDialog;//低电量
     private @LocalState.VolumeState
     int lockMute;
 
@@ -115,7 +124,7 @@ public class DeviceSettingActivity extends BaseActivity {
                 findViewById(R.id.clDuressCode), findViewById(R.id.clDoorLockInformation),
                 findViewById(R.id.clGeoFenceLock), findViewById(R.id.clDoorMagneticSwitch),
                 findViewById(R.id.clUnbind), findViewById(R.id.clMute), findViewById(R.id.clWifi),
-                mIvDoNotDisturbModeEnable, findViewById(R.id.ivLockName), findViewById(R.id.clVideoMode));
+                mIvDoNotDisturbModeEnable, findViewById(R.id.ivLockName), findViewById(R.id.clVideoMode), findViewById(R.id.clDelete));
 
         mBleDeviceLocal = App.getInstance().getBleDeviceLocal();
         mIvDoNotDisturbModeEnable.setImageResource(mBleDeviceLocal.isDoNotDisturbMode() ? R.drawable.ic_icon_switch_open : R.drawable.ic_icon_switch_close);
@@ -126,6 +135,7 @@ public class DeviceSettingActivity extends BaseActivity {
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0) {
+            handler.removeMessages(MSG_UNBIN_DEVICE_OUT_TIME);
             finish();
             return true;
         }
@@ -171,14 +181,20 @@ public class DeviceSettingActivity extends BaseActivity {
 
     @Override
     protected void onDestroy() {
+        handler.removeMessages(MSG_UNBIN_DEVICE_OUT_TIME);
         dismissLoading();
         super.onDestroy();
     }
 
     @Override
     public void onDebouncingClick(@NonNull View view) {
+        mBleDeviceLocal = App.getInstance().getBleDeviceLocal();
         if (view.getId() == R.id.clUnbind) {
             showUnbindDialog();
+            return;
+        }
+        if (view.getId() == R.id.clDelete) {
+            showRemoveUserDialog();
             return;
         }
         if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_DIS) {
@@ -218,7 +234,7 @@ public class DeviceSettingActivity extends BaseActivity {
         }
         if (view.getId() == R.id.clGeoFenceLock) {
             if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI || mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI_BLE) {
-                if (mBleDeviceLocal.getLockPower() < 21) {
+                /*if (mBleDeviceLocal.getLockPower() < 21) {
                     if (null == mPowerLowDialog) {
                         mPowerLowDialog = new MessageDialog(this);
                         mPowerLowDialog.setMessage(getString(R.string.t_open_wifi_tip_low_power));
@@ -232,8 +248,8 @@ public class DeviceSettingActivity extends BaseActivity {
                         mPowerLowDialog.show();
                     }
                     return;
-                }
-                Intent intent = new Intent(this, AutoUnlockActivity.class);
+                }*/
+                Intent intent = new Intent(this, GeoFenceUnlockActivity.class);
                 startActivity(intent);
             } else {
                 ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show("Please set to WiFi connection mode");
@@ -261,13 +277,87 @@ public class DeviceSettingActivity extends BaseActivity {
         if (view.getId() == R.id.ivDoNotDisturbModeEnable) {
             // TODO: 2021/3/7 后期要全局实现这个通知功能
             openOrCloseNotification();
+            return;
         }
+    }
+
+
+    private void showRemoveUserDialog() {
+        SelectDialog dialog = new SelectDialog(this);
+        dialog.setMessage(getString(R.string.dialog_tip_delete_this_device));
+        dialog.setOnCancelClickListener(v -> dialog.dismiss());
+        dialog.setOnConfirmListener(v -> {
+            dialog.dismiss();
+            deleteShareDevice();
+        });
+        dialog.show();
     }
 
     @Override
     public Resources getResources() {
         // 更改布局适应
         return AdaptScreenUtils.adaptHeight(super.getResources(), 703);
+    }
+
+    private void deleteShareDevice() {
+        if (!checkNetConnectFail()) {
+            return;
+        }
+        if (App.getInstance().getUserBean() == null) {
+            Timber.e("removeUser App.getInstance().getUserBean() == null");
+            return;
+        }
+        String token = App.getInstance().getUserBean().getToken();
+        if (TextUtils.isEmpty(token)) {
+            Timber.e("removeUser token is empty");
+            return;
+        }
+        DelInvalidShareBeanReq req = new DelInvalidShareBeanReq();
+        req.setShareId(mBleDeviceLocal.getShareId());
+        showLoading();
+        Observable<DelInvalidShareBeanRsp> observable = HttpRequest.getInstance().delInvalidShare(token, req);
+        ObservableDecorator.decorate(observable).safeSubscribe(new Observer<DelInvalidShareBeanRsp>() {
+            @Override
+            public void onSubscribe(@NonNull Disposable d) {
+
+            }
+
+            @Override
+            public void onNext(@NonNull DelInvalidShareBeanRsp delInvalidShareBeanRsp) {
+                dismissLoading();
+                String code = delInvalidShareBeanRsp.getCode();
+                if (TextUtils.isEmpty(code)) {
+                    Timber.e("removeUser code is empty");
+                    return;
+                }
+                if (!code.equals("200")) {
+                    if (code.equals("444")) {
+                        App.getInstance().logout(true, DeviceSettingActivity.this);
+                        return;
+                    }
+                    String msg = delInvalidShareBeanRsp.getMsg();
+                    Timber.e("removeUser code: %1s, msg: %2s", code, msg);
+                    if (!TextUtils.isEmpty(msg)) {
+                        ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(msg);
+                    }
+                    return;
+                }
+                ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_delete_share_user_suc);
+                startActivity(new Intent(DeviceSettingActivity.this, MainActivity.class));
+                finish();
+            }
+
+            @Override
+            public void onError(@NonNull Throwable e) {
+                dismissLoading();
+                Timber.e(e);
+            }
+
+            @Override
+            public void onComplete() {
+
+            }
+        });
     }
 
     private void openOrCloseNotification() {
@@ -321,11 +411,25 @@ public class DeviceSettingActivity extends BaseActivity {
             mTvWifiName.setText(R.string.tip_wifi_not_connected);
         }
 
+        findViewById(R.id.clDelete).setVisibility(View.GONE);
         if (mBleDeviceLocal.getShareUserType() == 1) {
             findViewById(R.id.clDoorLockInformation).setVisibility(View.GONE);
             findViewById(R.id.clUnbind).setVisibility(View.GONE);
+            findViewById(R.id.clDelete).setVisibility(View.VISIBLE);
         } else if (mBleDeviceLocal.getShareUserType() == 2) {
-            finish();
+            findViewById(R.id.clAutoLock).setVisibility(View.GONE);
+            findViewById(R.id.clPrivateMode).setVisibility(View.GONE);
+            findViewById(R.id.clDuressCode).setVisibility(View.GONE);
+            findViewById(R.id.clDoorLockInformation).setVisibility(View.GONE);
+            findViewById(R.id.clGeoFenceLock).setVisibility(View.GONE);
+            findViewById(R.id.clDoorMagneticSwitch).setVisibility(View.GONE);
+            findViewById(R.id.clUnbind).setVisibility(View.GONE);
+            findViewById(R.id.clMute).setVisibility(View.GONE);
+            findViewById(R.id.clWifi).setVisibility(View.GONE);
+            findViewById(R.id.clName).setVisibility(View.GONE);
+            findViewById(R.id.clDoNotDisturbMode).setVisibility(View.GONE);
+            findViewById(R.id.clVideoMode).setVisibility(View.GONE);
+            findViewById(R.id.clDelete).setVisibility(View.VISIBLE);
         }
     }
 
@@ -358,20 +462,48 @@ public class DeviceSettingActivity extends BaseActivity {
         EventBus.getDefault().post(ms);
     }
 
+    private UnbindLockDialog dialog;
+
     private void showUnbindDialog() {
-        UnbindLockDialog dialog = new UnbindLockDialog(this);
-        dialog.setOnCancelClickListener(v -> dialog.dismiss());
-        dialog.setOnConfirmListener(v -> {
-            dialog.dismiss();
-            unbindDevice();
-        });
-        dialog.show();
+        if (null == dialog) {
+            dialog = new UnbindLockDialog(this);
+            dialog.setOnCancelClickListener(v -> dialog.dismiss());
+            dialog.setOnConfirmListener(v -> {
+                dialog.dismiss();
+                unbindDevice();
+            });
+        }
+        if (mBleDeviceLocal.getConnectedType()
+                == LocalState.DEVICE_CONNECT_TYPE_WIFI_BLE || mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI) {
+            dialog.setHintText(true);
+        } else {
+            dialog.setHintText(false);
+        }
+        if (!dialog.isShowing()) {
+            dialog.show();
+        }
     }
 
+    //解绑设备超时
+    private static final int MSG_UNBIN_DEVICE_OUT_TIME = 3694;
+    private Handler handler = new Handler() {
+        @Override
+        public void handleMessage(@NonNull Message msg) {
+            if (msg.what == MSG_UNBIN_DEVICE_OUT_TIME) {
+                dismissLoading();
+                ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_unbind_fail);
+            }
+        }
+    };
+
+    /**
+     * 解绑
+     */
     private void unbindDevice() {
         if (!checkNetConnectFail()) {
             return;
         }
+        handler.sendEmptyMessageDelayed(MSG_UNBIN_DEVICE_OUT_TIME, 5000);
         BleBean bleBean2 = App.getInstance().getUserBleBean(mBleDeviceLocal.getMac());
         if (null != bleBean2) {
             LockMessage message = new LockMessage();
@@ -397,6 +529,7 @@ public class DeviceSettingActivity extends BaseActivity {
             @Override
             public void onNext(@NonNull DeviceUnbindBeanRsp deviceUnbindBeanRsp) {
                 dismissLoading();
+                handler.removeMessages(MSG_UNBIN_DEVICE_OUT_TIME);
                 String code = deviceUnbindBeanRsp.getCode();
                 if (code == null) {
                     Timber.e("unbindDevice code == null");

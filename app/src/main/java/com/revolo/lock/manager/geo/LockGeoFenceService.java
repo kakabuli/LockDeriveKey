@@ -697,7 +697,7 @@ public class LockGeoFenceService extends Service {
                     } else {
                         lockGeoFenceEns.get(i).setLatitude(bleDeviceLocal.getLatitude());
                         lockGeoFenceEns.get(i).setLongitude(bleDeviceLocal.getLongitude());
-                        LatLng latLng = new LatLng(bleDeviceLocal.getLatitude(), bleDeviceLocal.getLockPower());
+                        LatLng latLng = new LatLng(bleDeviceLocal.getLatitude(), bleDeviceLocal.getLatitude());
                         lockGeoFenceEns.get(i).setBleDeviceLocal(bleDeviceLocal);
                         lockGeoFenceEns.get(i).setGeofence(lockGeoFenceEns.get(i).getmGeoFenceHelper().getGeoFence(
                                 GEO_FENCE_ID, latLng

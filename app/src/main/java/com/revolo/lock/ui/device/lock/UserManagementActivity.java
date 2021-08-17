@@ -25,10 +25,14 @@ import com.revolo.lock.bean.request.GainKeyBeanReq;
 import com.revolo.lock.bean.request.GetAllSharedUserFromLockBeanReq;
 import com.revolo.lock.bean.respone.GainKeyBeanRsp;
 import com.revolo.lock.bean.respone.GetAllSharedUserFromLockBeanRsp;
+import com.revolo.lock.bean.respone.GetDevicesFromUidAndSharedUidBeanRsp;
 import com.revolo.lock.net.HttpRequest;
 import com.revolo.lock.net.ObservableDecorator;
 import com.revolo.lock.room.entity.BleDeviceLocal;
 import com.revolo.lock.ui.user.InviteUsersMailActivity;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import io.reactivex.Observable;
 import io.reactivex.Observer;
@@ -74,7 +78,7 @@ public class UserManagementActivity extends BaseActivity {
                         });
         mRvSharedUser = findViewById(R.id.rvSharedUser);
         mLinearLayout = findViewById(R.id.linearLayout);
-        mSharedUserListAdapter = new SharedUserListAdapter(R.layout.item_shared_user_rv);
+        mSharedUserListAdapter = new SharedUserListAdapter(new ArrayList<>());
         mSharedUserListAdapter.setOnItemClickListener((adapter, view, position) -> {
             GetAllSharedUserFromLockBeanRsp.DataBean dataBean = mSharedUserListAdapter.getItem(position);
             if (dataBean != null) {
@@ -242,7 +246,8 @@ public class UserManagementActivity extends BaseActivity {
                 } else {
                     mLinearLayout.setVisibility(View.VISIBLE);
                 }
-                mSharedUserListAdapter.setList(rsp.getData());
+//                mSharedUserListAdapter.setList(rsp.getData());
+                groupData(rsp.getData());
             }
 
             @Override
@@ -258,4 +263,34 @@ public class UserManagementActivity extends BaseActivity {
         });
     }
 
+    private void groupData(@NonNull List<GetAllSharedUserFromLockBeanRsp.DataBean> dataBeans) {
+
+        List<GetAllSharedUserFromLockBeanRsp.DataBean> families = new ArrayList<>();
+        List<GetAllSharedUserFromLockBeanRsp.DataBean> guests = new ArrayList<>();
+        List<GetAllSharedUserFromLockBeanRsp.DataBean> shareUsers = new ArrayList<>();
+        for (int i = 0; i < dataBeans.size(); i++) {
+            GetAllSharedUserFromLockBeanRsp.DataBean dataBean = dataBeans.get(i);
+            if (dataBean.getShareUserType() == 1) {
+                families.add(dataBean);
+            } else if (dataBean.getShareUserType() == 2) {
+                guests.add(dataBean);
+            }
+        }
+        if (families.size() > 0) {
+            GetAllSharedUserFromLockBeanRsp.DataBean dataBean = new GetAllSharedUserFromLockBeanRsp.DataBean();
+            dataBean.setShareUserType(-1);
+            dataBean.setNickName("family");
+            shareUsers.add(dataBean);
+            shareUsers.addAll(families);
+        }
+
+        if (guests.size() > 0) {
+            GetAllSharedUserFromLockBeanRsp.DataBean dataBean = new GetAllSharedUserFromLockBeanRsp.DataBean();
+            dataBean.setShareUserType(-1);
+            dataBean.setNickName("guest");
+            shareUsers.add(dataBean);
+            shareUsers.addAll(guests);
+        }
+        mSharedUserListAdapter.setList(shareUsers);
+    }
 }

@@ -54,4 +54,9 @@ public interface MQTTDataLinstener {
      * @param bean
      */
     void updateLockState(WifiLockOperationEventBean bean);
+
+    /**
+     * 将鉴权异常的数据上传到服务器同步
+     */
+    void updateToService(String esn, String pass,int createTime);
 }

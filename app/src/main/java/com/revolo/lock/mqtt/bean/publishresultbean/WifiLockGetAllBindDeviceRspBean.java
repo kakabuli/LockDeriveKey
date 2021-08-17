@@ -692,6 +692,7 @@ public class WifiLockGetAllBindDeviceRspBean extends WifiLockBaseResponseBean {
             private String model;
             private String password1;
             private String password2;
+            private int password2Time;
             private String peripheralId;
             private String systemID;
             private String userNickname;
@@ -702,6 +703,24 @@ public class WifiLockGetAllBindDeviceRspBean extends WifiLockBaseResponseBean {
             private int elecFenceSensitivity;//地理围栏灵敏度
             private int elecFenceState;//从200米外入内的状态
             private int shareUserType;
+            private String shareId;
+            private String shareUid;
+
+            public String getShareId() {
+                return shareId;
+            }
+
+            public void setShareId(String shareId) {
+                this.shareId = shareId;
+            }
+
+            public String getShareUId() {
+                return shareUid;
+            }
+
+            public void setShareUId(String shareUId) {
+                this.shareUid = shareUId;
+            }
 
             public int getShareUserType() {
                 return shareUserType;
@@ -1147,6 +1166,14 @@ public class WifiLockGetAllBindDeviceRspBean extends WifiLockBaseResponseBean {
                 this.password2 = password2;
             }
 
+            public int getPassword2Time() {
+                return password2Time;
+            }
+
+            public void setPassword2Time(int password2Time) {
+                this.password2Time = password2Time;
+            }
+
             public String getPeripheralId() {
                 return peripheralId;
             }
@@ -1441,6 +1468,7 @@ public class WifiLockGetAllBindDeviceRspBean extends WifiLockBaseResponseBean {
                 dest.writeString(this.model);
                 dest.writeString(this.password1);
                 dest.writeString(this.password2);
+                dest.writeInt(this.password2Time);
                 dest.writeString(this.peripheralId);
                 dest.writeString(this.systemID);
                 dest.writeString(this.userNickname);
@@ -1501,14 +1529,15 @@ public class WifiLockGetAllBindDeviceRspBean extends WifiLockBaseResponseBean {
                 this.model = in.readString();
                 this.password1 = in.readString();
                 this.password2 = in.readString();
+                this.password2Time = in.readInt();
                 this.peripheralId = in.readString();
                 this.systemID = in.readString();
                 this.userNickname = in.readString();
                 this.wifiStatus = in.readString();
                 this.autoLockTime = in.readInt();
-                this.elecFence=in.readInt();
-                this.elecFenceTime=in.readInt();//地理围栏时间
-                this.elecFenceSensitivity=in.readInt();//地理围栏灵敏度
+                this.elecFence = in.readInt();
+                this.elecFenceTime = in.readInt();//地理围栏时间
+                this.elecFenceSensitivity = in.readInt();//地理围栏灵敏度
             }
 
             public static final Creator<WifiListBean> CREATOR = new Creator<WifiListBean>() {

@@ -352,7 +352,15 @@ public class App extends Application {
 
     public void logout(boolean isShowDialog, Activity act) {
         // TODO: 2021/3/30 logout的数据操作
+        //清理设备信息
         removeDeviceList();
+
+        //清理电子围栏信息
+        if (null != App.getInstance().getLockGeoFenceService()) {
+            App.getInstance().getLockGeoFenceService().clearBleDevice();
+        }
+        App.getInstance().removeRecords(null);
+
         User user = App.getInstance().getUser();
         deleteDeviceToken();
         AppDatabase.getInstance(getApplicationContext()).userDao().delete(user);
