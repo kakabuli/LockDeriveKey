@@ -971,7 +971,11 @@ public class BleCommandFactory {
      */
     public static byte[] syLockTime(long time, byte[] pwd1, byte[] pwd3) {
         String zones = ZoneUtil.getZone();
-        return setTimezone(ZoneUtil.getZoneByte(zones), (byte) 0x00, time, pwd1, pwd3);
+        int n = ZoneUtil.getZoneByte(zones);
+        byte[] zone = new byte[2];
+        zone[0] = (byte) (n & 0xff);
+        zone[1] = (byte) (n >> 8 & 0xff);
+        return setTimezone(zone[0], zone[1], time, pwd1, pwd3);
     }
 
 
