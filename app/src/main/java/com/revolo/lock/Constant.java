@@ -119,4 +119,6 @@ public class Constant {
     public static boolean isNewAppVersion = false;
 
     public static String registerEmail = "";
+
+    public static final String SHOW_SHARE_DIALOG_TITLE = "showShareDialogTitle";
 }
