@@ -41,7 +41,7 @@ public class HomeLockListAdapter extends BaseQuickAdapter<BleDeviceLocal, BaseVi
                 (TextUtils.isEmpty(deviceLocal.getEsn()) ? "" : deviceLocal.getEsn())
                 : name));
         if (deviceLocal.getLockState() == LocalState.LOCK_STATE_PRIVATE) {
-            baseViewHolder.setImageResource(R.id.ivLockState, R.mipmap.ic_home_img_lock_privacymodel);
+            baseViewHolder.setImageResource(R.id.ivLockState, R.drawable.ic_home_img_lock_privacymode);
             doorShow(ivDoorState, tvDoorState);
             baseViewHolder.setText(R.id.tvDoorState, getContext().getString(R.string.tip_private_mode));
             baseViewHolder.setGone(R.id.ivDoorState, true);
@@ -49,7 +49,7 @@ public class HomeLockListAdapter extends BaseQuickAdapter<BleDeviceLocal, BaseVi
             baseViewHolder.setGone(R.id.ivDoorState, false);
             boolean isUseDoorSensor = deviceLocal.isOpenDoorSensor();
             if (deviceLocal.getLockState() == LocalState.LOCK_STATE_OPEN) {
-                baseViewHolder.setImageResource(R.id.ivLockState, R.mipmap.ic_home_img_lock_open);
+                baseViewHolder.setImageResource(R.id.ivLockState, R.drawable.ic_home_img_lock_open);
                 if (isUseDoorSensor) {
                     doorShow(ivDoorState, tvDoorState);
                     switch (deviceLocal.getDoorSensor()) {
@@ -70,7 +70,7 @@ public class HomeLockListAdapter extends BaseQuickAdapter<BleDeviceLocal, BaseVi
 //                    doorClose(ivDoorState, tvDoorState);
                 }
             } else if (deviceLocal.getLockState() == LocalState.LOCK_STATE_CLOSE || deviceLocal.getLockState() == LocalState.LOCK_STATE_SENSOR_CLOSE) {
-                baseViewHolder.setImageResource(R.id.ivLockState, R.mipmap.ic_home_img_lock_close);
+                baseViewHolder.setImageResource(R.id.ivLockState, R.drawable.ic_home_img_lock_close);
                 if (isUseDoorSensor) {
                     doorShow(ivDoorState, tvDoorState);
                     switch (deviceLocal.getDoorSensor()) {
@@ -93,7 +93,7 @@ public class HomeLockListAdapter extends BaseQuickAdapter<BleDeviceLocal, BaseVi
             } else {
                 //异常处理
                 Timber.e("homeLock type:%s", deviceLocal.getLockState() + "");
-                baseViewHolder.setImageResource(R.id.ivLockState, R.mipmap.ic_home_img_lock_close);
+                baseViewHolder.setImageResource(R.id.ivLockState, R.drawable.ic_home_img_lock_close);
 //                baseViewHolder.setImageResource(R.id.ivLockState, R.drawable.ic_home_img_lock_privacymodel);
                 doorClose(ivDoorState, tvDoorState);
             }
@@ -109,7 +109,7 @@ public class HomeLockListAdapter extends BaseQuickAdapter<BleDeviceLocal, BaseVi
             baseViewHolder.setVisible(R.id.ivNetState, true);
         } else {//掉线模式else
             // TODO: 2021/3/2 其他处理
-            baseViewHolder.setImageResource(R.id.ivLockState, R.mipmap.ic_home_img_lock_privacymodel);
+            baseViewHolder.setImageResource(R.id.ivLockState, R.drawable.ic_home_img_lock_offline);
             baseViewHolder.setVisible(R.id.ivNetState, false);
         }
     }

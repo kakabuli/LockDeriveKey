@@ -43,7 +43,7 @@
     <!-- LoginActivity -->
     <string name="tip_login">Welcome Home</string>
     <string name="pin_key">PIN key</string>
-    <string name="password">Password</string>
+    <string name="password">PASSWORD</string>
     <string name="input_email_address">Email Address</string>
     <string name="forgot_password">Forgot password</string>
     <string name="sign_up">Sign Up</string>
@@ -57,7 +57,7 @@
 
     <!-- HomeFragment -->
     <string name="tip_home_page">Welcome to use the\n Revolo smart door lock</string>
-    <string name="title_my_devices">My devices</string>
+    <string name="title_my_devices">MY DEVICES</string>
 
     <!-- AddDeviceActivity -->
     <string name="wfp01">WFP01</string>
@@ -90,11 +90,11 @@
     <string name="tip_error">Error</string>
 
     <!-- OperationRecordsActivity -->
-    <string name="title_operation_records">Operation Records</string>
+    <string name="title_operation_records">ACTIVITIES</string>
     <string name="data_no_records">No record</string>
 
     <!-- AddNewPwdActivity -->
-    <string name="tip_you_can_set_4_10_valid_passwords">You can set 4&#8211;10 valid passwords</string>
+    <string name="tip_you_can_set_4_10_valid_passwords">You can set 4&#8211;10 digital PIN Key</string>
     <string name="hint_please_enter_password">Please enter password</string>
     <string name="title_add_password">Add password</string>
     <string name="select_permanent">Permanent</string>
@@ -109,6 +109,7 @@
     <string name="password_characteristic">Password characteristic</string>
     <string name="creation_date">Creation date</string>
     <string name="title_pwd_details">Password details</string>
+    <string name="tip_pwd_default_name">PIN Key %1s</string>
 
     <!-- ChangePwdNameActivity -->
     <string name="name">Name</string>
@@ -556,7 +557,7 @@
     <string name="t_load_content_feed_back">FeedBack...</string>
     <string name="t_load_content_updating">Updating</string>
     <string name="t_load_content_registering">Registering</string>
-    <string name="t_text_content_offline">Offline</string>
+    <string name="t_text_content_offline">Device is Offline</string>
     <string name="t_text_content_wrong_password">Wrong password</string>
     <string name="t_text_content_offline_devices">Devices offline</string>
     <string name="dialog_content_ota_update">The door lock is upgrading. Please wait...</string>
