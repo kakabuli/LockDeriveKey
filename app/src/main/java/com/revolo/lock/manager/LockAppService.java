@@ -519,6 +519,18 @@ public class LockAppService extends Service {
                     }
                 }*/
             }
+            //更新
+            if ((null != bleDeviceLocal.getMac() && bleDeviceLocal.getMac().equals(App.getInstance().getmCurrMac())) ||
+                    (null != bleDeviceLocal.getEsn() && bleDeviceLocal.getEsn().equals(App.getInstance().getmCurrSn()))) {
+                Timber.e("app service 更新 updateDeviceState set BleDeviceLocal");
+                App.getInstance().setBleDeviceLocal(bleDeviceLocal);
+                //发送机制更新
+                LockMessageRes lockMessageRes = new LockMessageRes();
+                lockMessageRes.setMessgaeType(LockMessageCode.MSG_LOCK_MESSAGE_USER);
+                lockMessageRes.setResultCode(MSG_LOCK_MESSAGE_CODE_SUCCESS);
+                lockMessageRes.setMessageCode(LockMessageCode.MSG_LOCK_MESSAGE_UPDATE_BLEDEVICELOCAL);//添加到设备到主页
+                EventBus.getDefault().post(lockMessageRes);
+            }
             //判断当前ble的连接情况
             Timber.e("当前设备的连接状态：" + bleDeviceLocal.getConnectedType());
             if (!bleState && !mqttState) {

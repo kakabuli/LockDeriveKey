@@ -129,6 +129,7 @@ public class DeviceDetailActivity extends BaseActivity {
                 //数据正常
                 switch (lockMessage.getMessageCode()) {
                     case LockMessageCode.MSG_LOCK_MESSAGE_UPDATE_DEVICE_STATE:
+                    case LockMessageCode.MSG_LOCK_MESSAGE_UPDATE_BLEDEVICELOCAL:
                         mBleDeviceLocal = App.getInstance().getBleDeviceLocal();
                         updateView();
                         break;

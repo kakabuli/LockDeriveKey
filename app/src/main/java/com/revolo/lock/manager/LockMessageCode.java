@@ -32,6 +32,7 @@ public class LockMessageCode {
     public static final int MSG_LOCK_MESSAGE_SET_LOCK_ATTRDURES = 127; // 开关门指令
     public static final int MSG_LOCK_MESSAGE_SET_LOCK_ATTRSENSITIVITY = 128; // 开关门指令
     public static final int MSG_LOCK_MESSAGE_SET_LOCK_ATTRVOLUME = 129; // 开关门指令
+    public static final int MSG_LOCK_MESSAGE_UPDATE_BLEDEVICELOCAL=137;//刷新BleDeviceLocal
 
 
 }
