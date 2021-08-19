@@ -20,7 +20,6 @@ import com.revolo.lock.R;
 import com.revolo.lock.adapter.AutoLockViewPagerAdatper;
 import com.revolo.lock.base.BaseActivity;
 import com.revolo.lock.room.entity.BleDeviceLocal;
-import com.revolo.lock.ui.view.AutoLockLoadHintView;
 
 import java.util.ArrayList;
 import java.util.List;

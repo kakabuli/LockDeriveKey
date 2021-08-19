@@ -148,7 +148,16 @@ public class DeviceSettingActivity extends BaseActivity {
         if (lockMessage == null) {
             return;
         }
-        if (lockMessage.getMessgaeType() == LockMessageCode.MSG_LOCK_MESSAGE_BLE) {
+        if (lockMessage.getMessgaeType() == MSG_LOCK_MESSAGE_USER) {
+            //用户消息
+            if (lockMessage.getResultCode() == LockMessageCode.MSG_LOCK_MESSAGE_CODE_SUCCESS) {
+                switch (lockMessage.getMessageCode()) {
+                    case LockMessageCode.MSG_LOCK_MESSAGE_UPDATE_BLEDEVICELOCAL:
+                        mBleDeviceLocal = App.getInstance().getBleDeviceLocal();
+                        break;
+                }
+            }
+        } else if (lockMessage.getMessgaeType() == LockMessageCode.MSG_LOCK_MESSAGE_BLE) {
             //蓝牙消息
             if (null != lockMessage.getBleResultBea()) {
                 processBleResult(lockMessage.getBleResultBea());
