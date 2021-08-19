@@ -73,6 +73,9 @@ public class DoorLockInformationActivity extends BaseActivity {
 
     private TextView mTvWifiVersion;
     private TextView mTvFirmwareVersion;
+    private TextView mTvSalesmodel;
+    private TextView mTvBluetoothMac;
+    private TextView mTvWifi;
     private View mVVersion, vFirmwareVersion;
     private DeviceUnbindBeanReq mReq;
     private BleDeviceLocal mBleDeviceLocal;
@@ -118,6 +121,9 @@ public class DoorLockInformationActivity extends BaseActivity {
         TextView tvLockSn = findViewById(R.id.tvLockSn);
         mTvWifiVersion = findViewById(R.id.tvWifiVersion);
         mTvFirmwareVersion = findViewById(R.id.tvFirmwareVersion);
+        mTvSalesmodel=findViewById(R.id.door_lock_info_sales_model);
+        mTvBluetoothMac=findViewById(R.id.door_lock_info_bluetooth_mac);
+        mTvWifi=findViewById(R.id.door_lock_info_wifi);
         applyDebouncingClickListener(mTvFirmwareVersion, mTvWifiVersion);
 
         String esn = mReq.getWifiSN();

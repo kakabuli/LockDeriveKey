@@ -58,7 +58,7 @@ public class ChangeLockNameActivity extends BaseActivity {
     @Override
     public void initView(@Nullable Bundle savedInstanceState, @Nullable View contentView) {
         mTvName=getIntent().getStringExtra("tvName");
-        useCommonTitleBar(getString(R.string.title_change_the_name));
+        useCommonTitleBar(getString(R.string.chang_pwd_name_activity_title));
         etLockName=findViewById(R.id.etLockName);
         etLockName.setText(mTvName);
         applyDebouncingClickListener(findViewById(R.id.btnComplete));

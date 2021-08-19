@@ -33,7 +33,7 @@ public class BleConnectSucActivity extends BaseActivity {
 
     @Override
     public void initView(@Nullable Bundle savedInstanceState, @Nullable View contentView) {
-        useCommonTitleBar(getString(R.string.add_device));
+        useCommonTitleBar(getString(R.string.ble_connectsuc_activity_view));
         applyDebouncingClickListener(findViewById(R.id.btnAddWifi));
     }
     @Override

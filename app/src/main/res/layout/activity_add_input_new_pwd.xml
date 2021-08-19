@@ -25,7 +25,7 @@
         android:id="@+id/textView3"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="20pt"
+        android:layout_marginTop="40dp"
         android:text="@string/tip_you_can_set_4_10_valid_passwords"
         android:textColor="@color/c333333"
         android:textSize="15pt"

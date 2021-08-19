@@ -30,8 +30,9 @@ public class AddDeviceActivity extends BaseActivity {
 
     @Override
     public void initView(@Nullable Bundle savedInstanceState, @Nullable View contentView) {
-        useCommonTitleBar(getString(R.string.add_device));
+        useCommonTitleBar(getString(R.string.add_device_activity_title));
         applyDebouncingClickListener(findViewById(R.id.llAddLock));
+        applyDebouncingClickListener(findViewById(R.id.btnNext));
     }
 
     @Override
@@ -50,8 +51,8 @@ public class AddDeviceActivity extends BaseActivity {
 
     @Override
     public void onDebouncingClick(@NonNull View view) {
-        if (view.getId() == R.id.llAddLock) {
-            startActivity(new Intent(this, AddDeviceStep1Activity.class));
+        if (view.getId() == R.id.llAddLock || view.getId() == R.id.btnNext) {
+            startActivity(new Intent(this, AddDevice1StepActivity.class));
         }
     }
 }

@@ -133,7 +133,7 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
 
     @Override
     public void initView(@Nullable Bundle savedInstanceState, @Nullable View contentView) {
-        useCommonTitleBar(getString(R.string.add_device));
+        useCommonTitleBar(getString(R.string.add_device_step2_bleconnectactivity_title));
         onRegisterEventBus();
     }
 

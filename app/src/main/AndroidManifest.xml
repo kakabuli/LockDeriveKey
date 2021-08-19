@@ -245,6 +245,31 @@
             android:name=".ui.device.lock.setting.DeviceSettingActivity"
             android:launchMode="singleTask"
             android:screenOrientation="portrait" />
+        <!--DisturbModeActivity 勿扰模式-->
+        <activity
+            android:name=".ui.device.lock.setting.DisturbModeActivity"
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait" />
+        <!-- DoorCheckOkActivity 门磁配置成功-->
+        <activity
+            android:name=".ui.device.add.DoorCheckOkActivity"
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait" />
+        <!--AddDevice1StepActivity  添加设备第一步-->
+        <activity
+            android:name=".ui.device.add.AddDevice1StepActivity"
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait" />
+        <!-- AddDevice2StepActivity 添加设备第二步-->
+        <activity
+            android:name=".ui.device.add.AddDevice2StepActivity"
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait" />
+        <!--AutoLockLoadActivity 地理围栏引导界面 -->
+        <activity
+            android:name=".ui.device.lock.setting.geofence.AutoLockLoadActivity"
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".ui.device.lock.setting.ChangeLockNameActivity"
             android:launchMode="singleTask"
