@@ -41,7 +41,7 @@
     <!-- RegisterAddAvatarNextActivity -->
     <string name="tip_register_add_avatar_next">Revolo registration has been completed.</string>
     <string name="add_device">Add device</string>
-    <string name="add_next_time">Add next time</string>
+    <string name="add_next_time">Next Time</string>
 
     <!--BleConnectSucActivity -->
     <string name="ble_connectsuc_activity_view">PARING SUCCESS</string>
@@ -117,28 +117,31 @@
     <!-- AddNewPwdActivity -->
     <string name="tip_you_can_set_4_10_valid_passwords">You can set 4&#8211;10 digital PIN Key</string>
 
-    <string name="hint_please_enter_password">Please enter password</string>
-    <string name="title_add_password">ADD PIN KEY</string>
+    <string name="hint_please_enter_password">Please Enter New PIN Key</string>
+    <string name="title_add_password">ADD PIN Key</string>
+    <string name="tip_add_password_select">Customize Your PIN Key</string>
+    <string name="tip_add_password_name">Name Your PIN Key</string>
     <string name="select_permanent">Permanent</string>
     <string name="select_schedule">Schedule</string>
     <string name="select_temporary">Temporary</string>
 
     <!-- AddNewPwdNameActivity -->
-    <string name="password_name">Password name</string>
+    <string name="password_name">PIN Key Name</string>
 
     <!-- PasswordDetailActivity -->
-    <string name="delete_password">Delete password</string>
-    <string name="password_characteristic">Password characteristic</string>
-    <string name="creation_date">Creation date</string>
-    <string name="title_pwd_details">Password details</string>
+    <string name="delete_password">Delete PIN Key</string>
+    <string name="password_characteristic">PIN KEY Type</string>
+    <string name="creation_date">Created Date</string>
+    <string name="title_pwd_details">PIN KEY</string>
     <string name="tip_pwd_default_name">PIN Key %1s</string>
+    <string name="tip_PIN_Key">PIN Key</string>
 
     <!-- ChangePwdNameActivity -->
-    <string name="name">Name</string>
-    <string name="please_enter_the_password_name">Please enter the password name</string>
+    <string name="name">New Name</string>
+    <string name="please_enter_the_password_name">Please Enter the PIN Key Name</string>
     <string name="chang_pwd_name_activity_title">NAME YOUR LOCK</string>
     <string name="chang_lock_name_activity_name">New Name</string>
-    <string name="title_change_the_name">Change the name</string>
+    <string name="title_change_the_name">PIN KEY</string>
 
     <!-- UserManagementActivity -->
     <string name="title_user_management">User management</string>
