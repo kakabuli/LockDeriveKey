@@ -34,6 +34,7 @@
         android:inputType="text"
         android:textColorHint="@color/cA5A4DA"
         android:theme="@style/InputEditTextTheme"
+        android:textColor="@color/c333333"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView17" />

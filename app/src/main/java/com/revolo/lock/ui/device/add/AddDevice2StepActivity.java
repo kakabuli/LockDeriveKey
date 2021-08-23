@@ -2,13 +2,19 @@ package com.revolo.lock.ui.device.add;
 
 import android.Manifest;
 import android.content.Intent;
+import android.media.MediaPlayer;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
+import android.widget.ImageView;
+import android.widget.VideoView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 
 import com.blankj.utilcode.util.ToastUtils;
 import com.revolo.lock.R;
@@ -34,7 +40,11 @@ public class AddDevice2StepActivity  extends BaseActivity implements EasyPermiss
     private static final int RC_QR_CODE_PERMISSIONS = 9999;
     private static final int RC_CAMERA_PERMISSIONS = 7777;
     private static final int RC_READ_EXTERNAL_STORAGE_PERMISSIONS = 8888;
-
+    private VideoView mVideoView;
+    private ImageView mHintImageView;
+    private ImageView mPlayStateView;
+    private int mPlayState = -1;//0正常播放、1、暂停、-1、初始化
+    private int mCurrTime = 0;
     @Override
     public void initData(@Nullable Bundle bundle) {
         isShowNetState = false;
@@ -48,12 +58,110 @@ public class AddDevice2StepActivity  extends BaseActivity implements EasyPermiss
     @Override
     public void initView(@Nullable Bundle savedInstanceState, @Nullable View contentView) {
         useCommonTitleBar(getString(R.string.add_device_activity_title_2));
-        applyDebouncingClickListener(findViewById(R.id.btnNext));
+        mVideoView = findViewById(R.id.imageView_voice);
+        mHintImageView = findViewById(R.id.imageView);
+        mPlayStateView = findViewById(R.id.imageview_play);
+        applyDebouncingClickListener(findViewById(R.id.btnNext), mVideoView, mHintImageView, mPlayStateView);
+        initVoieo();
     }
 
     @Override
     public void doBusiness() {
 
+    }
+    private void initVoieo() {
+        mVideoView.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+            @Override
+            public void onCompletion(MediaPlayer mp) {
+                //结束
+                if (null != mp) {
+                    mp.release();
+                }
+                clearVoieo();
+            }
+        });
+
+        mVideoView.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+            @RequiresApi(api = Build.VERSION_CODES.P)
+            @Override
+            public void onPrepared(MediaPlayer mp) {
+                //准备好后
+                if (mCurrTime != 0) {
+                    mVideoView.seekTo(mCurrTime);
+                }
+            }
+        });
+        mVideoView.setOnErrorListener(new MediaPlayer.OnErrorListener() {
+            @Override
+            public boolean onError(MediaPlayer mp, int what, int extra) {
+                if (null != mp) {
+                    mp.release();
+                }
+                clearVoieo();
+                return false;
+            }
+        });
+        mVideoView.setOnInfoListener(new MediaPlayer.OnInfoListener() {
+            @Override
+            public boolean onInfo(MediaPlayer mp, int what, int extra) {
+                return false;
+            }
+        });
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        clearVoieo();
+    }
+
+    private void clearVoieo() {
+        if (null != mVideoView) {
+            mVideoView.setVisibility(View.GONE);
+            mVideoView.stopPlayback();
+            mVideoView.suspend();
+        }
+        mPlayState = -1;
+        mCurrTime = 0;
+        mHintImageView.setVisibility(View.VISIBLE);
+    }
+
+    private void startPlay() {
+        mPlayState = 0;
+        mPlayStateView.setVisibility(View.GONE);
+        mHintImageView.setVisibility(View.INVISIBLE);
+        mVideoView.setVisibility(View.VISIBLE);
+        Uri uri = Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.smart_voice_2);
+        mVideoView.setVideoURI(uri);
+        mVideoView.requestFocus();
+        mVideoView.start();
+    }
+
+    private void rePlay() {
+        mPlayState = 0;
+        mPlayStateView.setVisibility(View.GONE);
+        Timber.e("dsagag:" + mCurrTime);
+        mVideoView.start();
+    }
+
+    private void pausePlay() {
+        mPlayState = 1;
+        mPlayStateView.setVisibility(View.VISIBLE);
+        mCurrTime = mVideoView.getCurrentPosition();
+        Timber.e("dsagag:" + mCurrTime);
+        mVideoView.pause();
+    }
+
+    private void onClickPa() {
+        if (mPlayState == -1) {
+            //播放
+            startPlay();
+        } else if (mPlayState == 0) {
+            //暂停
+            pausePlay();
+        } else {
+            rePlay();
+        }
     }
 
     @Override
@@ -64,8 +172,18 @@ public class AddDevice2StepActivity  extends BaseActivity implements EasyPermiss
                 LockEasyPermissions.requestPermissions(this, getString(R.string.tip_scan_qr_code_need_camera_permission),
                         RC_CAMERA_PERMISSIONS, Manifest.permission.CAMERA);
             } else {
+                clearVoieo();
                 startActivity(new Intent(this, AddDeviceQRCodeStep2Activity.class));
             }
+        }else if (view.getId() == mVideoView.getId()) {
+            //播放控件
+            onClickPa();
+        } else if (view.getId() == mHintImageView.getId()) {
+            //播放背景
+            onClickPa();
+        } else if (view.getId() == mPlayStateView.getId()) {
+            //播放按键
+            onClickPa();
         }
     }
 
