@@ -322,7 +322,7 @@ public class DoorSensorAlignmentActivity extends BaseActivity {
             public void run() {
                 connectBle();
             }
-        }, 500);
+        }, 2000);
     }
 
     private void connectBle() {

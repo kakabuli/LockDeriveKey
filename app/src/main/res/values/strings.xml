@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name">Revolo</string>
     <string name="title_device">Devices</string>
     <string name="title_user">Invite</string>
@@ -340,6 +340,12 @@
     <string name="open_door_step_1_3_tip">1. Please install the door sensor on the door \n&#160;&#160;&#160;&#160;frame. \n2. Please install the door sensor along the top \n&#160;&#160;&#160;&#160;of the lock. \n3. Please full open the door.</string>
     <string name="close_door_step_2_tip">1. Please close the door.</string>
     <string name="half_door_step_4_tip">1. Turn the thumb turn to reach the deadbolt \n&#160;&#160;&#160;&#160;out . \n2. Half close the door to make the deadbolt \n&#160;&#160;&#160;&#160;against the door frame.</string>
+    <string name ="door_sensor_check_exit_text">The door magnetic calibration will fail if you exit halfway.Do you want to exit？</string>
+
+
+    <!-- -->
+    <string name="dis_wifi_hint_dilog_text">Turning off WiFi will switch to Bluetooth mode. Reconfiguring WiFi requires you to hold the phone near your loc.</string>
+    <string name="dis_wifi_hint_dialog_igr_text">I know about it and hope that the app will not prompt this message again.</string>
 
     <string name="door_sensor_check_activity_title">DOOR SENSOR CALIBRATE</string>
     <string name="door_sensor_check_activity_1_hint_text">Please open the door as much as you can Open the door as far.</string>
@@ -358,9 +364,12 @@
     <string name="title_geo_fence_unlock">AUTO-UNLOCK</string>
     <string name="geo_fence_unlock_instruction">Auto-Unlock instruction</string>
     <string name="geo_fence_unlock">Auto-Unlock</string>
-    <string name="distance_range_setting">Distance range setting</string>
+    <string name="distance_range_setting">Geofence Range Setting</string>
+    <string name="distance_range_setting_text">The lock will be in Auto-Unlock Mode once you enter the Geofence Range you set.</string>
     <string name="sensitivity">Sensitivity</string>
+    <string name="sensitivity_text">The lock will be no longer in Auto-Unlock Mode when time is up.</string>
     <string name="set_time">Set time</string>
+    <string name="set_time_text">Slide the sensitivity bar to modify the sensitivity of the Lock, depending on how hard you knock the door normally.</string>
 
     <!--- AutoLockLoadActivity-->
     <string name="auto_lock_load_hint_1_text">Auto unlock is a feature that will help you open the door when you get home.</string>
@@ -567,7 +576,7 @@
     <string name="title_share_to">Share To</string>
 
     <string name="t_add_input_new_pwd_full">Password library full</string>
-    <string name="t_open_wifi_tip_low_power">The battery power of door lock is low, please replace the battery in time.</string>
+    <!--<string name="t_open_wifi_tip_low_power">The battery power of door lock is low, please replace the battery in time.</string>-->
     <string name="t_pass_word_list_nothing">No password yet~</string>
     <string name="t_shared_users_list_nothing">No users shared yet~</string>
     <string name="t_closed_wifi_connect_msg">WiFi disconnected. Reboot the WiFi will reallocate the network.</string>
@@ -596,7 +605,7 @@
     <string name="t_introduce_auto_lock_content">·If Door Sensor Enabled - The lock will auto-lock by the timer when your door is closed \n·If Door Sensor Disabled -  The lock will auto-lock by the timer you set</string>
 
     <string name="t_introduce_Geo_fence_title">What is the knock-open unlock?</string>
-    <string name="t_introduce_Geo_fence_content">· Turn on the Auto-UnLock function, \n·set the distance, time, and knocking strength of knocking. \n\nSet a distance of 200 meters and a time of 10 minutes. When you enter the scope of the distance and time that been set, the door will be unlocked ac-cording to the set knock frequency, and the door will be opened. It does not need any equipment to unlock, which will provide you great convenience for your door opening.</string>
+    <string name="t_introduce_Geo_fence_content">· What\'s Auto-Unlock\n· Auto-Unlock allows\n· What\'s Knock-Open Unlock\n· Knock-Open Unlock allows you to unlock your door automatically when you knock the door with your phone near by when your Lock is in Auto-Unlock Mode. No need to enter PIN key, or take out your phone to unlock via App.\n· Please note Knock-Open Unlock only works when Auto-Unlock feature turned on, and the Lock is in Auto-Unlock Mode.</string>
 
     <string name="t_introduce_door_sensor_alignment_title">What is the door sensor alignment?</string>
     <string name="t_introduce_door_sensor_alignment_content">&#160;&#160;&#160;&#160;After the door sensor calibration, it will remind the user to close the door, and prompt when you forget to close the door.</string>
