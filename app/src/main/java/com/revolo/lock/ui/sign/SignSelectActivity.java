@@ -11,7 +11,6 @@ import android.view.View;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.biometric.BiometricPrompt;
-import androidx.constraintlayout.widget.ConstraintLayout;
 
 import com.blankj.utilcode.util.GsonUtils;
 import com.blankj.utilcode.util.SPUtils;
@@ -32,14 +31,7 @@ import timber.log.Timber;
 import static com.revolo.lock.Constant.REVOLO_SP;
 
 public class SignSelectActivity extends BaseActivity {
-    private String signSelctMode = "";
-    private static final int REQUEST_CODE_DRAW_GESTURE_CODE = 1999;
-    private ConstraintLayout constraintLayout;
-    private SelectServerDialog selectServerDialog;
-
-    private Handler handler = new Handler();
-
-    private Executor executor = command -> handler.post(command);
+    private final Executor executor = mHandler::post;
 
     @Override
     public void initData(@Nullable Bundle bundle) {
@@ -53,12 +45,8 @@ public class SignSelectActivity extends BaseActivity {
 
     @Override
     public void initView(@Nullable Bundle savedInstanceState, @Nullable View contentView) {
-        applyDebouncingClickListener(findViewById(R.id.btnRegister), findViewById(R.id.btnSignIn));
         setStatusBarColor(R.color.white);
-        constraintLayout = findViewById(R.id.activity_sign_select_view);
-        constraintLayout.setVisibility(View.GONE);
-        signSelctMode = getIntent().getStringExtra(Constant.SIGN_SELECT_MODE);
-        selectServerDialog = new SelectServerDialog(this);
+        String signSelctMode = getIntent().getStringExtra(Constant.SIGN_SELECT_MODE);
         if (TextUtils.isEmpty(signSelctMode)) {
             verification();
         } else {
@@ -75,7 +63,6 @@ public class SignSelectActivity extends BaseActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        constraintLayout.setVisibility(View.VISIBLE);
     }
 
     @Override
@@ -85,14 +72,7 @@ public class SignSelectActivity extends BaseActivity {
 
     @Override
     public void onDebouncingClick(@NonNull View view) {
-        if (view.getId() == R.id.btnRegister) {
-            startActivity(new Intent(this, RegisterActivity.class));
-            return;
-        }
-        if (view.getId() == R.id.btnSignIn) {
-            startActivity(new Intent(this, LoginActivity.class));
-            finish();
-        }
+
     }
 
     @Override
@@ -106,7 +86,6 @@ public class SignSelectActivity extends BaseActivity {
 
         User user = App.getInstance().getUser();
         if (user == null) {
-            constraintLayout.setVisibility(View.VISIBLE);
             startActivity(new Intent(this, LoginActivity.class));
             finish();
             return;
@@ -120,7 +99,6 @@ public class SignSelectActivity extends BaseActivity {
             if (android.os.Build.VERSION.SDK_INT > 27) {
                 showBiometricPrompt(loginJson, isUseGestureCode);
             } else {
-                constraintLayout.setVisibility(View.VISIBLE);
                 FingerprintUtils fingerprintUtils = new FingerprintUtils(new FingerprintManager.AuthenticationCallback() {
                     @Override
                     public void onAuthenticationError(int errorCode, CharSequence errString) {
@@ -155,7 +133,6 @@ public class SignSelectActivity extends BaseActivity {
                 fingerprintUtils.openFingerprintAuth();
             }
         } else if ((!TextUtils.isEmpty(loginJson)) && isUseGestureCode) {
-            constraintLayout.setVisibility(View.GONE);
             gestureCode();
         } else {
             autoLogin();
@@ -214,7 +191,6 @@ public class SignSelectActivity extends BaseActivity {
                 super.onAuthenticationError(errorCode, errString);
                 Timber.e("Authentication error: %s", errString);
                 if (errString.equals("More Login")) { // 取消
-                    constraintLayout.setVisibility(View.GONE);
                     if ((!TextUtils.isEmpty(loginJson)) && isUseGestureCode) {
                         gestureCode();
                     } else {

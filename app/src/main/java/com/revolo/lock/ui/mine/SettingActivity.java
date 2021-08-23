@@ -61,7 +61,7 @@ public class SettingActivity extends BaseActivity {
 
     @Override
     public void initView(@Nullable Bundle savedInstanceState, @Nullable View contentView) {
-        useCommonTitleBar(getString(R.string.title_setting));
+        useCommonTitleBar(getString(R.string.title_general_setting));
         ivGestureCodeEnable = findViewById(R.id.ivGestureCodeEnable);
         ivEnableTouchIDEnable = findViewById(R.id.ivEnableTouchIDEnable);
         ivEnableFaceIDEnable = findViewById(R.id.ivEnableFaceIDEnable);

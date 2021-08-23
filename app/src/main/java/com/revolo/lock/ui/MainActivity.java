@@ -152,6 +152,7 @@ public class MainActivity extends BaseActivity {
         FirebaseMessaging.getInstance().getToken().addOnCompleteListener(task -> {
             if (!task.isSuccessful()) {
                 Timber.d("**********   failed   ************");
+                App.getInstance().deleteDeviceToken();
                 return;
             }
             String token = task.getResult();

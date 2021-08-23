@@ -81,7 +81,7 @@
         app:layout_constraintBottom_toBottomOf="@+id/etPwd"
         app:layout_constraintEnd_toEndOf="@+id/etPwd"
         app:layout_constraintTop_toTopOf="@+id/etPwd"
-        app:srcCompat="@drawable/ic_login_icon_hide_white" />
+        app:srcCompat="@drawable/ic_login_icon_hide_blue" />
 
     <android.widget.Button
         android:id="@+id/btnNext"

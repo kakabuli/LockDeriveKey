@@ -45,8 +45,8 @@ public class CloseDrawHandPwdActivity extends BaseActivity {
 
     @Override
     public void initView(@Nullable Bundle savedInstanceState, @Nullable View contentView) {
-        TitleBar titleBar = useCommonTitleBar("Gesture password");
-        titleBar.getIvLeft().setVisibility(View.GONE);
+        TitleBar titleBar = useCommonTitleBar(getString(R.string.title_change_gesture_password));
+        titleBar.getIvLeft().setVisibility(View.INVISIBLE);
 
         tvDrawTip = findViewById(R.id.tvDrawTip);
         FrameLayout gestureContainer = findViewById(R.id.gesture_container);

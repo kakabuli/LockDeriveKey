@@ -17,7 +17,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="41pt"
         android:layout_marginTop="31pt"
-        android:text="@string/title_invite_users"
+        android:text="@string/tip_invite_users"
         android:textColor="@color/c333333"
         android:textSize="15pt"
         app:layout_constraintStart_toStartOf="parent"

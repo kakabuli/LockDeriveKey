@@ -2,6 +2,7 @@
     <string name="app_name">Revolo</string>
     <string name="title_device">Devices</string>
     <string name="title_user">Invite</string>
+    <string name="title_user_fragment">USER</string>
     <string name="title_mine">My</string>
 
     <!--   SignSelectActivity  -->
@@ -141,10 +142,11 @@
     <string name="please_enter_the_password_name">Please Enter the PIN Key Name</string>
     <string name="chang_pwd_name_activity_title">NAME YOUR LOCK</string>
     <string name="chang_lock_name_activity_name">New Name</string>
-    <string name="title_change_the_name">PIN KEY</string>
+    <string name="title_change_the_name">CHANGE THE NAME</string>
+    <string name="title_change_pwd_the_name">PIN KEY</string>
 
     <!-- UserManagementActivity -->
-    <string name="title_user_management">User management</string>
+    <string name="title_user_management">USER LIST</string>
     <string name="per_unable_to_add_user">Unable to add user</string>
     <string name="per_unable_to_add_password">Unable to add password</string>
     <string name="per_app_unlock_only">· Able to lock and unlock door via Revolo App ONLY!</string>
@@ -158,7 +160,7 @@
     <string name="tip_add_new_user">Add new user</string>
 
     <!-- AuthorizationManagementActivity -->
-    <string name="title_authorization_management">Authorization management</string>
+    <string name="title_authorization_management">ACCESS LEVEL</string>
     <string name="tip_invite_user">You are going to invite users to use this door lock</string>
     <string name="share">Share</string>
     <string name="family">Family</string>
@@ -170,6 +172,7 @@
 
     <!-- DeviceSettingActivity -->
     <string name="title_setting">LOCK SETTINGS</string>
+    <string name="title_general_setting">GENERAL SETTINGS</string>
     <string name="device_setting_name">Device Name</string>
     <string name="device_setting_wifi">Wi-Fi Network</string>
     <string name="wifi">WiFi</string>
@@ -238,44 +241,45 @@
     <string name="accepting">accepting</string>
 
     <!-- AddDeviceForSharedUserActivity -->
-    <string name="title_select_authorized_device">Select authorized device</string>
+    <string name="title_select_authorized_device">ACCESS LEVEL</string>
     <string name="select_authorized_user_device">Select authorized user device</string>
 
     <!-- SelectAuthorizedDeviceActivity -->
     <string name="you_will_invite_users_to_use_the_lock">You will invite users to use the lock</string>
+    <string name="tip_access_level_invite_device">Please Grant Access Level the User you Intent to Invite</string>
 
     <!-- MineFragment -->
     <string name="message">Message</string>
     <string name="setting">General Setting</string>
     <string name="about">About</string>
     <string name="feedback">Feedback</string>
-    <string name="help">Help</string>
+    <string name="help">HELP</string>
     <string name="FAQ">FAQ</string>
     <string name="hi_name">Hi, %1$s</string>
     <string name="join_tip">%1$s is inviting you to use %2$s lock, would you accept?</string>
     <string name="day_detail">Revolo has been with you for %1$d days</string>
 
     <!-- UserPageActivity -->
-    <string name="title_user_page">User page</string>
+    <string name="title_user_page">PERSONAL INFORMATION</string>
     <string name="log_out">Log out</string>
     <string name="user_name">User name</string>
     <string name="email">Email</string>
     <string name="change_password">Change password</string>
 
     <!-- ModifyUserNameActivity -->
-    <string name="title_modify_user_name">Modify user name</string>
+    <string name="title_modify_user_name">MODIFY NAME</string>
 
     <!-- ModifyEmailActivity -->
     <string name="please_enter_email_address">Please enter email address</string>
     <string name="title_modify_email">Modify Email</string>
-    <string name="title_modify_pwd">Modify password</string>
+    <string name="title_modify_pwd">MODIFY PASSWORD</string>
 
     <!-- ModifyPasswordActivity -->
     <string name="hint_old_password">Old Password</string>
     <string name="hint_new_password">New Password</string>
 
     <!-- MessageListActivity -->
-    <string name="title_message">Message</string>
+    <string name="title_message">MESSAGE</string>
     <string name="title_message_detail">Message details</string>
 
     <!-- SettingActivity -->
@@ -290,7 +294,7 @@
 
     <!-- AboutActivity -->
     <string name="copyright_2020">Copyright@2021 Revolo Co.,Ltd ALL RIGHTS RESERVED</string>
-    <string name="title_about">About</string>
+    <string name="title_about">ABOUT</string>
     <string name="contact">Contact</string>
     <string name="privacy_agreement">Privacy agreement</string>
     <string name="privacy_policy">Privacy policy</string>
@@ -300,7 +304,7 @@
     <string name="about_text">Questions about your new Revolo lock?\nPlease contact us.</string>
 
     <!-- FeedbackActivity -->
-    <string name="title_feedback">Feedback</string>
+    <string name="title_feedback">FEEDBACK</string>
     <string name="please_enter_your_feedback">Please enter your feedback</string>
     <string name="submit">Submit</string>
 
@@ -469,7 +473,7 @@
     <string name="share_device">Share device</string>
     <string name="accept">Accept</string>
     <string name="shared_by_user">Shared by %1$s</string>
-    <string name="title_authorization_users">Authorization users</string>
+    <string name="title_authorization_users">AUTHORIZATION USERS</string>
 
     <!-- OpenDrawHandPwdActivity -->
     <string name="draw_gesture_pwd">Draw gesture password</string>
@@ -478,8 +482,10 @@
     <string name="drawing_incorrectly">Drawing incorrectly</string>
     <string name="at_least_4_points_please_redraw">At least 4 points, please redraw</string>
     <string name="inconsistent_with_the_previous_drawing_please_redraw">Inconsistent with the previous drawing, please redraw</string>
-    <string name="title_change_gesture_password">Change gesture password</string>
-    <string name="title_invite_users">Invite users</string>
+    <string name="title_change_gesture_password">GESTURE PASSWORD</string>
+    <string name="tip_change_gesture_password">Change gesture password</string>
+    <string name="title_invite_users">INVITATION</string>
+    <string name="tip_invite_users">Invite a New User</string>
     <string name="album">Album</string>
 
 

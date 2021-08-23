@@ -136,6 +136,7 @@ public class InviteUsersMailActivity extends BaseActivity {
                                 intent.putExtra(Constant.SHARE_USER_FIRST_NAME, firstName);
                                 intent.putExtra(Constant.SHARE_USER_LAST_NAME, lastName);
                                 intent.putExtra(Constant.SHARE_USER_DATA, uid);
+                                intent.putExtra(Constant.PRE_A, Constant.USER_MANAGEMENT_A);
                                 startActivity(intent);
                             }
                         }

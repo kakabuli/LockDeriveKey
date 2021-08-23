@@ -223,7 +223,7 @@ public class AddWifiActivity extends BaseActivity {
 
     private void openOrClosePwdEye() {
         ImageView ivEye = findViewById(R.id.ivEye);
-        ivEye.setImageResource(isShowPwd ? R.drawable.ic_login_icon_display_white : R.drawable.ic_login_icon_hide_white);
+        ivEye.setImageResource(isShowPwd ? R.drawable.ic_login_icon_display_blue : R.drawable.ic_login_icon_hide_blue);
         mEtPwd.setInputType(isShowPwd ?
                 InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
                 : (InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD));

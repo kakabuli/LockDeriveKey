@@ -256,7 +256,7 @@ public class App extends Application {
         }
     }
 
-    private void deleteDeviceToken() {
+    public void deleteDeviceToken() {
         if (App.getInstance().getUserBean() != null) {
             Timber.d("**************************   delete google token to server   **************************");
             DeleteDeviceTokenBeanReq req = new DeleteDeviceTokenBeanReq();
