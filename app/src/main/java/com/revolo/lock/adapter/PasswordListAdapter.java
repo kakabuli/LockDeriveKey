@@ -108,8 +108,8 @@ public class PasswordListAdapter extends BaseQuickAdapter<DevicePwdBean, BaseVie
                 replaceEndTime = subEndTime + "th";
             }
 
-            startTime = replaceStartTime + startTime.substring(2, startTime.length() - 1);
-            endTime = replaceEndTime + endTime.substring(2, endTime.length() - 1);
+            startTime = replaceStartTime + startTime.substring(2);
+            endTime = replaceEndTime + endTime.substring(2);
 
             detail = "Start: " + startTime + "\n" + "End: " + endTime;
         } else if (attribute == KEY_SET_ATTRIBUTE_WEEK_KEY) {

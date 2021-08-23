@@ -168,6 +168,7 @@
 
     <!-- SharedUserDetailActivity -->
     <string name="delete">Delete</string>
+    <string name="tip_remove">Remove</string>
     <string name="enable_user_authorization">Grant Account Authority</string>
 
     <!-- DeviceSettingActivity -->

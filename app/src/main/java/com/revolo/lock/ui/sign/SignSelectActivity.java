@@ -46,8 +46,8 @@ public class SignSelectActivity extends BaseActivity {
     @Override
     public void initView(@Nullable Bundle savedInstanceState, @Nullable View contentView) {
         setStatusBarColor(R.color.white);
-        String signSelctMode = getIntent().getStringExtra(Constant.SIGN_SELECT_MODE);
-        if (TextUtils.isEmpty(signSelctMode)) {
+        String signSelectMode = getIntent().getStringExtra(Constant.SIGN_SELECT_MODE);
+        if (TextUtils.isEmpty(signSelectMode)) {
             verification();
         } else {
             startActivity(new Intent(this, LoginActivity.class));
