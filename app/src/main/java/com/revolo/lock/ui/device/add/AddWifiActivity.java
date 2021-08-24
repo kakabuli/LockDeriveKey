@@ -183,6 +183,8 @@ public class AddWifiActivity extends BaseActivity {
     private void finishPreAct() {
         ActivityUtils.finishActivity(AddDeviceActivity.class);
         ActivityUtils.finishActivity(AddDeviceStep1Activity.class);
+        ActivityUtils.finishActivity(AddDevice1StepActivity.class);
+        ActivityUtils.finishActivity(AddDevice2StepActivity.class);
         ActivityUtils.finishActivity(AddDeviceQRCodeStep2Activity.class);
         ActivityUtils.finishActivity(DoorSensorCheckActivity.class);
     }
