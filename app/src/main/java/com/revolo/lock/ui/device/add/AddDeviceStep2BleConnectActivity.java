@@ -46,6 +46,7 @@ import com.revolo.lock.net.ObservableDecorator;
 import com.revolo.lock.room.AppDatabase;
 import com.revolo.lock.room.entity.BleDeviceLocal;
 import com.revolo.lock.room.entity.User;
+import com.revolo.lock.ui.view.BleConnectedAnimView;
 import com.revolo.lock.util.ZoneUtil;
 
 import org.greenrobot.eventbus.EventBus;
@@ -72,8 +73,11 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
     private static final int MSG_BLE_DATA_VALUE_ERR = 104;//sn错误或是mac错误
     private static final int MSG_BLE_SCAN_TIME = 20000;//搜索时间
     private static final int MSG_BLE_CONNECT_FAIL = 105;
+    private static final int MSG_SHOW_ANIM = 159;
     private OKBLEScanManager mScanManager;
     private BLEScanResult mScanResult;
+    private BleConnectedAnimView animView;
+
 
     private static final int mQRPre = 1;
     private static final int mDefault = 0;
@@ -135,6 +139,42 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
     public void initView(@Nullable Bundle savedInstanceState, @Nullable View contentView) {
         useCommonTitleBar(getString(R.string.add_device_step2_bleconnectactivity_title));
         onRegisterEventBus();
+        animView = findViewById(R.id.animView);
+        startAnim() ;
+    }
+
+    private AnimThread animThread;
+
+    private void startAnim() {
+        stopAnim();
+        if (null == animThread) {
+            animThread = new AnimThread();
+        }
+        animThread.start();
+    }
+
+    private void stopAnim() {
+        if (null != animThread) {
+            animThread.isAnim = false;
+            animThread.interrupt();
+            animThread = null;
+        }
+    }
+
+    private class AnimThread extends Thread {
+        private boolean isAnim = true;
+
+        @Override
+        public void run() {
+            while (isAnim) {
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                handler.sendEmptyMessage(MSG_SHOW_ANIM);
+            }
+        }
     }
 
     private Handler handler = new Handler() {
@@ -150,6 +190,11 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
                 case MSG_BLE_CONNECT_FAIL:
                     if (mCountDownTimer != null) {
                         mCountDownTimer.cancel();
+                    }
+                    break;
+                case MSG_SHOW_ANIM:
+                    if (null != animView) {
+                        animView.updateView();
                     }
                     break;
             }
@@ -238,6 +283,7 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
 
     @Override
     protected void onDestroy() {
+        stopAnim();
         BleBean bleBean = App.getInstance().getUserBleBean(mMac);
         //替换
         //BleBean bleBean = App.getInstance().getBleBeanFromMac(mMac);
@@ -318,6 +364,8 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
     private void finishPreAct() {
         ActivityUtils.finishActivity(AddDeviceActivity.class);
         ActivityUtils.finishActivity(AddDeviceStep1Activity.class);
+        ActivityUtils.finishActivity(AddDevice1StepActivity.class);
+        ActivityUtils.finishActivity(AddDevice2StepActivity.class);
         ActivityUtils.finishActivity(AddDeviceQRCodeStep2Activity.class);
     }
 
@@ -426,7 +474,7 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
             App.getInstance().setBleDeviceLocal(deviceLocal);
             //获取当前设备的信息
             BleBean mBleBean = App.getInstance().getUserBleBean(bleDeviceLocal.getMac());
-            if(null!=mBleBean){
+            if (null != mBleBean) {
                 LockMessage lockMessage = new LockMessage();
                 lockMessage.setMessageType(3);
                 lockMessage.setBytes(BleCommandFactory
@@ -445,7 +493,7 @@ public class AddDeviceStep2BleConnectActivity extends BaseActivity {
         BleBean bleBean = App.getInstance().getUserBleBean(bleResultBean.getScanResult().getMacAddress());
         if (null != bleBean) {
             // 本地存储
-            int power =100;//默认电量为100，后面同步锁端更新 BleByteUtil.byteToInt(bleResultBean.getPayload()[11]);
+            int power = 100;//默认电量为100，后面同步锁端更新 BleByteUtil.byteToInt(bleResultBean.getPayload()[11]);
             addDeviceToLocal(power, mEsn, mMac, ConvertUtils.bytes2HexString(mPwd1), ConvertUtils.bytes2HexString(bleBean.getPwd2()), mScanResult);
             AdminAddDeviceBeanReq req = new AdminAddDeviceBeanReq();
             req.setDevmac(mMac);
