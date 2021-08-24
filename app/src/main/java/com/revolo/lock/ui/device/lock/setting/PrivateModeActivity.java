@@ -29,7 +29,7 @@ public class PrivateModeActivity extends BaseActivity {
 
     @Override
     public void initView(@Nullable Bundle savedInstanceState, @Nullable View contentView) {
-        useCommonTitleBar(getString(R.string.title_private_mode));
+        useCommonTitleBar(getString(R.string.private_mode_activity_title));
     }
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {

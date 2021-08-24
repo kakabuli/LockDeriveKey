@@ -86,7 +86,7 @@ public class ModifyPasswordActivity extends BaseActivity {
     @Override
     public void onDebouncingClick(@NonNull View view) {
         if (view.getId() == R.id.ivEye) {
-            mIvEye.setImageResource(isShowPwd ? R.drawable.ic_login_icon_display : R.drawable.ic_login_icon_hide);
+            mIvEye.setImageResource(isShowPwd ? R.drawable.ic_login_icon_display_blue : R.drawable.ic_login_icon_hide_blue);
             mEtPwd.setInputType(isShowPwd ?
                     InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
                     : (InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD));
@@ -98,7 +98,7 @@ public class ModifyPasswordActivity extends BaseActivity {
             return;
         }
         if (view.getId() == R.id.ivOldPwdEye) {
-            mIvOldPwdEye.setImageResource(isShowOldPwd ? R.drawable.ic_login_icon_display : R.drawable.ic_login_icon_hide);
+            mIvOldPwdEye.setImageResource(isShowOldPwd ? R.drawable.ic_login_icon_display_blue : R.drawable.ic_login_icon_hide_blue);
             mEtOldPwd.setInputType(isShowOldPwd ?
                     InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
                     : (InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD));

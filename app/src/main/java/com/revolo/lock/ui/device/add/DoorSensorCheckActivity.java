@@ -28,6 +28,7 @@ import com.revolo.lock.ble.BleCommandFactory;
 import com.revolo.lock.ble.BleCommandState;
 import com.revolo.lock.ble.bean.BleBean;
 import com.revolo.lock.ble.bean.BleResultBean;
+import com.revolo.lock.dialog.SelectDialog;
 import com.revolo.lock.manager.LockMessage;
 import com.revolo.lock.manager.LockMessageCode;
 import com.revolo.lock.manager.LockMessageRes;
@@ -65,6 +66,7 @@ public class DoorSensorCheckActivity extends BaseActivity {
     private Button mBtnNext;
     private BleDeviceLocal mBleDeviceLocal;
     private boolean isGoToAddWifi = true;
+    private SelectDialog isExitDialog;//退出提示框
 
     @IntDef(value = {DOOR_OPEN, DOOR_CLOSE, DOOR_HALF, DOOR_SUC, DOOR_FAIL, DOOR_OPEN_AGAIN})
     private @interface DoorState {
@@ -101,11 +103,34 @@ public class DoorSensorCheckActivity extends BaseActivity {
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0) {
+            if (mDoorState != DOOR_SUC) {
+                showExitHintDialog();
+                return true;
+            }
             stopTime();
             finish();
             return true;
         }
         return super.onKeyDown(keyCode, event);
+    }
+
+    /**
+     * 门磁校验未完成退出
+     */
+    private void showExitHintDialog() {
+        if (null == isExitDialog) {
+            isExitDialog = new SelectDialog(this);
+            isExitDialog.setMessage(getString(R.string.door_sensor_check_exit_text));
+            isExitDialog.setOnCancelClickListener(v -> isExitDialog.dismiss());
+            isExitDialog.setOnConfirmListener(v -> {
+                isExitDialog.dismiss();
+                stopTime();
+                finish();
+            });
+        }
+        if (!isExitDialog.isShowing()) {
+            isExitDialog.show();
+        }
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN, sticky = true)
@@ -146,12 +171,22 @@ public class DoorSensorCheckActivity extends BaseActivity {
 
     @Override
     public void initView(@Nullable Bundle savedInstanceState, @Nullable View contentView) {
-        useCommonTitleBar(getString(R.string.title_door_sensor_alignment));
+        useCommonTitleBar(getString(R.string.door_sensor_check_activity_title), new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (mDoorState != DOOR_SUC) {
+                    showExitHintDialog();
+                    return;
+                }
+                stopTime();
+                finish();
+            }
+        });
         mBtnNext = findViewById(R.id.btnNext);
         mIvDoorState = findViewById(R.id.ivDoorState);
         mTvTip = findViewById(R.id.tvTip);
         mTvSkip = findViewById(R.id.tvSkip);
-        mTvStep = findViewById(R.id.tvStep);
+        mTvStep = findViewById(R.id.step_hint);
         applyDebouncingClickListener(mBtnNext, mTvSkip);
 
         initLoading(getString(R.string.t_load_content_loading));
@@ -169,7 +204,7 @@ public class DoorSensorCheckActivity extends BaseActivity {
         @Override
         public void handleMessage(@NonNull Message msg) {
             if (msg.what == MSG_NEXT_CMD_MSG) {
-                mBtnNext.setText("( " + getString(R.string.next) + " "+msg.obj+"s )");
+                mBtnNext.setText(getString(R.string.next) + " ( " + msg.obj + "s )");
                 mBtnNext.setTextColor(getResources().getColor(R.color.c666666));
                 mBtnNext.setBackground(getDrawable(R.drawable.door_sensor_next_but_back));
             } else if (msg.what == MSG_NEXT_CMD_STOP_MSG) {
@@ -286,13 +321,13 @@ public class DoorSensorCheckActivity extends BaseActivity {
                     }
                     break;
                 case DOOR_SUC:
-                    if (isGoToAddWifi) {
+                   /* if (isGoToAddWifi) {
                         gotoAddWifi();
                     } else {
                         mBleDeviceLocal.setOpenDoorSensor(true);
                         AppDatabase.getInstance(this).bleDeviceDao().update(mBleDeviceLocal);
                         new Handler(Looper.getMainLooper()).postDelayed(this::finish, 50);
-                    }
+                    }*/
                     break;
                 case DOOR_FAIL:
                     break;
@@ -417,10 +452,10 @@ public class DoorSensorCheckActivity extends BaseActivity {
     private boolean isOpenAgain = false;
 
     private void refreshOpenTheDoor() {
-        mIvDoorState.setImageResource(R.drawable.ic_equipment_img_magnetic_door_open);
+        mIvDoorState.setImageResource(R.mipmap.equipment_img_magneticdoor_open);
         mTvTip.setText(getString(R.string.open_the_door));
         mBtnNext.setText(getString(R.string.next));
-        mTvStep.setText(getString(R.string.open_door_step_1_3_tip));
+        mTvStep.setText(getString(R.string.door_sensor_check_activity_1_hint_text));
         mTvStep.setVisibility(View.VISIBLE);
         mDoorState = isOpenAgain ? DOOR_OPEN_AGAIN : DOOR_OPEN;
         mTvSkip.setVisibility(isOpenAgain ? View.GONE : View.VISIBLE);
@@ -428,10 +463,10 @@ public class DoorSensorCheckActivity extends BaseActivity {
     }
 
     private void refreshCloseTheDoor() {
-        mIvDoorState.setImageResource(R.drawable.ic_equipment_img_magnetic_door_close);
+        mIvDoorState.setImageResource(R.mipmap.equipment_img_magneticdoor_close);
         mTvTip.setText(getString(R.string.close_the_door));
         mBtnNext.setText(getString(R.string.next));
-        mTvStep.setText(getString(R.string.close_door_step_2_tip));
+        mTvStep.setText(getString(R.string.door_sensor_check_activity_2_hint_text));
         mTvStep.setVisibility(View.VISIBLE);
         mTvSkip.setVisibility(View.GONE);
         mDoorState = DOOR_CLOSE;
@@ -439,10 +474,10 @@ public class DoorSensorCheckActivity extends BaseActivity {
     }
 
     private void refreshHalfTheDoor() {
-        mIvDoorState.setImageResource(R.drawable.ic_equipment_img_magnetic_door_cover_up);
+        mIvDoorState.setImageResource(R.mipmap.equipment_img_magneticdoor_cover_up);
         mTvTip.setText(getString(R.string.half_close_the_door));
         mBtnNext.setText(getString(R.string.next));
-        mTvStep.setText(getString(R.string.half_door_step_4_tip));
+        mTvStep.setText(getString(R.string.door_sensor_check_activity_3_hint_text));
         mTvStep.setVisibility(View.VISIBLE);
         mTvSkip.setVisibility(View.GONE);
         mDoorState = DOOR_HALF;
@@ -450,13 +485,19 @@ public class DoorSensorCheckActivity extends BaseActivity {
     }
 
     private void refreshDoorSuc() {
-        mIvDoorState.setImageResource(R.drawable.ic_equipment_img_magnetic_door_success);
+        mDoorState = DOOR_SUC;
+        Intent intent = new Intent(DoorSensorCheckActivity.this, DoorCheckOkActivity.class);
+        intent.putExtra("isGoToAddWifi", isGoToAddWifi);
+        startActivity(intent);
+        finish();
+
+      /*  mIvDoorState.setImageResource(R.drawable.ic_equipment_img_magnetic_door_success);
         mTvTip.setText(getString(R.string.door_check_suc_tip));
         mBtnNext.setText(isGoToAddWifi ? getString(R.string.connect_wifi) : getString(R.string.complete));
         mTvSkip.setVisibility(View.GONE);
         mTvStep.setText("");
-        mTvStep.setVisibility(View.INVISIBLE);
-        mDoorState = DOOR_SUC;
+        mTvStep.setVisibility(View.INVISIBLE);*/
+
     }
 
     private void refreshCurrentUI() {
@@ -476,9 +517,9 @@ public class DoorSensorCheckActivity extends BaseActivity {
                 case DOOR_FAIL:
                     break;
                 case DOOR_SUC:
-                    refreshDoorSuc();
                     mBleDeviceLocal.setOpenDoorSensor(true);
                     AppDatabase.getInstance(this).bleDeviceDao().update(mBleDeviceLocal);
+                    refreshDoorSuc();
                     break;
             }
         });

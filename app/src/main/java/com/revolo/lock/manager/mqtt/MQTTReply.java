@@ -100,7 +100,6 @@ public class MQTTReply {
                 if (null != mqttDataLinstener) {
                     mqttDataLinstener.onAddDevice(true, null);
                 }
-                return;
             } else {
                 //从服务端返回的设备列表
                 List<WifiLockGetAllBindDeviceRspBean.DataBean.WifiListBean> wifilists = bean.getData().getWifiList();

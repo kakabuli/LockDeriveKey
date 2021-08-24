@@ -105,7 +105,7 @@ public class OperationRecordsActivity extends BaseActivity {
     @Override
     public void initView(@Nullable Bundle savedInstanceState, @Nullable View contentView) {
         isCheckTime = false;
-        useCommonTitleBar(getString(R.string.tip_activities))
+        useCommonTitleBar(getString(R.string.title_operation_records))
                 .setRight(R.drawable.ic_icon_date, v -> {
                     showDatePicker();
                 });
@@ -572,7 +572,7 @@ public class OperationRecordsActivity extends BaseActivity {
                 pwdName = "";
             }
             String message = "";
-            @DrawableRes int drawableId = R.drawable.ic_home_log_icon__password;
+            @DrawableRes int drawableId = R.drawable.ic_home_log_icon_password;
             if (lockRecord.getEventType() == 1) {
                 // 操作类
                 switch (lockRecord.getEventCode()) {
@@ -591,7 +591,7 @@ public class OperationRecordsActivity extends BaseActivity {
                     case 0x09:
                         // 机械钥匙开锁
                         message = lockName + " Unlocked Manually";
-                        drawableId = R.drawable.ic_home_log_icon__key;
+                        drawableId = R.drawable.ic_home_log_icon_key;
                         break;
                     case 0x0A:
                         // 自动上锁
@@ -602,22 +602,22 @@ public class OperationRecordsActivity extends BaseActivity {
                         // 敲击开锁
                         // TODO: 2021/3/29 通过编号识别对应用户, 下面记录还有
                         message = lockName + " Auto-Unlock";
-                        drawableId = R.drawable.ic_home_log_icon__geofence;
+                        drawableId = R.drawable.ic_home_log_icon_geo_fence;
                         break;
                     case 0x11:
                         // 触摸开锁
                         message = "One-touch Unlock";
-                        drawableId = R.drawable.ic_home_log_icon__door_open;
+                        drawableId = R.drawable.ic_home_log_icon_door_open;
                         break;
                     case 0x13:
                         // 门磁检测开门
                         message = "Detection of door opened";
-                        drawableId = R.drawable.ic_home_log_icon__door_open;
+                        drawableId = R.drawable.ic_home_log_icon_door_open;
                         break;
                     case 0x14:
                         // 门磁检测关门
                         message = "Detection of closed door";
-                        drawableId = R.drawable.ic_home_log_icon__door_close;
+                        drawableId = R.drawable.ic_home_log_icon_door_close;
                         break;
                     case 0x01:
                         // 上锁
@@ -625,7 +625,7 @@ public class OperationRecordsActivity extends BaseActivity {
                             case 0x00:
                                 // 键盘
                                 message = lastName + " Locked " + lockName + " via PIN Key";
-                                drawableId = R.drawable.ic_home_log_icon__password;
+                                drawableId = R.drawable.ic_home_log_icon_password;
                                 break;
                             case 0x08:
                                 // App
@@ -645,12 +645,12 @@ public class OperationRecordsActivity extends BaseActivity {
                             case 0x00:
                                 // 键盘
                                 message = lastName + " Unlocked " + lockName + " via PIN Key";
-                                drawableId = R.drawable.ic_home_log_icon__password;
+                                drawableId = R.drawable.ic_home_log_icon_password;
                                 break;
                             case 0x08:
                                 // App
                                 message = lastName + " Unlocked " + lockName + " via App";
-                                drawableId = R.drawable.ic_home_log_icon__iphone;
+                                drawableId = R.drawable.ic_home_log_icon_iphone;
                                 break;
                             default:
                                 Timber.e("event code: %1d, event source: %2d",
@@ -668,17 +668,17 @@ public class OperationRecordsActivity extends BaseActivity {
                     case 0x02:
                         // 密码添加
                         message = lastName + " Added " + pwdName + " PIN Key";
-                        drawableId = R.drawable.ic_home_log_icon__password;
+                        drawableId = R.drawable.ic_home_log_icon_password;
                         break;
                     case 0x03:
                         // 密码删除
                         message = lastName + " Deleted " + pwdName + " PIN Key";
-                        drawableId = R.drawable.ic_home_log_icon__password;
+                        drawableId = R.drawable.ic_home_log_icon_password;
                         break;
                     case 0x0f:
                         // 恢复出厂设置
                         message = "Your Lock has been Reset to Factory Default Settings";
-                        drawableId = R.drawable.ic_home_log_icon__restore;
+                        drawableId = R.drawable.ic_home_log_icon_restore;
                         break;
                     default:
                         Timber.e("");
@@ -690,47 +690,47 @@ public class OperationRecordsActivity extends BaseActivity {
                     case 0x01:
                         // 锁定报警
                         message = "Device Lookout Alarm";
-                        drawableId = R.drawable.ic_home_log_icon__alert;
+                        drawableId = R.drawable.ic_home_log_icon_alert;
                         break;
                     case 0x02:
                         // 胁迫密码报警
                         message = "Emergency PIN Key Unlock Alarm";
-                        drawableId = R.drawable.ic_home_log_icon__alert;
+                        drawableId = R.drawable.ic_home_log_icon_alert;
                         break;
                     case 0x03:
                         // 三次错误报警
                         message = "Three Input Error Alarm";
-                        drawableId = R.drawable.ic_home_log_icon__alert;
+                        drawableId = R.drawable.ic_home_log_icon_alert;
                         break;
                     case 0x04:
                         // 防撬报警(锁被撬开)
                         message = "The lock was Picked Alarm";
-                        drawableId = R.drawable.ic_home_log_icon__alert;
+                        drawableId = R.drawable.ic_home_log_icon_alert;
                         break;
                     case 0x08:
                         // 机械钥匙报警
                         message = "Mechanical Key Alarm";
-                        drawableId = R.drawable.ic_home_log_icon__alert;
+                        drawableId = R.drawable.ic_home_log_icon_alert;
                         break;
                     case 0x10:
                         // 低电压报警
                         message = "Low Battery Alarm";
-                        drawableId = R.drawable.ic_home_log_icon__battery;
+                        drawableId = R.drawable.ic_home_log_icon_alert;
                         break;
                     case 0x20:
                         // 锁体异常报警
                         message = "Abnormal Lock Body Alarm";
-                        drawableId = R.drawable.ic_home_log_icon__alert;
+                        drawableId = R.drawable.ic_home_log_icon_alert;
                         break;
                     case 0x40:
                         // 门锁布防报警
                         message = "Door Lock Arming";
-                        drawableId = R.drawable.ic_home_log_icon__alert;
+                        drawableId = R.drawable.ic_home_log_icon_alert;
                         break;
                     case 0x41:
                         // 堵转报警
                         message = "Door Ajar Alarm";
-                        drawableId = R.drawable.ic_home_log_icon__alert;
+                        drawableId = R.drawable.ic_home_log_icon_alert;
                         break;
                     default:
                         break;

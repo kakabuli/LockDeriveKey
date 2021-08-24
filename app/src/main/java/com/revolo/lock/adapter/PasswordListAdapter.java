@@ -60,11 +60,8 @@ public class PasswordListAdapter extends BaseQuickAdapter<DevicePwdBean, BaseVie
                 tvDetail.setTextColor(ContextCompat.getColor(getContext(), R.color.c666666));
             }
             String pwdName = devicePwdBean.getPwdName();
-            if (TextUtils.isEmpty(pwdName)) {
-                pwdName = String.format("%03d", devicePwdBean.getPwdNum());
-            } else if (pwdName.matches("[0-9]+") && pwdName.length() < 3) {
-                pwdName = "000".substring(0, 3 - pwdName.length()) + pwdName;
-//                pwdName = String.format("%03d", Integer.parseInt(pwdName));
+            if (TextUtils.isEmpty(pwdName) || pwdName.equals(devicePwdBean.getPwdNum() + "")) {
+                pwdName = String.format(getContext().getString(R.string.tip_pwd_default_name), devicePwdBean.getPwdNum() + "");
             }
             baseViewHolder.setText(R.id.tvPwdName, pwdName);
             baseViewHolder.setText(R.id.tvDetail, getPwdDetail(devicePwdBean));
@@ -77,37 +74,67 @@ public class PasswordListAdapter extends BaseQuickAdapter<DevicePwdBean, BaseVie
         int attribute = devicePwdBean.getAttribute();
         String detail = "";
         if (attribute == KEY_SET_ATTRIBUTE_ALWAYS) {
-            detail = "Permanent password";
+            detail = "Permanent PIN Key";
         } else if (attribute == KEY_SET_ATTRIBUTE_TIME_KEY) {
             long startTimeMill = devicePwdBean.getStartTime() * 1000;
             long endTimeMill = devicePwdBean.getEndTime() * 1000;
-            detail = "start: "
-                    + ZoneUtil.getDate(timeZone, startTimeMill, "MM,dd,yyyy   HH:mm")
-                    + "\n" + "end: "
-                    + ZoneUtil.getDate(timeZone, endTimeMill, "MM,dd,yyyy   HH:mm");
+
+            String startTime = ZoneUtil.getDate(timeZone, startTimeMill, "dd/MM/yyyy HH:mm");
+            String endTime = ZoneUtil.getDate(timeZone, endTimeMill, "dd/MM/yyyy HH:mm");
+
+            String subStartTime = startTime.substring(0, 2);
+            String subEndTime = endTime.substring(0, 2);
+
+            String replaceStartTime = "";
+            String replaceEndTime = "";
+
+            if (subStartTime.endsWith("1")) {
+                replaceStartTime = subStartTime + "st";
+            } else if (subStartTime.endsWith("2")) {
+                replaceStartTime = subStartTime + "nd";
+            } else if (subStartTime.endsWith("3")) {
+                replaceStartTime = subStartTime + "rd";
+            } else {
+                replaceStartTime = subStartTime + "th";
+            }
+
+            if (subEndTime.endsWith("1")) {
+                replaceEndTime = subEndTime + "st";
+            } else if (subEndTime.endsWith("2")) {
+                replaceEndTime = subEndTime + "nd";
+            } else if (subEndTime.endsWith("3")) {
+                replaceEndTime = subEndTime + "rd";
+            } else {
+                replaceEndTime = subEndTime + "th";
+            }
+
+            startTime = replaceStartTime + startTime.substring(2);
+            endTime = replaceEndTime + endTime.substring(2);
+
+            detail = "Start: " + startTime + "\n" + "End: " + endTime;
         } else if (attribute == KEY_SET_ATTRIBUTE_WEEK_KEY) {
             byte[] weekBytes = BleByteUtil.byteToBit(devicePwdBean.getWeekly());
             String weekly = "";
             if (weekBytes[0] == 0x01) {
-                weekly += "Sun";
+                weekly += "Sun.";
             }
             if (weekBytes[1] == 0x01) {
-                weekly += TextUtils.isEmpty(weekly) ? "Mon" : "、Mon";
+                weekly += "Mon.";
             }
             if (weekBytes[2] == 0x01) {
-                weekly += TextUtils.isEmpty(weekly) ? "Tues" : "、Tues";
+                weekly += "Tues.";
             }
             if (weekBytes[3] == 0x01) {
-                weekly += TextUtils.isEmpty(weekly) ? "Wed" : "、Wed";
+                weekly += "Wed.";
             }
             if (weekBytes[4] == 0x01) {
-                weekly += TextUtils.isEmpty(weekly) ? "Thur" : "、Thur";
+                weekly += "Thur.";
             }
             if (weekBytes[5] == 0x01) {
-                weekly += TextUtils.isEmpty(weekly) ? "Fri" : "、Fri";
+                weekly += "Fri.";
             }
             if (weekBytes[6] == 0x01) {
-                weekly += TextUtils.isEmpty(weekly) ? "Sat" : "、Sat";
+                weekly += "Sat.";
             }
             weekly += "\n";
             long startTimeMill = devicePwdBean.getStartTime() * 1000;

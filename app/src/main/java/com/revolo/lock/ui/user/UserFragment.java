@@ -73,7 +73,7 @@ public class UserFragment extends Fragment {
                 new ViewModelProvider(this).get(UserViewModel.class);
         View root = inflater.inflate(R.layout.fragment_user, container, false);
         if (getContext() != null) {
-            titleBar = new TitleBar(root).setTitle(getString(R.string.title_user))
+            titleBar = new TitleBar(root).setTitle(getString(R.string.title_user_fragment))
                     .setRight(R.drawable.ic_home_icon_add, v -> {
                         Intent intent = new Intent(getContext(), InviteUsersMailActivity.class);
                         startActivity(intent);

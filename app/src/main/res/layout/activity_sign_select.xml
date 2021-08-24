@@ -5,57 +5,24 @@
     android:layout_height="match_parent"
     android:background="@color/white">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/activity_sign_select_view"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@color/white">
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Welcome Home"
+        android:textColor="@color/c2C68FF"
+        android:textSize="34pt"
+        android:layout_marginBottom="40pt"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
-        <ImageView
-            android:id="@+id/imageView30"
-            android:layout_width="88pt"
-            android:layout_height="88pt"
-            android:layout_marginTop="98pt"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@drawable/ic_signin_logo" />
-
-        <TextView
-            android:id="@+id/textView2"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12pt"
-            android:gravity="center"
-            android:text="@string/tip_sign_select"
-            android:textColor="@color/c333333"
-            android:textSize="15pt"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/imageView30" />
-
-        <android.widget.Button
-            android:id="@+id/btnRegister"
-            style="@style/ButtonStyle"
-            android:layout_width="223pt"
-            android:layout_height="44pt"
-            android:layout_marginBottom="70pt"
-            android:text="@string/register"
-            android:visibility="visible"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent" />
-
-        <android.widget.Button
-            android:id="@+id/btnSignIn"
-            style="@style/ButtonStyle"
-            android:layout_width="223pt"
-            android:layout_height="44pt"
-            android:layout_marginBottom="14pt"
-            android:text="@string/sign_in"
-            android:visibility="visible"
-            app:layout_constraintBottom_toTopOf="@+id/btnRegister"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent" />
-    </androidx.constraintlayout.widget.ConstraintLayout>
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="44pt"
+        android:src="@drawable/icon_welcome_logo"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>

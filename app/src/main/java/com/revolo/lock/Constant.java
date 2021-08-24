@@ -121,4 +121,9 @@ public class Constant {
     public static String registerEmail = "";
 
     public static final String SHOW_SHARE_DIALOG_TITLE = "showShareDialogTitle";
+
+    /**
+     * 是否进入地理围栏引导
+     */
+    public static final String SHOW_GEOFENCE_LOADING="show_geofence_loading";
 }

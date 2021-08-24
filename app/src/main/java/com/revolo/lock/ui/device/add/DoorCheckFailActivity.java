@@ -37,7 +37,7 @@ public class DoorCheckFailActivity extends BaseActivity {
 
     @Override
     public void initView(@Nullable Bundle savedInstanceState, @Nullable View contentView) {
-        useCommonTitleBar(getString(R.string.title_door_sensor_alignment_failed));
+        useCommonTitleBar(getString(R.string.door_sensor_check_activity_title));
         applyDebouncingClickListener(findViewById(R.id.btnTryAgain), findViewById(R.id.btnCancel));
     }
 

@@ -106,15 +106,16 @@ public class OpRecordsAdapter extends BaseExpandableListAdapter {
         if (convertView == null) {
             convertView = LayoutInflater.from(mContext).inflate(R.layout.item_operation_record_rv, parent, false);
             childViewHolder = new ChildViewHolder();
-            childViewHolder.tvMessage = (TextView) convertView.findViewById(R.id.tvMessage);
-            childViewHolder.tvTime = (TextView) convertView.findViewById(R.id.tvTime);
-            childViewHolder.ivLogState = (ImageView) convertView.findViewById(R.id.ivLogState);
+            childViewHolder.tvMessage = convertView.findViewById(R.id.tvMessage);
+            childViewHolder.tvTime = convertView.findViewById(R.id.tvTime);
+            childViewHolder.ivLogState = convertView.findViewById(R.id.ivLogState);
+            childViewHolder.vPoint = convertView.findViewById(R.id.v_point);
             convertView.setTag(childViewHolder);
         } else {
             childViewHolder = (ChildViewHolder) convertView.getTag();
         }
         refreshUI(mOperationRecords.get(groupPosition).getOperationRecords().get(childPosition),
-                childViewHolder.tvMessage, childViewHolder.ivLogState, childViewHolder.tvTime);
+                childViewHolder.tvMessage, childViewHolder.ivLogState, childViewHolder.tvTime, childViewHolder.vPoint);
         return convertView;
     }
 
@@ -131,6 +132,7 @@ public class OpRecordsAdapter extends BaseExpandableListAdapter {
         TextView tvMessage;
         ImageView ivLogState;
         TextView tvTime;
+        View vPoint;
     }
 
     private String getDay(long time) {
@@ -141,17 +143,38 @@ public class OpRecordsAdapter extends BaseExpandableListAdapter {
             if (TimeUtils.isToday(time + 86400000)) {
                 return "Yesterday";
             } else {
-                return ZoneUtil.getDate(timeZone, time, "MMM dd yyyy");
+                String strTime = ZoneUtil.getDate(timeZone, time, "dd/MM/yyyy");
+                String subStartTime = strTime.substring(0, 2);
+                String replaceStartTime = "";
+                if (subStartTime.endsWith("1")) {
+                    replaceStartTime = subStartTime + "st";
+                } else if (subStartTime.endsWith("2")) {
+                    replaceStartTime = subStartTime + "nd";
+                } else if (subStartTime.endsWith("3")) {
+                    replaceStartTime = subStartTime + "rd";
+                } else {
+                    replaceStartTime = subStartTime + "th";
+                }
+                strTime = replaceStartTime + strTime.substring(2);
+                return strTime;
             }
         }
     }
 
-    private void refreshUI(OperationRecords.OperationRecord operationRecord, TextView tvMessage, ImageView ivLogState, TextView tvTime) {
+    private void refreshUI(OperationRecords.OperationRecord operationRecord, TextView tvMessage, ImageView ivLogState, TextView tvTime, View vPoint) {
         tvMessage.setTextColor(ContextCompat.getColor(mContext, R.color.c333333));
         @DrawableRes int imageResId = operationRecord.getDrawablePic();
         // TODO: 2021/3/29 有筛选并进行颜色更换
         ivLogState.setImageResource(imageResId);
-        tvMessage.setText(operationRecord.getMessage());
-        tvTime.setText(ZoneUtil.getDate("+00:00", operationRecord.getOperationTime(), "yyyy-MM-dd HH:mm:ss"));
+        String message = operationRecord.getMessage();
+        tvMessage.setText(message);
+        if (message.contains("Alarm")) {
+            tvTime.setTextColor(this.mContext.getColor(R.color.cFF556D));
+            vPoint.setBackgroundResource(R.drawable.ic_circle_red_bg);
+        } else {
+            tvTime.setTextColor(this.mContext.getColor(R.color.c2C68FF));
+            vPoint.setBackgroundResource(R.drawable.ic_circle_blue_bg);
+        }
+        tvTime.setText(ZoneUtil.getDate("+00:00", operationRecord.getOperationTime(), "HH:mm"));
     }
 }

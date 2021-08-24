@@ -50,6 +50,7 @@ public class SharedUserDetailActivity extends BaseActivity {
     private ImageView ivEnable, ivFamily, ivGuest, ivUser;
     private TextView mTvEsn, mTvUserName;
     private ShareUserDetailBean shareUserDetailBean;
+    private ConstraintLayout clFamily, clGuest;
 
     @Override
     public void initData(@Nullable Bundle bundle) {
@@ -85,8 +86,8 @@ public class SharedUserDetailActivity extends BaseActivity {
         ivUser = findViewById(R.id.ivUser);
         mTvEsn = findViewById(R.id.tvEsn);
         mTvUserName = findViewById(R.id.tvUserName);
-        ConstraintLayout clFamily = findViewById(R.id.clFamily);
-        ConstraintLayout clGuest = findViewById(R.id.clGuest);
+        clFamily = findViewById(R.id.clFamily);
+        clGuest = findViewById(R.id.clGuest);
         Button btnDelete = findViewById(R.id.btnDelete);
 
         clFamily.setOnClickListener(v -> {
@@ -126,8 +127,12 @@ public class SharedUserDetailActivity extends BaseActivity {
         // 1 启用 0 未启用
         if (shareUserDetailBean.getIsEnable() == 1) {
             ivEnable.setImageResource(R.drawable.ic_icon_switch_open);
+            clFamily.setVisibility(View.VISIBLE);
+            clGuest.setVisibility(View.VISIBLE);
         } else {
             ivEnable.setImageResource(R.drawable.ic_icon_switch_close);
+            clFamily.setVisibility(View.GONE);
+            clGuest.setVisibility(View.GONE);
         }
         // 1 family； 2 guest
         if (shareUserDetailBean.getShareUserType() == 1) {

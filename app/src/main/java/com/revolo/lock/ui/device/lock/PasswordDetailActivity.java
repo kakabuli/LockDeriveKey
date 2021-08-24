@@ -112,7 +112,6 @@ public class PasswordDetailActivity extends BaseActivity {
         mTvPwd = findViewById(R.id.tvPwd);
         mTvCreationDate = findViewById(R.id.tvCreationDate);
         mTvPwdCharacteristic = findViewById(R.id.tvPwdCharacteristic);
-        mTvPwdCharacteristic = findViewById(R.id.tvPwdCharacteristic);
         //   initZeroTimeZoneDate();
         initSucMessageDialog();
         initFailMessageDialog();
@@ -200,10 +199,8 @@ public class PasswordDetailActivity extends BaseActivity {
     private void initDetail() {
         if (mDevicePwdBean != null) {
             String pwdName = mDevicePwdBean.getPwdName();
-            if (TextUtils.isEmpty(pwdName)) {
-                pwdName = String.format("%03d", mDevicePwdBean.getPwdNum());
-            } else if (pwdName.matches("[0-9]+") && pwdName.length() < 3) {
-                pwdName = "000".substring(0, 3 - pwdName.length()) + pwdName;
+            if (TextUtils.isEmpty(pwdName) || pwdName.equals(mDevicePwdBean.getPwdNum() + "")) {
+                pwdName = String.format(getString(R.string.tip_pwd_default_name), mDevicePwdBean.getPwdNum() + "");
             }
             mTvPwdName.setText(pwdName);
             mTvPwd.setText("***********");
