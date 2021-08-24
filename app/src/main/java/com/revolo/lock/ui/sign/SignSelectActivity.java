@@ -5,6 +5,7 @@ import android.hardware.fingerprint.FingerprintManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.os.Message;
 import android.text.TextUtils;
 import android.view.View;
 
@@ -19,7 +20,6 @@ import com.revolo.lock.Constant;
 import com.revolo.lock.R;
 import com.revolo.lock.base.BaseActivity;
 import com.revolo.lock.bean.respone.MailLoginBeanRsp;
-import com.revolo.lock.dialog.SelectServerDialog;
 import com.revolo.lock.room.entity.User;
 import com.revolo.lock.ui.MainActivity;
 import com.revolo.lock.util.FingerprintUtils;
@@ -32,6 +32,20 @@ import static com.revolo.lock.Constant.REVOLO_SP;
 
 public class SignSelectActivity extends BaseActivity {
     private final Executor executor = mHandler::post;
+
+    private final Handler delayHandler = new Handler() {
+        @Override
+        public void handleMessage(@NonNull Message msg) {
+            super.handleMessage(msg);
+            String signSelectMode = getIntent().getStringExtra(Constant.SIGN_SELECT_MODE);
+            if (TextUtils.isEmpty(signSelectMode)) {
+                verification();
+            } else {
+                startActivity(new Intent(SignSelectActivity.this, LoginActivity.class));
+                finish();
+            }
+        }
+    };
 
     @Override
     public void initData(@Nullable Bundle bundle) {
@@ -46,13 +60,7 @@ public class SignSelectActivity extends BaseActivity {
     @Override
     public void initView(@Nullable Bundle savedInstanceState, @Nullable View contentView) {
         setStatusBarColor(R.color.white);
-        String signSelectMode = getIntent().getStringExtra(Constant.SIGN_SELECT_MODE);
-        if (TextUtils.isEmpty(signSelectMode)) {
-            verification();
-        } else {
-            startActivity(new Intent(this, LoginActivity.class));
-            finish();
-        }
+        delayHandler.sendEmptyMessageDelayed(0, 3000);
     }
 
     @Override
