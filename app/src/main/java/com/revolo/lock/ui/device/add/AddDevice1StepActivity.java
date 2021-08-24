@@ -77,9 +77,6 @@ public class AddDevice1StepActivity extends BaseActivity {
             @Override
             public void onCompletion(MediaPlayer mp) {
                 //结束
-                if (null != mp) {
-                    mp.release();
-                }
                 clearVoieo();
             }
         });
@@ -97,9 +94,6 @@ public class AddDevice1StepActivity extends BaseActivity {
         mVideoView.setOnErrorListener(new MediaPlayer.OnErrorListener() {
             @Override
             public boolean onError(MediaPlayer mp, int what, int extra) {
-                if (null != mp) {
-                    mp.release();
-                }
                 clearVoieo();
                 return false;
             }
@@ -121,12 +115,15 @@ public class AddDevice1StepActivity extends BaseActivity {
     private void clearVoieo() {
         if (null != mVideoView) {
             mVideoView.setVisibility(View.GONE);
-            mVideoView.stopPlayback();
+            if (mVideoView.isPlaying()) {
+                mVideoView.stopPlayback();
+            }
             mVideoView.suspend();
         }
         mPlayState = -1;
         mCurrTime = 0;
         mHintImageView.setVisibility(View.VISIBLE);
+        mPlayStateView.setVisibility(View.VISIBLE);
     }
 
     private void startPlay() {

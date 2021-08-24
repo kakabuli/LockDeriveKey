@@ -35,7 +35,7 @@ import timber.log.Timber;
  * E-mail :
  * desc   : 添加设备第二步
  */
-public class AddDevice2StepActivity  extends BaseActivity implements EasyPermissions.PermissionCallbacks {
+public class AddDevice2StepActivity extends BaseActivity implements EasyPermissions.PermissionCallbacks {
 
     private static final int RC_QR_CODE_PERMISSIONS = 9999;
     private static final int RC_CAMERA_PERMISSIONS = 7777;
@@ -45,6 +45,7 @@ public class AddDevice2StepActivity  extends BaseActivity implements EasyPermiss
     private ImageView mPlayStateView;
     private int mPlayState = -1;//0正常播放、1、暂停、-1、初始化
     private int mCurrTime = 0;
+
     @Override
     public void initData(@Nullable Bundle bundle) {
         isShowNetState = false;
@@ -69,14 +70,12 @@ public class AddDevice2StepActivity  extends BaseActivity implements EasyPermiss
     public void doBusiness() {
 
     }
+
     private void initVoieo() {
         mVideoView.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
             @Override
             public void onCompletion(MediaPlayer mp) {
                 //结束
-                if (null != mp) {
-                    mp.release();
-                }
                 clearVoieo();
             }
         });
@@ -94,9 +93,6 @@ public class AddDevice2StepActivity  extends BaseActivity implements EasyPermiss
         mVideoView.setOnErrorListener(new MediaPlayer.OnErrorListener() {
             @Override
             public boolean onError(MediaPlayer mp, int what, int extra) {
-                if (null != mp) {
-                    mp.release();
-                }
                 clearVoieo();
                 return false;
             }
@@ -118,12 +114,15 @@ public class AddDevice2StepActivity  extends BaseActivity implements EasyPermiss
     private void clearVoieo() {
         if (null != mVideoView) {
             mVideoView.setVisibility(View.GONE);
-            mVideoView.stopPlayback();
+            if (mVideoView.isPlaying()) {
+                mVideoView.stopPlayback();
+            }
             mVideoView.suspend();
         }
         mPlayState = -1;
         mCurrTime = 0;
         mHintImageView.setVisibility(View.VISIBLE);
+        mPlayStateView.setVisibility(View.VISIBLE);
     }
 
     private void startPlay() {
@@ -175,7 +174,7 @@ public class AddDevice2StepActivity  extends BaseActivity implements EasyPermiss
                 clearVoieo();
                 startActivity(new Intent(this, AddDeviceQRCodeStep2Activity.class));
             }
-        }else if (view.getId() == mVideoView.getId()) {
+        } else if (view.getId() == mVideoView.getId()) {
             //播放控件
             onClickPa();
         } else if (view.getId() == mHintImageView.getId()) {
