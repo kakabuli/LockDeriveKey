@@ -14,6 +14,8 @@ import android.text.TextWatcher;
 import android.text.method.LinkMovementMethod;
 import android.view.Gravity;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.WindowInsetsController;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -71,6 +73,7 @@ public class RegisterActivity extends BaseActivity {
     private int verificationCodeTimeCount = 60;
     private CountDownTimer mCountDownTimer = null;
     private EditText etPwd;
+    private TextView tvTip;
 
     @Override
     public void initData(@Nullable Bundle bundle) {
@@ -105,6 +108,7 @@ public class RegisterActivity extends BaseActivity {
         });
 
         etPwd = findViewById(R.id.etPwd);
+        tvTip = findViewById(R.id.tvTip);
         etPwd.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -113,10 +117,14 @@ public class RegisterActivity extends BaseActivity {
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                if (!RegexUtils.isMatch("^(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{8,15}$", s)) {
+                if (!RegexUtils.isMatch("^(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{8,15}$", s) && !TextUtils.isEmpty(s)) {
                     etPwd.setTextColor(getColor(R.color.cFF6A36));
+                    etPwd.setBackground(getDrawable(R.drawable.bg_edit_under_line_selector_red));
+                    tvTip.setTextColor(getColor(R.color.cFF6A36));
                 } else {
                     etPwd.setTextColor(getColor(R.color.c333333));
+                    etPwd.setBackground(getDrawable(R.drawable.bg_edit_under_line_selector));
+                    tvTip.setTextColor(getColor(R.color.c999999));
                 }
             }
 

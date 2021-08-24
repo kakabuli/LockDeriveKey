@@ -9,7 +9,6 @@
     <string name="revolo">Revolo</string>
     <string name="tip_sign_select">Welcome to use revolo products to\n give you a safe and comfortable\n home</string>
     <string name="register">SIGN UP</string>
-    <string name="sign_in">Sign in</string>
 
     <string name="iv_tip_back">Back</string>
 
@@ -65,7 +64,8 @@
     <string name="password">PASSWORD</string>
     <string name="input_email_address">Email Address</string>
     <string name="forgot_password">Forgot password</string>
-    <string name="sign_up">Sign Up</string>
+    <string name="sign_up">Sign up</string>
+    <string name="btn_login">Login</string>
 
     <!-- ForgetThePwdActivity -->
     <string name="title_forget_the_pwd">Forget the password</string>

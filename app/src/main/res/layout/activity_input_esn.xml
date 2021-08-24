@@ -33,7 +33,7 @@
         android:importantForAutofill="no"
         android:inputType="text"
         android:textColorHint="@color/cA5A4DA"
-        android:theme="@style/InputEditTextTheme"
+        android:background="@drawable/bg_edit_under_line_selector"
         android:textColor="@color/c333333"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

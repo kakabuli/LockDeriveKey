@@ -77,7 +77,7 @@
             android:layout_marginStart="15pt"
             android:inputType="textEmailAddress"
             android:textColorHint="@color/cA5A4DA"
-            android:theme="@style/InputEditTextTheme"
+            android:background="@drawable/bg_edit_under_line_selector"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/textView39" />
 
