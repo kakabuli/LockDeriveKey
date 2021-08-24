@@ -140,6 +140,9 @@ public class DoorLockInformationActivity extends BaseActivity {
                 mMessageDialog.dismiss();
             }
         });
+
+        mTvSalesmodel.setText("WFP");
+        mTvBluetoothMac.setText(mBleDeviceLocal.getMac());
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
