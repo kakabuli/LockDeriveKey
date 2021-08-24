@@ -59,6 +59,7 @@ public class SignSelectActivity extends BaseActivity {
 
     @Override
     public void initView(@Nullable Bundle savedInstanceState, @Nullable View contentView) {
+
         setStatusBarColor(R.color.white);
         delayHandler.sendEmptyMessageDelayed(0, 3000);
     }
