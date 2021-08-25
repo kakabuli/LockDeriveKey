@@ -609,10 +609,18 @@ public class AddNewPwdSelectActivity extends BaseActivity {
     private void dismissLoadingAndShowAddFail() {
         dismissLoading();
         runOnUiThread(() -> {
-            if (mAddPwdFailDialog != null && !mAddPwdFailDialog.isShowing()) {
-                mAddPwdFailDialog.show();
-            }
+            showAddPwdFail();
+            //ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_add_pwd_fail);
         });
+    }
+
+    private void showAddPwdFail() {
+        if (null == mAddPwdFailDialog) {
+            mAddPwdFailDialog = new AddPwdFailDialog(this);
+        }
+        if (!mAddPwdFailDialog.isShowing()) {
+            mAddPwdFailDialog.show();
+        }
     }
 
     private void setTimePwd() {
@@ -766,7 +774,10 @@ public class AddNewPwdSelectActivity extends BaseActivity {
         }
         if (bean.getCode() != 200) {
             Timber.e("processAddPwd code : %1d", bean.getCode());
-            dismissLoadingAndShowAddFail();
+            if (bean.getCode() == 201) {
+                showAddPwdFail();
+                //ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_add_pwd_fail);
+            }
             return;
         }
         if (bean.getParams() == null) {

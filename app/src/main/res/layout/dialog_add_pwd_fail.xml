@@ -18,6 +18,41 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <TextView
+        android:id="@+id/textView56"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="20pt"
+        android:layout_marginRight="20pt"
+        android:text="@string/dialog_tip_please_make_sure_wifi_is_online"
+        android:textColor="@color/c333333"
+        android:textSize="14pt"
+        app:layout_constraintTop_toBottomOf="@+id/textView57" />
+
+    <TextView
+        android:id="@+id/textView59"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="20pt"
+        android:layout_marginTop="5pt"
+        android:layout_marginRight="20pt"
+        android:text="@string/dialog_tip_please_make_sure_the_bluetooth_is_connected"
+        android:textColor="@color/c333333"
+        android:textSize="14pt"
+        app:layout_constraintTop_toBottomOf="@+id/textView56" />
+
+    <TextView
+        android:id="@+id/textView58"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="20pt"
+        android:layout_marginTop="5pt"
+        android:layout_marginRight="20pt"
+        android:text="@string/dialog_tip_please_make_sure_the_network_is_normal"
+        android:textColor="@color/c333333"
+        android:textSize="14pt"
+        app:layout_constraintTop_toBottomOf="@+id/textView59" />
+
     <View
         android:id="@+id/view"
         android:layout_width="match_parent"
@@ -40,40 +75,5 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
-    <TextView
-        android:id="@+id/textView56"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="24pt"
-        android:layout_marginTop="10pt"
-        android:layout_marginEnd="24pt"
-        android:text="@string/dialog_tip_please_make_sure_wifi_is_online"
-        android:textColor="@color/c333333"
-        android:textSize="14pt"
-        app:layout_constraintTop_toBottomOf="@+id/textView57" />
-
-    <TextView
-        android:id="@+id/textView59"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="24pt"
-        android:layout_marginTop="5pt"
-        android:layout_marginEnd="24pt"
-        android:text="@string/dialog_tip_please_make_sure_the_bluetooth_is_connected"
-        android:textColor="@color/c333333"
-        android:textSize="14pt"
-        app:layout_constraintTop_toBottomOf="@+id/textView56" />
-
-    <TextView
-        android:id="@+id/textView58"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="24pt"
-        android:layout_marginTop="5pt"
-        android:layout_marginEnd="24pt"
-        android:text="@string/dialog_tip_please_make_sure_the_network_is_normal"
-        android:textColor="@color/c333333"
-        android:textSize="14pt"
-        app:layout_constraintTop_toBottomOf="@+id/textView59" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

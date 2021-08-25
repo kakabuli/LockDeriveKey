@@ -428,11 +428,11 @@
     <string name="dialog_btn_confirm">Confirm</string>
     <string name="dialog_title_low_battery">Low battery</string>
     <string name="dialog_tip_wifi_is_disabled_please_replace_the_battery">WiFi is disabled,\n please replace the battery.</string>
-    <string name="dialog_tip_password_added">Succeed.</string>
+    <string name="dialog_tip_password_added">succeed.</string>
     <string name="dialog_title_add_failure">Add failure</string>
-    <string name="dialog_tip_please_make_sure_wifi_is_online">· Please make sure your router is functional. </string>
-    <string name="dialog_tip_please_make_sure_the_bluetooth_is_connected">· Please make sure the lock is wihin the range of the router\'sWIFI signal. </string>
-    <string name="dialog_tip_please_make_sure_the_network_is_normal">· Please make sure the WiFi account and password are correct.</string>
+    <string name="dialog_tip_please_make_sure_wifi_is_online">▪Please make sure your router is functional.</string>
+    <string name="dialog_tip_please_make_sure_the_bluetooth_is_connected">▪Please make sure the lock is wihin the range of the router\'sWIFI signal.</string>
+    <string name="dialog_tip_please_make_sure_the_network_is_normal">▪Please make sure the WiFi account and  password are correct.</string>
     <string name="dialog_tip_unlock_failed_please_try_it_again">Unlock failed.\nPlease try it again.</string>
     <string name="dialog_tip_the_door_lock_is_in_private_mode_cant_click_at_present">The door lock is in private mode,\nCan\'t click at present</string>
     <string name="dialog_tip_please_approach_the_door_lock_to_delete_password">Lock is in Bluetooth Mode Please approach the lock to continue or check.</string>

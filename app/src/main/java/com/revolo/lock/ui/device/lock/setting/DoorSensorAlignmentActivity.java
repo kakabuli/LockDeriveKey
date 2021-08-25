@@ -45,6 +45,7 @@ import com.revolo.lock.net.ObservableDecorator;
 import com.revolo.lock.room.AppDatabase;
 import com.revolo.lock.room.entity.BleDeviceLocal;
 import com.revolo.lock.ui.device.add.DoorSensorCheckActivity;
+import com.revolo.lock.ui.device.add.DoorSensorStepActivity;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -413,7 +414,7 @@ public class DoorSensorAlignmentActivity extends BaseActivity {
     }
 
     private void gotoDoorSensorCheckAct() {
-        Intent intent = new Intent(this, DoorSensorCheckActivity.class);
+        Intent intent = new Intent(this, DoorSensorStepActivity.class);
         intent.putExtra(Constant.IS_GO_TO_ADD_WIFI, false);
         startActivity(intent);
         boolean registered = EventBus.getDefault().isRegistered(this);

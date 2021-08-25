@@ -190,6 +190,10 @@
             android:launchMode="singleTask"
             android:screenOrientation="portrait" />
         <activity
+            android:name=".ui.device.add.DoorSensorStepActivity"
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait" />
+        <activity
             android:name=".ui.device.add.InputESNActivity"
             android:launchMode="singleTask"
             android:screenOrientation="portrait" />

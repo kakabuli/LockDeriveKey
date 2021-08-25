@@ -7,6 +7,7 @@ import android.os.Looper;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -24,6 +25,7 @@ public class DoorCheckOkActivity extends BaseActivity {
 
     private boolean isGoToAddWifi = true;
     private Button mBtnNext;
+    private TextView mKipText;
     private BleDeviceLocal mBleDeviceLocal;
 
     @Override
@@ -44,9 +46,11 @@ public class DoorCheckOkActivity extends BaseActivity {
     public void initView(@Nullable Bundle savedInstanceState, @Nullable View contentView) {
         useCommonTitleBar(getString(R.string.door_sensor_check_activity_title));
         mBtnNext = findViewById(R.id.btnNext);
+        mKipText=findViewById(R.id.tvSkip);
         isGoToAddWifi = getIntent().getBooleanExtra("isGoToAddWifi", false);
         mBtnNext.setText(isGoToAddWifi ? getString(R.string.connect_wifi) : getString(R.string.complete));
-        applyDebouncingClickListener(findViewById(R.id.btnNext), findViewById(R.id.tvSkip));
+        mKipText.setVisibility(isGoToAddWifi?View.VISIBLE:View.GONE);
+        applyDebouncingClickListener(findViewById(R.id.btnNext),mKipText );
     }
 
     @Override
