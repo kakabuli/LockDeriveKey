@@ -90,10 +90,7 @@ public class AddDeviceForSharedUserActivity extends BaseActivity {
     }
 
     private void initData() {
-        List<BleDeviceLocal> list = AppDatabase
-                .getInstance(this)
-                .bleDeviceDao()
-                .findBleDevicesFromUserId(App.getInstance().getUser().getAdminUid());
+        List<BleDeviceLocal> list = App.getInstance().getDeviceLists();
         if (list == null) {
             Timber.e("initData list == null");
             return;
