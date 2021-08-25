@@ -124,11 +124,7 @@ public class SettingActivity extends BaseActivity {
                 startActivityForResult(intent, REQUEST_CODE_OPEN_GESTURE_CODE);
             }
         } else if (view.getId() == R.id.ivEnableTouchIDEnable) {
-            if (android.os.Build.VERSION.SDK_INT > 27) {
-                biometricSet(false);
-            } else {
-                mFingerprintUtils.openFingerprintAuth();
-            }
+            mFingerprintUtils.openFingerprintAuth();
         } else if (view.getId() == R.id.ivEnableFaceIDEnable) {
             // TODO: 2021/3/19 faceId
             switch (getDeviceBrand()) {

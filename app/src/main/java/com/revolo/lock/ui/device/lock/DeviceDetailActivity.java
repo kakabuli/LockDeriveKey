@@ -129,6 +129,7 @@ public class DeviceDetailActivity extends BaseActivity {
                 //数据正常
                 switch (lockMessage.getMessageCode()) {
                     case LockMessageCode.MSG_LOCK_MESSAGE_UPDATE_DEVICE_STATE:
+                    case LockMessageCode.MSG_LOCK_MESSAGE_UPDATE_BLEDEVICELOCAL:
                         mBleDeviceLocal = App.getInstance().getBleDeviceLocal();
                         updateView();
                         break;
@@ -259,8 +260,8 @@ public class DeviceDetailActivity extends BaseActivity {
 //        llLowBattery.setVisibility(mBleDeviceLocal.getLockPower() <= 20 ? View.VISIBLE : View.GONE);
         if (mBleDeviceLocal.getLockState() == LocalState.LOCK_STATE_PRIVATE) {
             doorShow(ivDoorState, tvDoorState);
-            ivLockState.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_home_img_lock_privacymodel));
-            tvPrivateMode.setVisibility(View.VISIBLE);
+            ivLockState.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_home_img_lock_privacymode));
+            tvPrivateMode.setVisibility(View.GONE);
             llDoorState.setVisibility(View.GONE);
         } else {
             tvPrivateMode.setVisibility(View.GONE);
@@ -268,7 +269,7 @@ public class DeviceDetailActivity extends BaseActivity {
             boolean isUseDoorSensor = mBleDeviceLocal.isOpenDoorSensor();
             Timber.d("door sensor state: %1d, isUseDoorSensor: %2b", mBleDeviceLocal.getDoorSensor(), isUseDoorSensor);
             if (mBleDeviceLocal.getLockState() == LocalState.LOCK_STATE_OPEN) {
-                ivLockState.setImageResource(R.mipmap.ic_home_img_lock_open_icon);
+                ivLockState.setImageResource(R.drawable.ic_home_img_lock_open);
                 if (isUseDoorSensor) {
                     doorShow(ivDoorState, tvDoorState);
                     switch (mBleDeviceLocal.getDoorSensor()) {
@@ -290,7 +291,7 @@ public class DeviceDetailActivity extends BaseActivity {
                 }
 
             } else if (mBleDeviceLocal.getLockState() == LocalState.LOCK_STATE_CLOSE || mBleDeviceLocal.getLockState() == LocalState.LOCK_STATE_SENSOR_CLOSE) {
-                ivLockState.setImageDrawable(ContextCompat.getDrawable(this, R.mipmap.ic_home_img_lock_close_icon));
+                ivLockState.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_home_img_lock_close));
                 if (isUseDoorSensor) {
                     doorShow(ivDoorState, tvDoorState);
                     switch (mBleDeviceLocal.getDoorSensor()) {
@@ -311,7 +312,7 @@ public class DeviceDetailActivity extends BaseActivity {
 //                    doorClose(ivDoorState, tvDoorState);
                 }
             } else {
-                ivLockState.setImageDrawable(ContextCompat.getDrawable(this, R.mipmap.ic_home_img_lock_close_icon));
+                ivLockState.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_home_img_lock_close));
                 // TODO: 2021/3/31 其他选择
                 Timber.e("其他选择");
                 doorClose(ivDoorState, tvDoorState);
@@ -326,7 +327,7 @@ public class DeviceDetailActivity extends BaseActivity {
             ivNetState.setVisibility(View.VISIBLE);
             tvNetState.setVisibility(View.VISIBLE);
         } else {
-            ivLockState.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_home_img_lock_privacymodel));
+            ivLockState.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_home_img_lock_privacymode));
             tvPrivateMode.setVisibility(View.VISIBLE);
             tvPrivateMode.setText(getString(R.string.t_text_content_offline));
             llDoorState.setVisibility(View.GONE);

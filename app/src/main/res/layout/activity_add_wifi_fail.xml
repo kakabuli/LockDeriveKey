@@ -36,12 +36,14 @@
 
     <TextView
         android:id="@+id/textView16"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="17pt"
         android:gravity="start"
         android:textColor="@color/c666666"
         android:textSize="14pt"
+        android:layout_marginLeft="20pt"
+        android:layout_marginRight="20pt"
         android:text="@string/tip_add_wifi_fail_tip"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

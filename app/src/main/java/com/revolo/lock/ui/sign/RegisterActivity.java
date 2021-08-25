@@ -87,9 +87,22 @@ public class RegisterActivity extends BaseActivity {
         useCommonTitleBar(getString(R.string.register));
         mTvGetCode = findViewById(R.id.tvGetCode);
         applyDebouncingClickListener(findViewById(R.id.btnStartCreating),
-                findViewById(R.id.ivEye),
-                findViewById(R.id.ivSelect),
                 mTvGetCode);
+
+        findViewById(R.id.ivEye).setOnClickListener(v -> {
+            ImageView ivEye = findViewById(R.id.ivEye);
+            ivEye.setImageResource(isShowPwd ? R.drawable.ic_login_icon_display_blue : R.drawable.ic_login_icon_hide_blue);
+            etPwd.setInputType(isShowPwd ?
+                    InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
+                    : (InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD));
+            isShowPwd = !isShowPwd;
+        });
+
+        findViewById(R.id.ivSelect).setOnClickListener(v -> {
+            ImageView ivSelect = findViewById(R.id.ivSelect);
+            isSelected = !isSelected;
+            ivSelect.setImageResource(isSelected ? R.drawable.ic_sign_in_icon_selected : R.drawable.ic_sign_in_icon_default);
+        });
 
         etPwd = findViewById(R.id.etPwd);
         etPwd.addTextChangedListener(new TextWatcher() {
@@ -200,24 +213,7 @@ public class RegisterActivity extends BaseActivity {
     public void onDebouncingClick(@NonNull View view) {
         if (view.getId() == R.id.btnStartCreating) {
             register();
-            return;
-        }
-        if (view.getId() == R.id.ivEye) {
-            ImageView ivEye = findViewById(R.id.ivEye);
-            ivEye.setImageResource(isShowPwd ? R.drawable.ic_login_icon_display : R.drawable.ic_login_icon_hide);
-            etPwd.setInputType(isShowPwd ?
-                    InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
-                    : (InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD));
-            isShowPwd = !isShowPwd;
-            return;
-        }
-        if (view.getId() == R.id.ivSelect) {
-            ImageView ivSelect = findViewById(R.id.ivSelect);
-            isSelected = !isSelected;
-            ivSelect.setImageResource(isSelected ? R.drawable.ic_sign_in_icon_selected : R.drawable.ic_sign_in_icon_default);
-            return;
-        }
-        if (view.getId() == R.id.tvGetCode) {
+        } else if (view.getId() == R.id.tvGetCode) {
             if (!isCountdown) {
                 userByMailExists();
             }

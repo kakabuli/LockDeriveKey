@@ -44,7 +44,7 @@ public class AddDeviceQRCodeStep2Activity extends BaseActivity {
 
     @Override
     public void initView(@Nullable Bundle savedInstanceState, @Nullable View contentView) {
-        useCommonTitleBar(getString(R.string.add_device)).getTvTitle().setTextColor(Color.WHITE);
+        useCommonTitleBar(getString(R.string.add_device_qrcodestep2activity_title)).getTvTitle().setTextColor(Color.WHITE);
         mLlLight = findViewById(R.id.llLight);
         applyDebouncingClickListener(findViewById(R.id.tvManualInput), mLlLight);
         mZBarView = findViewById(R.id.zBarView);

@@ -17,9 +17,9 @@
         android:id="@+id/textView33"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="16pt"
-        android:layout_marginTop="15pt"
-        android:text="@string/wifi"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="28dp"
+        android:text="@string/wifi_setting_activity_name"
         android:textColor="@color/c333333"
         android:textSize="15pt"
         app:layout_constraintStart_toStartOf="parent"
@@ -58,14 +58,17 @@
 
         <TextView
             android:id="@+id/tvSettingTip"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="16pt"
             android:layout_marginTop="5pt"
+            android:layout_marginEnd="60pt"
             android:text="@string/setting_tip_change_a_new_wifi_to_reconnect_network"
             android:textColor="@color/c666666"
             android:textSize="14pt"
             app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/tvSettingTitle" />
 
         <ImageView

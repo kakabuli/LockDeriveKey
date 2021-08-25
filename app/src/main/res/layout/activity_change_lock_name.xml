@@ -18,7 +18,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="41pt"
         android:layout_marginTop="31pt"
-        android:text="@string/name"
+        android:text="@string/chang_lock_name_activity_name"
         android:textSize="15pt"
         android:textColor="@color/c333333"
         app:layout_constraintStart_toStartOf="parent"

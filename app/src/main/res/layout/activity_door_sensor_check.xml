@@ -11,6 +11,17 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+
+    <ImageView
+        android:id="@+id/ivDoorState"
+        android:layout_width="match_parent"
+        android:layout_height="210pt"
+        android:layout_marginTop="24pt"
+        android:scaleType="centerCrop"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/include10" />
+
     <TextView
         android:id="@+id/tvTip"
         android:layout_width="wrap_content"
@@ -24,26 +35,31 @@
         android:textSize="15pt"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/include10" />
+        app:layout_constraintTop_toBottomOf="@+id/ivDoorState" />
 
-    <ImageView
-        android:id="@+id/ivDoorState"
-        android:layout_width="113pt"
-        android:layout_height="224pt"
-        android:layout_marginTop="51pt"
+
+    <TextView
+        android:id="@+id/step_hint"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="22pt"
+        android:gravity="center"
+        android:paddingStart="33pt"
+        android:paddingEnd="33pt"
+        android:text="@string/door_sensor_check_activity_1_hint_text"
+        android:textColor="@color/c666666"
+        android:textSize="15pt"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tvStep"
-        app:srcCompat="@drawable/ic_equipment_img_magnetic_door_close" />
-
+        app:layout_constraintTop_toBottomOf="@+id/tvTip" />
 
     <android.widget.Button
         android:id="@+id/btnNext"
         style="@style/ButtonStyle"
         android:layout_width="223pt"
         android:layout_height="44pt"
-        android:text="@string/next"
         android:layout_marginBottom="76pt"
+        android:text="@string/next"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
@@ -52,11 +68,11 @@
         android:id="@+id/tvSkip"
         android:layout_width="223pt"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="45pt"
         android:gravity="center"
         android:text="@string/skip"
-        android:textSize="15pt"
         android:textColor="@color/c666666"
-        android:layout_marginBottom="45pt"
+        android:textSize="15pt"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
@@ -65,13 +81,14 @@
         android:id="@+id/tvStep"
         android:layout_width="341pt"
         android:layout_height="wrap_content"
-        android:textSize="15pt"
-        android:textColor="@color/c666666"
         android:layout_marginStart="17pt"
-        android:layout_marginTop="17pt"
-        android:text="@string/open_door_step_1_3_tip"
+        android:layout_marginTop="35pt"
+        android:lineSpacingExtra="4pt"
+        android:text="@string/door_sensor_check_activity_1s_hint_text"
+        android:textColor="@color/c666666"
+        android:textSize="15pt"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tvTip" />
+        app:layout_constraintTop_toBottomOf="@+id/step_hint" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

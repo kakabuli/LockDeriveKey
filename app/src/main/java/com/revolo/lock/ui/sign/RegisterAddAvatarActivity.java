@@ -30,8 +30,10 @@ import com.revolo.lock.base.BaseActivity;
 import com.revolo.lock.bean.respone.UploadUserAvatarBeanRsp;
 import com.revolo.lock.net.HttpRequest;
 import com.revolo.lock.net.ObservableDecorator;
+import com.revolo.lock.popup.PicSelectPopup;
 import com.revolo.lock.room.AppDatabase;
 import com.revolo.lock.room.entity.User;
+import com.revolo.lock.ui.MainActivity;
 import com.revolo.lock.util.GlideEngine;
 
 import org.jetbrains.annotations.NotNull;
@@ -62,8 +64,7 @@ public class RegisterAddAvatarActivity extends BaseActivity implements EasyPermi
     private static final int RC_CAMERA_PERMISSIONS = 7777;
     private static final int RC_WRITE_EXTERNAL_STORAGE_PERMISSIONS = 9999;
     private ImageView mIvAvatar;
-
-    private boolean isCanUploadAvatar = false;
+    private PicSelectPopup mPicSelectPopup;
 
     @Override
     public void initData(@Nullable Bundle bundle) {
@@ -78,12 +79,40 @@ public class RegisterAddAvatarActivity extends BaseActivity implements EasyPermi
     @Override
     public void initView(@Nullable Bundle savedInstanceState, @Nullable View contentView) {
         useCommonTitleBar(getString(R.string.register));
-        applyDebouncingClickListener(findViewById(R.id.tvSkip),
-                findViewById(R.id.btnAlbumAdd),
-                findViewById(R.id.btnPhotograph));
-        mUser = App.getInstance().getUser();
         mIvAvatar = findViewById(R.id.ivAvatar);
+        applyDebouncingClickListener(findViewById(R.id.tvSkip),
+                findViewById(R.id.btnPhotograph), mIvAvatar);
+        mUser = App.getInstance().getUser();
         rcSelectPicPermissions();
+
+        mPicSelectPopup = new PicSelectPopup(this);
+        mPicSelectPopup.setPicSelectOnClickListener(v -> {
+            PictureSelector.create(this)
+                    .openGallery(PictureMimeType.ofImage())
+                    .loadImageEngine(GlideEngine.createGlideEngine()) // 请参考Demo GlideEngine.java
+                    .isWebp(true)
+                    .maxSelectNum(1)
+                    .forResult(PictureConfig.CHOOSE_REQUEST);
+            if (mPicSelectPopup != null) mPicSelectPopup.dismiss();
+        });
+        mPicSelectPopup.setCameraOnClickListener(v -> {
+            PictureSelector.create(this)
+                    .openCamera(PictureMimeType.ofImage())
+                    .maxSelectNum(1)
+                    .isWebp(true)
+                    .loadImageEngine(GlideEngine.createGlideEngine()) // 请参考Demo GlideEngine.java
+                    .forResult(PictureConfig.REQUEST_CAMERA);
+            if (mPicSelectPopup != null) mPicSelectPopup.dismiss();
+        });
+        mPicSelectPopup.setCancelOnClickListener(v -> dismissPicSelect());
+    }
+
+    private void dismissPicSelect() {
+        runOnUiThread(() -> {
+            if (mPicSelectPopup != null) {
+                mPicSelectPopup.dismiss();
+            }
+        });
     }
 
     @Override
@@ -102,32 +131,17 @@ public class RegisterAddAvatarActivity extends BaseActivity implements EasyPermi
 
     @Override
     public void onDebouncingClick(@NonNull View view) {
-        if (view.getId() == R.id.tvSkip) {
-            startActivity(new Intent(this, RegisterAddAvatarNextActivity.class));
-            return;
-        }
         if (view.getId() == R.id.btnPhotograph) {
-            rcSelectPicPermissions();
-            if (!isCanUploadAvatar) {
-                return;
-            }
-            PictureSelector.create(this)
-                    .openCamera(PictureMimeType.ofImage())
-                    .maxSelectNum(1)
-                    .loadImageEngine(GlideEngine.createGlideEngine()) // 请参考Demo GlideEngine.java
-                    .forResult(PictureConfig.REQUEST_CAMERA);
-            return;
+            startActivity(new Intent(this, MainActivity.class));
+        } else if (view.getId() == R.id.ivAvatar) {
+            showSelectPopup();
         }
-        if (view.getId() == R.id.btnAlbumAdd) {
-            rcSelectPicPermissions();
-            if (!isCanUploadAvatar) {
-                return;
-            }
-            PictureSelector.create(this)
-                    .openGallery(PictureMimeType.ofImage())
-                    .maxSelectNum(1)
-                    .loadImageEngine(GlideEngine.createGlideEngine()) // 请参考Demo GlideEngine.java
-                    .forResult(PictureConfig.CHOOSE_REQUEST);
+    }
+
+    private void showSelectPopup() {
+        if (mPicSelectPopup != null) {
+            mPicSelectPopup.setPopupGravity(Gravity.BOTTOM);
+            mPicSelectPopup.showPopupWindow();
         }
     }
 
@@ -177,25 +191,21 @@ public class RegisterAddAvatarActivity extends BaseActivity implements EasyPermi
         if (requestCode == RC_QR_CODE_PERMISSIONS) {
             if (perms.size() == 2) {
                 Timber.d("onPermissionsGranted 同时两条权限都请求成功");
-                isCanUploadAvatar = true;
             } else if (perms.get(0).equals(Manifest.permission.CAMERA)) {
                 Timber.d("onPermissionsGranted 只有相机权限成功");
                 if (hasWriteExternalStoragePermission()) {
-                    isCanUploadAvatar = true;
                 } else {
                     rcWriteStoragePermission();
                 }
             } else if (perms.get(0).equals(Manifest.permission.READ_EXTERNAL_STORAGE)) {
                 Timber.d("onPermissionsGranted 只有存储权限成功");
                 if (hasCameraPermission()) {
-                    isCanUploadAvatar = true;
                 } else {
                     rcCameraPermission();
                 }
             }
         } else if (requestCode == RC_CAMERA_PERMISSIONS || requestCode == RC_WRITE_EXTERNAL_STORAGE_PERMISSIONS) {
             Timber.d("onPermissionsGranted 请求剩下的权限成功");
-            isCanUploadAvatar = true;
         }
     }
 
@@ -316,8 +326,6 @@ public class RegisterAddAvatarActivity extends BaseActivity implements EasyPermi
         if (!EasyPermissions.hasPermissions(this, perms)) {
             EasyPermissions.requestPermissions(this, getString(R.string.rq_use_fun_need_camera_n_write_permission),
                     RC_QR_CODE_PERMISSIONS, perms);
-        } else {
-            isCanUploadAvatar = true;
         }
     }
 

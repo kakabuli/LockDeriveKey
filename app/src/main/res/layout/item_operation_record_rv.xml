@@ -3,44 +3,54 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="67pt">
+    android:layout_height="wrap_content">
 
-    <TextView
-        android:id="@+id/tvMessage"
-        android:layout_width="268pt"
-        android:layout_height="0dp"
+    <View
+        android:id="@+id/v_point"
+        android:layout_width="6pt"
+        android:layout_height="6pt"
         android:layout_marginStart="16pt"
-        android:textColor="@color/c333333"
-        android:textSize="16pt"
-        android:maxLines="2"
-        android:lineSpacingMultiplier="0.8"
-        android:ellipsize="end"
-        android:gravity="center_vertical"
-        app:layout_constraintStart_toEndOf="@+id/ivLogState"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/tvTime"
-        tools:text="Geo-fence unlock" />
+        android:background="@drawable/ic_circle_blue_bg"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/tvTime"
-        android:layout_width="wrap_content"
+        android:layout_width="40pt"
         android:layout_height="wrap_content"
-        android:layout_marginStart="16pt"
+        android:layout_marginStart="10pt"
         android:textColor="@color/c999999"
-        android:layout_marginBottom="10pt"
         android:textSize="14pt"
-        app:layout_constraintStart_toEndOf="@+id/ivLogState"
         app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/v_point"
+        app:layout_constraintTop_toTopOf="parent"
         tools:text="11:00" />
 
     <ImageView
         android:id="@+id/ivLogState"
-        android:layout_width="40pt"
-        android:layout_height="40pt"
-        android:layout_marginStart="15pt"
+        android:layout_width="20pt"
+        android:layout_height="20pt"
+        android:layout_marginStart="12pt"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintStart_toEndOf="@id/tvTime"
         app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/ic_home_log_icon__alert" />
+        app:srcCompat="@drawable/ic_home_log_icon_alert" />
 
+    <TextView
+        android:id="@+id/tvMessage"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16pt"
+        android:layout_marginTop="12pt"
+        android:layout_marginEnd="16pt"
+        android:layout_marginBottom="12pt"
+        android:lineSpacingMultiplier="0.9"
+        android:textColor="@color/c333333"
+        android:textSize="14pt"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/ivLogState"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="Geo-fence unlock" />
 </androidx.constraintlayout.widget.ConstraintLayout>

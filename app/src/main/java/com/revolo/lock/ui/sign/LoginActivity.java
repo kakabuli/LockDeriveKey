@@ -8,6 +8,7 @@ import android.text.InputType;
 import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.View;
+import android.view.Window;
 import android.widget.EditText;
 import android.widget.ImageView;
 
@@ -34,7 +35,6 @@ import com.revolo.lock.net.ObservableDecorator;
 import com.revolo.lock.room.AppDatabase;
 import com.revolo.lock.room.entity.User;
 import com.revolo.lock.ui.MainActivity;
-import com.revolo.lock.ui.TitleBar;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -62,6 +62,8 @@ public class LoginActivity extends BaseActivity {
         if (logout) {
             LockAppManager.getAppManager().loginOut(this);
         }
+        requestWindowFeature(Window.FEATURE_NO_TITLE);// 隐藏标题栏
+        setStatusBarColor(R.color.c6086e8);
     }
 
     @Override
@@ -71,22 +73,23 @@ public class LoginActivity extends BaseActivity {
 
     @Override
     public void initView(@Nullable Bundle savedInstanceState, @Nullable View contentView) {
-        TitleBar titleBar = useCommonTitleBar(getString(R.string.sign_in));
-        titleBar.getIvLeft().setOnClickListener(v -> {
-            startActivity(new Intent(this, SignSelectActivity.class).putExtra(Constant.SIGN_SELECT_MODE, "loginActivity"));
-        });
+
+
         mEtEmail = findViewById(R.id.etEmail);
         mEtPwd = findViewById(R.id.etPwd);
         applyDebouncingClickListener(findViewById(R.id.tvForgotPwd),
-                findViewById(R.id.ivEye), findViewById(R.id.btnSignIn));
+                findViewById(R.id.btnSignIn), findViewById(R.id.tvSignUp));
 
+        findViewById(R.id.ivEye).setOnClickListener(v -> {
+            openOrClosePwdEye();
+        });
         if (getIntent().getBooleanExtra(Constant.IS_SHOW_DIALOG, false)) {
             //TODO:是否弹出token失效弹窗
             tokenDialog();
         }
         if (BuildConfig.DEBUG) {
-            mEtEmail.setText("zhouguimin@kaadas.com");
-            mEtPwd.setText("zgm123456");
+            mEtEmail.setText("1115649076@qq.com");
+            mEtPwd.setText("123457yi");
         }
         initLoading(getString(R.string.t_load_content_loading));
     }
@@ -108,20 +111,16 @@ public class LoginActivity extends BaseActivity {
         if (view.getId() == R.id.tvForgotPwd) {
             String email = mEtEmail.getText().toString().trim();
             startActivity(new Intent(this, ForgetThePwdActivity.class).putExtra("email", email));
-            return;
-        }
-        if (view.getId() == R.id.ivEye) {
-            openOrClosePwdEye();
-            return;
-        }
-        if (view.getId() == R.id.btnSignIn) {
+        } else if (view.getId() == R.id.btnSignIn) {
             login();
+        } else if (view.getId() == R.id.tvSignUp) {
+            startActivity(new Intent(this, RegisterActivity.class));
         }
     }
 
     private void openOrClosePwdEye() {
         ImageView ivEye = findViewById(R.id.ivEye);
-        ivEye.setImageResource(isShowPwd ? R.drawable.ic_login_icon_display : R.drawable.ic_login_icon_hide);
+        ivEye.setImageResource(isShowPwd ? R.drawable.ic_login_icon_display_white : R.drawable.ic_login_icon_hide_white);
         EditText etPwd = findViewById(R.id.etPwd);
         etPwd.setInputType(isShowPwd ? InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD : (InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD));
         isShowPwd = !isShowPwd;

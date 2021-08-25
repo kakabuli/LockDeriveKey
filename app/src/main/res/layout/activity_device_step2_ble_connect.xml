@@ -11,24 +11,50 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <ImageView
+    <RelativeLayout
         android:id="@+id/imageView2"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="54pt"
-        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="84pt"
+        app:layout_constraintStart_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/include4"
-        app:srcCompat="@drawable/ic_icon_ble_connecting" />
+        app:layout_constraintTop_toBottomOf="@+id/include4">
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:background="@drawable/activity_device_step2_1_back"></ImageView>
+
+        <ImageView
+            android:layout_width="128pt"
+            android:layout_height="128pt"
+            android:layout_centerInParent="true"
+            android:background="@drawable/activity_device_step2_2_back"></ImageView>
+        <ImageView
+            android:layout_width="105pt"
+            android:layout_height="105pt"
+            android:layout_centerInParent="true"
+            android:background="@drawable/activity_device_step2_3_back"></ImageView>
+        <ImageView
+            android:layout_width="81pt"
+            android:layout_height="81pt"
+            android:layout_centerInParent="true"
+            android:background="@drawable/vector_drawable_equipment_img_bluetooth" />
+    </RelativeLayout>
+
 
     <TextView
         android:id="@+id/textView8"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="17pt"
-        android:textSize="14pt"
+        android:layout_marginLeft="54dp"
+        android:layout_marginTop="27pt"
+        android:layout_marginRight="54dp"
+        android:gravity="center_horizontal"
+        android:text="@string/add_device_step2_bleconnectactivity_hint_text"
         android:textColor="@color/c666666"
-        android:text="@string/bluetooth_connecting_please_wait"
+        android:textSize="14pt"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/imageView2" />

@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -14,28 +13,108 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
+        android:id="@+id/door_lock_info_sales_model_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16pt"
+        android:layout_marginTop="15pt"
+        android:text="@string/door_lock_info_sales_model"
+        android:textColor="@color/c333333"
+        android:textSize="15pt"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/titleBar" />
+
+    <TextView
+        android:id="@+id/door_lock_info_sales_model"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="15pt"
+        android:textColor="@color/c333333"
+        android:textSize="14pt"
+        app:layout_constraintBottom_toBottomOf="@+id/door_lock_info_sales_model_text"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/door_lock_info_sales_model_text"
+        tools:text="10V0204110001" />
+
+    <TextView
         android:id="@+id/textView42"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/door_lock_sn"
-        android:layout_marginTop="15pt"
         android:layout_marginStart="16pt"
-        android:textSize="15pt"
+        android:layout_marginTop="30pt"
+        android:text="@string/door_lock_sn"
         android:textColor="@color/c333333"
+        android:textSize="15pt"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/titleBar" />
+        app:layout_constraintTop_toBottomOf="@+id/door_lock_info_sales_model_text" />
 
     <TextView
         android:id="@+id/tvLockSn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        tools:text="10V0204110001"
+        android:layout_marginEnd="15pt"
         android:textColor="@color/c333333"
         android:textSize="14pt"
-        android:layout_marginEnd="15pt"
         app:layout_constraintBottom_toBottomOf="@+id/textView42"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/textView42" />
+        app:layout_constraintTop_toTopOf="@+id/textView42"
+        tools:text="10V0204110001" />
+
+    <TextView
+        android:id="@+id/door_lock_info_bluetooth_mac_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16pt"
+        android:layout_marginTop="30pt"
+        android:text="@string/door_lock_info_bluetooth_mac"
+        android:textColor="@color/c333333"
+        android:textSize="15pt"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView42" />
+
+    <TextView
+        android:id="@+id/door_lock_info_bluetooth_mac"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="15pt"
+        android:textColor="@color/c333333"
+        android:textSize="14pt"
+        app:layout_constraintBottom_toBottomOf="@+id/door_lock_info_bluetooth_mac_text"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/door_lock_info_bluetooth_mac_text"
+        app:srcCompat="@drawable/ic_icon_more" />
+
+    <TextView
+        android:id="@+id/door_lock_info_wifi_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16pt"
+        android:layout_marginTop="30pt"
+        android:text="@string/door_lock_info_wifi"
+        android:textColor="@color/c333333"
+        android:textSize="15pt"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/door_lock_info_bluetooth_mac_text" />
+
+    <TextView
+        android:id="@+id/door_lock_info_wifi"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="15pt"
+        android:textColor="@color/c333333"
+        android:textSize="14pt"
+        app:layout_constraintBottom_toBottomOf="@+id/door_lock_info_wifi_text"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/door_lock_info_wifi_text"
+        app:srcCompat="@drawable/ic_icon_more" />
+
+    <TextView
+        android:id="@+id/test_1"
+        android:layout_width="match_parent"
+        android:layout_height="15dp"
+        android:layout_marginTop="30pt"
+        android:background="@color/cF7F7F7"
+        app:layout_constraintTop_toBottomOf="@+id/door_lock_info_wifi_text"></TextView>
 
     <TextView
         android:id="@+id/textView44"
@@ -47,14 +126,14 @@
         android:textColor="@color/c333333"
         android:textSize="15pt"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView42" />
+        app:layout_constraintTop_toBottomOf="@+id/test_1" />
 
     <ImageView
         android:id="@+id/imageView19"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:visibility="gone"
         android:layout_marginEnd="12pt"
+        android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="@+id/textView44"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@+id/textView44"
@@ -65,20 +144,20 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="12pt"
-        tools:text="V1.0.0"
         android:textColor="@color/c333333"
         android:textSize="14pt"
         app:layout_constraintBottom_toBottomOf="@+id/textView44"
         app:layout_constraintEnd_toStartOf="@+id/imageView19"
-        app:layout_constraintTop_toTopOf="@+id/textView44" />
+        app:layout_constraintTop_toTopOf="@+id/textView44"
+        tools:text="V1.0.0" />
 
     <View
         android:id="@+id/vVersion"
         android:layout_width="8pt"
         android:layout_height="8pt"
         android:layout_marginEnd="9pt"
-        android:visibility="gone"
         android:background="@drawable/shape_version_circle"
+        android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="@+id/textView44"
         app:layout_constraintEnd_toStartOf="@+id/tvWifiVersion"
         app:layout_constraintTop_toTopOf="@+id/textView44" />
@@ -87,11 +166,11 @@
         android:id="@+id/textView46"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/firmware_version"
-        android:layout_marginTop="30pt"
         android:layout_marginStart="16pt"
-        android:textSize="15pt"
+        android:layout_marginTop="30pt"
+        android:text="@string/firmware_version"
         android:textColor="@color/c333333"
+        android:textSize="15pt"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView44" />
 
@@ -111,8 +190,8 @@
         android:layout_width="8pt"
         android:layout_height="8pt"
         android:layout_marginEnd="9pt"
-        android:visibility="gone"
         android:background="@drawable/shape_version_circle"
+        android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="@+id/textView46"
         app:layout_constraintEnd_toStartOf="@+id/tvFirmwareVersion"
         app:layout_constraintTop_toTopOf="@+id/textView46" />
@@ -122,11 +201,11 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="12pt"
-        tools:text="V1.0.0"
         android:textColor="@color/c333333"
         android:textSize="14pt"
         app:layout_constraintBottom_toBottomOf="@+id/textView46"
         app:layout_constraintEnd_toStartOf="@+id/imageView20"
-        app:layout_constraintTop_toTopOf="@+id/textView46" />
+        app:layout_constraintTop_toTopOf="@+id/textView46"
+        tools:text="V1.0.0" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

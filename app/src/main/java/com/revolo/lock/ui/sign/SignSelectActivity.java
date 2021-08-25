@@ -61,6 +61,9 @@ public class SignSelectActivity extends BaseActivity {
         selectServerDialog = new SelectServerDialog(this);
         if (TextUtils.isEmpty(signSelctMode)) {
             verification();
+        } else {
+            startActivity(new Intent(this, LoginActivity.class));
+            finish();
         }
     }
 
@@ -104,6 +107,8 @@ public class SignSelectActivity extends BaseActivity {
         User user = App.getInstance().getUser();
         if (user == null) {
             constraintLayout.setVisibility(View.VISIBLE);
+            startActivity(new Intent(this, LoginActivity.class));
+            finish();
             return;
         }
         boolean isUseTouchId = user.isUseTouchId();
