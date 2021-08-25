@@ -220,11 +220,15 @@
 
     <android.widget.Button
         android:id="@+id/btnDelete"
-        style="@style/ButtonStyle"
         android:layout_width="223pt"
         android:layout_height="44pt"
         android:layout_marginBottom="75pt"
+        android:background="@drawable/shape_btn_bg_3"
+        android:gravity="center"
         android:text="@string/delete"
+        android:textAllCaps="false"
+        android:textColor="@color/cFF6A36"
+        android:textSize="14pt"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />

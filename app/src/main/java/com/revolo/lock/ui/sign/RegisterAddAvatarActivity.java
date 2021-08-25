@@ -300,7 +300,6 @@ public class RegisterAddAvatarActivity extends BaseActivity implements EasyPermi
                 new Handler(Looper.getMainLooper()).postDelayed(() -> {
                     startActivity(new Intent(RegisterAddAvatarActivity.this, RegisterAddAvatarNextActivity.class));
                     dismissLoading();
-                    finish();
                 }, 50);
             }
 

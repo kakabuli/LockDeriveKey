@@ -51,6 +51,7 @@ public class RegisterAddAvatarNextActivity extends BaseActivity {
         mIvAvatar = findViewById(R.id.ivAvatar);
         applyDebouncingClickListener(findViewById(R.id.btnAddDevice), findViewById(R.id.btnAddNextTime));
     }
+
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0) {
@@ -59,6 +60,7 @@ public class RegisterAddAvatarNextActivity extends BaseActivity {
         }
         return super.onKeyDown(keyCode, event);
     }
+
     @Override
     public void doBusiness() {
         refreshAvatar();
@@ -66,7 +68,7 @@ public class RegisterAddAvatarNextActivity extends BaseActivity {
 
     @Override
     public void onDebouncingClick(@NonNull View view) {
-        if(view.getId() == R.id.btnAddNextTime) {
+        if (view.getId() == R.id.btnAddNextTime) {
             Intent intent = new Intent(this, MainActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             intent.addCategory(Intent.CATEGORY_HOME);
@@ -76,7 +78,7 @@ public class RegisterAddAvatarNextActivity extends BaseActivity {
             finish();
             return;
         }
-        if(view.getId() == R.id.btnAddDevice) {
+        if (view.getId() == R.id.btnAddDevice) {
             Intent intent = new Intent(this, MainActivity.class);
             intent.putExtra(Constant.COMMAND, Constant.ADD_DEVICE);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -91,6 +93,7 @@ public class RegisterAddAvatarNextActivity extends BaseActivity {
     private void finishPreAct() {
         ActivityUtils.finishActivity(SignSelectActivity.class);
         ActivityUtils.finishActivity(RegisterActivity.class);
+        ActivityUtils.finishActivity(RegisterInputNameActivity.class);
         ActivityUtils.finishActivity(RegisterAddAvatarActivity.class);
     }
 
@@ -98,11 +101,11 @@ public class RegisterAddAvatarNextActivity extends BaseActivity {
         String avatarUrl = mUser.getAvatarUrl();
         String avatarLocalPath = mUser.getAvatarLocalPath();
         String url;
-        if(TextUtils.isEmpty(avatarLocalPath)) {
+        if (TextUtils.isEmpty(avatarLocalPath)) {
             url = avatarUrl;
         } else {
             File file = new File(avatarLocalPath);
-            if(file.exists()) {
+            if (file.exists()) {
                 url = avatarLocalPath;
             } else {
                 url = avatarUrl;

@@ -83,7 +83,7 @@ public class DrawHandPwdAutoLoginActivity extends BaseActivity {
                         //new Handler(Looper.getMainLooper()).postDelayed(() -> finish(), 50);
                     } else {
                         tvDrawTip.setText(getString(R.string.t_text_content_wrong_password));
-                        mGestureContentView.clearDrawlineState(0L);
+                        mGestureContentView.clearDrawlineState(1300L);
                         mCount--;
                     }
 

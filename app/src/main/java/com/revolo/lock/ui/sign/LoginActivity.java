@@ -74,7 +74,6 @@ public class LoginActivity extends BaseActivity {
     @Override
     public void initView(@Nullable Bundle savedInstanceState, @Nullable View contentView) {
 
-
         mEtEmail = findViewById(R.id.etEmail);
         mEtPwd = findViewById(R.id.etPwd);
         applyDebouncingClickListener(findViewById(R.id.tvForgotPwd),

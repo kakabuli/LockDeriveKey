@@ -202,7 +202,7 @@
         android:layout_width="223pt"
         android:layout_height="44pt"
         android:layout_marginBottom="78pt"
-        android:text="@string/complete"
+        android:text="@string/share"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />

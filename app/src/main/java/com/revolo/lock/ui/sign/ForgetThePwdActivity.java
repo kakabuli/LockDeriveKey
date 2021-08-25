@@ -2,8 +2,10 @@ package com.revolo.lock.ui.sign;
 
 import android.os.Bundle;
 import android.os.CountDownTimer;
+import android.text.Editable;
 import android.text.InputType;
 import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
@@ -43,8 +45,8 @@ public class ForgetThePwdActivity extends BaseActivity {
 
     private boolean isShowPwd = true;
     private boolean isCountdown = false;
-    private TextView mTvGetCode;
-    private EditText etEmail;
+    private TextView mTvGetCode, tvTip;
+    private EditText etEmail, etPwd;
     private int verificationCodeTimeCount = 60;
     private CountDownTimer mCountDownTimer = null;
 
@@ -96,6 +98,32 @@ public class ForgetThePwdActivity extends BaseActivity {
         if (Constant.isVerificationCodeTime) {
             mCountDownTimer.start();
         }
+        etPwd = findViewById(R.id.etPwd);
+        tvTip = findViewById(R.id.tvTip);
+        etPwd.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                if (!RegexUtils.isMatch("^(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{8,15}$", s) && !TextUtils.isEmpty(s)) {
+                    etPwd.setTextColor(getColor(R.color.cFF6A36));
+                    etPwd.setBackground(getDrawable(R.drawable.bg_edit_under_line_selector_red));
+                    tvTip.setTextColor(getColor(R.color.cFF6A36));
+                } else {
+                    etPwd.setTextColor(getColor(R.color.c333333));
+                    etPwd.setBackground(getDrawable(R.drawable.bg_edit_under_line_selector));
+                    tvTip.setTextColor(getColor(R.color.c999999));
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
     }
 
     @Override

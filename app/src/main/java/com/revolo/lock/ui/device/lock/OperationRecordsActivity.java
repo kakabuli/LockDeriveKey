@@ -488,11 +488,8 @@ public class OperationRecordsActivity extends BaseActivity {
         // TODO: 2021/3/18 时间错误就不能存储
         if (beans.isEmpty()) {
             Timber.e("processRecordFromNet beans is empty");
-            ToastUtils.showShort(getString(R.string.data_no_records));
-            return;
-        }
-        if (beans.size() == 0) {
-            ToastUtils.showShort(getString(R.string.data_no_records));
+            mWillShowRecords.clear();
+            refreshUIFromFinalData();
             return;
         }
         // 不做校验，直接做存储并数据库做了插入去重

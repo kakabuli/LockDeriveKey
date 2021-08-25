@@ -68,11 +68,12 @@
     <string name="btn_login">Login</string>
 
     <!-- ForgetThePwdActivity -->
-    <string name="title_forget_the_pwd">Forget the password</string>
+    <string name="title_forget_the_pwd">FORGET THE PASSWORD</string>
     <string name="done">Done</string>
     <string name="get_code">Get code</string>
     <string name="verification_code">Verification code</string>
     <string name="complete">Complete</string>
+    <string name="tip_btn_create">Create</string>
 
     <!-- HomeFragment -->
     <string name="tip_home_page">Welcome to use the\n Revolo smart door lock</string>
@@ -119,7 +120,7 @@
     <string name="tip_you_can_set_4_10_valid_passwords">You can set 4&#8211;10 digital PIN Key</string>
 
     <string name="hint_please_enter_password">Please Enter New PIN Key</string>
-    <string name="title_add_password">ADD PIN Key</string>
+    <string name="title_add_password">ADD PIN KEY</string>
     <string name="tip_add_password_select">Customize Your PIN Key</string>
     <string name="tip_add_password_name">Name Your PIN Key</string>
     <string name="select_permanent">Permanent</string>
@@ -341,7 +342,7 @@
     <string name="open_door_step_1_3_tip">1. Please install the door sensor on the door \n&#160;&#160;&#160;&#160;frame. \n2. Please install the door sensor along the top \n&#160;&#160;&#160;&#160;of the lock. \n3. Please full open the door.</string>
     <string name="close_door_step_2_tip">1. Please close the door.</string>
     <string name="half_door_step_4_tip">1. Turn the thumb turn to reach the deadbolt \n&#160;&#160;&#160;&#160;out . \n2. Half close the door to make the deadbolt \n&#160;&#160;&#160;&#160;against the door frame.</string>
-    <string name ="door_sensor_check_exit_text">The door magnetic calibration will fail if you exit halfway.Do you want to exit？</string>
+    <string name="door_sensor_check_exit_text">The door magnetic calibration will fail if you exit halfway.Do you want to exit？</string>
 
 
     <!-- -->
@@ -427,15 +428,15 @@
     <string name="dialog_btn_confirm">Confirm</string>
     <string name="dialog_title_low_battery">Low battery</string>
     <string name="dialog_tip_wifi_is_disabled_please_replace_the_battery">WiFi is disabled,\n please replace the battery.</string>
-    <string name="dialog_tip_password_added">Password added.</string>
+    <string name="dialog_tip_password_added">Succeed.</string>
     <string name="dialog_title_add_failure">Add failure</string>
-    <string name="dialog_tip_please_make_sure_wifi_is_online">Please make sure WiFi is online</string>
-    <string name="dialog_tip_please_make_sure_the_bluetooth_is_connected">Please make sure the Bluetooth \nis connected</string>
-    <string name="dialog_tip_please_make_sure_the_network_is_normal">Please make sure the network is \nnormal</string>
+    <string name="dialog_tip_please_make_sure_wifi_is_online">· Please make sure your router is functional. </string>
+    <string name="dialog_tip_please_make_sure_the_bluetooth_is_connected">· Please make sure the lock is wihin the range of the router\'sWIFI signal. </string>
+    <string name="dialog_tip_please_make_sure_the_network_is_normal">· Please make sure the WiFi account and password are correct.</string>
     <string name="dialog_tip_unlock_failed_please_try_it_again">Unlock failed.\nPlease try it again.</string>
     <string name="dialog_tip_the_door_lock_is_in_private_mode_cant_click_at_present">The door lock is in private mode,\nCan\'t click at present</string>
-    <string name="dialog_tip_please_approach_the_door_lock_to_delete_password">Please approach the door lock to\ndelete Password.</string>
-    <string name="dialog_tip_password_deleted">Password deleted.</string>
+    <string name="dialog_tip_please_approach_the_door_lock_to_delete_password">Lock is in Bluetooth Mode Please approach the lock to continue or check.</string>
+    <string name="dialog_tip_password_deleted">PIN Key deleted.</string>
     <string name="dialog_tip_deletion_failed_door_lock_bluetooth_is_not_found">Deletion failed\nDoor lock Bluetooth is not found.</string>
     <string name="dialog_btn_determine">Determine</string>
     <string name="dialog_tip_are_you_sure_to_remove_this_user">Are you sure to remove\nthis user.</string>
@@ -614,7 +615,7 @@
     <string name="tip_setting_no_supports">Device not Support!</string>
     <string name="tip_setting_no_supports_face_id">Device not find FaceID!</string>
     <string name="tip_setting_no_supports_touch_id">Device not find TouchID!</string>
-    <string name="tip_incorrect_input_please_try_again">Please enter a correct ESN number</string>
+    <string name="tip_incorrect_input_please_try_again">Invalid ESN, please try again.</string>
     <string name="tip_modify_user_name_length">The name is limited by 2&#8211;30 characters</string>
     <string name="t_please_input_your_account_and_password">Please input your account and password!</string>
     <string name="tip_wifi_not_connected">Not connected</string>
@@ -625,7 +626,7 @@
     <string name="t_load_content_setting">Setting...</string>
     <string name="t_load_content_accepting">Accepting...</string>
     <string name="t_load_content_loading">Loading...</string>
-    <string name="t_load_content_password_generating">Password Generating</string>
+    <string name="t_load_content_password_generating">PIN KEY Generating</string>
     <string name="t_load_content_creating">Creating...</string>
     <string name="t_load_content_deleting">Deleting...</string>
     <string name="t_load_content_feed_back">FeedBack...</string>
@@ -645,7 +646,7 @@
     <string name="geo_fence_map_activity_add_location_hint">You can choose the position of the door lock. The automatic lock picking function will be activated when you leave the fence setting range</string>
     <string name="hint_please_enter_the_invite_user_mail">Please enter the invite user\'s mail!</string>
     <string name="tip_you_not_share_it_with_yourself">You can\'t share it with yourself</string>
-    <string name="tip_content_share_successful">Share successful</string>
+    <string name="tip_content_share_successful">Share succeeded</string>
     <string name="dialog_privacy_policy_title">Dear Revolo user,</string>
     <string name="dialog_privacy_policy">Dear user, Please read the Revolo Privacy policy carefully again before using Auto-Unlock feature. This app collects location information to enable ["Auto-Unlock feature"], even if the app is running in the foreground or background, closed or not in use. Do you agree that Revolo has access to your location information?</string>
     <string name="dialog_update_version_title">Update Version</string>

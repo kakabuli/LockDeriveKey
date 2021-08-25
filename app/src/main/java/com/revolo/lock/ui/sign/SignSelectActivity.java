@@ -1,5 +1,6 @@
 package com.revolo.lock.ui.sign;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.hardware.fingerprint.FingerprintManager;
 import android.os.Bundle;
@@ -17,6 +18,7 @@ import com.blankj.utilcode.util.GsonUtils;
 import com.blankj.utilcode.util.SPUtils;
 import com.revolo.lock.App;
 import com.revolo.lock.Constant;
+import com.revolo.lock.LockAppManager;
 import com.revolo.lock.R;
 import com.revolo.lock.base.BaseActivity;
 import com.revolo.lock.bean.respone.MailLoginBeanRsp;
@@ -34,10 +36,16 @@ public class SignSelectActivity extends BaseActivity {
     private final Executor executor = mHandler::post;
 
     private final Handler delayHandler = new Handler() {
+        @SuppressLint("HandlerLeak")
         @Override
         public void handleMessage(@NonNull Message msg) {
             super.handleMessage(msg);
             String signSelectMode = getIntent().getStringExtra(Constant.SIGN_SELECT_MODE);
+            int activitySize = LockAppManager.getAppManager().getActivitySize();
+            if (activitySize > 1) {
+                finish();
+                return;
+            }
             if (TextUtils.isEmpty(signSelectMode)) {
                 verification();
             } else {
@@ -61,7 +69,7 @@ public class SignSelectActivity extends BaseActivity {
     public void initView(@Nullable Bundle savedInstanceState, @Nullable View contentView) {
 
         setStatusBarColor(R.color.white);
-        delayHandler.sendEmptyMessageDelayed(0, 3000);
+        delayHandler.sendEmptyMessageDelayed(0, 2000);
     }
 
     @Override

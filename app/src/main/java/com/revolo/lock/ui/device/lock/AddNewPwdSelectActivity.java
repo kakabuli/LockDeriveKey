@@ -520,7 +520,7 @@ public class AddNewPwdSelectActivity extends BaseActivity {
                         mScheduleEndTimeMill = scheduleEndTimeMill;
                         Timber.d("endTime 选择的时间%1s, 时间流：%2d, 转换的时间：%3s", time, mScheduleEndTimeMill, ZoneUtil.getDate(mBleDeviceLocal.getTimeZone(), mScheduleEndTimeMill));
                     } else if (id == R.id.tvEndDateTime) {
-                        long temEndDateTimeMill = ZoneUtil.getTime( mTemEndDateStr + " " + time + ":00");
+                        long temEndDateTimeMill = ZoneUtil.getTime(mTemEndDateStr + " " + time + ":00");
                         mTvEndDateTime.setText(time);
                         mTemEndDateTimeStr = time;
                         mTemEndDateTimeMill = temEndDateTimeMill;
@@ -609,7 +609,9 @@ public class AddNewPwdSelectActivity extends BaseActivity {
     private void dismissLoadingAndShowAddFail() {
         dismissLoading();
         runOnUiThread(() -> {
-            ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_add_pwd_fail);
+            if (mAddPwdFailDialog != null && !mAddPwdFailDialog.isShowing()) {
+                mAddPwdFailDialog.show();
+            }
         });
     }
 
@@ -764,9 +766,7 @@ public class AddNewPwdSelectActivity extends BaseActivity {
         }
         if (bean.getCode() != 200) {
             Timber.e("processAddPwd code : %1d", bean.getCode());
-            if (bean.getCode() == 201) {
-                ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_add_pwd_fail);
-            }
+            dismissLoadingAndShowAddFail();
             return;
         }
         if (bean.getParams() == null) {
@@ -838,7 +838,7 @@ public class AddNewPwdSelectActivity extends BaseActivity {
         LockKeyAddBeanReq.PwdListBean pwdListBean = new LockKeyAddBeanReq.PwdListBean();
         pwdListBean.setNum(devicePwdBean.getPwdNum());
         pwdListBean.setNickName(devicePwdBean.getPwdNum() + "");
-        Timber.e("create time:"+devicePwdBean.getCreateTime());
+        Timber.e("create time:" + devicePwdBean.getCreateTime());
         pwdListBean.setCreateTime(devicePwdBean.getCreateTime());
         pwdListBean.setPwdType(1);
         if (devicePwdBean.getAttribute() == BleCommandState.KEY_SET_ATTRIBUTE_ALWAYS) {

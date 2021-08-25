@@ -16,12 +16,12 @@
         android:layout_marginStart="38pt"
         android:layout_marginTop="54pt"
         android:layout_marginEnd="38pt"
+        android:background="@drawable/bg_edit_under_line_selector"
         android:drawableStart="@drawable/ic_register_icon_email_blue_false"
         android:drawablePadding="41pt"
         android:hint="@string/hint_email_address"
         android:inputType="textEmailAddress"
         android:paddingStart="15pt"
-        android:background="@drawable/bg_edit_under_line_selector"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/titleBar" />
@@ -34,12 +34,12 @@
         android:layout_marginStart="38pt"
         android:layout_marginTop="10pt"
         android:layout_marginEnd="38pt"
+        android:background="@drawable/bg_edit_under_line_selector"
         android:drawableStart="@drawable/ic_register_icon_verification_blue_false"
         android:drawablePadding="41pt"
         android:hint="@string/verification_code"
         android:inputType="numberDecimal"
         android:paddingStart="15pt"
-        android:background="@drawable/bg_edit_under_line_selector"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/etEmail" />
@@ -67,13 +67,13 @@
         android:layout_marginStart="38pt"
         android:layout_marginTop="10pt"
         android:layout_marginEnd="38pt"
+        android:background="@drawable/bg_edit_under_line_selector"
         android:drawableStart="@drawable/ic_register_icon_password_blue_false"
         android:drawablePadding="41pt"
         android:hint="@string/password"
         android:inputType="textPassword"
         android:maxLength="15"
         android:paddingStart="15pt"
-        android:background="@drawable/bg_edit_under_line_selector"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/etCode" />
@@ -89,6 +89,18 @@
         app:layout_constraintTop_toTopOf="@+id/etPwd"
         app:srcCompat="@drawable/ic_login_icon_hide_blue" />
 
+    <TextView
+        android:id="@+id/tvTip"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:paddingStart="4pt"
+        android:paddingEnd="4pt"
+        android:text="@string/t_tip_password_rule"
+        android:textColor="@color/c999999"
+        android:textSize="14pt"
+        app:layout_constraintLeft_toLeftOf="@id/etPwd"
+        app:layout_constraintRight_toRightOf="@id/etPwd"
+        app:layout_constraintTop_toBottomOf="@id/etPwd" />
 
     <android.widget.Button
         android:id="@+id/btnDone"
@@ -96,7 +108,7 @@
         android:layout_width="223pt"
         android:layout_height="44pt"
         android:layout_marginBottom="136pt"
-        android:text="@string/complete"
+        android:text="@string/tip_btn_create"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="@+id/titleBar"
         app:layout_constraintStart_toStartOf="parent" />
