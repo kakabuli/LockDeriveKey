@@ -5,6 +5,7 @@ import android.content.res.Resources;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.os.Message;
 import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.KeyEvent;
@@ -134,6 +135,7 @@ public class DeviceSettingActivity extends BaseActivity {
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0) {
+            handler.removeMessages(MSG_UNBIN_DEVICE_OUT_TIME);
             finish();
             return true;
         }
@@ -179,14 +181,20 @@ public class DeviceSettingActivity extends BaseActivity {
 
     @Override
     protected void onDestroy() {
+        handler.removeMessages(MSG_UNBIN_DEVICE_OUT_TIME);
         dismissLoading();
         super.onDestroy();
     }
 
     @Override
     public void onDebouncingClick(@NonNull View view) {
+        mBleDeviceLocal = App.getInstance().getBleDeviceLocal();
         if (view.getId() == R.id.clUnbind) {
             showUnbindDialog();
+            return;
+        }
+        if (view.getId() == R.id.clDelete) {
+            showRemoveUserDialog();
             return;
         }
         if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_DIS) {
@@ -269,10 +277,6 @@ public class DeviceSettingActivity extends BaseActivity {
         if (view.getId() == R.id.ivDoNotDisturbModeEnable) {
             // TODO: 2021/3/7 后期要全局实现这个通知功能
             openOrCloseNotification();
-            return;
-        }
-        if (view.getId() == R.id.clDelete) {
-            showRemoveUserDialog();
             return;
         }
     }
@@ -480,10 +484,26 @@ public class DeviceSettingActivity extends BaseActivity {
         }
     }
 
+    //解绑设备超时
+    private static final int MSG_UNBIN_DEVICE_OUT_TIME = 3694;
+    private Handler handler = new Handler() {
+        @Override
+        public void handleMessage(@NonNull Message msg) {
+            if (msg.what == MSG_UNBIN_DEVICE_OUT_TIME) {
+                dismissLoading();
+                ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_unbind_fail);
+            }
+        }
+    };
+
+    /**
+     * 解绑
+     */
     private void unbindDevice() {
         if (!checkNetConnectFail()) {
             return;
         }
+        handler.sendEmptyMessageDelayed(MSG_UNBIN_DEVICE_OUT_TIME, 5000);
         BleBean bleBean2 = App.getInstance().getUserBleBean(mBleDeviceLocal.getMac());
         if (null != bleBean2) {
             LockMessage message = new LockMessage();
@@ -509,6 +529,7 @@ public class DeviceSettingActivity extends BaseActivity {
             @Override
             public void onNext(@NonNull DeviceUnbindBeanRsp deviceUnbindBeanRsp) {
                 dismissLoading();
+                handler.removeMessages(MSG_UNBIN_DEVICE_OUT_TIME);
                 String code = deviceUnbindBeanRsp.getCode();
                 if (code == null) {
                     Timber.e("unbindDevice code == null");

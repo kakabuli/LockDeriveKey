@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.os.Message;
 import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.View;
@@ -100,6 +101,7 @@ public class DoorSensorCheckActivity extends BaseActivity {
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0) {
+            stopTime();
             finish();
             return true;
         }
@@ -156,6 +158,71 @@ public class DoorSensorCheckActivity extends BaseActivity {
     }
 
     @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        stopTime();
+    }
+
+    private static final int MSG_NEXT_CMD_MSG = 2684;
+    private static final int MSG_NEXT_CMD_STOP_MSG = 2685;
+    private Handler handler = new Handler() {
+        @Override
+        public void handleMessage(@NonNull Message msg) {
+            if (msg.what == MSG_NEXT_CMD_MSG) {
+                mBtnNext.setText("( " + getString(R.string.next) + " "+msg.obj+"s )");
+                mBtnNext.setTextColor(getResources().getColor(R.color.c666666));
+                mBtnNext.setBackground(getDrawable(R.drawable.door_sensor_next_but_back));
+            } else if (msg.what == MSG_NEXT_CMD_STOP_MSG) {
+                mBtnNext.setText(getString(R.string.next));
+                mBtnNext.setTextColor(getResources().getColor(R.color.c2C68FF));
+                mBtnNext.setBackground(getDrawable(R.drawable.shape_btn_bg));
+                stopTime();
+            }
+        }
+    };
+    private TimeThread timeThread;
+
+    private void startTime() {
+        stopTime();
+        if (null == timeThread) {
+            timeThread = new TimeThread();
+        }
+        timeThread.start();
+    }
+
+    private void stopTime() {
+        if (null != timeThread) {
+            timeThread.isRun = false;
+            timeThread.index = 0;
+            timeThread.interrupt();
+            timeThread = null;
+        }
+    }
+
+    private class TimeThread extends Thread {
+        private boolean isRun = true;
+        private int index = 6;
+
+        @Override
+        public void run() {
+            while (isRun) {
+                if (index > 0) {
+                    handler.obtainMessage(MSG_NEXT_CMD_MSG, index).sendToTarget();
+                    index--;
+                    try {
+                        Thread.sleep(1000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                } else {
+                    isRun = false;
+                    handler.sendEmptyMessage(MSG_NEXT_CMD_STOP_MSG);
+                }
+            }
+        }
+    }
+
+    @Override
     public void doBusiness() {
         if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI) {
             publishSetMagnetic(mBleDeviceLocal.getEsn(), BleCommandState.DOOR_CALIBRATION_STATE_CLOSE_SE);
@@ -192,6 +259,9 @@ public class DoorSensorCheckActivity extends BaseActivity {
     @Override
     public void onDebouncingClick(@NonNull View view) {
         if (view.getId() == R.id.btnNext) {
+            if (getResources().getColor(R.color.c666666) == mBtnNext.getCurrentTextColor()) {
+                return;
+            }
             switch (mDoorState) {
                 case DOOR_OPEN:
                 case DOOR_OPEN_AGAIN:
@@ -243,7 +313,7 @@ public class DoorSensorCheckActivity extends BaseActivity {
 
     private void gotoAddWifi() {
         mBleDeviceLocal = App.getInstance().getBleDeviceLocal();
-        Timber.e("当前电量："+mBleDeviceLocal.getLockPower());
+        Timber.e("当前电量：" + mBleDeviceLocal.getLockPower());
         if (mBleDeviceLocal.getLockPower() <= 20) {
             // 低电量
             finish();
@@ -354,6 +424,7 @@ public class DoorSensorCheckActivity extends BaseActivity {
         mTvStep.setVisibility(View.VISIBLE);
         mDoorState = isOpenAgain ? DOOR_OPEN_AGAIN : DOOR_OPEN;
         mTvSkip.setVisibility(isOpenAgain ? View.GONE : View.VISIBLE);
+        startTime();
     }
 
     private void refreshCloseTheDoor() {
@@ -364,6 +435,7 @@ public class DoorSensorCheckActivity extends BaseActivity {
         mTvStep.setVisibility(View.VISIBLE);
         mTvSkip.setVisibility(View.GONE);
         mDoorState = DOOR_CLOSE;
+        startTime();
     }
 
     private void refreshHalfTheDoor() {
@@ -374,6 +446,7 @@ public class DoorSensorCheckActivity extends BaseActivity {
         mTvStep.setVisibility(View.VISIBLE);
         mTvSkip.setVisibility(View.GONE);
         mDoorState = DOOR_HALF;
+        startTime();
     }
 
     private void refreshDoorSuc() {
@@ -554,6 +627,7 @@ public class DoorSensorCheckActivity extends BaseActivity {
             }
         }
     }
+
     private void checkDoorSensorState() {
         BleBean bleBean = App.getInstance().getUserBleBean(mBleDeviceLocal.getMac());
         if (bleBean == null) {
@@ -581,6 +655,7 @@ public class DoorSensorCheckActivity extends BaseActivity {
         EventBus.getDefault().post(lockMessage);
 
     }
+
     private void saveDoorSensorStateToLocal(@BleCommandState.DoorCalibrationState int state) {
         if (state == BleCommandState.DOOR_CALIBRATION_STATE_CLOSE_SE) {
             mBleDeviceLocal.setOpenDoorSensor(false);

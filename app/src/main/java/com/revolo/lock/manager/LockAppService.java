@@ -239,12 +239,16 @@ public class LockAppService extends Service {
                                 break;
                             case BluetoothAdapter.STATE_ON:
                                 Timber.e("蓝牙已经打开");
-                                List<BleDeviceLocal> bleDe = new ArrayList<>();
-                                if (null != mDeviceLists) {
-                                    bleDe.addAll(mDeviceLists);
-                                }
-
-                                add(bleDe);
+                                mHandler.postDelayed(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        List<BleDeviceLocal> bleDe = new ArrayList<>();
+                                        if (null != mDeviceLists) {
+                                            bleDe.addAll(mDeviceLists);
+                                        }
+                                        add(bleDe);
+                                    }
+                                }, 1000);
                                 break;
                             case BluetoothAdapter.STATE_TURNING_OFF:
                                 Timber.e("蓝牙正在关闭");
