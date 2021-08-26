@@ -134,6 +134,20 @@ public class DeviceSettingActivity extends BaseActivity {
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        //及时断开蓝牙
+        mBleDeviceLocal = App.getInstance().getBleDeviceLocal();
+        if (null != mBleDeviceLocal && (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI_BLE || mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI)) {
+            BleBean bean = App.getInstance().getUserBleBean(mBleDeviceLocal.getMac());
+            if (null != bean && null != bean.getOKBLEDeviceImp()) {
+                Timber.e("WiFi状态下主动断开蓝牙：" + bean.getMac());
+                App.getInstance().removeConnectedBleDisconnect(mBleDeviceLocal.getMac());
+            }
+        }
+    }
+
+    @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0) {
             handler.removeMessages(MSG_UNBIN_DEVICE_OUT_TIME);
