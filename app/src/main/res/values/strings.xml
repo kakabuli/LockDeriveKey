@@ -343,6 +343,7 @@
     <string name="close_door_step_2_tip">1. Please close the door.</string>
     <string name="half_door_step_4_tip">1. Turn the thumb turn to reach the deadbolt \n&#160;&#160;&#160;&#160;out . \n2. Half close the door to make the deadbolt \n&#160;&#160;&#160;&#160;against the door frame.</string>
     <string name="door_sensor_check_exit_text">The door magnetic calibration will fail if you exit halfway.Do you want to exit？</string>
+    <string name="door_check_fail">Skip, Connect to WIFI</string>
 
 
     <!-- -->
