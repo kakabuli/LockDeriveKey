@@ -487,6 +487,7 @@ public class PasswordListActivity extends BaseActivity {
             //     mDevicePwdBeanCopyList.addAll(mPasswordListAdapter.getData());
             //  }
             mWillSearchList.clear();
+            mDevicePwdBeanFormBle.clear();
             mPasswordListAdapter.setList(mDevicePwdBeanFormBle);
             BleBean bleBean = App.getInstance().getUserBleBean(mBleDeviceLocal.getMac());
             if (bleBean == null) {
@@ -528,6 +529,11 @@ public class PasswordListActivity extends BaseActivity {
         // TODO: 2021/2/4 后续需要做去重操作
         if (bean.getCMD() == CMD_SY_KEY_STATE) {
             checkPwdIsExist(bean);
+            runOnUiThread(() -> {
+                if (mRefreshLayout != null) {
+                    mRefreshLayout.finishRefresh();
+                }
+            });
         } else if (bean.getCMD() == CMD_KEY_ATTRIBUTES_READ) {
             byte attribute = bean.getPayload()[0];
             if (attribute == KEY_SET_ATTRIBUTE_ALWAYS) {
@@ -639,10 +645,13 @@ public class PasswordListActivity extends BaseActivity {
             }
             Timber.d("存在的密钥编号：%1s", logStr.toString());
         }
-        searchPwdListFromNET();
         // TODO: 2021/4/20 后续再校对数据是否存在遗漏或者重合
         // 查询到密钥存在后，开始读取对应密钥
-//        mHandler.postDelayed(mSearchPwdListRunnable, 20);
+        if (null != mBleDeviceLocal && mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_BLE) {
+            mHandler.postDelayed(mSearchPwdListRunnable, 20);
+        } else {
+            searchPwdListFromNET();
+        }
     }
 
     private static final int MSG_UPDATE_PWD_LIST = 854;
