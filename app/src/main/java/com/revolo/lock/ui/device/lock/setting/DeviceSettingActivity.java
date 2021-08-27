@@ -142,7 +142,7 @@ public class DeviceSettingActivity extends BaseActivity {
             BleBean bean = App.getInstance().getUserBleBean(mBleDeviceLocal.getMac());
             if (null != bean && null != bean.getOKBLEDeviceImp()) {
                 Timber.e("WiFi状态下主动断开蓝牙：" + bean.getMac());
-                App.getInstance().removeConnectedBleDisconnect(mBleDeviceLocal.getMac());
+                App.getInstance().removeConnectedBleDisconnect(bean);
             }
         }
     }
