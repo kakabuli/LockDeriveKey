@@ -213,8 +213,14 @@ public class BleManager {
             }
             if (null != removeBle) {
                 if (removeBle.getOKBLEDeviceImp() != null) {
-                    Timber.e("主动断开ble:" + mac);
-                    removeBle.getOKBLEDeviceImp().disConnect(false);
+                    if (removeBle.getOKBLEDeviceImp().isConnected()) {
+                        Timber.e("蓝牙已连接主动断开ble:" + mac);
+                        removeBle.getOKBLEDeviceImp().disConnect(false);
+                    } else {
+                        Timber.e("蓝牙非连接成功下主动断开ble:" + mac);
+                        removeBle.getOKBLEDeviceImp().disConnect(false);
+                        clearConnetctList(removeBle);
+                    }
                 } else {
                     clearConnetctList(removeBle);
                     Timber.e("准备主动断开异常2ble:" + mac);
