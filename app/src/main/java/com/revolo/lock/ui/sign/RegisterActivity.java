@@ -286,6 +286,7 @@ public class RegisterActivity extends BaseActivity {
             ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_please_input_right_mail_address);
             return;
         }
+        showLoading();
         GetCodeBeanReq req = new GetCodeBeanReq();
         req.setMail(mail);
         req.setWorld(2);
@@ -310,6 +311,7 @@ public class RegisterActivity extends BaseActivity {
                     }
                     return;
                 }
+                dismissLoading();
                 ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_success);
                 Constant.registerEmail = mail;
                 isCountdown = true;
@@ -319,12 +321,13 @@ public class RegisterActivity extends BaseActivity {
 
             @Override
             public void onError(@NonNull Throwable e) {
+                dismissLoading();
                 Timber.e(e);
             }
 
             @Override
             public void onComplete() {
-
+                dismissLoading();
             }
         });
     }

@@ -621,7 +621,7 @@ public class OperationRecordsActivity extends BaseActivity {
                         switch (lockRecord.getEventSource()) {
                             case 0x00:
                                 // 键盘
-                                message = lastName + " Locked " + lockName + " via PIN Key";
+                                message = pwdName + " Locked " + lockName + " via PIN Key";
                                 drawableId = R.drawable.ic_home_log_icon_password;
                                 break;
                             case 0x08:
@@ -641,7 +641,7 @@ public class OperationRecordsActivity extends BaseActivity {
                         switch (lockRecord.getEventSource()) {
                             case 0x00:
                                 // 键盘
-                                message = lastName + " Unlocked " + lockName + " via PIN Key";
+                                message = pwdName + " Unlocked " + lockName + " via PIN Key";
                                 drawableId = R.drawable.ic_home_log_icon_password;
                                 break;
                             case 0x08:

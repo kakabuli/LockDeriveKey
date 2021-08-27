@@ -653,4 +653,5 @@
     <string name="dialog_update_version_title">Update Version</string>
     <string name="dialog_tip_delete_this_device">Are you sure to remove\nthis device.</string>
     <string name="tip_password_start_with_911">The setting password cannot start with 911</string>
+    <string name="digits_input_password">0123456789</string>
 </resources>
