@@ -964,18 +964,32 @@ public class LockAppService extends Service {
                         if ((cmdContent[0] & 0xff) == 0x00) {
                             Timber.e("鉴权状态: %1s",
                                     ConvertUtils.bytes2HexString(bleResultBean.getPayload()) + "回复");
-                                BleManager.getInstance().writeControlMsg(BleCommandFactory
-                                        .ackCommand(bleResultBean.getTSN(), (byte) 0x00, bleResultBean.getCMD()), bleBean.getOKBLEDeviceImp());
+                            BleManager.getInstance().writeControlMsg(BleCommandFactory
+                                    .ackCommand(bleResultBean.getTSN(), (byte) 0x00, bleResultBean.getCMD()), bleBean.getOKBLEDeviceImp());
                         } else {
-                            if ((cmdContent[0] & 0xff) == (0xC2 & 0xff)) {
-                                Timber.e("鉴权状态 pwd2异常，进行一次鉴权");
-                                BleManager.getInstance().writeControlMsg(BleCommandFactory
-                                        .pairCommand(bleBean.getPwd1(), bleBean.getEsn().getBytes(StandardCharsets.UTF_8)), bleBean.getOKBLEDeviceImp());
-                            } else {
-                                Timber.e("鉴权状态失败，进行二次鉴权");
-                                BleManager.getInstance().writeControlMsg(BleCommandFactory
-                                        .authCommand(bleBean.getPwd1(), bleBean.getPwd2(), bleBean.getEsn().getBytes(StandardCharsets.UTF_8)), bleBean.getOKBLEDeviceImp());
 
+                            if ((cmdContent[0] & 0xff) == (0xC2 & 0xff) || (cmdContent[0] & 0xff) == (0xff & 0x7E)) {
+                                Timber.e("鉴权状态 pwd2异常，进行一次鉴权");
+                                BleManager.getInstance().setBleFromMacInitPwd(mac);
+                                mHandler.postDelayed(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        BleManager.getInstance().writeControlMsg(BleCommandFactory
+                                                .pairCommand(bleBean.getPwd1(), bleBean.getEsn().getBytes(StandardCharsets.UTF_8)), bleBean.getOKBLEDeviceImp());
+                                    }
+                                }, 1000);
+
+                            } else if ((cmdContent[0] & 0xff) == (0x01 & 0xff) || (cmdContent[0] & 0xff) == (0xff & 0x91)) {
+                                mHandler.postDelayed(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        Timber.e("鉴权状态失败，进行二次鉴权");
+                                        BleManager.getInstance().writeControlMsg(BleCommandFactory
+                                                .authCommand(bleBean.getPwd1(), bleBean.getPwd2(), bleBean.getEsn().getBytes(StandardCharsets.UTF_8)), bleBean.getOKBLEDeviceImp());
+                                    }
+                                }, 1000);
+                            } else {
+                                Timber.e("鉴权状态异常");
                             }
                         }
                     }
@@ -1068,7 +1082,7 @@ public class LockAppService extends Service {
         msg.what = msgWhat;
         msg.obj = mac;
         msg.arg2 = 201;
-        mHandler.sendMessageDelayed(msg, 60000);
+        mHandler.sendMessageDelayed(msg, 20000);
 
     }
 
