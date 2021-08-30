@@ -2633,7 +2633,7 @@ public class LockAppService extends Service {
                 .getApplicationContext().getSystemService(
                         Context.CONNECTIVITY_SERVICE);
         if (manager == null) {
-            return false;
+            return true;
         }
         NetworkInfo networkInfo = manager.getActiveNetworkInfo();
         return networkInfo != null && networkInfo.isConnected();
