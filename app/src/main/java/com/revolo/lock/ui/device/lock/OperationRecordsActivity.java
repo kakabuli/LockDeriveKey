@@ -600,7 +600,7 @@ public class OperationRecordsActivity extends BaseActivity {
                     case 0x10:
                         // 敲击开锁
                         // TODO: 2021/3/29 通过编号识别对应用户, 下面记录还有
-                        message = lockName + " Auto-Unlock";
+                        message = lockName + " Auto-Unlocked";
                         drawableId = R.drawable.ic_home_log_icon_geo_fence;
                         break;
                     case 0x11:
