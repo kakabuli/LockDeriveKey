@@ -266,6 +266,7 @@
     <string name="log_out">Log out</string>
     <string name="user_name">User name</string>
     <string name="email">Email</string>
+    <string name="e_mail">E-mail</string>
     <string name="change_password">Change password</string>
 
     <!-- ModifyUserNameActivity -->
@@ -300,7 +301,8 @@
     <string name="contact">Contact</string>
     <string name="privacy_agreement">Privacy agreement</string>
     <string name="privacy_policy">Privacy policy</string>
-    <string name="user_agreement">Service agreement</string>
+    <string name="user_agreement">User agreement</string>
+    <string name="service_agreement">Service agreement</string>
     <string name="version_update">Version update</string>
     <string name="about_ver">v%1$s</string>
     <string name="about_text">Questions about your new Revolo lock?\nPlease contact us.</string>
@@ -397,8 +399,10 @@
     <string name="disturb_mode_activity_what_hint_text">Do not disturb mode means that when this function is turned on, no other information will be reminded except for warning information.</string>
 
     <!-- TermActivity -->
-    <string name="title_user_term">Service Agreement</string>
-    <string name="title_privacy_term">Privacy Policy</string>
+    <string name="title_user_term">USER AGREEMENT</string>
+    <string name="title_privacy_term">PRIVACY AGREEMENT</string>
+    <string name="title_service_term">Service Agreement</string>
+    <string name="title_privacy_policy_term">Privacy Policy</string>
 
     <!-- Record -->
     <string name="log_uses_a_password_to_unlock">%1$s uses a password to unlock</string>

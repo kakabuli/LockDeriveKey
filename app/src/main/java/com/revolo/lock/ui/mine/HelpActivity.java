@@ -43,7 +43,7 @@ public class HelpActivity extends BaseActivity {
 
     @Override
     public void initView(@Nullable Bundle savedInstanceState, @Nullable View contentView) {
-        useCommonTitleBar(getString(R.string.help));
+        useCommonTitleBar(getString(R.string.FAQ));
 
         mQuestionList = findViewById(R.id.rv_question_list);
         mHelpQuestionListAdapter = new HelpQuestionListAdapter(R.layout.item_help_question_list, mQuestionBeanReqs);
