@@ -327,7 +327,7 @@
     <string name="please_choose_your_wifi_account_nand_enter_password">Please enter the network name(SSID) and password for your Wi-Fi network.</string>
     <string name="tip_add_wifi_suc">Congraduation, your Lock has been \n connected to Wi-Fi network. \n Please click \'Next\' to name your Lock.</string>
     <string name="wifi_connecting_failed">WiFi Connecting failed</string>
-    <string name="cancel_connecting">Cancel Connecting</string>
+    <string name="cancel_connecting">Skip,Connect Later</string>
     <string name="tip_add_wifi_fail_tip">· Please make sure your router is functional.\n· Please make sure the lock is wihin the range of the router\'s WIFI signal.\n· Please make sure the WiFi account and password are correct.</string>
     <string name="title_connect_wifi">CONNECT TO WIFI</string>
 
@@ -529,8 +529,8 @@
     <string name="t_please_sign_in">Please sign in!</string>
     <string name="t_please_open_bluetooth">Please open bluetooth</string>
     <string name="t_please_open_location">Please open location</string>
-    <string name="t_dont_enter_a_simple_pwd">Don\'t enter a simple password!</string>
-    <string name="t_please_input_right_pwd">Please input right password!</string>
+    <string name="t_dont_enter_a_simple_pwd">Please enter the correct password</string>
+    <string name="t_please_input_right_pwd">The number of password digits exceeds the upper limit!</string>
     <string name="t_you_can_set_8_15_valid_pwd">The password supports 8&#8211;15 digit number and letter combination!</string>
     <string name="t_please_input_pwd_name">Please Input Password Name!</string>
     <string name="t_setting_fail">Setting fail</string>

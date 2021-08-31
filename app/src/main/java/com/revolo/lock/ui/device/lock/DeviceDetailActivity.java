@@ -76,7 +76,7 @@ public class DeviceDetailActivity extends BaseActivity {
         if (null != mBleDeviceLocal && null != mBleDeviceLocal.getName() && !"".equals(mBleDeviceLocal.getName()) && !mBleDeviceLocal.getEsn().equals(mBleDeviceLocal.getName())) {
             useCommonTitleBar(mBleDeviceLocal.getName());
         } else {
-            useCommonTitleBar("Homepage");
+            useCommonTitleBar(mBleDeviceLocal.getEsn());
         }
         updateView();
         if (mBleDeviceLocal == null) {

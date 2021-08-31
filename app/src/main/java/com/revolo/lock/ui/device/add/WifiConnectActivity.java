@@ -61,6 +61,7 @@ public class WifiConnectActivity extends BaseActivity {
     private BleBean mBleBean;
     private WifiCircleProgress mWifiCircleProgress;
     private BleDeviceLocal mBleDeviceLocal;
+    private boolean booleanExtra = true;
 
     @Override
     public void initData(@Nullable Bundle bundle) {
@@ -84,6 +85,8 @@ public class WifiConnectActivity extends BaseActivity {
         mWifiPwd = intent.getStringExtra(Constant.WIFI_PWD);
         //配网超时 30s
         mHandlerOutTime.sendEmptyMessageDelayed(MSG_ADD_WIFI_OUT_TIME, 30000);
+
+        booleanExtra = getIntent().getBooleanExtra(Constant.WIFI_SETTING_TO_ADD_WIFI, true);
     }
 
     @Override
@@ -231,7 +234,7 @@ public class WifiConnectActivity extends BaseActivity {
 //                    if (!TextUtils.isEmpty(msg)) ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(msg);
                     mHandlerOutTime.removeMessages(MSG_ADD_WIFI_OUT_TIME);
                     runOnUiThread(() -> new Handler(Looper.getMainLooper()).postDelayed(() -> {
-                        startActivity(new Intent(WifiConnectActivity.this, AddWifiSucActivity.class));
+                        startActivity(new Intent(WifiConnectActivity.this, AddWifiSucActivity.class).putExtra(Constant.WIFI_SETTING_TO_ADD_WIFI, booleanExtra));
                         finish();
                     }, 50));
                 }
@@ -245,6 +248,7 @@ public class WifiConnectActivity extends BaseActivity {
                     Intent intent = new Intent(WifiConnectActivity.this, AddWifiFailActivity.class);
                     intent.putExtra(Constant.WIFI_NAME, mWifiName);
                     intent.putExtra(Constant.WIFI_PWD, mWifiPwd);
+                    intent.putExtra(Constant.WIFI_SETTING_TO_ADD_WIFI, booleanExtra);
                     startActivity(intent);
                     finish();
                 }, 50);
@@ -292,6 +296,7 @@ public class WifiConnectActivity extends BaseActivity {
             Intent intent = new Intent(WifiConnectActivity.this, AddWifiFailActivity.class);
             intent.putExtra(Constant.WIFI_NAME, mWifiName);
             intent.putExtra(Constant.WIFI_PWD, mWifiPwd);
+            intent.putExtra(Constant.WIFI_SETTING_TO_ADD_WIFI, booleanExtra);
             startActivity(intent);
             finish();
         }, 50);
@@ -309,6 +314,7 @@ public class WifiConnectActivity extends BaseActivity {
                     Intent intent = new Intent(WifiConnectActivity.this, AddWifiFailActivity.class);
                     intent.putExtra(Constant.WIFI_NAME, mWifiName);
                     intent.putExtra(Constant.WIFI_PWD, mWifiPwd);
+                    intent.putExtra(Constant.WIFI_SETTING_TO_ADD_WIFI, booleanExtra);
                     startActivity(intent);
                     finish();
                 }, 50);

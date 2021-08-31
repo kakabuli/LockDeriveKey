@@ -62,6 +62,7 @@ public class AddWifiActivity extends BaseActivity {
 
     private BleDeviceLocal mBleDeviceLocal;
     private String mDefaultName = "";
+    private boolean booleanExtra = true;
 
     @Override
     public void initData(@Nullable Bundle bundle) {
@@ -95,7 +96,8 @@ public class AddWifiActivity extends BaseActivity {
                 findViewById(R.id.ivEye), findViewById(R.id.tvSkip));
         initLoading(getString(R.string.t_load_content_loading));
 
-        mDefaultName = getIntent().getStringExtra("WiFiName");
+        mDefaultName = getIntent().getStringExtra(Constant.CONNECT_WIFI_NAME);
+        booleanExtra = getIntent().getBooleanExtra(Constant.WIFI_SETTING_TO_ADD_WIFI, true);
         onRegisterEventBus();
     }
 
@@ -202,6 +204,7 @@ public class AddWifiActivity extends BaseActivity {
         Intent intent = new Intent(this, WifiConnectActivity.class);
         intent.putExtra(Constant.WIFI_NAME, wifiSn);
         intent.putExtra(Constant.WIFI_PWD, wifiPwd);
+        intent.putExtra(Constant.WIFI_SETTING_TO_ADD_WIFI, booleanExtra);
         startActivity(intent);
     }
 

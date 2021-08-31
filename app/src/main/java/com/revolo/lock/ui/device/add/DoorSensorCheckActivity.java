@@ -371,6 +371,7 @@ public class DoorSensorCheckActivity extends BaseActivity {
         AppDatabase.getInstance(this).bleDeviceDao().update(mBleDeviceLocal);*/
             new Handler(Looper.getMainLooper()).postDelayed(() -> {
                 Intent intent = new Intent(DoorSensorCheckActivity.this, AddWifiActivity.class);
+                intent.putExtra(Constant.WIFI_SETTING_TO_ADD_WIFI, true);
                 startActivity(intent);
                 finish();
             }, 50);

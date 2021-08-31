@@ -14,6 +14,7 @@ import androidx.annotation.Nullable;
 
 import com.blankj.utilcode.util.ToastUtils;
 import com.revolo.lock.App;
+import com.revolo.lock.Constant;
 import com.revolo.lock.R;
 import com.revolo.lock.base.BaseActivity;
 import com.revolo.lock.bean.request.ChangeDeviceNameBeanReq;
@@ -45,7 +46,7 @@ public class ChangeLockNameActivity extends BaseActivity {
     @Override
     public void initData(@Nullable Bundle bundle) {
         mBleDeviceLocal = App.getInstance().getBleDeviceLocal();
-        if(mBleDeviceLocal == null) {
+        if (mBleDeviceLocal == null) {
             finish();
         }
     }
@@ -57,11 +58,15 @@ public class ChangeLockNameActivity extends BaseActivity {
 
     @Override
     public void initView(@Nullable Bundle savedInstanceState, @Nullable View contentView) {
-        mTvName=getIntent().getStringExtra("tvName");
+        mTvName = getIntent().getStringExtra(Constant.CHANGE_LOCK_NAME);
         useCommonTitleBar(getString(R.string.chang_pwd_name_activity_title));
-        etLockName=findViewById(R.id.etLockName);
-        etLockName.setText(mTvName);
-        applyDebouncingClickListener(findViewById(R.id.btnComplete));
+        etLockName = findViewById(R.id.etLockName);
+        if (TextUtils.isEmpty(mTvName)) {
+            mTvName = mBleDeviceLocal.getEsn();
+        } else {
+            etLockName.setText(mTvName);
+        }
+        applyDebouncingClickListener(findViewById(R.id.btnComplete), findViewById(R.id.btnCancel));
         initLoading(getString(R.string.t_load_content_setting));
     }
 
@@ -72,10 +77,13 @@ public class ChangeLockNameActivity extends BaseActivity {
 
     @Override
     public void onDebouncingClick(@NonNull View view) {
-        if(view.getId() == R.id.btnComplete) {
+        if (view.getId() == R.id.btnComplete) {
             changeDeviceName();
+        } else if (view.getId() == R.id.btnCancel) {
+            finish();
         }
     }
+
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0) {
@@ -84,29 +92,30 @@ public class ChangeLockNameActivity extends BaseActivity {
         }
         return super.onKeyDown(keyCode, event);
     }
+
     private void changeDeviceName() {
-        if(!checkNetConnectFail()) {
+        if (!checkNetConnectFail()) {
             return;
         }
         String name = etLockName.getText().toString().trim();
-        if(TextUtils.isEmpty(name)) {
+        if (TextUtils.isEmpty(name)) {
             ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_please_input_name);
             return;
         }
-        if(name.length()<2){
+        if (name.length() < 2) {
             ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_please_input_name_2);
             return;
         }
-        if(App.getInstance().getUserBean() == null) {
+        if (App.getInstance().getUserBean() == null) {
             return;
         }
         String uid = App.getInstance().getUserBean().getUid();
-        if(TextUtils.isEmpty(uid)) {
+        if (TextUtils.isEmpty(uid)) {
             return;
         }
         String token = App.getInstance().getUserBean().getToken();
 
-        if(TextUtils.isEmpty(token)) {
+        if (TextUtils.isEmpty(token)) {
             return;
         }
         showLoading();
@@ -125,18 +134,18 @@ public class ChangeLockNameActivity extends BaseActivity {
             public void onNext(@NonNull ChangeDeviceNameBeanRsp changeDeviceNameBeanRsp) {
                 dismissLoading();
                 String code = changeDeviceNameBeanRsp.getCode();
-                if(TextUtils.isEmpty(code)) {
+                if (TextUtils.isEmpty(code)) {
                     Timber.e("changeDeviceNameBeanRsp.getCode() is Empty");
                     return;
                 }
-                if(!code.equals("200")) {
-                    if(code.equals("444")) {
+                if (!code.equals("200")) {
+                    if (code.equals("444")) {
                         App.getInstance().logout(true, ChangeLockNameActivity.this);
                         return;
                     }
                     String msg = changeDeviceNameBeanRsp.getMsg();
                     Timber.e("code: %1s, msg: %2s", changeDeviceNameBeanRsp.getCode(), msg);
-                    if(!TextUtils.isEmpty(msg)) {
+                    if (!TextUtils.isEmpty(msg)) {
                         ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(msg);
                     }
                     return;

@@ -95,6 +95,7 @@ public class DoorCheckOkActivity extends BaseActivity {
         } else {
             new Handler(Looper.getMainLooper()).postDelayed(() -> {
                 Intent intent = new Intent(DoorCheckOkActivity.this, AddWifiActivity.class);
+                intent.putExtra(Constant.WIFI_SETTING_TO_ADD_WIFI, true);
                 startActivity(intent);
                 finish();
             }, 50);

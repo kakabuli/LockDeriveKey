@@ -488,8 +488,10 @@ public class OperationRecordsActivity extends BaseActivity {
         // TODO: 2021/3/18 时间错误就不能存储
         if (beans.isEmpty()) {
             Timber.e("processRecordFromNet beans is empty");
-            mWillShowRecords.clear();
-            refreshUIFromFinalData();
+            if (mPage == 1) {
+                mWillShowRecords.clear();
+                refreshUIFromFinalData();
+            }
             return;
         }
         // 不做校验，直接做存储并数据库做了插入去重
@@ -562,7 +564,7 @@ public class OperationRecordsActivity extends BaseActivity {
             }
             String lastName = lockRecord.getLastName();
             if (TextUtils.isEmpty(lastName)) {
-                lastName = "";
+                lastName = "user";
             }
             String pwdName = lockRecord.getPwdNickname();
             if (TextUtils.isEmpty(pwdName)) {

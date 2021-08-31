@@ -1,5 +1,6 @@
 package com.revolo.lock.ui.device.add;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -11,11 +12,13 @@ import androidx.annotation.Nullable;
 
 import com.blankj.utilcode.util.ActivityUtils;
 import com.revolo.lock.App;
+import com.revolo.lock.Constant;
 import com.revolo.lock.R;
 import com.revolo.lock.base.BaseActivity;
 import com.revolo.lock.manager.LockMessage;
 import com.revolo.lock.mqtt.MQttConstant;
 import com.revolo.lock.mqtt.MqttCommandFactory;
+import com.revolo.lock.ui.device.lock.setting.ChangeLockNameActivity;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -31,6 +34,9 @@ import static com.revolo.lock.manager.LockMessageCode.MSG_LOCK_MESSAGE_MQTT;
  * desc   :
  */
 public class AddWifiSucActivity extends BaseActivity {
+
+    private boolean booleanExtra = true;
+
     @Override
     public void initData(@Nullable Bundle bundle) {
         isShowNetState = false;
@@ -44,12 +50,15 @@ public class AddWifiSucActivity extends BaseActivity {
     @Override
     public void initView(@Nullable Bundle savedInstanceState, @Nullable View contentView) {
         useCommonTitleBar(getString(R.string.title_connect_wifi));
+        applyDebouncingClickListener(findViewById(R.id.btnReDistribution));
     }
 
     @Override
     public void doBusiness() {
+
+        booleanExtra = getIntent().getBooleanExtra(Constant.WIFI_SETTING_TO_ADD_WIFI, true);
+
         finishPreAct();
-        threeSecFinish();
         refreshGetAllBindDevicesFromMQTT();
     }
 
@@ -64,7 +73,12 @@ public class AddWifiSucActivity extends BaseActivity {
 
     @Override
     public void onDebouncingClick(@NonNull View view) {
-
+        if (view.getId() == R.id.btnReDistribution) {
+            if (booleanExtra) {
+                startActivity(new Intent(this, ChangeLockNameActivity.class));
+            }
+            finish();
+        }
     }
 
     /**
@@ -96,10 +110,4 @@ public class AddWifiSucActivity extends BaseActivity {
         ActivityUtils.finishActivity(AddWifiActivity.class);
         ActivityUtils.finishActivity(InputESNActivity.class);
     }
-
-    private void threeSecFinish() {
-        // 3秒后销毁
-        new Handler(Looper.getMainLooper()).postDelayed(() -> runOnUiThread(this::finish), 3000);
-    }
-
 }

@@ -19,6 +19,7 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import com.blankj.utilcode.util.ConvertUtils;
 import com.blankj.utilcode.util.ToastUtils;
 import com.revolo.lock.App;
+import com.revolo.lock.Constant;
 import com.revolo.lock.LocalState;
 import com.revolo.lock.R;
 import com.revolo.lock.base.BaseActivity;
@@ -365,8 +366,9 @@ public class WifiSettingActivity extends BaseActivity {
         String trim = mTvWifiName.getText().toString().trim();
         Intent intent = new Intent(this, AddWifiActivity.class);
         if (!TextUtils.isEmpty(trim)) {
-            intent.putExtra("WiFiName", trim);
+            intent.putExtra(Constant.CONNECT_WIFI_NAME, trim);
         }
+        intent.putExtra(Constant.WIFI_SETTING_TO_ADD_WIFI, false);
         startActivity(intent);
         dismissLoading();
     }

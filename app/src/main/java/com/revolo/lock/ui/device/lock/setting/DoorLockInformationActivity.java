@@ -121,9 +121,9 @@ public class DoorLockInformationActivity extends BaseActivity {
         TextView tvLockSn = findViewById(R.id.tvLockSn);
         mTvWifiVersion = findViewById(R.id.tvWifiVersion);
         mTvFirmwareVersion = findViewById(R.id.tvFirmwareVersion);
-        mTvSalesmodel=findViewById(R.id.door_lock_info_sales_model);
-        mTvBluetoothMac=findViewById(R.id.door_lock_info_bluetooth_mac);
-        mTvWifi=findViewById(R.id.door_lock_info_wifi);
+        mTvSalesmodel = findViewById(R.id.door_lock_info_sales_model);
+        mTvBluetoothMac = findViewById(R.id.door_lock_info_bluetooth_mac);
+        mTvWifi = findViewById(R.id.door_lock_info_wifi);
         applyDebouncingClickListener(mTvFirmwareVersion, mTvWifiVersion);
 
         String esn = mReq.getWifiSN();
@@ -192,8 +192,10 @@ public class DoorLockInformationActivity extends BaseActivity {
         } else {
             String fireVer = mBleDeviceLocal.getLockVer();
             String wifiVer = mBleDeviceLocal.getWifiVer();
-            if (!TextUtils.isEmpty(fireVer) || !TextUtils.isEmpty(wifiVer)) {
-                checkAllOTAVer(fireVer, wifiVer);
+            if (mBleDeviceLocal.getShareUserType() != 1 && mBleDeviceLocal.getShareUserType() != 2) { // 非分享用户
+                if (!TextUtils.isEmpty(fireVer) || !TextUtils.isEmpty(wifiVer)) {
+                    checkAllOTAVer(fireVer, wifiVer);
+                }
             }
         }
         refreshUI();
@@ -202,16 +204,20 @@ public class DoorLockInformationActivity extends BaseActivity {
     @Override
     public void onDebouncingClick(@NonNull View view) {
         if (view.getId() == R.id.tvFirmwareVersion) {
-            if (isCanUpdateFirmwareVer) {
-                showAllUpdateVerDialog();
-                mUpdateType = 6;
+            if (mBleDeviceLocal.getShareUserType() != 1 && mBleDeviceLocal.getShareUserType() != 2) { // 非分享用户
+                if (isCanUpdateFirmwareVer) {
+                    showAllUpdateVerDialog();
+                    mUpdateType = 6;
+                }
             }
             return;
         }
         if (view.getId() == R.id.tvWifiVersion) {
-            if (isCanUpdateWifiVer) {
-                showAllUpdateVerDialog();
-                mUpdateType = 2;
+            if (mBleDeviceLocal.getShareUserType() != 1 && mBleDeviceLocal.getShareUserType() != 2) { // 非分享用户
+                if (isCanUpdateWifiVer) {
+                    showAllUpdateVerDialog();
+                    mUpdateType = 2;
+                }
             }
         }
     }
@@ -495,7 +501,7 @@ public class DoorLockInformationActivity extends BaseActivity {
                     return;
                 }
                 mCheckWifiOTABeanRsp = checkOTABeanRsp;
-                isCanUpdateWifiVer = !mCheckWifiOTABeanRsp.getData().getFileVersion().equalsIgnoreCase(ver);
+                isCanUpdateWifiVer = otaVersions(mCheckWifiOTABeanRsp.getData().getFileVersion(), ver);
                 mVVersion.setVisibility(isCanUpdateWifiVer ? View.VISIBLE : View.GONE);
             }
 
@@ -511,6 +517,33 @@ public class DoorLockInformationActivity extends BaseActivity {
 
             }
         });
+    }
+
+    public boolean otaVersions(String oldVersion, String newVersion) {
+        try {
+            int newIndex = newVersion.contains("V") ? newVersion.lastIndexOf("V") : newVersion.lastIndexOf("v");
+            int oldIndex = oldVersion.contains("V") ? oldVersion.lastIndexOf("V") : oldVersion.lastIndexOf("v");
+
+            String[] newSplit = newVersion.substring(newIndex).replace("V", "").replace("v", "").split("\\.");
+            String[] oldSplit = oldVersion.substring(oldIndex).replace("V", "").replace("v", "").split("\\.");
+            if (newSplit != null && oldSplit != null) {
+                for (int i = 0; i < newSplit.length; i++) {
+                    if (newSplit[i] != null && oldSplit[i] != null) {
+                        int newInt = Integer.parseInt(newSplit[i]);
+                        int oldInt = Integer.parseInt(oldSplit[i]);
+                        if (newInt < oldInt) {
+                            return false;
+                        } else if (newInt > oldInt) {
+                            return true;
+                        }
+                    }
+                }
+            }
+            return false;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 
     private void showWifiUpdateVerDialog() {
@@ -669,10 +702,10 @@ public class DoorLockInformationActivity extends BaseActivity {
                 for (CheckAllOTABeanRsp.DataBean.UpgradeTaskBean taskBean : mAllOTADataBean.getUpgradeTask()) {
                     // TODO: 2021/3/17 数字抽离
                     if (taskBean.getDevNum() == 6) {
-                        isCanUpdateFirmwareVer = !taskBean.getFileVersion().equalsIgnoreCase(firmwareVer);
+                        isCanUpdateFirmwareVer = otaVersions(taskBean.getFileVersion(), firmwareVer);
                         vFirmwareVersion.setVisibility(isCanUpdateFirmwareVer ? View.VISIBLE : View.GONE);
                     } else if (taskBean.getDevNum() == 2) {
-                        isCanUpdateWifiVer = !taskBean.getFileVersion().equalsIgnoreCase(wifiVer);
+                        isCanUpdateWifiVer = otaVersions(taskBean.getFileVersion(), wifiVer);
                         mVVersion.setVisibility(isCanUpdateWifiVer ? View.VISIBLE : View.GONE);
                     }
                 }

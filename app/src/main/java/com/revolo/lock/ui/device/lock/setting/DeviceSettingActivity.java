@@ -227,7 +227,7 @@ public class DeviceSettingActivity extends BaseActivity {
         }
         if (view.getId() == R.id.tvName || view.getId() == R.id.ivLockName) {
             Intent intent = new Intent(this, ChangeLockNameActivity.class);
-            intent.putExtra("tvName", mTvName.getText().toString());
+            intent.putExtra(Constant.CHANGE_LOCK_NAME, mTvName.getText().toString());
             startActivity(intent);
             return;
         }
@@ -416,7 +416,7 @@ public class DeviceSettingActivity extends BaseActivity {
 
         findViewById(R.id.clDelete).setVisibility(View.GONE);
         if (mBleDeviceLocal.getShareUserType() == 1) {
-            findViewById(R.id.clDoorLockInformation).setVisibility(View.GONE);
+            findViewById(R.id.clDoorLockInformation).setVisibility(View.VISIBLE);
             findViewById(R.id.clUnbind).setVisibility(View.GONE);
             findViewById(R.id.clDelete).setVisibility(View.VISIBLE);
         } else if (mBleDeviceLocal.getShareUserType() == 2) {

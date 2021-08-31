@@ -91,7 +91,7 @@ public class OpRecordsAdapter extends BaseExpandableListAdapter {
         if (convertView == null) {
             convertView = LayoutInflater.from(mContext).inflate(R.layout.item_operation_record_list_rv, parent, false);
             groupViewHolder = new GroupViewHolder();
-            groupViewHolder.tvTimeTitle = (TextView) convertView.findViewById(R.id.tvTimeTitle);
+            groupViewHolder.tvTimeTitle = convertView.findViewById(R.id.tvTimeTitle);
             convertView.setTag(groupViewHolder);
         } else {
             groupViewHolder = (GroupViewHolder) convertView.getTag();

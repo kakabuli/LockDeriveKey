@@ -410,23 +410,30 @@ public class MainActivity extends BaseActivity {
      * @return
      */
     private boolean appVersions(String newAppVersions, String oldAppVersions) {
+        try {
+            int newIndex = newAppVersions.contains("V") ? newAppVersions.lastIndexOf("V") : newAppVersions.lastIndexOf("v");
+            int oldIndex = oldAppVersions.contains("V") ? oldAppVersions.lastIndexOf("V") : oldAppVersions.lastIndexOf("v");
 
-        String[] newSplit = newAppVersions.replace("V", "").replace("v", "").split("\\.");
-        String[] oldSplit = oldAppVersions.replace("V", "").replace("v", "").split("\\.");
-        if (newSplit != null && oldSplit != null) {
-            for (int i = 0; i < newSplit.length; i++) {
-                if (newSplit[i] != null && oldSplit[i] != null) {
-                    int newInt = Integer.parseInt(newSplit[i]);
-                    int oldInt = Integer.parseInt(oldSplit[i]);
-                    if (newInt < oldInt) {
-                        return false;
-                    } else if (newInt > oldInt) {
-                        return true;
+            String[] newSplit = newAppVersions.substring(newIndex).replace("V", "").replace("v", "").split("\\.");
+            String[] oldSplit = oldAppVersions.substring(oldIndex).replace("V", "").replace("v", "").split("\\.");
+            if (newSplit != null && oldSplit != null) {
+                for (int i = 0; i < newSplit.length; i++) {
+                    if (newSplit[i] != null && oldSplit[i] != null) {
+                        int newInt = Integer.parseInt(newSplit[i]);
+                        int oldInt = Integer.parseInt(oldSplit[i]);
+                        if (newInt < oldInt) {
+                            return false;
+                        } else if (newInt > oldInt) {
+                            return true;
+                        }
                     }
                 }
             }
+            return false;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
         }
-        return false;
     }
 
     /**
