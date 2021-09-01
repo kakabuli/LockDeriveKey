@@ -1,6 +1,7 @@
 package com.revolo.lock.ui.device.lock;
 
 import android.graphics.Color;
+import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.Gravity;

@@ -4,11 +4,16 @@ import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.net.wifi.WifiInfo;
+import android.net.wifi.WifiManager;
+import android.os.Parcelable;
 
 import com.revolo.lock.Constant;
 import com.revolo.lock.LockAppManager;
 import com.revolo.lock.R;
 import com.revolo.lock.dialog.MessageDialog;
+
+import timber.log.Timber;
 
 public class WifiStateReceiver extends BroadcastReceiver {
 
@@ -16,29 +21,15 @@ public class WifiStateReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-
-//        if (intent.getAction().equals(WifiManager.NETWORK_STATE_CHANGED_ACTION)) {
-//            NetworkInfo info = intent.getParcelableExtra(WifiManager.EXTRA_NETWORK_INFO);
-//            String state = info.getState().name();
-//            if (state.equals(NetworkInfo.State.CONNECTED.name())) {
-//                Timber.d("WiFi state 连接成功");
-//            } else if (state.equals(NetworkInfo.State.CONNECTING.name())) {
-//                Timber.d("WiFi state 连接中");
-//            } else if (state.equals(NetworkInfo.State.DISCONNECTED.name())) {
-//                Timber.d("WiFi state 断开连接");
-//                initDialog();
-//                if (mMessageDialog != null && !Constant.isShowDialog) {
-//                    Constant.isShowDialog = true;
-//                    mMessageDialog.show();
-//                }
-//            } else if (state.equals(NetworkInfo.State.DISCONNECTING.name())) {
-//                Timber.d("WiFi state DISCONNECTING");
-//            } else if (state.equals(NetworkInfo.State.SUSPENDED.name())) {
-//                Timber.d("WiFi state SUSPENDED");
-//            } else if (state.equals(NetworkInfo.State.UNKNOWN.name())) {
-//                Timber.d("WiFi state UNKNOWN");
-//            }
-//        }
+        if (intent != null && intent.getAction() != null) {
+            if (intent.getAction().equals("android.net.wifi.RSSI_CHANGED")) {
+                int i = obtainWifiInfo(context);
+                if (i < 2) {
+//                    initDialog();
+                    Timber.i("*****************    WiFi 信号弱    *****************");
+                }
+            }
+        }
     }
 
     private void initDialog() {
@@ -53,5 +44,21 @@ public class WifiStateReceiver extends BroadcastReceiver {
                 Constant.isShowDialog = false;
             }
         });
+    }
+
+    /**
+     * wifi信号强度 0 - 5 个强度  0 最弱
+     *
+     * @param context
+     * @return
+     */
+    private int obtainWifiInfo(Context context) {
+        int strength = 0;
+        WifiManager wifiManager = (WifiManager) context.getSystemService(context.WIFI_SERVICE);
+        WifiInfo connectionInfo = wifiManager.getConnectionInfo();
+        if (connectionInfo.getBSSID() != null) {
+            strength = wifiManager.calculateSignalLevel(connectionInfo.getRssi(), 5);
+        }
+        return strength;
     }
 }

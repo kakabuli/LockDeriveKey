@@ -28,7 +28,7 @@ import com.revolo.lock.ble.BleProtocolState;
 import com.revolo.lock.ble.bean.BleBean;
 import com.revolo.lock.ble.bean.BleResultBean;
 import com.revolo.lock.dialog.MessageDialog;
-import com.revolo.lock.dialog.SignalWeakDialog;
+import com.revolo.lock.dialog.SelectDialog;
 import com.revolo.lock.manager.LockMessage;
 import com.revolo.lock.manager.LockMessageCode;
 import com.revolo.lock.manager.LockMessageRes;
@@ -37,6 +37,7 @@ import com.revolo.lock.mqtt.MqttCommandFactory;
 import com.revolo.lock.room.AppDatabase;
 import com.revolo.lock.room.entity.BleDeviceLocal;
 import com.revolo.lock.ui.device.lock.setting.DeviceSettingActivity;
+import com.revolo.lock.ui.device.lock.setting.PrivateModeActivity;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -55,7 +56,7 @@ import static com.revolo.lock.ble.BleCommandState.LOCK_SETTING_OPEN;
  */
 public class DeviceDetailActivity extends BaseActivity {
     private BleDeviceLocal mBleDeviceLocal;
-    private SignalWeakDialog mSignalWeakDialog;
+    private SelectDialog mSelectDialog;
     private MessageDialog mMessageDialog;
     private ImageView mIvBatteryState;
     private TextView mTvBatteryState;
@@ -287,7 +288,6 @@ public class DeviceDetailActivity extends BaseActivity {
                     }
                 } else {
                     doorHide(ivDoorState, tvDoorState);
-//                    doorOpen(ivDoorState, tvDoorState);
                 }
 
             } else if (mBleDeviceLocal.getLockState() == LocalState.LOCK_STATE_CLOSE || mBleDeviceLocal.getLockState() == LocalState.LOCK_STATE_SENSOR_CLOSE) {
@@ -309,13 +309,13 @@ public class DeviceDetailActivity extends BaseActivity {
                     }
                 } else {
                     doorHide(ivDoorState, tvDoorState);
-//                    doorClose(ivDoorState, tvDoorState);
                 }
             } else {
+                llDoorState.setVisibility(View.GONE);
                 ivLockState.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_home_img_lock_close));
                 // TODO: 2021/3/31 其他选择
                 Timber.e("其他选择");
-                doorClose(ivDoorState, tvDoorState);
+                doorHide(ivDoorState, tvDoorState);
             }
         }
         if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI || mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI_BLE) {
@@ -367,8 +367,50 @@ public class DeviceDetailActivity extends BaseActivity {
             return;
         }
         if (view.getId() == R.id.ivLockState) {
-            openDoor();
+            if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_DIS) { // 离线模式
+                deviceOfflineDialog();
+            } else {
+                if (mBleDeviceLocal.getLockState() == LocalState.LOCK_STATE_PRIVATE) { // 隐私模式
+                    devicePrivateModeDialog();
+                } else {
+                    openDoor();
+                }
+            }
         }
+    }
+
+    private void deviceOfflineDialog() {
+        if (mMessageDialog == null) {
+            mMessageDialog = new MessageDialog(this);
+        }
+        mMessageDialog.setMessage(getString(R.string.tip_device_offline_dialog));
+        mMessageDialog.setOnListener(v -> {
+            if (mMessageDialog != null) {
+                mMessageDialog.dismiss();
+            }
+        });
+        mMessageDialog.show();
+    }
+
+    private void devicePrivateModeDialog() {
+        if (mSelectDialog == null) {
+            mSelectDialog = new SelectDialog(this);
+        }
+        mSelectDialog.setMessage(getString(R.string.tip_device_private_mode_dialog));
+        mSelectDialog.setConfirmText(getString(R.string.dialog_btn_confirm));
+        mSelectDialog.setCancelText(getString(R.string.tip_learn_more));
+        mSelectDialog.setOnConfirmListener(v -> {
+            if (mSelectDialog != null) {
+                mSelectDialog.dismiss();
+            }
+        });
+        mSelectDialog.setOnCancelClickListener(v -> {
+            startActivity(new Intent(this, PrivateModeActivity.class));
+            if (mSelectDialog != null) {
+                mSelectDialog.dismiss();
+            }
+        });
+        mSelectDialog.show();
     }
 
     private void gotoDeviceSettingAct() {

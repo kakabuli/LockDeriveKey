@@ -314,7 +314,7 @@ public class MQTTReply {
             if (userBean != null) {
                 String nowToken = userBean.getToken();
                 if (!newToken.equals(nowToken)) {
-                    App.getInstance().logout(true, LockAppManager.getAppManager().currentActivity());
+                    App.getInstance().logout(false, LockAppManager.getAppManager().currentActivity());
                 }
             }
         }

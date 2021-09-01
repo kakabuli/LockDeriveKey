@@ -22,7 +22,7 @@ import timber.log.Timber;
 public class SelectDialog extends Dialog {
 
     private TextView mTvContent, mTvConfirm, mTvCancel;
-    private String mMsg, mConfirmText;
+    private String mMsg, mConfirmText, mCancelText;
     private View.OnClickListener mOnConfirmClickListener, mOnCancelClickListener;
     private boolean isReturn = false;
 
@@ -61,6 +61,10 @@ public class SelectDialog extends Dialog {
         mConfirmText = text;
     }
 
+    public void setCancelText(String text) {
+        mCancelText = text;
+    }
+
     public void setOnConfirmListener(View.OnClickListener listener) {
         mOnConfirmClickListener = listener;
     }
@@ -82,11 +86,14 @@ public class SelectDialog extends Dialog {
         if (mConfirmText != null && mTvConfirm != null) {
             mTvConfirm.setText(mConfirmText);
         }
+        if (mCancelText != null && mTvCancel != null) {
+            mTvCancel.setText(mCancelText);
+        }
     }
 
     @Override
     public boolean onKeyDown(int keyCode, @NonNull KeyEvent event) {
-        Timber.e("onkeyDown:"+isReturn);
+        Timber.e("onkeyDown:" + isReturn);
         if (isReturn) {
             return true;
         }
@@ -95,7 +102,7 @@ public class SelectDialog extends Dialog {
 
     @Override
     public boolean onKeyUp(int keyCode, @NonNull KeyEvent event) {
-        Timber.e("onKeyUp:"+isReturn);
+        Timber.e("onKeyUp:" + isReturn);
         if (isReturn) {
             return true;
         }

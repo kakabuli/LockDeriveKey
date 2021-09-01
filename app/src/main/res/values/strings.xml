@@ -111,6 +111,7 @@
     <string name="tip_opened">Opened</string>
     <string name="tip_closed">Closed</string>
     <string name="tip_error">Error</string>
+    <string name="tip_learn_more">Learn more</string>
 
     <!-- OperationRecordsActivity -->
     <string name="title_operation_records">ACTIVITIES</string>
@@ -658,4 +659,7 @@
     <string name="dialog_tip_delete_this_device">Are you sure to remove\nthis device.</string>
     <string name="tip_password_start_with_911">The setting password cannot start with 911</string>
     <string name="digits_input_password">0123456789</string>
+    <string name="tip_device_offline_dialog">The device is offline, please switch to Bluetooth connection.</string>
+    <string name="tip_device_private_mode_dialog">Private Mode：App Control &#38; PIN Key access will be disabled.</string>
+
 </resources>

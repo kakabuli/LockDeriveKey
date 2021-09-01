@@ -448,6 +448,7 @@
         <receiver android:name=".receiver.WifiStateReceiver">
             <intent-filter>
                 <action android:name="android.net.wifi.STATE_CHANGE" />
+                <action android:name="android.net.wifi.RSSI_CHANGED" />
             </intent-filter>
         </receiver>
     </application>

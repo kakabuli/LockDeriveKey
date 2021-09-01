@@ -44,10 +44,11 @@ public class HomeLockListAdapter extends BaseQuickAdapter<BleDeviceLocal, BaseVi
             baseViewHolder.setImageResource(R.id.ivLockState, R.drawable.ic_home_img_lock_privacymode);
             doorShow(ivDoorState, tvDoorState);
             baseViewHolder.setText(R.id.tvDoorState, getContext().getString(R.string.tip_private_mode));
+            baseViewHolder.setTextColor(R.id.tvDoorState, getContext().getColor(R.color.c666666));
             baseViewHolder.setGone(R.id.ivDoorState, true);
         } else {
-            baseViewHolder.setGone(R.id.ivDoorState, false);
             boolean isUseDoorSensor = deviceLocal.isOpenDoorSensor();
+            baseViewHolder.setVisible(R.id.ivDoorState, true);
             if (deviceLocal.getLockState() == LocalState.LOCK_STATE_OPEN) {
                 baseViewHolder.setImageResource(R.id.ivLockState, R.drawable.ic_home_img_lock_open);
                 if (isUseDoorSensor) {
@@ -67,7 +68,6 @@ public class HomeLockListAdapter extends BaseQuickAdapter<BleDeviceLocal, BaseVi
                     }
                 } else {
                     doorHide(ivDoorState, tvDoorState);
-//                    doorClose(ivDoorState, tvDoorState);
                 }
             } else if (deviceLocal.getLockState() == LocalState.LOCK_STATE_CLOSE || deviceLocal.getLockState() == LocalState.LOCK_STATE_SENSOR_CLOSE) {
                 baseViewHolder.setImageResource(R.id.ivLockState, R.drawable.ic_home_img_lock_close);
@@ -88,14 +88,13 @@ public class HomeLockListAdapter extends BaseQuickAdapter<BleDeviceLocal, BaseVi
                     }
                 } else {
                     doorHide(ivDoorState, tvDoorState);
-//                    doorClose(ivDoorState, tvDoorState);
                 }
             } else {
                 //异常处理
                 Timber.e("homeLock type:%s", deviceLocal.getLockState() + "");
                 baseViewHolder.setImageResource(R.id.ivLockState, R.drawable.ic_home_img_lock_close);
 //                baseViewHolder.setImageResource(R.id.ivLockState, R.drawable.ic_home_img_lock_privacymodel);
-                doorClose(ivDoorState, tvDoorState);
+                doorHide(ivDoorState, tvDoorState);
             }
         }
         if (deviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI) {

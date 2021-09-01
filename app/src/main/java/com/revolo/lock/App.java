@@ -246,6 +246,7 @@ public class App extends Application {
 
     /**
      * 绑定成功后，添加在设备列表中
+     *
      * @param bleDeviceLocal
      */
     public void addBleDeviceLocal(BleDeviceLocal bleDeviceLocal) {
@@ -350,7 +351,7 @@ public class App extends Application {
 
     }
 
-    public void logout(boolean isShowDialog, Activity act) {
+    public void logout(boolean isDeleteGoogleToken, Activity act) {
         // TODO: 2021/3/30 logout的数据操作
         //清理设备信息
         removeDeviceList();
@@ -362,7 +363,9 @@ public class App extends Application {
         App.getInstance().removeRecords(null);
 
         User user = App.getInstance().getUser();
-        deleteDeviceToken();
+        if (!isDeleteGoogleToken) {
+            deleteDeviceToken();
+        }
         AppDatabase.getInstance(getApplicationContext()).userDao().delete(user);
         App.getInstance().getUserBean().setToken(""); // 清空token
         MQTTManager.getInstance().mqttDisconnect(); // mqtt断开连接
