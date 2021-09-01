@@ -521,8 +521,8 @@ public class DoorLockInformationActivity extends BaseActivity {
 
     public boolean otaVersions(String oldVersion, String newVersion) {
         try {
-            int newIndex = newVersion.contains("V") ? newVersion.lastIndexOf("V") : newVersion.lastIndexOf("v");
-            int oldIndex = oldVersion.contains("V") ? oldVersion.lastIndexOf("V") : oldVersion.lastIndexOf("v");
+            int newIndex = newVersion.contains("V") ? newVersion.lastIndexOf("V") : newVersion.contains("v") ? newVersion.lastIndexOf("v") : 0;
+            int oldIndex = oldVersion.contains("V") ? oldVersion.lastIndexOf("V") : oldVersion.contains("v") ? oldVersion.lastIndexOf("v") : 0;
 
             String[] newSplit = newVersion.substring(newIndex).replace("V", "").replace("v", "").split("\\.");
             String[] oldSplit = oldVersion.substring(oldIndex).replace("V", "").replace("v", "").split("\\.");

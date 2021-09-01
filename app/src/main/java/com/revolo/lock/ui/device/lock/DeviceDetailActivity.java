@@ -16,6 +16,7 @@ import androidx.core.content.ContextCompat;
 
 import com.a1anwang.okble.client.scan.BLEScanResult;
 import com.blankj.utilcode.util.ConvertUtils;
+import com.blankj.utilcode.util.GsonUtils;
 import com.blankj.utilcode.util.ToastUtils;
 import com.revolo.lock.App;
 import com.revolo.lock.Constant;
@@ -34,6 +35,8 @@ import com.revolo.lock.manager.LockMessageCode;
 import com.revolo.lock.manager.LockMessageRes;
 import com.revolo.lock.mqtt.MQttConstant;
 import com.revolo.lock.mqtt.MqttCommandFactory;
+import com.revolo.lock.mqtt.bean.eventbean.WifiLockAlarmEventBean;
+import com.revolo.lock.mqtt.bean.eventbean.WifiLockOperationEventBean;
 import com.revolo.lock.room.AppDatabase;
 import com.revolo.lock.room.entity.BleDeviceLocal;
 import com.revolo.lock.ui.device.lock.setting.DeviceSettingActivity;
@@ -159,7 +162,7 @@ public class DeviceDetailActivity extends BaseActivity {
                             if (null != mBleDeviceLocal) {
                                 updateView();
                             }
-                            // processRecord((WifiLockOperationEventBean) lockMessage.getWifiLockBaseResponseBean());
+                            processRecord((WifiLockOperationEventBean) lockMessage.getWifiLockBaseResponseBean());
                         }
                         break;
                     case LockMessageCode.MSG_LOCK_MESSAGE_SET_LOCK:
@@ -199,6 +202,19 @@ public class DeviceDetailActivity extends BaseActivity {
             }
         } else {
 
+        }
+    }
+
+    private void processRecord(WifiLockOperationEventBean wifiLockAlarmEventBean) {
+        if (wifiLockAlarmEventBean != null && wifiLockAlarmEventBean.getEventtype() != null) {
+            String eventtype = wifiLockAlarmEventBean.getEventtype();
+            if (eventtype.equals("alarm")) { // 报警信息
+                WifiLockOperationEventBean.EventparamsBean eventparams = wifiLockAlarmEventBean.getEventparams();
+                if (eventparams != null && eventparams.getAlarmCode() == 65) { // 堵转
+                    tvPrivateMode.setVisibility(View.VISIBLE);
+                    tvPrivateMode.setText(getString(R.string.tip_bolt_not_fully_locked));
+                }
+            }
         }
     }
 
@@ -262,10 +278,8 @@ public class DeviceDetailActivity extends BaseActivity {
         if (mBleDeviceLocal.getLockState() == LocalState.LOCK_STATE_PRIVATE) {
             doorShow(ivDoorState, tvDoorState);
             ivLockState.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_home_img_lock_privacymode));
-            tvPrivateMode.setVisibility(View.GONE);
             llDoorState.setVisibility(View.GONE);
         } else {
-            tvPrivateMode.setVisibility(View.GONE);
             llDoorState.setVisibility(View.VISIBLE);
             boolean isUseDoorSensor = mBleDeviceLocal.isOpenDoorSensor();
             Timber.d("door sensor state: %1d, isUseDoorSensor: %2b", mBleDeviceLocal.getDoorSensor(), isUseDoorSensor);

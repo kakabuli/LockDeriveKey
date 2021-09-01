@@ -10,7 +10,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/dialog_title_are_you_sure_to_unbind"
-        android:textSize="16pt"
+        android:textSize="14pt"
         android:textColor="@color/c333333"
         android:textStyle="bold"
         android:layout_marginTop="20pt"

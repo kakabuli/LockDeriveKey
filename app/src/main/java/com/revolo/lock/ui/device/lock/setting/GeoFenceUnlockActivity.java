@@ -42,6 +42,7 @@ import com.revolo.lock.ble.BleCommandFactory;
 import com.revolo.lock.ble.BleCommandState;
 import com.revolo.lock.ble.bean.BleBean;
 import com.revolo.lock.ble.bean.BleResultBean;
+import com.revolo.lock.dialog.MessageDialog;
 import com.revolo.lock.dialog.PrivacyPolicyDialog;
 import com.revolo.lock.manager.LockMessage;
 import com.revolo.lock.manager.LockMessageCode;
@@ -88,6 +89,7 @@ public class GeoFenceUnlockActivity extends BaseActivity implements OnMapReadyCa
     private boolean isNextUpdate = false;
     private GoogleMap mMap;
     public float GEO_FENCE_RADIUS = 200;
+    private MessageDialog mMessageDialog;
 
     @Override
     public void initData(@Nullable Bundle bundle) {
@@ -128,7 +130,13 @@ public class GeoFenceUnlockActivity extends BaseActivity implements OnMapReadyCa
 
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
-                processStopTimeFromSeekBar(seekBar, true);
+                if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_DIS) { // 离线
+                    deviceOfflineDialog();
+                } else if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_BLE) { // 蓝牙
+                    deviceWifiOfflineDialog();
+                } else {
+                    processStopTimeFromSeekBar(seekBar, true);
+                }
             }
         });
         mSeekBarSensitivity.setMax(100);
@@ -145,7 +153,13 @@ public class GeoFenceUnlockActivity extends BaseActivity implements OnMapReadyCa
 
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
-                processStopSensitivityFromSeekBar(seekBar, true);
+                if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_DIS) { // 离线
+                    deviceOfflineDialog();
+                } else if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_BLE) { // 蓝牙
+                    deviceWifiOfflineDialog();
+                } else {
+                    processStopSensitivityFromSeekBar(seekBar, true);
+                }
             }
         });
 
@@ -257,13 +271,47 @@ public class GeoFenceUnlockActivity extends BaseActivity implements OnMapReadyCa
 
     @Override
     public void onDebouncingClick(@NonNull View view) {
-        if (view.getId() == R.id.ivGeoFenceUnlockEnable) {
-            changeGeoFenceUnlockState();
+        if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_DIS) { // 离线
+            deviceOfflineDialog();
+        } else if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_BLE) { // 蓝牙
+            deviceWifiOfflineDialog();
+        } else {
+            if (view.getId() == R.id.ivGeoFenceUnlockEnable) {
+                changeGeoFenceUnlockState();
+            }
+            if (view.getId() == R.id.clDistanceRangeSetting) {
+                Intent intent = new Intent(this, MapActivity.class);
+                startActivity(intent);
+            }
         }
-        if (view.getId() == R.id.clDistanceRangeSetting) {
-            Intent intent = new Intent(this, MapActivity.class);
-            startActivity(intent);
+    }
+
+    private void deviceOfflineDialog() {
+        if (mMessageDialog == null) {
+            mMessageDialog = new MessageDialog(this);
         }
+        mMessageDialog.setMessage(getString(R.string.tip_geo_fence_device_offline_dialog));
+        mMessageDialog.setOnListener(v -> {
+            if (mMessageDialog != null) {
+                mMessageDialog.dismiss();
+            }
+        });
+        mMessageDialog.setConfirmText(getString(R.string.dialog_ok));
+        mMessageDialog.show();
+    }
+
+    private void deviceWifiOfflineDialog() {
+        if (mMessageDialog == null) {
+            mMessageDialog = new MessageDialog(this);
+        }
+        mMessageDialog.setMessage(getString(R.string.tip_geo_fence_device_wifi_offline_dialog));
+        mMessageDialog.setOnListener(v -> {
+            if (mMessageDialog != null) {
+                mMessageDialog.dismiss();
+            }
+        });
+        mMessageDialog.setConfirmText(getString(R.string.dialog_ok));
+        mMessageDialog.show();
     }
 
     private static final int FINE_LOCATION_ACCESS_REQUEST_CODE = 1001;

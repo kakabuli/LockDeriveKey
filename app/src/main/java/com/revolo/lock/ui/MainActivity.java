@@ -411,8 +411,8 @@ public class MainActivity extends BaseActivity {
      */
     private boolean appVersions(String newAppVersions, String oldAppVersions) {
         try {
-            int newIndex = newAppVersions.contains("V") ? newAppVersions.lastIndexOf("V") : newAppVersions.lastIndexOf("v");
-            int oldIndex = oldAppVersions.contains("V") ? oldAppVersions.lastIndexOf("V") : oldAppVersions.lastIndexOf("v");
+            int newIndex = newAppVersions.contains("V") ? newAppVersions.lastIndexOf("V") : newAppVersions.contains("v") ? newAppVersions.lastIndexOf("v") : 0;
+            int oldIndex = oldAppVersions.contains("V") ? oldAppVersions.lastIndexOf("V") : oldAppVersions.contains("v") ? oldAppVersions.lastIndexOf("v") : 0;
 
             String[] newSplit = newAppVersions.substring(newIndex).replace("V", "").replace("v", "").split("\\.");
             String[] oldSplit = oldAppVersions.substring(oldIndex).replace("V", "").replace("v", "").split("\\.");
