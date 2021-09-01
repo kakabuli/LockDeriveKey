@@ -22,7 +22,7 @@
         android:inputType="textPersonName"
         android:maxLength="30"
         android:textColorHint="@color/cA5A4DA"
-        android:theme="@style/InputEditTextTheme"
+        android:background="@drawable/bg_edit_under_line_selector"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/include14" />
@@ -36,7 +36,7 @@
         android:hint="@string/hint_last_name"
         android:inputType="textPersonName"
         android:maxLength="30"
-        android:theme="@style/InputEditTextTheme"
+        android:background="@drawable/bg_edit_under_line_selector"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/etFirstName" />

@@ -978,7 +978,6 @@ public class BleCommandFactory {
         return setTimezone(zone[0], zone[1], time, pwd1, pwd3);
     }
 
-
     /**
      * 读取混合记录
      *

@@ -34,6 +34,7 @@ public class AutoLockLoadActivity extends BaseActivity implements View.OnClickLi
     private View mItem1View, mItem2View, mItem3View, mItem4View, mItem5View, mItem6View;
     //1
     private TextView mItem1Text, mItem2Text, mItem22Text, mItem3Text, mItem4Text, mItem5Text, mItem6Text;
+    private TextView tvSkip1Text, tvSkip2Text, tvSkip3Text, tvSkip4Text, tvSkip5Text, tvSkip6Text;
     //2
     private ImageView mItem1Image, mItem2Image, mItem3Image, mItem4Image, mItem5Image, mItem6Image;
     //3
@@ -120,6 +121,13 @@ public class AutoLockLoadActivity extends BaseActivity implements View.OnClickLi
         mItem4But = mItem4View.findViewById(R.id.auto_lock_load_btnNext);
         mItem5But = mItem5View.findViewById(R.id.auto_lock_load_btnNext);
         mItem6But = mItem6View.findViewById(R.id.auto_lock_load_btnNext);
+
+        tvSkip1Text = mItem1View.findViewById(R.id.tvSkip);
+        tvSkip2Text = mItem2View.findViewById(R.id.tvSkip);
+        tvSkip3Text = mItem3View.findViewById(R.id.tvSkip);
+        tvSkip4Text = mItem4View.findViewById(R.id.tvSkip);
+        tvSkip5Text = mItem5View.findViewById(R.id.tvSkip);
+        tvSkip6Text = mItem6View.findViewById(R.id.tvSkip);
         mItem1HintView = mItem1View.findViewById(R.id.auto_lock_load_hint_back);
         mItem2HintView = mItem2View.findViewById(R.id.auto_lock_load_hint_back);
         mItem3HintView = mItem3View.findViewById(R.id.auto_lock_load_hint_back);
@@ -145,6 +153,12 @@ public class AutoLockLoadActivity extends BaseActivity implements View.OnClickLi
         mItem4But.setOnClickListener(this);
         mItem5But.setOnClickListener(this);
         mItem6But.setOnClickListener(this);
+        tvSkip1Text.setOnClickListener(this);
+        tvSkip2Text.setOnClickListener(this);
+        tvSkip3Text.setOnClickListener(this);
+        tvSkip4Text.setOnClickListener(this);
+        tvSkip5Text.setOnClickListener(this);
+        tvSkip6Text.setOnClickListener(this);
         viewList.add(mItem1View);
         viewList.add(mItem2View);
         viewList.add(mItem3View);
@@ -196,7 +210,8 @@ public class AutoLockLoadActivity extends BaseActivity implements View.OnClickLi
         } else if (v == mItem5But) {
             mCurrIndex = 5;
             viewPager.setCurrentItem(5);
-        } else if (v == mItem6But) {
+        } else if (v == mItem6But || v == tvSkip1Text || v ==
+                tvSkip2Text || v == tvSkip3Text || v == tvSkip4Text || v == tvSkip5Text || v == tvSkip6Text) {
             SPUtils.getInstance().put("SHOW_GEOFENCE_LOADING", "true");
             Intent intent = new Intent(this, AutoUnlockActivity.class);
             startActivity(intent);

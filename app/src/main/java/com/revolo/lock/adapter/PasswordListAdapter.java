@@ -82,8 +82,8 @@ public class PasswordListAdapter extends BaseQuickAdapter<DevicePwdBean, BaseVie
             String startTime = ZoneUtil.getDate(timeZone, startTimeMill, "dd/MM/yyyy HH:mm");
             String endTime = ZoneUtil.getDate(timeZone, endTimeMill, "dd/MM/yyyy HH:mm");
 
-            String subStartTime = startTime.substring(0, 1);
-            String subEndTime = endTime.substring(0, 1);
+            String subStartTime = startTime.substring(0, 2);
+            String subEndTime = endTime.substring(0, 2);
 
             String replaceStartTime = "";
             String replaceEndTime = "";
@@ -108,8 +108,9 @@ public class PasswordListAdapter extends BaseQuickAdapter<DevicePwdBean, BaseVie
                 replaceEndTime = subEndTime + "th";
             }
 
-            startTime = startTime.replace(subStartTime, replaceStartTime);
-            endTime = endTime.replace(subEndTime, replaceEndTime);
+            startTime = replaceStartTime + startTime.substring(2);
+            endTime = replaceEndTime + endTime.substring(2);
+
             detail = "Start: " + startTime + "\n" + "End: " + endTime;
         } else if (attribute == KEY_SET_ATTRIBUTE_WEEK_KEY) {
             byte[] weekBytes = BleByteUtil.byteToBit(devicePwdBean.getWeekly());

@@ -14,28 +14,43 @@
     <RelativeLayout
         android:id="@+id/imageView2"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="170pt"
         android:layout_marginTop="84pt"
         app:layout_constraintStart_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/include4">
 
-        <ImageView
+        <!--<ImageView
+            android:id="@+id/imageview_auto_3"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
             android:background="@drawable/activity_device_step2_1_back"></ImageView>
 
         <ImageView
+            android:id="@+id/imageview_auto_2"
             android:layout_width="128pt"
             android:layout_height="128pt"
             android:layout_centerInParent="true"
             android:background="@drawable/activity_device_step2_2_back"></ImageView>
         <ImageView
+            android:id="@+id/imageview_auto_1"
             android:layout_width="105pt"
             android:layout_height="105pt"
             android:layout_centerInParent="true"
-            android:background="@drawable/activity_device_step2_3_back"></ImageView>
+            android:background="@drawable/activity_device_step2_3_back"></ImageView>-->
+        <com.revolo.lock.ui.view.BleConnectedAnimView
+            android:id="@+id/animView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            app:spread_center_color="#C2D3FF"
+            app:spread_delay_milliseconds="50"
+            app:spread_distance="6"
+            app:spread_max_radius="20"
+            app:spread_radius="100"
+            app:spread_spread_color="#D4E0FF" />
+
         <ImageView
             android:layout_width="81pt"
             android:layout_height="81pt"

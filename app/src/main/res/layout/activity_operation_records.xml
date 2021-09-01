@@ -13,40 +13,42 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/rlTitle">
 
-        <ExpandableListView
-            android:id="@+id/elOperationRecords"
+        <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            android:layout_height="match_parent">
 
-        <LinearLayout
-            android:id="@+id/llNoRecord"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="40pt"
-            android:gravity="center_horizontal"
-            android:orientation="vertical"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/rlTitle">
+            <ExpandableListView
+                android:id="@+id/elOperationRecords"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
 
-            <ImageView
-                android:layout_width="224pt"
-                android:layout_height="224pt"
-                app:srcCompat="@drawable/home_message_nothing" />
+            <LinearLayout
+                android:id="@+id/llNoRecord"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginTop="40pt"
+                android:gravity="center_horizontal"
+                android:orientation="vertical">
 
-            <TextView
-                android:id="@+id/textView64"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="34pt"
-                android:text="No record yet~"
-                android:textColor="@color/c666666"
-                android:textSize="15pt"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/elOperationRecords" />
+                <ImageView
+                    android:layout_width="224pt"
+                    android:layout_height="224pt"
+                    app:srcCompat="@drawable/home_message_nothing" />
 
-        </LinearLayout>
+                <TextView
+                    android:id="@+id/textView64"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="34pt"
+                    android:text="No record yet~"
+                    android:textColor="@color/c666666"
+                    android:textSize="15pt"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/elOperationRecords" />
+
+            </LinearLayout>
+        </RelativeLayout>
     </com.scwang.smart.refresh.layout.SmartRefreshLayout>
 
     <RelativeLayout

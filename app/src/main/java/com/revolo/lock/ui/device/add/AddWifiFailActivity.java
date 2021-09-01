@@ -11,6 +11,7 @@ import androidx.annotation.Nullable;
 import com.revolo.lock.Constant;
 import com.revolo.lock.R;
 import com.revolo.lock.base.BaseActivity;
+import com.revolo.lock.ui.device.lock.setting.ChangeLockNameActivity;
 
 /**
  * author :
@@ -22,24 +23,28 @@ public class AddWifiFailActivity extends BaseActivity {
 
     private String mWifiName;
     private String mWifiPwd;
+    private boolean booleanExtra;
 
     @Override
     public void initData(@Nullable Bundle bundle) {
         isShowNetState = false;
         Intent intent = getIntent();
-        if(!intent.hasExtra(Constant.WIFI_NAME)) {
+        if (!intent.hasExtra(Constant.WIFI_NAME)) {
             // TODO: 2021/1/22 没有输入wifi name
             finish();
             return;
         }
-        if(!intent.hasExtra(Constant.WIFI_PWD)) {
+        if (!intent.hasExtra(Constant.WIFI_PWD)) {
             // TODO: 2021/1/22 没有输入wifi pwd
             finish();
             return;
         }
         mWifiName = intent.getStringExtra(Constant.WIFI_NAME);
         mWifiPwd = intent.getStringExtra(Constant.WIFI_PWD);
+
+        booleanExtra = getIntent().getBooleanExtra(Constant.WIFI_SETTING_TO_ADD_WIFI, true);
     }
+
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0) {
@@ -48,6 +53,7 @@ public class AddWifiFailActivity extends BaseActivity {
         }
         return super.onKeyDown(keyCode, event);
     }
+
     @Override
     public int bindLayout() {
         return R.layout.activity_add_wifi_fail;
@@ -66,15 +72,19 @@ public class AddWifiFailActivity extends BaseActivity {
 
     @Override
     public void onDebouncingClick(@NonNull View view) {
-        if(view.getId() == R.id.btnReDistribution) {
+        if (view.getId() == R.id.btnReDistribution) {
             Intent intent = new Intent(this, WifiConnectActivity.class);
             intent.putExtra(Constant.WIFI_NAME, mWifiName);
             intent.putExtra(Constant.WIFI_PWD, mWifiPwd);
+            intent.putExtra(Constant.WIFI_SETTING_TO_ADD_WIFI, booleanExtra);
             startActivity(intent);
             finish();
             return;
         }
-        if(view.getId() == R.id.btnCancel) {
+        if (view.getId() == R.id.btnCancel) {
+            if (booleanExtra) {
+                startActivity(new Intent(this, ChangeLockNameActivity.class));
+            }
             finish();
         }
     }

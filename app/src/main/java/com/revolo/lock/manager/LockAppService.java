@@ -319,14 +319,6 @@ public class LockAppService extends Service {
                 //鉴权超时处理
                 Timber.e("鉴权超时处理：" + ((String) msg.obj));
                 clearCmdBleInitOut((String) msg.obj);
-                BleBean bleBean = BleManager.getInstance().setBleFromMacInitPwd(((String) msg.obj));
-                if (null != bleBean) {
-                    if (null != bleBean.getOKBLEDeviceImp()) {
-                        Timber.d("%1s 发送配网指令，并校验ESN", bleBean.getOKBLEDeviceImp());
-                        BleManager.getInstance().writeControlMsg(BleCommandFactory
-                                .pairCommand(bleBean.getPwd1(), bleBean.getEsn().getBytes(StandardCharsets.UTF_8)), bleBean.getOKBLEDeviceImp());
-                    }
-                }
                 return;
             } else if (msg.arg2 == MSG_BLE_CONNECT_TIME) {
                 Timber.e("ble连接超时处理：" + msg.obj);
@@ -961,12 +953,49 @@ public class LockAppService extends Service {
                 case BleProtocolState.CMD_HEART_ACK:// 0x00;                       // 心跳包确认帧
                     break;
                 case BleProtocolState.CMD_AUTHENTICATION_ACK:// 0x01;              // 鉴权确认帧
+                    Timber.e("processResult 解析完成 CMD content: %1s",
+                            ConvertUtils.bytes2HexString(bleResultBean.getPayload()));
+                    byte[] cmdContent = bleResultBean.getPayload();
                     BleBean bleBean = BleManager.getInstance().getBleBeanFromMac(mac);
-                    if (null != bleBean) {
-                        BleManager.getInstance().writeControlMsg(BleCommandFactory
-                                .ackCommand(bleResultBean.getTSN(), (byte) 0x00, bleResultBean.getCMD()), bleBean.getOKBLEDeviceImp());
+                    if (null == bleBean) {
+                        break;
                     }
-                    addCmdBleInitOut(mac);
+                    if (null != cmdContent) {
+                        if ((cmdContent[0] & 0xff) == 0x00) {
+                            Timber.e("鉴权状态: %1s",
+                                    ConvertUtils.bytes2HexString(bleResultBean.getPayload()) + "回复");
+                            BleManager.getInstance().writeControlMsg(BleCommandFactory
+                                    .ackCommand(bleResultBean.getTSN(), (byte) 0x00, bleResultBean.getCMD()), bleBean.getOKBLEDeviceImp());
+                        } else {
+
+                            if ((cmdContent[0] & 0xff) == (0xC2 & 0xff) || (cmdContent[0] & 0xff) == (0xff & 0x7E)) {
+                                Timber.e("鉴权状态 pwd2异常，进行一次鉴权");
+                                BleManager.getInstance().setBleFromMacInitPwd(mac);
+                                mHandler.postDelayed(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        BleManager.getInstance().writeControlMsg(BleCommandFactory
+                                                .pairCommand(bleBean.getPwd1(), bleBean.getEsn().getBytes(StandardCharsets.UTF_8)), bleBean.getOKBLEDeviceImp());
+                                    }
+                                }, 1000);
+
+                            } else if ((cmdContent[0] & 0xff) == (0x01 & 0xff) || (cmdContent[0] & 0xff) == (0xff & 0x91)) {
+                                mHandler.postDelayed(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        Timber.e("鉴权状态失败，进行二次鉴权");
+                                        BleManager.getInstance().writeControlMsg(BleCommandFactory
+                                                .authCommand(bleBean.getPwd1(), bleBean.getPwd2(), bleBean.getEsn().getBytes(StandardCharsets.UTF_8)), bleBean.getOKBLEDeviceImp());
+                                    }
+                                }, 1000);
+                            } else {
+                                Timber.e("鉴权状态异常");
+                            }
+                        }
+                    }
+
+                   /*
+                    addCmdBleInitOut(mac);*/
                     break;
                 case BleProtocolState.CMD_LOCK_CONTROL_ACK:// 0x02;               // 锁控制确认帧
                     break;
@@ -1053,7 +1082,7 @@ public class LockAppService extends Service {
         msg.what = msgWhat;
         msg.obj = mac;
         msg.arg2 = 201;
-        mHandler.sendMessageDelayed(msg, 60000);
+        mHandler.sendMessageDelayed(msg, 20000);
 
     }
 
@@ -2604,7 +2633,7 @@ public class LockAppService extends Service {
                 .getApplicationContext().getSystemService(
                         Context.CONNECTIVITY_SERVICE);
         if (manager == null) {
-            return false;
+            return true;
         }
         NetworkInfo networkInfo = manager.getActiveNetworkInfo();
         return networkInfo != null && networkInfo.isConnected();

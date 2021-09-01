@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.KeyEvent;
 import android.view.View;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -19,7 +20,7 @@ import com.revolo.lock.base.BaseActivity;
  * desc   : 门磁校验失败
  */
 public class DoorCheckFailActivity extends BaseActivity {
-
+    private TextView btnCancel;
     private boolean isGoToAddWifi = true;
 
     @Override
@@ -38,6 +39,12 @@ public class DoorCheckFailActivity extends BaseActivity {
     @Override
     public void initView(@Nullable Bundle savedInstanceState, @Nullable View contentView) {
         useCommonTitleBar(getString(R.string.door_sensor_check_activity_title));
+        btnCancel = findViewById(R.id.btnCancel);
+        if (isGoToAddWifi) {
+            btnCancel.setText(getString(R.string.door_check_fail));
+        } else {
+            btnCancel.setText(getString(R.string.cancel));
+        }
         applyDebouncingClickListener(findViewById(R.id.btnTryAgain), findViewById(R.id.btnCancel));
     }
 
@@ -60,7 +67,7 @@ public class DoorCheckFailActivity extends BaseActivity {
         if (view.getId() == R.id.btnCancel) {
             if (isGoToAddWifi) {
                 Intent intent = new Intent(this, AddWifiActivity.class);
-                intent.putExtra(Constant.IS_GO_TO_ADD_WIFI, isGoToAddWifi);
+                intent.putExtra(Constant.WIFI_SETTING_TO_ADD_WIFI, true);
                 startActivity(intent);
             }
             finish();
@@ -68,7 +75,7 @@ public class DoorCheckFailActivity extends BaseActivity {
         }
         if (view.getId() == R.id.btnTryAgain) {
             Intent intent = new Intent(this, DoorSensorCheckActivity.class);
-            intent.putExtra(Constant.IS_GO_TO_ADD_WIFI, isGoToAddWifi);
+            intent.putExtra(Constant.WIFI_SETTING_TO_ADD_WIFI, true);
             startActivity(intent);
             finish();
         }

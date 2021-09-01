@@ -30,6 +30,7 @@
                 android:text="@string/geo_fence_unlock_instruction"
                 android:textColor="@color/c333333"
                 android:textSize="16pt"
+                android:visibility="gone"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -38,7 +39,6 @@
                 android:id="@+id/clGeoFenceUnlock"
                 android:layout_width="match_parent"
                 android:layout_height="51pt"
-                android:layout_marginTop="56pt"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/textView54">
@@ -112,17 +112,34 @@
                     android:name="com.google.android.gms.maps.SupportMapFragment"
                     android:layout_width="0dp"
                     android:layout_height="165pt"
+                    android:layout_marginLeft="5pt"
+                    android:layout_marginRight="5pt"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/clDistanceRangeSetting" />
+
+                <TextView
+                    android:id="@+id/mapFragment_text"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="15pt"
+                    android:layout_marginTop="10pt"
+                    android:layout_marginRight="50pt"
+                    android:gravity="left"
+                    android:lineSpacingExtra="3pt"
+                    android:text="@string/distance_range_setting_text"
+                    android:textColor="@color/c999999"
+                    android:textSize="14pt"
+                    app:layout_constraintTop_toBottomOf="@+id/mapFragment" />
 
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:id="@+id/clSetTime"
                     android:layout_width="match_parent"
                     android:layout_height="51pt"
+                    android:layout_marginTop="10pt"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/mapFragment">
+                    app:layout_constraintTop_toBottomOf="@+id/mapFragment_text">
 
                     <TextView
                         android:id="@+id/textView1"
@@ -150,6 +167,20 @@
 
                 </androidx.constraintlayout.widget.ConstraintLayout>
 
+
+                <TextView
+                    android:id="@+id/seekBarTime_text"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="10pt"
+                    android:layout_marginTop="10pt"
+                    android:layout_marginRight="50pt"
+                    android:lineSpacingExtra="3pt"
+                    android:text="@string/sensitivity_text"
+                    android:textColor="@color/c999999"
+                    android:textSize="14pt"
+                    app:layout_constraintTop_toBottomOf="@+id/seekBarTime"></TextView>
+
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:id="@+id/clSensitivity"
                     android:layout_width="match_parent"
@@ -158,7 +189,7 @@
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintHorizontal_bias="0.0"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/seekBarTime">
+                    app:layout_constraintTop_toBottomOf="@+id/seekBarTime_text">
 
                     <TextView
                         android:id="@+id/textView4"
@@ -243,6 +274,18 @@
                     android:textSize="14pt"
                     app:layout_constraintEnd_toEndOf="@+id/seekBarSensitivity"
                     app:layout_constraintTop_toBottomOf="@+id/seekBarSensitivity" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="15pt"
+                    android:layout_marginTop="10pt"
+                    android:layout_marginRight="50pt"
+                    android:lineSpacingExtra="3pt"
+                    android:text="@string/set_time_text"
+                    android:textColor="@color/c999999"
+                    android:textSize="14pt"
+                    app:layout_constraintTop_toBottomOf="@id/textView62" />
             </androidx.constraintlayout.widget.ConstraintLayout>
 
             <TextView
@@ -255,7 +298,7 @@
                 android:paddingEnd="16pt"
                 android:paddingBottom="6pt"
                 android:text="@string/t_introduce_Geo_fence_title"
-                android:textColor="@color/cFF6A36"
+                android:textColor="@color/c666666"
                 android:textSize="15pt"
                 app:drawableEndCompat="@drawable/ic_icon_more_open"
                 app:layout_constraintTop_toBottomOf="@id/constraintLayout" />
@@ -265,10 +308,11 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="16pt"
+                android:lineSpacingExtra="3pt"
                 android:paddingBottom="16pt"
                 android:text="@string/t_introduce_Geo_fence_content"
-                android:textColor="@color/c666666"
-                android:textSize="13pt"
+                android:textColor="@color/c999999"
+                android:textSize="14pt"
                 android:visibility="invisible"
                 app:layout_constraintTop_toBottomOf="@id/tvIntroduceTitle" />
         </androidx.constraintlayout.widget.ConstraintLayout>

@@ -11,6 +11,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.constraintlayout.widget.ConstraintLayout;
 
 import com.blankj.utilcode.util.ActivityUtils;
 import com.blankj.utilcode.util.ToastUtils;
@@ -90,6 +91,22 @@ public class SelectAuthorizedDeviceActivity extends BaseActivity {
         mShareUserFirstName = getIntent().getStringExtra(Constant.SHARE_USER_FIRST_NAME);
         mShareUserLastName = getIntent().getStringExtra(Constant.SHARE_USER_LAST_NAME);
         uid = getIntent().getStringExtra(Constant.SHARE_USER_DATA);
+        TextView textView = findViewById(R.id.tvTextTip);
+        ConstraintLayout constraintLayout = findViewById(R.id.constraintLayout);
+        ImageView ivAvatar = findViewById(R.id.ivAvatar);
+        TextView tvUserTip = findViewById(R.id.tvUserTip);
+
+        if (getIntent().hasExtra(Constant.PRE_A)) {
+            textView.setVisibility(View.VISIBLE);
+            constraintLayout.setVisibility(View.INVISIBLE);
+            tvUserTip.setVisibility(View.GONE);
+            ivAvatar.setVisibility(View.GONE);
+        } else {
+            textView.setVisibility(View.GONE);
+            constraintLayout.setVisibility(View.VISIBLE);
+            tvUserTip.setVisibility(View.VISIBLE);
+            ivAvatar.setVisibility(View.VISIBLE);
+        }
     }
 
     @Override

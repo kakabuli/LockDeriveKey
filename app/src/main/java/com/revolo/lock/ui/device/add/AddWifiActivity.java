@@ -62,6 +62,7 @@ public class AddWifiActivity extends BaseActivity {
 
     private BleDeviceLocal mBleDeviceLocal;
     private String mDefaultName = "";
+    private boolean booleanExtra = true;
 
     @Override
     public void initData(@Nullable Bundle bundle) {
@@ -95,7 +96,8 @@ public class AddWifiActivity extends BaseActivity {
                 findViewById(R.id.ivEye), findViewById(R.id.tvSkip));
         initLoading(getString(R.string.t_load_content_loading));
 
-        mDefaultName = getIntent().getStringExtra("WiFiName");
+        mDefaultName = getIntent().getStringExtra(Constant.CONNECT_WIFI_NAME);
+        booleanExtra = getIntent().getBooleanExtra(Constant.WIFI_SETTING_TO_ADD_WIFI, true);
         onRegisterEventBus();
     }
 
@@ -183,6 +185,8 @@ public class AddWifiActivity extends BaseActivity {
     private void finishPreAct() {
         ActivityUtils.finishActivity(AddDeviceActivity.class);
         ActivityUtils.finishActivity(AddDeviceStep1Activity.class);
+        ActivityUtils.finishActivity(AddDevice1StepActivity.class);
+        ActivityUtils.finishActivity(AddDevice2StepActivity.class);
         ActivityUtils.finishActivity(AddDeviceQRCodeStep2Activity.class);
         ActivityUtils.finishActivity(DoorSensorCheckActivity.class);
     }
@@ -200,6 +204,7 @@ public class AddWifiActivity extends BaseActivity {
         Intent intent = new Intent(this, WifiConnectActivity.class);
         intent.putExtra(Constant.WIFI_NAME, wifiSn);
         intent.putExtra(Constant.WIFI_PWD, wifiPwd);
+        intent.putExtra(Constant.WIFI_SETTING_TO_ADD_WIFI, booleanExtra);
         startActivity(intent);
     }
 
@@ -223,7 +228,7 @@ public class AddWifiActivity extends BaseActivity {
 
     private void openOrClosePwdEye() {
         ImageView ivEye = findViewById(R.id.ivEye);
-        ivEye.setImageResource(isShowPwd ? R.drawable.ic_login_icon_display_white : R.drawable.ic_login_icon_hide_white);
+        ivEye.setImageResource(isShowPwd ? R.drawable.ic_login_icon_display_blue : R.drawable.ic_login_icon_hide_blue);
         mEtPwd.setInputType(isShowPwd ?
                 InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
                 : (InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD));

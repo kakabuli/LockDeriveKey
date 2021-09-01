@@ -105,6 +105,24 @@ public class WifiLockOperationEventBean extends WifiLockBaseResponseBean {
         private String SW;
         private int hwerrcode;
         private int power;
+        private int alarmCode;
+        private int clusterID;
+
+        public int getAlarmCode() {
+            return alarmCode;
+        }
+
+        public void setAlarmCode(int alarmCode) {
+            this.alarmCode = alarmCode;
+        }
+
+        public int getClusterID() {
+            return clusterID;
+        }
+
+        public void setClusterID(int clusterID) {
+            this.clusterID = clusterID;
+        }
 
         public int getPower() {
             return power;

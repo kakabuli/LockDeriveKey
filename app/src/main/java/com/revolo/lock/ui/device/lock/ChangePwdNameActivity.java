@@ -66,13 +66,11 @@ public class ChangePwdNameActivity extends BaseActivity {
 
     @Override
     public void initView(@Nullable Bundle savedInstanceState, @Nullable View contentView) {
-        useCommonTitleBar(getString(R.string.title_change_the_name));
+        useCommonTitleBar(getString(R.string.title_change_pwd_the_name));
         applyDebouncingClickListener(findViewById(R.id.btnComplete));
         initLoading(getString(R.string.t_load_content_loading));
         etPwdName = findViewById(R.id.etPwdName);
-        if (TextUtils.isEmpty(mDevicePwdBean.getPwdName())) {
-            etPwdName.setText(String.format("%03d", mDevicePwdBean.getPwdNum()));
-        } else {
+        if (!TextUtils.isEmpty(mDevicePwdBean.getPwdName())) {
             etPwdName.setText(mDevicePwdBean.getPwdName());
         }
     }

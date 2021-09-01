@@ -28,6 +28,7 @@ import com.revolo.lock.ble.BleCommandFactory;
 import com.revolo.lock.ble.BleCommandState;
 import com.revolo.lock.ble.bean.BleBean;
 import com.revolo.lock.ble.bean.BleResultBean;
+import com.revolo.lock.dialog.SelectDialog;
 import com.revolo.lock.manager.LockMessage;
 import com.revolo.lock.manager.LockMessageCode;
 import com.revolo.lock.manager.LockMessageRes;
@@ -65,6 +66,7 @@ public class DoorSensorCheckActivity extends BaseActivity {
     private Button mBtnNext;
     private BleDeviceLocal mBleDeviceLocal;
     private boolean isGoToAddWifi = true;
+    private SelectDialog isExitDialog;//退出提示框
 
     @IntDef(value = {DOOR_OPEN, DOOR_CLOSE, DOOR_HALF, DOOR_SUC, DOOR_FAIL, DOOR_OPEN_AGAIN})
     private @interface DoorState {
@@ -101,11 +103,34 @@ public class DoorSensorCheckActivity extends BaseActivity {
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0) {
+            if (mDoorState != DOOR_SUC) {
+                showExitHintDialog();
+                return true;
+            }
             stopTime();
             finish();
             return true;
         }
         return super.onKeyDown(keyCode, event);
+    }
+
+    /**
+     * 门磁校验未完成退出
+     */
+    private void showExitHintDialog() {
+        if (null == isExitDialog) {
+            isExitDialog = new SelectDialog(this);
+            isExitDialog.setMessage(getString(R.string.door_sensor_check_exit_text));
+            isExitDialog.setOnCancelClickListener(v -> isExitDialog.dismiss());
+            isExitDialog.setOnConfirmListener(v -> {
+                isExitDialog.dismiss();
+                stopTime();
+                finish();
+            });
+        }
+        if (!isExitDialog.isShowing()) {
+            isExitDialog.show();
+        }
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN, sticky = true)
@@ -146,7 +171,17 @@ public class DoorSensorCheckActivity extends BaseActivity {
 
     @Override
     public void initView(@Nullable Bundle savedInstanceState, @Nullable View contentView) {
-        useCommonTitleBar(getString(R.string.door_sensor_check_activity_title));
+        useCommonTitleBar(getString(R.string.door_sensor_check_activity_title), new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (mDoorState != DOOR_SUC) {
+                    showExitHintDialog();
+                    return;
+                }
+                stopTime();
+                finish();
+            }
+        });
         mBtnNext = findViewById(R.id.btnNext);
         mIvDoorState = findViewById(R.id.ivDoorState);
         mTvTip = findViewById(R.id.tvTip);
@@ -336,6 +371,7 @@ public class DoorSensorCheckActivity extends BaseActivity {
         AppDatabase.getInstance(this).bleDeviceDao().update(mBleDeviceLocal);*/
             new Handler(Looper.getMainLooper()).postDelayed(() -> {
                 Intent intent = new Intent(DoorSensorCheckActivity.this, AddWifiActivity.class);
+                intent.putExtra(Constant.WIFI_SETTING_TO_ADD_WIFI, true);
                 startActivity(intent);
                 finish();
             }, 50);

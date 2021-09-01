@@ -100,7 +100,6 @@ public class MQTTReply {
                 if (null != mqttDataLinstener) {
                     mqttDataLinstener.onAddDevice(true, null);
                 }
-                return;
             } else {
                 //从服务端返回的设备列表
                 List<WifiLockGetAllBindDeviceRspBean.DataBean.WifiListBean> wifilists = bean.getData().getWifiList();
@@ -315,7 +314,7 @@ public class MQTTReply {
             if (userBean != null) {
                 String nowToken = userBean.getToken();
                 if (!newToken.equals(nowToken)) {
-                    App.getInstance().logout(true, LockAppManager.getAppManager().currentActivity());
+                    App.getInstance().logout(false, LockAppManager.getAppManager().currentActivity());
                 }
             }
         }
@@ -403,6 +402,7 @@ public class MQTTReply {
                 bleDeviceLocal.setPwd2(wifiListBean.getPassword2());
         }
 
+        bleDeviceLocal.setDoNotDisturbMode(!wifiListBean.isOpenlockPushSwitch());
         // TODO: 2021/3/16 存储数据
         if (!TextUtils.isEmpty(wifiListBean.getRandomCode()))
             bleDeviceLocal.setRandomCode(wifiListBean.getRandomCode());

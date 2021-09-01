@@ -230,6 +230,11 @@ public abstract class BaseActivity extends AppCompatActivity
         mTitleBar = new TitleBar(mContentView).setTitle(title).useCommonLeft(v -> finish());
         return mTitleBar;
     }
+    public TitleBar useCommonTitleBar(String title, View.OnClickListener listener) {
+        setStatusBarColor(R.color.white);
+        mTitleBar = new TitleBar(mContentView).setTitle(title).useCommonLeft(listener);
+        return mTitleBar;
+    }
 
     public void applyDebouncingClickListener(View... views) {
         ClickUtils.applyGlobalDebouncing(views, mClickListener);

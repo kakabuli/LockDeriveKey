@@ -117,7 +117,6 @@ public class Constant {
      * 是否有新版本更新
      */
     public static boolean isNewAppVersion = false;
-<<<<<<< HEAD
 
     public static String registerEmail = "";
 
@@ -126,7 +125,20 @@ public class Constant {
     /**
      * 是否进入地理围栏引导
      */
-    public static final String SHOW_GEOFENCE_LOADING="show_geofence_loading";
-=======
->>>>>>> parent of c7c66a1 ( * 版本号升级到0.7.2)
+    public static final String SHOW_GEOFENCE_LOADING = "show_geofence_loading";
+
+    /**
+     * 连接的wifiName
+     */
+    public static final String CONNECT_WIFI_NAME = "WiFiName";
+
+    /**
+     * wifiSetting页面去设置wifi
+     */
+    public static final String WIFI_SETTING_TO_ADD_WIFI = "wifiSettingToAddWifi";
+
+    /**
+     * 修改锁的名称
+     */
+    public static final String CHANGE_LOCK_NAME = "tvName";
 }

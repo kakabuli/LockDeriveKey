@@ -61,7 +61,7 @@ public class SettingActivity extends BaseActivity {
 
     @Override
     public void initView(@Nullable Bundle savedInstanceState, @Nullable View contentView) {
-        useCommonTitleBar(getString(R.string.title_setting));
+        useCommonTitleBar(getString(R.string.title_general_setting));
         ivGestureCodeEnable = findViewById(R.id.ivGestureCodeEnable);
         ivEnableTouchIDEnable = findViewById(R.id.ivEnableTouchIDEnable);
         ivEnableFaceIDEnable = findViewById(R.id.ivEnableFaceIDEnable);
@@ -124,7 +124,11 @@ public class SettingActivity extends BaseActivity {
                 startActivityForResult(intent, REQUEST_CODE_OPEN_GESTURE_CODE);
             }
         } else if (view.getId() == R.id.ivEnableTouchIDEnable) {
-            mFingerprintUtils.openFingerprintAuth();
+            if (android.os.Build.VERSION.SDK_INT > 27) {
+                biometricSet(false);
+            } else {
+                mFingerprintUtils.openFingerprintAuth();
+            }
         } else if (view.getId() == R.id.ivEnableFaceIDEnable) {
             // TODO: 2021/3/19 faceId
             switch (getDeviceBrand()) {

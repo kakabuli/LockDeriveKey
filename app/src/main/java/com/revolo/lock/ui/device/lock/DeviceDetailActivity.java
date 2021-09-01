@@ -16,6 +16,7 @@ import androidx.core.content.ContextCompat;
 
 import com.a1anwang.okble.client.scan.BLEScanResult;
 import com.blankj.utilcode.util.ConvertUtils;
+import com.blankj.utilcode.util.GsonUtils;
 import com.blankj.utilcode.util.ToastUtils;
 import com.revolo.lock.App;
 import com.revolo.lock.Constant;
@@ -28,15 +29,18 @@ import com.revolo.lock.ble.BleProtocolState;
 import com.revolo.lock.ble.bean.BleBean;
 import com.revolo.lock.ble.bean.BleResultBean;
 import com.revolo.lock.dialog.MessageDialog;
-import com.revolo.lock.dialog.SignalWeakDialog;
+import com.revolo.lock.dialog.SelectDialog;
 import com.revolo.lock.manager.LockMessage;
 import com.revolo.lock.manager.LockMessageCode;
 import com.revolo.lock.manager.LockMessageRes;
 import com.revolo.lock.mqtt.MQttConstant;
 import com.revolo.lock.mqtt.MqttCommandFactory;
+import com.revolo.lock.mqtt.bean.eventbean.WifiLockAlarmEventBean;
+import com.revolo.lock.mqtt.bean.eventbean.WifiLockOperationEventBean;
 import com.revolo.lock.room.AppDatabase;
 import com.revolo.lock.room.entity.BleDeviceLocal;
 import com.revolo.lock.ui.device.lock.setting.DeviceSettingActivity;
+import com.revolo.lock.ui.device.lock.setting.PrivateModeActivity;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -55,7 +59,7 @@ import static com.revolo.lock.ble.BleCommandState.LOCK_SETTING_OPEN;
  */
 public class DeviceDetailActivity extends BaseActivity {
     private BleDeviceLocal mBleDeviceLocal;
-    private SignalWeakDialog mSignalWeakDialog;
+    private SelectDialog mSelectDialog;
     private MessageDialog mMessageDialog;
     private ImageView mIvBatteryState;
     private TextView mTvBatteryState;
@@ -76,7 +80,7 @@ public class DeviceDetailActivity extends BaseActivity {
         if (null != mBleDeviceLocal && null != mBleDeviceLocal.getName() && !"".equals(mBleDeviceLocal.getName()) && !mBleDeviceLocal.getEsn().equals(mBleDeviceLocal.getName())) {
             useCommonTitleBar(mBleDeviceLocal.getName());
         } else {
-            useCommonTitleBar("Homepage");
+            useCommonTitleBar(mBleDeviceLocal.getEsn());
         }
         updateView();
         if (mBleDeviceLocal == null) {
@@ -158,7 +162,7 @@ public class DeviceDetailActivity extends BaseActivity {
                             if (null != mBleDeviceLocal) {
                                 updateView();
                             }
-                            // processRecord((WifiLockOperationEventBean) lockMessage.getWifiLockBaseResponseBean());
+                            processRecord((WifiLockOperationEventBean) lockMessage.getWifiLockBaseResponseBean());
                         }
                         break;
                     case LockMessageCode.MSG_LOCK_MESSAGE_SET_LOCK:
@@ -198,6 +202,19 @@ public class DeviceDetailActivity extends BaseActivity {
             }
         } else {
 
+        }
+    }
+
+    private void processRecord(WifiLockOperationEventBean wifiLockAlarmEventBean) {
+        if (wifiLockAlarmEventBean != null && wifiLockAlarmEventBean.getEventtype() != null) {
+            String eventtype = wifiLockAlarmEventBean.getEventtype();
+            if (eventtype.equals("alarm")) { // 报警信息
+                WifiLockOperationEventBean.EventparamsBean eventparams = wifiLockAlarmEventBean.getEventparams();
+                if (eventparams != null && eventparams.getAlarmCode() == 65) { // 堵转
+                    tvPrivateMode.setVisibility(View.VISIBLE);
+                    tvPrivateMode.setText(getString(R.string.tip_bolt_not_fully_locked));
+                }
+            }
         }
     }
 
@@ -261,10 +278,8 @@ public class DeviceDetailActivity extends BaseActivity {
         if (mBleDeviceLocal.getLockState() == LocalState.LOCK_STATE_PRIVATE) {
             doorShow(ivDoorState, tvDoorState);
             ivLockState.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_home_img_lock_privacymode));
-            tvPrivateMode.setVisibility(View.GONE);
             llDoorState.setVisibility(View.GONE);
         } else {
-            tvPrivateMode.setVisibility(View.GONE);
             llDoorState.setVisibility(View.VISIBLE);
             boolean isUseDoorSensor = mBleDeviceLocal.isOpenDoorSensor();
             Timber.d("door sensor state: %1d, isUseDoorSensor: %2b", mBleDeviceLocal.getDoorSensor(), isUseDoorSensor);
@@ -287,7 +302,6 @@ public class DeviceDetailActivity extends BaseActivity {
                     }
                 } else {
                     doorHide(ivDoorState, tvDoorState);
-//                    doorOpen(ivDoorState, tvDoorState);
                 }
 
             } else if (mBleDeviceLocal.getLockState() == LocalState.LOCK_STATE_CLOSE || mBleDeviceLocal.getLockState() == LocalState.LOCK_STATE_SENSOR_CLOSE) {
@@ -309,13 +323,13 @@ public class DeviceDetailActivity extends BaseActivity {
                     }
                 } else {
                     doorHide(ivDoorState, tvDoorState);
-//                    doorClose(ivDoorState, tvDoorState);
                 }
             } else {
+                llDoorState.setVisibility(View.GONE);
                 ivLockState.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_home_img_lock_close));
                 // TODO: 2021/3/31 其他选择
                 Timber.e("其他选择");
-                doorClose(ivDoorState, tvDoorState);
+                doorHide(ivDoorState, tvDoorState);
             }
         }
         if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI || mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI_BLE) {
@@ -327,7 +341,7 @@ public class DeviceDetailActivity extends BaseActivity {
             ivNetState.setVisibility(View.VISIBLE);
             tvNetState.setVisibility(View.VISIBLE);
         } else {
-            ivLockState.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_home_img_lock_privacymode));
+            ivLockState.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_home_img_lock_offline));
             tvPrivateMode.setVisibility(View.VISIBLE);
             tvPrivateMode.setText(getString(R.string.t_text_content_offline));
             llDoorState.setVisibility(View.GONE);
@@ -367,8 +381,50 @@ public class DeviceDetailActivity extends BaseActivity {
             return;
         }
         if (view.getId() == R.id.ivLockState) {
-            openDoor();
+            if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_DIS) { // 离线模式
+                deviceOfflineDialog();
+            } else {
+                if (mBleDeviceLocal.getLockState() == LocalState.LOCK_STATE_PRIVATE) { // 隐私模式
+                    devicePrivateModeDialog();
+                } else {
+                    openDoor();
+                }
+            }
         }
+    }
+
+    private void deviceOfflineDialog() {
+        if (mMessageDialog == null) {
+            mMessageDialog = new MessageDialog(this);
+        }
+        mMessageDialog.setMessage(getString(R.string.tip_device_offline_dialog));
+        mMessageDialog.setOnListener(v -> {
+            if (mMessageDialog != null) {
+                mMessageDialog.dismiss();
+            }
+        });
+        mMessageDialog.show();
+    }
+
+    private void devicePrivateModeDialog() {
+        if (mSelectDialog == null) {
+            mSelectDialog = new SelectDialog(this);
+        }
+        mSelectDialog.setMessage(getString(R.string.tip_device_private_mode_dialog));
+        mSelectDialog.setConfirmText(getString(R.string.dialog_btn_confirm));
+        mSelectDialog.setCancelText(getString(R.string.tip_learn_more));
+        mSelectDialog.setOnConfirmListener(v -> {
+            if (mSelectDialog != null) {
+                mSelectDialog.dismiss();
+            }
+        });
+        mSelectDialog.setOnCancelClickListener(v -> {
+            startActivity(new Intent(this, PrivateModeActivity.class));
+            if (mSelectDialog != null) {
+                mSelectDialog.dismiss();
+            }
+        });
+        mSelectDialog.show();
     }
 
     private void gotoDeviceSettingAct() {

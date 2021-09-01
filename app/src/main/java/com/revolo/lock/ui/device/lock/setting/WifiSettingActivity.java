@@ -19,6 +19,7 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import com.blankj.utilcode.util.ConvertUtils;
 import com.blankj.utilcode.util.ToastUtils;
 import com.revolo.lock.App;
+import com.revolo.lock.Constant;
 import com.revolo.lock.LocalState;
 import com.revolo.lock.R;
 import com.revolo.lock.base.BaseActivity;
@@ -27,6 +28,7 @@ import com.revolo.lock.ble.BleCommandFactory;
 import com.revolo.lock.ble.BleCommandState;
 import com.revolo.lock.ble.bean.BleBean;
 import com.revolo.lock.ble.bean.BleResultBean;
+import com.revolo.lock.dialog.ConnectWifiLowBatteryDialog;
 import com.revolo.lock.dialog.MessageDialog;
 import com.revolo.lock.dialog.OpenBleDialog;
 import com.revolo.lock.dialog.SelectDialog;
@@ -73,7 +75,7 @@ public class WifiSettingActivity extends BaseActivity {
     private TextView mTvWifiName;
 
     private SelectDialog mSelectDialog;
-    private MessageDialog mPowerLowDialog;
+    private ConnectWifiLowBatteryDialog mPowerLowDialog;
     private ConstraintLayout mCltip;
     private OpenBleDialog openBleDialog;
 
@@ -99,13 +101,6 @@ public class WifiSettingActivity extends BaseActivity {
         initLoading(getString(R.string.t_load_content_setting));
         applyDebouncingClickListener(mIvWifiEnable, findViewById(R.id.tvSettingTitle), findViewById(R.id.clTip));
 
-        mPowerLowDialog = new MessageDialog(this);
-        mPowerLowDialog.setMessage(getString(R.string.t_open_wifi_tip_low_power));
-        mPowerLowDialog.setOnListener(v -> {
-            if (mPowerLowDialog != null) {
-                mPowerLowDialog.dismiss();
-            }
-        });
 
         mSelectDialog = new SelectDialog(this);
         mSelectDialog.setMessage(getString(R.string.t_closed_wifi_connect_msg));
@@ -303,7 +298,10 @@ public class WifiSettingActivity extends BaseActivity {
             } else {
                 if (mBleDeviceLocal.getLockPower() <= 20) {
                     // 低电量
-                    if (mPowerLowDialog != null) {
+                    if (null == mPowerLowDialog) {
+                        mPowerLowDialog = new ConnectWifiLowBatteryDialog(this);
+                    }
+                    if (!mPowerLowDialog.isShowing()) {
                         mPowerLowDialog.show();
                     }
                 } else {
@@ -368,8 +366,9 @@ public class WifiSettingActivity extends BaseActivity {
         String trim = mTvWifiName.getText().toString().trim();
         Intent intent = new Intent(this, AddWifiActivity.class);
         if (!TextUtils.isEmpty(trim)) {
-            intent.putExtra("WiFiName", trim);
+            intent.putExtra(Constant.CONNECT_WIFI_NAME, trim);
         }
+        intent.putExtra(Constant.WIFI_SETTING_TO_ADD_WIFI, false);
         startActivity(intent);
         dismissLoading();
     }
@@ -537,7 +536,7 @@ public class WifiSettingActivity extends BaseActivity {
                 bleConnected.setBleDeviceLocal(mBleDeviceLocal);
                 EventBus.getDefault().post(bleConnected);
             }
-        }, 500);
+        }, 2000);
     }
 
     /**

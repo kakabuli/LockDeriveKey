@@ -91,7 +91,7 @@ public class OpRecordsAdapter extends BaseExpandableListAdapter {
         if (convertView == null) {
             convertView = LayoutInflater.from(mContext).inflate(R.layout.item_operation_record_list_rv, parent, false);
             groupViewHolder = new GroupViewHolder();
-            groupViewHolder.tvTimeTitle = (TextView) convertView.findViewById(R.id.tvTimeTitle);
+            groupViewHolder.tvTimeTitle = convertView.findViewById(R.id.tvTimeTitle);
             convertView.setTag(groupViewHolder);
         } else {
             groupViewHolder = (GroupViewHolder) convertView.getTag();
@@ -143,7 +143,20 @@ public class OpRecordsAdapter extends BaseExpandableListAdapter {
             if (TimeUtils.isToday(time + 86400000)) {
                 return "Yesterday";
             } else {
-                return ZoneUtil.getDate(timeZone, time, "MMM dd yyyy");
+                String strTime = ZoneUtil.getDate(timeZone, time, "dd/MM/yyyy");
+                String subStartTime = strTime.substring(0, 2);
+                String replaceStartTime = "";
+                if (subStartTime.endsWith("1")) {
+                    replaceStartTime = subStartTime + "st";
+                } else if (subStartTime.endsWith("2")) {
+                    replaceStartTime = subStartTime + "nd";
+                } else if (subStartTime.endsWith("3")) {
+                    replaceStartTime = subStartTime + "rd";
+                } else {
+                    replaceStartTime = subStartTime + "th";
+                }
+                strTime = replaceStartTime + strTime.substring(2);
+                return strTime;
             }
         }
     }

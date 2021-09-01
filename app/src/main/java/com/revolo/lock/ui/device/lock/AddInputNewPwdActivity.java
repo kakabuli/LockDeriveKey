@@ -3,10 +3,12 @@ package com.revolo.lock.ui.device.lock;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.text.InputType;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -27,6 +29,7 @@ import com.revolo.lock.base.BaseActivity;
  */
 public class AddInputNewPwdActivity extends BaseActivity {
 
+    private boolean isShowPwd = true;
     private EditText mEtPwd;
     private TextView mTvIntroduceTitle, mTvIntroduceContent;
 
@@ -47,6 +50,15 @@ public class AddInputNewPwdActivity extends BaseActivity {
         mTvIntroduceTitle = findViewById(R.id.tvTextThree);
         mTvIntroduceContent = findViewById(R.id.tvTextFour);
         applyDebouncingClickListener(findViewById(R.id.btnNext), mTvIntroduceTitle);
+
+        findViewById(R.id.ivEye).setOnClickListener(v -> {
+            ImageView ivEye = findViewById(R.id.ivEye);
+            ivEye.setImageResource(isShowPwd ? R.drawable.ic_login_icon_display_blue : R.drawable.ic_login_icon_hide_blue);
+            mEtPwd.setInputType(isShowPwd ?
+                    InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
+                    : (InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD));
+            isShowPwd = !isShowPwd;
+        });
     }
 
     @Override

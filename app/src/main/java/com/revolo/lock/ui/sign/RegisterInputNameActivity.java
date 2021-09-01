@@ -138,7 +138,6 @@ public class RegisterInputNameActivity extends BaseActivity {
                 new Handler(Looper.getMainLooper()).postDelayed(() -> {
                     Intent intent = new Intent(RegisterInputNameActivity.this, RegisterAddAvatarActivity.class);
                     startActivity(intent);
-                    finish();
                 }, 50);
             }
 

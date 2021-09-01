@@ -190,6 +190,10 @@
             android:launchMode="singleTask"
             android:screenOrientation="portrait" />
         <activity
+            android:name=".ui.device.add.DoorSensorStepActivity"
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait" />
+        <activity
             android:name=".ui.device.add.InputESNActivity"
             android:launchMode="singleTask"
             android:screenOrientation="portrait" />
@@ -444,6 +448,7 @@
         <receiver android:name=".receiver.WifiStateReceiver">
             <intent-filter>
                 <action android:name="android.net.wifi.STATE_CHANGE" />
+                <action android:name="android.net.wifi.RSSI_CHANGED" />
             </intent-filter>
         </receiver>
     </application>

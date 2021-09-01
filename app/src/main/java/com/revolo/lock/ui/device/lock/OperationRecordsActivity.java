@@ -1,6 +1,7 @@
 package com.revolo.lock.ui.device.lock;
 
 import android.graphics.Color;
+import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.Gravity;
@@ -488,11 +489,10 @@ public class OperationRecordsActivity extends BaseActivity {
         // TODO: 2021/3/18 时间错误就不能存储
         if (beans.isEmpty()) {
             Timber.e("processRecordFromNet beans is empty");
-            ToastUtils.showShort(getString(R.string.data_no_records));
-            return;
-        }
-        if (beans.size() == 0) {
-            ToastUtils.showShort(getString(R.string.data_no_records));
+            if (mPage == 1) {
+                mWillShowRecords.clear();
+                refreshUIFromFinalData();
+            }
             return;
         }
         // 不做校验，直接做存储并数据库做了插入去重
@@ -565,7 +565,7 @@ public class OperationRecordsActivity extends BaseActivity {
             }
             String lastName = lockRecord.getLastName();
             if (TextUtils.isEmpty(lastName)) {
-                lastName = "";
+                lastName = "user";
             }
             String pwdName = lockRecord.getPwdNickname();
             if (TextUtils.isEmpty(pwdName)) {
@@ -601,7 +601,7 @@ public class OperationRecordsActivity extends BaseActivity {
                     case 0x10:
                         // 敲击开锁
                         // TODO: 2021/3/29 通过编号识别对应用户, 下面记录还有
-                        message = lockName + " Auto-Unlock";
+                        message = lockName + " Auto-Unlocked";
                         drawableId = R.drawable.ic_home_log_icon_geo_fence;
                         break;
                     case 0x11:
@@ -624,7 +624,7 @@ public class OperationRecordsActivity extends BaseActivity {
                         switch (lockRecord.getEventSource()) {
                             case 0x00:
                                 // 键盘
-                                message = lastName + " Locked " + lockName + " via PIN Key";
+                                message = pwdName + " Locked " + lockName + " via PIN Key";
                                 drawableId = R.drawable.ic_home_log_icon_password;
                                 break;
                             case 0x08:
@@ -644,7 +644,7 @@ public class OperationRecordsActivity extends BaseActivity {
                         switch (lockRecord.getEventSource()) {
                             case 0x00:
                                 // 键盘
-                                message = lastName + " Unlocked " + lockName + " via PIN Key";
+                                message = pwdName + " Unlocked " + lockName + " via PIN Key";
                                 drawableId = R.drawable.ic_home_log_icon_password;
                                 break;
                             case 0x08:

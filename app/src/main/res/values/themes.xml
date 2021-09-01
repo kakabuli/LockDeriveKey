@@ -38,11 +38,6 @@
         <item name="android:gravity">center</item>
     </style>
 
-    <style name="InputEditTextTheme" parent="Theme.MaterialComponents.DayNight.NoActionBar">
-        <item name="colorControlNormal">@color/cA5A4DA</item>
-        <item name="colorControlActivated">@color/c2C68FF</item>
-    </style>
-
     <style name="LoginInputEditTextStyle">
         <item name="android:textColor">@color/white</item>
         <item name="android:textColorHint">@color/cD4E1FF</item>

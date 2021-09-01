@@ -8,6 +8,7 @@ import android.view.View;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.blankj.utilcode.util.ActivityUtils;
 import com.revolo.lock.Constant;
 import com.revolo.lock.R;
 import com.revolo.lock.base.BaseActivity;
@@ -60,6 +61,11 @@ public class BleConnectFailActivity extends BaseActivity {
     }
 
     private void gotoAddWifi() {
+        ActivityUtils.finishActivity(AddDeviceActivity.class);
+        ActivityUtils.finishActivity(AddDeviceStep1Activity.class);
+        ActivityUtils.finishActivity(AddDevice1StepActivity.class);
+        ActivityUtils.finishActivity(AddDevice2StepActivity.class);
+        ActivityUtils.finishActivity(AddDeviceQRCodeStep2Activity.class);
         finish();
     }
 

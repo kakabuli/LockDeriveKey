@@ -1,14 +1,14 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name">Revolo</string>
     <string name="title_device">Devices</string>
     <string name="title_user">Invite</string>
+    <string name="title_user_fragment">USER</string>
     <string name="title_mine">My</string>
 
     <!--   SignSelectActivity  -->
     <string name="revolo">Revolo</string>
     <string name="tip_sign_select">Welcome to use revolo products to\n give you a safe and comfortable\n home</string>
     <string name="register">SIGN UP</string>
-    <string name="sign_in">Sign in</string>
 
     <string name="iv_tip_back">Back</string>
 
@@ -41,7 +41,7 @@
     <!-- RegisterAddAvatarNextActivity -->
     <string name="tip_register_add_avatar_next">Revolo registration has been completed.</string>
     <string name="add_device">Add device</string>
-    <string name="add_next_time">Add next time</string>
+    <string name="add_next_time">Next Time</string>
 
     <!--BleConnectSucActivity -->
     <string name="ble_connectsuc_activity_view">PARING SUCCESS</string>
@@ -64,14 +64,16 @@
     <string name="password">PASSWORD</string>
     <string name="input_email_address">Email Address</string>
     <string name="forgot_password">Forgot password</string>
-    <string name="sign_up">Sign Up</string>
+    <string name="sign_up">Sign up</string>
+    <string name="btn_login">Login</string>
 
     <!-- ForgetThePwdActivity -->
-    <string name="title_forget_the_pwd">Forget the password</string>
+    <string name="title_forget_the_pwd">FORGET THE PASSWORD</string>
     <string name="done">Done</string>
     <string name="get_code">Get code</string>
     <string name="verification_code">Verification code</string>
     <string name="complete">Complete</string>
+    <string name="tip_btn_create">Create</string>
 
     <!-- HomeFragment -->
     <string name="tip_home_page">Welcome to use the\n Revolo smart door lock</string>
@@ -109,6 +111,7 @@
     <string name="tip_opened">Opened</string>
     <string name="tip_closed">Closed</string>
     <string name="tip_error">Error</string>
+    <string name="tip_learn_more">Learn more</string>
 
     <!-- OperationRecordsActivity -->
     <string name="title_operation_records">ACTIVITIES</string>
@@ -117,31 +120,35 @@
     <!-- AddNewPwdActivity -->
     <string name="tip_you_can_set_4_10_valid_passwords">You can set 4&#8211;10 digital PIN Key</string>
 
-    <string name="hint_please_enter_password">Please enter password</string>
+    <string name="hint_please_enter_password">Please Enter New PIN Key</string>
     <string name="title_add_password">ADD PIN KEY</string>
+    <string name="tip_add_password_select">Customize Your PIN Key</string>
+    <string name="tip_add_password_name">Name Your PIN Key</string>
     <string name="select_permanent">Permanent</string>
     <string name="select_schedule">Schedule</string>
     <string name="select_temporary">Temporary</string>
 
     <!-- AddNewPwdNameActivity -->
-    <string name="password_name">Password name</string>
+    <string name="password_name">PIN Key Name</string>
 
     <!-- PasswordDetailActivity -->
-    <string name="delete_password">Delete password</string>
-    <string name="password_characteristic">Password characteristic</string>
-    <string name="creation_date">Creation date</string>
-    <string name="title_pwd_details">Password details</string>
+    <string name="delete_password">Delete PIN Key</string>
+    <string name="password_characteristic">PIN KEY Type</string>
+    <string name="creation_date">Created Date</string>
+    <string name="title_pwd_details">PIN KEY</string>
     <string name="tip_pwd_default_name">PIN Key %1s</string>
+    <string name="tip_PIN_Key">PIN Key</string>
 
     <!-- ChangePwdNameActivity -->
-    <string name="name">Name</string>
-    <string name="please_enter_the_password_name">Please enter the password name</string>
+    <string name="name">New Name</string>
+    <string name="please_enter_the_password_name">Please Enter the PIN Key Name</string>
     <string name="chang_pwd_name_activity_title">NAME YOUR LOCK</string>
     <string name="chang_lock_name_activity_name">New Name</string>
-    <string name="title_change_the_name">Change the name</string>
+    <string name="title_change_the_name">CHANGE THE NAME</string>
+    <string name="title_change_pwd_the_name">PIN KEY</string>
 
     <!-- UserManagementActivity -->
-    <string name="title_user_management">User management</string>
+    <string name="title_user_management">USER LIST</string>
     <string name="per_unable_to_add_user">Unable to add user</string>
     <string name="per_unable_to_add_password">Unable to add password</string>
     <string name="per_app_unlock_only">· Able to lock and unlock door via Revolo App ONLY!</string>
@@ -155,7 +162,7 @@
     <string name="tip_add_new_user">Add new user</string>
 
     <!-- AuthorizationManagementActivity -->
-    <string name="title_authorization_management">Authorization management</string>
+    <string name="title_authorization_management">ACCESS LEVEL</string>
     <string name="tip_invite_user">You are going to invite users to use this door lock</string>
     <string name="share">Share</string>
     <string name="family">Family</string>
@@ -163,10 +170,12 @@
 
     <!-- SharedUserDetailActivity -->
     <string name="delete">Delete</string>
+    <string name="tip_remove">Remove</string>
     <string name="enable_user_authorization">Grant Account Authority</string>
 
     <!-- DeviceSettingActivity -->
     <string name="title_setting">LOCK SETTINGS</string>
+    <string name="title_general_setting">GENERAL SETTINGS</string>
     <string name="device_setting_name">Device Name</string>
     <string name="device_setting_wifi">Wi-Fi Network</string>
     <string name="wifi">WiFi</string>
@@ -235,44 +244,46 @@
     <string name="accepting">accepting</string>
 
     <!-- AddDeviceForSharedUserActivity -->
-    <string name="title_select_authorized_device">Select authorized device</string>
+    <string name="title_select_authorized_device">ACCESS LEVEL</string>
     <string name="select_authorized_user_device">Select authorized user device</string>
 
     <!-- SelectAuthorizedDeviceActivity -->
     <string name="you_will_invite_users_to_use_the_lock">You will invite users to use the lock</string>
+    <string name="tip_access_level_invite_device">Please Grant Access Level the User you Intent to Invite</string>
 
     <!-- MineFragment -->
     <string name="message">Message</string>
     <string name="setting">General Setting</string>
     <string name="about">About</string>
     <string name="feedback">Feedback</string>
-    <string name="help">Help</string>
+    <string name="help">HELP</string>
     <string name="FAQ">FAQ</string>
     <string name="hi_name">Hi, %1$s</string>
     <string name="join_tip">%1$s is inviting you to use %2$s lock, would you accept?</string>
     <string name="day_detail">Revolo has been with you for %1$d days</string>
 
     <!-- UserPageActivity -->
-    <string name="title_user_page">User page</string>
+    <string name="title_user_page">PERSONAL INFORMATION</string>
     <string name="log_out">Log out</string>
     <string name="user_name">User name</string>
     <string name="email">Email</string>
+    <string name="e_mail">E-mail</string>
     <string name="change_password">Change password</string>
 
     <!-- ModifyUserNameActivity -->
-    <string name="title_modify_user_name">Modify user name</string>
+    <string name="title_modify_user_name">MODIFY NAME</string>
 
     <!-- ModifyEmailActivity -->
     <string name="please_enter_email_address">Please enter email address</string>
     <string name="title_modify_email">Modify Email</string>
-    <string name="title_modify_pwd">Modify password</string>
+    <string name="title_modify_pwd">MODIFY PASSWORD</string>
 
     <!-- ModifyPasswordActivity -->
     <string name="hint_old_password">Old Password</string>
     <string name="hint_new_password">New Password</string>
 
     <!-- MessageListActivity -->
-    <string name="title_message">Message</string>
+    <string name="title_message">MESSAGE</string>
     <string name="title_message_detail">Message details</string>
 
     <!-- SettingActivity -->
@@ -287,17 +298,18 @@
 
     <!-- AboutActivity -->
     <string name="copyright_2020">Copyright@2021 Revolo Co.,Ltd ALL RIGHTS RESERVED</string>
-    <string name="title_about">About</string>
+    <string name="title_about">ABOUT</string>
     <string name="contact">Contact</string>
     <string name="privacy_agreement">Privacy agreement</string>
     <string name="privacy_policy">Privacy policy</string>
-    <string name="user_agreement">Service agreement</string>
+    <string name="user_agreement">User agreement</string>
+    <string name="service_agreement">Service agreement</string>
     <string name="version_update">Version update</string>
     <string name="about_ver">v%1$s</string>
     <string name="about_text">Questions about your new Revolo lock?\nPlease contact us.</string>
 
     <!-- FeedbackActivity -->
-    <string name="title_feedback">Feedback</string>
+    <string name="title_feedback">FEEDBACK</string>
     <string name="please_enter_your_feedback">Please enter your feedback</string>
     <string name="submit">Submit</string>
 
@@ -318,7 +330,7 @@
     <string name="please_choose_your_wifi_account_nand_enter_password">Please enter the network name(SSID) and password for your Wi-Fi network.</string>
     <string name="tip_add_wifi_suc">Congraduation, your Lock has been \n connected to Wi-Fi network. \n Please click \'Next\' to name your Lock.</string>
     <string name="wifi_connecting_failed">WiFi Connecting failed</string>
-    <string name="cancel_connecting">Cancel Connecting</string>
+    <string name="cancel_connecting">Skip,Connect Later</string>
     <string name="tip_add_wifi_fail_tip">· Please make sure your router is functional.\n· Please make sure the lock is wihin the range of the router\'s WIFI signal.\n· Please make sure the WiFi account and password are correct.</string>
     <string name="title_connect_wifi">CONNECT TO WIFI</string>
 
@@ -333,6 +345,13 @@
     <string name="open_door_step_1_3_tip">1. Please install the door sensor on the door \n&#160;&#160;&#160;&#160;frame. \n2. Please install the door sensor along the top \n&#160;&#160;&#160;&#160;of the lock. \n3. Please full open the door.</string>
     <string name="close_door_step_2_tip">1. Please close the door.</string>
     <string name="half_door_step_4_tip">1. Turn the thumb turn to reach the deadbolt \n&#160;&#160;&#160;&#160;out . \n2. Half close the door to make the deadbolt \n&#160;&#160;&#160;&#160;against the door frame.</string>
+    <string name="door_sensor_check_exit_text">The door magnetic calibration will fail if you exit halfway.Do you want to exit？</string>
+    <string name="door_check_fail">Skip, Connect to WIFI</string>
+
+
+    <!-- -->
+    <string name="dis_wifi_hint_dilog_text">Turning off WiFi will switch to Bluetooth mode. Reconfiguring WiFi requires you to hold the phone near your loc.</string>
+    <string name="dis_wifi_hint_dialog_igr_text">I know about it and hope that the app will not prompt this message again.</string>
 
     <string name="door_sensor_check_activity_title">DOOR SENSOR CALIBRATE</string>
     <string name="door_sensor_check_activity_1_hint_text">Please open the door as much as you can Open the door as far.</string>
@@ -351,9 +370,12 @@
     <string name="title_geo_fence_unlock">AUTO-UNLOCK</string>
     <string name="geo_fence_unlock_instruction">Auto-Unlock instruction</string>
     <string name="geo_fence_unlock">Auto-Unlock</string>
-    <string name="distance_range_setting">Distance range setting</string>
+    <string name="distance_range_setting">Geofence Range Setting</string>
+    <string name="distance_range_setting_text">The lock will be in Auto-Unlock Mode once you enter the Geofence Range you set.</string>
     <string name="sensitivity">Sensitivity</string>
+    <string name="sensitivity_text">The lock will be no longer in Auto-Unlock Mode when time is up.</string>
     <string name="set_time">Set time</string>
+    <string name="set_time_text">Slide the sensitivity bar to modify the sensitivity of the Lock, depending on how hard you knock the door normally.</string>
 
     <!--- AutoLockLoadActivity-->
     <string name="auto_lock_load_hint_1_text">Auto unlock is a feature that will help you open the door when you get home.</string>
@@ -378,8 +400,10 @@
     <string name="disturb_mode_activity_what_hint_text">Do not disturb mode means that when this function is turned on, no other information will be reminded except for warning information.</string>
 
     <!-- TermActivity -->
-    <string name="title_user_term">Service Agreement</string>
-    <string name="title_privacy_term">Privacy Policy</string>
+    <string name="title_user_term">USER AGREEMENT</string>
+    <string name="title_privacy_term">PRIVACY AGREEMENT</string>
+    <string name="title_service_term">Service Agreement</string>
+    <string name="title_privacy_policy_term">Privacy Policy</string>
 
     <!-- Record -->
     <string name="log_uses_a_password_to_unlock">%1$s uses a password to unlock</string>
@@ -410,15 +434,15 @@
     <string name="dialog_btn_confirm">Confirm</string>
     <string name="dialog_title_low_battery">Low battery</string>
     <string name="dialog_tip_wifi_is_disabled_please_replace_the_battery">WiFi is disabled,\n please replace the battery.</string>
-    <string name="dialog_tip_password_added">Password added.</string>
+    <string name="dialog_tip_password_added">succeed.</string>
     <string name="dialog_title_add_failure">Add failure</string>
-    <string name="dialog_tip_please_make_sure_wifi_is_online">Please make sure WiFi is online</string>
-    <string name="dialog_tip_please_make_sure_the_bluetooth_is_connected">Please make sure the Bluetooth \nis connected</string>
-    <string name="dialog_tip_please_make_sure_the_network_is_normal">Please make sure the network is \nnormal</string>
+    <string name="dialog_tip_please_make_sure_wifi_is_online">▪Please make sure your router is functional.</string>
+    <string name="dialog_tip_please_make_sure_the_bluetooth_is_connected">▪Please make sure the lock is wihin the range of the router\'sWIFI signal.</string>
+    <string name="dialog_tip_please_make_sure_the_network_is_normal">▪Please make sure the WiFi account and  password are correct.</string>
     <string name="dialog_tip_unlock_failed_please_try_it_again">Unlock failed.\nPlease try it again.</string>
     <string name="dialog_tip_the_door_lock_is_in_private_mode_cant_click_at_present">The door lock is in private mode,\nCan\'t click at present</string>
-    <string name="dialog_tip_please_approach_the_door_lock_to_delete_password">Please approach the door lock to\ndelete Password.</string>
-    <string name="dialog_tip_password_deleted">Password deleted.</string>
+    <string name="dialog_tip_please_approach_the_door_lock_to_delete_password">Lock is in Bluetooth Mode Please approach the lock to continue or check.</string>
+    <string name="dialog_tip_password_deleted">PIN Key deleted.</string>
     <string name="dialog_tip_deletion_failed_door_lock_bluetooth_is_not_found">Deletion failed\nDoor lock Bluetooth is not found.</string>
     <string name="dialog_btn_determine">Determine</string>
     <string name="dialog_tip_are_you_sure_to_remove_this_user">Are you sure to remove\nthis user.</string>
@@ -435,9 +459,9 @@
     <string name="dialog_btn_ok">OK</string>
     <string name="dialog_tip_there_is_a_new_version_available_do_you_want_to_update">There is a new version available,\nDo you want to update?</string>
     <string name="dialog_tip_wifi_is_offline_version_update_is_not_supported">WiFi is offline,\nversion update is not supported.</string>
-    <string name="dialog_tip_after_unbinding_your_door_lock_can_be_binded_by_others">After unbinding,\nyour door lock can be binded by others</string>
+    <string name="dialog_tip_after_unbinding_your_door_lock_can_be_binded_by_others">After unbinding,\nyour door lock can be bound by others</string>
     <string name="dialog_tip_line_device_unbin_text">After unbinding, please restore the lock to the factory setting by pressing and holding the reset button for more than 5 seconds.</string>
-    <string name="dialog_title_are_you_sure_to_unbind">Are you sure to unbind ?</string>
+    <string name="dialog_title_are_you_sure_to_unbind">Are you sure to unbind the device?</string>
     <string name="dialog_tip_your_device_wifi_is_offline_please_close_to_the_door_lock_open_bluetooth_and_set_it">Your device WiFi is offline,\nPlease close to the door lock,\nopen Bluetooth and set it.</string>
     <string name="dialog_tip_are_you_sure_you_want_to_remove_this_user_right">Are you sure you want to remove\nthis user right.</string>
     <string name="dialog_tip_log_out">Log out</string>
@@ -466,7 +490,7 @@
     <string name="share_device">Share device</string>
     <string name="accept">Accept</string>
     <string name="shared_by_user">Shared by %1$s</string>
-    <string name="title_authorization_users">Authorization users</string>
+    <string name="title_authorization_users">AUTHORIZATION USERS</string>
 
     <!-- OpenDrawHandPwdActivity -->
     <string name="draw_gesture_pwd">Draw gesture password</string>
@@ -475,8 +499,10 @@
     <string name="drawing_incorrectly">Drawing incorrectly</string>
     <string name="at_least_4_points_please_redraw">At least 4 points, please redraw</string>
     <string name="inconsistent_with_the_previous_drawing_please_redraw">Inconsistent with the previous drawing, please redraw</string>
-    <string name="title_change_gesture_password">Change gesture password</string>
-    <string name="title_invite_users">Invite users</string>
+    <string name="title_change_gesture_password">GESTURE PASSWORD</string>
+    <string name="tip_change_gesture_password">Change gesture password</string>
+    <string name="title_invite_users">INVITATION</string>
+    <string name="tip_invite_users">Invite a New User</string>
     <string name="album">Album</string>
 
 
@@ -508,8 +534,8 @@
     <string name="t_please_sign_in">Please sign in!</string>
     <string name="t_please_open_bluetooth">Please open bluetooth</string>
     <string name="t_please_open_location">Please open location</string>
-    <string name="t_dont_enter_a_simple_pwd">Don\'t enter a simple password!</string>
-    <string name="t_please_input_right_pwd">Please input right password!</string>
+    <string name="t_dont_enter_a_simple_pwd">Please enter the correct password</string>
+    <string name="t_please_input_right_pwd">The number of password digits exceeds the upper limit!</string>
     <string name="t_you_can_set_8_15_valid_pwd">The password supports 8&#8211;15 digit number and letter combination!</string>
     <string name="t_please_input_pwd_name">Please Input Password Name!</string>
     <string name="t_setting_fail">Setting fail</string>
@@ -558,7 +584,7 @@
     <string name="title_share_to">Share To</string>
 
     <string name="t_add_input_new_pwd_full">Password library full</string>
-    <string name="t_open_wifi_tip_low_power">The battery power of door lock is low, please replace the battery in time.</string>
+    <!--<string name="t_open_wifi_tip_low_power">The battery power of door lock is low, please replace the battery in time.</string>-->
     <string name="t_pass_word_list_nothing">No password yet~</string>
     <string name="t_shared_users_list_nothing">No users shared yet~</string>
     <string name="t_closed_wifi_connect_msg">WiFi disconnected. Reboot the WiFi will reallocate the network.</string>
@@ -587,7 +613,7 @@
     <string name="t_introduce_auto_lock_content">·If Door Sensor Enabled - The lock will auto-lock by the timer when your door is closed \n·If Door Sensor Disabled -  The lock will auto-lock by the timer you set</string>
 
     <string name="t_introduce_Geo_fence_title">What is the knock-open unlock?</string>
-    <string name="t_introduce_Geo_fence_content">· Turn on the Auto-UnLock function, \n·set the distance, time, and knocking strength of knocking. \n\nSet a distance of 200 meters and a time of 10 minutes. When you enter the scope of the distance and time that been set, the door will be unlocked ac-cording to the set knock frequency, and the door will be opened. It does not need any equipment to unlock, which will provide you great convenience for your door opening.</string>
+    <string name="t_introduce_Geo_fence_content">· What\'s Auto-Unlock\n· Auto-Unlock allows\n· What\'s Knock-Open Unlock\n· Knock-Open Unlock allows you to unlock your door automatically when you knock the door with your phone near by when your Lock is in Auto-Unlock Mode. No need to enter PIN key, or take out your phone to unlock via App.\n· Please note Knock-Open Unlock only works when Auto-Unlock feature turned on, and the Lock is in Auto-Unlock Mode.</string>
 
     <string name="t_introduce_door_sensor_alignment_title">What is the door sensor alignment?</string>
     <string name="t_introduce_door_sensor_alignment_content">&#160;&#160;&#160;&#160;After the door sensor calibration, it will remind the user to close the door, and prompt when you forget to close the door.</string>
@@ -595,7 +621,7 @@
     <string name="tip_setting_no_supports">Device not Support!</string>
     <string name="tip_setting_no_supports_face_id">Device not find FaceID!</string>
     <string name="tip_setting_no_supports_touch_id">Device not find TouchID!</string>
-    <string name="tip_incorrect_input_please_try_again">Please enter a correct ESN number</string>
+    <string name="tip_incorrect_input_please_try_again">Invalid ESN, please try again.</string>
     <string name="tip_modify_user_name_length">The name is limited by 2&#8211;30 characters</string>
     <string name="t_please_input_your_account_and_password">Please input your account and password!</string>
     <string name="tip_wifi_not_connected">Not connected</string>
@@ -606,7 +632,7 @@
     <string name="t_load_content_setting">Setting...</string>
     <string name="t_load_content_accepting">Accepting...</string>
     <string name="t_load_content_loading">Loading...</string>
-    <string name="t_load_content_password_generating">Password Generating</string>
+    <string name="t_load_content_password_generating">PIN KEY Generating</string>
     <string name="t_load_content_creating">Creating...</string>
     <string name="t_load_content_deleting">Deleting...</string>
     <string name="t_load_content_feed_back">FeedBack...</string>
@@ -626,10 +652,17 @@
     <string name="geo_fence_map_activity_add_location_hint">You can choose the position of the door lock. The automatic lock picking function will be activated when you leave the fence setting range</string>
     <string name="hint_please_enter_the_invite_user_mail">Please enter the invite user\'s mail!</string>
     <string name="tip_you_not_share_it_with_yourself">You can\'t share it with yourself</string>
-    <string name="tip_content_share_successful">Share successful</string>
+    <string name="tip_content_share_successful">Share succeeded</string>
     <string name="dialog_privacy_policy_title">Dear Revolo user,</string>
     <string name="dialog_privacy_policy">Dear user, Please read the Revolo Privacy policy carefully again before using Auto-Unlock feature. This app collects location information to enable ["Auto-Unlock feature"], even if the app is running in the foreground or background, closed or not in use. Do you agree that Revolo has access to your location information?</string>
     <string name="dialog_update_version_title">Update Version</string>
     <string name="dialog_tip_delete_this_device">Are you sure to remove\nthis device.</string>
     <string name="tip_password_start_with_911">The setting password cannot start with 911</string>
+    <string name="digits_input_password">0123456789</string>
+    <string name="tip_device_offline_dialog">The device is offline, please switch to Bluetooth connection.</string>
+    <string name="tip_device_private_mode_dialog">Private Mode：App Control &#38; PIN Key access will be disabled.</string>
+    <string name="tip_bolt_not_fully_locked">The bolt is not fully locked !</string>
+    <string name="tip_geo_fence_device_offline_dialog">Device offline, \nand cannot set Geo-fence unlock.</string>
+    <string name="tip_geo_fence_device_wifi_offline_dialog">Device is not connected to WiFi The feature cannot be enabled.</string>
+
 </resources>

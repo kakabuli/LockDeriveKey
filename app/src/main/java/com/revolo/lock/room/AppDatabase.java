@@ -109,7 +109,6 @@ public abstract class AppDatabase extends RoomDatabase {
     static final Migration MIGRATION_5_6 = new Migration(5, 6) {
         @Override
         public void migrate(@NonNull SupportSQLiteDatabase database) {
-            // BleDeviceLocal 新增 d_password2Time
             database.execSQL("ALTER TABLE BleDeviceLocal ADD COLUMN shareId TEXT");
             database.execSQL("ALTER TABLE BleDeviceLocal ADD COLUMN shareUid TEXT");
         }

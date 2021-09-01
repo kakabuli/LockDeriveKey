@@ -28,7 +28,7 @@
         android:textSize="15pt"
         android:textColor="@color/c333333"
         android:layout_marginTop="20pt"
-        android:text="@string/title_add_password"
+        android:text="@string/tip_add_password_name"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/imageView8" />
@@ -53,7 +53,7 @@
         android:layout_marginTop="3pt"
         android:inputType="text"
         android:maxLength="20"
-        android:theme="@style/InputEditTextTheme"
+        android:background="@drawable/bg_edit_under_line_selector"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView19" />
