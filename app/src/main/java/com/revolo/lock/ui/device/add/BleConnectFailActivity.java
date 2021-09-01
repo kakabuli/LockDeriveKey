@@ -32,7 +32,7 @@ public class BleConnectFailActivity extends BaseActivity {
 
     @Override
     public void initView(@Nullable Bundle savedInstanceState, @Nullable View contentView) {
-        useCommonTitleBar(getString(R.string.add_device));
+        useCommonTitleBar(getString(R.string.ble_connectsuc_activity_fail_title));
         applyDebouncingClickListener(findViewById(R.id.tvCancel), findViewById(R.id.btnReconnect));
     }
 

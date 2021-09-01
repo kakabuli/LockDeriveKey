@@ -87,9 +87,22 @@ public class RegisterActivity extends BaseActivity {
         useCommonTitleBar(getString(R.string.register));
         mTvGetCode = findViewById(R.id.tvGetCode);
         applyDebouncingClickListener(findViewById(R.id.btnStartCreating),
-                findViewById(R.id.ivEye),
-                findViewById(R.id.ivSelect),
                 mTvGetCode);
+
+        findViewById(R.id.ivEye).setOnClickListener(v -> {
+            ImageView ivEye = findViewById(R.id.ivEye);
+            ivEye.setImageResource(isShowPwd ? R.drawable.ic_login_icon_display_blue : R.drawable.ic_login_icon_hide_blue);
+            etPwd.setInputType(isShowPwd ?
+                    InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
+                    : (InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD));
+            isShowPwd = !isShowPwd;
+        });
+
+        findViewById(R.id.ivSelect).setOnClickListener(v -> {
+            ImageView ivSelect = findViewById(R.id.ivSelect);
+            isSelected = !isSelected;
+            ivSelect.setImageResource(isSelected ? R.drawable.ic_sign_in_icon_selected : R.drawable.ic_sign_in_icon_default);
+        });
 
         etPwd = findViewById(R.id.etPwd);
         etPwd.addTextChangedListener(new TextWatcher() {
@@ -146,35 +159,32 @@ public class RegisterActivity extends BaseActivity {
         initLoading(getString(R.string.t_load_content_registering));
 
         mEtEmail = findViewById(R.id.etEmail);
-        if (!TextUtils.isEmpty(Constant.registerEmail)) {
-            mEtEmail.setText(Constant.registerEmail);
-        }
 
         verificationCodeTimeCount = Constant.verificationCodeTimeCount;
-        if (mCountDownTimer == null) {
-            mCountDownTimer = new CountDownTimer(60000, 1000) {
-                @Override
-                public void onTick(long millisUntilFinished) {
-                    int sec = (int) (millisUntilFinished / 1000);
-                    int time = sec - (60 - verificationCodeTimeCount);
-                    String value = String.valueOf(time);
-                    Timber.d("********************    sec = %1s   time = %2s   verificationCodeTimeCount = %3s", sec, time, verificationCodeTimeCount);
-                    mTvGetCode.setText(value);
-                    if (time <= 0) {
-                        onFinish();
-                        cancel();
+        mCountDownTimer = new
+
+                CountDownTimer(60000, 1000) {
+                    @Override
+                    public void onTick(long millisUntilFinished) {
+                        int sec = (int) (millisUntilFinished / 1000);
+                        int time = sec - (60 - verificationCodeTimeCount);
+                        String value = String.valueOf(time);
+                        mTvGetCode.setText(value);
+                        if (time <= 0) {
+                            onFinish();
+                            cancel();
+                        }
+                    }
+
+                    @Override
+                    public void onFinish() {
+                        isCountdown = false;
+                        mTvGetCode.setText(getString(R.string.get_code));
+                        verificationCodeTimeCount = 60;
                     }
                 }
 
-                @Override
-                public void onFinish() {
-                    isCountdown = false;
-                    mTvGetCode.setText(getString(R.string.get_code));
-                    verificationCodeTimeCount = 60;
-                }
-            };
-        }
-
+        ;
         if (Constant.isVerificationCodeTime) {
             mCountDownTimer.start();
         }
@@ -187,37 +197,10 @@ public class RegisterActivity extends BaseActivity {
     }
 
     @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        if (mCountDownTimer != null) {
-            mCountDownTimer.cancel();
-            mCountDownTimer.onFinish();
-            mCountDownTimer = null;
-        }
-    }
-
-    @Override
     public void onDebouncingClick(@NonNull View view) {
         if (view.getId() == R.id.btnStartCreating) {
             register();
-            return;
-        }
-        if (view.getId() == R.id.ivEye) {
-            ImageView ivEye = findViewById(R.id.ivEye);
-            ivEye.setImageResource(isShowPwd ? R.drawable.ic_login_icon_display : R.drawable.ic_login_icon_hide);
-            etPwd.setInputType(isShowPwd ?
-                    InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
-                    : (InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD));
-            isShowPwd = !isShowPwd;
-            return;
-        }
-        if (view.getId() == R.id.ivSelect) {
-            ImageView ivSelect = findViewById(R.id.ivSelect);
-            isSelected = !isSelected;
-            ivSelect.setImageResource(isSelected ? R.drawable.ic_sign_in_icon_selected : R.drawable.ic_sign_in_icon_default);
-            return;
-        }
-        if (view.getId() == R.id.tvGetCode) {
+        } else if (view.getId() == R.id.tvGetCode) {
             if (!isCountdown) {
                 userByMailExists();
             }
@@ -307,7 +290,6 @@ public class RegisterActivity extends BaseActivity {
                     return;
                 }
                 ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_success);
-                Constant.registerEmail = mail;
                 isCountdown = true;
                 mCountDownTimer.start();
                 mHandler.sendEmptyMessage(VERIFICATION_CODE_TIME);
@@ -392,7 +374,6 @@ public class RegisterActivity extends BaseActivity {
                 addUserToLocal(mail);
                 ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_register_success);
                 // 注册成功, 然后登录再跳转
-                Constant.registerEmail = "";
                 login(mail, pwd);
             }
 

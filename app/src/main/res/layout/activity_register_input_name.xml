@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    android:layout_height="match_parent">
 
     <include
         android:id="@+id/include"
@@ -15,11 +15,11 @@
         android:id="@+id/tvTip"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="45pt"
         android:gravity="center"
         android:text="@string/tip_register_input_name"
         android:textColor="@color/c333333"
         android:textSize="17pt"
-        android:layout_marginTop="45pt"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="@+id/include"
         app:layout_constraintStart_toStartOf="parent"
@@ -27,40 +27,44 @@
 
     <EditText
         android:id="@+id/etFirstName"
-        android:layout_width="300pt"
-        android:layout_height="44pt"
         style="@style/InputEditTextStyle"
-        android:theme="@style/InputEditTextTheme"
+        android:layout_width="match_parent"
+        android:layout_height="44pt"
+        android:layout_marginStart="38pt"
         android:layout_marginTop="60pt"
+        android:layout_marginEnd="38pt"
         android:hint="@string/hint_first_name"
+        android:inputType="textPersonName"
         android:maxLength="50"
         android:textColorHint="@color/cA5A4DA"
+        android:theme="@style/InputEditTextTheme"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tvTip"
-        android:inputType="textPersonName" />
+        app:layout_constraintTop_toBottomOf="@+id/tvTip" />
 
     <EditText
         android:id="@+id/etLastName"
-        android:layout_width="300pt"
-        android:layout_height="44pt"
         style="@style/InputEditTextStyle"
-        android:theme="@style/InputEditTextTheme"
+        android:layout_width="match_parent"
+        android:layout_height="44pt"
+        android:layout_marginStart="38pt"
         android:layout_marginTop="10pt"
+        android:layout_marginEnd="38pt"
         android:hint="@string/hint_last_name"
+        android:inputType="textPersonName"
         android:maxLength="50"
+        android:theme="@style/InputEditTextTheme"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/etFirstName"
-        android:inputType="textPersonName"/>
+        app:layout_constraintTop_toBottomOf="@+id/etFirstName" />
 
     <android.widget.Button
         android:id="@+id/btnNext"
         style="@style/ButtonStyle"
         android:layout_width="223pt"
         android:layout_height="44pt"
-        android:text="@string/next"
         android:layout_marginBottom="136pt"
+        android:text="@string/create"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />

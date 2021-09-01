@@ -19,6 +19,7 @@ import androidx.annotation.Nullable;
 import com.blankj.utilcode.util.ActivityUtils;
 import com.blankj.utilcode.util.AdaptScreenUtils;
 import com.blankj.utilcode.util.ConvertUtils;
+import com.blankj.utilcode.util.SPUtils;
 import com.blankj.utilcode.util.ToastUtils;
 import com.revolo.lock.App;
 import com.revolo.lock.Constant;
@@ -59,6 +60,7 @@ import com.revolo.lock.room.entity.BleDeviceLocal;
 import com.revolo.lock.ui.MainActivity;
 import com.revolo.lock.ui.device.lock.DeviceDetailActivity;
 import com.revolo.lock.ui.device.lock.SharedUserDetailActivity;
+import com.revolo.lock.ui.device.lock.setting.geofence.AutoLockLoadActivity;
 import com.revolo.lock.ui.device.lock.setting.geofence.AutoUnlockActivity;
 import com.revolo.lock.ui.user.AuthUserDetailActivity;
 
@@ -86,7 +88,7 @@ public class DeviceSettingActivity extends BaseActivity {
 
     private TextView mTvName, mTvWifiName;
     private DeviceUnbindBeanReq mReq;
-    private ImageView mIvMuteEnable, mIvDoNotDisturbModeEnable;
+    private ImageView mIvMuteEnable;//, mIvDoNotDisturbModeEnable;
     private BleDeviceLocal mBleDeviceLocal;
     // private MessageDialog mPowerLowDialog;//低电量
     private @LocalState.VolumeState
@@ -119,15 +121,14 @@ public class DeviceSettingActivity extends BaseActivity {
         mTvName = findViewById(R.id.tvName);
         mTvWifiName = findViewById(R.id.tvWifiName);
         mIvMuteEnable = findViewById(R.id.ivMuteEnable);
-        mIvDoNotDisturbModeEnable = findViewById(R.id.ivDoNotDisturbModeEnable);
+
         applyDebouncingClickListener(mTvName, findViewById(R.id.clAutoLock), findViewById(R.id.clPrivateMode),
                 findViewById(R.id.clDuressCode), findViewById(R.id.clDoorLockInformation),
                 findViewById(R.id.clGeoFenceLock), findViewById(R.id.clDoorMagneticSwitch),
                 findViewById(R.id.clUnbind), findViewById(R.id.clMute), findViewById(R.id.clWifi),
-                mIvDoNotDisturbModeEnable, findViewById(R.id.ivLockName), findViewById(R.id.clVideoMode), findViewById(R.id.clDelete));
+                findViewById(R.id.clDoNotDisturbMode), findViewById(R.id.ivLockName), findViewById(R.id.clVideoMode), findViewById(R.id.clDelete));
 
         mBleDeviceLocal = App.getInstance().getBleDeviceLocal();
-        mIvDoNotDisturbModeEnable.setImageResource(mBleDeviceLocal.isDoNotDisturbMode() ? R.drawable.ic_icon_switch_open : R.drawable.ic_icon_switch_close);
         mIvMuteEnable.setImageResource(mBleDeviceLocal.isMute() ? R.drawable.ic_icon_switch_close : R.drawable.ic_icon_switch_open);
         onRegisterEventBus();
     }
@@ -258,8 +259,23 @@ public class DeviceSettingActivity extends BaseActivity {
                     }
                     return;
                 }*/
-                Intent intent = new Intent(this, GeoFenceUnlockActivity.class);
-                startActivity(intent);
+
+                //判断是否进入地理围栏引导页
+                String isShowLoading = SPUtils.getInstance().getString("SHOW_GEOFENCE_LOADING");
+                if (!"".equals(isShowLoading) && null != isShowLoading) {
+                    Intent intent = new Intent(this, AutoUnlockActivity.class);
+                    startActivity(intent);
+                } else {
+                    if (null != App.getInstance().getLockGeoFenceService()) {
+                        if (App.getInstance().getLockGeoFenceService().getLockGeoFencesLen() > 0) {
+                            Intent intent = new Intent(this, AutoUnlockActivity.class);
+                            startActivity(intent);
+                            return;
+                        }
+                    }
+                    Intent intent = new Intent(this, AutoLockLoadActivity.class);
+                    startActivity(intent);
+                }
             } else {
                 ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show("Please set to WiFi connection mode");
             }
@@ -283,9 +299,10 @@ public class DeviceSettingActivity extends BaseActivity {
         if (view.getId() == R.id.clVideoMode) {
             return;
         }
-        if (view.getId() == R.id.ivDoNotDisturbModeEnable) {
+        if (view.getId() == R.id.clDoNotDisturbMode) {
             // TODO: 2021/3/7 后期要全局实现这个通知功能
-            openOrCloseNotification();
+            Intent intent = new Intent(this, DisturbModeActivity.class);
+            startActivity(intent);
             return;
         }
     }
@@ -369,43 +386,6 @@ public class DeviceSettingActivity extends BaseActivity {
         });
     }
 
-    private void openOrCloseNotification() {
-
-        String token = App.getInstance().getUserBean().getToken();
-        String uid = App.getInstance().getUserBean().getUid();
-        PostNotDisturbModeBeanReq req = new PostNotDisturbModeBeanReq();
-        req.setOpenlockPushSwitch(mBleDeviceLocal.isDoNotDisturbMode());
-        req.setUid(uid);
-        Observable<NotDisturbModeBeanRsp> notDisturbModeBeanRspObservable = HttpRequest.getInstance().postPushSwitch(token, req);
-        ObservableDecorator.decorate(notDisturbModeBeanRspObservable).safeSubscribe(new Observer<NotDisturbModeBeanRsp>() {
-            @Override
-            public void onSubscribe(@io.reactivex.annotations.NonNull Disposable d) {
-
-            }
-
-            @Override
-            public void onNext(@io.reactivex.annotations.NonNull NotDisturbModeBeanRsp notDisturbModeBeanRsp) {
-                if (notDisturbModeBeanRsp.getCode().equals("200")) {
-                    mBleDeviceLocal.setDoNotDisturbMode(!mBleDeviceLocal.isDoNotDisturbMode());
-                    App.getInstance().setBleDeviceLocal(mBleDeviceLocal);
-                    AppDatabase.getInstance(DeviceSettingActivity.this).bleDeviceDao().update(mBleDeviceLocal);
-                    mIvDoNotDisturbModeEnable.setImageResource(mBleDeviceLocal.isDoNotDisturbMode() ? R.drawable.ic_icon_switch_open : R.drawable.ic_icon_switch_close);
-                } else if (notDisturbModeBeanRsp.equals("444")) {
-                    App.getInstance().logout(true, DeviceSettingActivity.this);
-                }
-            }
-
-            @Override
-            public void onError(@io.reactivex.annotations.NonNull Throwable e) {
-
-            }
-
-            @Override
-            public void onComplete() {
-
-            }
-        });
-    }
 
     private void initData() {
         mBleDeviceLocal = App.getInstance().getBleDeviceLocal();

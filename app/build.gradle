@@ -13,8 +13,13 @@ android {
         applicationId "com.revolo.lock"
         minSdkVersion 24
         targetSdkVersion 30
+<<<<<<< HEAD
         versionCode 202106066
-        versionName "V1.0.1"
+        versionName "1.0.1"
+=======
+        versionCode 202106062
+        versionName "0.7.0"
+>>>>>>> parent of c7c66a1 ( * 版本号升级到0.7.2)
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 

@@ -90,6 +90,19 @@ public class LockGeoFenceService extends Service {
     }
 
     /**
+     * 获取当前地理围栏的个数
+     *
+     * @return
+     */
+    public int getLockGeoFencesLen() {
+        if (null == lockGeoFenceEns) {
+            return 0;
+        } else {
+            return lockGeoFenceEns.size();
+        }
+    }
+
+    /**
      * 获取当前地理围栏状态
      *
      * @param mac
