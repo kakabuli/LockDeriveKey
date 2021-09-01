@@ -253,48 +253,6 @@ public class DeviceFragment extends Fragment {
         }
         initBaseData();
         refreshGetAllBindDevicesFromMQTT();
-        initNotDisturbMode();
-    }
-
-    private void initNotDisturbMode() {
-
-        GetNotDisturbModeBeanReq req = new GetNotDisturbModeBeanReq();
-        String token = App.getInstance().getUserBean().getToken();
-        String uid = App.getInstance().getUserBean().getUid();
-        req.setUid(uid);
-        Observable<NotDisturbModeBeanRsp> pushSwitch = HttpRequest.getInstance().getPushSwitch(token, req);
-        ObservableDecorator.decorate(pushSwitch).safeSubscribe(new Observer<NotDisturbModeBeanRsp>() {
-            @Override
-            public void onSubscribe(@io.reactivex.annotations.NonNull Disposable d) {
-
-            }
-
-            @Override
-            public void onNext(@io.reactivex.annotations.NonNull NotDisturbModeBeanRsp notDisturbModeBeanRsp) {
-                NotDisturbModeBeanRsp.DataBean data = notDisturbModeBeanRsp.getData();
-                if (notDisturbModeBeanRsp.getCode().equals("200") && data != null) {
-                    boolean openlockPushSwitch = data.isOpenlockPushSwitch();
-                    List<BleDeviceLocal> bleDeviceLocals = mHomeLockListAdapter.getData();
-                    if (bleDeviceLocals != null && !bleDeviceLocals.isEmpty()) {
-                        for (BleDeviceLocal bleDeviceLocal : bleDeviceLocals) {
-                            bleDeviceLocal.setDoNotDisturbMode(!openlockPushSwitch);
-                        }
-                    }
-                } else if (notDisturbModeBeanRsp.getCode().equals("444")) {
-                    App.getInstance().logout(true, getActivity());
-                }
-            }
-
-            @Override
-            public void onError(@io.reactivex.annotations.NonNull Throwable e) {
-
-            }
-
-            @Override
-            public void onComplete() {
-
-            }
-        });
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)

@@ -8,6 +8,15 @@ package com.revolo.lock.bean.request;
  */
 public class GetNotDisturbModeBeanReq {
     private String uid;
+    private String wifiSN;
+
+    public String getWifiSN() {
+        return wifiSN;
+    }
+
+    public void setWifiSN(String wifiSN) {
+        this.wifiSN = wifiSN;
+    }
 
     public String getUid() {
         return uid;

@@ -665,6 +665,7 @@ public class WifiLockGetAllBindDeviceRspBean extends WifiLockBaseResponseBean {
             private String timeZone;
             @SerializedName("switch")
             private SwitchBean switchX;
+            private boolean openlockPushSwitch;
             /**
              * adminnickname : wengmaowei@kaadas.com
              * autoLock : 0
@@ -705,6 +706,22 @@ public class WifiLockGetAllBindDeviceRspBean extends WifiLockBaseResponseBean {
             private int shareUserType;
             private String shareId;
             private String shareUid;
+
+            public boolean isOpenlockPushSwitch() {
+                return openlockPushSwitch;
+            }
+
+            public void setOpenlockPushSwitch(boolean openlockPushSwitch) {
+                this.openlockPushSwitch = openlockPushSwitch;
+            }
+
+            public String getShareUid() {
+                return shareUid;
+            }
+
+            public void setShareUid(String shareUid) {
+                this.shareUid = shareUid;
+            }
 
             public String getShareId() {
                 return shareId;

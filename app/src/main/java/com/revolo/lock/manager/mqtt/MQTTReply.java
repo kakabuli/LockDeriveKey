@@ -402,6 +402,7 @@ public class MQTTReply {
                 bleDeviceLocal.setPwd2(wifiListBean.getPassword2());
         }
 
+        bleDeviceLocal.setDoNotDisturbMode(!wifiListBean.isOpenlockPushSwitch());
         // TODO: 2021/3/16 存储数据
         if (!TextUtils.isEmpty(wifiListBean.getRandomCode()))
             bleDeviceLocal.setRandomCode(wifiListBean.getRandomCode());

@@ -361,11 +361,7 @@ public class App extends Application {
             App.getInstance().getLockGeoFenceService().clearBleDevice();
         }
         App.getInstance().removeRecords(null);
-
         User user = App.getInstance().getUser();
-        if (!isDeleteGoogleToken) {
-            deleteDeviceToken();
-        }
         AppDatabase.getInstance(getApplicationContext()).userDao().delete(user);
         App.getInstance().getUserBean().setToken(""); // 清空token
         MQTTManager.getInstance().mqttDisconnect(); // mqtt断开连接

@@ -124,6 +124,7 @@ public class DisturbModeActivity extends BaseActivity {
             openOrCloseNotification();
         }
     }
+
     private void openOrCloseNotification() {
 
         String token = App.getInstance().getUserBean().getToken();
@@ -131,6 +132,7 @@ public class DisturbModeActivity extends BaseActivity {
         PostNotDisturbModeBeanReq req = new PostNotDisturbModeBeanReq();
         req.setOpenlockPushSwitch(mBleDeviceLocal.isDoNotDisturbMode());
         req.setUid(uid);
+        req.setWifiSN(mBleDeviceLocal.getEsn());
         Observable<NotDisturbModeBeanRsp> notDisturbModeBeanRspObservable = HttpRequest.getInstance().postPushSwitch(token, req);
         ObservableDecorator.decorate(notDisturbModeBeanRspObservable).safeSubscribe(new Observer<NotDisturbModeBeanRsp>() {
             @Override
