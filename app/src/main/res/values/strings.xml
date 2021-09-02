@@ -179,7 +179,7 @@
     <string name="device_setting_name">Device Name</string>
     <string name="device_setting_wifi">Wi-Fi Network</string>
     <string name="wifi">WiFi</string>
-    <string name="auto_lock">Auto lock</string>
+    <string name="auto_lock">Auto-lock</string>
     <string name="geo_fence_lock">Auto-Unlock</string>
     <string name="device_setting_door_sensor">Door Sensor</string>
     <string name="door_sensor_alignment">Door sensor alignment</string>
@@ -188,7 +188,7 @@
     <string name="mute">Mute</string>
     <string name="private_mode">Private mode</string>
     <string name="join_alexa">Join Alexa</string>
-    <string name="door_lock_information">Door information</string>
+    <string name="door_lock_information">Device Information</string>
     <string name="unbind">Unbind</string>
     <string name="do_not_disturb_mode">Do Not Disturb Mode</string>
     <string name="video_mode">Video mode</string>
@@ -245,6 +245,7 @@
 
     <!-- AddDeviceForSharedUserActivity -->
     <string name="title_select_authorized_device">ACCESS LEVEL</string>
+    <string name="title_add_authorized_device">SELECT DEVICE</string>
     <string name="select_authorized_user_device">Select authorized user device</string>
 
     <!-- SelectAuthorizedDeviceActivity -->
@@ -363,6 +364,7 @@
     <!-- DoorCheckFailActivity -->
     <string name="door_sensor_cant_be_detected">Door sensor can\'t be detected.</string>
     <string name="door_magnet_cant_be_detected">Door magnet can\'t be detected.</string>
+    <string name="door_sensor_calibrate_failed">Door sensor calibrate failed</string>
     <string name="door_sensor_cant_ok_hint_text">Your lock has been successfully calibrated.</string>
     <string name="try_again">Try again</string>
 
@@ -459,7 +461,7 @@
     <string name="dialog_btn_ok">OK</string>
     <string name="dialog_tip_there_is_a_new_version_available_do_you_want_to_update">There is a new version available,\nDo you want to update?</string>
     <string name="dialog_tip_wifi_is_offline_version_update_is_not_supported">WiFi is offline,\nversion update is not supported.</string>
-    <string name="dialog_tip_after_unbinding_your_door_lock_can_be_binded_by_others">After unbinding,\nyour door lock can be bound by others</string>
+    <string name="dialog_tip_after_unbinding_your_door_lock_can_be_binded_by_others">After unbinding,\nyour door lock can be bound by others.</string>
     <string name="dialog_tip_line_device_unbin_text">After unbinding, please restore the lock to the factory setting by pressing and holding the reset button for more than 5 seconds.</string>
     <string name="dialog_title_are_you_sure_to_unbind">Are you sure to unbind the device?</string>
     <string name="dialog_tip_your_device_wifi_is_offline_please_close_to_the_door_lock_open_bluetooth_and_set_it">Your device WiFi is offline,\nPlease close to the door lock,\nopen Bluetooth and set it.</string>

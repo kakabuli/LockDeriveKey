@@ -47,7 +47,7 @@ public class AddDeviceForSharedUserActivity extends BaseActivity {
 
     @Override
     public void initView(@Nullable Bundle savedInstanceState, @Nullable View contentView) {
-        useCommonTitleBar(getString(R.string.title_select_authorized_device));
+        useCommonTitleBar(getString(R.string.title_add_authorized_device));
         mShareUserMail = getIntent().getStringExtra(Constant.SHARE_USER_MAIL);
         mShareFirstNameText = getIntent().getStringExtra(Constant.SHARE_USER_FIRST_NAME);
         mShareLastNameText = getIntent().getStringExtra(Constant.SHARE_USER_LAST_NAME);

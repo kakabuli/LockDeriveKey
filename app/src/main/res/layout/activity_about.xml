@@ -101,7 +101,7 @@
         android:layout_height="51pt"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/clContact">
+        app:layout_constraintTop_toBottomOf="@+id/clUserAgreement">
 
         <TextView
             android:id="@+id/textView5"
@@ -156,7 +156,7 @@
         android:layout_height="51pt"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/clVersionUpdate">
+        app:layout_constraintTop_toBottomOf="@+id/clContact">
 
         <TextView
             android:id="@+id/textView1"

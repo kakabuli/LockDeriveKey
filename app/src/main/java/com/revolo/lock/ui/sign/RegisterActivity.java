@@ -158,10 +158,11 @@ public class RegisterActivity extends BaseActivity {
         };
         spannableString1.setSpan(span1, 0, privacyStr.length(), Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
 
-        tvAgreement.append("I agree to ");
+        tvAgreement.append("I agree to Revolo ");
         tvAgreement.append(spannableString);
-        tvAgreement.append(" and ");
+        tvAgreement.append("\n and ");
         tvAgreement.append(spannableString1);
+        tvAgreement.append(" by registering.");
         tvAgreement.setMovementMethod(LinkMovementMethod.getInstance());
 
         initLoading(getString(R.string.t_load_content_registering));
