@@ -38,12 +38,15 @@ import com.revolo.lock.manager.ble.BleManager;
 import com.revolo.lock.mqtt.MQttConstant;
 import com.revolo.lock.mqtt.MqttCommandFactory;
 import com.revolo.lock.room.entity.BleDeviceLocal;
+import com.revolo.lock.ui.device.lock.setting.GeoFenceUnlockActivity;
 import com.revolo.lock.ui.device.lock.setting.geofence.GeoFenceHelper;
+import com.revolo.lock.ui.device.lock.setting.geofence.NotificationHelper;
 
 import org.greenrobot.eventbus.EventBus;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Timer;
 
 import timber.log.Timber;
 
@@ -324,6 +327,7 @@ public class LockGeoFenceService extends Service {
                             if (lockGeoFenceEns.get(i).getDistance() > 200 && results[0] < 200) {
                                 Timber.e("历史记录距离大于200，最新的距离小于200，判定从地理围栏外围进入内部：" + lockGeoFenceEns.get(i).getBleDeviceLocal().getEsn());
                                 if (lockGeoFenceEns.get(i).getBleDeviceLocal().setLockElecFenceState(true)) {
+                                    GeoFenceMessage(true);
                                     Timber.e("当前设备定位距离小于200米，更新相应的地理围栏数据：" + lockGeoFenceEns.get(i).getBleDeviceLocal().getElecFenceState());
                                     App.getInstance().getLockAppService().pushServiceGeoState(lockGeoFenceEns.get(i).getBleDeviceLocal());
                                     App.getInstance().getLockAppService().updateDeviceGeoState(lockGeoFenceEns.get(i).getBleDeviceLocal().getMac(),
@@ -332,6 +336,7 @@ public class LockGeoFenceService extends Service {
                             } else if (lockGeoFenceEns.get(i).getDistance() < 200 && results[0] > 200) {
                                 Timber.e("历史记录距离小于200，最新的距离大于200，判定从地理围栏内围出外部：" + lockGeoFenceEns.get(i).getBleDeviceLocal().getEsn());
                                 if (lockGeoFenceEns.get(i).getBleDeviceLocal().setLockElecFenceState(false)) {
+                                    GeoFenceMessage(false);
                                     Timber.e("当前设备定位距离大于200米，更新相应的地理围栏数据：" + lockGeoFenceEns.get(i).getBleDeviceLocal().getElecFenceState());
                                     App.getInstance().getLockAppService().pushServiceGeoState(lockGeoFenceEns.get(i).getBleDeviceLocal());
                                     App.getInstance().getLockAppService().updateDeviceGeoState(lockGeoFenceEns.get(i).getBleDeviceLocal().getMac(),
@@ -410,6 +415,17 @@ public class LockGeoFenceService extends Service {
 
             }
         }
+    }
+
+    /**
+     * 地理围栏进圈出圈通知
+     *
+     * @param isInto true 进圈 ； false 出圈
+     */
+    private void GeoFenceMessage(boolean isInto) {
+        Timber.i("******************   %1s   ******************", isInto ? "进圈" : "出圈");
+        NotificationHelper notificationHelper = new NotificationHelper(getBaseContext());
+        notificationHelper.sendHighPriorityNotification("Notice", isInto ? "The location is in range" : "The location is out of range", GeoFenceUnlockActivity.class);
     }
 
     /**

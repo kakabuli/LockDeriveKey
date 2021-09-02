@@ -272,6 +272,7 @@ public class DeviceDetailActivity extends BaseActivity {
             return;
         }
         // 低电量
+        tvPrivateMode.setVisibility(View.GONE);
         mIvBatteryState.setImageResource(mBleDeviceLocal.getLockPower() <= 20 ? R.drawable.ic_icon_low_battery : R.mipmap.ic_icon_battery);
         mTvBatteryState.setVisibility(mBleDeviceLocal.getLockPower() <= 20 ? View.VISIBLE : View.GONE);
 //        llLowBattery.setVisibility(mBleDeviceLocal.getLockPower() <= 20 ? View.VISIBLE : View.GONE);
