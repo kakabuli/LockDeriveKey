@@ -141,4 +141,6 @@ public class Constant {
      * 修改锁的名称
      */
     public static final String CHANGE_LOCK_NAME = "tvName";
+
+    public static final String CHANGE_PWD_NAME = "passwordName";
 }

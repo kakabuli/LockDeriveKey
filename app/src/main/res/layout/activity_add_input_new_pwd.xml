@@ -90,7 +90,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="24pt"
         android:text="@string/t_how_to_use_the_password_securely"
-        android:textColor="@color/cFF6A36"
+        android:textColor="@color/c333333"
         android:textSize="15pt"
         app:drawableEndCompat="@drawable/ic_icon_more_open"
         app:layout_constraintLeft_toLeftOf="@id/etPwd"

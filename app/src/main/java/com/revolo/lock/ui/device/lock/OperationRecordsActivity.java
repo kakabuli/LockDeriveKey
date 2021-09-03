@@ -620,12 +620,12 @@ public class OperationRecordsActivity extends BaseActivity {
                         break;
                     case 0x13:
                         // 门磁检测开门
-                        message = "Detection of door opened";
+                        message = "Door Opened";
                         drawableId = R.drawable.ic_home_log_icon_door_open;
                         break;
                     case 0x14:
                         // 门磁检测关门
-                        message = "Detection of closed door";
+                        message = "Door Closed";
                         drawableId = R.drawable.ic_home_log_icon_door_close;
                         break;
                     case 0x01:

@@ -183,7 +183,8 @@ public class PasswordDetailActivity extends BaseActivity {
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (data != null) {
-            String passwordName = data.getStringExtra("passwordName");
+            String passwordName = data.getStringExtra(Constant.CHANGE_PWD_NAME);
+            if (mDevicePwdBean != null) mDevicePwdBean.setPwdName(passwordName);
             mTvPwdName.setText(passwordName);
         }
     }
@@ -258,7 +259,7 @@ public class PasswordDetailActivity extends BaseActivity {
 
     private void showDelDialog() {
         SelectDialog dialog = new SelectDialog(this);
-        dialog.setMessage(getString(R.string.dialog_tip_please_approach_the_door_lock_to_delete_password));
+        dialog.setMessage(getString(R.string.dialog_tip_password_deleted_message));
         dialog.setOnCancelClickListener(v -> dialog.dismiss());
         dialog.setOnConfirmListener(v -> {
             dialog.dismiss();

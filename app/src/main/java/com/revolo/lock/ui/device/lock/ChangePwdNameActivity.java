@@ -173,7 +173,7 @@ public class ChangePwdNameActivity extends BaseActivity {
         runOnUiThread(() -> {
             String trim = etPwdName.getText().toString().trim();
             Intent intent = new Intent();
-            intent.putExtra("passwordName", trim);
+            intent.putExtra(Constant.CHANGE_PWD_NAME, trim);
             setResult(Activity.RESULT_OK, intent);
             finish();
         });

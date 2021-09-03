@@ -210,8 +210,9 @@ public class DeviceDetailActivity extends BaseActivity {
             String eventtype = wifiLockAlarmEventBean.getEventtype();
             if (eventtype.equals("alarm")) { // 报警信息
                 WifiLockOperationEventBean.EventparamsBean eventparams = wifiLockAlarmEventBean.getEventparams();
-                if (eventparams != null && eventparams.getAlarmCode() == 65) { // 堵转
+                if (eventparams != null && eventparams.getAlarmCode() == 65) { // 堵转`
                     tvPrivateMode.setVisibility(View.VISIBLE);
+                    tvPrivateMode.setTextColor(getColor(R.color.cFF556D));
                     tvPrivateMode.setText(getString(R.string.tip_bolt_not_fully_locked));
                 }
             }
