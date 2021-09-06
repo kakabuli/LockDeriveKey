@@ -9,7 +9,9 @@
     <string name="revolo">Revolo</string>
     <string name="tip_sign_select">Welcome to use revolo products to\n give you a safe and comfortable\n home</string>
     <string name="register">SIGN UP</string>
-
+    <string name="title_finger_print_Login">FINGERPRINT</string>
+    <string name="title_face_Login">FACE</string>
+    <string name="tip_finger_print_login_text">Please log in via fingerprint</string>
     <string name="iv_tip_back">Back</string>
 
     <!--  RegisterActivity -->
@@ -240,7 +242,7 @@
     <string name="device_name">Device name</string>
     <string name="device_permissions">Device permissions</string>
     <string name="permission_closed_permission">（Closed permission）</string>
-    <string name="unable_to_add_user_and_password">· Able to lock and unlock door via Revolo App. \n· Able to contoll all lock settings \n· Able to view activities. \n· Able to create/delet PIN Key. \n· Able to invite new users only as Guest.</string>
+    <string name="unable_to_add_user_and_password">· Able to lock and unlock door via Revolo App. \n· Able to contoll all lock settings \n· Able to view activities. \n· Able to create/delet PIN Key.</string>
     <string name="accepting">accepting</string>
 
     <!-- AddDeviceForSharedUserActivity -->
@@ -471,6 +473,7 @@
     <string name="dialog_tip_please_wake_up_lock_and_wait_bluetooth_connecting">Please wake up lock and wait Bluetooth connecting</string>
     <string name="dialog_title_weak_signal_state">Weak signal state</string>
     <string name="dialog_tip_hint_is_open_bluetooth">The current function needs to turn on Bluetooth. Do you want to turn on Bluetooth?</string>
+    <string name="dialog_tip_close_wifi_text">Turning off WiFi will switch to Bluetooth mode. Reconfiguring WiFi requires you to hold the phone near your lock.</string>
 
     <!-- AddNewPwdSelectActivity -->
     <string name="repeat">Repeat</string>

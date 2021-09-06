@@ -124,26 +124,12 @@ public class SettingActivity extends BaseActivity {
                 startActivityForResult(intent, REQUEST_CODE_OPEN_GESTURE_CODE);
             }
         } else if (view.getId() == R.id.ivEnableTouchIDEnable) {
-            if (android.os.Build.VERSION.SDK_INT > 27) {
-                biometricSet(false);
-            } else {
-                mFingerprintUtils.openFingerprintAuth();
-            }
+            mFingerprintUtils.openFingerprintAuth();
         } else if (view.getId() == R.id.ivEnableFaceIDEnable) {
-            // TODO: 2021/3/19 faceId
-            switch (getDeviceBrand()) {
-                case "samsung":
-                case "lg":
-                case "google":
-                    showBiometricPrompt(true);
-                    break;
-                default:
-                    ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.tip_setting_no_supports_face_id);
-                    break;
-            }
+
         } else if (view.getId() == R.id.clChangeGesturePassword) {
             if (mUser.isUseGesturePassword()) {
-                Intent intent = new Intent(this, OpenDrawHandPwdActivity.class);
+                Intent intent = new Intent(this, CloseDrawHandPwdActivity.class);
                 startActivityForResult(intent, REQUEST_CODE_OPEN_GESTURE_CODE);
             } else {
                 ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show("Please open Gesture password!");

@@ -28,6 +28,8 @@ import java.util.List;
  */
 public class SharedUserListAdapter extends BaseMultiItemQuickAdapter<GetAllSharedUserFromLockBeanRsp.DataBean, BaseViewHolder> {
 
+    private OnDeleteListener mOnDeleteListener;
+
     public SharedUserListAdapter(List<GetAllSharedUserFromLockBeanRsp.DataBean> dataBeans) {
         super(dataBeans);
         addItemType(0, R.layout.item_user_devices_rv);
@@ -87,5 +89,14 @@ public class SharedUserListAdapter extends BaseMultiItemQuickAdapter<GetAllShare
 
     public interface OnReInviteListener {
         void onReInviteListener(GetAllSharedUserFromLockBeanRsp.DataBean bean);
+    }
+
+    public void setOnDeleteListener(OnDeleteListener onDeleteListener) {
+        this.mOnDeleteListener = onDeleteListener;
+    }
+
+    public interface OnDeleteListener {
+
+        void onDeleteClickListener(GetAllSharedUserFromLockBeanRsp.DataBean dataBean);
     }
 }
