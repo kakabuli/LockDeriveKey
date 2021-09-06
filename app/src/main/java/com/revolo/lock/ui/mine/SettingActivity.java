@@ -17,6 +17,7 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 
 import com.blankj.utilcode.util.ToastUtils;
 import com.revolo.lock.App;
+import com.revolo.lock.Constant;
 import com.revolo.lock.R;
 import com.revolo.lock.base.BaseActivity;
 import com.revolo.lock.dialog.AccountCancellationDialog;
@@ -130,6 +131,7 @@ public class SettingActivity extends BaseActivity {
         } else if (view.getId() == R.id.clChangeGesturePassword) {
             if (mUser.isUseGesturePassword()) {
                 Intent intent = new Intent(this, CloseDrawHandPwdActivity.class);
+                intent.putExtra(Constant.CHANGE_GESTURE_HAND_PASSWORD, true);
                 startActivityForResult(intent, REQUEST_CODE_OPEN_GESTURE_CODE);
             } else {
                 ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show("Please open Gesture password!");

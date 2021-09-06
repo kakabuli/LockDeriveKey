@@ -328,6 +328,9 @@ public class WifiSettingActivity extends BaseActivity {
                     // 低电量
                     if (null == mPowerLowDialog) {
                         mPowerLowDialog = new ConnectWifiLowBatteryDialog(this);
+                        mPowerLowDialog.setConfirmListener(v -> {
+                            if (mPowerLowDialog != null) mPowerLowDialog.dismiss();
+                        });
                     }
                     if (!mPowerLowDialog.isShowing()) {
                         mPowerLowDialog.show();

@@ -143,4 +143,6 @@ public class Constant {
     public static final String CHANGE_LOCK_NAME = "tvName";
 
     public static final String CHANGE_PWD_NAME = "passwordName";
+
+    public static final String CHANGE_GESTURE_HAND_PASSWORD = "changeHandGesturePassword";
 }
