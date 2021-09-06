@@ -71,7 +71,7 @@ public class BleConnectedAnimView extends View {
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
         //超过8个扩散圆，删除最先绘制的圆，即最外层的圆
-        if (spreadRadius.size() >= 20) {
+        if (spreadRadius.size() >= 14) {
             alphas.remove(0);
             spreadRadius.remove(0);
         }

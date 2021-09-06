@@ -115,25 +115,25 @@ public class PasswordListAdapter extends BaseQuickAdapter<DevicePwdBean, BaseVie
         } else if (attribute == KEY_SET_ATTRIBUTE_WEEK_KEY) {
             byte[] weekBytes = BleByteUtil.byteToBit(devicePwdBean.getWeekly());
             String weekly = "";
-            if (weekBytes[0] == 0x01) {
+            if (weekBytes[6] == 0x01) {
                 weekly += "Sun.";
             }
-            if (weekBytes[1] == 0x01) {
+            if (weekBytes[5] == 0x01) {
                 weekly += "Mon.";
             }
-            if (weekBytes[2] == 0x01) {
+            if (weekBytes[4] == 0x01) {
                 weekly += "Tues.";
             }
             if (weekBytes[3] == 0x01) {
                 weekly += "Wed.";
             }
-            if (weekBytes[4] == 0x01) {
+            if (weekBytes[2] == 0x01) {
                 weekly += "Thur.";
             }
-            if (weekBytes[5] == 0x01) {
+            if (weekBytes[1] == 0x01) {
                 weekly += "Fri.";
             }
-            if (weekBytes[6] == 0x01) {
+            if (weekBytes[0] == 0x01) {
                 weekly += "Sat.";
             }
             weekly += "\n";

@@ -22,6 +22,14 @@
         <item name="android:gravity">center</item>
     </style>
 
+    <style name="delete_ButtonStyle"  parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="textAllCaps">false</item>
+        <item name="android:textColor">@color/red</item>
+        <item name="android:background">@drawable/red_shape_btn_bg</item>
+        <item name="android:textSize">14pt</item>
+        <item name="android:gravity">center</item>
+    </style>
+
     <style name="LoginButtonStyle" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <item name="textAllCaps">false</item>
         <item name="android:textColor">@color/white</item>

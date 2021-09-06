@@ -49,7 +49,7 @@ public class AddWifiSucActivity extends BaseActivity {
 
     @Override
     public void initView(@Nullable Bundle savedInstanceState, @Nullable View contentView) {
-        useCommonTitleBar(getString(R.string.title_connect_wifi));
+        useCommonTitleBar(getString(R.string.title_wifi_setting));
         applyDebouncingClickListener(findViewById(R.id.btnReDistribution));
     }
 

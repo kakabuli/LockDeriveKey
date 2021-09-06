@@ -887,6 +887,12 @@ public class AddNewPwdSelectActivity extends BaseActivity {
             dismissLoadingAndShowAddFail();
             return;
         }
+        //判断是否手机网络断开
+        if(!getNetError()){
+            dismissLoading();
+            showSucMessage();
+            return;
+        }
         dataRequestService(devicePwdBean, req, token);
     }
 

@@ -83,7 +83,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
-            android:text="@string/email"
+            android:text="@string/e_mail"
             android:textColor="@color/c333333"
             android:textSize="15pt"
             app:layout_constraintBottom_toBottomOf="parent"

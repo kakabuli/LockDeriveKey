@@ -358,7 +358,7 @@
 
     <string name="door_sensor_check_activity_title">DOOR SENSOR CALIBRATE</string>
     <string name="door_sensor_check_activity_1_hint_text">Please open the door as much as you can Open the door as far.</string>
-    <string name="door_sensor_check_activity_1s_hint_text">1. Please operate the door slowly and at aconstant speed.\n2. After operation, please keep the currentstate of the door for at least 3 seconds.</string>
+    <string name="door_sensor_check_activity_1s_hint_text">1. Please operate the door slowly and at a constant speed.\n2. After operation, please keep the current state of the door for at least 3 seconds.</string>
     <string name="door_sensor_check_activity_2_hint_text">Please close the door completely.</string>
     <string name="door_sensor_check_activity_3_hint_text">Close the door until the extended deadbolt or latch just attached the door frame.</string>
 

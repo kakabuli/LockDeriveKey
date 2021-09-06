@@ -78,4 +78,8 @@ public class TitleBar {
     public void setNetError(boolean isConnect) {
         mTvNetError.setVisibility(isConnect ? View.GONE : View.VISIBLE);
     }
+
+    public boolean getNetError() {
+        return mTvNetError.getVisibility() == View.GONE ? true : false;
+    }
 }

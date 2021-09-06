@@ -102,7 +102,7 @@ public class WifiConnectActivity extends BaseActivity {
 
     @Override
     public void initView(@Nullable Bundle savedInstanceState, @Nullable View contentView) {
-        useCommonTitleBar(getString(R.string.title_connect_wifi));
+        useCommonTitleBar(getString(R.string.title_wifi_setting));
         mWifiCircleProgress = findViewById(R.id.wifiCircleProgress);
         onRegisterEventBus();
     }

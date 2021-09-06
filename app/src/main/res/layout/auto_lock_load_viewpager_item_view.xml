@@ -48,7 +48,7 @@
         android:layout_marginTop="30pt"
         android:layout_marginRight="30pt"
         android:gravity="center_horizontal"
-        android:text="@string/auto_lock_load_hint_1_text"
+        android:text="@string/auto_lock_load_hint_2_2text"
         android:textColor="@color/c999999"
         android:textSize="14pt"
         android:visibility="gone"

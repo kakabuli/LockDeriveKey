@@ -81,7 +81,7 @@ public class ZoneUtil {
      */
     public static long getTime(String timeZone, String timeStr) {
         timeZone = "+00:00";
-        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         formatter.setTimeZone(TimeZone.getTimeZone("GMT" + timeZone));
         ParsePosition pos = new ParsePosition(0);
         Date result = formatter.parse(timeStr, pos);
@@ -98,7 +98,7 @@ public class ZoneUtil {
      */
     public static long getTime(String timeStr) {
         String timeZone = "+00:00";
-        SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy hh:mm:ss");
+        SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
         formatter.setTimeZone(TimeZone.getTimeZone("GMT" + timeZone));
         ParsePosition pos = new ParsePosition(0);
         Date result = formatter.parse(timeStr, pos);
@@ -114,7 +114,7 @@ public class ZoneUtil {
      */
     public static String getDate(String timeZone, long time) {
         timeZone = "+00:00";
-        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         formatter.setTimeZone(TimeZone.getTimeZone("GMT" + timeZone));
         Date date = new Date();
         date.setTime(time);

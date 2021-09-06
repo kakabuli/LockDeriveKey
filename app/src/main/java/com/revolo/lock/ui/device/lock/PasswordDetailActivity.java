@@ -9,10 +9,12 @@ import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.constraintlayout.widget.ConstraintLayout;
 
 import com.blankj.utilcode.util.ConvertUtils;
 import com.blankj.utilcode.util.ToastUtils;
@@ -70,6 +72,8 @@ import static com.revolo.lock.ble.BleProtocolState.CMD_KEY_ATTRIBUTES_SET;
 public class PasswordDetailActivity extends BaseActivity {
 
     private TextView mTvPwdName, mTvPwd, mTvPwdCharacteristic, mTvCreationDate;
+    private ImageView ivEditPwdName;
+    private ConstraintLayout tvTipCreationDatePwdView;
     private DevicePwdBean mDevicePwdBean;
     private String mESN;
     private BleDeviceLocal mBleDeviceLocal;
@@ -107,7 +111,17 @@ public class PasswordDetailActivity extends BaseActivity {
     @Override
     public void initView(@Nullable Bundle savedInstanceState, @Nullable View contentView) {
         useCommonTitleBar(getString(R.string.title_pwd_details));
-        applyDebouncingClickListener(findViewById(R.id.ivEditPwdName), findViewById(R.id.btnDeletePwd));
+        ivEditPwdName = findViewById(R.id.ivEditPwdName);
+        tvTipCreationDatePwdView = findViewById(R.id.tvTipCreationDate_pwd_view);
+        applyDebouncingClickListener(ivEditPwdName, findViewById(R.id.btnDeletePwd));
+        if ((null != mBleDeviceLocal && mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_BLE)&&!getNetError()) {
+            tvTipCreationDatePwdView.setVisibility(View.GONE);
+            ivEditPwdName.setVisibility(View.GONE);
+        } else {
+            tvTipCreationDatePwdView.setVisibility(View.VISIBLE);
+            ivEditPwdName.setVisibility(View.VISIBLE);
+        }
+        //applyDebouncingClickListener(findViewById(R.id.ivEditPwdName), findViewById(R.id.btnDeletePwd));
         mTvPwdName = findViewById(R.id.tvPwdName);
         mTvPwd = findViewById(R.id.tvPwd);
         mTvCreationDate = findViewById(R.id.tvCreationDate);
@@ -118,7 +132,21 @@ public class PasswordDetailActivity extends BaseActivity {
         initLoading(getString(R.string.t_load_content_deleting));
         onRegisterEventBus();
     }
-
+    @Override
+    protected void onResume() {
+        super.onResume();
+        mBleDeviceLocal = App.getInstance().getBleDeviceLocal();
+        if (null == tvTipCreationDatePwdView || null == ivEditPwdName) {
+            return;
+        }
+        if ((null != mBleDeviceLocal && mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_BLE)&&!getNetError()) {
+            tvTipCreationDatePwdView.setVisibility(View.GONE);
+            ivEditPwdName.setVisibility(View.GONE);
+        } else {
+            tvTipCreationDatePwdView.setVisibility(View.VISIBLE);
+            ivEditPwdName.setVisibility(View.VISIBLE);
+        }
+    }
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0) {
