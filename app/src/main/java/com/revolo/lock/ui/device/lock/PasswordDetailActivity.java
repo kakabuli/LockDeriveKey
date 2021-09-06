@@ -114,7 +114,7 @@ public class PasswordDetailActivity extends BaseActivity {
         ivEditPwdName = findViewById(R.id.ivEditPwdName);
         tvTipCreationDatePwdView = findViewById(R.id.tvTipCreationDate_pwd_view);
         applyDebouncingClickListener(ivEditPwdName, findViewById(R.id.btnDeletePwd));
-        if ((null != mBleDeviceLocal && mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_BLE)&&!getNetError()) {
+        if ((null != mBleDeviceLocal && mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_BLE) && !getNetError()) {
             tvTipCreationDatePwdView.setVisibility(View.GONE);
             ivEditPwdName.setVisibility(View.GONE);
         } else {
@@ -132,6 +132,7 @@ public class PasswordDetailActivity extends BaseActivity {
         initLoading(getString(R.string.t_load_content_deleting));
         onRegisterEventBus();
     }
+
     @Override
     protected void onResume() {
         super.onResume();
@@ -139,7 +140,7 @@ public class PasswordDetailActivity extends BaseActivity {
         if (null == tvTipCreationDatePwdView || null == ivEditPwdName) {
             return;
         }
-        if ((null != mBleDeviceLocal && mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_BLE)&&!getNetError()) {
+        if ((null != mBleDeviceLocal && mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_BLE) && !getNetError()) {
             tvTipCreationDatePwdView.setVisibility(View.GONE);
             ivEditPwdName.setVisibility(View.GONE);
         } else {
@@ -147,6 +148,7 @@ public class PasswordDetailActivity extends BaseActivity {
             ivEditPwdName.setVisibility(View.VISIBLE);
         }
     }
+
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0) {
@@ -405,8 +407,13 @@ public class PasswordDetailActivity extends BaseActivity {
     private void delServiceAndLocalKey(BleResultBean bleResultBean) {
         runOnUiThread(() -> {
             if (bleResultBean.getPayload()[0] == 0x00) {
-                // 锁端删除成功，执行服务器和本地数据库删除
-                delKeyFromService();
+                mBleDeviceLocal = App.getInstance().getBleDeviceLocal();
+                if ((null != mBleDeviceLocal && mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_BLE) && !getNetError()) {
+                    dismissLoadingAndShowSucMessage();
+                } else {
+                    // 锁端删除成功，执行服务器和本地数据库删除
+                    delKeyFromService();
+                }
             } else {
                 // 锁端删除失败
                 dismissLoading();
