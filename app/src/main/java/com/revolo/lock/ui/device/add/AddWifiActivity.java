@@ -106,17 +106,6 @@ public class AddWifiActivity extends BaseActivity {
 
         mDefaultName = getIntent().getStringExtra(Constant.CONNECT_WIFI_NAME);
         booleanExtra = getIntent().getBooleanExtra(Constant.WIFI_SETTING_TO_ADD_WIFI, false);
-        if (booleanExtra) {
-            if (null == mPowerLowDialog) {
-                mPowerLowDialog = new ConnectWifiLowBatteryDialog(this);
-                mPowerLowDialog.setConfirmListener(v -> {
-                    startActivity(new Intent(this, ChangeLockNameActivity.class));
-                });
-            }
-            if (!mPowerLowDialog.isShowing()) {
-                mPowerLowDialog.show();
-            }
-        }
         onRegisterEventBus();
     }
 
@@ -345,7 +334,17 @@ public class AddWifiActivity extends BaseActivity {
             getWifiList();
         } else {
             dismissLoading();
-            ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_low_battery_cant_pair_wifi);
+            if (booleanExtra) {
+                if (null == mPowerLowDialog) {
+                    mPowerLowDialog = new ConnectWifiLowBatteryDialog(this);
+                    mPowerLowDialog.setConfirmListener(v -> {
+                        startActivity(new Intent(this, ChangeLockNameActivity.class));
+                    });
+                }
+                if (!mPowerLowDialog.isShowing()) {
+                    mPowerLowDialog.show();
+                }
+            }
         }
     }
 
