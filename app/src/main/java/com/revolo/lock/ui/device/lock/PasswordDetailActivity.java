@@ -62,6 +62,7 @@ import static com.revolo.lock.ble.BleCommandState.KEY_SET_ATTRIBUTE_WEEK_KEY;
 import static com.revolo.lock.ble.BleCommandState.KEY_SET_KEY_OPTION_DEL;
 import static com.revolo.lock.ble.BleCommandState.KEY_SET_KEY_TYPE_PWD;
 import static com.revolo.lock.ble.BleProtocolState.CMD_KEY_ATTRIBUTES_SET;
+import static com.revolo.lock.util.ZoneUtil.getZone;
 
 /**
  * author : Jack
@@ -236,8 +237,8 @@ public class PasswordDetailActivity extends BaseActivity {
             mTvPwdName.setText(pwdName);
             mTvPwd.setText("***********");
             mTvPwdCharacteristic.setText(getPwdCharacteristic(mDevicePwdBean));
-            mTvCreationDate.setText(ZoneUtil.getTestDate(mBleDeviceLocal.getTimeZone(),
-                    mDevicePwdBean.getCreateTime() * 1000, "MM,dd,yyyy   HH:mm:ss"));
+            mTvCreationDate.setText(ZoneUtil.getTestDate(getZone(),
+                    mDevicePwdBean.getCreateTime() * 1000+(-1)*ZoneUtil.getTestTime2(mBleDeviceLocal.getTimeZone()), "MM,dd,yyyy   HH:mm:ss"));
             //mTvCreationDate.setText(ZoneUtil.getDate(mBleDeviceLocal.getTimeZone(),mDevicePwdBean.getCreateTime() * 1000, "MM,dd,yyyy HH:mm:ss"));
         }
     }
