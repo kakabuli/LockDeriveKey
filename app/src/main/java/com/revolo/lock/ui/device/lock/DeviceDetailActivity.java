@@ -336,11 +336,11 @@ public class DeviceDetailActivity extends BaseActivity {
             }
         }
         if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI || mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI_BLE) {
-            ivNetState.setImageResource(R.drawable.ic_home_icon_wifi);
+            ivNetState.setImageResource(R.drawable.ic_home_icon_wifi_blue);
             ivNetState.setVisibility(View.VISIBLE);
             tvNetState.setVisibility(View.VISIBLE);
         } else if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_BLE) {
-            ivNetState.setImageResource(R.drawable.ic_home_icon_bluetooth);
+            ivNetState.setImageResource(R.drawable.ic_home_icon_bluetooth_blue);
             ivNetState.setVisibility(View.VISIBLE);
             tvNetState.setVisibility(View.VISIBLE);
         } else {
