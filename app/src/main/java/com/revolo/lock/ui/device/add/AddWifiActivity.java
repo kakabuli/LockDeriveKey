@@ -197,7 +197,10 @@ public class AddWifiActivity extends BaseActivity {
             return;
         }
         if (view.getId() == R.id.tvSkip) {
-            startActivity(new Intent(this, ChangeLockNameActivity.class));
+            if (booleanExtra) {
+                startActivity(new Intent(this, ChangeLockNameActivity.class).putExtra(Constant.CHANGE_LOCK_NAME, ""));
+                finishPreAct();
+            }
             finish();
         }
     }
@@ -343,7 +346,9 @@ public class AddWifiActivity extends BaseActivity {
                 if (null == mPowerLowDialog) {
                     mPowerLowDialog = new ConnectWifiLowBatteryDialog(this);
                     mPowerLowDialog.setConfirmListener(v -> {
-                        startActivity(new Intent(this, ChangeLockNameActivity.class));
+                        startActivity(new Intent(this, ChangeLockNameActivity.class).putExtra(Constant.CHANGE_LOCK_NAME, ""));
+                        finishPreAct();
+                        finish();
                     });
                 }
                 if (!mPowerLowDialog.isShowing()) {

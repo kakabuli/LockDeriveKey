@@ -112,13 +112,13 @@ public class WifiSettingActivity extends BaseActivity {
             CheckBox checkBox = closeWiFiDialog.getCheckBox();
             if (checkBox != null && checkBox.isChecked()) {
                 SPUtils.getInstance().put("isFirstCloseWiFi", true);
-                Timber.e("关闭WiFi");
-                clearHandlerMsg(MSG_CLOSE_WIFI);
-                handler.sendEmptyMessageDelayed(MSG_CLOSE_WIFI, 60000);
-                closeWifiFromMQtt();
-                if (closeWiFiDialog != null) {
-                    closeWiFiDialog.dismiss();
-                }
+            }
+            Timber.e("关闭WiFi");
+            clearHandlerMsg(MSG_CLOSE_WIFI);
+            handler.sendEmptyMessageDelayed(MSG_CLOSE_WIFI, 60000);
+            closeWifiFromMQtt();
+            if (closeWiFiDialog != null) {
+                closeWiFiDialog.dismiss();
             }
         });
 

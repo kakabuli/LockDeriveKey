@@ -9,6 +9,7 @@ import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
+import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -403,16 +404,15 @@ public class DoorSensorAlignmentActivity extends BaseActivity {
                     if (null == openDoorDialog) {
                         openDoorDialog = new OpenDoorDialog(this);
                     }
-                    openDoorDialog.setmOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            if (null != openDoorDialog)
-                                openDoorDialog.dismiss();
+                    openDoorDialog.setmOnClickListener(v -> {
+                        if (null != openDoorDialog) openDoorDialog.dismiss();
+                        CheckBox checkBox = openDoorDialog.getCheckBox();
+                        if (checkBox != null && checkBox.isChecked()) {
                             SPUtils.getInstance().put(Constant.IS_OPEN_DOOR, "true");
-                            handler.removeMessages(MSG_CLICK_DOOR_STATE);
-                            handler.sendEmptyMessageDelayed(MSG_CLICK_DOOR_NEXT, 15000);
-                            nextClick();
                         }
+                        handler.removeMessages(MSG_CLICK_DOOR_STATE);
+                        handler.sendEmptyMessageDelayed(MSG_CLICK_DOOR_NEXT, 15000);
+                        nextClick();
                     });
                     if (!openDoorDialog.isShowing()) {
                         openDoorDialog.show();

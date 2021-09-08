@@ -18,6 +18,7 @@ import com.revolo.lock.R;
 public class OpenDoorDialog extends Dialog {
 
     private TextView mTvContent, mTvConfirm;
+    private CheckBox checkBox;
     private View.OnClickListener mOnClickListener;
 
     public OpenDoorDialog(@NonNull Context context) {
@@ -31,6 +32,7 @@ public class OpenDoorDialog extends Dialog {
         setCanceledOnTouchOutside(false);
         mTvContent = findViewById(R.id.tvContent);
         mTvConfirm = findViewById(R.id.tvConfirm);
+        checkBox = findViewById(R.id.checkbox);
     }
 
     public void setmOnClickListener(View.OnClickListener listener) {
@@ -38,6 +40,10 @@ public class OpenDoorDialog extends Dialog {
         if (null != mTvConfirm) {
             mTvConfirm.setOnClickListener(listener);
         }
+    }
+
+    public CheckBox getCheckBox() {
+        return checkBox;
     }
 
     @Override
