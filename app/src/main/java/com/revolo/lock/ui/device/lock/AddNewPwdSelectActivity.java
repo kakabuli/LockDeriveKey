@@ -71,6 +71,7 @@ import static com.revolo.lock.ble.BleCommandState.KEY_SET_ATTRIBUTE_WEEK_KEY;
 import static com.revolo.lock.ble.BleCommandState.KEY_SET_KEY_OPTION_ADD_OR_CHANGE;
 import static com.revolo.lock.ble.BleCommandState.KEY_SET_KEY_TYPE_PWD;
 import static com.revolo.lock.ble.BleProtocolState.CMD_KEY_ATTRIBUTES_SET;
+import static com.revolo.lock.util.ZoneUtil.getCreatePwdTime;
 
 /**
  * author : Jack
@@ -592,7 +593,7 @@ public class AddNewPwdSelectActivity extends BaseActivity {
         mNum = bleResultBean.getPayload()[1];
         mDevicePwdBean.setPwdNum(mNum);
         // 使用秒存储，所以除以1000
-        mDevicePwdBean.setCreateTime(ZoneUtil.getTime() / 1000);
+        mDevicePwdBean.setCreateTime(getCreatePwdTime() / 1000);
         mDevicePwdBean.setDeviceId(mBleDeviceLocal.getId());
         mDevicePwdBean.setAttribute(BleCommandState.KEY_SET_ATTRIBUTE_ALWAYS);
         if (mSelectedPwdState == PERMANENT_STATE) {
@@ -629,7 +630,7 @@ public class AddNewPwdSelectActivity extends BaseActivity {
         mDevicePwdBean.setStartTime(mTemStartDateTimeMill / 1000);
         mDevicePwdBean.setEndTime(mTemEndDateTimeMill / 1000);
         mDevicePwdBean.setAttribute(KEY_SET_ATTRIBUTE_TIME_KEY);
-        mDevicePwdBean.setCreateTime(ZoneUtil.getTime() / 1000);
+        mDevicePwdBean.setCreateTime(getCreatePwdTime() / 1000);
         if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI || mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI_BLE) {
             publishAddPwdAttr(mBleDeviceLocal.getEsn(),
                     KEY_SET_ATTRIBUTE_TIME_KEY,
@@ -677,7 +678,7 @@ public class AddNewPwdSelectActivity extends BaseActivity {
         mDevicePwdBean.setStartTime(mScheduleStartTimeMill / 1000);
         mDevicePwdBean.setEndTime(mScheduleEndTimeMill / 1000);
         mDevicePwdBean.setAttribute(KEY_SET_ATTRIBUTE_WEEK_KEY);
-        mDevicePwdBean.setCreateTime(ZoneUtil.getTime() / 1000);
+        mDevicePwdBean.setCreateTime(getCreatePwdTime() / 1000);
         if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI || mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI_BLE) {
             publishAddPwdAttr(mBleDeviceLocal.getEsn(),
                     KEY_SET_ATTRIBUTE_WEEK_KEY,
@@ -787,7 +788,7 @@ public class AddNewPwdSelectActivity extends BaseActivity {
         mNum = bean.getParams().getKeyNum();
         mDevicePwdBean.setPwdNum(mNum);
         // 使用秒存储，所以除以1000
-        mDevicePwdBean.setCreateTime(ZoneUtil.getTime() / 1000);
+        mDevicePwdBean.setCreateTime(getCreatePwdTime() / 1000);
         mDevicePwdBean.setDeviceId(mBleDeviceLocal.getId());
         mDevicePwdBean.setAttribute(BleCommandState.KEY_SET_ATTRIBUTE_ALWAYS);
         if (mSelectedPwdState == PERMANENT_STATE) {
