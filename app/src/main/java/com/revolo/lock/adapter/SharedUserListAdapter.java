@@ -78,6 +78,10 @@ public class SharedUserListAdapter extends BaseMultiItemQuickAdapter<GetAllShare
                 } else if (bean.getShareUserType() == 2) {
                     baseViewHolder.setText(R.id.tvDetail, R.string.per_app_unlock_only);
                 }
+
+                baseViewHolder.getView(R.id.tv_delete).setOnClickListener(v -> {
+                    mOnDeleteListener.onDeleteClickListener(bean);
+                });
                 baseViewHolder.getView(R.id.ivMore).setOnClickListener(v -> {
                     onReInviteListener.onReInviteListener(bean);
                 });

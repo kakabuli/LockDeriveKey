@@ -281,6 +281,7 @@ public class DeviceDetailActivity extends BaseActivity {
             doorShow(ivDoorState, tvDoorState);
             ivLockState.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_home_img_lock_privacymode));
             llDoorState.setVisibility(View.GONE);
+            tvPrivateMode.setVisibility(View.VISIBLE);
         } else {
             llDoorState.setVisibility(View.VISIBLE);
             boolean isUseDoorSensor = mBleDeviceLocal.isOpenDoorSensor();

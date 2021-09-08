@@ -22,7 +22,7 @@
     <LinearLayout
         android:id="@+id/linearLayout"
         android:layout_width="match_parent"
-        android:layout_height="123pt"
+        android:layout_height="wrap_content"
         android:background="@color/white"
         android:gravity="center"
         android:orientation="vertical"
@@ -43,8 +43,9 @@
             android:layout_marginLeft="20dp"
             android:layout_marginTop="15pt"
             android:layout_marginRight="20dp"
-            android:textColor="@color/c333333"
+            android:layout_marginBottom="20dp"
             android:gravity="center"
+            android:textColor="@color/c333333"
             android:textSize="16pt"
             tools:text="users Joh's Shared" />
 

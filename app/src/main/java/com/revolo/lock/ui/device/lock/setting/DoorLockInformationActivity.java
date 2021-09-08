@@ -501,7 +501,7 @@ public class DoorLockInformationActivity extends BaseActivity {
                     return;
                 }
                 mCheckWifiOTABeanRsp = checkOTABeanRsp;
-                isCanUpdateWifiVer = otaVersions(mCheckWifiOTABeanRsp.getData().getFileVersion(), ver);
+                isCanUpdateWifiVer = !mCheckWifiOTABeanRsp.getData().getFileVersion().equals(ver);
                 mVVersion.setVisibility(isCanUpdateWifiVer ? View.VISIBLE : View.GONE);
             }
 

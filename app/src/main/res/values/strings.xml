@@ -181,7 +181,7 @@
     <string name="device_setting_name">Device Name</string>
     <string name="device_setting_wifi">Wi-Fi Network</string>
     <string name="wifi">WiFi</string>
-    <string name="auto_lock">Auto-lock</string>
+    <string name="auto_lock">Auto-Lock</string>
     <string name="geo_fence_lock">Auto-Unlock</string>
     <string name="device_setting_door_sensor">Door Sensor</string>
     <string name="door_sensor_alignment">Door sensor alignment</string>
