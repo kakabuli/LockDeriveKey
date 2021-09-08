@@ -152,7 +152,8 @@ public class PasswordListActivity extends BaseActivity {
             if (mPasswordListAdapter != null) {
                 DevicePwdBean item = mPasswordListAdapter.getItem(position);
                 if (item != null) {
-                    showDelDialog(item);
+//                    showDelDialog(item);
+                    delPwd(item);
                 }
             }
         });
