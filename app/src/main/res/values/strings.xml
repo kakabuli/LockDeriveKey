@@ -354,7 +354,9 @@
 
     <!-- -->
     <string name="dis_wifi_hint_dilog_text">Turning off WiFi will switch to Bluetooth mode. Reconfiguring WiFi requires you to hold the phone near your loc.</string>
+    <string name="dis_wifi_hint_dialog_title_text">Please hold your mobile phoneclose to the revol.</string>
     <string name="dis_wifi_hint_dialog_igr_text">I know about it and hope that the app will not prompt this message again.</string>
+    <string name="door_next_hint_dialog_content_text">Switch to Bluetooth and perform door sensor calibration.</string>
 
     <string name="door_sensor_check_activity_title">DOOR SENSOR CALIBRATE</string>
     <string name="door_sensor_check_activity_1_hint_text">Please open the door as much as you can Open the door as far.</string>
