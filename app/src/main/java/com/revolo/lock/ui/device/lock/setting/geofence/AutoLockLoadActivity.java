@@ -24,6 +24,8 @@ import com.revolo.lock.room.entity.BleDeviceLocal;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.revolo.lock.Constant.SHOW_GEOFENCE_LOADING;
+
 public class AutoLockLoadActivity extends BaseActivity implements View.OnClickListener {
 
     private BleDeviceLocal mBleDeviceLocal;
@@ -212,7 +214,7 @@ public class AutoLockLoadActivity extends BaseActivity implements View.OnClickLi
             viewPager.setCurrentItem(5);
         } else if (v == mItem6But || v == tvSkip1Text || v ==
                 tvSkip2Text || v == tvSkip3Text || v == tvSkip4Text || v == tvSkip5Text || v == tvSkip6Text) {
-            SPUtils.getInstance().put("SHOW_GEOFENCE_LOADING", "true");
+            SPUtils.getInstance().put(SHOW_GEOFENCE_LOADING, "true");
             Intent intent = new Intent(this, AutoUnlockActivity.class);
             startActivity(intent);
             finish();

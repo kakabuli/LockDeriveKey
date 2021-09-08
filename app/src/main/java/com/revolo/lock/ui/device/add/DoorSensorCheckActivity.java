@@ -349,10 +349,10 @@ public class DoorSensorCheckActivity extends BaseActivity {
     private void gotoAddWifi() {
         mBleDeviceLocal = App.getInstance().getBleDeviceLocal();
         Timber.e("当前电量：" + mBleDeviceLocal.getLockPower());
-        if (mBleDeviceLocal.getLockPower() <= 20) {
+       /* if (mBleDeviceLocal.getLockPower() <= 20) {
             // 低电量
             finish();
-        } else {
+        } else {*/
 //        if (mBleDeviceLocal.getLockPower() <= 20) {
             // 低电量
             /*if (mPowerLowDialog != null) {
@@ -375,7 +375,7 @@ public class DoorSensorCheckActivity extends BaseActivity {
                 startActivity(intent);
                 finish();
             }, 50);
-        }
+       // }
     }
 
     /**
