@@ -483,12 +483,13 @@ public class PasswordListActivity extends BaseActivity {
                 for (int i = 0; i <= 6; i++) {
                     String tmpDay = i + "";
                     if (day.equals(tmpDay)) {
-                        weekBit[i] = 0x01;
+                        weekBit[6-i] = 0x01;
                         break;
                     }
                 }
             }
             if (isSaveWeekly) {
+                Timber.e("jjdakjga:"+BleByteUtil.bitToByte(weekBit));
                 devicePwdBean.setWeekly(BleByteUtil.bitToByte(weekBit));
             }
         }

@@ -151,7 +151,7 @@ public class AddNewPwdSelectActivity extends BaseActivity {
         initApplyClick();
         initLoading(getString(R.string.t_load_content_password_generating));
         mAddPwdFailDialog = new AddPwdFailDialog(this);
-        initSucMessageDialog();
+        //initSucMessageDialog();
         onRegisterEventBus();
     }
 
@@ -380,7 +380,7 @@ public class AddNewPwdSelectActivity extends BaseActivity {
 
     @Override
     protected void onDestroy() {
-        mSucMessageDialog = null;
+        //mSucMessageDialog = null;
         mAddPwdFailDialog = null;
         super.onDestroy();
     }
@@ -593,7 +593,7 @@ public class AddNewPwdSelectActivity extends BaseActivity {
         mNum = bleResultBean.getPayload()[1];
         mDevicePwdBean.setPwdNum(mNum);
         // 使用秒存储，所以除以1000
-        mDevicePwdBean.setCreateTime(getCreatePwdTime() / 1000);
+        mDevicePwdBean.setCreateTime(getCreatePwdTime(mBleDeviceLocal.getTimeZone()) / 1000);
         mDevicePwdBean.setDeviceId(mBleDeviceLocal.getId());
         mDevicePwdBean.setAttribute(BleCommandState.KEY_SET_ATTRIBUTE_ALWAYS);
         if (mSelectedPwdState == PERMANENT_STATE) {
@@ -630,7 +630,7 @@ public class AddNewPwdSelectActivity extends BaseActivity {
         mDevicePwdBean.setStartTime(mTemStartDateTimeMill / 1000);
         mDevicePwdBean.setEndTime(mTemEndDateTimeMill / 1000);
         mDevicePwdBean.setAttribute(KEY_SET_ATTRIBUTE_TIME_KEY);
-        mDevicePwdBean.setCreateTime(getCreatePwdTime() / 1000);
+        mDevicePwdBean.setCreateTime(getCreatePwdTime(mBleDeviceLocal.getTimeZone()) / 1000);
         if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI || mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI_BLE) {
             publishAddPwdAttr(mBleDeviceLocal.getEsn(),
                     KEY_SET_ATTRIBUTE_TIME_KEY,
@@ -678,7 +678,7 @@ public class AddNewPwdSelectActivity extends BaseActivity {
         mDevicePwdBean.setStartTime(mScheduleStartTimeMill / 1000);
         mDevicePwdBean.setEndTime(mScheduleEndTimeMill / 1000);
         mDevicePwdBean.setAttribute(KEY_SET_ATTRIBUTE_WEEK_KEY);
-        mDevicePwdBean.setCreateTime(getCreatePwdTime() / 1000);
+        mDevicePwdBean.setCreateTime(getCreatePwdTime(mBleDeviceLocal.getTimeZone()) / 1000);
         if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI || mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI_BLE) {
             publishAddPwdAttr(mBleDeviceLocal.getEsn(),
                     KEY_SET_ATTRIBUTE_WEEK_KEY,
@@ -704,7 +704,7 @@ public class AddNewPwdSelectActivity extends BaseActivity {
         }
     }
 
-    private MessageDialog mSucMessageDialog;
+   /* private MessageDialog mSucMessageDialog;
 
     private void initSucMessageDialog() {
         mSucMessageDialog = new MessageDialog(AddNewPwdSelectActivity.this);
@@ -720,13 +720,19 @@ public class AddNewPwdSelectActivity extends BaseActivity {
             startActivity(intent);
             finish();
         });
-    }
+    }*/
 
     private void showSucMessage() {
         runOnUiThread(() -> {
-            if (mSucMessageDialog != null) {
+            ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.dialog_tip_password_added);
+            Intent intent = new Intent(AddNewPwdSelectActivity.this, AddNewPwdNameActivity.class);
+            intent.putExtra(Constant.PWD_NUM, mDevicePwdBean.getPwdNum());
+            intent.putExtra(Constant.LOCK_ESN, mBleDeviceLocal.getEsn());
+            startActivity(intent);
+            finish();
+           /* if (mSucMessageDialog != null) {
                 mSucMessageDialog.show();
-            }
+            }*/
         });
     }
 
@@ -788,7 +794,7 @@ public class AddNewPwdSelectActivity extends BaseActivity {
         mNum = bean.getParams().getKeyNum();
         mDevicePwdBean.setPwdNum(mNum);
         // 使用秒存储，所以除以1000
-        mDevicePwdBean.setCreateTime(getCreatePwdTime() / 1000);
+        mDevicePwdBean.setCreateTime(getCreatePwdTime(mBleDeviceLocal.getTimeZone()) / 1000);
         mDevicePwdBean.setDeviceId(mBleDeviceLocal.getId());
         mDevicePwdBean.setAttribute(BleCommandState.KEY_SET_ATTRIBUTE_ALWAYS);
         if (mSelectedPwdState == PERMANENT_STATE) {

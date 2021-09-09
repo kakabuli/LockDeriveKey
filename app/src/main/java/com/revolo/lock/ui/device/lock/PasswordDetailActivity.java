@@ -237,8 +237,8 @@ public class PasswordDetailActivity extends BaseActivity {
             mTvPwdName.setText(pwdName);
             mTvPwd.setText("***********");
             mTvPwdCharacteristic.setText(getPwdCharacteristic(mDevicePwdBean));
-            mTvCreationDate.setText(ZoneUtil.getTestDate(getZone(),
-                    mDevicePwdBean.getCreateTime() * 1000+(-1)*ZoneUtil.getTestTime2(mBleDeviceLocal.getTimeZone()), "MM,dd,yyyy   HH:mm:ss"));
+            mTvCreationDate.setText(ZoneUtil.getTestDate("+00:00"/*getZone()*/,
+                    mDevicePwdBean.getCreateTime() * 1000/*+(-1)*ZoneUtil.getTestTime2(mBleDeviceLocal.getTimeZone())*/, "MM,dd,yyyy   HH:mm:ss"));
             //mTvCreationDate.setText(ZoneUtil.getDate(mBleDeviceLocal.getTimeZone(),mDevicePwdBean.getCreateTime() * 1000, "MM,dd,yyyy HH:mm:ss"));
         }
     }
