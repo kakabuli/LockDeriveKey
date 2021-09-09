@@ -388,7 +388,7 @@ public class DeviceDetailActivity extends BaseActivity {
                 deviceOfflineDialog();
             } else {
                 if (mBleDeviceLocal.getLockState() == LocalState.LOCK_STATE_PRIVATE) { // 隐私模式
-                    devicePrivateModeDialog();
+                    ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show("Cannot operate in current mode");
                 } else {
                     openDoor();
                 }
@@ -407,27 +407,6 @@ public class DeviceDetailActivity extends BaseActivity {
             }
         });
         mMessageDialog.show();
-    }
-
-    private void devicePrivateModeDialog() {
-        if (mSelectDialog == null) {
-            mSelectDialog = new SelectDialog(this);
-        }
-        mSelectDialog.setMessage(getString(R.string.tip_device_private_mode_dialog));
-        mSelectDialog.setConfirmText(getString(R.string.dialog_btn_confirm));
-        mSelectDialog.setCancelText(getString(R.string.tip_learn_more));
-        mSelectDialog.setOnConfirmListener(v -> {
-            if (mSelectDialog != null) {
-                mSelectDialog.dismiss();
-            }
-        });
-        mSelectDialog.setOnCancelClickListener(v -> {
-            startActivity(new Intent(this, PrivateModeActivity.class));
-            if (mSelectDialog != null) {
-                mSelectDialog.dismiss();
-            }
-        });
-        mSelectDialog.show();
     }
 
     private void gotoDeviceSettingAct() {
