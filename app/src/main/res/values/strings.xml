@@ -219,7 +219,7 @@
     <string name="title_private_mode">Private Mode</string>
     <string name="private_mode_activity_title">PRIVATE MODE</string>
     <string name="private_mode_description">Private mode description:</string>
-    <string name="tip_private_mode_description">· Press and Hold the round button for 3 seconds to activate Privacy Mode\n· All access features will be disabled, including:Revolo App, PIN Key, Auto-Unlock, Knock-Open.\n· Privacy Mode will be disabled automatically when unlock from inside by the thumbturn or Mechanical Key.</string>
+    <string name="tip_private_mode_description">· Press and Hold the round button for 3 seconds to activate Privacy Mode.\n· All access features will be disabled, including:Revolo App, PIN Key, Auto-Unlock, Knock-Open.\n· Privacy Mode will be disabled automatically when unlock from inside by the thumbturn or Mechanical Key.</string>
 
     <!-- DuressCodeActivity -->
     <string name="save">Save</string>
