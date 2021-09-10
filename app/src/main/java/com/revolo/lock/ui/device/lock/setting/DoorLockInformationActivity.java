@@ -835,6 +835,8 @@ public class DoorLockInformationActivity extends BaseActivity {
                             mMessageDialog.setMessage(getString(R.string.tip_content_ota_update_failed));
                             mMessageDialog.show();
                         }
+                        mTvFirmwareVersion.setText(mBleDeviceLocal.getLockVer());
+                        mTvWifiVersion.setText(mBleDeviceLocal.getWifiVer());
                     }
                 }
             }
