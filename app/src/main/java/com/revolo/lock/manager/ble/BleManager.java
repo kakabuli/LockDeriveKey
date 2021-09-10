@@ -339,10 +339,18 @@ public class BleManager {
             if (null != bleBean) {
                 bleBean.setBleConning(2);
                 openControlNotify(bleBean.getOKBLEDeviceImp());
+                Timber.e("正常连接 MAC："+bleBean.getMac());
+                Timber.e("正常连接 ESN："+bleBean.getEsn());
+                Timber.e("正常连接 pwd1："+ConvertUtils.bytes2HexString(bleBean.getPwd1()));
+                Timber.e("正常连接 pwd2："+ConvertUtils.bytes2HexString(bleBean.getPwd2()));
                 if (bleBean.isAppPair() && null != bleBean.getPwd2() && !"00000000".equals(ConvertUtils.bytes2HexString(bleBean.getPwd2()))) {
                     // 正在蓝牙本地配网，所以不走自动鉴权
                     new Handler(Looper.getMainLooper()).postDelayed(() -> {
                         Timber.d("getPwd2AndSendAuthCommand 延时发送鉴权指令, pwd2: %1s\n", ConvertUtils.bytes2HexString(bleBean.getPwd2()));
+                        Timber.e("鉴权 MAC："+bleBean.getMac());
+                        Timber.e("鉴权 ESN："+bleBean.getEsn());
+                        Timber.e("鉴权 pwd1："+ConvertUtils.bytes2HexString(bleBean.getPwd1()));
+                        Timber.e("鉴权 pwd2："+ConvertUtils.bytes2HexString(bleBean.getPwd2()));
                         writeControlMsg(BleCommandFactory
                                 .authCommand(bleBean.getPwd1(), bleBean.getPwd2(), bleBean.getEsn().getBytes(StandardCharsets.UTF_8)), bleBean.getOKBLEDeviceImp());
                     }, 100);
@@ -355,6 +363,10 @@ public class BleManager {
                         bleBean.setPwd2_copy(null);
                         bleBean.setPwd2(null);
                         bleBean.setPwd3(null);
+                        Timber.e("置空 MAC："+bleBean.getMac());
+                        Timber.e("置空 ESN："+bleBean.getEsn());
+                        Timber.e("置空 pwd1："+ConvertUtils.bytes2HexString(bleBean.getPwd1()));
+                        Timber.e("置空 pwd2："+ConvertUtils.bytes2HexString(bleBean.getPwd2()));
                     }
                 }
                 // 连接后都走自动鉴权流程
@@ -364,6 +376,10 @@ public class BleManager {
                     if (null != bleBean.getOKBLEDeviceImp()) {
                         Timber.d("%1s 发送配网指令，并校验ESN", bleBean.getOKBLEDeviceImp());
                     }
+                    Timber.e("绑定 MAC："+bleBean.getMac());
+                    Timber.e("绑定 ESN："+bleBean.getEsn());
+                    Timber.e("绑定 pwd1："+ConvertUtils.bytes2HexString(bleBean.getPwd1()));
+                    Timber.e("绑定 pwd2："+ConvertUtils.bytes2HexString(bleBean.getPwd2()));
                     writeControlMsg(BleCommandFactory
                             .pairCommand(bleBean.getPwd1(), bleBean.getEsn().getBytes(StandardCharsets.UTF_8)), bleBean.getOKBLEDeviceImp());
                 }, 100);

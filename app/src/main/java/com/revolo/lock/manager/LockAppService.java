@@ -2193,6 +2193,13 @@ public class LockAppService extends Service {
                     Timber.e("app service setDoorState set BleDeviceLocal");
                     App.getInstance().setBleDeviceLocal(mDeviceLists.get(i));
                 }
+                //上报UI
+                LockMessageRes messageRes = new LockMessageRes();
+                messageRes.setMessgaeType(LockMessageCode.MSG_LOCK_MESSAGE_USER);
+                messageRes.setResultCode(LockMessageCode.MSG_LOCK_MESSAGE_CODE_SUCCESS);
+                messageRes.setMessageCode(LockMessageCode.MSG_LOCK_MESSAGE_UPDATE_DEVICE_STATE);
+
+                EventBus.getDefault().post(messageRes);
                 break;
             }
         }
