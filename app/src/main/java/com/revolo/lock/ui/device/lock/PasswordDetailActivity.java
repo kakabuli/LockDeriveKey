@@ -256,25 +256,25 @@ public class PasswordDetailActivity extends BaseActivity {
         } else if (attribute == KEY_SET_ATTRIBUTE_WEEK_KEY) {
             byte[] weekBytes = BleByteUtil.byteToBit(devicePwdBean.getWeekly());
             String weekly = "";
-            if (weekBytes[6] == 0x01) {
+            if (weekBytes[0] == 0x01) {
                 weekly += "Sun";
             }
-            if (weekBytes[5] == 0x01) {
+            if (weekBytes[1] == 0x01) {
                 weekly += TextUtils.isEmpty(weekly) ? "Mon" : "、Mon";
             }
-            if (weekBytes[4] == 0x01) {
+            if (weekBytes[2] == 0x01) {
                 weekly += TextUtils.isEmpty(weekly) ? "Tues" : "、Tues";
             }
             if (weekBytes[3] == 0x01) {
                 weekly += TextUtils.isEmpty(weekly) ? "Wed" : "、Wed";
             }
-            if (weekBytes[2] == 0x01) {
+            if (weekBytes[4] == 0x01) {
                 weekly += TextUtils.isEmpty(weekly) ? "Thur" : "、Thur";
             }
-            if (weekBytes[1] == 0x01) {
+            if (weekBytes[5] == 0x01) {
                 weekly += TextUtils.isEmpty(weekly) ? "Fri" : "、Fri";
             }
-            if (weekBytes[0] == 0x01) {
+            if (weekBytes[6] == 0x01) {
                 weekly += TextUtils.isEmpty(weekly) ? "Sat" : "、Sat";
             }
             weekly += "\n";

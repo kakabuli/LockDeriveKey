@@ -481,19 +481,19 @@ public class PasswordListActivity extends BaseActivity {
                 isSaveWeekly = false;
                 return;
             }
-            byte[] weekBit = new byte[8];
-            for (String day : bean.getItems()) {
-                for (int i = 0; i <= 6; i++) {
-                    String tmpDay = i + "";
-                    if (day.equals(tmpDay)) {
-                        weekBit[6-i] = 0x01;
-                        break;
-                    }
-                }
-            }
+//            byte[] weekBit = new byte[8];
+//            for (String day : bean.getItems()) {
+//                for (int i = 0; i <= 6; i++) {
+//                    String tmpDay = i + "";
+//                    if (day.equals(tmpDay)) {
+//                        weekBit[6-i] = 0x01;
+//                        break;
+//                    }
+//                }
+//            }
             if (isSaveWeekly) {
-                Timber.e("jjdakjga:"+BleByteUtil.bitToByte(weekBit));
-                devicePwdBean.setWeekly(BleByteUtil.bitToByte(weekBit));
+                Timber.e("jjdakjga:"+bean.getItems().get(0)/*BleByteUtil.bitToByte(weekBit)*/);
+                devicePwdBean.setWeekly((byte) Integer.parseInt(bean.getItems().get(0))/*BleByteUtil.bitToByte(weekBit)*/);
             }
         }
     }
