@@ -671,7 +671,7 @@ public class AddNewPwdSelectActivity extends BaseActivity {
         Timber.d("sun: %1b, mon: %2b, tues: %3b, wed: %4b, thur: %5b, fri: %6b, sat: %7b",
                 isSelectedSun, isSelectedMon, isSelectedTues, isSelectedWed,
                 isSelectedThur, isSelectedFri, isSelectedSat);
-        Timber.d("num: %1s, week: %2s, weekBytes: %3s, startTime: %4d, endTime: %5d",
+        Timber.e("num: %1s, week: %2s, weekBytes: %3s, startTime: %4d, endTime: %5d",
                 mNum, ConvertUtils.int2HexString(week), ConvertUtils.bytes2HexString(weekBit),
                 mScheduleStartTimeMill / 1000, mScheduleEndTimeMill / 1000);
         mDevicePwdBean.setWeekly(week);
@@ -895,7 +895,7 @@ public class AddNewPwdSelectActivity extends BaseActivity {
             return;
         }
         //判断是否手机网络断开
-        if(!getNetError()){
+        if (!getNetError()) {
             dismissLoading();
             showSucMessage();
             return;
@@ -962,27 +962,20 @@ public class AddNewPwdSelectActivity extends BaseActivity {
 
     private List<String> getWeekItems() {
         List<String> list = new ArrayList<>();
-        if (isSelectedSun) {
-            list.add("0");
-        }
-        if (isSelectedMon) {
-            list.add("1");
-        }
-        if (isSelectedTues) {
-            list.add("2");
-        }
-        if (isSelectedWed) {
-            list.add("3");
-        }
-        if (isSelectedThur) {
-            list.add("4");
-        }
-        if (isSelectedFri) {
-            list.add("5");
-        }
-        if (isSelectedSat) {
-            list.add("6");
-        }
+        list.add(getWeekItemsByte()+ "");
         return list;
+    }
+    private byte getWeekItemsByte(){
+        byte[] weekBit = new byte[8];
+        weekBit[0] = (byte) (isSelectedSun ? 0x01 : 0x00);//周天
+        weekBit[1] = (byte) (isSelectedMon ? 0x01 : 0x00);//周一
+        weekBit[2] = (byte) (isSelectedTues ? 0x01 : 0x00);
+        weekBit[3] = (byte) (isSelectedWed ? 0x01 : 0x00);
+        weekBit[4] = (byte) (isSelectedThur ? 0x01 : 0x00);
+        weekBit[5] = (byte) (isSelectedFri ? 0x01 : 0x00);
+        weekBit[6] = (byte) (isSelectedSat ? 0x01 : 0x00); //六
+        byte week = BleByteUtil.bitToByte(weekBit);
+        Timber.e("dasgagg:"+week);
+        return week;
     }
 }

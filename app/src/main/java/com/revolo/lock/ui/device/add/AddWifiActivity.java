@@ -156,7 +156,9 @@ public class AddWifiActivity extends BaseActivity {
             //蓝牙消息
             if (null != lockMessage.getBleResultBea()) {
                 if (lockMessage.getBleResultBea().getCMD() == CMD_LOCK_INFO) {
-                    receiveLockBaseInfo(lockMessage.getBleResultBea());
+                    runOnUiThread(() -> {
+                        receiveLockBaseInfo(lockMessage.getBleResultBea());
+                    });
                 } else if (lockMessage.getBleResultBea().getCMD() == CMD_WIFI_LIST_CHECK) {
                     receiveWifiList(lockMessage.getBleResultBea());
                 }

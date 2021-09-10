@@ -274,7 +274,16 @@ public class DeviceDetailActivity extends BaseActivity {
         }
         // 低电量
         tvPrivateMode.setVisibility(View.GONE);
-        mIvBatteryState.setImageResource(mBleDeviceLocal.getLockPower() <= 20 ? R.drawable.ic_icon_low_battery : R.mipmap.ic_icon_battery);
+        //根据电量不同显示电量背景
+        if(mBleDeviceLocal.getLockPower()<=20){
+            mIvBatteryState.setImageResource(R.drawable.home_img_lock_electricity_20);
+        }else if(mBleDeviceLocal.getLockPower()>20&&mBleDeviceLocal.getLockPower()<=50){
+            mIvBatteryState.setImageResource(R.drawable.home_img_lock_electricity_50);
+        }else if(mBleDeviceLocal.getLockPower()>50&&mBleDeviceLocal.getLockPower()<=80){
+            mIvBatteryState.setImageResource(R.drawable.home_img_lock_electricity_80);
+        }else if(mBleDeviceLocal.getLockPower()>80&&mBleDeviceLocal.getLockPower()<=100){
+            mIvBatteryState.setImageResource(R.drawable.home_img_lock_electricity_100);
+        }
         mTvBatteryState.setVisibility(mBleDeviceLocal.getLockPower() <= 20 ? View.VISIBLE : View.GONE);
 //        llLowBattery.setVisibility(mBleDeviceLocal.getLockPower() <= 20 ? View.VISIBLE : View.GONE);
         if (mBleDeviceLocal.getLockState() == LocalState.LOCK_STATE_PRIVATE) {
