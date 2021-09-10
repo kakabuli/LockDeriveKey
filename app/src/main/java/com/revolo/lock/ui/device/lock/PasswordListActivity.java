@@ -154,6 +154,9 @@ public class PasswordListActivity extends BaseActivity {
                 if (item != null) {
 //                    showDelDialog(item);
                     delPwd(item);
+                    if (rvPwdList != null) {
+                        rvPwdList.closeMenu();
+                    }
                 }
             }
         });

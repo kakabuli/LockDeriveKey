@@ -55,12 +55,12 @@ public class FingerprintUtils {
         if (mFingerprintManager != null) {
             // 判断硬件是否支持指纹识别
             if(!mFingerprintManager.isHardwareDetected()) {
-                ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_the_device_does_not_support_fingerprint_recognition);
+//                ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_the_device_does_not_support_fingerprint_recognition);
                 return false;
             }
             // 判断是否有指纹录入
             if(!mFingerprintManager.hasEnrolledFingerprints()) {
-                ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_no_fingerprints);
+//                ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_no_fingerprints);
                 return false;
             }
             return true;

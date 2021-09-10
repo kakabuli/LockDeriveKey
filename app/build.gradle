@@ -83,7 +83,6 @@ android {
             storePassword 'Rev0l0&Ka66as'
         }
     }
-
 }
 
 dependencies {
