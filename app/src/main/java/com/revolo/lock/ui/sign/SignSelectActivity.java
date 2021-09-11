@@ -2,7 +2,6 @@ package com.revolo.lock.ui.sign;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
-import android.hardware.fingerprint.FingerprintManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -24,7 +23,6 @@ import com.revolo.lock.base.BaseActivity;
 import com.revolo.lock.bean.respone.MailLoginBeanRsp;
 import com.revolo.lock.room.entity.User;
 import com.revolo.lock.ui.MainActivity;
-import com.revolo.lock.util.FingerprintUtils;
 
 import java.util.concurrent.Executor;
 
@@ -111,58 +109,18 @@ public class SignSelectActivity extends BaseActivity {
         boolean isUseGestureCode = user.isUseGesturePassword();
         boolean isFaceId = user.isUseFaceId();
         if ((!TextUtils.isEmpty(loginJson) && isFaceId)) {
-            showBiometricPrompt(loginJson, isUseGestureCode);
+            startActivity(new Intent(this, FaceAutoLoginActivity.class));
+            finish();
         } else if ((!TextUtils.isEmpty(loginJson)) && isUseTouchId) {
-            if (android.os.Build.VERSION.SDK_INT > 27) {
-                showBiometricPrompt(loginJson, isUseGestureCode);
-            } else {
-                FingerprintUtils fingerprintUtils = new FingerprintUtils(new FingerprintManager.AuthenticationCallback() {
-                    @Override
-                    public void onAuthenticationError(int errorCode, CharSequence errString) {
-                        //多次指纹密码验证错误后，进入此方法；并且，不可再验（短时间）
-                        //errorCode是失败的次数
-                        if (errorCode == 3) {
-                            if ((!TextUtils.isEmpty(loginJson)) && isUseGestureCode) {
-                                gestureCode();
-                            } else {
-                                startActivity(new Intent(SignSelectActivity.this, LoginActivity.class));
-                                finish();
-                            }
-                        }
-                    }
-
-                    @Override
-                    public void onAuthenticationHelp(int helpCode, CharSequence helpString) {
-                        //指纹验证失败，可再验，可能手指过脏，或者移动过快等原因。
-                    }
-
-                    @Override
-                    public void onAuthenticationSucceeded(FingerprintManager.AuthenticationResult result) {
-                        //指纹密码验证成功
-                        autoLogin();
-                    }
-
-                    @Override
-                    public void onAuthenticationFailed() {
-                        //指纹验证失败，指纹识别失败，可再验，错误原因为：该指纹不是系统录入的指纹。
-                    }
-                });
-                fingerprintUtils.openFingerprintAuth();
-            }
+            startActivity(new Intent(this, FingerprintAutoLoginActivity.class));
+            finish();
         } else if ((!TextUtils.isEmpty(loginJson)) && isUseGestureCode) {
-            gestureCode();
+            startActivity(new Intent(this, DrawHandPwdAutoLoginActivity.class));
+            finish();
         } else {
             autoLogin();
         }
 
-    }
-
-    private void gestureCode() {
-        Intent intent = new Intent(this, DrawHandPwdAutoLoginActivity.class);
-        Bundle extras = getIntent().getExtras();
-        if (extras != null) intent.putExtras(extras);
-        startActivity(intent);
-        finish();
     }
 
     private void autoLogin() {
@@ -188,52 +146,5 @@ public class SignSelectActivity extends BaseActivity {
             startActivity(intent);
             finish();
         }, 50);
-    }
-
-    //生物认证的setting
-    private void showBiometricPrompt(String loginJson, boolean isUseGestureCode) {
-        BiometricPrompt.PromptInfo promptInfo =
-                new BiometricPrompt.PromptInfo.Builder()
-                        .setTitle(" ") //设置大标题
-                        .setSubtitle("") // 设置标题下的提示
-                        .setNegativeButtonText("More Login") //设置取消按钮
-                        .build();
-
-        //需要提供的参数callback
-        BiometricPrompt biometricPrompt = new BiometricPrompt(SignSelectActivity.this, executor, new BiometricPrompt.AuthenticationCallback() {
-            //各种异常的回调
-            @Override
-            public void onAuthenticationError(int errorCode,
-                                              @NonNull CharSequence errString) {
-                super.onAuthenticationError(errorCode, errString);
-                Timber.e("Authentication error: %s", errString);
-                if (errString.equals("More Login")) { // 取消
-                    if ((!TextUtils.isEmpty(loginJson)) && isUseGestureCode) {
-                        gestureCode();
-                    } else {
-                        startActivity(new Intent(SignSelectActivity.this, LoginActivity.class));
-                        finish();
-                    }
-                }
-            }
-
-            //认证成功的回调
-            @Override
-            public void onAuthenticationSucceeded(
-                    @NonNull BiometricPrompt.AuthenticationResult result) {
-                super.onAuthenticationSucceeded(result);
-                autoLogin();
-            }
-
-            //认证失败的回调
-            @Override
-            public void onAuthenticationFailed() {
-                super.onAuthenticationFailed();
-                Timber.e("Authentication failed");
-            }
-        });
-
-        // 显示认证对话框
-        biometricPrompt.authenticate(promptInfo);
     }
 }

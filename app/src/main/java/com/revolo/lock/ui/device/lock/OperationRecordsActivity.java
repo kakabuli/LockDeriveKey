@@ -37,6 +37,7 @@ import com.revolo.lock.net.ObservableDecorator;
 import com.revolo.lock.room.AppDatabase;
 import com.revolo.lock.room.entity.BleDeviceLocal;
 import com.revolo.lock.room.entity.LockRecord;
+import com.revolo.lock.ui.TitleBar;
 import com.revolo.lock.ui.view.SmartClassicsHeaderView;
 import com.revolo.lock.util.ZoneUtil;
 import com.revolo.lock.widget.MyTimePickBuilder;
@@ -88,6 +89,7 @@ public class OperationRecordsActivity extends BaseActivity {
     private long startTime = 0;
     private long endTime = 0;
     private boolean isCheckTime = false;
+    private TitleBar titleBar;
 
     @Override
     public void initData(@Nullable Bundle bundle) {
@@ -106,10 +108,10 @@ public class OperationRecordsActivity extends BaseActivity {
     @Override
     public void initView(@Nullable Bundle savedInstanceState, @Nullable View contentView) {
         isCheckTime = false;
-        useCommonTitleBar(getString(R.string.title_operation_records))
-                .setRight(R.drawable.ic_icon_date, v -> {
-                    showDatePicker();
-                });
+        titleBar = useCommonTitleBar(getString(R.string.title_operation_records));
+        titleBar.setRight(R.drawable.ic_icon_date, v -> {
+            showDatePicker();
+        });
         mBleDeviceLocal = App.getInstance().getBleDeviceLocal();
         mElOperationRecords = findViewById(R.id.elOperationRecords);
         mElOperationRecords.setGroupIndicator(null);
@@ -217,6 +219,13 @@ public class OperationRecordsActivity extends BaseActivity {
 
     @Override
     public void doBusiness() {
+        if (titleBar != null) {
+            if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_BLE) {
+                titleBar.getIvRight().setVisibility(View.GONE);
+            } else {
+                titleBar.getIvRight().setVisibility(View.VISIBLE);
+            }
+        }
         searchRecord(0);
     }
 
@@ -611,12 +620,12 @@ public class OperationRecordsActivity extends BaseActivity {
                         break;
                     case 0x13:
                         // 门磁检测开门
-                        message = "Detection of door opened";
+                        message = "Door Opened";
                         drawableId = R.drawable.ic_home_log_icon_door_open;
                         break;
                     case 0x14:
                         // 门磁检测关门
-                        message = "Detection of closed door";
+                        message = "Door Closed";
                         drawableId = R.drawable.ic_home_log_icon_door_close;
                         break;
                     case 0x01:

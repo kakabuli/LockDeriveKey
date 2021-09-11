@@ -113,7 +113,12 @@ public class AutoLockActivity extends BaseActivity {
 
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
-                stopTrackingTouch(seekBar);
+                if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_DIS) {
+                    ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_text_content_offline_devices);
+                    seekBar.setProgress(mBeforeTime);
+                } else {
+                    stopTrackingTouch(seekBar);
+                }
             }
         });
         mTime = mBleDeviceLocal.getSetAutoLockTime();
@@ -208,7 +213,8 @@ public class AutoLockActivity extends BaseActivity {
             mTvTime.setText(mTime == 0 ? getString(R.string.activity_auto_lock_immediately) : getTimeString(mTime));
             mIvDetectionLockEnable
                     .setImageResource(mBleDeviceLocal.isDetectionLock() ? R.drawable.ic_icon_switch_open : R.drawable.ic_icon_switch_close);
-            mSeekBar.setProgress(getProgressFromTime(mBleDeviceLocal.getSetAutoLockTime()));
+            mBeforeTime = getProgressFromTime(mBleDeviceLocal.getSetAutoLockTime());
+            mSeekBar.setProgress(mBeforeTime);
             mTvTip.setText(getString(mTime == 0 ? R.string.tip_the_timer_will_start_when_your_door_is_closed : R.string.tip_door_will_be_locked_when_time_is_up));
         });
     }
@@ -382,10 +388,6 @@ public class AutoLockActivity extends BaseActivity {
             mTime = 30 * 60;
         }
         mBleDeviceLocal = App.getInstance().getBleDeviceLocal();
-        if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_DIS) {
-            ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_text_content_offline_devices);
-            return;
-        }
         if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI || mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI_BLE) {
             publishAutoLockTime(mBleDeviceLocal.getEsn(), mTime);
         } else {

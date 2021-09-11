@@ -113,7 +113,7 @@ public class ForgetThePwdActivity extends BaseActivity {
                     etPwd.setBackground(getDrawable(R.drawable.bg_edit_under_line_selector_red));
                     tvTip.setTextColor(getColor(R.color.cFF6A36));
                 } else {
-                    etPwd.setTextColor(getColor(R.color.c333333));
+                    etPwd.setTextColor(getColor(R.color.c2C68FF));
                     etPwd.setBackground(getDrawable(R.drawable.bg_edit_under_line_selector));
                     tvTip.setTextColor(getColor(R.color.c999999));
                 }

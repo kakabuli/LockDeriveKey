@@ -28,7 +28,7 @@
         android:gravity="center"
         android:paddingStart="33pt"
         android:paddingEnd="33pt"
-        android:text="@string/door_magnet_cant_be_detected"
+        android:text="@string/door_sensor_calibrate_failed"
         android:textColor="@color/c333333"
         android:textSize="15pt"
         app:layout_constraintEnd_toEndOf="parent"

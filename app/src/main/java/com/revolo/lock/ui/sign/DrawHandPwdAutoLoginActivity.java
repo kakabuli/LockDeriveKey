@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.text.TextUtils;
+import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.FrameLayout;
@@ -20,6 +21,7 @@ import com.revolo.lock.Constant;
 import com.revolo.lock.R;
 import com.revolo.lock.base.BaseActivity;
 import com.revolo.lock.bean.respone.MailLoginBeanRsp;
+import com.revolo.lock.dialog.iosloading.MoreLoginPopup;
 import com.revolo.lock.room.entity.User;
 import com.revolo.lock.ui.MainActivity;
 import com.revolo.lock.ui.TitleBar;
@@ -38,7 +40,7 @@ public class DrawHandPwdAutoLoginActivity extends BaseActivity {
 
     private GestureContentView mGestureContentView;
     private TextView tvDrawTip;
-
+    private MoreLoginPopup moreLoginPopup;
     private int mCount = 3;
 
     @Override
@@ -53,7 +55,7 @@ public class DrawHandPwdAutoLoginActivity extends BaseActivity {
 
     @Override
     public void initView(@Nullable Bundle savedInstanceState, @Nullable View contentView) {
-        TitleBar titleBar = useCommonTitleBar("Gesture password");
+        TitleBar titleBar = useCommonTitleBar("GESTURE PASSWORD");
         titleBar.getIvLeft().setVisibility(View.INVISIBLE);
 
         tvDrawTip = findViewById(R.id.tvDrawTip);
@@ -103,9 +105,25 @@ public class DrawHandPwdAutoLoginActivity extends BaseActivity {
         // 设置手势解锁显示到哪个布局里面
         mGestureContentView.setParentView(gestureContainer);
 
-        findViewById(R.id.tv_more_unlock).setOnClickListener(v -> {
+        moreLoginPopup = new MoreLoginPopup(this);
+        moreLoginPopup.setEmailLoginListener(v -> {
             startActivity(new Intent(this, LoginActivity.class));
+            if (moreLoginPopup != null) {
+                moreLoginPopup.dismiss();
+            }
             finish();
+        });
+        moreLoginPopup.setCancelOnClickListener(v -> {
+            if (moreLoginPopup != null) {
+                moreLoginPopup.dismiss();
+            }
+        });
+
+        findViewById(R.id.tv_more_unlock).setOnClickListener(v -> {
+            if (moreLoginPopup != null) {
+                moreLoginPopup.setPopupGravity(Gravity.BOTTOM);
+                moreLoginPopup.showPopupWindow();
+            }
         });
     }
 

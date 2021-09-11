@@ -1,5 +1,6 @@
 package com.revolo.lock.ui.mine;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -13,6 +14,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.revolo.lock.App;
+import com.revolo.lock.Constant;
 import com.revolo.lock.R;
 import com.revolo.lock.base.BaseActivity;
 import com.revolo.lock.room.entity.User;
@@ -30,7 +32,7 @@ public class CloseDrawHandPwdActivity extends BaseActivity {
 
     private GestureContentView mGestureContentView;
     private TextView tvDrawTip;
-
+    private static final int REQUEST_CODE_OPEN_GESTURE_CODE = 1999;
     private int mCount = 3;
 
     @Override
@@ -48,6 +50,8 @@ public class CloseDrawHandPwdActivity extends BaseActivity {
         TitleBar titleBar = useCommonTitleBar(getString(R.string.title_change_gesture_password));
         titleBar.getIvLeft().setVisibility(View.INVISIBLE);
 
+        boolean booleanExtra = getIntent().getBooleanExtra(Constant.CHANGE_GESTURE_HAND_PASSWORD, false);
+
         tvDrawTip = findViewById(R.id.tvDrawTip);
         FrameLayout gestureContainer = findViewById(R.id.gesture_container);
         mGestureContentView = new GestureContentView(this, false, "", new GestureDrawline.GestureCallBack() {
@@ -62,19 +66,26 @@ public class CloseDrawHandPwdActivity extends BaseActivity {
                 User user = App.getInstance().getUser();
                 // 获取缓存手势密码成功的值
                 String code = user.getGestureCode();
-                if (inputCode.equals(code)) {
-                    setResult(RESULT_OK);
-                    new Handler(Looper.getMainLooper()).postDelayed(() -> finish(), 50);
+                if (booleanExtra) {
+                    if (inputCode.equals(code)) {
+                        startActivityForResult(new Intent(CloseDrawHandPwdActivity.this, OpenDrawHandPwdActivity.class), REQUEST_CODE_OPEN_GESTURE_CODE);
+                        new Handler(Looper.getMainLooper()).postDelayed(() -> finish(), 50);
+                    }
                 } else {
-                    if (mCount == 0) {
-                        setResult(RESULT_CANCELED);
+                    if (inputCode.equals(code)) {
+                        setResult(RESULT_OK);
                         new Handler(Looper.getMainLooper()).postDelayed(() -> finish(), 50);
                     } else {
-                        tvDrawTip.setText(getString(R.string.t_text_content_wrong_password));
-                        mGestureContentView.clearDrawlineState(1300L);
-                        mCount--;
-                    }
+                        if (mCount == 0) {
+                            setResult(RESULT_CANCELED);
+                            new Handler(Looper.getMainLooper()).postDelayed(() -> finish(), 50);
+                        } else {
+                            tvDrawTip.setText(getString(R.string.t_text_content_wrong_password));
+                            mGestureContentView.clearDrawlineState(1300L);
+                            mCount--;
+                        }
 
+                    }
                 }
             }
 
@@ -119,4 +130,12 @@ public class CloseDrawHandPwdActivity extends BaseActivity {
         return true;
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == RESULT_OK) {
+            setResult(RESULT_OK);
+            new Handler(Looper.getMainLooper()).postDelayed(() -> finish(), 50);
+        }
+    }
 }

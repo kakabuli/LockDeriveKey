@@ -488,7 +488,7 @@ public class DoorSensorCheckActivity extends BaseActivity {
     private void refreshDoorSuc() {
         mDoorState = DOOR_SUC;
         Intent intent = new Intent(DoorSensorCheckActivity.this, DoorCheckOkActivity.class);
-        intent.putExtra("isGoToAddWifi", isGoToAddWifi);
+        intent.putExtra(Constant.IS_GO_TO_ADD_WIFI, isGoToAddWifi);
         startActivity(intent);
         finish();
 

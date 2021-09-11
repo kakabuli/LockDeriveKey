@@ -63,8 +63,10 @@ public class ChangeLockNameActivity extends BaseActivity {
         etLockName = findViewById(R.id.etLockName);
         if (TextUtils.isEmpty(mTvName)) {
             mTvName = mBleDeviceLocal.getEsn();
+            findViewById(R.id.tvCancel).setVisibility(View.VISIBLE);
         } else {
             etLockName.setText(mTvName);
+            findViewById(R.id.tvCancel).setVisibility(View.GONE);
         }
         applyDebouncingClickListener(findViewById(R.id.btnComplete), findViewById(R.id.btnCancel));
         initLoading(getString(R.string.t_load_content_setting));

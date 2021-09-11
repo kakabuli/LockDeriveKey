@@ -9,7 +9,9 @@ import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
+import android.widget.CheckBox;
 import android.widget.ImageView;
+import android.widget.RadioButton;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -17,6 +19,7 @@ import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
 
 import com.blankj.utilcode.util.ConvertUtils;
+import com.blankj.utilcode.util.SPUtils;
 import com.blankj.utilcode.util.ToastUtils;
 import com.revolo.lock.App;
 import com.revolo.lock.Constant;
@@ -28,6 +31,7 @@ import com.revolo.lock.ble.BleCommandFactory;
 import com.revolo.lock.ble.BleCommandState;
 import com.revolo.lock.ble.bean.BleBean;
 import com.revolo.lock.ble.bean.BleResultBean;
+import com.revolo.lock.dialog.CloseWiFiDialog;
 import com.revolo.lock.dialog.ConnectWifiLowBatteryDialog;
 import com.revolo.lock.dialog.MessageDialog;
 import com.revolo.lock.dialog.OpenBleDialog;
@@ -74,10 +78,11 @@ public class WifiSettingActivity extends BaseActivity {
     private boolean isWifiConnected = false;
     private TextView mTvWifiName;
 
-    private SelectDialog mSelectDialog;
+    //    private SelectDialog mSelectDialog;
     private ConnectWifiLowBatteryDialog mPowerLowDialog;
     private ConstraintLayout mCltip;
     private OpenBleDialog openBleDialog;
+    private CloseWiFiDialog closeWiFiDialog;
 
     @Override
     public void initData(@Nullable Bundle bundle) {
@@ -102,23 +107,38 @@ public class WifiSettingActivity extends BaseActivity {
         applyDebouncingClickListener(mIvWifiEnable, findViewById(R.id.tvSettingTitle), findViewById(R.id.clTip));
 
 
-        mSelectDialog = new SelectDialog(this);
-        mSelectDialog.setMessage(getString(R.string.t_closed_wifi_connect_msg));
-        mSelectDialog.setReturn(true);
-        mSelectDialog.setOnCancelClickListener(v -> {
-            if (mSelectDialog != null) {
-                mSelectDialog.dismiss();
+        closeWiFiDialog = new CloseWiFiDialog(this);
+        closeWiFiDialog.setOnListener(v -> {
+            CheckBox checkBox = closeWiFiDialog.getCheckBox();
+            if (checkBox != null && checkBox.isChecked()) {
+                SPUtils.getInstance().put("isFirstCloseWiFi", true);
+                Timber.e("关闭WiFi");
+                clearHandlerMsg(MSG_CLOSE_WIFI);
+                handler.sendEmptyMessageDelayed(MSG_CLOSE_WIFI, 60000);
+                closeWifiFromMQtt();
+                if (closeWiFiDialog != null) {
+                    closeWiFiDialog.dismiss();
+                }
             }
         });
-        mSelectDialog.setOnConfirmListener(v -> {
-            Timber.e("关闭WiFi");
-            clearHandlerMsg(MSG_CLOSE_WIFI);
-            handler.sendEmptyMessageDelayed(MSG_CLOSE_WIFI, 60000);
-            closeWifiFromMQtt();
-            if (mSelectDialog != null) {
-                mSelectDialog.dismiss();
-            }
-        });
+
+//        mSelectDialog = new SelectDialog(this);
+//        mSelectDialog.setMessage(getString(R.string.t_closed_wifi_connect_msg));
+//        mSelectDialog.setReturn(true);
+//        mSelectDialog.setOnCancelClickListener(v -> {
+//            if (mSelectDialog != null) {
+//                mSelectDialog.dismiss();
+//            }
+//        });
+//        mSelectDialog.setOnConfirmListener(v -> {
+//            Timber.e("关闭WiFi");
+//            clearHandlerMsg(MSG_CLOSE_WIFI);
+//            handler.sendEmptyMessageDelayed(MSG_CLOSE_WIFI, 60000);
+//            closeWifiFromMQtt();
+//            if (mSelectDialog != null) {
+//                mSelectDialog.dismiss();
+//            }
+//        });
         onRegisterEventBus();
         setOpenBluetoothClick(new checkOpenBluetoothClick() {
             @Override
@@ -290,16 +310,27 @@ public class WifiSettingActivity extends BaseActivity {
     @Override
     public void onDebouncingClick(@NonNull View view) {
         if (view.getId() == R.id.ivWifiEnable) {
+            boolean isFirstCloseWiFi = SPUtils.getInstance().getBoolean("isFirstCloseWiFi");
             //当前WiFi是打开的
             if (isWifiConnected) {
-                if (mSelectDialog != null) {
-                    mSelectDialog.show();
+                if (!isFirstCloseWiFi) {
+                    if (closeWiFiDialog != null) {
+                        closeWiFiDialog.show();
+                    }
+                } else {
+                    Timber.e("关闭WiFi");
+                    clearHandlerMsg(MSG_CLOSE_WIFI);
+                    handler.sendEmptyMessageDelayed(MSG_CLOSE_WIFI, 60000);
+                    closeWifiFromMQtt();
                 }
             } else {
                 if (mBleDeviceLocal.getLockPower() <= 20) {
                     // 低电量
                     if (null == mPowerLowDialog) {
                         mPowerLowDialog = new ConnectWifiLowBatteryDialog(this);
+                        mPowerLowDialog.setConfirmListener(v -> {
+                            if (mPowerLowDialog != null) mPowerLowDialog.dismiss();
+                        });
                     }
                     if (!mPowerLowDialog.isShowing()) {
                         mPowerLowDialog.show();

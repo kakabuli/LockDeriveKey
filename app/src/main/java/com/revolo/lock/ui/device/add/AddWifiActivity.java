@@ -1,7 +1,10 @@
 package com.revolo.lock.ui.device.add;
 
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
+import android.net.wifi.WifiInfo;
+import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.text.InputType;
 import android.text.TextUtils;
@@ -27,12 +30,14 @@ import com.revolo.lock.ble.BleCommandFactory;
 import com.revolo.lock.ble.bean.BleBean;
 import com.revolo.lock.ble.bean.BleResultBean;
 import com.revolo.lock.ble.bean.WifiSnBean;
+import com.revolo.lock.dialog.ConnectWifiLowBatteryDialog;
 import com.revolo.lock.manager.LockMessage;
 import com.revolo.lock.manager.LockMessageCode;
 import com.revolo.lock.manager.LockMessageRes;
 import com.revolo.lock.popup.WifiListPopup;
 import com.revolo.lock.room.AppDatabase;
 import com.revolo.lock.room.entity.BleDeviceLocal;
+import com.revolo.lock.ui.device.lock.setting.ChangeLockNameActivity;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -63,6 +68,9 @@ public class AddWifiActivity extends BaseActivity {
     private BleDeviceLocal mBleDeviceLocal;
     private String mDefaultName = "";
     private boolean booleanExtra = true;
+    private WifiManager wifiManager;
+
+    private ConnectWifiLowBatteryDialog mPowerLowDialog;
 
     @Override
     public void initData(@Nullable Bundle bundle) {
@@ -80,7 +88,7 @@ public class AddWifiActivity extends BaseActivity {
 
     @Override
     public void initView(@Nullable Bundle savedInstanceState, @Nullable View contentView) {
-        useCommonTitleBar(getString(R.string.title_connect_wifi));
+        useCommonTitleBar(getString(R.string.title_wifi_setting));
         mEtWifiName = findViewById(R.id.etWifiName);
         mEtPwd = findViewById(R.id.etPwd);
         mWifiListPopup = new WifiListPopup(this);
@@ -97,8 +105,35 @@ public class AddWifiActivity extends BaseActivity {
         initLoading(getString(R.string.t_load_content_loading));
 
         mDefaultName = getIntent().getStringExtra(Constant.CONNECT_WIFI_NAME);
-        booleanExtra = getIntent().getBooleanExtra(Constant.WIFI_SETTING_TO_ADD_WIFI, true);
+        booleanExtra = getIntent().getBooleanExtra(Constant.WIFI_SETTING_TO_ADD_WIFI, false);
+        if (booleanExtra) {
+            if (null == mPowerLowDialog) {
+                mPowerLowDialog = new ConnectWifiLowBatteryDialog(this);
+                mPowerLowDialog.setConfirmListener(v -> {
+                    startActivity(new Intent(this, ChangeLockNameActivity.class));
+                });
+            }
+            if (!mPowerLowDialog.isShowing()) {
+                mPowerLowDialog.show();
+            }
+        }
         onRegisterEventBus();
+    }
+
+    /**
+     * 获取当前WiFi
+     *
+     * @return
+     */
+    private String getCurrWifi() {
+        if (null == wifiManager) {
+            wifiManager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
+        }
+        WifiInfo connectionInfo = wifiManager.getConnectionInfo();
+        if (null != connectionInfo) {
+            return connectionInfo.getSSID();
+        }
+        return "";
     }
 
     @Override
@@ -168,6 +203,7 @@ public class AddWifiActivity extends BaseActivity {
             return;
         }
         if (view.getId() == R.id.tvSkip) {
+            startActivity(new Intent(this, ChangeLockNameActivity.class));
             finish();
         }
     }
@@ -407,8 +443,25 @@ public class AddWifiActivity extends BaseActivity {
             Timber.d("缺少的序列号为：%1s", sb.toString());
         }
         if (!mWifiSnList.isEmpty()) {
-            for (String name : mWifiSnList) {
-                Timber.d("WifiSn: %1s", name);
+            String currSsid = getCurrWifi();
+            int index = -1;
+            if (null != currSsid && !"".equals(currSsid)) {
+                currSsid = currSsid.trim().replace("\"", "");
+                Timber.d("currSsid: %1s", currSsid);
+                for (int i = 0; i < mWifiSnList.size(); i++) {
+                    if (null != mWifiSnList.get(i) && !"".equals(mWifiSnList.get(i))) {
+                        if (mWifiSnList.get(i).toUpperCase().equals(currSsid.toUpperCase())) {
+                            index = i;
+                        }
+                    }
+                    Timber.d("WifiSn: %1s", mWifiSnList.get(i));
+                }
+                if (index != -1) {
+                    mDefaultName = mWifiSnList.get(index);
+                    mWifiSnList.remove(index);
+                    mWifiSnList.add(0, mDefaultName);
+
+                }
             }
         }
         runOnUiThread(() -> {

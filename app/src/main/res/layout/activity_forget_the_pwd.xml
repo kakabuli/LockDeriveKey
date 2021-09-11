@@ -70,7 +70,7 @@
         android:background="@drawable/bg_edit_under_line_selector"
         android:drawableStart="@drawable/ic_register_icon_password_blue_false"
         android:drawablePadding="41pt"
-        android:hint="@string/password"
+        android:hint="password"
         android:inputType="textPassword"
         android:maxLength="15"
         android:paddingStart="15pt"

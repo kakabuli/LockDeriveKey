@@ -21,7 +21,7 @@
     <color name="c707070">#707070</color>
     <color name="cf7f7f7">#F7F7F7</color>
     <color name="cEDEDED">#EDEDED</color>
-    <color name="cFF6A36">#FF6A36</color>
+    <color name="cFF6A36">#FF556D</color>
     <color name="cFDECF0">#FDECF0</color>
     <color name="c6086e8">#6086e8</color>
     <color name="cD4E1FF">#D4E1FF</color>
@@ -29,4 +29,5 @@
 
     <color name="transparent">#00FFFFFF</color>
     <color name="open_ble_view_back_transparent">#80000000</color>
+    <color name="red">#ff0000</color>
 </resources>

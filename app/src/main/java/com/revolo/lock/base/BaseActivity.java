@@ -332,4 +332,11 @@ public abstract class BaseActivity extends AppCompatActivity
         EventBus.getDefault().post(bean);
         mContentView.postInvalidate(); // 刷新页面
     }
+
+    public boolean getNetError() {
+        if (null == mTitleBar) {
+            return true;
+        }
+        return mTitleBar.getNetError();
+    }
 }

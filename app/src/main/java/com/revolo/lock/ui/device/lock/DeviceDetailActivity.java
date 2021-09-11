@@ -210,8 +210,9 @@ public class DeviceDetailActivity extends BaseActivity {
             String eventtype = wifiLockAlarmEventBean.getEventtype();
             if (eventtype.equals("alarm")) { // 报警信息
                 WifiLockOperationEventBean.EventparamsBean eventparams = wifiLockAlarmEventBean.getEventparams();
-                if (eventparams != null && eventparams.getAlarmCode() == 65) { // 堵转
+                if (eventparams != null && eventparams.getAlarmCode() == 65) { // 堵转`
                     tvPrivateMode.setVisibility(View.VISIBLE);
+                    tvPrivateMode.setTextColor(getColor(R.color.cFF556D));
                     tvPrivateMode.setText(getString(R.string.tip_bolt_not_fully_locked));
                 }
             }
@@ -272,6 +273,7 @@ public class DeviceDetailActivity extends BaseActivity {
             return;
         }
         // 低电量
+        tvPrivateMode.setVisibility(View.GONE);
         mIvBatteryState.setImageResource(mBleDeviceLocal.getLockPower() <= 20 ? R.drawable.ic_icon_low_battery : R.mipmap.ic_icon_battery);
         mTvBatteryState.setVisibility(mBleDeviceLocal.getLockPower() <= 20 ? View.VISIBLE : View.GONE);
 //        llLowBattery.setVisibility(mBleDeviceLocal.getLockPower() <= 20 ? View.VISIBLE : View.GONE);

@@ -333,6 +333,7 @@ public class DeviceFragment extends Fragment {
                     if (null != mHomeLockListAdapter) {
                         bleConnected.setBleDeviceLocalList(mHomeLockListAdapter.getData());
                     }
+                    EventBus.getDefault().post(bleConnected);
                 }
             }
         }

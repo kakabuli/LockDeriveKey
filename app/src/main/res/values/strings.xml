@@ -9,7 +9,9 @@
     <string name="revolo">Revolo</string>
     <string name="tip_sign_select">Welcome to use revolo products to\n give you a safe and comfortable\n home</string>
     <string name="register">SIGN UP</string>
-
+    <string name="title_finger_print_Login">FINGERPRINT</string>
+    <string name="title_face_Login">FACE</string>
+    <string name="tip_finger_print_login_text">Please log in via fingerprint</string>
     <string name="iv_tip_back">Back</string>
 
     <!--  RegisterActivity -->
@@ -179,7 +181,7 @@
     <string name="device_setting_name">Device Name</string>
     <string name="device_setting_wifi">Wi-Fi Network</string>
     <string name="wifi">WiFi</string>
-    <string name="auto_lock">Auto lock</string>
+    <string name="auto_lock">Auto-lock</string>
     <string name="geo_fence_lock">Auto-Unlock</string>
     <string name="device_setting_door_sensor">Door Sensor</string>
     <string name="door_sensor_alignment">Door sensor alignment</string>
@@ -188,7 +190,7 @@
     <string name="mute">Mute</string>
     <string name="private_mode">Private mode</string>
     <string name="join_alexa">Join Alexa</string>
-    <string name="door_lock_information">Door information</string>
+    <string name="door_lock_information">Device Information</string>
     <string name="unbind">Unbind</string>
     <string name="do_not_disturb_mode">Do Not Disturb Mode</string>
     <string name="video_mode">Video mode</string>
@@ -240,11 +242,12 @@
     <string name="device_name">Device name</string>
     <string name="device_permissions">Device permissions</string>
     <string name="permission_closed_permission">（Closed permission）</string>
-    <string name="unable_to_add_user_and_password">· Able to lock and unlock door via Revolo App. \n· Able to contoll all lock settings \n· Able to view activities. \n· Able to create/delet PIN Key. \n· Able to invite new users only as Guest.</string>
+    <string name="unable_to_add_user_and_password">· Able to lock and unlock door via Revolo App. \n· Able to contoll all lock settings \n· Able to view activities. \n· Able to create/delet PIN Key.</string>
     <string name="accepting">accepting</string>
 
     <!-- AddDeviceForSharedUserActivity -->
     <string name="title_select_authorized_device">ACCESS LEVEL</string>
+    <string name="title_add_authorized_device">SELECT DEVICE</string>
     <string name="select_authorized_user_device">Select authorized user device</string>
 
     <!-- SelectAuthorizedDeviceActivity -->
@@ -355,7 +358,7 @@
 
     <string name="door_sensor_check_activity_title">DOOR SENSOR CALIBRATE</string>
     <string name="door_sensor_check_activity_1_hint_text">Please open the door as much as you can Open the door as far.</string>
-    <string name="door_sensor_check_activity_1s_hint_text">1. Please operate the door slowly and at aconstant speed.\n2. After operation, please keep the currentstate of the door for at least 3 seconds.</string>
+    <string name="door_sensor_check_activity_1s_hint_text">1. Please operate the door slowly and at a constant speed.\n2. After operation, please keep the current state of the door for at least 3 seconds.</string>
     <string name="door_sensor_check_activity_2_hint_text">Please close the door completely.</string>
     <string name="door_sensor_check_activity_3_hint_text">Close the door until the extended deadbolt or latch just attached the door frame.</string>
 
@@ -363,6 +366,7 @@
     <!-- DoorCheckFailActivity -->
     <string name="door_sensor_cant_be_detected">Door sensor can\'t be detected.</string>
     <string name="door_magnet_cant_be_detected">Door magnet can\'t be detected.</string>
+    <string name="door_sensor_calibrate_failed">Door sensor calibrate failed</string>
     <string name="door_sensor_cant_ok_hint_text">Your lock has been successfully calibrated.</string>
     <string name="try_again">Try again</string>
 
@@ -437,12 +441,13 @@
     <string name="dialog_tip_password_added">succeed.</string>
     <string name="dialog_title_add_failure">Add failure</string>
     <string name="dialog_tip_please_make_sure_wifi_is_online">▪Please make sure your router is functional.</string>
-    <string name="dialog_tip_please_make_sure_the_bluetooth_is_connected">▪Please make sure the lock is wihin the range of the router\'sWIFI signal.</string>
+    <string name="dialog_tip_please_make_sure_the_bluetooth_is_connected">▪Please make sure the lock is within the range of the router\'sWIFI signal.</string>
     <string name="dialog_tip_please_make_sure_the_network_is_normal">▪Please make sure the WiFi account and  password are correct.</string>
     <string name="dialog_tip_unlock_failed_please_try_it_again">Unlock failed.\nPlease try it again.</string>
     <string name="dialog_tip_the_door_lock_is_in_private_mode_cant_click_at_present">The door lock is in private mode,\nCan\'t click at present</string>
     <string name="dialog_tip_please_approach_the_door_lock_to_delete_password">Lock is in Bluetooth Mode Please approach the lock to continue or check.</string>
     <string name="dialog_tip_password_deleted">PIN Key deleted.</string>
+    <string name="dialog_tip_password_deleted_message">Are you sure to delete the lock password?</string>
     <string name="dialog_tip_deletion_failed_door_lock_bluetooth_is_not_found">Deletion failed\nDoor lock Bluetooth is not found.</string>
     <string name="dialog_btn_determine">Determine</string>
     <string name="dialog_tip_are_you_sure_to_remove_this_user">Are you sure to remove\nthis user.</string>
@@ -459,7 +464,7 @@
     <string name="dialog_btn_ok">OK</string>
     <string name="dialog_tip_there_is_a_new_version_available_do_you_want_to_update">There is a new version available,\nDo you want to update?</string>
     <string name="dialog_tip_wifi_is_offline_version_update_is_not_supported">WiFi is offline,\nversion update is not supported.</string>
-    <string name="dialog_tip_after_unbinding_your_door_lock_can_be_binded_by_others">After unbinding,\nyour door lock can be bound by others</string>
+    <string name="dialog_tip_after_unbinding_your_door_lock_can_be_binded_by_others">After unbinding,\nyour door lock can be bound by others.</string>
     <string name="dialog_tip_line_device_unbin_text">After unbinding, please restore the lock to the factory setting by pressing and holding the reset button for more than 5 seconds.</string>
     <string name="dialog_title_are_you_sure_to_unbind">Are you sure to unbind the device?</string>
     <string name="dialog_tip_your_device_wifi_is_offline_please_close_to_the_door_lock_open_bluetooth_and_set_it">Your device WiFi is offline,\nPlease close to the door lock,\nopen Bluetooth and set it.</string>
@@ -468,6 +473,7 @@
     <string name="dialog_tip_please_wake_up_lock_and_wait_bluetooth_connecting">Please wake up lock and wait Bluetooth connecting</string>
     <string name="dialog_title_weak_signal_state">Weak signal state</string>
     <string name="dialog_tip_hint_is_open_bluetooth">The current function needs to turn on Bluetooth. Do you want to turn on Bluetooth?</string>
+    <string name="dialog_tip_close_wifi_text">Turning off WiFi will switch to Bluetooth mode. Reconfiguring WiFi requires you to hold the phone near your lock.</string>
 
     <!-- AddNewPwdSelectActivity -->
     <string name="repeat">Repeat</string>

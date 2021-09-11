@@ -45,7 +45,7 @@
         android:layout_marginEnd="75pt"
         android:layout_marginBottom="75pt"
         android:gravity="center"
-        android:text="@string/next"
+        android:text="@string/complete"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
