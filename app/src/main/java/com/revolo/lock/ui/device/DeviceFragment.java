@@ -509,7 +509,8 @@ public class DeviceFragment extends Fragment {
                 return;
             }
             for (int i = 0; i < locals.size(); i++) {
-                locals.get(i).setConnectedType(LocalState.DEVICE_CONNECT_TYPE_DIS);
+                // TODO wifi锁，初始化默认为wifi模式
+                locals.get(i).setConnectedType(LocalState.DEVICE_CONNECT_TYPE_WIFI);
             }
             updateData(locals);
         } else {

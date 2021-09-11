@@ -37,6 +37,7 @@ import com.revolo.lock.shulan.config.RunMode;
 import com.revolo.lock.ui.TitleBar;
 
 import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
 import org.jetbrains.annotations.NotNull;
 
 import io.reactivex.disposables.Disposable;
