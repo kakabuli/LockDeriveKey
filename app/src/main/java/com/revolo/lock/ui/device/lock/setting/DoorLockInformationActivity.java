@@ -29,8 +29,6 @@ import com.revolo.lock.bean.respone.CheckOTABeanRsp;
 import com.revolo.lock.bean.respone.StartAllOTAUpdateBeanRsp;
 import com.revolo.lock.bean.respone.StartOTAUpdateBeanRsp;
 import com.revolo.lock.ble.BleCommandFactory;
-import com.revolo.lock.ble.BleResultProcess;
-import com.revolo.lock.ble.OnBleDeviceListener;
 import com.revolo.lock.ble.bean.BleBean;
 import com.revolo.lock.ble.bean.BleResultBean;
 import com.revolo.lock.dialog.MessageDialog;
@@ -47,9 +45,7 @@ import com.revolo.lock.room.entity.BleDeviceLocal;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
-import org.jetbrains.annotations.NotNull;
 
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -835,8 +831,6 @@ public class DoorLockInformationActivity extends BaseActivity {
                             mMessageDialog.setMessage(getString(R.string.tip_content_ota_update_failed));
                             mMessageDialog.show();
                         }
-                        mTvFirmwareVersion.setText(mBleDeviceLocal.getLockVer());
-                        mTvWifiVersion.setText(mBleDeviceLocal.getWifiVer());
                     }
                 }
             }
