@@ -398,17 +398,14 @@ public class MQTTReply {
             }
         } else {*/
         //Timber.e("本地与服务器端的pwd2一致");
-        if (!TextUtils.isEmpty(wifiListBean.getPassword2()))
-            bleDeviceLocal.setPwd2(wifiListBean.getPassword2());
+        bleDeviceLocal.setPwd2(!TextUtils.isEmpty(wifiListBean.getPassword2()) ? wifiListBean.getPassword2() : "");
         // }
 
         bleDeviceLocal.setDoNotDisturbMode(!wifiListBean.isOpenlockPushSwitch());
         // TODO: 2021/3/16 存储数据
-        if (!TextUtils.isEmpty(wifiListBean.getRandomCode()))
-            bleDeviceLocal.setRandomCode(wifiListBean.getRandomCode());
+        bleDeviceLocal.setRandomCode(!TextUtils.isEmpty(wifiListBean.getRandomCode()) ? wifiListBean.getRandomCode() : "");
 
-        if (!TextUtils.isEmpty(wifiListBean.getLockNickname()))
-            bleDeviceLocal.setName(wifiListBean.getLockNickname());
+        bleDeviceLocal.setName(!TextUtils.isEmpty(wifiListBean.getLockNickname()) ? wifiListBean.getLockNickname() : "");
 
         if (bleDeviceLocal.getConnectedType() != LocalState.DEVICE_CONNECT_TYPE_BLE) {
             Timber.e("当前非蓝牙模式状态下。更新门磁状态");
@@ -439,8 +436,7 @@ public class MQTTReply {
         Timber.d("wifi 连接状态: %1s", wifiListBean.getWifiStatus());
 
         // TODO: 2021/3/18 修改为从服务器获取数据
-        if (!TextUtils.isEmpty(wifiListBean.getWifiStatus()))
-            bleDeviceLocal.setConnectedType(Integer.parseInt(wifiListBean.getWifiStatus()));
+        bleDeviceLocal.setConnectedType(!TextUtils.isEmpty(wifiListBean.getWifiStatus()) ? Integer.parseInt(wifiListBean.getWifiStatus()) : 0);
 
         //bleDeviceLocal.setLockPower(wifiListBean.getPower());
         //锁的wifi模式下开关状态已服务器为准
@@ -477,49 +473,35 @@ public class MQTTReply {
         bleDeviceLocal.setDuress(wifiListBean.getDuress() == 1);
         bleDeviceLocal.setDuressEmail(wifiListBean.getDuressEmail());
 
-        if (!TextUtils.isEmpty(wifiListBean.getWifiName()))
-            bleDeviceLocal.setConnectedWifiName(wifiListBean.getWifiName());
+        bleDeviceLocal.setConnectedWifiName(!TextUtils.isEmpty(wifiListBean.getWifiName()) ? wifiListBean.getWifiName() : "");
 
         bleDeviceLocal.setCreateTime(wifiListBean.getCreateTime());
 
 
         bleDeviceLocal.setDetectionLock(true);
 
-        if (!TextUtils.isEmpty(wifiListBean.getPassword1()))
-            bleDeviceLocal.setPwd1(wifiListBean.getPassword1());
+        bleDeviceLocal.setPwd1(!TextUtils.isEmpty(wifiListBean.getPassword1()) ? wifiListBean.getPassword1() : "");
 
-        if (!TextUtils.isEmpty(wifiListBean.getBleMac()))
-            bleDeviceLocal.setMac(wifiListBean.getBleMac());
+        bleDeviceLocal.setMac(!TextUtils.isEmpty(wifiListBean.getBleMac()) ? wifiListBean.getBleMac() : "");
 
-        if (!TextUtils.isEmpty(wifiListBean.getWifiSN()))
-            bleDeviceLocal.setEsn(wifiListBean.getWifiSN());
+        bleDeviceLocal.setEsn(!TextUtils.isEmpty(wifiListBean.getWifiSN()) ? wifiListBean.getWifiSN() : "");
 
-        if (!TextUtils.isEmpty(wifiListBean.getFunctionSet()))
-            bleDeviceLocal.setFunctionSet(wifiListBean.getFunctionSet());
+        bleDeviceLocal.setFunctionSet(!TextUtils.isEmpty(wifiListBean.getFunctionSet()) ? wifiListBean.getFunctionSet() : "");
 
         bleDeviceLocal.setUserId(App.getInstance().getUser().getAdminUid());
 
-        if (!TextUtils.isEmpty(wifiListBean.getModel()))
-            bleDeviceLocal.setType(wifiListBean.getModel());
+        bleDeviceLocal.setType(!TextUtils.isEmpty(wifiListBean.getModel()) ? wifiListBean.getModel() : "");
 
-        if (!TextUtils.isEmpty(wifiListBean.getShareId())) {
-            bleDeviceLocal.setShareId(wifiListBean.getShareId());
-        }
-        if (!TextUtils.isEmpty(wifiListBean.getShareUId())) {
-            bleDeviceLocal.setShareUid(wifiListBean.getShareUId());
-        }
+        bleDeviceLocal.setShareId(!TextUtils.isEmpty(wifiListBean.getShareId()) ? wifiListBean.getShareId() : "");
+        bleDeviceLocal.setShareUid(!TextUtils.isEmpty(wifiListBean.getShareUId()) ? wifiListBean.getShareUId() : "");
 
         String firmwareVer = wifiListBean.getLockFirmwareVersion();
-        if (!TextUtils.isEmpty(firmwareVer)) {
-            bleDeviceLocal.setLockVer(firmwareVer);
-        }
+        bleDeviceLocal.setLockVer(!TextUtils.isEmpty(firmwareVer) ? firmwareVer : "");
         bleDeviceLocal.setShareUserType(wifiListBean.getShareUserType());
         bleDeviceLocal.setIsAdmin(wifiListBean.getIsAdmin());
 
         String wifiVer = wifiListBean.getWifiVersion();
-        if (!TextUtils.isEmpty(wifiVer)) {
-            bleDeviceLocal.setWifiVer(wifiVer);
-        }
+        bleDeviceLocal.setWifiVer(!TextUtils.isEmpty(wifiVer) ? wifiVer : "");
 
         //地理围栏
         //地理围栏是否开启
