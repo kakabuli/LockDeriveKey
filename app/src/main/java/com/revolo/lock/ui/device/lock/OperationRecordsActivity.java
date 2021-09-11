@@ -29,6 +29,7 @@ import com.revolo.lock.ble.BleByteUtil;
 import com.revolo.lock.ble.BleCommandFactory;
 import com.revolo.lock.ble.bean.BleBean;
 import com.revolo.lock.ble.bean.BleResultBean;
+import com.revolo.lock.dialog.OperationBleDialog;
 import com.revolo.lock.manager.LockMessage;
 import com.revolo.lock.manager.LockMessageCode;
 import com.revolo.lock.manager.LockMessageRes;
@@ -143,7 +144,15 @@ public class OperationRecordsActivity extends BaseActivity {
         if (null == mWillShowRecords) {
             mWillShowRecords = new ArrayList<>();
         }
-
+        if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_BLE){
+            OperationBleDialog operationBleDialog = new OperationBleDialog(this);
+            operationBleDialog.setOnListener(v -> {
+                if (operationBleDialog != null){
+                    operationBleDialog.dismiss();
+                }
+            });
+            operationBleDialog.show();
+        }
     }
 
     /**
