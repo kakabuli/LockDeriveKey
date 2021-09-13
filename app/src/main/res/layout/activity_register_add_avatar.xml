@@ -16,7 +16,7 @@
         android:layout_width="118pt"
         android:layout_height="118pt"
         android:layout_marginTop="22pt"
-        android:src="@drawable/default_avatar"
+        android:src="@drawable/mine_personal_img_headportrait_default"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/include" />

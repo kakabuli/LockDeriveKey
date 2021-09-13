@@ -118,6 +118,8 @@
     <!-- OperationRecordsActivity -->
     <string name="title_operation_records">ACTIVITIES</string>
     <string name="data_no_records">No record</string>
+    <string name="dialog_title_notice">Notice</string>
+    <string name="dialog_ble_content">The latest operation record cannot be obtained in Bluetooth mode,please switch the lock to wifi mode.</string>
 
     <!-- AddNewPwdActivity -->
     <string name="tip_you_can_set_4_10_valid_passwords">You can set 4&#8211;10 digital PIN Key</string>

@@ -39,7 +39,6 @@ public class SignSelectActivity extends BaseActivity {
             int activitySize = LockAppManager.getAppManager().getActivitySize();
             if (activitySize > 1) {
                 finish();
-                return;
             }
             if (TextUtils.isEmpty(signSelectMode)) {
                 verification();
