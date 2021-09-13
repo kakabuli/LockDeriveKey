@@ -295,6 +295,12 @@ public abstract class BaseActivity extends AppCompatActivity
 
     public void showLoading() {
         runOnUiThread(() -> {
+            if (null == mLoadingDialog) {
+                mLoadingDialog = new CustomerLoadingDialog.Builder(this)
+                        .setCancelable(true)
+                        .setCancelOutside(false)
+                        .create();
+            }
             if (mLoadingDialog != null && !mLoadingDialog.isShowing()) {
                 mLoadingDialog.show();
             }

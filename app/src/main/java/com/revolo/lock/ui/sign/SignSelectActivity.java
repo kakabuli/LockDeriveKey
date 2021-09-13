@@ -36,10 +36,10 @@ public class SignSelectActivity extends BaseActivity {
         public void handleMessage(@NonNull Message msg) {
             super.handleMessage(msg);
             String signSelectMode = getIntent().getStringExtra(Constant.SIGN_SELECT_MODE);
-            int activitySize = LockAppManager.getAppManager().getActivitySize();
+         /*   int activitySize = LockAppManager.getAppManager().getActivitySize();
             if (activitySize > 1) {
                 finish();
-            }
+            }*/
             if (TextUtils.isEmpty(signSelectMode)) {
                 verification();
             } else {
