@@ -29,8 +29,6 @@ import com.revolo.lock.bean.respone.CheckOTABeanRsp;
 import com.revolo.lock.bean.respone.StartAllOTAUpdateBeanRsp;
 import com.revolo.lock.bean.respone.StartOTAUpdateBeanRsp;
 import com.revolo.lock.ble.BleCommandFactory;
-import com.revolo.lock.ble.BleResultProcess;
-import com.revolo.lock.ble.OnBleDeviceListener;
 import com.revolo.lock.ble.bean.BleBean;
 import com.revolo.lock.ble.bean.BleResultBean;
 import com.revolo.lock.dialog.MessageDialog;
@@ -47,9 +45,7 @@ import com.revolo.lock.room.entity.BleDeviceLocal;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
-import org.jetbrains.annotations.NotNull;
 
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -501,7 +497,7 @@ public class DoorLockInformationActivity extends BaseActivity {
                     return;
                 }
                 mCheckWifiOTABeanRsp = checkOTABeanRsp;
-                isCanUpdateWifiVer = otaVersions(mCheckWifiOTABeanRsp.getData().getFileVersion(), ver);
+                isCanUpdateWifiVer = !mCheckWifiOTABeanRsp.getData().getFileVersion().equals(ver);
                 mVVersion.setVisibility(isCanUpdateWifiVer ? View.VISIBLE : View.GONE);
             }
 
@@ -517,33 +513,6 @@ public class DoorLockInformationActivity extends BaseActivity {
 
             }
         });
-    }
-
-    public boolean otaVersions(String oldVersion, String newVersion) {
-        try {
-            int newIndex = newVersion.contains("V") ? newVersion.lastIndexOf("V") : newVersion.contains("v") ? newVersion.lastIndexOf("v") : 0;
-            int oldIndex = oldVersion.contains("V") ? oldVersion.lastIndexOf("V") : oldVersion.contains("v") ? oldVersion.lastIndexOf("v") : 0;
-
-            String[] newSplit = newVersion.substring(newIndex).replace("V", "").replace("v", "").split("\\.");
-            String[] oldSplit = oldVersion.substring(oldIndex).replace("V", "").replace("v", "").split("\\.");
-            if (newSplit != null && oldSplit != null) {
-                for (int i = 0; i < newSplit.length; i++) {
-                    if (newSplit[i] != null && oldSplit[i] != null) {
-                        int newInt = Integer.parseInt(newSplit[i]);
-                        int oldInt = Integer.parseInt(oldSplit[i]);
-                        if (newInt < oldInt) {
-                            return false;
-                        } else if (newInt > oldInt) {
-                            return true;
-                        }
-                    }
-                }
-            }
-            return false;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
-        }
     }
 
     private void showWifiUpdateVerDialog() {
@@ -702,10 +671,10 @@ public class DoorLockInformationActivity extends BaseActivity {
                 for (CheckAllOTABeanRsp.DataBean.UpgradeTaskBean taskBean : mAllOTADataBean.getUpgradeTask()) {
                     // TODO: 2021/3/17 数字抽离
                     if (taskBean.getDevNum() == 6) {
-                        isCanUpdateFirmwareVer = otaVersions(taskBean.getFileVersion(), firmwareVer);
+                        isCanUpdateFirmwareVer = !taskBean.getFileVersion().equals(firmwareVer);
                         vFirmwareVersion.setVisibility(isCanUpdateFirmwareVer ? View.VISIBLE : View.GONE);
                     } else if (taskBean.getDevNum() == 2) {
-                        isCanUpdateWifiVer = otaVersions(taskBean.getFileVersion(), wifiVer);
+                        isCanUpdateWifiVer = !taskBean.getFileVersion().equals(wifiVer);
                         mVVersion.setVisibility(isCanUpdateWifiVer ? View.VISIBLE : View.GONE);
                     }
                 }

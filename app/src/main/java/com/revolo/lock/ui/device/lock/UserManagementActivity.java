@@ -110,7 +110,6 @@ public class UserManagementActivity extends BaseActivity {
             if (dataBean != null) {
                 showRemoveDeviceDialog(dataBean);
             }
-            mRvSharedUser.closeMenu();
         });
 
         initLoading(getString(R.string.t_load_content_loading));
@@ -149,6 +148,7 @@ public class UserManagementActivity extends BaseActivity {
         dialog.setOnConfirmListener(v -> {
             dialog.dismiss();
             deleteShare(dataBean);
+            if (mRvSharedUser != null) mRvSharedUser.closeMenu();
         });
         dialog.show();
     }
@@ -197,7 +197,7 @@ public class UserManagementActivity extends BaseActivity {
                     return;
                 }
                 ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_delete_share_user_suc);
-                finish();
+                getAllSharedUserFromLock();
             }
 
             @Override

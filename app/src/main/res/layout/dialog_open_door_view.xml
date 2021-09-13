@@ -13,7 +13,7 @@
         android:layout_marginTop="24pt"
         android:layout_marginEnd="15pt"
         android:gravity="center"
-        android:text="@string/dialog_tip_close_wifi_text"
+        android:text="@string/dis_wifi_hint_dialog_title_text"
         android:textColor="@color/c333333"
         android:textSize="15pt"
         app:layout_constraintEnd_toEndOf="parent"

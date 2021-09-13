@@ -9,6 +9,7 @@ import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
+import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -17,6 +18,7 @@ import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
 
 import com.blankj.utilcode.util.ConvertUtils;
+import com.blankj.utilcode.util.SPUtils;
 import com.blankj.utilcode.util.ToastUtils;
 import com.revolo.lock.App;
 import com.revolo.lock.Constant;
@@ -32,6 +34,8 @@ import com.revolo.lock.ble.BleResultProcess;
 import com.revolo.lock.ble.bean.BleBean;
 import com.revolo.lock.ble.bean.BleResultBean;
 import com.revolo.lock.dialog.OpenBleDialog;
+import com.revolo.lock.dialog.OpenDoorDialog;
+import com.revolo.lock.dialog.SelectDialog;
 import com.revolo.lock.manager.LockConnected;
 import com.revolo.lock.manager.LockMessage;
 import com.revolo.lock.manager.LockMessageCode;
@@ -78,6 +82,8 @@ public class DoorSensorAlignmentActivity extends BaseActivity {
     private ImageView mIvDoorMagneticEnable;
     private TextView mTvIntroduceTitle, mTvIntroduceContent;
     private OpenBleDialog openBleDialog;
+    private OpenDoorDialog openDoorDialog;//打开门磁提示对话框
+    private SelectDialog nextDoorDialog;//进入门磁配置界面提示框
 
     @Override
     public void initData(@Nullable Bundle bundle) {
@@ -364,14 +370,55 @@ public class DoorSensorAlignmentActivity extends BaseActivity {
             if (!checkIsOpenBluetooth(1)) {
                 return;
             }
-            handler.removeMessages(MSG_CLICK_DOOR_NEXT);
-            handler.sendEmptyMessageDelayed(MSG_CLICK_DOOR_STATE, 15000);
-            checkCurrConnectState();
+            if (null == nextDoorDialog) {
+                nextDoorDialog = new SelectDialog(this);
+            }
+            nextDoorDialog.setMessage(getString(R.string.door_next_hint_dialog_content_text));
+            nextDoorDialog.setOnConfirmListener(v -> {
+                if (nextDoorDialog != null) {
+                    nextDoorDialog.dismiss();
+                }
+                handler.removeMessages(MSG_CLICK_DOOR_NEXT);
+                handler.sendEmptyMessageDelayed(MSG_CLICK_DOOR_STATE, 15000);
+                checkCurrConnectState();
+            });
+            nextDoorDialog.setOnCancelClickListener(v -> {
+                if (nextDoorDialog != null) {
+                    nextDoorDialog.dismiss();
+                }
+            });
+            if (!nextDoorDialog.isShowing()) {
+                nextDoorDialog.show();
+            }
             return;
         }
         if (view.getId() == R.id.ivDoorMagneticEnable) {
             if (!checkIsOpenBluetooth(2)) {
                 return;
+            }
+            String isDoor = SPUtils.getInstance().getString(Constant.IS_OPEN_DOOR);
+            if (null == isDoor || "".equals(isDoor)) {
+                mBleDeviceLocal = App.getInstance().getBleDeviceLocal();
+                if (!mBleDeviceLocal.isOpenDoorSensor()) {
+                    //当前未打开门磁校验
+                    if (null == openDoorDialog) {
+                        openDoorDialog = new OpenDoorDialog(this);
+                    }
+                    openDoorDialog.setmOnClickListener(v -> {
+                        if (null != openDoorDialog) openDoorDialog.dismiss();
+                        CheckBox checkBox = openDoorDialog.getCheckBox();
+                        if (checkBox != null && checkBox.isChecked()) {
+                            SPUtils.getInstance().put(Constant.IS_OPEN_DOOR, "true");
+                        }
+                        handler.removeMessages(MSG_CLICK_DOOR_STATE);
+                        handler.sendEmptyMessageDelayed(MSG_CLICK_DOOR_NEXT, 15000);
+                        nextClick();
+                    });
+                    if (!openDoorDialog.isShowing()) {
+                        openDoorDialog.show();
+                        return;
+                    }
+                }
             }
             handler.removeMessages(MSG_CLICK_DOOR_STATE);
             handler.sendEmptyMessageDelayed(MSG_CLICK_DOOR_NEXT, 15000);

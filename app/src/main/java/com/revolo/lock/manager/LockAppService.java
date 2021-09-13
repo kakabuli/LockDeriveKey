@@ -964,32 +964,49 @@ public class LockAppService extends Service {
                         if ((cmdContent[0] & 0xff) == 0x00) {
                             Timber.e("鉴权状态: %1s",
                                     ConvertUtils.bytes2HexString(bleResultBean.getPayload()) + "回复");
+                            Timber.e("鉴权成功 MAC：" + bleBean.getMac());
+                            Timber.e("鉴权成功 ESN：" + bleBean.getEsn());
+                            Timber.e("鉴权成功 pwd1：" + ConvertUtils.bytes2HexString(bleBean.getPwd1()));
+                            Timber.e("鉴权成功 pwd2：" + ConvertUtils.bytes2HexString(bleBean.getPwd2()));
                             BleManager.getInstance().writeControlMsg(BleCommandFactory
                                     .ackCommand(bleResultBean.getTSN(), (byte) 0x00, bleResultBean.getCMD()), bleBean.getOKBLEDeviceImp());
                         } else {
 
                             if ((cmdContent[0] & 0xff) == (0xC2 & 0xff) || (cmdContent[0] & 0xff) == (0xff & 0x7E)) {
                                 Timber.e("鉴权状态 pwd2异常，进行一次鉴权");
-                                BleManager.getInstance().setBleFromMacInitPwd(mac);
+                                Timber.e("鉴权异常 MAC：" + bleBean.getMac());
+                                Timber.e("鉴权异常 ESN：" + bleBean.getEsn());
+                                Timber.e("鉴权异常 pwd1：" + ConvertUtils.bytes2HexString(bleBean.getPwd1()));
+                                Timber.e("鉴权异常 pwd2：" + ConvertUtils.bytes2HexString(bleBean.getPwd2()));
+                               /* BleManager.getInstance().setBleFromMacInitPwd(mac);
+                                Timber.e("鉴权异常 置空：" + ConvertUtils.bytes2HexString(bleBean.getPwd2()));
                                 mHandler.postDelayed(new Runnable() {
                                     @Override
                                     public void run() {
                                         BleManager.getInstance().writeControlMsg(BleCommandFactory
                                                 .pairCommand(bleBean.getPwd1(), bleBean.getEsn().getBytes(StandardCharsets.UTF_8)), bleBean.getOKBLEDeviceImp());
                                     }
-                                }, 1000);
+                                }, 1000);*/
 
                             } else if ((cmdContent[0] & 0xff) == (0x01 & 0xff) || (cmdContent[0] & 0xff) == (0xff & 0x91)) {
                                 mHandler.postDelayed(new Runnable() {
                                     @Override
                                     public void run() {
                                         Timber.e("鉴权状态失败，进行二次鉴权");
+                                        Timber.e("鉴权异常2 MAC：" + bleBean.getMac());
+                                        Timber.e("鉴权异常2 ESN：" + bleBean.getEsn());
+                                        Timber.e("鉴权异常2 pwd1：" + ConvertUtils.bytes2HexString(bleBean.getPwd1()));
+                                        Timber.e("鉴权异常2 pwd2：" + ConvertUtils.bytes2HexString(bleBean.getPwd2()));
                                         BleManager.getInstance().writeControlMsg(BleCommandFactory
                                                 .authCommand(bleBean.getPwd1(), bleBean.getPwd2(), bleBean.getEsn().getBytes(StandardCharsets.UTF_8)), bleBean.getOKBLEDeviceImp());
                                     }
                                 }, 1000);
                             } else {
-                                Timber.e("鉴权状态异常");
+                                Timber.e("鉴权状态异常：" + (cmdContent[0] & 0xff));
+                                Timber.e("鉴权异常3 MAC：" + bleBean.getMac());
+                                Timber.e("鉴权异常3 ESN：" + bleBean.getEsn());
+                                Timber.e("鉴权异常3 pwd1：" + ConvertUtils.bytes2HexString(bleBean.getPwd1()));
+                                Timber.e("鉴权异常3 pwd2：" + ConvertUtils.bytes2HexString(bleBean.getPwd2()));
                             }
                         }
                     }
@@ -1696,11 +1713,23 @@ public class LockAppService extends Service {
                 // 获取pwd3
                 Timber.e("processKey data[0]==0x02:%1s\n", ConvertUtils.bytes2HexString(data));
                 getPwd3(bleResultBean, data, bleBean);
-                // 鉴权成功后，同步当前时间
-                syNowTime(bleBean);
+                if(!bleBean.isAppPair()){
+                    //绑定成功后，同步当前时间
+                    Timber.e("绑定成功后，同步当前时间");
+                    syNowTime(bleBean);
+                }else{
+                    Timber.e("鉴权成功后，不同步当前时间");
+                    clearCmdBleInitOut(bleBean.getMac().toUpperCase());
+                    clearBleOut(bleBean.getMac().toUpperCase());
+                    if (null != bleBean) {
+                        BleManager.getInstance().writeControlMsg(BleCommandFactory
+                                .checkLockBaseInfoCommand(bleBean.getPwd1(), bleBean.getPwd3()), bleBean.getOKBLEDeviceImp());
+                    }
+                }
+
                 //鉴权成功后，将设备添加到服务器端中
                 //更新//上报给服务器
-                checkDevicePwd(bleBean.getMac(), ConvertUtils.bytes2HexString(bleBean.getPwd2()));
+               // checkDevicePwd(bleBean.getMac(), ConvertUtils.bytes2HexString(bleBean.getPwd2()));
 
                 LockMessageRes message = new LockMessageRes();
                 message.setMessgaeType(MSG_LOCK_MESSAGE_BLE);//蓝牙消息
@@ -2145,12 +2174,32 @@ public class LockAppService extends Service {
                     //mDeviceLists.get(i).setOpenDoorSensor(eventparams.getDoorSensor() == 1);
                     //mDeviceLists.get(i).setDuress(eventparams.getDuress() == 1);
                     mDeviceLists.get(i).setLockPower(eventparams.getPower());//更新电量
+                }else if(bean.getEventtype().equals("record")){
+                    if(null!=bean.getEventparams()){
+                        if(bean.getEventparams().getEventType()==1){
+                            if(bean.getEventparams().getEventCode()==16){
+                                //敲门开锁更新状态
+                                Timber.e("敲门开锁更新状态");
+                                mDeviceLists.get(i).setLockState(LocalState.LOCK_STATE_OPEN);
+                            }else if(bean.getEventparams().getEventCode()==17){
+                                Timber.e("触摸开锁更新状态");
+                                mDeviceLists.get(i).setLockState(LocalState.LOCK_STATE_OPEN);
+                            }
+                        }
+                    }
                 }
                 if ((null != mDeviceLists.get(i).getMac() && mDeviceLists.get(i).getMac().equals(App.getInstance().getmCurrMac())) ||
                         (null != mDeviceLists.get(i).getEsn() && mDeviceLists.get(i).getEsn().equals(App.getInstance().getmCurrSn()))) {
                     Timber.e("app service setDoorState set BleDeviceLocal");
                     App.getInstance().setBleDeviceLocal(mDeviceLists.get(i));
                 }
+                //上报UI
+                LockMessageRes messageRes = new LockMessageRes();
+                messageRes.setMessgaeType(LockMessageCode.MSG_LOCK_MESSAGE_USER);
+                messageRes.setResultCode(LockMessageCode.MSG_LOCK_MESSAGE_CODE_SUCCESS);
+                messageRes.setMessageCode(LockMessageCode.MSG_LOCK_MESSAGE_UPDATE_DEVICE_STATE);
+
+                EventBus.getDefault().post(messageRes);
                 break;
             }
         }

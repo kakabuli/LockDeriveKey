@@ -5,14 +5,17 @@ import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import com.blankj.utilcode.util.ToastUtils;
 import com.revolo.lock.App;
 import com.revolo.lock.R;
 import com.revolo.lock.base.BaseActivity;
@@ -66,6 +69,7 @@ public class AutoUnlockActivity extends BaseActivity {
             if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_FINE_LOCATION)) {
                 //We need to show a dialog for displaying why the permission is needed and the ask the permission
                 Timber.e("Location定位权限拒绝");
+                ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(getString(R.string.dialog_we_need_to_permission_for_location));
             } else {
                 Timber.e("Location定位权限开启开启中");
                 onPrivacyPolicyDialog();

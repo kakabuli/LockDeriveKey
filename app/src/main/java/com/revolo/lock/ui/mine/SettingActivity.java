@@ -16,6 +16,7 @@ import androidx.biometric.BiometricPrompt;
 import androidx.constraintlayout.widget.ConstraintLayout;
 
 import com.blankj.utilcode.util.ToastUtils;
+import com.google.common.eventbus.AllowConcurrentEvents;
 import com.revolo.lock.App;
 import com.revolo.lock.Constant;
 import com.revolo.lock.R;
@@ -125,9 +126,17 @@ public class SettingActivity extends BaseActivity {
                 startActivityForResult(intent, REQUEST_CODE_OPEN_GESTURE_CODE);
             }
         } else if (view.getId() == R.id.ivEnableTouchIDEnable) {
-            mFingerprintUtils.openFingerprintAuth();
+            if (mFingerprintUtils.judgeFingerprintIsCorrect()) {
+                showBiometricPrompt(false);
+            } else {
+                ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show("Please use Face ID!");
+            }
         } else if (view.getId() == R.id.ivEnableFaceIDEnable) {
-
+            if (!mFingerprintUtils.judgeFingerprintIsCorrect()) {
+                showBiometricPrompt(true);
+            } else {
+                ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show("Please use Touch ID!");
+            }
         } else if (view.getId() == R.id.clChangeGesturePassword) {
             if (mUser.isUseGesturePassword()) {
                 Intent intent = new Intent(this, CloseDrawHandPwdActivity.class);

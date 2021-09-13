@@ -11,7 +11,6 @@ import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.biometric.BiometricPrompt;
 
 import com.blankj.utilcode.util.GsonUtils;
 import com.blankj.utilcode.util.SPUtils;
@@ -25,8 +24,6 @@ import com.revolo.lock.room.entity.User;
 import com.revolo.lock.ui.MainActivity;
 
 import java.util.concurrent.Executor;
-
-import timber.log.Timber;
 
 import static com.revolo.lock.Constant.REVOLO_SP;
 
@@ -65,7 +62,6 @@ public class SignSelectActivity extends BaseActivity {
 
     @Override
     public void initView(@Nullable Bundle savedInstanceState, @Nullable View contentView) {
-
         setStatusBarColor(R.color.white);
         delayHandler.sendEmptyMessageDelayed(0, 2000);
     }
@@ -88,6 +84,11 @@ public class SignSelectActivity extends BaseActivity {
     @Override
     public void onDebouncingClick(@NonNull View view) {
 
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
     }
 
     @Override

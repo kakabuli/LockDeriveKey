@@ -3,6 +3,7 @@ package com.revolo.lock.dialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.TextView;
 
@@ -19,6 +20,7 @@ import com.revolo.lock.R;
 public class ConnectWifiLowBatteryDialog extends Dialog {
 
     private TextView tvConfirm;
+    private View.OnClickListener mOnClickListener;
 
     public ConnectWifiLowBatteryDialog(@NonNull Context context) {
         super(context, R.style.CustomDialog);
@@ -33,6 +35,18 @@ public class ConnectWifiLowBatteryDialog extends Dialog {
     }
 
     public void setConfirmListener(View.OnClickListener listener) {
-        tvConfirm.setOnClickListener(listener);
+        mOnClickListener = listener;
+    }
+
+    @Override
+    public void show() {
+        super.show();
+        refreshView();
+    }
+
+    private void refreshView() {
+        if (mOnClickListener != null && tvConfirm != null) {
+            tvConfirm.setOnClickListener(mOnClickListener);
+        }
     }
 }

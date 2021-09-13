@@ -274,13 +274,23 @@ public class DeviceDetailActivity extends BaseActivity {
         }
         // 低电量
         tvPrivateMode.setVisibility(View.GONE);
-        mIvBatteryState.setImageResource(mBleDeviceLocal.getLockPower() <= 20 ? R.drawable.ic_icon_low_battery : R.mipmap.ic_icon_battery);
+        //根据电量不同显示电量背景
+        if(mBleDeviceLocal.getLockPower()<=20){
+            mIvBatteryState.setImageResource(R.drawable.home_img_lock_electricity_20);
+        }else if(mBleDeviceLocal.getLockPower()>20&&mBleDeviceLocal.getLockPower()<=50){
+            mIvBatteryState.setImageResource(R.drawable.home_img_lock_electricity_50);
+        }else if(mBleDeviceLocal.getLockPower()>50&&mBleDeviceLocal.getLockPower()<=80){
+            mIvBatteryState.setImageResource(R.drawable.home_img_lock_electricity_80);
+        }else if(mBleDeviceLocal.getLockPower()>80&&mBleDeviceLocal.getLockPower()<=100){
+            mIvBatteryState.setImageResource(R.drawable.home_img_lock_electricity_100);
+        }
         mTvBatteryState.setVisibility(mBleDeviceLocal.getLockPower() <= 20 ? View.VISIBLE : View.GONE);
 //        llLowBattery.setVisibility(mBleDeviceLocal.getLockPower() <= 20 ? View.VISIBLE : View.GONE);
         if (mBleDeviceLocal.getLockState() == LocalState.LOCK_STATE_PRIVATE) {
             doorShow(ivDoorState, tvDoorState);
             ivLockState.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_home_img_lock_privacymode));
             llDoorState.setVisibility(View.GONE);
+            tvPrivateMode.setVisibility(View.VISIBLE);
         } else {
             llDoorState.setVisibility(View.VISIBLE);
             boolean isUseDoorSensor = mBleDeviceLocal.isOpenDoorSensor();
@@ -335,11 +345,11 @@ public class DeviceDetailActivity extends BaseActivity {
             }
         }
         if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI || mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI_BLE) {
-            ivNetState.setImageResource(R.drawable.ic_home_icon_wifi);
+            ivNetState.setImageResource(R.drawable.ic_home_icon_wifi_blue);
             ivNetState.setVisibility(View.VISIBLE);
             tvNetState.setVisibility(View.VISIBLE);
         } else if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_BLE) {
-            ivNetState.setImageResource(R.drawable.ic_home_icon_bluetooth);
+            ivNetState.setImageResource(R.drawable.ic_home_icon_bluetooth_blue);
             ivNetState.setVisibility(View.VISIBLE);
             tvNetState.setVisibility(View.VISIBLE);
         } else {
@@ -387,7 +397,7 @@ public class DeviceDetailActivity extends BaseActivity {
                 deviceOfflineDialog();
             } else {
                 if (mBleDeviceLocal.getLockState() == LocalState.LOCK_STATE_PRIVATE) { // 隐私模式
-                    devicePrivateModeDialog();
+                    ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show("Cannot operate in current mode");
                 } else {
                     openDoor();
                 }
@@ -406,27 +416,6 @@ public class DeviceDetailActivity extends BaseActivity {
             }
         });
         mMessageDialog.show();
-    }
-
-    private void devicePrivateModeDialog() {
-        if (mSelectDialog == null) {
-            mSelectDialog = new SelectDialog(this);
-        }
-        mSelectDialog.setMessage(getString(R.string.tip_device_private_mode_dialog));
-        mSelectDialog.setConfirmText(getString(R.string.dialog_btn_confirm));
-        mSelectDialog.setCancelText(getString(R.string.tip_learn_more));
-        mSelectDialog.setOnConfirmListener(v -> {
-            if (mSelectDialog != null) {
-                mSelectDialog.dismiss();
-            }
-        });
-        mSelectDialog.setOnCancelClickListener(v -> {
-            startActivity(new Intent(this, PrivateModeActivity.class));
-            if (mSelectDialog != null) {
-                mSelectDialog.dismiss();
-            }
-        });
-        mSelectDialog.show();
     }
 
     private void gotoDeviceSettingAct() {

@@ -1,7 +1,10 @@
 package com.revolo.lock.ui.device.add;
 
+import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
@@ -16,8 +19,10 @@ import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.app.ActivityCompat;
 
 import com.a1anwang.okble.client.core.OKBLEOperation;
+import com.a1anwang.okble.permission.PermissionUtils;
 import com.blankj.utilcode.util.ActivityUtils;
 import com.blankj.utilcode.util.ConvertUtils;
 import com.blankj.utilcode.util.ToastUtils;
@@ -59,7 +64,7 @@ import static com.revolo.lock.ble.BleProtocolState.CMD_WIFI_LIST_CHECK;
  * desc   : 添加Wifi
  */
 public class AddWifiActivity extends BaseActivity {
-
+    private static int FINE_LOCATION_ACCESS_REQUEST_CODE = 200;
     private BleBean mBleBean;
     private WifiListPopup mWifiListPopup;
     private EditText mEtWifiName, mEtPwd;
@@ -106,17 +111,6 @@ public class AddWifiActivity extends BaseActivity {
 
         mDefaultName = getIntent().getStringExtra(Constant.CONNECT_WIFI_NAME);
         booleanExtra = getIntent().getBooleanExtra(Constant.WIFI_SETTING_TO_ADD_WIFI, false);
-        if (booleanExtra) {
-            if (null == mPowerLowDialog) {
-                mPowerLowDialog = new ConnectWifiLowBatteryDialog(this);
-                mPowerLowDialog.setConfirmListener(v -> {
-                    startActivity(new Intent(this, ChangeLockNameActivity.class));
-                });
-            }
-            if (!mPowerLowDialog.isShowing()) {
-                mPowerLowDialog.show();
-            }
-        }
         onRegisterEventBus();
     }
 
@@ -162,7 +156,9 @@ public class AddWifiActivity extends BaseActivity {
             //蓝牙消息
             if (null != lockMessage.getBleResultBea()) {
                 if (lockMessage.getBleResultBea().getCMD() == CMD_LOCK_INFO) {
-                    receiveLockBaseInfo(lockMessage.getBleResultBea());
+                    runOnUiThread(() -> {
+                        receiveLockBaseInfo(lockMessage.getBleResultBea());
+                    });
                 } else if (lockMessage.getBleResultBea().getCMD() == CMD_WIFI_LIST_CHECK) {
                     receiveWifiList(lockMessage.getBleResultBea());
                 }
@@ -203,7 +199,10 @@ public class AddWifiActivity extends BaseActivity {
             return;
         }
         if (view.getId() == R.id.tvSkip) {
-            startActivity(new Intent(this, ChangeLockNameActivity.class));
+            if (booleanExtra) {
+                startActivity(new Intent(this, ChangeLockNameActivity.class).putExtra(Constant.CHANGE_LOCK_NAME, ""));
+                finishPreAct();
+            }
             finish();
         }
     }
@@ -345,7 +344,19 @@ public class AddWifiActivity extends BaseActivity {
             getWifiList();
         } else {
             dismissLoading();
-            ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_low_battery_cant_pair_wifi);
+            if (booleanExtra) {
+                if (null == mPowerLowDialog) {
+                    mPowerLowDialog = new ConnectWifiLowBatteryDialog(this);
+                    mPowerLowDialog.setConfirmListener(v -> {
+                        startActivity(new Intent(this, ChangeLockNameActivity.class).putExtra(Constant.CHANGE_LOCK_NAME, ""));
+                        finishPreAct();
+                        finish();
+                    });
+                }
+                if (!mPowerLowDialog.isShowing()) {
+                    mPowerLowDialog.show();
+                }
+            }
         }
     }
 
@@ -442,6 +453,19 @@ public class AddWifiActivity extends BaseActivity {
             }
             Timber.d("缺少的序列号为：%1s", sb.toString());
         }
+        runOnUiThread(() -> {
+            if (PermissionUtils.isGranted(new String[]{"android.permission.ACCESS_FINE_LOCATION"})) {
+                updateWifi();
+            } else {
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, FINE_LOCATION_ACCESS_REQUEST_CODE);
+            }
+        });
+    }
+
+    private void updateWifi() {
+        if (null == mWifiSnList) {
+            return;
+        }
         if (!mWifiSnList.isEmpty()) {
             String currSsid = getCurrWifi();
             int index = -1;
@@ -464,18 +488,28 @@ public class AddWifiActivity extends BaseActivity {
                 }
             }
         }
-        runOnUiThread(() -> {
-            if (mWifiListPopup != null) {
-                mWifiListPopup.updateWifiList(mWifiSnList);
-                if (mWifiSnList.isEmpty()) {
-                    return;
-                }
-                if (TextUtils.isEmpty(mDefaultName)) {
-                    mEtWifiName.setText(mWifiSnList.get(0));
-                } else {
-                    mEtWifiName.setText(mDefaultName);
-                }
+        if (mWifiListPopup != null) {
+            mWifiListPopup.updateWifiList(mWifiSnList);
+            if (mWifiSnList.isEmpty()) {
+                return;
             }
-        });
+            if (TextUtils.isEmpty(mDefaultName)) {
+                mEtWifiName.setText(mWifiSnList.get(0));
+            } else {
+                mEtWifiName.setText(mDefaultName);
+            }
+        }
+
+    }
+
+
+    @SuppressLint("MissingPermission")
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if (requestCode == FINE_LOCATION_ACCESS_REQUEST_CODE) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                updateWifi();
+            }
+        }
     }
 }

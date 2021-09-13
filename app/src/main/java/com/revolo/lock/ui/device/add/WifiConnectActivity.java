@@ -244,14 +244,19 @@ public class WifiConnectActivity extends BaseActivity {
             public void onError(@NotNull Throwable e) {
                 dismissLoading();
                 Timber.e(e);
-                new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                mHandlerOutTime.removeMessages(MSG_ADD_WIFI_OUT_TIME);
+                runOnUiThread(() -> new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                    startActivity(new Intent(WifiConnectActivity.this, AddWifiSucActivity.class).putExtra(Constant.WIFI_SETTING_TO_ADD_WIFI, booleanExtra));
+                    finish();
+                }, 50));
+               /* new Handler(Looper.getMainLooper()).postDelayed(() -> {
                     Intent intent = new Intent(WifiConnectActivity.this, AddWifiFailActivity.class);
                     intent.putExtra(Constant.WIFI_NAME, mWifiName);
                     intent.putExtra(Constant.WIFI_PWD, mWifiPwd);
                     intent.putExtra(Constant.WIFI_SETTING_TO_ADD_WIFI, booleanExtra);
                     startActivity(intent);
                     finish();
-                }, 50);
+                }, 50);*/
             }
 
             @Override

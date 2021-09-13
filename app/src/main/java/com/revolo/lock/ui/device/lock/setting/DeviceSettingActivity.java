@@ -74,6 +74,7 @@ import io.reactivex.Observer;
 import io.reactivex.disposables.Disposable;
 import timber.log.Timber;
 
+import static com.revolo.lock.Constant.SHOW_GEOFENCE_LOADING;
 import static com.revolo.lock.ble.BleProtocolState.CMD_LOCK_PARAMETER_CHANGED;
 import static com.revolo.lock.manager.LockMessageCode.MSG_LOCK_MESSAGE_REMOVE_DEVICE;
 import static com.revolo.lock.manager.LockMessageCode.MSG_LOCK_MESSAGE_USER;
@@ -275,7 +276,7 @@ public class DeviceSettingActivity extends BaseActivity {
                 }*/
 
                 //判断是否进入地理围栏引导页
-                String isShowLoading = SPUtils.getInstance().getString("SHOW_GEOFENCE_LOADING");
+                String isShowLoading = SPUtils.getInstance().getString(SHOW_GEOFENCE_LOADING);
                 if (!"".equals(isShowLoading) && null != isShowLoading) {
                     Intent intent = new Intent(this, AutoUnlockActivity.class);
                     startActivity(intent);

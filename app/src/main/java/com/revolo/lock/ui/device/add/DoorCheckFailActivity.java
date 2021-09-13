@@ -76,6 +76,7 @@ public class DoorCheckFailActivity extends BaseActivity {
         if (view.getId() == R.id.btnTryAgain) {
             Intent intent = new Intent(this, DoorSensorCheckActivity.class);
             intent.putExtra(Constant.WIFI_SETTING_TO_ADD_WIFI, isGoToAddWifi);
+            intent.putExtra(Constant.IS_GO_TO_ADD_WIFI, isGoToAddWifi);
             startActivity(intent);
             finish();
         }

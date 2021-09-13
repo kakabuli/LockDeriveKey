@@ -33,6 +33,7 @@ import com.revolo.lock.ble.BleCommandState;
 import com.revolo.lock.ble.bean.BleBean;
 import com.revolo.lock.ble.bean.BleResultBean;
 import com.revolo.lock.dialog.MessageDialog;
+import com.revolo.lock.dialog.SelectDialog;
 import com.revolo.lock.manager.LockMessage;
 import com.revolo.lock.manager.LockMessageCode;
 import com.revolo.lock.manager.LockMessageRes;
@@ -81,6 +82,7 @@ public class PasswordListActivity extends BaseActivity {
     private RefreshLayout mRefreshLayout;
     private MessageDialog mPasswordFull;
     private DevicePwdBean devicePwdBean;
+    private SlideRecyclerView rvPwdList;
 
     @Override
     public void initData(@Nullable Bundle bundle) {
@@ -126,7 +128,7 @@ public class PasswordListActivity extends BaseActivity {
                                 }
                             }
                         });
-        SlideRecyclerView rvPwdList = findViewById(R.id.rvPwdList);
+        rvPwdList = findViewById(R.id.rvPwdList);
         rvPwdList.setLayoutManager(new LinearLayoutManager(this));
         mPasswordListAdapter = new PasswordListAdapter(R.layout.item_pwd_list_rv);
         mBleDeviceLocal = App.getInstance().getBleDeviceLocal();
@@ -150,9 +152,12 @@ public class PasswordListActivity extends BaseActivity {
             if (mPasswordListAdapter != null) {
                 DevicePwdBean item = mPasswordListAdapter.getItem(position);
                 if (item != null) {
+//                    showDelDialog(item);
                     delPwd(item);
+                    if (rvPwdList != null) {
+                        rvPwdList.closeMenu();
+                    }
                 }
-                rvPwdList.closeMenu();
             }
         });
         initLoading(getString(R.string.t_load_content_loading));
@@ -219,6 +224,20 @@ public class PasswordListActivity extends BaseActivity {
     @Override
     public void onDebouncingClick(@NonNull View view) {
 
+    }
+
+    private void showDelDialog(DevicePwdBean devicePwdBean) {
+        SelectDialog dialog = new SelectDialog(this);
+        dialog.setMessage(getString(R.string.dialog_tip_password_deleted_message));
+        dialog.setOnCancelClickListener(v -> dialog.dismiss());
+        dialog.setOnConfirmListener(v -> {
+            dialog.dismiss();
+            delPwd(devicePwdBean);
+            if (rvPwdList != null) {
+                rvPwdList.closeMenu();
+            }
+        });
+        dialog.show();
     }
 
     // TODO: 2021/2/24 要做数据校对流程, 要做超时, 需要添加加载框
@@ -462,18 +481,19 @@ public class PasswordListActivity extends BaseActivity {
                 isSaveWeekly = false;
                 return;
             }
-            byte[] weekBit = new byte[8];
-            for (String day : bean.getItems()) {
-                for (int i = 0; i <= 6; i++) {
-                    String tmpDay = i + "";
-                    if (day.equals(tmpDay)) {
-                        weekBit[i] = 0x01;
-                        break;
-                    }
-                }
-            }
+//            byte[] weekBit = new byte[8];
+//            for (String day : bean.getItems()) {
+//                for (int i = 0; i <= 6; i++) {
+//                    String tmpDay = i + "";
+//                    if (day.equals(tmpDay)) {
+//                        weekBit[6-i] = 0x01;
+//                        break;
+//                    }
+//                }
+//            }
             if (isSaveWeekly) {
-                devicePwdBean.setWeekly(BleByteUtil.bitToByte(weekBit));
+                Timber.e("jjdakjga:"+bean.getItems().get(0)/*BleByteUtil.bitToByte(weekBit)*/);
+                devicePwdBean.setWeekly((byte) Integer.parseInt(bean.getItems().get(0))/*BleByteUtil.bitToByte(weekBit)*/);
             }
         }
     }
@@ -649,7 +669,7 @@ public class PasswordListActivity extends BaseActivity {
         // TODO: 2021/4/20 后续再校对数据是否存在遗漏或者重合
         // 查询到密钥存在后，开始读取对应密钥
 //        mHandler.postDelayed(mSearchPwdListRunnable, 20);*/
-        if ((null != mBleDeviceLocal && mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_BLE)&&!getNetError()) {
+        if ((null != mBleDeviceLocal && mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_BLE) && !getNetError()) {
             mHandler.postDelayed(mSearchPwdListRunnable, 20);
         } else {
             searchPwdListFromNET();

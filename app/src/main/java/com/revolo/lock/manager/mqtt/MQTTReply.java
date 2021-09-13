@@ -286,21 +286,21 @@ public class MQTTReply {
                 lockMessage.setMessageType(MSG_LOCK_MESSAGE_MQTT);
                 lockMessage.setBytes(null);
                 EventBus.getDefault().post(lockMessage);
-                LockAppManager.getAppManager().currentActivity().startActivity(
-                        new Intent(LockAppManager.getAppManager().currentActivity(), MainActivity.class).putExtra(Constant.SHOW_SHARE_DIALOG_TITLE, title));
-            } else {
-                if (messageDialog != null) {
-                    messageDialog.dismiss();
-                    messageDialog = null;
-                }
-                messageDialog = new MessageDialog(LockAppManager.getAppManager().currentActivity());
-                messageDialog.setMessage(title);
-                messageDialog.setOnListener(v -> {
-                    Timber.d("LockAppManager.getAppManager().currentActivity().getLocalClassName() = %1s", LockAppManager.getAppManager().currentActivity().getLocalClassName());
-                    LockAppManager.getAppManager().currentActivity().startActivity(new Intent(LockAppManager.getAppManager().currentActivity(), MainActivity.class));
-                    messageDialog.dismiss();
-                });
-                messageDialog.show();
+//                LockAppManager.getAppManager().currentActivity().startActivity(
+//                        new Intent(LockAppManager.getAppManager().currentActivity(), MainActivity.class).putExtra(Constant.SHOW_SHARE_DIALOG_TITLE, title));
+//            } else {
+//                if (messageDialog != null) {
+//                    messageDialog.dismiss();
+//                    messageDialog = null;
+//                }
+//                messageDialog = new MessageDialog(LockAppManager.getAppManager().currentActivity());
+//                messageDialog.setMessage(title);
+//                messageDialog.setOnListener(v -> {
+//                    Timber.d("LockAppManager.getAppManager().currentActivity().getLocalClassName() = %1s", LockAppManager.getAppManager().currentActivity().getLocalClassName());
+//                    LockAppManager.getAppManager().currentActivity().startActivity(new Intent(LockAppManager.getAppManager().currentActivity(), MainActivity.class));
+//                    messageDialog.dismiss();
+//                });
+//                messageDialog.show();
             }
         }
     }
@@ -388,7 +388,7 @@ public class MQTTReply {
         }
         Timber.e("服务端pwd:" + wifiListBean.getPassword2());
 
-        if (checkString(bleDeviceLocal.getPwd2()) && checkString(wifiListBean.getPassword2()) &&
+       /* if (checkString(bleDeviceLocal.getPwd2()) && checkString(wifiListBean.getPassword2()) &&
                 !bleDeviceLocal.getPwd2().equals(wifiListBean.getPassword2())
                 && checkPwdCreateTime(bleDeviceLocal.getPassword2Time() + "", wifiListBean.getPassword2Time() + "")) {
             Timber.e("本地与服务器端的pwd2不一致，需要上报给服务器");
@@ -396,11 +396,11 @@ public class MQTTReply {
             if (null != mqttDataLinstener) {
                 mqttDataLinstener.updateToService(bleDeviceLocal.getEsn(), bleDeviceLocal.getPwd2(), bleDeviceLocal.getPassword2Time());
             }
-        } else {
-            Timber.e("本地与服务器端的pwd2一致");
-            if (!TextUtils.isEmpty(wifiListBean.getPassword2()))
-                bleDeviceLocal.setPwd2(wifiListBean.getPassword2());
-        }
+        } else {*/
+        //Timber.e("本地与服务器端的pwd2一致");
+        if (!TextUtils.isEmpty(wifiListBean.getPassword2()))
+            bleDeviceLocal.setPwd2(wifiListBean.getPassword2());
+        // }
 
         bleDeviceLocal.setDoNotDisturbMode(!wifiListBean.isOpenlockPushSwitch());
         // TODO: 2021/3/16 存储数据

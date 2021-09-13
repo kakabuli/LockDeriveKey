@@ -4,6 +4,7 @@ import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
+import java.util.Timer;
 
 import timber.log.Timber;
 
@@ -30,6 +31,16 @@ public class ZoneUtil {
      */
     public static long getTime() {
         return System.currentTimeMillis();
+    }
+
+    public static long getCreatePwdTime(String timeZone) {
+        String time = getDate("", getTime());
+        Timber.e("time:" + time);
+        long t = getTime("", time);
+        Timber.e("timess:" + t);
+        long tes = ZoneUtil.getTestTime2(timeZone);
+        Timber.e("偏移量times:" + tes);
+        return t +tes;
     }
 
     public static long getZoneTime(long zoneTime, String zone) {
@@ -179,6 +190,7 @@ public class ZoneUtil {
     }
 
     public static String getTestDate(String timeZone, long time, String pattern) {
+        Timber.e("timeZone:" + timeZone + ";time:" + time + ";patt:" + pattern);
         SimpleDateFormat formatter = new SimpleDateFormat(pattern);
         formatter.setTimeZone(TimeZone.getTimeZone("GMT" + timeZone));
         Date date = new Date();

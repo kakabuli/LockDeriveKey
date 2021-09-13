@@ -146,8 +146,15 @@
     <string name="please_enter_the_password_name">Please Enter the PIN Key Name</string>
     <string name="chang_pwd_name_activity_title">NAME YOUR LOCK</string>
     <string name="chang_lock_name_activity_name">New Name</string>
+    <string name="chang_lock_name_activity_name_text">Give your Lock a nick name</string>
     <string name="title_change_the_name">CHANGE THE NAME</string>
     <string name="title_change_pwd_the_name">PIN KEY</string>
+
+
+    <!--AddInitPwdNextActivity-->
+    <string name="add_init_pwd_next_ok">Setting succeeded</string>
+    <string name="add_init_pwd_next_fail">Setting failed</string>
+    <string name="add_init_pwd_next_hint">Add Later</string>
 
     <!-- UserManagementActivity -->
     <string name="title_user_management">USER LIST</string>
@@ -181,7 +188,7 @@
     <string name="device_setting_name">Device Name</string>
     <string name="device_setting_wifi">Wi-Fi Network</string>
     <string name="wifi">WiFi</string>
-    <string name="auto_lock">Auto-lock</string>
+    <string name="auto_lock">Auto-Lock</string>
     <string name="geo_fence_lock">Auto-Unlock</string>
     <string name="device_setting_door_sensor">Door Sensor</string>
     <string name="door_sensor_alignment">Door sensor alignment</string>
@@ -219,7 +226,7 @@
     <string name="title_private_mode">Private Mode</string>
     <string name="private_mode_activity_title">PRIVATE MODE</string>
     <string name="private_mode_description">Private mode description:</string>
-    <string name="tip_private_mode_description">· Press and Hold the round button for 3 seconds to activate Privacy Mode\n· All access features will be disabled, including:Revolo App, PIN Key, Auto-Unlock, Knock-Open.\n· Privacy Mode will be disabled automatically when unlock from inside by the thumbturn or Mechanical Key.</string>
+    <string name="tip_private_mode_description">· Press and Hold the round button for 3 seconds to activate Privacy Mode.\n· All access features will be disabled, including:Revolo App, PIN Key, Auto-Unlock, Knock-Open.\n· Privacy Mode will be disabled automatically when unlock from inside by the thumbturn or Mechanical Key.</string>
 
     <!-- DuressCodeActivity -->
     <string name="save">Save</string>
@@ -292,7 +299,7 @@
     <!-- SettingActivity -->
     <string name="gesture_code">Gesture code</string>
     <string name="change_gesture_password">Change gesture password</string>
-    <string name="enable_touch_id">Enable touch/face ID</string>
+    <string name="enable_touch_id">Enable touch ID</string>
     <string name="enable_face_id">Enable face ID</string>
     <string name="account_cancellation">Account cancellation</string>
     <string name="account_cancellation_title">Gate magnet abnormal</string>
@@ -354,7 +361,9 @@
 
     <!-- -->
     <string name="dis_wifi_hint_dilog_text">Turning off WiFi will switch to Bluetooth mode. Reconfiguring WiFi requires you to hold the phone near your loc.</string>
+    <string name="dis_wifi_hint_dialog_title_text">Please hold your mobile phoneclose to the revol.</string>
     <string name="dis_wifi_hint_dialog_igr_text">I know about it and hope that the app will not prompt this message again.</string>
+    <string name="door_next_hint_dialog_content_text">Switch to Bluetooth and perform door sensor calibration.</string>
 
     <string name="door_sensor_check_activity_title">DOOR SENSOR CALIBRATE</string>
     <string name="door_sensor_check_activity_1_hint_text">Please open the door as much as you can Open the door as far.</string>

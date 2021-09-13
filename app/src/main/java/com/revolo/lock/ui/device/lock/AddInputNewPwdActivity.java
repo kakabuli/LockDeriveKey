@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.text.InputType;
+import android.text.method.DigitsKeyListener;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
@@ -57,6 +58,7 @@ public class AddInputNewPwdActivity extends BaseActivity {
             mEtPwd.setInputType(isShowPwd ?
                     InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
                     : (InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD));
+            mEtPwd.setKeyListener(DigitsKeyListener.getInstance(getString(R.string.digits_input_password)));
             isShowPwd = !isShowPwd;
         });
     }

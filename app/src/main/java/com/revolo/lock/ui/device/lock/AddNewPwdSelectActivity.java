@@ -71,6 +71,7 @@ import static com.revolo.lock.ble.BleCommandState.KEY_SET_ATTRIBUTE_WEEK_KEY;
 import static com.revolo.lock.ble.BleCommandState.KEY_SET_KEY_OPTION_ADD_OR_CHANGE;
 import static com.revolo.lock.ble.BleCommandState.KEY_SET_KEY_TYPE_PWD;
 import static com.revolo.lock.ble.BleProtocolState.CMD_KEY_ATTRIBUTES_SET;
+import static com.revolo.lock.util.ZoneUtil.getCreatePwdTime;
 
 /**
  * author : Jack
@@ -150,7 +151,7 @@ public class AddNewPwdSelectActivity extends BaseActivity {
         initApplyClick();
         initLoading(getString(R.string.t_load_content_password_generating));
         mAddPwdFailDialog = new AddPwdFailDialog(this);
-        initSucMessageDialog();
+        //initSucMessageDialog();
         onRegisterEventBus();
     }
 
@@ -379,7 +380,7 @@ public class AddNewPwdSelectActivity extends BaseActivity {
 
     @Override
     protected void onDestroy() {
-        mSucMessageDialog = null;
+        //mSucMessageDialog = null;
         mAddPwdFailDialog = null;
         super.onDestroy();
     }
@@ -592,7 +593,7 @@ public class AddNewPwdSelectActivity extends BaseActivity {
         mNum = bleResultBean.getPayload()[1];
         mDevicePwdBean.setPwdNum(mNum);
         // 使用秒存储，所以除以1000
-        mDevicePwdBean.setCreateTime(ZoneUtil.getTime() / 1000);
+        mDevicePwdBean.setCreateTime(getCreatePwdTime(mBleDeviceLocal.getTimeZone()) / 1000);
         mDevicePwdBean.setDeviceId(mBleDeviceLocal.getId());
         mDevicePwdBean.setAttribute(BleCommandState.KEY_SET_ATTRIBUTE_ALWAYS);
         if (mSelectedPwdState == PERMANENT_STATE) {
@@ -629,7 +630,7 @@ public class AddNewPwdSelectActivity extends BaseActivity {
         mDevicePwdBean.setStartTime(mTemStartDateTimeMill / 1000);
         mDevicePwdBean.setEndTime(mTemEndDateTimeMill / 1000);
         mDevicePwdBean.setAttribute(KEY_SET_ATTRIBUTE_TIME_KEY);
-        mDevicePwdBean.setCreateTime(ZoneUtil.getTime() / 1000);
+        mDevicePwdBean.setCreateTime(getCreatePwdTime(mBleDeviceLocal.getTimeZone()) / 1000);
         if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI || mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI_BLE) {
             publishAddPwdAttr(mBleDeviceLocal.getEsn(),
                     KEY_SET_ATTRIBUTE_TIME_KEY,
@@ -670,14 +671,14 @@ public class AddNewPwdSelectActivity extends BaseActivity {
         Timber.d("sun: %1b, mon: %2b, tues: %3b, wed: %4b, thur: %5b, fri: %6b, sat: %7b",
                 isSelectedSun, isSelectedMon, isSelectedTues, isSelectedWed,
                 isSelectedThur, isSelectedFri, isSelectedSat);
-        Timber.d("num: %1s, week: %2s, weekBytes: %3s, startTime: %4d, endTime: %5d",
+        Timber.e("num: %1s, week: %2s, weekBytes: %3s, startTime: %4d, endTime: %5d",
                 mNum, ConvertUtils.int2HexString(week), ConvertUtils.bytes2HexString(weekBit),
                 mScheduleStartTimeMill / 1000, mScheduleEndTimeMill / 1000);
         mDevicePwdBean.setWeekly(week);
         mDevicePwdBean.setStartTime(mScheduleStartTimeMill / 1000);
         mDevicePwdBean.setEndTime(mScheduleEndTimeMill / 1000);
         mDevicePwdBean.setAttribute(KEY_SET_ATTRIBUTE_WEEK_KEY);
-        mDevicePwdBean.setCreateTime(ZoneUtil.getTime() / 1000);
+        mDevicePwdBean.setCreateTime(getCreatePwdTime(mBleDeviceLocal.getTimeZone()) / 1000);
         if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI || mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI_BLE) {
             publishAddPwdAttr(mBleDeviceLocal.getEsn(),
                     KEY_SET_ATTRIBUTE_WEEK_KEY,
@@ -703,7 +704,7 @@ public class AddNewPwdSelectActivity extends BaseActivity {
         }
     }
 
-    private MessageDialog mSucMessageDialog;
+   /* private MessageDialog mSucMessageDialog;
 
     private void initSucMessageDialog() {
         mSucMessageDialog = new MessageDialog(AddNewPwdSelectActivity.this);
@@ -719,13 +720,19 @@ public class AddNewPwdSelectActivity extends BaseActivity {
             startActivity(intent);
             finish();
         });
-    }
+    }*/
 
     private void showSucMessage() {
         runOnUiThread(() -> {
-            if (mSucMessageDialog != null) {
+            ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.dialog_tip_password_added);
+            Intent intent = new Intent(AddNewPwdSelectActivity.this, AddNewPwdNameActivity.class);
+            intent.putExtra(Constant.PWD_NUM, mDevicePwdBean.getPwdNum());
+            intent.putExtra(Constant.LOCK_ESN, mBleDeviceLocal.getEsn());
+            startActivity(intent);
+            finish();
+           /* if (mSucMessageDialog != null) {
                 mSucMessageDialog.show();
-            }
+            }*/
         });
     }
 
@@ -787,7 +794,7 @@ public class AddNewPwdSelectActivity extends BaseActivity {
         mNum = bean.getParams().getKeyNum();
         mDevicePwdBean.setPwdNum(mNum);
         // 使用秒存储，所以除以1000
-        mDevicePwdBean.setCreateTime(ZoneUtil.getTime() / 1000);
+        mDevicePwdBean.setCreateTime(getCreatePwdTime(mBleDeviceLocal.getTimeZone()) / 1000);
         mDevicePwdBean.setDeviceId(mBleDeviceLocal.getId());
         mDevicePwdBean.setAttribute(BleCommandState.KEY_SET_ATTRIBUTE_ALWAYS);
         if (mSelectedPwdState == PERMANENT_STATE) {
@@ -888,7 +895,7 @@ public class AddNewPwdSelectActivity extends BaseActivity {
             return;
         }
         //判断是否手机网络断开
-        if(!getNetError()){
+        if (!getNetError()) {
             dismissLoading();
             showSucMessage();
             return;
@@ -955,27 +962,20 @@ public class AddNewPwdSelectActivity extends BaseActivity {
 
     private List<String> getWeekItems() {
         List<String> list = new ArrayList<>();
-        if (isSelectedSun) {
-            list.add("0");
-        }
-        if (isSelectedMon) {
-            list.add("1");
-        }
-        if (isSelectedTues) {
-            list.add("2");
-        }
-        if (isSelectedWed) {
-            list.add("3");
-        }
-        if (isSelectedThur) {
-            list.add("4");
-        }
-        if (isSelectedFri) {
-            list.add("5");
-        }
-        if (isSelectedSat) {
-            list.add("6");
-        }
+        list.add(getWeekItemsByte()+ "");
         return list;
+    }
+    private byte getWeekItemsByte(){
+        byte[] weekBit = new byte[8];
+        weekBit[0] = (byte) (isSelectedSun ? 0x01 : 0x00);//周天
+        weekBit[1] = (byte) (isSelectedMon ? 0x01 : 0x00);//周一
+        weekBit[2] = (byte) (isSelectedTues ? 0x01 : 0x00);
+        weekBit[3] = (byte) (isSelectedWed ? 0x01 : 0x00);
+        weekBit[4] = (byte) (isSelectedThur ? 0x01 : 0x00);
+        weekBit[5] = (byte) (isSelectedFri ? 0x01 : 0x00);
+        weekBit[6] = (byte) (isSelectedSat ? 0x01 : 0x00); //六
+        byte week = BleByteUtil.bitToByte(weekBit);
+        Timber.e("dasgagg:"+week);
+        return week;
     }
 }

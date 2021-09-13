@@ -214,6 +214,14 @@
             android:launchMode="singleTask"
             android:screenOrientation="portrait" />
         <activity
+            android:name=".ui.device.lock.AddInitPwdActivity"
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.device.lock.AddInitPwdNextActivity"
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait" />
+        <activity
             android:name=".ui.device.lock.AddNewPwdSelectActivity"
             android:launchMode="singleTask"
             android:screenOrientation="portrait" />

@@ -1,5 +1,6 @@
 package com.revolo.lock.ui.device.lock.setting;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -8,6 +9,7 @@ import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -23,6 +25,7 @@ import com.revolo.lock.net.HttpRequest;
 import com.revolo.lock.net.ObservableDecorator;
 import com.revolo.lock.room.AppDatabase;
 import com.revolo.lock.room.entity.BleDeviceLocal;
+import com.revolo.lock.ui.device.lock.AddInitPwdActivity;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -41,6 +44,7 @@ public class ChangeLockNameActivity extends BaseActivity {
 
     private BleDeviceLocal mBleDeviceLocal;
     private EditText etLockName;
+    private TextView mtvTipName,mbtnCancel;
     private String mTvName;
 
     @Override
@@ -61,14 +65,18 @@ public class ChangeLockNameActivity extends BaseActivity {
         mTvName = getIntent().getStringExtra(Constant.CHANGE_LOCK_NAME);
         useCommonTitleBar(getString(R.string.chang_pwd_name_activity_title));
         etLockName = findViewById(R.id.etLockName);
+        mtvTipName=findViewById(R.id.tvTipName);
+        mbtnCancel=findViewById(R.id.btnCancel);
         if (TextUtils.isEmpty(mTvName)) {
             mTvName = mBleDeviceLocal.getEsn();
-            findViewById(R.id.tvCancel).setVisibility(View.VISIBLE);
+            mtvTipName.setText(getText(R.string.chang_lock_name_activity_name_text));
+            mbtnCancel.setVisibility(View.VISIBLE);
         } else {
             etLockName.setText(mTvName);
-            findViewById(R.id.tvCancel).setVisibility(View.GONE);
+            mtvTipName.setText(getText(R.string.chang_lock_name_activity_name));
+            mbtnCancel.setVisibility(View.GONE);
         }
-        applyDebouncingClickListener(findViewById(R.id.btnComplete), findViewById(R.id.btnCancel));
+        applyDebouncingClickListener(findViewById(R.id.btnComplete), mbtnCancel);
         initLoading(getString(R.string.t_load_content_setting));
     }
 
@@ -82,6 +90,8 @@ public class ChangeLockNameActivity extends BaseActivity {
         if (view.getId() == R.id.btnComplete) {
             changeDeviceName();
         } else if (view.getId() == R.id.btnCancel) {
+            Intent intent=new Intent(ChangeLockNameActivity.this, AddInitPwdActivity.class);
+            startActivity(intent);
             finish();
         }
     }
@@ -89,6 +99,12 @@ public class ChangeLockNameActivity extends BaseActivity {
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0) {
+            if(null!=mbtnCancel){
+                if(mbtnCancel.getVisibility()==View.VISIBLE){
+                    Intent intent=new Intent(ChangeLockNameActivity.this, AddInitPwdActivity.class);
+                    startActivity(intent);
+                }
+            }
             finish();
             return true;
         }
@@ -176,6 +192,12 @@ public class ChangeLockNameActivity extends BaseActivity {
     }
 
     private void finishThisAct() {
+        if(null!=mbtnCancel){
+            if(mbtnCancel.getVisibility()==View.VISIBLE){
+                Intent intent=new Intent(ChangeLockNameActivity.this, AddInitPwdActivity.class);
+                startActivity(intent);
+            }
+        }
         runOnUiThread(this::finish);
     }
 

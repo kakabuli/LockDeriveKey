@@ -145,4 +145,9 @@ public class Constant {
     public static final String CHANGE_PWD_NAME = "passwordName";
 
     public static final String CHANGE_GESTURE_HAND_PASSWORD = "changeHandGesturePassword";
+
+    /**
+     * 是否显示门磁配置开启提示弹框
+     */
+    public static final String IS_OPEN_DOOR="IS_OPEN_DOOR";
 }

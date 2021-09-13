@@ -150,34 +150,14 @@ public class OperationRecordsActivity extends BaseActivity {
      * 获取记录
      */
     private void searchRecord(long startTime, long endTime) {
-        if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_BLE) {
-            //蓝牙模式
-            searchBle();
-        } else {
-            //WiFi模式 、WiFi和蓝牙同时连接、掉线模式
-            searchRecordFromNet(mPage, startTime, endTime);
-        }
-
+        //WiFi模式 、WiFi和蓝牙同时连接、掉线模式
+        searchRecordFromNet(mPage, startTime, endTime);
     }
 
     private void searchRecord(int getType) {
-        if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_BLE) {
-            //蓝牙模式
-            if (getType == 0) {
-                mBleSearchStart = 0;
-                mBleSearchEnd = 14;
-                searchBle();
-            } else {
-                mBleSearchStart = (short) (mWillShowRecords.size() - 1);
-                mBleSearchEnd = (short) (mWillShowRecords.size() + 13);
-                searchBle();
-            }
-        } else {
-            //WiFi模式 、WiFi和蓝牙同时连接、掉线模式
-            getNowDateTime();
-            searchRecordFromNet(mPage, startTime, endTime);
-        }
-
+        //WiFi模式 、WiFi和蓝牙同时连接、掉线模式
+        getNowDateTime();
+        searchRecordFromNet(mPage, startTime, endTime);
     }
 
     /**
