@@ -144,10 +144,10 @@ public class OperationRecordsActivity extends BaseActivity {
         if (null == mWillShowRecords) {
             mWillShowRecords = new ArrayList<>();
         }
-        if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_BLE){
+        if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_BLE) {
             OperationBleDialog operationBleDialog = new OperationBleDialog(this);
             operationBleDialog.setOnListener(v -> {
-                if (operationBleDialog != null){
+                if (operationBleDialog != null) {
                     operationBleDialog.dismiss();
                 }
             });
@@ -342,8 +342,8 @@ public class OperationRecordsActivity extends BaseActivity {
 
     private void getNowDateTime() {
         String s = TimeUtils.date2String(new Date(), "yyyy-MM-dd");
-        startTime = ZoneUtil.getTime(mBleDeviceLocal.getTimeZone(), s + " 00:00:00") / 1000;
-        endTime = ZoneUtil.getTime(mBleDeviceLocal.getTimeZone(), s + " 23:59:59") / 1000;
+        startTime = (ZoneUtil.getTime(mBleDeviceLocal.getTimeZone(), s + " 00:00:00") + ZoneUtil.getTestTime2(mBleDeviceLocal.getTimeZone())) / 1000;
+        endTime = (ZoneUtil.getTime(mBleDeviceLocal.getTimeZone(), s + " 23:59:59") + ZoneUtil.getTestTime2(mBleDeviceLocal.getTimeZone())) / 1000;
     }
 
     private final ArrayList<LockRecord> mWillUploadRecord = new ArrayList<>();
@@ -819,8 +819,8 @@ public class OperationRecordsActivity extends BaseActivity {
         MyTimePickBuilder timePickerBuilder = new MyTimePickBuilder(this, (date, v) -> {
             OperationRecordsActivity.this.showLoading();
             String time = dateFormat.format(date);
-            long startTime = ZoneUtil.getTime(mBleDeviceLocal.getTimeZone(), time + " 00:00:00") / 1000;
-            long endTime = ZoneUtil.getTime(mBleDeviceLocal.getTimeZone(), time + " 23:59:59") / 1000;
+            long startTime = (ZoneUtil.getTime(mBleDeviceLocal.getTimeZone(), time + " 00:00:00") + ZoneUtil.getTestTime2(mBleDeviceLocal.getTimeZone())) / 1000;
+            long endTime = (ZoneUtil.getTime(mBleDeviceLocal.getTimeZone(), time + " 23:59:59") + ZoneUtil.getTestTime2(mBleDeviceLocal.getTimeZone())) / 1000;
             mPage = 1;
             isCheckTime = true;
             searchRecord(startTime, endTime);
