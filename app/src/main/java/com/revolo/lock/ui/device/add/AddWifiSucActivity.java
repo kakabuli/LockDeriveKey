@@ -13,11 +13,14 @@ import androidx.annotation.Nullable;
 import com.blankj.utilcode.util.ActivityUtils;
 import com.revolo.lock.App;
 import com.revolo.lock.Constant;
+import com.revolo.lock.LocalState;
 import com.revolo.lock.R;
 import com.revolo.lock.base.BaseActivity;
+import com.revolo.lock.ble.bean.BleBean;
 import com.revolo.lock.manager.LockMessage;
 import com.revolo.lock.mqtt.MQttConstant;
 import com.revolo.lock.mqtt.MqttCommandFactory;
+import com.revolo.lock.room.entity.BleDeviceLocal;
 import com.revolo.lock.ui.device.lock.setting.ChangeLockNameActivity;
 
 import org.greenrobot.eventbus.EventBus;
@@ -60,6 +63,22 @@ public class AddWifiSucActivity extends BaseActivity {
 
         finishPreAct();
         refreshGetAllBindDevicesFromMQTT();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if(booleanExtra){
+            //及时断开蓝牙
+            BleDeviceLocal mBleDeviceLocal = App.getInstance().getBleDeviceLocal();
+            if (null != mBleDeviceLocal && (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI_BLE || mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI)) {
+                BleBean bean = App.getInstance().getUserBleBean(mBleDeviceLocal.getMac());
+                if (null != bean && null != bean.getOKBLEDeviceImp()) {
+                    Timber.e("WiFi状态下主动断开蓝牙：" + bean.getMac());
+                    App.getInstance().removeConnectedBleDisconnect(bean);
+                }
+            }
+        }
     }
 
     @Override
