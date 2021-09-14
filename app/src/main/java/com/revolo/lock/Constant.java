@@ -96,6 +96,8 @@ public class Constant {
 
     public static final String SHARE_USER_LAST_NAME = "ShareUserLastName";
 
+    public static final String SHARE_USER_SN_LIST = "ShareUserSnList";
+
     /**
      * 网络是否能访问
      */
@@ -149,5 +151,5 @@ public class Constant {
     /**
      * 是否显示门磁配置开启提示弹框
      */
-    public static final String IS_OPEN_DOOR="IS_OPEN_DOOR";
+    public static final String IS_OPEN_DOOR = "IS_OPEN_DOOR";
 }

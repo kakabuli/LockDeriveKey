@@ -59,6 +59,7 @@ public class AuthUserDetailActivity extends BaseActivity {
     private TextView mTvDeviceNum, mTvAccount, mTvUserName;
     private GetAllSharedUserFromAdminUserBeanRsp.DataBean mShareUser;
     private ImageView ivAvatar;
+    private List<GetDevicesFromUidAndSharedUidBeanRsp.DataBean> dataBeans;
 
     @Override
     public void initData(@Nullable Bundle bundle) {
@@ -82,6 +83,9 @@ public class AuthUserDetailActivity extends BaseActivity {
                     intent.putExtra(Constant.SHARE_USER_DATA, mShareUser.getShareUid());
                     intent.putExtra(Constant.SHARE_USER_FIRST_NAME, mShareUser.getFirstName());
                     intent.putExtra(Constant.SHARE_USER_LAST_NAME, mShareUser.getLastName());
+                    if (getDeviceSn() != null) {
+                        intent.putExtra(Constant.SHARE_USER_SN_LIST, getDeviceSn());
+                    }
                     startActivity(intent);
                 });
         SlideRecyclerView shareList = findViewById(R.id.shareList);
@@ -214,7 +218,7 @@ public class AuthUserDetailActivity extends BaseActivity {
                 String code = getDevicesFromUidAndSharedUidBeanRsp.getCode();
                 String msg = getDevicesFromUidAndSharedUidBeanRsp.getMsg();
                 if (code.equals("200")) {
-                    List<GetDevicesFromUidAndSharedUidBeanRsp.DataBean> dataBeans = getDevicesFromUidAndSharedUidBeanRsp.getData();
+                    dataBeans = getDevicesFromUidAndSharedUidBeanRsp.getData();
                     if (dataBeans != null && !dataBeans.isEmpty()) {
                         groupData(dataBeans);
                     } else {
@@ -239,6 +243,17 @@ public class AuthUserDetailActivity extends BaseActivity {
 
             }
         });
+    }
+
+    public String[] getDeviceSn() {
+        if (dataBeans != null && dataBeans.size() > 0) {
+            String[] deviceSn = new String[dataBeans.size()];
+            for (int i = 0; i < dataBeans.size(); i++) {
+                deviceSn[i] = dataBeans.get(i).getDeviceSN();
+            }
+            return deviceSn;
+        }
+        return null;
     }
 
     private void groupData(@NonNull List<GetDevicesFromUidAndSharedUidBeanRsp.DataBean> dataBeans) {
