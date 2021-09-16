@@ -80,22 +80,22 @@ public class MainActivity extends BaseActivity {
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
         getAlexaIntent(intent);
-//        if (intent.hasExtra(Constant.SHOW_SHARE_DIALOG_TITLE) && isMainItemIndex != R.id.navigation_device) {
-//            String title = intent.getStringExtra(Constant.SHOW_SHARE_DIALOG_TITLE);
-//            if (!TextUtils.isEmpty(title)) {
-//                MessageDialog messageDialog = new MessageDialog(LockAppManager.getAppManager().currentActivity());
-//                messageDialog.setMessage(title);
-//                messageDialog.setOnListener(v -> {
-//                    addDeviceFragment();
-//                    navView.setSelectedItemId(R.id.navigation_device);
-//                    messageDialog.dismiss();
-//                });
-//                messageDialog.show();
-//            }
-//        } else {
-//            addDeviceFragment();
-//            navView.setSelectedItemId(R.id.navigation_device);
-//        }
+        if (intent.hasExtra(Constant.SHOW_SHARE_DIALOG_TITLE) && isMainItemIndex != R.id.navigation_device) {
+            String title = intent.getStringExtra(Constant.SHOW_SHARE_DIALOG_TITLE);
+            if (!TextUtils.isEmpty(title)) {
+                MessageDialog messageDialog = new MessageDialog(LockAppManager.getAppManager().currentActivity());
+                messageDialog.setMessage(title);
+                messageDialog.setOnListener(v -> {
+                    addDeviceFragment();
+                    navView.setSelectedItemId(R.id.navigation_device);
+                    messageDialog.dismiss();
+                });
+                messageDialog.show();
+            }
+        } else {
+            addDeviceFragment();
+            navView.setSelectedItemId(R.id.navigation_device);
+        }
     }
 
     @Override
