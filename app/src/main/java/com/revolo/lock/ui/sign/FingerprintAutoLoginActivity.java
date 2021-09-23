@@ -7,6 +7,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.text.TextUtils;
 import android.view.Gravity;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.ImageView;
 
@@ -123,6 +124,12 @@ public class FingerprintAutoLoginActivity extends BaseActivity {
     @Override
     public void onDebouncingClick(@NonNull View view) {
 
+    }
+
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        return true;
     }
 
     private void autoLogin() {

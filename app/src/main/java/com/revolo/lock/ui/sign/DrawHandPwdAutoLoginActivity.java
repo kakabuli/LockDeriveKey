@@ -129,14 +129,7 @@ public class DrawHandPwdAutoLoginActivity extends BaseActivity {
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0) {
-            Intent intent = new Intent(DrawHandPwdAutoLoginActivity.this, SignSelectActivity.class);
-            intent.putExtra(Constant.SIGN_SELECT_MODE, "draw");
-            startActivity(intent);
-            finish();
-            return true;
-        }
-        return super.onKeyDown(keyCode, event);
+        return true;
     }
 
     @Override
