@@ -110,6 +110,8 @@ public class AddDeviceForSharedUserActivity extends BaseActivity {
                             bleDeviceLocals.add(list.get(i));
                         }
                     }
+                } else {
+                    bleDeviceLocals.add(list.get(i));
                 }
             }
         }
