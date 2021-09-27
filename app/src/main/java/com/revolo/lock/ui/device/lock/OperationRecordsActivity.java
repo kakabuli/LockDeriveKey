@@ -424,8 +424,10 @@ public class OperationRecordsActivity extends BaseActivity {
         req.setPage(page);
         req.setUid(uid);
         req.setDeviceSN(esn);
-        req.setStartTime(startTime);
-        req.setEndTime(endTime);
+        if (0 != startTime && 0 != endTime) {
+            req.setStartTime(startTime);
+            req.setEndTime(endTime);
+        }
         showLoading();
         Observable<LockRecordBeanRsp> observable = HttpRequest.getInstance().getLockRecordList(token, req);
         ObservableDecorator.decorate(observable).safeSubscribe(new Observer<LockRecordBeanRsp>() {
@@ -819,8 +821,8 @@ public class OperationRecordsActivity extends BaseActivity {
         MyTimePickBuilder timePickerBuilder = new MyTimePickBuilder(this, (date, v) -> {
             OperationRecordsActivity.this.showLoading();
             String time = dateFormat.format(date);
-            long startTime = (ZoneUtil.getTime(mBleDeviceLocal.getTimeZone(), time + " 00:00:00") + ZoneUtil.getTestTime2(mBleDeviceLocal.getTimeZone())) / 1000;
-            long endTime = (ZoneUtil.getTime(mBleDeviceLocal.getTimeZone(), time + " 23:59:59") + ZoneUtil.getTestTime2(mBleDeviceLocal.getTimeZone())) / 1000;
+            long startTime = (ZoneUtil.getTime(mBleDeviceLocal.getTimeZone(), time + " 00:00:00") ) / 1000;
+            long endTime = (ZoneUtil.getTime(mBleDeviceLocal.getTimeZone(), time + " 23:59:59")) / 1000;
             mPage = 1;
             isCheckTime = true;
             searchRecord(startTime, endTime);
