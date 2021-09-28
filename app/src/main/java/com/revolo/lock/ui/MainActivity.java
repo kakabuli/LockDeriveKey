@@ -373,6 +373,7 @@ public class MainActivity extends BaseActivity {
                         String appVersions = getVersionBeanRsp.getData().getAppVersions();
                         // 版本号不一致
                         if (appVersions(appVersions, AppUtils.getAppVersionName())) {
+                            Constant.isNewAppVersion = true;
                             if (getVersionBeanRsp.getData() != null) {
                                 GetVersionBeanRsp.DataBean data = getVersionBeanRsp.getData();
                                 UpdateVersionDialog updateVersionDialog = new UpdateVersionDialog(MainActivity.this);
