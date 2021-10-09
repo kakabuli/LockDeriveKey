@@ -16,12 +16,50 @@ public class ZoneUtil {
      */
     public static String getZone() {
         String stZone = "+00:00";
-        String time = TimeZone.getDefault().getDisplayName(true, TimeZone.SHORT);
-        if (time.length() > 8) {
-            stZone = time.substring(0, 9).replace("GMT", "");
-            Timber.e("dasga:" + stZone);
+        TimeZone tz = TimeZone.getDefault();
+        String zone = getOffsetString(true, tz.getRawOffset(), tz.getDSTSavings());
+        Timber.e("zone:" + zone);
+        if (null != zone && !"".equals(zone)) {
+            return zone;
+        } else {
+            return stZone;
         }
-        return stZone;
+    }
+
+    /**
+     * 兼容中文版本外语言下获取时区算法
+     * @param includeMinuteSeparator
+     * @param offsetMillis
+     * @param mDSTSavings
+     * @return
+     */
+    public static String getOffsetString(boolean includeMinuteSeparator, int offsetMillis, int mDSTSavings) {
+        int offsetMinutes = offsetMillis / 60000;
+        char sign = '+';
+        if (offsetMinutes < 0) {
+            sign = '-';
+            offsetMinutes = -offsetMinutes;
+
+        }
+        if (mDSTSavings / 60000 > 0)
+            offsetMinutes = offsetMinutes - (mDSTSavings / 60000);
+        StringBuilder builder = new StringBuilder(6);
+        builder.append(sign);
+        appendNumber(builder, 2, offsetMinutes / 60);
+        if (includeMinuteSeparator) {
+            builder.append(':');
+        }
+        appendNumber(builder, 2, offsetMinutes % 60);
+        return builder.toString();
+
+    }
+
+    private static void appendNumber(StringBuilder builder, int count, int value) {
+        String string = Integer.toString(value);
+        for (int i = 0; i < count - string.length(); i++) {
+            builder.append('0');
+        }
+        builder.append(string);
     }
 
     /**
