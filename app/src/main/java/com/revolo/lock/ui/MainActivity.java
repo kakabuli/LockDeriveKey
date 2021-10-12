@@ -386,6 +386,7 @@ public class MainActivity extends BaseActivity {
                                 });
                                 updateVersionDialog.show();
                             }
+                            Constant.isNewAppVersion = true;
                         }
                     }
                 }

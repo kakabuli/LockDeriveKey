@@ -68,7 +68,7 @@ public class AddWifiSucActivity extends BaseActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if(booleanExtra){
+        if (booleanExtra) {
             //及时断开蓝牙
             BleDeviceLocal mBleDeviceLocal = App.getInstance().getBleDeviceLocal();
             if (null != mBleDeviceLocal && (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI_BLE || mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_WIFI)) {
@@ -94,7 +94,7 @@ public class AddWifiSucActivity extends BaseActivity {
     public void onDebouncingClick(@NonNull View view) {
         if (view.getId() == R.id.btnReDistribution) {
             if (booleanExtra) {
-                startActivity(new Intent(this, ChangeLockNameActivity.class));
+                startActivity(new Intent(this, ChangeLockNameActivity.class).putExtra(Constant.WIFI_SETTING_TO_ADD_WIFI, booleanExtra));
             }
             finish();
         }

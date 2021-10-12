@@ -419,7 +419,7 @@ public class WifiSettingActivity extends BaseActivity {
     }
 
     private void closeWifiFromMQtt() {
-        handler.sendEmptyMessageDelayed(MSG_CLOSE_WIFI_OUT_TIME, 4000);
+//        handler.sendEmptyMessageDelayed(MSG_CLOSE_WIFI_OUT_TIME, 4000);
         setLoadingDialog(true);
         showLoading();
         LockMessage message = new LockMessage();
@@ -435,19 +435,9 @@ public class WifiSettingActivity extends BaseActivity {
     }
 
     private void processCloseWifiFromMQtt(WifiLockCloseWifiResponseBean bean) {
-        if (bean == null) {
-            Timber.e("closeWifiFromMqtt bean == null");
-            return;
-        }
-        if (bean.getParams() == null) {
-            Timber.e("closeWifiFromMqtt bean.getParams() == null");
-            return;
-        }
         if (bean.getCode() != 200) {
             Timber.e("closeWifiFromMqtt code : %1d", bean.getCode());
-            if (bean.getCode() == 201) {
-                ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_close_wifi_fail);
-            }
+            ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.t_close_wifi_fail);
             return;
         }
         refreshWifiConnectState();
@@ -636,6 +626,8 @@ public class WifiSettingActivity extends BaseActivity {
             mTvWifiName.setText(TextUtils.isEmpty(wifiName) ? "" : wifiName);
             isWifiConnected = true;
             mCltip.setVisibility(View.VISIBLE);
+            // 打开WiFi成功，主动断开蓝牙连接
+            App.getInstance().removeConnectedBleDisconnect(mBleDeviceLocal.getMac());
         });
     }
 

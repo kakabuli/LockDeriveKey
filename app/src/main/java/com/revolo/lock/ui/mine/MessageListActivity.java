@@ -313,11 +313,8 @@ public class MessageListActivity extends BaseActivity {
                         App.getInstance().logout(true, MessageListActivity.this);
                         return;
                     }
-                    String msg = acceptShareBeanRsp.getMsg();
-                    Timber.e("code: %1s, msg: %2s", code, msg);
-                    if (!TextUtils.isEmpty(msg)) {
-                        ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(msg);
-                    }
+                    Timber.e("code: %1s, msg: %2s", code, acceptShareBeanRsp.getMsg());
+                    ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show("Accept  Failed");
                     page = 1;
                     getSystemMessageList(timeType);
                     return;
