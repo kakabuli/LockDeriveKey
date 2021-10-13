@@ -5,6 +5,8 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.text.InputType;
 import android.text.method.DigitsKeyListener;
+import android.text.method.HideReturnsTransformationMethod;
+import android.text.method.PasswordTransformationMethod;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
@@ -55,9 +57,7 @@ public class AddInputNewPwdActivity extends BaseActivity {
         findViewById(R.id.ivEye).setOnClickListener(v -> {
             ImageView ivEye = findViewById(R.id.ivEye);
             ivEye.setImageResource(isShowPwd ? R.drawable.ic_login_icon_display_blue : R.drawable.ic_login_icon_hide_blue);
-            mEtPwd.setInputType(isShowPwd ?
-                    InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
-                    : (InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD));
+            mEtPwd.setTransformationMethod(isShowPwd ? HideReturnsTransformationMethod.getInstance() : PasswordTransformationMethod.getInstance());
             mEtPwd.setKeyListener(DigitsKeyListener.getInstance(getString(R.string.digits_input_password)));
             isShowPwd = !isShowPwd;
         });

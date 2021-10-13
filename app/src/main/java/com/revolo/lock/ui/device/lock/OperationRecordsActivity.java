@@ -24,6 +24,7 @@ import com.revolo.lock.adapter.OpRecordsAdapter;
 import com.revolo.lock.base.BaseActivity;
 import com.revolo.lock.bean.OperationRecords;
 import com.revolo.lock.bean.request.LockRecordBeanReq;
+import com.revolo.lock.bean.request.LockRecordNoTimeBeanReq;
 import com.revolo.lock.bean.respone.LockRecordBeanRsp;
 import com.revolo.lock.ble.BleByteUtil;
 import com.revolo.lock.ble.BleCommandFactory;
@@ -128,10 +129,10 @@ public class OperationRecordsActivity extends BaseActivity {
         mRefreshLayout.setOnRefreshListener(refreshLayout -> {
             mPage = 1;
             isCheckTime = false;
-            searchRecord(0);
+            searchRcord();
         });
         mRefreshLayout.setOnLoadMoreListener(refreshLayout -> {
-            searchRecord(1);
+            searchRcord();
         });
         onRegisterEventBus();
         if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_BLE) {
@@ -144,10 +145,10 @@ public class OperationRecordsActivity extends BaseActivity {
         if (null == mWillShowRecords) {
             mWillShowRecords = new ArrayList<>();
         }
-        if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_BLE){
+        if (mBleDeviceLocal.getConnectedType() == LocalState.DEVICE_CONNECT_TYPE_BLE) {
             OperationBleDialog operationBleDialog = new OperationBleDialog(this);
             operationBleDialog.setOnListener(v -> {
-                if (operationBleDialog != null){
+                if (operationBleDialog != null) {
                     operationBleDialog.dismiss();
                 }
             });
@@ -177,7 +178,94 @@ public class OperationRecordsActivity extends BaseActivity {
         searchRecordFromBle(mBleSearchStart, mBleSearchEnd);
     }
 
+    /**
+     * 不筛选
+     */
+    private void searchRcord(){
+        if (!checkNetConnectFail()) {
+            return;
+        }
+        if (App.getInstance().getUserBean() == null) {
+            Timber.e("searchRecordFromNet App.getInstance().getUserBean()  == null");
+            return;
+        }
+        String token = App.getInstance().getUserBean().getToken();
+        if (TextUtils.isEmpty(token)) {
+            Timber.e("searchRecordFromNet token is empty");
+            return;
+        }
+        String uid = App.getInstance().getUserBean().getUid();
+        if (TextUtils.isEmpty(uid)) {
+            Timber.e("searchRecordFromNet uid is empty");
+            return;
+        }
+        String esn = mBleDeviceLocal.getEsn();
+        if (TextUtils.isEmpty(esn)) {
+            Timber.e("searchRecordFromNet esn is empty");
+            return;
+        }
+        if (!isCheckTime) {
+            // 不是筛选日期 开始时间从零开始
+            startTime = 0;
+        }
 
+        LockRecordNoTimeBeanReq req = new LockRecordNoTimeBeanReq();
+        req.setPage(mPage);
+        req.setUid(uid);
+        req.setDeviceSN(esn);
+        showLoading();
+        Observable<LockRecordBeanRsp> observable = HttpRequest.getInstance().getLockRecordNoTimeList(token, req);
+        ObservableDecorator.decorate(observable).safeSubscribe(new Observer<LockRecordBeanRsp>() {
+            @Override
+            public void onSubscribe(@NonNull Disposable d) {
+
+            }
+
+            @Override
+            public void onNext(@NonNull LockRecordBeanRsp lockRecordBeanRsp) {
+                dismissLoading();
+                String code = lockRecordBeanRsp.getCode();
+                if (TextUtils.isEmpty(code)) {
+                    Timber.e("searchRecordFromNet code is empty");
+                    return;
+                }
+                if (!code.equals("200")) {
+                    if (code.equals("444")) {
+                        App.getInstance().logout(true, OperationRecordsActivity.this);
+                        return;
+                    }
+                    String msg = lockRecordBeanRsp.getMsg();
+                    Timber.e("searchRecordFromNet code: %1s, msg: %2s", code, msg);
+                    if (!TextUtils.isEmpty(msg)) {
+                        ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(msg);
+                    }
+                    return;
+                }
+                List<LockRecordBeanRsp.DataBean> beans = lockRecordBeanRsp.getData();
+                processRecordFromNet(beans);
+                if (mRefreshLayout != null) {
+                    mRefreshLayout.finishLoadMore(true);
+                    mRefreshLayout.finishRefresh(true);
+                }
+            }
+
+            @Override
+            public void onError(@NonNull Throwable e) {
+                // TODO: 2021/3/18 如果是第一页加载本地数据库
+                dismissLoading();
+                Timber.e(e);
+                if (mRefreshLayout != null) {
+                    mRefreshLayout.finishLoadMore(false);
+                    mRefreshLayout.finishRefresh(false);
+                }
+            }
+
+            @Override
+            public void onComplete() {
+
+            }
+        });
+    }
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0) {
@@ -215,7 +303,7 @@ public class OperationRecordsActivity extends BaseActivity {
                 titleBar.getIvRight().setVisibility(View.VISIBLE);
             }
         }
-        searchRecord(0);
+        searchRcord();
     }
 
     @Override
@@ -342,8 +430,8 @@ public class OperationRecordsActivity extends BaseActivity {
 
     private void getNowDateTime() {
         String s = TimeUtils.date2String(new Date(), "yyyy-MM-dd");
-        startTime = ZoneUtil.getTime(mBleDeviceLocal.getTimeZone(), s + " 00:00:00") / 1000;
-        endTime = ZoneUtil.getTime(mBleDeviceLocal.getTimeZone(), s + " 23:59:59") / 1000;
+        startTime = (ZoneUtil.getTime(mBleDeviceLocal.getTimeZone(), s + " 00:00:00") + ZoneUtil.getTestTime2(mBleDeviceLocal.getTimeZone())) / 1000;
+        endTime = (ZoneUtil.getTime(mBleDeviceLocal.getTimeZone(), s + " 23:59:59") + ZoneUtil.getTestTime2(mBleDeviceLocal.getTimeZone())) / 1000;
     }
 
     private final ArrayList<LockRecord> mWillUploadRecord = new ArrayList<>();
@@ -424,8 +512,10 @@ public class OperationRecordsActivity extends BaseActivity {
         req.setPage(page);
         req.setUid(uid);
         req.setDeviceSN(esn);
-        req.setStartTime(startTime);
-        req.setEndTime(endTime);
+        if (0 != startTime && 0 != endTime) {
+            req.setStartTime(startTime);
+            req.setEndTime(endTime);
+        }
         showLoading();
         Observable<LockRecordBeanRsp> observable = HttpRequest.getInstance().getLockRecordList(token, req);
         ObservableDecorator.decorate(observable).safeSubscribe(new Observer<LockRecordBeanRsp>() {
@@ -819,8 +909,8 @@ public class OperationRecordsActivity extends BaseActivity {
         MyTimePickBuilder timePickerBuilder = new MyTimePickBuilder(this, (date, v) -> {
             OperationRecordsActivity.this.showLoading();
             String time = dateFormat.format(date);
-            long startTime = ZoneUtil.getTime(mBleDeviceLocal.getTimeZone(), time + " 00:00:00") / 1000;
-            long endTime = ZoneUtil.getTime(mBleDeviceLocal.getTimeZone(), time + " 23:59:59") / 1000;
+            long startTime = (ZoneUtil.getTime(mBleDeviceLocal.getTimeZone(), time + " 00:00:00") ) / 1000;
+            long endTime = (ZoneUtil.getTime(mBleDeviceLocal.getTimeZone(), time + " 23:59:59")) / 1000;
             mPage = 1;
             isCheckTime = true;
             searchRecord(startTime, endTime);

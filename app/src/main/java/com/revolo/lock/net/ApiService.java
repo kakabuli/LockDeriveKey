@@ -38,6 +38,7 @@ import com.revolo.lock.bean.request.GetVersionBeanReq;
 import com.revolo.lock.bean.request.LockIsBindBeanReq;
 import com.revolo.lock.bean.request.LockKeyAddBeanReq;
 import com.revolo.lock.bean.request.LockRecordBeanReq;
+import com.revolo.lock.bean.request.LockRecordNoTimeBeanReq;
 import com.revolo.lock.bean.request.MailLoginBeanReq;
 import com.revolo.lock.bean.request.MailRegisterBeanReq;
 import com.revolo.lock.bean.request.Oauth2AccountBeanReq;
@@ -662,6 +663,16 @@ public interface ApiService {
     @POST("/wpflock/operation/list")
     Observable<LockRecordBeanRsp> getLockRecordList(@Header("token") String token, @Body LockRecordBeanReq req, @Header("url_name") String urlName);
 
+    /**
+     * 获取操作记录
+     *
+     * @param token   用户权限码
+     * @param req     请求实体
+     * @param urlName 用于区分，可能后期替换不一样的接口  没开始时间、结束时间选择
+     */
+    @Headers({"Content-Type: application/json"})
+    @POST("/wpflock/operation/list")
+    Observable<LockRecordBeanRsp> getLockRecordNoTimeList(@Header("token") String token, @Body LockRecordNoTimeBeanReq req, @Header("url_name") String urlName);
     /**
      * 上传操作记录
      *

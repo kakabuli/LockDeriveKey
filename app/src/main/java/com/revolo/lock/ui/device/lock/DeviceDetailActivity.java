@@ -275,13 +275,13 @@ public class DeviceDetailActivity extends BaseActivity {
         // 低电量
         tvPrivateMode.setVisibility(View.GONE);
         //根据电量不同显示电量背景
-        if(mBleDeviceLocal.getLockPower()<=20){
+        if (mBleDeviceLocal.getLockPower() <= 20) {
             mIvBatteryState.setImageResource(R.drawable.home_img_lock_electricity_20);
-        }else if(mBleDeviceLocal.getLockPower()>20&&mBleDeviceLocal.getLockPower()<=50){
+        } else if (mBleDeviceLocal.getLockPower() > 20 && mBleDeviceLocal.getLockPower() <= 50) {
             mIvBatteryState.setImageResource(R.drawable.home_img_lock_electricity_50);
-        }else if(mBleDeviceLocal.getLockPower()>50&&mBleDeviceLocal.getLockPower()<=80){
+        } else if (mBleDeviceLocal.getLockPower() > 50 && mBleDeviceLocal.getLockPower() <= 80) {
             mIvBatteryState.setImageResource(R.drawable.home_img_lock_electricity_80);
-        }else if(mBleDeviceLocal.getLockPower()>80&&mBleDeviceLocal.getLockPower()<=100){
+        } else if (mBleDeviceLocal.getLockPower() > 80 && mBleDeviceLocal.getLockPower() <= 100) {
             mIvBatteryState.setImageResource(R.drawable.home_img_lock_electricity_100);
         }
         mTvBatteryState.setVisibility(mBleDeviceLocal.getLockPower() <= 20 ? View.VISIBLE : View.GONE);
@@ -289,8 +289,26 @@ public class DeviceDetailActivity extends BaseActivity {
         if (mBleDeviceLocal.getLockState() == LocalState.LOCK_STATE_PRIVATE) {
             doorShow(ivDoorState, tvDoorState);
             ivLockState.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_home_img_lock_privacymode));
-            llDoorState.setVisibility(View.GONE);
+            llDoorState.setVisibility(View.VISIBLE);
 //            tvPrivateMode.setVisibility(View.VISIBLE);
+            boolean isUseDoorSensor = mBleDeviceLocal.isOpenDoorSensor();
+            if (isUseDoorSensor) {
+                doorShow(ivDoorState, tvDoorState);
+                switch (mBleDeviceLocal.getDoorSensor()) {
+                    case LocalState.DOOR_SENSOR_CLOSE:
+                        doorClose(ivDoorState, tvDoorState);
+                        break;
+                    case LocalState.DOOR_SENSOR_EXCEPTION:
+                    case LocalState.DOOR_SENSOR_INIT:
+                        doorError(ivDoorState, tvDoorState);
+                        break;
+                    case LocalState.DOOR_SENSOR_OPEN:
+                        doorOpen(ivDoorState, tvDoorState);
+                        break;
+                }
+            } else {
+                doorHide(ivDoorState, tvDoorState);
+            }
         } else {
             llDoorState.setVisibility(View.VISIBLE);
             boolean isUseDoorSensor = mBleDeviceLocal.isOpenDoorSensor();
@@ -308,7 +326,6 @@ public class DeviceDetailActivity extends BaseActivity {
                             doorError(ivDoorState, tvDoorState);
                             break;
                         case LocalState.DOOR_SENSOR_OPEN:
-                            // 因为异常，所以与锁的状态同步
                             doorOpen(ivDoorState, tvDoorState);
                             break;
                     }
@@ -326,7 +343,6 @@ public class DeviceDetailActivity extends BaseActivity {
                             doorError(ivDoorState, tvDoorState);
                             break;
                         case LocalState.DOOR_SENSOR_CLOSE:
-                            // 因为异常，所以与锁的状态同步
                             doorClose(ivDoorState, tvDoorState);
                             break;
                         case LocalState.DOOR_SENSOR_OPEN:

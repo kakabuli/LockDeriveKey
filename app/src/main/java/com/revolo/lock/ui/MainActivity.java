@@ -80,22 +80,22 @@ public class MainActivity extends BaseActivity {
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
         getAlexaIntent(intent);
-//        if (intent.hasExtra(Constant.SHOW_SHARE_DIALOG_TITLE) && isMainItemIndex != R.id.navigation_device) {
-//            String title = intent.getStringExtra(Constant.SHOW_SHARE_DIALOG_TITLE);
-//            if (!TextUtils.isEmpty(title)) {
-//                MessageDialog messageDialog = new MessageDialog(LockAppManager.getAppManager().currentActivity());
-//                messageDialog.setMessage(title);
-//                messageDialog.setOnListener(v -> {
-//                    addDeviceFragment();
-//                    navView.setSelectedItemId(R.id.navigation_device);
-//                    messageDialog.dismiss();
-//                });
-//                messageDialog.show();
-//            }
-//        } else {
-//            addDeviceFragment();
-//            navView.setSelectedItemId(R.id.navigation_device);
-//        }
+        if (intent.hasExtra(Constant.SHOW_SHARE_DIALOG_TITLE) && isMainItemIndex != R.id.navigation_device) {
+            String title = intent.getStringExtra(Constant.SHOW_SHARE_DIALOG_TITLE);
+            if (!TextUtils.isEmpty(title)) {
+                MessageDialog messageDialog = new MessageDialog(LockAppManager.getAppManager().currentActivity());
+                messageDialog.setMessage(title);
+                messageDialog.setOnListener(v -> {
+                    addDeviceFragment();
+                    navView.setSelectedItemId(R.id.navigation_device);
+                    messageDialog.dismiss();
+                });
+                messageDialog.show();
+            }
+        } else {
+            addDeviceFragment();
+            navView.setSelectedItemId(R.id.navigation_device);
+        }
     }
 
     @Override
@@ -373,6 +373,7 @@ public class MainActivity extends BaseActivity {
                         String appVersions = getVersionBeanRsp.getData().getAppVersions();
                         // 版本号不一致
                         if (appVersions(appVersions, AppUtils.getAppVersionName())) {
+                            Constant.isNewAppVersion = true;
                             if (getVersionBeanRsp.getData() != null) {
                                 GetVersionBeanRsp.DataBean data = getVersionBeanRsp.getData();
                                 UpdateVersionDialog updateVersionDialog = new UpdateVersionDialog(MainActivity.this);
@@ -385,6 +386,7 @@ public class MainActivity extends BaseActivity {
                                 });
                                 updateVersionDialog.show();
                             }
+                            Constant.isNewAppVersion = true;
                         }
                     }
                 }

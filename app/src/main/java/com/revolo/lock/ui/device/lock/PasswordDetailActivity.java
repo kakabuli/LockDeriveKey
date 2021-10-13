@@ -350,16 +350,9 @@ public class PasswordDetailActivity extends BaseActivity {
                 Timber.e(e);
                 return;
             }*/
-        if (bean == null) {
+        if (bean == null || bean.getParams() == null || bean.getCode() != 200) {
             Timber.e("publishDelPwd bean == null");
-            return;
-        }
-        if (bean.getParams() == null) {
-            Timber.e("publishDelPwd bean.getParams() == null");
-            return;
-        }
-        if (bean.getCode() != 200) {
-            Timber.e("publishDelPwd code : %1d", bean.getCode());
+            ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show("Delete PIN Key Failed");
             return;
         }
         delKeyFromService();

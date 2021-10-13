@@ -176,6 +176,7 @@ public class DeviceFragment extends Fragment {
                         //判断隐私模式
                         @LocalState.LockState int state = ((BleDeviceLocal) adapter.getItem(position)).getLockState();
                         if (state == LocalState.LOCK_STATE_PRIVATE) {
+                            ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show(R.string.private_mode);
                             return;
                         }
                         //判断设备是否掉线

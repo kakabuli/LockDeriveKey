@@ -20,6 +20,8 @@ import com.revolo.lock.LockAppManager;
 import com.revolo.lock.R;
 import com.revolo.lock.base.BaseActivity;
 import com.revolo.lock.bean.respone.MailLoginBeanRsp;
+import com.revolo.lock.manager.mqtt.MQTTManager;
+import com.revolo.lock.room.AppDatabase;
 import com.revolo.lock.room.entity.User;
 import com.revolo.lock.ui.MainActivity;
 
@@ -36,10 +38,10 @@ public class SignSelectActivity extends BaseActivity {
         public void handleMessage(@NonNull Message msg) {
             super.handleMessage(msg);
             String signSelectMode = getIntent().getStringExtra(Constant.SIGN_SELECT_MODE);
-            int activitySize = LockAppManager.getAppManager().getActivitySize();
+         /*   int activitySize = LockAppManager.getAppManager().getActivitySize();
             if (activitySize > 1) {
                 finish();
-            }
+            }*/
             if (TextUtils.isEmpty(signSelectMode)) {
                 verification();
             } else {
@@ -126,15 +128,18 @@ public class SignSelectActivity extends BaseActivity {
     private void autoLogin() {
         String loginJson = SPUtils.getInstance(REVOLO_SP).getString(Constant.USER_LOGIN_INFO);
         if (TextUtils.isEmpty(loginJson)) {
+            clearData();
             return;
         }
         MailLoginBeanRsp.DataBean dataBean = GsonUtils.fromJson(loginJson, MailLoginBeanRsp.DataBean.class);
         if (dataBean == null) {
+            clearData();
             return;
         }
         App.getInstance().setUserBean(dataBean);
         User user = App.getInstance().getUser();
         if (user == null) {
+            clearData();
             return;
         }
         new Handler(Looper.getMainLooper()).postDelayed(() -> {
@@ -147,4 +152,26 @@ public class SignSelectActivity extends BaseActivity {
             finish();
         }, 50);
     }
+
+    private void clearData() {
+        //清理设备信息
+        App.getInstance().removeDeviceList();
+        //清理电子围栏信息
+        if (null != App.getInstance().getLockGeoFenceService()) {
+            App.getInstance().getLockGeoFenceService().clearBleDevice();
+        }
+        App.getInstance().removeRecords(null);
+        User user = App.getInstance().getUser();
+        if (null != user) {
+            AppDatabase.getInstance(getApplicationContext()).userDao().delete(user);
+        }
+        if(null!=App.getInstance().getUserBean())
+            App.getInstance().getUserBean().setToken(""); // 清空token
+        MQTTManager.getInstance().mqttDisconnect(); // mqtt断开连接
+        SPUtils.getInstance(REVOLO_SP).put(Constant.USER_LOGIN_INFO, ""); // 清空登录信息
+
+        startActivity(new Intent(this, LoginActivity.class));
+        finish();
+    }
+
 }

@@ -47,11 +47,12 @@ public class GetVersionBeanRsp {
 
     public static class DataBean {
         private String _id;
-        private String appVersions;
-        private String phoneSysType;
-        private String versionDesc;
         private String forceFlag;
-        private int timeStamp;
+        private long timeStamp;
+        private String versionDesc;
+        private String phoneSysType;
+        private String appVersions;
+        private String note;
 
         public String get_id() {
             return _id;
@@ -59,30 +60,6 @@ public class GetVersionBeanRsp {
 
         public void set_id(String _id) {
             this._id = _id;
-        }
-
-        public String getAppVersions() {
-            return appVersions;
-        }
-
-        public void setAppVersions(String appVersions) {
-            this.appVersions = appVersions;
-        }
-
-        public String getPhoneSysType() {
-            return phoneSysType;
-        }
-
-        public void setPhoneSysType(String phoneSysType) {
-            this.phoneSysType = phoneSysType;
-        }
-
-        public String getVersionDesc() {
-            return versionDesc;
-        }
-
-        public void setVersionDesc(String versionDesc) {
-            this.versionDesc = versionDesc;
         }
 
         public String getForceFlag() {
@@ -93,12 +70,44 @@ public class GetVersionBeanRsp {
             this.forceFlag = forceFlag;
         }
 
-        public int getTimeStamp() {
+        public long getTimeStamp() {
             return timeStamp;
         }
 
-        public void setTimeStamp(int timeStamp) {
+        public void setTimeStamp(long timeStamp) {
             this.timeStamp = timeStamp;
+        }
+
+        public String getVersionDesc() {
+            return versionDesc;
+        }
+
+        public void setVersionDesc(String versionDesc) {
+            this.versionDesc = versionDesc;
+        }
+
+        public String getPhoneSysType() {
+            return phoneSysType;
+        }
+
+        public void setPhoneSysType(String phoneSysType) {
+            this.phoneSysType = phoneSysType;
+        }
+
+        public String getAppVersions() {
+            return appVersions;
+        }
+
+        public void setAppVersions(String appVersions) {
+            this.appVersions = appVersions;
+        }
+
+        public String getNote() {
+            return note;
+        }
+
+        public void setNote(String note) {
+            this.note = note;
         }
     }
 }

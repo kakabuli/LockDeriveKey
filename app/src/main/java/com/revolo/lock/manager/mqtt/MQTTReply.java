@@ -286,21 +286,21 @@ public class MQTTReply {
                 lockMessage.setMessageType(MSG_LOCK_MESSAGE_MQTT);
                 lockMessage.setBytes(null);
                 EventBus.getDefault().post(lockMessage);
-//                LockAppManager.getAppManager().currentActivity().startActivity(
-//                        new Intent(LockAppManager.getAppManager().currentActivity(), MainActivity.class).putExtra(Constant.SHOW_SHARE_DIALOG_TITLE, title));
-//            } else {
-//                if (messageDialog != null) {
-//                    messageDialog.dismiss();
-//                    messageDialog = null;
-//                }
-//                messageDialog = new MessageDialog(LockAppManager.getAppManager().currentActivity());
-//                messageDialog.setMessage(title);
-//                messageDialog.setOnListener(v -> {
-//                    Timber.d("LockAppManager.getAppManager().currentActivity().getLocalClassName() = %1s", LockAppManager.getAppManager().currentActivity().getLocalClassName());
-//                    LockAppManager.getAppManager().currentActivity().startActivity(new Intent(LockAppManager.getAppManager().currentActivity(), MainActivity.class));
-//                    messageDialog.dismiss();
-//                });
-//                messageDialog.show();
+                LockAppManager.getAppManager().currentActivity().startActivity(
+                        new Intent(LockAppManager.getAppManager().currentActivity(), MainActivity.class).putExtra(Constant.SHOW_SHARE_DIALOG_TITLE, title));
+            } else {
+                if (messageDialog != null) {
+                    messageDialog.dismiss();
+                    messageDialog = null;
+                }
+                messageDialog = new MessageDialog(LockAppManager.getAppManager().currentActivity());
+                messageDialog.setMessage(title);
+                messageDialog.setOnListener(v -> {
+                    Timber.d("LockAppManager.getAppManager().currentActivity().getLocalClassName() = %1s", LockAppManager.getAppManager().currentActivity().getLocalClassName());
+                LockAppManager.getAppManager().currentActivity().startActivity(new Intent(LockAppManager.getAppManager().currentActivity(), MainActivity.class));
+                    messageDialog.dismiss();
+                });
+                messageDialog.show();
             }
         }
     }
@@ -476,6 +476,9 @@ public class MQTTReply {
         bleDeviceLocal.setConnectedWifiName(!TextUtils.isEmpty(wifiListBean.getWifiName()) ? wifiListBean.getWifiName() : "");
 
         bleDeviceLocal.setCreateTime(wifiListBean.getCreateTime());
+
+        //设备型号
+        bleDeviceLocal.setType(wifiListBean.getModel());
 
 
         bleDeviceLocal.setDetectionLock(true);

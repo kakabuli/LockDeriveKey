@@ -11,12 +11,15 @@ import android.widget.TextView;
 import androidx.annotation.DrawableRes;
 import androidx.core.content.ContextCompat;
 
+import com.blankj.utilcode.constant.TimeConstants;
 import com.blankj.utilcode.util.TimeUtils;
 import com.revolo.lock.R;
 import com.revolo.lock.bean.OperationRecords;
 import com.revolo.lock.util.ZoneUtil;
 
+import java.util.Calendar;
 import java.util.List;
+import java.util.TimeZone;
 
 
 /**
@@ -136,11 +139,11 @@ public class OpRecordsAdapter extends BaseExpandableListAdapter {
     }
 
     private String getDay(long time) {
-        if (TimeUtils.isToday(time)) {
+        if (isToday(time)) {
             return "Today";
         } else {
             // 减掉一天的时间
-            if (TimeUtils.isToday(time + 86400000)) {
+            if (isToday(time + 86400000)) {
                 return "Yesterday";
             } else {
                 String strTime = ZoneUtil.getDate(timeZone, time, "dd/MM/yyyy");
@@ -159,6 +162,16 @@ public class OpRecordsAdapter extends BaseExpandableListAdapter {
                 return strTime;
             }
         }
+    }
+
+    private boolean isToday(long time) {
+        Calendar cal = Calendar.getInstance();
+        cal.set(Calendar.HOUR_OF_DAY, 0);
+        cal.set(Calendar.SECOND, 0);
+        cal.set(Calendar.MINUTE, 0);
+        cal.set(Calendar.MILLISECOND, 0);
+        long timeInMillis = cal.getTimeInMillis() + ZoneUtil.getTestTime2(timeZone);
+        return time >= timeInMillis && time < timeInMillis + TimeConstants.DAY;
     }
 
     private void refreshUI(OperationRecords.OperationRecord operationRecord, TextView tvMessage, ImageView ivLogState, TextView tvTime, View vPoint) {

@@ -8,6 +8,7 @@ import android.view.View;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.blankj.utilcode.util.ActivityUtils;
 import com.revolo.lock.Constant;
 import com.revolo.lock.R;
 import com.revolo.lock.base.BaseActivity;
@@ -83,9 +84,16 @@ public class AddWifiFailActivity extends BaseActivity {
         }
         if (view.getId() == R.id.btnCancel) {
             if (booleanExtra) {
-                startActivity(new Intent(this, ChangeLockNameActivity.class));
+                startActivity(new Intent(this, ChangeLockNameActivity.class).putExtra(Constant.WIFI_SETTING_TO_ADD_WIFI, booleanExtra));
             }
+            finishPreAct();
             finish();
         }
+    }
+
+    private void finishPreAct() {
+        ActivityUtils.finishActivity(WifiConnectActivity.class);
+        ActivityUtils.finishActivity(AddWifiActivity.class);
+        ActivityUtils.finishActivity(InputESNActivity.class);
     }
 }

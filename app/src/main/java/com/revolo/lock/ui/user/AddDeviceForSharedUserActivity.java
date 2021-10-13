@@ -34,6 +34,7 @@ public class AddDeviceForSharedUserActivity extends BaseActivity {
     private AuthUserDeviceAdapter mAuthUserDeviceAdapter;
     private String mShareUserMail, mShareFirstNameText, mShareLastNameText;
     private String uid;
+    private String[] deviceSn;
 
     @Override
     public void initData(@Nullable Bundle bundle) {
@@ -51,6 +52,7 @@ public class AddDeviceForSharedUserActivity extends BaseActivity {
         mShareUserMail = getIntent().getStringExtra(Constant.SHARE_USER_MAIL);
         mShareFirstNameText = getIntent().getStringExtra(Constant.SHARE_USER_FIRST_NAME);
         mShareLastNameText = getIntent().getStringExtra(Constant.SHARE_USER_LAST_NAME);
+        deviceSn = getIntent().getStringArrayExtra(Constant.SHARE_USER_SN_LIST);
         uid = getIntent().getStringExtra(Constant.SHARE_USER_DATA);
         RecyclerView rvDevice = findViewById(R.id.rvDevice);
         mAuthUserDeviceAdapter = new AuthUserDeviceAdapter(R.layout.item_auth_user_device_rv);
@@ -102,7 +104,15 @@ public class AddDeviceForSharedUserActivity extends BaseActivity {
         List<BleDeviceLocal> bleDeviceLocals = new ArrayList<>();
         for (int i = 0; i < list.size(); i++) {
             if (list.get(i).getIsAdmin() == 1) { // 非管理员用户无法分享
-                bleDeviceLocals.add(list.get(i));
+                if (deviceSn != null) {
+                    for (String s : deviceSn) {
+                        if (!list.get(i).getEsn().equals(s)) { // 已分享设备不能再次分享
+                            bleDeviceLocals.add(list.get(i));
+                        }
+                    }
+                } else {
+                    bleDeviceLocals.add(list.get(i));
+                }
             }
         }
         mAuthUserDeviceAdapter.setList(bleDeviceLocals);

@@ -121,7 +121,7 @@ public class DoorLockInformationActivity extends BaseActivity {
         mTvBluetoothMac = findViewById(R.id.door_lock_info_bluetooth_mac);
         mTvWifi = findViewById(R.id.door_lock_info_wifi);
         applyDebouncingClickListener(mTvFirmwareVersion, mTvWifiVersion);
-
+        mBleDeviceLocal = App.getInstance().getBleDeviceLocal();
         String esn = mReq.getWifiSN();
         tvLockSn.setText(TextUtils.isEmpty(esn) ? "" : esn);
         initLoading(getString(R.string.t_load_content_loading));
@@ -136,8 +136,11 @@ public class DoorLockInformationActivity extends BaseActivity {
                 mMessageDialog.dismiss();
             }
         });
-
-        mTvSalesmodel.setText("WFP1");
+        if (null != mBleDeviceLocal) {
+            mTvSalesmodel.setText(mBleDeviceLocal.getType());
+        } else {
+            mTvSalesmodel.setText("WFP01");
+        }
         mTvBluetoothMac.setText(mBleDeviceLocal.getMac());
     }
 

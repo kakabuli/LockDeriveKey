@@ -40,6 +40,7 @@ import com.revolo.lock.bean.request.GetVersionBeanReq;
 import com.revolo.lock.bean.request.LockIsBindBeanReq;
 import com.revolo.lock.bean.request.LockKeyAddBeanReq;
 import com.revolo.lock.bean.request.LockRecordBeanReq;
+import com.revolo.lock.bean.request.LockRecordNoTimeBeanReq;
 import com.revolo.lock.bean.request.MailLoginBeanReq;
 import com.revolo.lock.bean.request.MailRegisterBeanReq;
 import com.revolo.lock.bean.request.Oauth2AccountBeanReq;
@@ -415,6 +416,9 @@ public class HttpRequest {
 
     public Observable<LockRecordBeanRsp> getLockRecordList(String token, LockRecordBeanReq req) {
         return service.getLockRecordList(token, req, NORMAL);
+    }
+    public Observable<LockRecordBeanRsp> getLockRecordNoTimeList(String token, LockRecordNoTimeBeanReq req) {
+        return service.getLockRecordNoTimeList(token, req, NORMAL);
     }
 
     public Observable<UpdateLockRecordBeanRsp> updateLockRecordList(String token, UpdateLockRecordBeanReq req) {

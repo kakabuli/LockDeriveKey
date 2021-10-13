@@ -32,6 +32,8 @@ import com.revolo.lock.bean.respone.Oauth2AccountBeanRsp;
 import com.revolo.lock.net.HttpRequest;
 import com.revolo.lock.net.ObservableDecorator;
 import com.revolo.lock.room.entity.User;
+import com.revolo.lock.ui.sign.RegisterAddAvatarActivity;
+import com.revolo.lock.ui.sign.RegisterInputNameActivity;
 
 import java.io.File;
 import java.util.List;

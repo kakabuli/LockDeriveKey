@@ -69,6 +69,7 @@ import timber.log.Timber;
 import static com.revolo.lock.ble.BleCommandState.KEY_SET_ATTRIBUTE_TIME_KEY;
 import static com.revolo.lock.ble.BleCommandState.KEY_SET_ATTRIBUTE_WEEK_KEY;
 import static com.revolo.lock.ble.BleCommandState.KEY_SET_KEY_OPTION_ADD_OR_CHANGE;
+import static com.revolo.lock.ble.BleCommandState.KEY_SET_KEY_OPTION_DEL;
 import static com.revolo.lock.ble.BleCommandState.KEY_SET_KEY_TYPE_PWD;
 import static com.revolo.lock.ble.BleProtocolState.CMD_KEY_ATTRIBUTES_SET;
 import static com.revolo.lock.util.ZoneUtil.getCreatePwdTime;
@@ -178,6 +179,8 @@ public class AddNewPwdSelectActivity extends BaseActivity {
                     savePwdToService(mDevicePwdBean);
                 } else {
                     dismissLoadingAndShowAddFail();
+                    // 设置密码属性失败，删除密码
+                    onDeletePwd2Ble();
                     Timber.e("设置密钥属性失败，state: %1s", BleByteUtil.byteToInt(state));
                 }
             }
@@ -195,13 +198,16 @@ public class AddNewPwdSelectActivity extends BaseActivity {
             } else {
                 switch (lockMessage.getResultCode()) {
                     case LockMessageCode.MSG_LOCK_MESSAGE_CREATE_PWD:
+                        dismissLoading();
+                        break;
                     case LockMessageCode.MSG_LOCK_MESSAGE_ADD_PWD:
+                        // 设置密码属性失败，删除密码
+                        Timber.e("设置密钥属性失");
+                        onDeletePwd2Mqtt();
                         dismissLoading();
                         break;
                 }
             }
-        } else {
-
         }
     }
 
@@ -833,19 +839,49 @@ public class AddNewPwdSelectActivity extends BaseActivity {
 
     private void setPwdAttrCallback(WifiLockAddPwdAttrResponseBean bean) {
         dismissLoading();
-        if (bean == null) {
+        if (bean == null || bean.getCode() != 200 || bean.getParams() == null) {
             Timber.e("publishAddPwdAttr bean == null");
             return;
         }
-        if (bean.getCode() != 200) {
-            Timber.e("publishAddPwdAttr code : %1d", bean.getCode());
-            return;
-        }
-        if (bean.getParams() == null) {
-            Timber.e("publishAddPwdAttr bean.getParams() == null");
-            return;
-        }
         savePwdToService(mDevicePwdBean);
+    }
+
+    private void onDeletePwd2Mqtt() {
+        if (mDevicePwdBean != null && mBleDeviceLocal != null) {
+            LockMessage message = new LockMessage();
+            message.setMqtt_message_code(MQttConstant.REMOVE_PWD);
+            message.setMqttMessage(MqttCommandFactory.removePwd(
+                    mBleDeviceLocal.getEsn(),
+                    0,
+                    mDevicePwdBean.getPwdNum(),
+                    BleCommandFactory.getPwd(ConvertUtils.hexString2Bytes(mBleDeviceLocal.getPwd1()), ConvertUtils.hexString2Bytes(mBleDeviceLocal.getPwd2()))));
+            message.setMqtt_topic(MQttConstant.getCallTopic(App.getInstance().getUserBean().getUid()));
+            message.setMessageType(2);
+            EventBus.getDefault().post(message);
+        }
+    }
+
+    private void onDeletePwd2Ble() {
+        BleBean bleBean = App.getInstance().getUserBleBean(mBleDeviceLocal.getMac());
+        if (mDevicePwdBean == null || bleBean == null || bleBean.getOKBLEDeviceImp() == null || bleBean.getPwd1() == null || bleBean.getPwd3() == null) {
+            Timber.e("delPwd bleBean == null");
+            ToastUtils.make().setGravity(Gravity.CENTER, 0, 0).show("Delete failed, Bluetooth connection failed");
+            return;
+        }
+        LockMessage lockMessage = new LockMessage();
+        lockMessage.setMessageType(3);
+        lockMessage.setBytes(BleCommandFactory
+                .keyAttributesSet(KEY_SET_KEY_OPTION_DEL,
+                        KEY_SET_KEY_TYPE_PWD,
+                        (byte) mDevicePwdBean.getPwdNum(),
+                        KEY_SET_ATTRIBUTE_WEEK_KEY,
+                        (byte) 0x00,
+                        (byte) 0x00,
+                        (byte) 0x00,
+                        bleBean.getPwd1(),
+                        bleBean.getPwd3()));
+        lockMessage.setMac(bleBean.getOKBLEDeviceImp().getMacAddress());
+        EventBus.getDefault().post(lockMessage);
     }
 
     // TODO: 2021/2/4 要做后面时间不能超过前面时间的判断和逻辑处理
@@ -962,10 +998,11 @@ public class AddNewPwdSelectActivity extends BaseActivity {
 
     private List<String> getWeekItems() {
         List<String> list = new ArrayList<>();
-        list.add(getWeekItemsByte()+ "");
+        list.add(getWeekItemsByte() + "");
         return list;
     }
-    private byte getWeekItemsByte(){
+
+    private byte getWeekItemsByte() {
         byte[] weekBit = new byte[8];
         weekBit[0] = (byte) (isSelectedSun ? 0x01 : 0x00);//周天
         weekBit[1] = (byte) (isSelectedMon ? 0x01 : 0x00);//周一
@@ -975,7 +1012,7 @@ public class AddNewPwdSelectActivity extends BaseActivity {
         weekBit[5] = (byte) (isSelectedFri ? 0x01 : 0x00);
         weekBit[6] = (byte) (isSelectedSat ? 0x01 : 0x00); //六
         byte week = BleByteUtil.bitToByte(weekBit);
-        Timber.e("dasgagg:"+week);
+        Timber.e("dasgagg:" + week);
         return week;
     }
 }
