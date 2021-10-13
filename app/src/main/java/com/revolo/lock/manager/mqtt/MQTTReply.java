@@ -477,6 +477,9 @@ public class MQTTReply {
 
         bleDeviceLocal.setCreateTime(wifiListBean.getCreateTime());
 
+        //设备型号
+        bleDeviceLocal.setType(wifiListBean.getModel());
+
 
         bleDeviceLocal.setDetectionLock(true);
 
